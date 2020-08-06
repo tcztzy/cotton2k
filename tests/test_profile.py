@@ -24,3 +24,8 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         self.assertEqual(result.get('dateSimStart'), datetime.date(1984, 4, 1))
         self.assertEqual(result.get('dateSimEnd'), datetime.date(1984, 9, 28))
         self.assertNotIn('datePlant', result)
+        self.assertEqual(result.get('CO2EnrichmentFactor'), 0)
+
+    def test_line_3(self):
+        result = parse_profile(self.content)
+        self.assertEqual(result.get('actualWeatherFileName'), 'REHA84.ACT')
