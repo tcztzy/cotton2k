@@ -36,3 +36,26 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         self.assertEqual(result.get('soilInitFileName'), 'HAZOR.INT')
         self.assertEqual(result.get('agriculturalInputFileName'), 'HAKB1.AGI')
         self.assertEqual(result.get('plantmapFileName'), '')
+
+    def test_line_5(self):
+        result = parse_profile(self.content)
+        self.assertEqual(result.get('latitude'), 32.000)
+        self.assertEqual(result.get('longitude'), 35.000)
+        self.assertEqual(result.get('elevation'), 50.000)
+        self.assertEqual(result.get('siteNumber'), 1)
+
+    def test_line_6(self):
+        result = parse_profile(self.content)
+        self.assertEqual(result['rowSpace'], 96.520)
+        self.assertEqual(result['skipRowWidth'], 0.000)
+        self.assertEqual(result['plantsPerMeter'], 10.000)
+        self.assertEqual(result['varNumber'], 4)
+
+    def test_line_7(self):
+        result = parse_profile(self.content)
+        self.assertEqual(result['soilMapFrequency'], 10)
+        self.assertEqual(result['soilMapStartDate'], datetime.date(1984, 4, 20))
+        self.assertEqual(result['soilMapEndDate'], datetime.date(1984, 9, 20))
+        self.assertEqual(result['plantMapFrequency'], 10)
+        self.assertEqual(result['plantMapStartDate'], datetime.date(1984, 6, 1))
+        self.assertEqual(result['plantMapEndDate'], datetime.date(1984, 9, 20))

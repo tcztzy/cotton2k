@@ -30,4 +30,21 @@ def parse_profile(content):
     result['soilInitFileName'] = line4[20:40].strip()
     result['agriculturalInputFileName'] = line4[40:60].strip()
     result['plantmapFileName'] = line4[60:].strip()
+    line5 = lines[4]
+    result['latitude'] = atof(line5[:10])
+    result['longitude'] = atof(line5[10:20])
+    result['elevation'] = atof(line5[20:30])
+    result['siteNumber'] = atoi(line5[30:])
+    line6 = lines[5]
+    result['rowSpace'] = atof(line6[:10])
+    result['skipRowWidth'] = atof(line6[10:20])
+    result['plantsPerMeter'] = atof(line6[20:30])
+    result['varNumber'] = atoi(line6[30:])
+    line7 = lines[6]
+    result['soilMapFrequency'] = atoi(line7[:10])
+    result['soilMapStartDate'] = strptime(line7[14:25])
+    result['soilMapEndDate'] = strptime(line7[29:40])
+    result['plantMapFrequency'] = atoi(line7[40:50])
+    result['plantMapStartDate'] = strptime(line7[54:65])
+    result['plantMapEndDate'] = strptime(line7[69:80])
     return result
