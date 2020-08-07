@@ -29,3 +29,10 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
     def test_line_3(self):
         result = parse_profile(self.content)
         self.assertEqual(result.get('actualWeatherFileName'), 'REHA84.ACT')
+
+    def test_line_4(self):
+        result = parse_profile(self.content)
+        self.assertEqual(result.get('soilHydraulicFileName'), 'HAZOR.HYD')
+        self.assertEqual(result.get('soilInitFileName'), 'HAZOR.INT')
+        self.assertEqual(result.get('agriculturalInputFileName'), 'HAKB1.AGI')
+        self.assertEqual(result.get('plantmapFileName'), '')
