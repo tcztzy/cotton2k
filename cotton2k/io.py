@@ -8,7 +8,7 @@ def strptime(time):
 def parse_profile(content):
     lines = content.splitlines()
     result = {}
-    result['description'] = lines[0][20:].strip()
+    result.update(parse_profile_description(lines[0]))
     line = lines[1].strip()
     result['dateEmerge'] = strptime(line[:11])
     result['dateSimStart'] = strptime(line[15:26])
@@ -47,4 +47,13 @@ def parse_profile(content):
     result['plantMapFrequency'] = atoi(line7[40:50])
     result['plantMapStartDate'] = strptime(line7[54:65])
     result['plantMapEndDate'] = strptime(line7[69:80])
+    result['UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits'], result['perSquareMeterOrPerPlant'], result['outputDryWeight'], *rest = map(lambda x: bool(int(x)), lines[7].split())
     return result
+
+
+def parse_profile_description(line):
+    """Read file description"""
+    return dict(
+        profile_file_name=line[:20].strip(),
+        description=line[20:].strip()
+    )
