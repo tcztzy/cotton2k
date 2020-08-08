@@ -1,29 +1,18 @@
 from locale import atof, atoi
 from datetime import datetime
+from typing import Optional
 
-def strptime(time):
-    return datetime.strptime(time, "%d-%b-%Y").date()
+
+def strptime(time) -> Optional[datetime.date]:
+    if len(time) == 11:
+        return datetime.strptime(time, "%d-%b-%Y").date()
 
 
 def parse_profile(content):
     lines = content.splitlines()
     result = {}
     result.update(parse_profile_description(lines[0]))
-    line = lines[1].strip()
-    result['dateEmerge'] = strptime(line[:11])
-    result['dateSimStart'] = strptime(line[15:26])
-    result['dateSimEnd'] = strptime(line[30:41])
-    # For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates 
-    # for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
-    if len(line) > 76:
-        ttt = line[60:70].strip()
-        result['CO2EnrichmentFactor'] = atof(ttt)
-        ttt = line[70:75].strip()
-        result['DayStartCO2'] = atoi(ttt)
-        ttt = line[75:].strip()
-        result['DayEndCO2'] = atoi(ttt)
-    else:
-        result['CO2EnrichmentFactor'] = 0
+    result.update(parse_profile_simulation_dates(lines[1]))
     result['actualWeatherFileName'] = lines[2][:20].strip()
     line4 = lines[3]
     result['soilHydraulicFileName'] = line4[:20].strip()
@@ -57,3 +46,26 @@ def parse_profile_description(line):
         profile_file_name=line[:20].strip(),
         description=line[20:].strip()
     )
+
+
+def parse_profile_simulation_dates(line):
+    """Read dates of emergence, start and end of simulation, and planting date."""
+    line = line.rstrip()
+    result =  dict(
+        dateEmerge=strptime(line[:11]),
+        dateSimStart=strptime(line[15:26]),
+        dateSimEnd=strptime(line[30:41]),
+        datePlant=strptime(line[45:56])
+    )
+    # For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates 
+    # for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
+    if len(line) > 76:
+        ttt = line[60:70].strip()
+        result['CO2EnrichmentFactor'] = atof(ttt)
+        ttt = line[70:75].strip()
+        result['DayStartCO2'] = atoi(ttt)
+        ttt = line[75:].strip()
+        result['DayEndCO2'] = atoi(ttt)
+    else:
+        result['CO2EnrichmentFactor'] = 0
+    return result

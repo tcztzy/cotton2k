@@ -1,7 +1,7 @@
 import unittest
 import tempfile
 import datetime
-from cotton2k.io import parse_profile
+from cotton2k.io import parse_profile, parse_profile_description, parse_profile_simulation_dates
 
 
 class ProfileFileTestCase(unittest.TestCase):
@@ -15,16 +15,21 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         10    20-APR-1984    20-SEP-1984        10    01-JUN-1984    20-SEP-1984    
   0  0  1  1  0  1  1  1  1  1  1  1  0  0  0  0  1  0  0  0  0  0  0"""
 
-    def test_line_1(self):
-        self.assertEqual(parse_profile(self.content)['description'], 'HAZOR 1984 experiment, treatment KB1')
-    
+    def test_description(self):
+        line = 'HAKB1.PRO           HAZOR 1984 experiment, treatment KB1               '
+        self.assertEqual(parse_profile_description(line)['description'], 'HAZOR 1984 experiment, treatment KB1')
+
     def test_line_2(self):
-        result = parse_profile(self.content)
+        line = '08-APR-1984    01-APR-1984    28-SEP-1984                                       '
+        result = parse_profile_simulation_dates(line)
         self.assertEqual(result.get('dateEmerge'), datetime.date(1984, 4, 8))
         self.assertEqual(result.get('dateSimStart'), datetime.date(1984, 4, 1))
         self.assertEqual(result.get('dateSimEnd'), datetime.date(1984, 9, 28))
-        self.assertNotIn('datePlant', result)
+        self.assertIsNone(result.get('datePlant'))
         self.assertEqual(result.get('CO2EnrichmentFactor'), 0)
+        line = '               01-APR-1984    28-SEP-1984                                       '
+        with self.assertRaises(Exception):
+            parse_profile_simulation_dates(line)
 
     def test_line_3(self):
         result = parse_profile(self.content)
@@ -59,3 +64,9 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         self.assertEqual(result['plantMapFrequency'], 10)
         self.assertEqual(result['plantMapStartDate'], datetime.date(1984, 6, 1))
         self.assertEqual(result['plantMapEndDate'], datetime.date(1984, 9, 20))
+
+    def test_line_8(self):
+        result = parse_profile(self.content)
+        self.assertFalse(result['UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits'])
+        self.assertFalse(result['perSquareMeterOrPerPlant'])
+        self.assertTrue(result['outputDryWeight'])
