@@ -12,23 +12,20 @@ def parse_profile(content):
     lines = content.splitlines()
     result = {}
     result.update(parse_profile_description(lines[0]))
-    result.update(parse_profile_simulation_dates(lines[1]))
-    result['actualWeatherFileName'] = lines[2][:20].strip()
+    line2 = lines[1].rstrip()
+    result.update(parse_profile_simulation_dates(line2[:60]))
+    if len(line2) > 76:
+        result.update(parse_profile_carbon_dioxide(line2[60:]))
+    else:
+        result['CO2EnrichmentFactor'] = 0
+    result.update(parse_profile_weather(lines[2]))
     line4 = lines[3]
     result['soilHydraulicFileName'] = line4[:20].strip()
     result['soilInitFileName'] = line4[20:40].strip()
     result['agriculturalInputFileName'] = line4[40:60].strip()
     result['plantmapFileName'] = line4[60:].strip()
-    line5 = lines[4]
-    result['latitude'] = atof(line5[:10])
-    result['longitude'] = atof(line5[10:20])
-    result['elevation'] = atof(line5[20:30])
-    result['siteNumber'] = atoi(line5[30:])
-    line6 = lines[5]
-    result['rowSpace'] = atof(line6[:10])
-    result['skipRowWidth'] = atof(line6[10:20])
-    result['plantsPerMeter'] = atof(line6[20:30])
-    result['varNumber'] = atoi(line6[30:])
+    result.update(parse_profile_geometry(lines[4]))
+    result.update(parse_profile_field(lines[5]))
     line7 = lines[6]
     result['soilMapFrequency'] = atoi(line7[:10])
     result['soilMapStartDate'] = strptime(line7[14:25])
@@ -36,7 +33,7 @@ def parse_profile(content):
     result['plantMapFrequency'] = atoi(line7[40:50])
     result['plantMapStartDate'] = strptime(line7[54:65])
     result['plantMapEndDate'] = strptime(line7[69:80])
-    result['UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits'], result['perSquareMeterOrPerPlant'], result['outputDryWeight'], *rest = map(lambda x: bool(int(x)), lines[7].split())
+    result.update(parse_profile_output_flags(lines[7]))
     return result
 
 
@@ -69,3 +66,54 @@ def parse_profile_simulation_dates(line):
     else:
         result['CO2EnrichmentFactor'] = 0
     return result
+
+
+def parse_profile_carbon_dioxide(line):
+    """For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates for start and stop of enrichment (there are left blank if there is no CO2 enrichment)."""
+    return dict(
+        CO2EnrichmentFactor=atof(line[:10]),
+        DayStartCO2=atoi(line[10:15]),
+        DayEndCO2=atoi(line[15:]),
+    )
+
+
+def parse_profile_weather(line):
+    result = dict(
+        actualWeatherFileName=line[:20].strip(),
+        predictedWeatherFileName=line[20:40].strip(),
+    )
+    return result
+
+
+def parse_profile_geometry(line):
+    """Latitude and longitude of this site, elevation (in m above sea level), and the number for this geographic site."""
+    return dict(
+        latitude=atof(line[:10]),
+        longitude=atof(line[10:20]),
+        elevation=atof(line[20:30]),
+        siteNumber=atoi(line[30:]),
+    )
+
+
+def parse_profile_field(line):
+    """Row spacing in cm, skip-row spacing in cm (blank or 0 for no skip rows), number of plants per meter of row, and index number of the cultivar."""
+    return dict(
+        rowSpace=atof(line[:10]),
+        skipRowWidth=atof(line[10:20]),
+        plantsPerMeter=atof(line[20:30]),
+        varNumber=atoi(line[30:])
+    )
+
+
+def parse_profile_output_flags(line):
+    result = {}
+    result['UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits'], result['perSquareMeterOrPerPlant'], result['outputDryWeight'], *rest = map(lambda x: bool(int(x)), line.split())
+    return result
+
+
+def parse_varlist(content):
+    result = {}
+    for var in content.splitlines():
+        k = int(var[:4].strip())
+        v = (var[5:25].strip(), var[40:20].strip())
+        result[k] = v

@@ -1,7 +1,7 @@
 import unittest
 import tempfile
 import datetime
-from cotton2k.io import parse_profile, parse_profile_description, parse_profile_simulation_dates
+from cotton2k.io import parse_profile, parse_profile_description, parse_profile_output_flags, parse_profile_simulation_dates
 
 
 class ProfileFileTestCase(unittest.TestCase):
@@ -65,8 +65,9 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         self.assertEqual(result['plantMapStartDate'], datetime.date(1984, 6, 1))
         self.assertEqual(result['plantMapEndDate'], datetime.date(1984, 9, 20))
 
-    def test_line_8(self):
-        result = parse_profile(self.content)
+    def test_profile_output_flags(self):
+        flags = '  0  0  1  1  0  1  1  1  1  1  1  1  0  0  0  0  1  0  0  0  0  0  0'
+        result = parse_profile_output_flags(flags)
         self.assertFalse(result['UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits'])
         self.assertFalse(result['perSquareMeterOrPerPlant'])
         self.assertTrue(result['outputDryWeight'])
