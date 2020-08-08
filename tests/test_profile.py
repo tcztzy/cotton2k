@@ -1,7 +1,8 @@
 import unittest
 import tempfile
 import datetime
-from cotton2k.io import parse_profile, parse_profile_description, parse_profile_output_flags, parse_profile_simulation_dates
+from unittest.case import skip
+from cotton2k.io import parse_profile, parse_profile_carbon_dioxide, parse_profile_description, parse_profile_output_flags, parse_profile_simulation_dates
 
 
 class ProfileFileTestCase(unittest.TestCase):
@@ -26,10 +27,14 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         self.assertEqual(result.get('dateSimStart'), datetime.date(1984, 4, 1))
         self.assertEqual(result.get('dateSimEnd'), datetime.date(1984, 9, 28))
         self.assertIsNone(result.get('datePlant'))
-        self.assertEqual(result.get('CO2EnrichmentFactor'), 0)
         line = '               01-APR-1984    28-SEP-1984                                       '
         with self.assertRaises(Exception):
             parse_profile_simulation_dates(line)
+
+    @skip
+    def test_carbon_dioxide(self):
+        result = parse_profile_carbon_dioxide('')
+        self.assertEqual(result.get('CO2EnrichmentFactor'), 0)
 
     def test_line_3(self):
         result = parse_profile(self.content)
