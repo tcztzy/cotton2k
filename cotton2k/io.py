@@ -3,9 +3,10 @@ from datetime import datetime
 from typing import Optional
 
 
-def strptime(time) -> Optional[datetime.date]:
-    if len(time) == 11:
-        return datetime.strptime(time, "%d-%b-%Y").date()
+def strptime(t) -> Optional[datetime.date]:
+    t = t.strip()
+    if len(t) == 11:
+        return datetime.strptime(t, "%d-%b-%Y").date()
 
 
 def parse_profile(content):
@@ -51,20 +52,34 @@ def parse_profile_description(line):
 def parse_profile_simulation_dates(line):
     """Read dates of emergence, start and end of simulation, and planting date."""
     line = line.rstrip()
+    start = strptime(line[15:26])
+    end = strptime(line[30:41])
+    if start >= end:
+        raise ValueError('Start day should be greater than end day')
+    dateEmerge = strptime(line[:11])
+    datePlant = strptime(line[45:56])
+    if dateEmerge is None and datePlant is None:
+        raise TypeError('Planting date or emergence date must be given in the profile!')
     return dict(
-        dateEmerge=strptime(line[:11]),
-        dateSimStart=strptime(line[15:26]),
-        dateSimEnd=strptime(line[30:41]),
-        datePlant=strptime(line[45:56])
+        dateEmerge=dateEmerge,
+        dateSimStart=start,
+        dateSimEnd=end,
+        datePlant=datePlant
     )
 
 
 def parse_profile_carbon_dioxide(line):
     """For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates for start and stop of enrichment (there are left blank if there is no CO2 enrichment)."""
+    if not line:
+        return dict(CO2EnrichmentFactor=0)
+    start = atoi(line[10:15])
+    end = atoi(line[15:])
+    if start >= end:
+        raise ValueError('Start day should be greater than end day')
     return dict(
         CO2EnrichmentFactor=atof(line[:10]),
-        DayStartCO2=atoi(line[10:15]),
-        DayEndCO2=atoi(line[15:]),
+        DayStartCO2=start,
+        DayEndCO2=end,
     )
 
 

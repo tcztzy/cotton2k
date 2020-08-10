@@ -20,7 +20,7 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         line = 'HAKB1.PRO           HAZOR 1984 experiment, treatment KB1               '
         self.assertEqual(parse_profile_description(line)['description'], 'HAZOR 1984 experiment, treatment KB1')
 
-    def test_line_2(self):
+    def test_simulation_dates(self):
         line = '08-APR-1984    01-APR-1984    28-SEP-1984                                       '
         result = parse_profile_simulation_dates(line)
         self.assertEqual(result.get('dateEmerge'), datetime.date(1984, 4, 8))
@@ -28,13 +28,18 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         self.assertEqual(result.get('dateSimEnd'), datetime.date(1984, 9, 28))
         self.assertIsNone(result.get('datePlant'))
         line = '               01-APR-1984    28-SEP-1984                                       '
-        with self.assertRaises(Exception):
+        with self.assertRaises(TypeError):
             parse_profile_simulation_dates(line)
 
-    @skip
     def test_carbon_dioxide(self):
         result = parse_profile_carbon_dioxide('')
         self.assertEqual(result.get('CO2EnrichmentFactor'), 0)
+        result = parse_profile_carbon_dioxide('     1.000  100  101')
+        self.assertEqual(result.get('CO2EnrichmentFactor'), 1.000)
+        self.assertEqual(result.get('DayStartCO2'), 100)
+        self.assertEqual(result.get('DayEndCO2'), 101)
+        with self.assertRaises(ValueError):
+            parse_profile_carbon_dioxide('     1.000  101  100')
 
     def test_line_3(self):
         result = parse_profile(self.content)
@@ -70,7 +75,7 @@ HAZOR.HYD           HAZOR.INT           HAKB1.AGI
         self.assertEqual(result['plantMapStartDate'], datetime.date(1984, 6, 1))
         self.assertEqual(result['plantMapEndDate'], datetime.date(1984, 9, 20))
 
-    def test_profile_output_flags(self):
+    def test_output_flags(self):
         flags = '  0  0  1  1  0  1  1  1  1  1  1  1  0  0  0  0  1  0  0  0  0  0  0'
         result = parse_profile_output_flags(flags)
         self.assertFalse(result['UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits'])
