@@ -1,6 +1,11 @@
 from locale import atof, atoi
 from datetime import datetime, date
 from typing import Optional
+from pathlib import Path
+
+from appdirs import user_data_dir
+
+ROOT_DIR = user_data_dir("cotton2k", "Tang Ziya")
 
 
 def strptime(t) -> Optional[datetime.date]:
@@ -15,6 +20,13 @@ def date_to_day_of_year(d: date, start_year=None):
     return (d - date(start_year, 1, 1)).days + 1
 
 
+def read_profile_file(profile_file_name):
+    path = Path(ROOT_DIR) / "profiles" / profile_file_name
+    if not path.exists():
+        raise FileNotFoundError(f"{path} not found!")
+    return parse_profile(path.read_text())
+
+
 def parse_profile(content):
     lines = content.splitlines()
     result = {}
@@ -24,13 +36,13 @@ def parse_profile(content):
     if len(line2) > 76:
         result.update(parse_profile_carbon_dioxide(line2[60:]))
     else:
-        result['CO2EnrichmentFactor'] = 0
+        result["CO2EnrichmentFactor"] = 0
     line3 = lines[2].rstrip()
     result.update(parse_profile_weather(line3[:40]))
     if len(line3) > 41:
         result.update(parse_profile_soil_mulch(line3[40:]))
-        if result['dayEndMulch'] <= 0:
-            result['dayEndMulch'] = date_to_day_of_year(result['dateSimEnd'])
+        if result["dayEndMulch"] <= 0:
+            result["dayEndMulch"] = date_to_day_of_year(result["dateSimEnd"])
     result.update(parse_profile_parameter_files(lines[3]))
     result.update(parse_profile_geometry(lines[4]))
     result.update(parse_profile_field(lines[5]))
@@ -41,10 +53,7 @@ def parse_profile(content):
 
 def parse_profile_description(line):
     """Read file description"""
-    return dict(
-        profile_file_name=line[:20].strip(),
-        description=line[20:].strip()
-    )
+    return dict(profile_file_name=line[:20].strip(), description=line[20:].strip())
 
 
 def parse_profile_simulation_dates(line):
@@ -53,16 +62,13 @@ def parse_profile_simulation_dates(line):
     start = strptime(line[15:26])
     end = strptime(line[30:41])
     if start >= end:
-        raise ValueError('Start day should be greater than end day')
+        raise ValueError("Start day should be greater than end day")
     dateEmerge = strptime(line[:11])
     datePlant = strptime(line[45:56])
     if dateEmerge is None and datePlant is None:
-        raise TypeError('Planting date or emergence date must be given in the profile!')
+        raise TypeError("Planting date or emergence date must be given in the profile!")
     return dict(
-        dateEmerge=dateEmerge,
-        dateSimStart=start,
-        dateSimEnd=end,
-        datePlant=datePlant
+        dateEmerge=dateEmerge, dateSimStart=start, dateSimEnd=end, datePlant=datePlant
     )
 
 
@@ -73,12 +79,8 @@ def parse_profile_carbon_dioxide(line):
     start = atoi(line[10:15])
     end = atoi(line[15:])
     if start >= end:
-        raise ValueError('Start day should be greater than end day')
-    return dict(
-        CO2EnrichmentFactor=atof(line[:10]),
-        DayStartCO2=start,
-        DayEndCO2=end,
-    )
+        raise ValueError("Start day should be greater than end day")
+    return dict(CO2EnrichmentFactor=atof(line[:10]), DayStartCO2=start, DayEndCO2=end,)
 
 
 def parse_profile_weather(line):
@@ -91,12 +93,12 @@ def parse_profile_weather(line):
 
 def parse_profile_soil_mulch(line):
     MulchIndicator = atoi(line[:10]) if line else 0
-    result = {'mulchIndicator': MulchIndicator}
+    result = {"mulchIndicator": MulchIndicator}
     if MulchIndicator > 0:
-        result['mulchTranSW'] = atof(line[10:20])
-        result['mulchTranLW'] = atof(line[20:30])
-        result['dayStartMulch'] = atoi(line[30:35])
-        result['dayEndMulch'] = atoi(line[35:40])
+        result["mulchTranSW"] = atof(line[10:20])
+        result["mulchTranLW"] = atof(line[20:30])
+        result["dayStartMulch"] = atoi(line[30:35])
+        result["dayEndMulch"] = atoi(line[35:40])
 
 
 def parse_profile_parameter_files(line):
@@ -105,7 +107,7 @@ def parse_profile_parameter_files(line):
         soilHydraulicFileName=line[:20].strip(),
         soilInitFileName=line[20:40].strip(),
         agriculturalInputFileName=line[40:60].strip(),
-        plantmapFileName=line[60:].strip()
+        plantmapFileName=line[60:].strip(),
     )
 
 
@@ -125,7 +127,7 @@ def parse_profile_field(line):
         rowSpace=atof(line[:10]),
         skipRowWidth=atof(line[10:20]),
         plantsPerMeter=atof(line[20:30]),
-        varNumber=atoi(line[30:])
+        varNumber=atoi(line[30:]),
     )
 
 
@@ -143,13 +145,24 @@ def parse_profile_output_options(line):
 
 def parse_profile_output_flags(line):
     result = {}
-    result['UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits'], result['perSquareMeterOrPerPlant'], result['outputDryWeight'], *rest = map(lambda x: bool(int(x)), line.split())
+    (
+        result["UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits"],
+        result["perSquareMeterOrPerPlant"],
+        result["outputDryWeight"],
+        *rest,
+    ) = map(lambda x: bool(int(x)), line.split())
     return result
+
+
+def read_calibration_data():
+    varlist = Path(ROOT_DIR) / "data" / "vars" / "varlist.dat"
+    return parse_varlist(varlist.read_text())
 
 
 def parse_varlist(content):
     result = {}
     for var in content.splitlines():
         k = int(var[:4].strip())
-        v = (var[5:25].strip(), var[40:20].strip())
+        v = (var[5:25].strip(), var[40:60].strip())
         result[k] = v
+    return result
