@@ -1,5 +1,5 @@
 from locale import atof, atoi
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 
@@ -7,6 +7,12 @@ def strptime(t) -> Optional[datetime.date]:
     t = t.strip()
     if len(t) == 11:
         return datetime.strptime(t, "%d-%b-%Y").date()
+
+
+def date_to_day_of_year(d: date, start_year=None):
+    if start_year is None:
+        start_year = d.year
+    return (d - date(start_year, 1, 1)).days + 1
 
 
 def parse_profile(content):
@@ -23,20 +29,12 @@ def parse_profile(content):
     result.update(parse_profile_weather(line3[:40]))
     if len(line3) > 41:
         result.update(parse_profile_soil_mulch(line3[40:]))
-    line4 = lines[3]
-    result['soilHydraulicFileName'] = line4[:20].strip()
-    result['soilInitFileName'] = line4[20:40].strip()
-    result['agriculturalInputFileName'] = line4[40:60].strip()
-    result['plantmapFileName'] = line4[60:].strip()
+        if result['dayEndMulch'] <= 0:
+            result['dayEndMulch'] = date_to_day_of_year(result['dateSimEnd'])
+    result.update(parse_profile_parameter_files(lines[3]))
     result.update(parse_profile_geometry(lines[4]))
     result.update(parse_profile_field(lines[5]))
-    line7 = lines[6]
-    result['soilMapFrequency'] = atoi(line7[:10])
-    result['soilMapStartDate'] = strptime(line7[14:25])
-    result['soilMapEndDate'] = strptime(line7[29:40])
-    result['plantMapFrequency'] = atoi(line7[40:50])
-    result['plantMapStartDate'] = strptime(line7[54:65])
-    result['plantMapEndDate'] = strptime(line7[69:80])
+    result.update(parse_profile_output_options(lines[6]))
     result.update(parse_profile_output_flags(lines[7]))
     return result
 
@@ -92,7 +90,23 @@ def parse_profile_weather(line):
 
 
 def parse_profile_soil_mulch(line):
-    pass
+    MulchIndicator = atoi(line[:10]) if line else 0
+    result = {'mulchIndicator': MulchIndicator}
+    if MulchIndicator > 0:
+        result['mulchTranSW'] = atof(line[10:20])
+        result['mulchTranLW'] = atof(line[20:30])
+        result['dayStartMulch'] = atoi(line[30:35])
+        result['dayEndMulch'] = atoi(line[35:40])
+
+
+def parse_profile_parameter_files(line):
+    """Names of files of soil hydraulic data, soil initial conditions, agricultural input, and plant map adjustment."""
+    return dict(
+        soilHydraulicFileName=line[:20].strip(),
+        soilInitFileName=line[20:40].strip(),
+        agriculturalInputFileName=line[40:60].strip(),
+        plantmapFileName=line[60:].strip()
+    )
 
 
 def parse_profile_geometry(line):
@@ -112,6 +126,18 @@ def parse_profile_field(line):
         skipRowWidth=atof(line[10:20]),
         plantsPerMeter=atof(line[20:30]),
         varNumber=atoi(line[30:])
+    )
+
+
+def parse_profile_output_options(line):
+    """Frequency in days for output of soil maps, and dates for start and stop of this output (blank or 0 if no such output is required. Same is repeated for output of plant maps."""
+    return dict(
+        soilMapFrequency=atoi(line[:10]),
+        soilMapStartDate=strptime(line[14:25]),
+        soilMapEndDate=strptime(line[29:40]),
+        plantMapFrequency=atoi(line[40:50]),
+        plantMapStartDate=strptime(line[54:65]),
+        plantMapEndDate=strptime(line[69:80]),
     )
 
 
