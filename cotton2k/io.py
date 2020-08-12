@@ -1,6 +1,6 @@
 from locale import atof, atoi
 from datetime import datetime, date
-from typing import Optional
+from typing import Iterable, Optional
 from pathlib import Path
 
 from appdirs import user_data_dir
@@ -154,15 +154,41 @@ def parse_profile_output_flags(line):
     return result
 
 
-def read_calibration_data():
-    varlist = Path(ROOT_DIR) / "data" / "vars" / "varlist.dat"
-    return parse_varlist(varlist.read_text())
+def read_calibration_data(var_number: int, site_number: int):
+    """
+    This function reads the values of the calibration parameters
+    from input files. It is called from ReadInput(). It calls GetLineData().
+
+    The following global or file-scope variables are set here:
+    SiteName, SitePar, VarName, VarPar
+    
+    TODO: Maybe JSON or CSV is more suitable file format than self defined DAT files.
+    """
+    data_dir = Path(ROOT_DIR) / "data"
+    vars_dir = data_dir / "vars"
+    varlist = vars_dir / "varlist.dat"
+    var_name, var_file = parse_list_dat(varlist.read_text())[var_number]
+    if not (var_file_path := vars_dir / var_file).exist():
+        raise FileNotFoundError(f"{var_file_path} not found!")
+    var_par = parse_parameter(var_file_path.read_text(), 60)
+    site_dir = data_dir / "site"
+    sitelist = site_dir / "sitelist.dat"
+    site_name, site_file = parse_list_dat(sitelist.read_text())[site_number]
+    if not (site_file_path := site_dir / site_file).exist():
+        raise FileNotFoundError(f"{site_file_path} not found!")
+    site_par = parse_parameter(site_file_path.read_text(), 20)
+    return dict(siteName=site_name, sitePar=site_par, varName=var_name, varPar=var_par,)
 
 
-def parse_varlist(content):
+def parse_list_dat(content: str) -> dict:
     result = {}
     for var in content.splitlines():
         k = int(var[:4].strip())
         v = (var[5:25].strip(), var[40:60].strip())
         result[k] = v
     return result
+
+
+def parse_parameter(content: str, number: int) -> Iterable:
+    lines = content.splitlines()
+    return map(lambda line: atof(line[:20]), lines[1 : number + 1])

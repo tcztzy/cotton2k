@@ -20,6 +20,7 @@ setup(
     keywords="cotton simulation model",
     packages=find_packages(),
     install_requires=["appdirs>=1.4.4"],
+    test_requires=["pytest", "pytest-cov"],
     python_requires=">=3.8",
     classifiers=CLASSIFIERS.splitlines(),
 )

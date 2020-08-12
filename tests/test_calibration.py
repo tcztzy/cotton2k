@@ -1,11 +1,11 @@
 import unittest
 
-from cotton2k.io import parse_varlist
+from cotton2k.io import parse_list_dat
 
 
-class VarListTestCase(unittest.TestCase):
-    def test_varlist(self):
-        result = parse_varlist(
+class CalibrationCase(unittest.TestCase):
+    def test_list_dat(self):
+        result = parse_list_dat(
             """   2 GC510                              VPARGC510.DAT
    3 MAXXA                              VPARMAXXA.DAT
    4 ACALA SJ2                          VPARSJ2.DAT
