@@ -6,11 +6,11 @@ from appdirs import user_data_dir
 
 from cotton2k.utils import date_to_day_of_year, strptime
 
-ROOT_DIR = user_data_dir("cotton2k", "Tang Ziya")
+ROOT_DIR = Path(user_data_dir("cotton2k", "Tang Ziya"))
 
 
 def read_profile_file(profile_file_name):
-    path = Path(ROOT_DIR) / "profiles" / profile_file_name
+    path = ROOT_DIR / "profiles" / profile_file_name
     if not path.exists():
         raise FileNotFoundError(f"{path} not found!")
     return parse_profile(path.read_text())
@@ -154,7 +154,7 @@ def read_calibration_data(var_number: int, site_number: int):
     
     TODO: Maybe JSON or CSV is more suitable file format than self defined DAT files.
     """
-    data_dir = Path(ROOT_DIR) / "data"
+    data_dir = ROOT_DIR / "data"
     vars_dir = data_dir / "vars"
     varlist = vars_dir / "varlist.dat"
     var_name, var_file = parse_list_dat(varlist.read_text())[var_number]
