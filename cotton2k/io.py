@@ -1,23 +1,12 @@
 from locale import atof, atoi
-from datetime import datetime, date
-from typing import Iterable, Optional
 from pathlib import Path
+from typing import Sequence
 
 from appdirs import user_data_dir
 
+from cotton2k.utils import date_to_day_of_year, strptime
+
 ROOT_DIR = user_data_dir("cotton2k", "Tang Ziya")
-
-
-def strptime(t) -> Optional[datetime.date]:
-    t = t.strip()
-    if len(t) == 11:
-        return datetime.strptime(t, "%d-%b-%Y").date()
-
-
-def date_to_day_of_year(d: date, start_year=None):
-    if start_year is None:
-        start_year = d.year
-    return (d - date(start_year, 1, 1)).days + 1
 
 
 def read_profile_file(profile_file_name):
@@ -189,6 +178,6 @@ def parse_list_dat(content: str) -> dict:
     return result
 
 
-def parse_parameter(content: str, number: int) -> Iterable:
+def parse_parameter(content: str, number: int) -> Sequence:
     lines = content.splitlines()
-    return map(lambda line: atof(line[:20]), lines[1 : number + 1])
+    return list(map(lambda line: atof(line[:15]), lines[1 : number + 1]))
