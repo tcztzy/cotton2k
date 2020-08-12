@@ -88,6 +88,7 @@ def parse_profile_soil_mulch(line):
         result["mulchTranLW"] = atof(line[20:30])
         result["dayStartMulch"] = atoi(line[30:35])
         result["dayEndMulch"] = atoi(line[35:40])
+    return result
 
 
 def parse_profile_parameter_files(line):

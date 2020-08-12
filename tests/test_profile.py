@@ -8,7 +8,7 @@ from cotton2k.io import (
     parse_profile_output_flags,
     parse_profile_output_options,
     parse_profile_parameter_files,
-    parse_profile_simulation_dates,
+    parse_profile_simulation_dates, parse_profile_soil_mulch,
     parse_profile_weather,
 )
 
@@ -47,6 +47,10 @@ class ProfileFileTestCase(unittest.TestCase):
             "REHA84.ACT                                                                      "
         )
         self.assertEqual(result.get("actualWeatherFileName"), "REHA84.ACT")
+
+    def test_soil_mulch(self):
+        result = parse_profile_soil_mulch("")
+        self.assertEqual(result['mulchIndicator'], 0)
 
     def test_parameter_files(self):
         result = parse_profile_parameter_files(
