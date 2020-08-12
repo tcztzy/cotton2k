@@ -1,0 +1,16 @@
+language: python
+python:
+  - "3.8"
+  - "3.8-dev"  # 3.8 development branch
+  - "nightly"  # nightly build
+# command to install dependencies
+install:
+  - python -m pip install pytest pytest-cov
+  - python -m pip install .
+# command to run tests
+script:
+  - pytest
+after_success:
+  - |
+    pytest --cov-report=xml:coverage.xml --cov=cotton2k
+    bash <(curl -s https://codecov.io/bash) -f coverage.xml
