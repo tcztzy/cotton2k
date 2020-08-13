@@ -1,8 +1,11 @@
 import datetime
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import pytest
 
 from cotton2k.profile import (
+    Profile,
     parse_profile,
     parse_profile_carbon_dioxide,
     parse_profile_description,
@@ -118,3 +121,27 @@ def test_output_flags():
     assert not result["UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits"]
     assert not result["perSquareMeterOrPerPlant"]
     assert result["outputDryWeight"]
+
+
+@pytest.fixture
+def pro_file():
+    _file = NamedTemporaryFile(suffix=".pro", delete=False)
+    _file.write(
+        """test.pro            Test profile
+01-MAY-2020    20-APR-2020    15-OCT-2020                        1.000  100  101
+test.act                                         1     0.000     0.000  122    0
+test.hyd            test.int            test.agi
+    40.548    81.296  1013.000         0
+    75.000     0.000    40.000         0
+        10    10-APR-2020    20-OCT-2020        10    01-JUN-2020    20-OCT-2020
+  0  0  1  1  0  1  0  1  1  1  1  1  0  0  0  0  0  1  0  0  0  0  0""".encode(
+            "utf-8"
+        )
+    )
+    return Path(_file.name)
+
+
+def test_from_pro(pro_file):
+    with pytest.warns(DeprecationWarning):
+        profile = Profile.from_pro(pro_file)
+    assert profile.description == "Test profile"

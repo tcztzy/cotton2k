@@ -1,5 +1,6 @@
+from __future__ import annotations
 from dataclasses import dataclass
-from json import JSONDecoder
+from datetime import date
 from locale import atof, atoi
 from os.path import splitext
 from pathlib import Path
@@ -8,7 +9,7 @@ from warnings import warn
 from cotton2k.utils import date_to_day_of_year, strptime
 
 
-def parse_profile(content):
+def parse_profile(content: str) -> dict:
     lines = content.splitlines()
     result = {}
     result.update(parse_profile_description(lines[0]))
@@ -30,7 +31,7 @@ def parse_profile(content):
     return result
 
 
-def parse_profile_description(line):
+def parse_profile_description(line: str) -> dict:
     """Read file description"""
     profile_file_name = line[:20].strip()
     _, ext = splitext(profile_file_name)
@@ -39,7 +40,7 @@ def parse_profile_description(line):
     return dict(profile_file_name=profile_file_name, description=line[20:].strip())
 
 
-def parse_profile_simulation_dates(line):
+def parse_profile_simulation_dates(line: str) -> dict:
     """Read dates of emergence, start and end of simulation, and planting date."""
     line = line.rstrip()
     start = strptime(line[15:26])
@@ -55,7 +56,7 @@ def parse_profile_simulation_dates(line):
     )
 
 
-def parse_profile_carbon_dioxide(line):
+def parse_profile_carbon_dioxide(line: str) -> dict:
     """For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates for start and stop of enrichment (there are left blank if there is no CO2 enrichment)."""
     if not line:
         return dict(CO2EnrichmentFactor=0)
@@ -66,7 +67,7 @@ def parse_profile_carbon_dioxide(line):
     return dict(CO2EnrichmentFactor=atof(line[:10]), DayStartCO2=start, DayEndCO2=end,)
 
 
-def parse_profile_weather(line):
+def parse_profile_weather(line: str) -> dict:
     result = dict(
         actualWeatherFileName=line[:20].strip(),
         predictedWeatherFileName=line[20:40].strip(),
@@ -74,7 +75,7 @@ def parse_profile_weather(line):
     return result
 
 
-def parse_profile_soil_mulch(line):
+def parse_profile_soil_mulch(line: str) -> dict:
     MulchIndicator = atoi(line[:10]) if line else 0
     result = {"mulchIndicator": MulchIndicator}
     if MulchIndicator > 0:
@@ -85,7 +86,7 @@ def parse_profile_soil_mulch(line):
     return result
 
 
-def parse_profile_parameter_files(line):
+def parse_profile_parameter_files(line: str) -> dict:
     """Names of files of soil hydraulic data, soil initial conditions, agricultural input, and plant map adjustment."""
     return dict(
         soilHydraulicFileName=line[:20].strip(),
@@ -95,7 +96,7 @@ def parse_profile_parameter_files(line):
     )
 
 
-def parse_profile_geometry(line):
+def parse_profile_geometry(line: str) -> dict:
     """Latitude and longitude of this site, elevation (in m above sea level), and the number for this geographic site."""
     return dict(
         latitude=atof(line[:10]),
@@ -105,7 +106,7 @@ def parse_profile_geometry(line):
     )
 
 
-def parse_profile_field(line):
+def parse_profile_field(line: str) -> dict:
     """Row spacing in cm, skip-row spacing in cm (blank or 0 for no skip rows), number of plants per meter of row, and index number of the cultivar."""
     return dict(
         rowSpace=atof(line[:10]),
@@ -115,7 +116,7 @@ def parse_profile_field(line):
     )
 
 
-def parse_profile_output_options(line):
+def parse_profile_output_options(line: str) -> dict:
     """Frequency in days for output of soil maps, and dates for start and stop of this output (blank or 0 if no such output is required. Same is repeated for output of plant maps."""
     return dict(
         soilMapFrequency=atoi(line[:10]),
@@ -127,7 +128,7 @@ def parse_profile_output_options(line):
     )
 
 
-def parse_profile_output_flags(line):
+def parse_profile_output_flags(line: str) -> dict:
     result = {}
     (
         result["UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits"],
@@ -138,17 +139,48 @@ def parse_profile_output_flags(line):
     return result
 
 
-class ProfileJSONDecoder(JSONDecoder):
-    pass
-
-
 @dataclass
 class Profile:
-    profile_file_path: Path
+    profile_file_name: str
     description: str
+    dateEmerge: date
+    dateSimStart: date
+    dateSimEnd: date
+    datePlant: date
+    CO2EnrichmentFactor: float
+    DayStartCO2: int
+    DayEndCO2: int
+    actualWeatherFileName: str
+    predictedWeatherFileName: str
+    mulchIndicator: int
+    mulchTranSW: float
+    mulchTranLW: float
+    dayStartMulch: int
+    dayEndMulch: int
+    soilHydraulicFileName: str
+    soilInitFileName: str
+    agriculturalInputFileName: str
+    plantmapFileName: str
+    latitude: float
+    longitude: float
+    elevation: float
+    siteNumber: int
+    rowSpace: float
+    skipRowWidth: float
+    plantsPerMeter: float
+    varNumber: int
+    soilMapFrequency: int
+    soilMapStartDate: date
+    soilMapEndDate: date
+    plantMapFrequency: int
+    plantMapStartDate: date
+    plantMapEndDate: date
+    UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits: bool
+    perSquareMeterOrPerPlant: bool
+    outputDryWeight: bool
 
     @classmethod
-    def from_pro(cls, profile_file_path: Path) -> None:
+    def from_pro(cls, profile_file_path: Path) -> Profile:
         warn(
             "Old-style profile file format is deprecated, "
             "and will be remove in stable release.",
