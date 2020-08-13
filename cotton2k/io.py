@@ -24,8 +24,6 @@ def parse_profile(content):
     result.update(parse_profile_simulation_dates(line2[:60]))
     if len(line2) > 76:
         result.update(parse_profile_carbon_dioxide(line2[60:]))
-    else:
-        result["CO2EnrichmentFactor"] = 0
     line3 = lines[2].rstrip()
     result.update(parse_profile_weather(line3[:40]))
     if len(line3) > 41:
