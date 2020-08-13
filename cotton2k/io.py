@@ -17,7 +17,7 @@ def read_profile_file(profile_file_name) -> Profile:
     path = ROOT_DIR / "profiles" / profile_file_name
     if not path.exists():
         raise FileNotFoundError(f"{path} not found!")
-    return Profile.from_pro(path.read_text())
+    return Profile.from_pro(path)
 
 
 def read_calibration_data(var_number: int, site_number: int):

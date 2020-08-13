@@ -1,9 +1,11 @@
 import datetime
+from os import unlink
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import mkstemp
 
 import pytest
 
+from cotton2k.io import ROOT_DIR, read_profile_file
 from cotton2k.profile import (
     Profile,
     parse_profile,
@@ -19,10 +21,7 @@ from cotton2k.profile import (
     parse_profile_weather,
 )
 
-
-def test_parse_profile():
-    result = parse_profile(
-        """test.pro            Test profile
+CONTENT = """test.pro            Test profile
 01-MAY-2020    20-APR-2020    15-OCT-2020                        1.000  100  101
 test.act                                         1     0.000     0.000  122    0
 test.hyd            test.int            test.agi
@@ -30,7 +29,10 @@ test.hyd            test.int            test.agi
     75.000     0.000    40.000         0
         10    10-APR-2020    20-OCT-2020        10    01-JUN-2020    20-OCT-2020
   0  0  1  1  0  1  0  1  1  1  1  1  0  0  0  0  0  1  0  0  0  0  0"""
-    )
+
+
+def test_parse_profile():
+    result = parse_profile(CONTENT)
     assert result["dayEndMulch"] == 289
 
 
@@ -43,13 +45,13 @@ def test_description():
 
 
 def test_simulation_dates():
-    line = "08-APR-1984    01-APR-1984    28-SEP-1984                                       "
+    line = "08-APR-1984    01-APR-1984    28-SEP-1984"
     result = parse_profile_simulation_dates(line)
     assert result.get("dateEmerge") == datetime.date(1984, 4, 8)
     assert result.get("dateSimStart") == datetime.date(1984, 4, 1)
     assert result.get("dateSimEnd") == datetime.date(1984, 9, 28)
     assert result.get("datePlant") is None
-    line = "               01-APR-1984    28-SEP-1984                                       "
+    line = "               01-APR-1984    28-SEP-1984"
     with pytest.raises(TypeError):
         parse_profile_simulation_dates(line)
 
@@ -66,9 +68,7 @@ def test_carbon_dioxide():
 
 
 def test_weather():
-    result = parse_profile_weather(
-        "REHA84.ACT                                                                      "
-    )
+    result = parse_profile_weather("REHA84.ACT")
     assert result.get("actualWeatherFileName") == "REHA84.ACT"
 
 
@@ -79,7 +79,7 @@ def test_soil_mulch():
 
 def test_parameter_files():
     result = parse_profile_parameter_files(
-        "HAZOR.HYD           HAZOR.INT           HAKB1.AGI                               "
+        "HAZOR.HYD           HAZOR.INT           HAKB1.AGI"
     )
     assert result.get("soilHydraulicFileName") == "HAZOR.HYD"
     assert result.get("soilInitFileName") == "HAZOR.INT"
@@ -105,7 +105,7 @@ def test_field():
 
 def test_output_options():
     result = parse_profile_output_options(
-        "        10    20-APR-1984    20-SEP-1984        10    01-JUN-1984    20-SEP-1984    "
+        "        10    20-APR-1984    20-SEP-1984        10    01-JUN-1984    20-SEP-1984"
     )
     assert result["soilMapFrequency"] == 10
     assert result["soilMapStartDate"], datetime.date(1984, 4 == 20)
@@ -125,23 +125,29 @@ def test_output_flags():
 
 @pytest.fixture
 def pro_file():
-    _file = NamedTemporaryFile(suffix=".pro", delete=False)
-    _file.write(
-        """test.pro            Test profile
-01-MAY-2020    20-APR-2020    15-OCT-2020                        1.000  100  101
-test.act                                         1     0.000     0.000  122    0
-test.hyd            test.int            test.agi
-    40.548    81.296  1013.000         0
-    75.000     0.000    40.000         0
-        10    10-APR-2020    20-OCT-2020        10    01-JUN-2020    20-OCT-2020
-  0  0  1  1  0  1  0  1  1  1  1  1  0  0  0  0  0  1  0  0  0  0  0""".encode(
-            "utf-8"
-        )
-    )
-    return Path(_file.name)
+    fd, path = mkstemp(suffix=".pro", dir=ROOT_DIR / "profiles", text=True)
+    with open(path, "w") as fp:
+        fp.write(CONTENT)
+    return Path(path)
 
 
-def test_from_pro(pro_file):
-    with pytest.warns(DeprecationWarning):
-        profile = Profile.from_pro(pro_file)
+@pytest.fixture
+def tmp_file():
+    fd, path = mkstemp()
+    return Path(path)
+
+
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+def test_from_pro(pro_file, tmp_file):
+    profile = Profile.from_pro(pro_file)
     assert profile.description == "Test profile"
+    with pytest.raises(TypeError):
+        Profile.from_pro(tmp_file)
+    unlink(pro_file)
+
+
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+def test_read_profile_file(pro_file):
+    result = read_profile_file(pro_file.name)
+    assert result.description == "Test profile"
+    unlink(pro_file)
