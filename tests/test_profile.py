@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from cotton2k.io import (
+from cotton2k.profile import (
     parse_profile,
     parse_profile_carbon_dioxide,
     parse_profile_description,
