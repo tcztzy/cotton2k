@@ -13,6 +13,7 @@ ROOT_DIR = Path(user_data_dir("cotton2k", "Tang Ziya"))
 
 def read_profile_file(profile_file_name):
     """
+    TODO: Maybe profile should be a object instead of dict
     TODO: Profile is self defined file format and not readable for human,
     maybe JSON and TOML are better alternatives"""
     path = ROOT_DIR / "profiles" / profile_file_name
