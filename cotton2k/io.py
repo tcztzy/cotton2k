@@ -1,6 +1,8 @@
 from locale import atof, atoi
 from pathlib import Path
 from typing import Sequence
+from os.path import splitext
+import warnings
 
 from appdirs import user_data_dir
 
@@ -10,6 +12,9 @@ ROOT_DIR = Path(user_data_dir("cotton2k", "Tang Ziya"))
 
 
 def read_profile_file(profile_file_name):
+    """
+    TODO: Profile is self defined file format and not readable for human,
+    maybe JSON and TOML are better alternatives"""
     path = ROOT_DIR / "profiles" / profile_file_name
     if not path.exists():
         raise FileNotFoundError(f"{path} not found!")
@@ -40,7 +45,11 @@ def parse_profile(content):
 
 def parse_profile_description(line):
     """Read file description"""
-    return dict(profile_file_name=line[:20].strip(), description=line[20:].strip())
+    profile_file_name = line[:20].strip()
+    _, ext = splitext(profile_file_name)
+    if ext.lower() != ".pro":
+        warnings.warn("file extension is not 'pro'")
+    return dict(profile_file_name=profile_file_name, description=line[20:].strip())
 
 
 def parse_profile_simulation_dates(line):
