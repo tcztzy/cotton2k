@@ -128,7 +128,7 @@ def test_output_flags():
 @pytest.fixture
 def pro_file():
     if not (profiles_dir := ROOT_DIR / "profiles").exists():
-        profiles_dir.mkdir()
+        profiles_dir.mkdir(parents=True)
     fd, path = mkstemp(suffix=".pro", dir=profiles_dir, text=True)
     with open(path, "w") as fp:
         fp.write(CONTENT)

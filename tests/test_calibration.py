@@ -69,7 +69,7 @@ def varlist(test_var):
 @pytest.fixture
 def test_var():
     if not (vars_dir := ROOT_DIR / "data" / "vars").exists():
-        vars_dir.mkdir()
+        vars_dir.mkdir(parents=True)
     _, path = mkstemp(dir=vars_dir, text=True)
     path = Path(path)
     headline = "Test var"
@@ -91,7 +91,7 @@ def sitelist(test_site):
 @pytest.fixture
 def test_site():
     if not (site_dir := ROOT_DIR / "data" / "site").exists():
-        site_dir.mkdir()
+        site_dir.mkdir(parents=True)
     _, path = mkstemp(dir=site_dir, text=True)
     path = Path(path)
     headline = "Test site"
