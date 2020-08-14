@@ -1,6 +1,6 @@
 from locale import atof
 from pathlib import Path
-from typing import Sequence
+from typing import Optional, Sequence
 
 from appdirs import user_data_dir
 
@@ -20,7 +20,12 @@ def read_profile_file(profile_file_name) -> Profile:
     return Profile.from_pro(path)
 
 
-def read_calibration_data(var_number: int, site_number: int):
+def read_calibration_data(
+    var_number: int,
+    site_number: int,
+    varlist: Optional[Path] = None,
+    sitelist: Optional[Path] = None,
+):
     """
     This function reads the values of the calibration parameters
     from input files. It is called from ReadInput(). It calls GetLineData().
@@ -32,15 +37,15 @@ def read_calibration_data(var_number: int, site_number: int):
     """
     data_dir = ROOT_DIR / "data"
     vars_dir = data_dir / "vars"
-    varlist = vars_dir / "varlist.dat"
+    site_dir = data_dir / "site"
+    varlist = varlist or (vars_dir / "varlist.dat")
+    sitelist = sitelist or (site_dir / "sitelist.dat")
     var_name, var_file = parse_list_dat(varlist.read_text())[var_number]
-    if not (var_file_path := vars_dir / var_file).exist():
+    if not (var_file_path := vars_dir / var_file).exists():
         raise FileNotFoundError(f"{var_file_path} not found!")
     var_par = parse_parameter(var_file_path.read_text(), 60)
-    site_dir = data_dir / "site"
-    sitelist = site_dir / "sitelist.dat"
     site_name, site_file = parse_list_dat(sitelist.read_text())[site_number]
-    if not (site_file_path := site_dir / site_file).exist():
+    if not (site_file_path := site_dir / site_file).exists():
         raise FileNotFoundError(f"{site_file_path} not found!")
     site_par = parse_parameter(site_file_path.read_text(), 20)
     return dict(siteName=site_name, sitePar=site_par, varName=var_name, varPar=var_par,)

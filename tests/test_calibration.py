@@ -1,4 +1,10 @@
-from cotton2k.io import parse_list_dat, parse_parameter
+from os import unlink
+from pathlib import Path
+from tempfile import mkstemp
+
+import pytest
+
+from cotton2k.io import ROOT_DIR, parse_list_dat, parse_parameter, read_calibration_data
 
 
 def test_list_dat():
@@ -48,3 +54,57 @@ def test_parameter():
     )
     assert result[0] == 0.050
     assert result[1] == 0.049
+
+
+@pytest.fixture
+def varlist(test_var):
+    content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
+    content +=  "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
+    _, path = mkstemp(text=True)
+    path = Path(path)
+    path.write_text(content)
+    return path
+
+
+@pytest.fixture
+def test_var():
+    _, path = mkstemp(dir=ROOT_DIR / "data" / "vars", text=True)
+    path = Path(path)
+    headline = "Test var"
+    lines = (f"{i}".rjust(8) + " " * 7 + f"VARPAR({i+1})" for i in range(60))
+    path.write_text(headline + "\n" + "\n".join(lines))
+    return path
+
+
+@pytest.fixture
+def sitelist(test_site):
+    content = "1".rjust(4) + " Test site".ljust(36) + test_site.name + "\n"
+    content += "2".rjust(4) + " Not exist file".ljust(36) + "not exist.dat"
+    _, path = mkstemp(text=True)
+    path = Path(path)
+    path.write_text(content)
+    return path
+
+
+@pytest.fixture
+def test_site():
+    _, path = mkstemp(dir=ROOT_DIR / "data" / "site", text=True)
+    path = Path(path)
+    headline = "Test site"
+    lines = (f"{i}".rjust(8) + " " * 7 + f"SITEPAR({i+1})" for i in range(20))
+    path.write_text(headline + "\n" + "\n".join(lines))
+    return path
+
+
+def test_read_calibration_data(
+    varlist: Path, test_var: Path, sitelist: Path, test_site: Path
+):
+    read_calibration_data(1, 1, varlist, sitelist)
+    with pytest.raises(FileNotFoundError):
+        read_calibration_data(2, 1, varlist, sitelist)
+    with pytest.raises(FileNotFoundError):
+        read_calibration_data(1, 2, varlist, sitelist)
+    unlink(varlist)
+    unlink(test_var)
+    unlink(sitelist)
+    unlink(test_site)
