@@ -55,7 +55,7 @@ def test_simulation_dates():
     with pytest.raises(TypeError):
         parse_profile_simulation_dates(line)
     with pytest.raises(ValueError):
-        parse_profile_simulation_dates('01-JAN-2020    01-FEB-2020    01-JAN-2020')
+        parse_profile_simulation_dates("01-JAN-2020    01-FEB-2020    01-JAN-2020")
 
 
 def test_carbon_dioxide():
@@ -127,7 +127,9 @@ def test_output_flags():
 
 @pytest.fixture
 def pro_file():
-    fd, path = mkstemp(suffix=".pro", dir=ROOT_DIR / "profiles", text=True)
+    if not (profiles_dir := ROOT_DIR / "profiles").exists():
+        profiles_dir.mkdir()
+    fd, path = mkstemp(suffix=".pro", dir=profiles_dir, text=True)
     with open(path, "w") as fp:
         fp.write(CONTENT)
     return Path(path)
@@ -153,6 +155,6 @@ def test_read_profile_file(pro_file):
     result = read_profile_file(pro_file.name)
     assert result.description == "Test profile"
     unlink(pro_file)
-    pro_file_name = 'does not exist.pro'
+    pro_file_name = "does not exist.pro"
     with pytest.raises(FileNotFoundError):
         read_profile_file(pro_file_name)

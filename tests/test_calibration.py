@@ -59,7 +59,7 @@ def test_parameter():
 @pytest.fixture
 def varlist(test_var):
     content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
-    content +=  "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
+    content += "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
     _, path = mkstemp(text=True)
     path = Path(path)
     path.write_text(content)
@@ -68,7 +68,9 @@ def varlist(test_var):
 
 @pytest.fixture
 def test_var():
-    _, path = mkstemp(dir=ROOT_DIR / "data" / "vars", text=True)
+    if not (vars_dir := ROOT_DIR / "data" / "vars").exists():
+        vars_dir.mkdir()
+    _, path = mkstemp(dir=vars_dir, text=True)
     path = Path(path)
     headline = "Test var"
     lines = (f"{i}".rjust(8) + " " * 7 + f"VARPAR({i+1})" for i in range(60))
@@ -88,7 +90,9 @@ def sitelist(test_site):
 
 @pytest.fixture
 def test_site():
-    _, path = mkstemp(dir=ROOT_DIR / "data" / "site", text=True)
+    if not (site_dir := ROOT_DIR / "data" / "site").exists():
+        site_dir.mkdir()
+    _, path = mkstemp(dir=site_dir, text=True)
     path = Path(path)
     headline = "Test site"
     lines = (f"{i}".rjust(8) + " " * 7 + f"SITEPAR({i+1})" for i in range(20))
