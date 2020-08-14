@@ -54,6 +54,8 @@ def test_simulation_dates():
     line = "               01-APR-1984    28-SEP-1984"
     with pytest.raises(TypeError):
         parse_profile_simulation_dates(line)
+    with pytest.raises(ValueError):
+        parse_profile_simulation_dates('01-JAN-2020    01-FEB-2020    01-JAN-2020')
 
 
 def test_carbon_dioxide():
