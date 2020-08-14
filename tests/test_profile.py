@@ -153,3 +153,6 @@ def test_read_profile_file(pro_file):
     result = read_profile_file(pro_file.name)
     assert result.description == "Test profile"
     unlink(pro_file)
+    pro_file_name = 'does not exist.pro'
+    with pytest.raises(FileNotFoundError):
+        read_profile_file(pro_file_name)
