@@ -13,7 +13,7 @@ class Site:
 
     @classmethod
     def from_dat(cls, site_dat_path: Path):
-        site_par = parse_parameter(site_dat_path.read_text(), 3)
+        site_par = parse_parameter(site_dat_path.read_text(), 16)
         return cls(
             _site_par=site_par,
             wind_start_hours_after_sunraise=site_par[0],
