@@ -10,12 +10,18 @@ Programming Language :: Python :: 3
 Programming Language :: Python :: 3.8"""
 
 
+with open('README.md') as f:
+    README = f.read()
+
+
 setup(
     name="cotton2k",
-    version="2020.8.15",
+    version="2020.8.16",
     author="Tang Ziya",
     author_email="tcztzy@gmail.com",
     description="Reimplementation for Cotton2k simulation model",
+    long_description=README,
+    url='https://github.com/tcztzy/cotton2k',
     license="AGPLv3+",
     keywords="cotton simulation model",
     packages=find_packages(),
