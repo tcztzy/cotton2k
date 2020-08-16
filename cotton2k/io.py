@@ -4,9 +4,12 @@ from typing import List, Optional
 
 from appdirs import user_data_dir  # type: ignore
 
+import cotton2k
 from cotton2k.profile import Profile
 
-ROOT_DIR = Path(user_data_dir("cotton2k", "Tang Ziya"))
+ROOT_DIR = Path(
+    user_data_dir(cotton2k.__name__, cotton2k.__author__, cotton2k.__version__, True)
+)
 
 
 def read_profile_file(profile_file_name) -> Profile:
