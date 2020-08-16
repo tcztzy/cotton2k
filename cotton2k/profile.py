@@ -4,6 +4,7 @@ from datetime import date
 from locale import atof, atoi
 from os.path import splitext
 from pathlib import Path
+from typing import Dict, Union
 from warnings import warn
 
 from cotton2k.utils import date_to_day_of_year, strptime
@@ -44,11 +45,13 @@ def parse_profile_simulation_dates(line: str) -> dict:
     """Read dates of emergence, start and end of simulation, and planting date."""
     line = line.rstrip()
     start = strptime(line[15:26])
+    assert start is not None
     end = strptime(line[30:41])
+    assert end is not None
     if start >= end:
         raise ValueError("Start day should be greater than end day")
-    dateEmerge = strptime(line[:11])
-    datePlant = strptime(line[45:56])
+    dateEmerge = strptime(line[:11]) if line[:11].strip() else None
+    datePlant = strptime(line[45:56]) if line[45:56].strip() else None
     if dateEmerge is None and datePlant is None:
         raise TypeError("Planting date or emergence date must be given in the profile!")
     return dict(
@@ -77,7 +80,7 @@ def parse_profile_weather(line: str) -> dict:
 
 def parse_profile_soil_mulch(line: str) -> dict:
     MulchIndicator = atoi(line[:10]) if line else 0
-    result = {"mulchIndicator": MulchIndicator}
+    result: Dict[str, Union[int, float]] = {"mulchIndicator": MulchIndicator}
     if MulchIndicator > 0:
         result["mulchTranSW"] = atof(line[10:20])
         result["mulchTranLW"] = atof(line[20:30])

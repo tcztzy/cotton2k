@@ -1,8 +1,8 @@
 from locale import atof
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import List, Optional
 
-from appdirs import user_data_dir
+from appdirs import user_data_dir  # type: ignore
 
 from cotton2k.profile import Profile
 
@@ -60,6 +60,6 @@ def parse_list_dat(content: str) -> dict:
     return result
 
 
-def parse_parameter(content: str, number: int) -> Sequence:
+def parse_parameter(content: str, number: int) -> List[float]:
     lines = content.splitlines()
     return list(map(lambda line: atof(line[:15]), lines[1 : number + 1]))
