@@ -16,7 +16,7 @@ with open('README.md') as f:
 
 setup(
     name="cotton2k",
-    version="2020.8.17",
+    version="2020.8.30",
     author="Tang Ziya",
     author_email="tcztzy@gmail.com",
     description="Reimplementation for Cotton2k simulation model",
@@ -25,7 +25,6 @@ setup(
     license="AGPLv3+",
     keywords="cotton simulation model",
     packages=find_packages(),
-    install_requires=["appdirs>=1.4.4"],
     tests_require=["pytest", "pytest-cov", "mypy", "black"],
     python_requires=">=3.8",
     classifiers=CLASSIFIERS.splitlines(),

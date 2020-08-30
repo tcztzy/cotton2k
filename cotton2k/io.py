@@ -2,16 +2,14 @@ from locale import atof
 from pathlib import Path
 from typing import List, Optional
 
-from cotton2k import ROOT_DIR
 from cotton2k.profile import Profile
 
 
-def read_profile_file(profile_file_name) -> Profile:
+def read_profile_file(path: Path) -> Profile:
     """
     TODO: Maybe profile should be a object instead of dict
     TODO: Profile is self defined file format and not readable for human,
     maybe JSON and TOML are better alternatives"""
-    path = ROOT_DIR / "profiles" / profile_file_name
     if not path.exists():
         raise FileNotFoundError(f"{path} not found!")
     return Profile.from_pro(path)
@@ -32,11 +30,10 @@ def read_calibration_data(
     
     TODO: Maybe JSON or CSV is more suitable file format than self defined DAT files.
     """
-    data_dir = ROOT_DIR / "data"
-    vars_dir = data_dir / "vars"
-    site_dir = data_dir / "site"
     varlist = varlist or (vars_dir / "varlist.dat")
     sitelist = sitelist or (site_dir / "sitelist.dat")
+    vars_dir = varlist.parent
+    site_dir = sitelist.parent
     var_name, var_file = parse_list_dat(varlist.read_text())[var_number]
     if not (var_file_path := vars_dir / var_file).exists():
         raise FileNotFoundError(f"{var_file_path} not found!")

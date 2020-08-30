@@ -1,11 +1,10 @@
 import datetime
-from os import unlink
 from pathlib import Path
 from tempfile import mkstemp
 
 import pytest
 
-from cotton2k.io import ROOT_DIR, read_profile_file
+from cotton2k.io import read_profile_file
 from cotton2k.profile import (
     Profile,
     parse_profile,
@@ -126,19 +125,15 @@ def test_output_flags():
 
 
 @pytest.fixture
-def pro_file():
-    if not (profiles_dir := ROOT_DIR / "profiles").exists():
-        profiles_dir.mkdir(parents=True)
-    fd, path = mkstemp(suffix=".pro", dir=profiles_dir, text=True)
-    with open(path, "w") as fp:
-        fp.write(CONTENT)
-    return Path(path)
+def pro_file(tmp_path: Path):
+    path = tmp_path / 'test.pro'
+    path.write_text(CONTENT)
+    return path
 
 
 @pytest.fixture
-def tmp_file():
-    fd, path = mkstemp()
-    return Path(path)
+def tmp_file(tmp_path):
+    return tmp_path / 'tmp'
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
@@ -147,14 +142,12 @@ def test_from_pro(pro_file, tmp_file):
     assert profile.description == "Test profile"
     with pytest.raises(TypeError):
         Profile.from_pro(tmp_file)
-    unlink(pro_file)
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_read_profile_file(pro_file):
-    result = read_profile_file(pro_file.name)
+    result = read_profile_file(pro_file)
     assert result.description == "Test profile"
-    unlink(pro_file)
-    pro_file_name = "does not exist.pro"
+    pro_file_name = Path("does not exist.pro")
     with pytest.raises(FileNotFoundError):
         read_profile_file(pro_file_name)

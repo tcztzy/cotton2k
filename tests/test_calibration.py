@@ -1,10 +1,9 @@
-from os import unlink
 from pathlib import Path
 from tempfile import mkstemp
 
 import pytest
 
-from cotton2k.io import ROOT_DIR, parse_list_dat, parse_parameter, read_calibration_data
+from cotton2k.io import parse_list_dat, parse_parameter, read_calibration_data
 
 
 def test_list_dat():
@@ -57,21 +56,17 @@ def test_parameter():
 
 
 @pytest.fixture
-def varlist(test_var):
+def varlist(tmp_path, test_var):
     content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
     content += "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
-    _, path = mkstemp(text=True)
-    path = Path(path)
+    path = tmp_path / 'varlist.dat'
     path.write_text(content)
     return path
 
 
 @pytest.fixture
-def test_var():
-    if not (vars_dir := ROOT_DIR / "data" / "vars").exists():
-        vars_dir.mkdir(parents=True)
-    _, path = mkstemp(dir=vars_dir, text=True)
-    path = Path(path)
+def test_var(tmp_path: Path):
+    path = tmp_path / 'test_var.dat'
     headline = "Test var"
     lines = (f"{i}".rjust(8) + " " * 7 + f"VARPAR({i+1})" for i in range(60))
     path.write_text(headline + "\n" + "\n".join(lines))
@@ -79,21 +74,17 @@ def test_var():
 
 
 @pytest.fixture
-def sitelist(test_site):
+def sitelist(tmp_path: Path, test_site: Path):
     content = "1".rjust(4) + " Test site".ljust(36) + test_site.name + "\n"
     content += "2".rjust(4) + " Not exist file".ljust(36) + "not exist.dat"
-    _, path = mkstemp(text=True)
-    path = Path(path)
+    path = tmp_path / 'sitelist.dat'
     path.write_text(content)
     return path
 
 
 @pytest.fixture
-def test_site():
-    if not (site_dir := ROOT_DIR / "data" / "site").exists():
-        site_dir.mkdir(parents=True)
-    _, path = mkstemp(dir=site_dir, text=True)
-    path = Path(path)
+def test_site(tmp_path: Path):
+    path = tmp_path / 'test_site.dat'
     headline = "Test site"
     lines = (f"{i}".rjust(8) + " " * 7 + f"SITEPAR({i+1})" for i in range(20))
     path.write_text(headline + "\n" + "\n".join(lines))
@@ -108,7 +99,3 @@ def test_read_calibration_data(
         read_calibration_data(2, 1, varlist, sitelist)
     with pytest.raises(FileNotFoundError):
         read_calibration_data(1, 2, varlist, sitelist)
-    unlink(varlist)
-    unlink(test_var)
-    unlink(sitelist)
-    unlink(test_site)
