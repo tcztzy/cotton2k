@@ -6,10 +6,12 @@ from cotton2k.profile import Profile
 
 
 def read_profile_file(path: Path) -> Profile:
-    """
+    """Read the profile file.
+
     TODO: Maybe profile should be a object instead of dict
     TODO: Profile is self defined file format and not readable for human,
-    maybe JSON and TOML are better alternatives"""
+    maybe JSON and TOML are better alternatives
+    """
     if not path.exists():
         raise FileNotFoundError(f"{path} not found!")
     return Profile.from_pro(path)
@@ -21,15 +23,17 @@ def read_calibration_data(
     varlist: Optional[Path] = None,
     sitelist: Optional[Path] = None,
 ):
-    """
-    This function reads the values of the calibration parameters
-    from input files. It is called from ReadInput(). It calls GetLineData().
+    """Read the values of the calibration parameters from input files.
+
+    It is called from ReadInput(). It calls GetLineData().
 
     The following global or file-scope variables are set here:
     SiteName, SitePar, VarName, VarPar
-    
+
     TODO: Maybe JSON or CSV is more suitable file format than self defined DAT files.
     """
+    vars_dir = Path(".")
+    site_dir = Path(".")
     varlist = varlist or (vars_dir / "varlist.dat")
     sitelist = sitelist or (site_dir / "sitelist.dat")
     vars_dir = varlist.parent
@@ -56,4 +60,4 @@ def parse_list_dat(content: str) -> dict:
 
 def parse_parameter(content: str, number: int) -> List[float]:
     lines = content.splitlines()
-    return list(map(lambda line: atof(line[:15]), lines[1 : number + 1]))
+    return list(map(lambda line: atof(line[:15]), lines[1 : number + 1]))  # noqa: E203

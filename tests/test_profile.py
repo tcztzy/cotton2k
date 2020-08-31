@@ -1,6 +1,5 @@
 import datetime
 from pathlib import Path
-from tempfile import mkstemp
 
 import pytest
 
@@ -126,14 +125,14 @@ def test_output_flags():
 
 @pytest.fixture
 def pro_file(tmp_path: Path):
-    path = tmp_path / 'test.pro'
+    path = tmp_path / "test.pro"
     path.write_text(CONTENT)
     return path
 
 
 @pytest.fixture
 def tmp_file(tmp_path):
-    return tmp_path / 'tmp'
+    return tmp_path / "tmp"
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")

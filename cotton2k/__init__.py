@@ -1,7 +1,5 @@
-from importlib.metadata import PackageNotFoundError, metadata, version
-from pathlib import Path
-
-from appdirs import user_data_dir
+"""Cotton2k model."""
+from importlib.metadata import metadata, version
 
 __version__ = version(__name__)
 meta = metadata(__name__)

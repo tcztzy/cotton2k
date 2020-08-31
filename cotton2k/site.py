@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-from cotton2k.io import parse_parameter
 from typing import List
+
+from cotton2k.io import parse_parameter
 
 
 @dataclass

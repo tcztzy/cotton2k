@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import date
 from locale import atof, atoi
@@ -33,7 +34,7 @@ def parse_profile(content: str) -> dict:
 
 
 def parse_profile_description(line: str) -> dict:
-    """Read file description"""
+    """Read file description."""
     profile_file_name = line[:20].strip()
     _, ext = splitext(profile_file_name)
     if ext.lower() != ".pro":

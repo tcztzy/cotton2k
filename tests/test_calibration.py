@@ -1,5 +1,4 @@
 from pathlib import Path
-from tempfile import mkstemp
 
 import pytest
 
@@ -30,11 +29,11 @@ def test_list_dat():
     assert result[19] == ("China Test2", "VPARTest2_xlz8.DAT")
     assert result[20] == ("China Test3", "VPARTest3_xlz8.DAT")
     result = parse_list_dat(
-        """   0 CALIFORNIA, West SJ                USACALSJWEST.DAT   
+        """   0 CALIFORNIA, West SJ                USACALSJWEST.DAT
    1 ISRAEL, Coastal                    ILCOASTAL.DAT
    2 ARIZONA, Phoenix                   USAAZCENTRAL.DAT
-   3 ISRAEL, Galil                      ILGALIL.DAT 
-   4 ISRAEL, Avdat                      ILAVDAT.DAT 
+   3 ISRAEL, Galil                      ILGALIL.DAT
+   4 ISRAEL, Avdat                      ILAVDAT.DAT
 """
     )
     assert result[0] == ("CALIFORNIA, West SJ", "USACALSJWEST.DAT")
@@ -59,14 +58,14 @@ def test_parameter():
 def varlist(tmp_path, test_var):
     content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
     content += "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
-    path = tmp_path / 'varlist.dat'
+    path = tmp_path / "varlist.dat"
     path.write_text(content)
     return path
 
 
 @pytest.fixture
 def test_var(tmp_path: Path):
-    path = tmp_path / 'test_var.dat'
+    path = tmp_path / "test_var.dat"
     headline = "Test var"
     lines = (f"{i}".rjust(8) + " " * 7 + f"VARPAR({i+1})" for i in range(60))
     path.write_text(headline + "\n" + "\n".join(lines))
@@ -77,14 +76,14 @@ def test_var(tmp_path: Path):
 def sitelist(tmp_path: Path, test_site: Path):
     content = "1".rjust(4) + " Test site".ljust(36) + test_site.name + "\n"
     content += "2".rjust(4) + " Not exist file".ljust(36) + "not exist.dat"
-    path = tmp_path / 'sitelist.dat'
+    path = tmp_path / "sitelist.dat"
     path.write_text(content)
     return path
 
 
 @pytest.fixture
 def test_site(tmp_path: Path):
-    path = tmp_path / 'test_site.dat'
+    path = tmp_path / "test_site.dat"
     headline = "Test site"
     lines = (f"{i}".rjust(8) + " " * 7 + f"SITEPAR({i+1})" for i in range(20))
     path.write_text(headline + "\n" + "\n".join(lines))

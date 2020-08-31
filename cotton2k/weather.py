@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import List
+from locale import atof
 from pathlib import Path
 from re import findall
-from locale import atof
+from typing import List
 
 
 def read_climate_data(weather_file):
