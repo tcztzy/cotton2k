@@ -81,8 +81,8 @@ def parse_profile_weather(line: str) -> dict:
 
 def parse_profile_soil_mulch(line: str) -> dict:
     MulchIndicator = atoi(line[:10]) if line else 0
-    result: Dict[str, Union[int, float]] = {
-        "mulchIndicator": MulchIndicator  # pylint: disable=E1136
+    result: Dict[str, Union[int, float]] = {  # pylint: disable=E1136
+        "mulchIndicator": MulchIndicator
     }
     if MulchIndicator > 0:
         result["mulchTranSW"] = atof(line[10:20])
