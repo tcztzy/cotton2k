@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
@@ -13,7 +15,7 @@ class Site:
     wind_stop_hours_after_sunset: float
 
     @classmethod
-    def from_dat(cls, site_dat_path: Path):
+    def from_dat(cls, site_dat_path: Path) -> Site:
         site_par = parse_parameter(site_dat_path.read_text(), 16)
         return cls(
             _site_par=site_par,

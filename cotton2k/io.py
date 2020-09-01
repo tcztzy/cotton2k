@@ -20,8 +20,8 @@ def read_profile_file(path: Path) -> Profile:
 def read_calibration_data(
     var_number: int,
     site_number: int,
-    varlist: Optional[Path] = None,
-    sitelist: Optional[Path] = None,
+    varlist: Optional[Path] = None,  # pylint: disable=E1136
+    sitelist: Optional[Path] = None,  # pylint: disable=E1136
 ):
     """Read the values of the calibration parameters from input files.
 

@@ -81,7 +81,9 @@ def parse_profile_weather(line: str) -> dict:
 
 def parse_profile_soil_mulch(line: str) -> dict:
     MulchIndicator = atoi(line[:10]) if line else 0
-    result: Dict[str, Union[int, float]] = {"mulchIndicator": MulchIndicator}
+    result: Dict[str, Union[int, float]] = {
+        "mulchIndicator": MulchIndicator  # pylint: disable=E1136
+    }
     if MulchIndicator > 0:
         result["mulchTranSW"] = atof(line[10:20])
         result["mulchTranLW"] = atof(line[20:30])
@@ -138,7 +140,7 @@ def parse_profile_output_flags(line: str) -> dict:
         result["UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits"],
         result["perSquareMeterOrPerPlant"],
         result["outputDryWeight"],
-        *rest,
+        *_,
     ) = map(lambda x: bool(int(x)), line.split())
     return result
 

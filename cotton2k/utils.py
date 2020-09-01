@@ -1,11 +1,14 @@
 from datetime import date, datetime
+from typing import Optional
 
 
-def strptime(t) -> date:
+def strptime(t: str) -> date:
     return datetime.strptime(t, "%d-%b-%Y").date()
 
 
-def date_to_day_of_year(d: date, start_year=None) -> int:
+def date_to_day_of_year(
+    d: date, start_year: Optional[int] = None  # pylint: disable=E1136
+) -> int:
     if start_year is None:
         start_year = d.year
     return (d - date(start_year, 1, 1)).days + 1
