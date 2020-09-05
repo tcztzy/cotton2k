@@ -19,4 +19,10 @@ def weather_file(tmp_path: Path) -> Path:
 
 def test_read_climate_data(weather_file):
     result = read_climate_data(weather_file)
+    assert result.isw_rad
+    assert result.isw_tmp
+    assert result.isw_rain
+    assert result.isw_wind
+    assert result.isw_dewt
+    assert result.average_wind == 0
     assert result[0].radiation == 20
