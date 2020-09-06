@@ -26,3 +26,8 @@ def test_read_climate_data(weather_file):
     assert result.isw_dewt
     assert result.average_wind == 0
     assert result[0].radiation == 20
+    assert result[0].max_temperature == 13.4
+    assert result[0].min_temperature == 4
+    assert result[0].rain == 0
+    assert result[0].wind == 110
+    assert result[0].dew_temperature == 10
