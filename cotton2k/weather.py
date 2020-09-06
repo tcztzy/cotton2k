@@ -4,11 +4,11 @@ from dataclasses import dataclass
 from locale import atof, atoi
 from pathlib import Path
 from re import findall
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 
-def read_climate_data(weather_file):
-    return Weather.from_file(weather_file)
+def read_climate_data(climate_file):
+    return Climate.from_file(climate_file)
 
 
 def parse_weather(content: str):
@@ -30,25 +30,67 @@ def parse_weather(content: str):
         result["average_wind"] = atof(head_line[61:71])
     clim = list()
     for line in daily_climate_lines:
-        radiation, *rest = map(atof, findall(".{7}", line[21:]))
-        clim.append(Climate(radiation, *rest))
-    result["clim"] = clim
+        kwargs: Dict[str, Union[bool, float]] = {
+            "_" + k: v for k, v in result.items() if k.startswith("isw")
+        }
+        (
+            kwargs["_rad"],
+            kwargs["_tmax"],
+            kwargs["_tmin"],
+            kwargs["_rain"],
+            kwargs["_wind"],
+            kwargs["_dewt"],
+        ) = map(atof, findall(".{7}", line[21:]))
+        c = DailyClimate(**kwargs)  # type: ignore
+        clim.append(c)
+    result["_climate"] = clim
     return result
 
 
 @dataclass
-class Climate:
-    radiation: float
-    max_temperature: float
-    min_temperature: float
-    rain: float
-    wind: float
-    dew_temperature: float
+class DailyClimate:
+    _rad: float
+    _tmax: float
+    _tmin: float
+    _rain: float
+    _wind: float
+    _dewt: float
+
+    _isw_rad: bool
+    _isw_tmp: bool
+    _isw_rain: bool
+    _isw_wind: bool
+    _isw_dewt: bool
+
+    @property
+    def radiation(self):
+        return self._rad if not self._isw_rad else self._rad * 23.884
+
+    @property
+    def max_temperature(self):
+        return self._tmax if self._isw_tmp else (self._tmax - 32) / 1.8
+
+    @property
+    def min_temperature(self):
+        return self._tmin if self._isw_tmp else (self._tmin - 32) / 1.8
+
+    @property
+    def rain(self):
+        return self._rain if self._isw_rain else self._rain * 25.4
+
+    @property
+    def wind(self):
+        return self._wind if self._isw_wind else self._wind * 1.609
+
+    @property
+    def dew_temperature(self):
+        return self._dewt if self._isw_dewt else (self._dewt - 32) / 1.8
 
 
 @dataclass
-class Weather:
-    clim: List
+class Climate:
+
+    _climate: List[DailyClimate]
     isw_rad: bool
     isw_tmp: bool
     isw_rain: bool
@@ -61,4 +103,4 @@ class Weather:
         return cls(**parse_weather(path.read_text()))
 
     def __getitem__(self, item):
-        return self.clim[item]
+        return self._climate[item]
