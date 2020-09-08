@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cotton2k.weather import read_climate_data
+from cotton2k.climate import read_climate_data
 
 
 @pytest.fixture

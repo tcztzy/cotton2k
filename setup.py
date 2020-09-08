@@ -17,7 +17,7 @@ with open("README.md") as f:
 
 setup(
     name="cotton2k",
-    version="2020.9.3",
+    version="2020.9.9",
     author="Tang Ziya",
     author_email="tcztzy@hotmail.com",
     description="Reimplementation for Cotton2k simulation model",
