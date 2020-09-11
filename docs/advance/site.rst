@@ -134,7 +134,7 @@ Estimating the deep soil temperature
 
 The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of the date (Day of year), with site-specific parameters.
 
-DPSOILT = SITEPAR(9) + SITEPAR(10) * SIN( 2.* PI * (DAYNUM - SITEPAR(11) ) / 365
+``DPSOILT = SITEPAR(9) + SITEPAR(10) * SIN( 2.* PI * (DAYNUM - SITEPAR(11) ) / 365``
 
 The parameters used here and their ranges are as follows:
 
