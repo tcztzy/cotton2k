@@ -47,6 +47,19 @@ def parse_weather(content: str):
     return result
 
 
+def tdewest(maxt: float, site_parameter5: float, site_parameter6: float) -> float:
+    """This function estimates the approximate daily average dewpoint temperature when it is not available.
+    It is called by ReadClimateData().
+    Global variables referenced: SitePar[5] and SitePar[6]
+    Argument used: maxt = maximum temperature of this day."""
+    if maxt <= 20:
+        return site_parameter5
+    elif maxt >= 40:
+        return site_parameter6
+    else:
+        return ((40 - maxt) * site_parameter5 + (maxt - 20) * site_parameter6) / 20
+
+
 @dataclass
 class DailyClimate:
     _rad: float
