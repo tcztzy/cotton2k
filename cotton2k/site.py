@@ -44,28 +44,7 @@ class Site:
 
     @property
     def parameters(self):
-        class _:
-            def __getitem__(myself, item):
-                if item <= 0:
-                    raise KeyError
-                return self._site_par[item - 1]
-
-            def __setitem__(myself, key, value):
-                i = key - 1
-                lower, upper = PARAMETER_RANGES[i]
-                if value > upper or value < lower:
-                    raise ValueError
-                self._site_par[i] = value
-
-        return _()
-
-    @parameters.setter
-    def parameters(self, value):
-        for i, v in enumerate(value):
-            lower, upper = PARAMETER_RANGES[i]
-            if v > upper or v < lower:
-                raise ValueError(f"Site[{i+1}] is {v}, not in range ({lower}, {upper})")
-        self._site_par = value
+        return self
 
     @classmethod
     def from_dat(cls, site_dat_path: Path) -> Site:
@@ -73,10 +52,21 @@ class Site:
         return cls(site_par)
 
     def __init__(self, _site_par):
-        self.parameters = _site_par
+        for i, v in enumerate(_site_par):
+            lower, upper = PARAMETER_RANGES[i]
+            if v > upper or v < lower:
+                raise ValueError(f"Site[{i+1}] is {v}, not in range ({lower}, {upper})")
+        else:
+            self._site_par = _site_par
 
     def __getitem__(self, item):
-        return self.parameters[item]
+        if item <= 0:
+            raise KeyError
+        return self._site_par[item - 1]
 
     def __setitem__(self, key, value):
-        self.parameters[key] = value
+        i = key - 1
+        lower, upper = PARAMETER_RANGES[i]
+        if value > upper or value < lower:
+            raise ValueError
+        self._site_par[i] = value
