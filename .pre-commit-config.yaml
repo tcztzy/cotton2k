@@ -19,8 +19,20 @@ repos:
     hooks:
     -   id: isort
         files: ^(cotton2k|tests)/
+-   repo: https://github.com/pre-commit/mirrors-pylint
+    rev: 'v2.6.0'  # Use the sha / tag you want to point at
+    hooks:
+    -   id: pylint
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.782
     hooks:
     -   id: mypy
         files: ^(cotton2k|tests)/
+-   repo: local
+    hooks:
+    -   id: pytest-check
+        name: Pytest check
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
