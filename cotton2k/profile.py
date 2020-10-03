@@ -1,3 +1,4 @@
+"""Profile of simulation task"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,10 +9,13 @@ from pathlib import Path
 from typing import Dict, Union
 from warnings import warn
 
+from cotton2k.io import read_calibration_data
+from cotton2k.site import Site
 from cotton2k.utils import date_to_day_of_year, strptime
 
 
 def parse_profile(content: str) -> dict:
+    """Parse the profile from file content"""
     lines = content.splitlines()
     result = {}
     result.update(parse_profile_description(lines[0]))
@@ -51,27 +55,36 @@ def parse_profile_simulation_dates(line: str) -> dict:
     assert end is not None
     if start >= end:
         raise ValueError("Start day should be greater than end day")
-    dateEmerge = strptime(line[:11]) if line[:11].strip() else None
-    datePlant = strptime(line[45:56]) if line[45:56].strip() else None
-    if dateEmerge is None and datePlant is None:
+    date_emerge = strptime(line[:11]) if line[:11].strip() else None
+    date_plant = strptime(line[45:56]) if line[45:56].strip() else None
+    if date_emerge is None and date_plant is None:
         raise TypeError("Planting date or emergence date must be given in the profile!")
     return dict(
-        dateEmerge=dateEmerge, dateSimStart=start, dateSimEnd=end, datePlant=datePlant
+        dateEmerge=date_emerge, dateSimStart=start, dateSimEnd=end, datePlant=date_plant
     )
 
 
 def parse_profile_carbon_dioxide(line: str) -> dict:
-    """For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates for start and stop of enrichment (there are left blank if there is no CO2 enrichment)."""
+    """
+    For advanced users only: if there is CO2 enrichment, read also CO2 factor,
+    DOY dates for start and stop of enrichment (there are left blank if there
+    is no CO2 enrichment).
+    """
     if not line:
         return dict(CO2EnrichmentFactor=0)
     start = atoi(line[10:15])
     end = atoi(line[15:])
     if start >= end:
         raise ValueError("Start day should be greater than end day")
-    return dict(CO2EnrichmentFactor=atof(line[:10]), DayStartCO2=start, DayEndCO2=end,)
+    return dict(
+        CO2EnrichmentFactor=atof(line[:10]),
+        DayStartCO2=start,
+        DayEndCO2=end,
+    )
 
 
 def parse_profile_weather(line: str) -> dict:
+    """Parse the weather information of profile"""
     result = dict(
         actualWeatherFileName=line[:20].strip(),
         predictedWeatherFileName=line[20:40].strip(),
@@ -80,6 +93,7 @@ def parse_profile_weather(line: str) -> dict:
 
 
 def parse_profile_soil_mulch(line: str) -> dict:
+    """Parse soil mulch information of profile"""
     MulchIndicator = atoi(line[:10]) if line else 0
     result: Dict[str, Union[int, float]] = {  # pylint: disable=E1136
         "mulchIndicator": MulchIndicator
@@ -93,7 +107,10 @@ def parse_profile_soil_mulch(line: str) -> dict:
 
 
 def parse_profile_parameter_files(line: str) -> dict:
-    """Names of files of soil hydraulic data, soil initial conditions, agricultural input, and plant map adjustment."""
+    """
+    Names of files of soil hydraulic data, soil initial conditions,
+    agricultural input, and plant map adjustment.
+    """
     return dict(
         soilHydraulicFileName=line[:20].strip(),
         soilInitFileName=line[20:40].strip(),
@@ -103,7 +120,10 @@ def parse_profile_parameter_files(line: str) -> dict:
 
 
 def parse_profile_geometry(line: str) -> dict:
-    """Latitude and longitude of this site, elevation (in m above sea level), and the number for this geographic site."""
+    """
+    Latitude and longitude of this site, elevation (in m above sea level), and
+    the number for this geographic site.
+    """
     return dict(
         latitude=atof(line[:10]),
         longitude=atof(line[10:20]),
@@ -113,7 +133,10 @@ def parse_profile_geometry(line: str) -> dict:
 
 
 def parse_profile_field(line: str) -> dict:
-    """Row spacing in cm, skip-row spacing in cm (blank or 0 for no skip rows), number of plants per meter of row, and index number of the cultivar."""
+    """
+    Row spacing in cm, skip-row spacing in cm (blank or 0 for no skip rows),
+    number of plants per meter of row, and index number of the cultivar.
+    """
     return dict(
         rowSpace=atof(line[:10]),
         skipRowWidth=atof(line[10:20]),
@@ -123,7 +146,11 @@ def parse_profile_field(line: str) -> dict:
 
 
 def parse_profile_output_options(line: str) -> dict:
-    """Frequency in days for output of soil maps, and dates for start and stop of this output (blank or 0 if no such output is required. Same is repeated for output of plant maps."""
+    """
+    Frequency in days for output of soil maps, and dates for start and stop of
+    this output (blank or 0 if no such output is required. Same is repeated
+    for output of plant maps.
+    """
     return dict(
         soilMapFrequency=atoi(line[:10]),
         soilMapStartDate=strptime(line[14:25]),
@@ -135,6 +162,7 @@ def parse_profile_output_options(line: str) -> dict:
 
 
 def parse_profile_output_flags(line: str) -> dict:
+    """Parse the output flags from profile"""
     result = {}
     (
         result["UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits"],
@@ -147,6 +175,9 @@ def parse_profile_output_flags(line: str) -> dict:
 
 @dataclass
 class Profile:
+    """Profile class for the simulation model"""
+
+    path: Path
     profile_file_name: str
     description: str
     dateEmerge: date
@@ -187,6 +218,7 @@ class Profile:
 
     @classmethod
     def from_pro(cls, profile_file_path: Path) -> Profile:
+        """Read profile data from .pro file"""
         warn(
             "Old-style profile file format is deprecated, "
             "and will be remove in stable release.",
@@ -195,4 +227,16 @@ class Profile:
         _, ext = splitext(profile_file_path.name)
         if ext.lower() != ".pro":
             raise TypeError(f"Expect 'pro' file, got {profile_file_path.name}")
-        return cls(**parse_profile(profile_file_path.read_text()))
+        return cls(
+            path=profile_file_path, **parse_profile(profile_file_path.read_text())
+        )
+
+    @property
+    def site(self):
+        """Site property"""
+        result = read_calibration_data(
+            self.siteNumber,
+            self.path.parent.parent / "data" / "site" / "sitelist.dat",
+            "site",
+        )
+        return Site(result["sitePar"])

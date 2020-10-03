@@ -93,8 +93,9 @@ def test_site(tmp_path: Path):
 def test_read_calibration_data(
     varlist: Path, test_var: Path, sitelist: Path, test_site: Path
 ):
-    read_calibration_data(1, 1, varlist, sitelist)
+    read_calibration_data(1, varlist)
+    read_calibration_data(1, sitelist, "site")
     with pytest.raises(FileNotFoundError):
-        read_calibration_data(2, 1, varlist, sitelist)
+        read_calibration_data(2, varlist)
     with pytest.raises(FileNotFoundError):
-        read_calibration_data(1, 2, varlist, sitelist)
+        read_calibration_data(2, sitelist, "site")

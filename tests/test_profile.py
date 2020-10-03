@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pytest
 
-from cotton2k.io import read_profile_file
 from cotton2k.profile import (
     Profile,
     parse_profile,
@@ -141,12 +140,3 @@ def test_from_pro(pro_file, tmp_file):
     assert profile.description == "Test profile"
     with pytest.raises(TypeError):
         Profile.from_pro(tmp_file)
-
-
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-def test_read_profile_file(pro_file):
-    result = read_profile_file(pro_file)
-    assert result.description == "Test profile"
-    pro_file_name = Path("does not exist.pro")
-    with pytest.raises(FileNotFoundError):
-        read_profile_file(pro_file_name)
