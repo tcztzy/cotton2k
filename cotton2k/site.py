@@ -1,6 +1,7 @@
 """Site-specific data processing"""
 from __future__ import annotations
 
+from math import pi, sin
 from operator import itemgetter
 from pathlib import Path
 from typing import List
@@ -48,6 +49,14 @@ class Site:
     def parameters(self):
         """Property paramters for literally easy-understanding"""
         return self
+
+    def deep_soil_temperature(self, daynum):
+        """
+        The temperature of the last soil layer (lower boundary) is computed as
+        a sinusoidal function of the date (Day of year), with site-specific
+        parameters.
+        """
+        return self[9] + self[10] * sin(2 * pi * (daynum - self[11]) / 365)
 
     @classmethod
     def from_dat(cls, site_dat_path: Path) -> Site:
