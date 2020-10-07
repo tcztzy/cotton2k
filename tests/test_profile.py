@@ -1,5 +1,4 @@
 import datetime
-from pathlib import Path
 
 import pytest
 
@@ -18,14 +17,7 @@ from cotton2k.profile import (
     parse_profile_weather,
 )
 
-CONTENT = """test.pro            Test profile
-01-MAY-2020    20-APR-2020    15-OCT-2020                        1.000  100  101
-test.act                                         1     0.000     0.000  122    0
-test.hyd            test.int            test.agi
-    40.548    81.296  1013.000         0
-    75.000     0.000    40.000         0
-        10    10-APR-2020    20-OCT-2020        10    01-JUN-2020    20-OCT-2020
-  0  0  1  1  0  1  0  1  1  1  1  1  0  0  0  0  0  1  0  0  0  0  0"""
+from .fixtures import CONTENT, pro_file, tmp_file
 
 
 def test_parse_profile():
@@ -120,18 +112,6 @@ def test_output_flags():
     assert not result["UnitedStatesCustomarySystemOfUnitsOrInternationalSystemOfUnits"]
     assert not result["perSquareMeterOrPerPlant"]
     assert result["outputDryWeight"]
-
-
-@pytest.fixture
-def pro_file(tmp_path: Path):
-    path = tmp_path / "test.pro"
-    path.write_text(CONTENT)
-    return path
-
-
-@pytest.fixture
-def tmp_file(tmp_path):
-    return tmp_path / "tmp"
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")

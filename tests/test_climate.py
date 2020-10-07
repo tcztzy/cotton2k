@@ -1,20 +1,6 @@
-from os import linesep
-from pathlib import Path
-
-import pytest
-
 from cotton2k.climate import read_climate_data, tdewest
 
-
-@pytest.fixture
-def weather_file(tmp_path: Path) -> Path:
-    file_path = tmp_path / "test.act"
-    lines = [
-        f"{'Whatever':<30}{1:>3}{1:>3}{1:>3}{1:>3}{1:>3}{' '*15}{0:>10.2f}",
-        f"{92:>4}{'01-APR-2020':^17}{20:>7.2f}{13.4:>7.2f}{4:>7.2f}{0:>7.2f}{110:>7.2f}{10:>7.2f}",
-    ]
-    file_path.write_bytes(linesep.join(lines).encode())
-    return file_path
+from .fixtures import weather_file
 
 
 def test_read_climate_data(weather_file):
