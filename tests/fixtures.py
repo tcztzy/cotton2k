@@ -28,17 +28,38 @@ def tmp_file(tmp_path):
 
 
 @fixture
-def varlist(tmp_path, test_var):
+def data_dir(tmp_path):
+    path = tmp_path / "data"
+    path.mkdir()
+    return path
+
+
+@fixture
+def vars_dir(data_dir):
+    path = data_dir / "vars"
+    path.mkdir()
+    return path
+
+
+@fixture
+def site_dir(data_dir):
+    path = data_dir / "site"
+    path.mkdir()
+    return path
+
+
+@fixture
+def varlist(vars_dir, test_var):
     content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
     content += "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
-    path = tmp_path / "varlist.dat"
+    path = vars_dir / "varlist.dat"
     path.write_text(content)
     return path
 
 
 @fixture
-def test_var(tmp_path: Path):
-    path = tmp_path / "test_var.dat"
+def test_var(vars_dir: Path):
+    path = vars_dir / "test_var.dat"
     headline = "Test var"
     lines = (f"{i}".rjust(8) + " " * 7 + f"VARPAR({i+1})" for i in range(60))
     path.write_text(headline + "\n" + "\n".join(lines))
