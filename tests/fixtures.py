@@ -49,10 +49,10 @@ def site_dir(data_dir):
 
 
 @fixture
-def varlist(vars_dir, test_var):
+def varlist(test_var):
     content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
     content += "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
-    path = vars_dir / "varlist.dat"
+    path = test_var.parent / "varlist.dat"
     path.write_text(content)
     return path
 

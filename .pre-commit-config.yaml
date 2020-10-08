@@ -23,7 +23,7 @@ repos:
     rev: 'v2.6.0'  # Use the sha / tag you want to point at
     hooks:
     -   id: pylint
-        additional_dependencies: [PySimpleGUI>=4.29.0]
+        additional_dependencies: [PySimpleGUI>=4.29.0,pyenchant>=3.1.1]
         files: ^cotton2k/
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.782
