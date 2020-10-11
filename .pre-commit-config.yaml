@@ -32,9 +32,9 @@ repos:
         files: ^(cotton2k|tests)/
 -   repo: local
     hooks:
-    -   id: pytest-check
-        name: Pytest check
-        entry: pytest
+    -   id: pytest-with-cov
+        name: pytest
+        entry: pytest --cov=cotton2k
         language: system
         pass_filenames: false
         always_run: true

@@ -4,4 +4,5 @@
 .vscode/
 __pycache__/
 cotton2k.egg-info/
+htmlcov/
 coverage.xml

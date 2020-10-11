@@ -4,7 +4,7 @@ import pytest
 
 from cotton2k.site import Site
 
-from .fixtures import invalid_site_dat, site_dat
+from .fixtures import data_dir, invalid_site_dat, site_dat, site_dir
 
 
 def test_site(site_dat):
@@ -21,6 +21,7 @@ def test_site(site_dat):
     assert site._site_par[0] == 2.00 and site[1] == 2.00
     with pytest.raises(ValueError):
         site[1] = 3.00
+    site.deep_soil_temperature(10)
 
 
 def test_invalid_site(invalid_site_dat):

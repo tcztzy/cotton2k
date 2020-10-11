@@ -16,13 +16,42 @@ from cotton2k.profile import (
     parse_profile_soil_mulch,
     parse_profile_weather,
 )
+from cotton2k.site import Site
 
-from .fixtures import CONTENT, pro_file, tmp_file
+from .fixtures import (
+    CONTENT,
+    data_dir,
+    pro_file,
+    site_dat,
+    site_dir,
+    sitelist,
+    tmp_file,
+)
 
 
 def test_parse_profile():
     result = parse_profile(CONTENT)
     assert result["dayEndMulch"] == 289
+    parse_profile(
+        """test.pro            Test profile
+01-MAY-2020    20-APR-2020    15-OCT-2020
+test.act
+test.hyd            test.int            test.agi
+    40.548    81.296  1013.000         1
+    75.000     0.000    40.000         0
+        10    10-APR-2020    20-OCT-2020        10    01-JUN-2020    20-OCT-2020
+  0  0  1  1  0  1  0  1  1  1  1  1  0  0  0  0  0  1  0  0  0  0  0"""
+    )
+    parse_profile(
+        """test.pro            Test profile
+01-MAY-2020    20-APR-2020    15-OCT-2020                        1.000  100  101
+test.act                                         1     0.000     0.000  122  123
+test.hyd            test.int            test.agi
+    40.548    81.296  1013.000         1
+    75.000     0.000    40.000         0
+        10    10-APR-2020    20-OCT-2020        10    01-JUN-2020    20-OCT-2020
+  0  0  1  1  0  1  0  1  1  1  1  1  0  0  0  0  0  1  0  0  0  0  0"""
+    )
 
 
 def test_description():
@@ -120,3 +149,4 @@ def test_from_pro(pro_file, tmp_file):
     assert profile.description == "Test profile"
     with pytest.raises(TypeError):
         Profile.from_pro(tmp_file)
+    assert isinstance(profile.site, Site)

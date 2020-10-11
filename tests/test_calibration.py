@@ -4,7 +4,15 @@ import pytest
 
 from cotton2k.io import parse_list_dat, parse_parameter, read_calibration_data
 
-from .fixtures import data_dir, sitelist, test_site, test_var, varlist, vars_dir
+from .fixtures import (
+    data_dir,
+    site_dat,
+    site_dir,
+    sitelist,
+    test_var,
+    varlist,
+    vars_dir,
+)
 
 
 def test_list_dat():

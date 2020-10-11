@@ -1,0 +1,7 @@
+[run]
+branch = True
+omit =
+    cotton2k/main.py
+
+[report]
+fail_under = 100
