@@ -23,33 +23,33 @@ def pro_file(tmp_path: Path):
 
 
 @fixture
-def tmp_file(tmp_path):
+def tmp_file(tmp_path: Path):
     return tmp_path / "tmp"
 
 
 @fixture
-def data_dir(tmp_path):
+def data_dir(tmp_path: Path):
     path = tmp_path / "data"
     path.mkdir()
     return path
 
 
 @fixture
-def vars_dir(data_dir):
+def vars_dir(data_dir: Path):
     path = data_dir / "vars"
     path.mkdir()
     return path
 
 
 @fixture
-def site_dir(data_dir):
+def site_dir(data_dir: Path):
     path = data_dir / "site"
     path.mkdir()
     return path
 
 
 @fixture
-def varlist(test_var):
+def varlist(test_var: Path):
     content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
     content += "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
     path = test_var.parent / "varlist.dat"
