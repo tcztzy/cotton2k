@@ -47,7 +47,7 @@ class Site:
 
     @property
     def parameters(self):
-        """Property paramters for literally easy-understanding"""
+        """Property parameters for literally easy-understanding"""
         return self
 
     def deep_soil_temperature(self, daynum):
