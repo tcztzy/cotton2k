@@ -10,6 +10,7 @@ from .fixtures import invalid_site_dat, site_dat
 def test_site(site_dat):
     site = Site.from_dat(site_dat)
     assert site[1] == site.wind_start_hours_after_sunrise
+    assert site.parameters[1] == site[1]
     assert site[1] == 1.00
     assert site[2] == 2.00
     assert site[3] == 2.5
