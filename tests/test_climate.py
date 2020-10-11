@@ -1,4 +1,4 @@
-from cotton2k.climate import read_climate_data, tdewest
+from cotton2k.climate import parse_weather, read_climate_data, tdewest
 
 from .fixtures import weather_file
 
@@ -24,3 +24,7 @@ def test_tdewest():
     assert tdewest(16, 10, 20) == 10
     assert tdewest(40, 10, 20) == 20
     assert tdewest(30, 10, 20) == 15
+
+
+def test_parse_weather():
+    parse_weather("Whatever")
