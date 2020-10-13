@@ -32,7 +32,7 @@ def test_parse_weather():
 
 def test_vapor_pressure():
     def good_enough(a, b):
-        return abs(1 - b / a) < 0.005
+        return abs(1 - b / a) < 0.0009
 
     for t, p in ((0, 0.6113), (20, 2.3388), (35, 5.6267), (50, 12.344)):
         assert good_enough(p, vapor_pressure(t))
