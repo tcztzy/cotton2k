@@ -1,4 +1,4 @@
-from cotton2k.climate import parse_weather, read_climate_data, tdewest
+from cotton2k.climate import parse_weather, read_climate_data, tdewest, vapor_pressure
 
 from .fixtures import weather_file
 
@@ -27,4 +27,12 @@ def test_tdewest():
 
 
 def test_parse_weather():
-    parse_weather("Whatever")
+    parse_weather("Whatever")  # for partial coverage
+
+
+def test_vapor_pressure():
+    def good_enough(a, b):
+        return abs(1 - b / a) < 0.005
+
+    for t, p in ((0, 0.6113), (20, 2.3388), (35, 5.6267), (50, 12.344)):
+        assert good_enough(p, vapor_pressure(t))

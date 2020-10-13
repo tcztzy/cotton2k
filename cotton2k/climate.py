@@ -1,17 +1,21 @@
+"""Climate module"""
 from __future__ import annotations
 
 from dataclasses import dataclass
 from locale import atof, atoi
+from math import exp
 from pathlib import Path
 from re import findall
 from typing import Any, Dict, List, Union
 
 
 def read_climate_data(climate_file):
+    """Read climate data"""
     return Climate.from_file(climate_file)
 
 
 def parse_weather(content: str):
+    """Parse weather file"""
     lines = content.splitlines()
     head_line, *daily_climate_lines = lines
     result: Dict[str, Any] = dict()
@@ -47,21 +51,41 @@ def parse_weather(content: str):
     return result
 
 
-def tdewest(maxt: float, site_parameter5: float, site_parameter6: float) -> float:
-    """This function estimates the approximate daily average dewpoint temperature when it is not available.
+def tdewest(t: float, site_parameter5: float, site_parameter6: float) -> float:
+    """
+    This function estimates the approximate daily average dewpoint temperature
+    when it is not available.
+
     It is called by ReadClimateData().
+
     Global variables referenced: SitePar[5] and SitePar[6]
-    Argument used: maxt = maximum temperature of this day."""
-    if maxt <= 20:
+
+    Argument used: t = maximum temperature of this day.
+    """
+    if t <= 20:
         return site_parameter5
-    elif maxt >= 40:
+    if t >= 40:
         return site_parameter6
-    else:
-        return ((40 - maxt) * site_parameter5 + (maxt - 20) * site_parameter6) / 20
+    return ((40 - t) * site_parameter5 + (t - 20) * site_parameter6) / 20
+
+
+def vapor_pressure(temperature):
+    """
+    Compute vapor pressure in the air (in KPa units) function of the air at temperature (C).
+
+    Tetens, O. 1930. Uber einige meteorologische Begriffe. Z. Geophys.. 6. 297–309.
+
+    Buck, A. L., 1981: New Equations for Computing Vapor Pressure and
+    Enhancement Factor. J. Appl. Meteor., 20, 1527–1532,
+    https://doi.org/10.1175/1520-0450(1981)020<1527:NEFCVP>2.0.CO;2.
+    """
+    return 0.61078 * exp(17.269 * temperature / (temperature + 237.3))
 
 
 @dataclass
 class DailyClimate:
+    """Class represent daily climate"""
+
     _rad: float
     _tmax: float
     _tmin: float
@@ -77,31 +101,38 @@ class DailyClimate:
 
     @property
     def radiation(self):
+        """Radiation"""
         return self._rad if not self._isw_rad else self._rad * 23.884
 
     @property
     def max_temperature(self):
+        """Max temperature"""
         return self._tmax if self._isw_tmp else (self._tmax - 32) / 1.8
 
     @property
     def min_temperature(self):
+        """Min temperature"""
         return self._tmin if self._isw_tmp else (self._tmin - 32) / 1.8
 
     @property
     def rain(self):
+        """Rainfall"""
         return self._rain if self._isw_rain else self._rain * 25.4
 
     @property
     def wind(self):
+        """Wind speed"""
         return self._wind if self._isw_wind else self._wind * 1.609
 
     @property
     def dew_temperature(self):
+        """Dew point temperature"""
         return self._dewt if self._isw_dewt else (self._dewt - 32) / 1.8
 
 
 @dataclass
 class Climate:
+    """Climate class"""
 
     _climate: List[DailyClimate]
     isw_rad: bool
@@ -113,6 +144,7 @@ class Climate:
 
     @classmethod
     def from_file(cls, path: Path):
+        """Create new Climate from file"""
         return cls(**parse_weather(path.read_text()))
 
     def __getitem__(self, item):
