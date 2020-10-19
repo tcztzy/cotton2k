@@ -9,12 +9,12 @@ from re import findall
 from typing import Any, Dict, List, Union
 
 
-def read_climate_data(climate_file):
+def read_climate_data(climate_file: Path) -> Climate:
     """Read climate data"""
     return Climate.from_file(climate_file)
 
 
-def parse_weather(content: str):
+def parse_weather(content: str) -> dict:
     """Parse weather file"""
     lines = content.splitlines()
     head_line, *daily_climate_lines = lines
@@ -69,7 +69,7 @@ def tdewest(t: float, site_parameter5: float, site_parameter6: float) -> float:
     return ((40 - t) * site_parameter5 + (t - 20) * site_parameter6) / 20
 
 
-def vapor_pressure(temperature):
+def vapor_pressure(temperature: float) -> float:
     """
     Compute vapor pressure in the air (in KPa units) function of the air at temperature (C).
 
@@ -143,7 +143,7 @@ class Climate:
     average_wind: float
 
     @classmethod
-    def from_file(cls, path: Path):
+    def from_file(cls, path: Path) -> Climate:
         """Create new Climate from file"""
         return cls(**parse_weather(path.read_text()))
 
