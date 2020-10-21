@@ -3,7 +3,10 @@ from pathlib import Path
 
 from pytest import fixture
 
-CONTENT = """test.pro            Test profile
+
+@fixture
+def CONTENT() -> str:
+    return """test.pro            Test profile
 01-MAY-2020    20-APR-2020    15-OCT-2020                        1.000  100  101
 test.act                                         1     0.000     0.000  122    0
 test.hyd            test.int            test.agi
@@ -14,7 +17,7 @@ test.hyd            test.int            test.agi
 
 
 @fixture
-def pro_file(tmp_path: Path, sitelist):
+def pro_file(tmp_path: Path, CONTENT: str, sitelist: Path) -> Path:
     pro_dir = tmp_path / "profiles"
     pro_dir.mkdir()
     path = pro_dir / "test.pro"
@@ -23,33 +26,33 @@ def pro_file(tmp_path: Path, sitelist):
 
 
 @fixture
-def tmp_file(tmp_path: Path):
+def tmp_file(tmp_path: Path) -> Path:
     return tmp_path / "tmp"
 
 
 @fixture
-def data_dir(tmp_path: Path):
+def data_dir(tmp_path: Path) -> Path:
     path = tmp_path / "data"
     path.mkdir()
     return path
 
 
 @fixture
-def vars_dir(data_dir: Path):
+def vars_dir(data_dir: Path) -> Path:
     path = data_dir / "vars"
     path.mkdir()
     return path
 
 
 @fixture
-def site_dir(data_dir: Path):
+def site_dir(data_dir: Path) -> Path:
     path = data_dir / "site"
     path.mkdir()
     return path
 
 
 @fixture
-def varlist(test_var: Path):
+def varlist(test_var: Path) -> Path:
     content = "1".rjust(4) + " Test var".ljust(36) + test_var.name + "\n"
     content += "2".rjust(4) + " Test var".ljust(36) + "not exist.dat"
     path = test_var.parent / "varlist.dat"
@@ -58,7 +61,7 @@ def varlist(test_var: Path):
 
 
 @fixture
-def test_var(vars_dir: Path):
+def test_var(vars_dir: Path) -> Path:
     path = vars_dir / "test_var.dat"
     headline = "Test var"
     lines = (f"{i}".rjust(8) + " " * 7 + f"VARPAR({i+1})" for i in range(60))
@@ -67,7 +70,7 @@ def test_var(vars_dir: Path):
 
 
 @fixture
-def sitelist(site_dat: Path):
+def sitelist(site_dat: Path) -> Path:
     content = "1".rjust(4) + " Test site".ljust(36) + site_dat.name + "\n"
     content += "2".rjust(4) + " Not exist file".ljust(36) + "not exist.dat"
     path = site_dat.parent / "sitelist.dat"
@@ -76,7 +79,7 @@ def sitelist(site_dat: Path):
 
 
 @fixture
-def site_dat(site_dir: Path):
+def site_dat(site_dir: Path) -> Path:
     dat = site_dir / "test_site.dat"
     lines = [
         "Test site",
@@ -97,7 +100,7 @@ def site_dat(site_dir: Path):
 
 
 @fixture
-def invalid_site_dat(tmp_path: Path):
+def invalid_site_dat(tmp_path: Path) -> Path:
     dat = tmp_path / "test_site.dat"
     lines = [
         "Invalid site",

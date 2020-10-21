@@ -4,10 +4,8 @@ import pytest
 
 from cotton2k.site import Site
 
-from .fixtures import data_dir, invalid_site_dat, site_dat, site_dir
 
-
-def test_site(site_dat):
+def test_site(site_dat: Path):
     site = Site.from_dat(site_dat)
     assert site[1] == site.wind_start_hours_after_sunrise
     assert site.parameters[1] == site[1]
@@ -24,6 +22,6 @@ def test_site(site_dat):
     site.deep_soil_temperature(10)
 
 
-def test_invalid_site(invalid_site_dat):
+def test_invalid_site(invalid_site_dat: Path):
     with pytest.raises(ValueError):
         site = Site.from_dat(invalid_site_dat)

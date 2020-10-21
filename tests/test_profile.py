@@ -18,18 +18,8 @@ from cotton2k.profile import (
 )
 from cotton2k.site import Site
 
-from .fixtures import (
-    CONTENT,
-    data_dir,
-    pro_file,
-    site_dat,
-    site_dir,
-    sitelist,
-    tmp_file,
-)
 
-
-def test_parse_profile():
+def test_parse_profile(CONTENT):
     result = parse_profile(CONTENT)
     assert result["dayEndMulch"] == 289
     parse_profile(

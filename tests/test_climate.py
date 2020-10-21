@@ -8,8 +8,6 @@ from cotton2k.climate import (
     vapor_pressure,
 )
 
-from .fixtures import weather_file
-
 
 def test_read_climate_data(weather_file):
     result = read_climate_data(weather_file)
@@ -65,4 +63,5 @@ def test_compute_day_length():
     threshold = timedelta(minutes=3)
     assert abs(sunrise - datetime.fromisoformat(results["sunrise"])) <= threshold
     assert abs(sunset - datetime.fromisoformat(results["sunset"])) <= threshold
+    assert abs(solar_noon - datetime.fromisoformat(results["solar_noon"])) <= threshold
     assert abs(day_length - timedelta(seconds=39286)) <= 2 * threshold
