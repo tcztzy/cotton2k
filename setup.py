@@ -11,7 +11,7 @@ Programming Language :: Python :: 3
 Programming Language :: Python :: 3.8"""
 
 
-with open("README.md") as f:
+with open("README.rst") as f:
     README = f.read()
 
 
