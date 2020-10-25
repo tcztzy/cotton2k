@@ -5,7 +5,7 @@ repos:
     -   id: black
         args: [--safe, --quiet]
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.1.0
+    rev: v3.3.0
     hooks:
     -   id: trailing-whitespace
     -   id: fix-encoding-pragma
@@ -15,7 +15,7 @@ repos:
         exclude: _pytest/(debugging|hookspec).py
         language_version: python3
 -   repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.5.4
+    rev: v5.6.4
     hooks:
     -   id: isort
         files: ^(cotton2k|tests)/

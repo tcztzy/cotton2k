@@ -27,10 +27,13 @@ def test_unit():
         and N.base_units[MassUnit] == 1
         and N.base_units[LengthUnit] == 1
     )
+    assert (N * 2).gain == 2
+    assert (N / 2).gain == 0.5
+    assert (N / 0.5).gain == 2
     with pytest.raises(TypeError):
-        N * 2
+        N * object()
     with pytest.raises(TypeError):
-        N / 2
+        N / object()
     with pytest.raises(ValueError):
         C * C
     with pytest.raises(ValueError):

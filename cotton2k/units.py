@@ -68,8 +68,14 @@ class Unit:
         return None
 
     def __mul__(self, other):
-        if not isinstance(other, Unit):
+        if not isinstance(other, (Unit, int, float, Decimal)):
             raise TypeError
+        if isinstance(other, (int, float, Decimal)):
+            if isinstance(other, float):
+                other = Decimal(str(other))
+            unit = Unit(self.gain * other)
+            unit.base_units = self.base_units
+            return unit
         base_units = self.base_units.copy()
         base_units.update(other.base_units)
         if self.offset != 0 or other.offset != 0:
@@ -82,8 +88,14 @@ class Unit:
         return unit
 
     def __truediv__(self, other):
-        if not isinstance(other, Unit):
+        if not isinstance(other, (Unit, int, float, Decimal)):
             raise TypeError
+        if isinstance(other, (int, float, Decimal)):
+            if isinstance(other, float):
+                other = Decimal(str(other))
+            unit = Unit(self.gain / other)
+            unit.base_units = self.base_units
+            return unit
         base_units = self.base_units.copy()
         base_units.subtract(other.base_units)
         gain = self.gain * other.gain
@@ -136,4 +148,9 @@ degree_Kelvin = K = TemperatureUnit()
 degree_Celsius = C = TemperatureUnit(1, Decimal("-273.15"))
 degree_Fahrenheit = F = TemperatureUnit(Decimal("1.8"), Decimal("-459.67"))
 
+# Force
 N = kg * m / s ** 2
+
+# Energy
+J = Joule = N * m
+Cal = Calorie = J * 0.238846
