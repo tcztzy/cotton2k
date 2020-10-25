@@ -1,11 +1,17 @@
 import pytest
 
 from cotton2k.units import (
+    C,
     LengthUnit,
+    MassUnit,
+    N,
+    TimeUnit,
     degree_Celsius,
     degree_Fahrenheit,
     degree_Kelvin,
+    kg,
     meter,
+    s,
 )
 
 
@@ -16,6 +22,22 @@ def test_unit():
     唐.name = "唐梓涯的身高"
     with pytest.raises(TypeError):
         唐.gain = None
+    assert (
+        N.base_units[TimeUnit] == -2
+        and N.base_units[MassUnit] == 1
+        and N.base_units[LengthUnit] == 1
+    )
+    with pytest.raises(TypeError):
+        N * 2
+    with pytest.raises(TypeError):
+        N / 2
+    with pytest.raises(ValueError):
+        C * C
+    with pytest.raises(ValueError):
+        C ** 2
+    assert isinstance((meter ** -1) ** -1, LengthUnit)
+    assert isinstance(s ** 2 * s ** -1, TimeUnit)
+    assert isinstance(N * s ** 2 / kg, LengthUnit)
 
 
 def test_temperature_unit():
