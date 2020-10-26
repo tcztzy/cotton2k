@@ -27,6 +27,24 @@ class Quantity:
         o_value = (o.value - o.unit.offset) / o.unit.gain
         return self_value == o_value
 
+    def __mul__(self, other):
+        if isinstance(other, (int, float, Decimal)):
+            if isinstance(other, float):
+                other = Decimal(str(other))
+            return Quantity(self.value * other, self.unit)
+        if isinstance(other, Unit):
+            return Quantity(self.value, self.unit * other)
+        raise TypeError
+
+    def __truediv__(self, other):
+        if isinstance(other, (int, float, Decimal)):
+            if not isinstance(other, Decimal):
+                other = Decimal(str(other))
+            return Quantity(self.value / other, self.unit)
+        if isinstance(other, Unit):
+            return Quantity(self.value, self.unit / other)
+        raise TypeError
+
 
 @dataclass
 class Unit:
@@ -52,13 +70,9 @@ class Unit:
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, Unit):
             raise TypeError
-        if self.__class__ != o.__class__:
+        if self.base_units != o.base_units:
             raise TypeError(f"{type(self)} can't compare with {type(o)}")
-        return (
-            self.gain == o.gain
-            and self.offset == o.offset
-            and self.base_units == o.base_units
-        )
+        return self.gain == o.gain and self.offset == o.offset
 
     @staticmethod
     def __simplify__(base_units):
@@ -73,7 +87,7 @@ class Unit:
         if isinstance(other, (int, float, Decimal)):
             if isinstance(other, float):
                 other = Decimal(str(other))
-            unit = Unit(self.gain * other)
+            unit = Unit(self.gain / other)
             unit.base_units = self.base_units
             return unit
         base_units = self.base_units.copy()
@@ -93,12 +107,12 @@ class Unit:
         if isinstance(other, (int, float, Decimal)):
             if isinstance(other, float):
                 other = Decimal(str(other))
-            unit = Unit(self.gain / other)
+            unit = Unit(self.gain * other)
             unit.base_units = self.base_units
             return unit
         base_units = self.base_units.copy()
         base_units.subtract(other.base_units)
-        gain = self.gain * other.gain
+        gain = self.gain / other.gain
         if cls := self.__simplify__(base_units):
             return cls(gain)
         unit = Unit(gain)
@@ -140,10 +154,20 @@ class TemperatureUnit(Unit):  # pylint: disable=too-few-public-methods
     """TemperatureUnit class"""
 
 
+# Length
 meter = m = LengthUnit()
-kilo_gram = kg = MassUnit()
+mm = m * 0.001
+centimeter = cm = m * 0.01
+kilometer = km = m * 1000
+mile = km * 1.609344
+
+# Mass
+kilogram = kg = MassUnit()
+
+# Time
 second = s = TimeUnit()
 
+# Temperature
 degree_Kelvin = K = TemperatureUnit()
 degree_Celsius = C = TemperatureUnit(1, Decimal("-273.15"))
 degree_Fahrenheit = F = TemperatureUnit(Decimal("1.8"), Decimal("-459.67"))
@@ -152,5 +176,9 @@ degree_Fahrenheit = F = TemperatureUnit(Decimal("1.8"), Decimal("-459.67"))
 N = kg * m / s ** 2
 
 # Energy
-J = Joule = N * m
-Cal = Calorie = J * 0.238846
+Joule = J = N * m
+MJ = J * 1000000
+Calorie = Cal = J * 4.184
+
+# Solar Radiation
+Langley = Ly = Cal / (cm ** 2)
