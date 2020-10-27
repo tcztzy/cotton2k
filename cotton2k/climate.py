@@ -145,7 +145,8 @@ def tdewest(t: float, site_parameter5: float, site_parameter6: float) -> float:
 
 def vapor_pressure(temperature: float) -> float:
     """
-    Compute vapor pressure in the air (in KPa units) function of the air at temperature (C).
+    Compute vapor pressure in the air (in KPa units) function of the air at
+    temperature (C).
 
     Tetens, O. 1930. Uber einige meteorologische Begriffe. Z. Geophys.. 6. 297–309.
 
@@ -157,7 +158,7 @@ def vapor_pressure(temperature: float) -> float:
 
 
 @dataclass
-class DailyClimate:
+class DailyClimate:  # pylint: disable=too-many-instance-attributes
     """Class represent daily climate"""
 
     _rad: float

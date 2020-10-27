@@ -6,7 +6,7 @@ from datetime import date
 from locale import atof, atoi
 from os.path import splitext
 from pathlib import Path
-from typing import Dict, Union
+from typing import Union
 from warnings import warn
 
 from cotton2k.io import read_calibration_data
@@ -95,7 +95,7 @@ def parse_profile_weather(line: str) -> dict:
 def parse_profile_soil_mulch(line: str) -> dict:
     """Parse soil mulch information of profile"""
     MulchIndicator = atoi(line[:10]) if line else 0
-    result: Dict[str, Union[int, float]] = {  # pylint: disable=E1136
+    result: dict[str, Union[int, float]] = {  # type: ignore
         "mulchIndicator": MulchIndicator
     }
     if MulchIndicator > 0:
@@ -174,7 +174,7 @@ def parse_profile_output_flags(line: str) -> dict:
 
 
 @dataclass
-class Profile:
+class Profile:  # pylint: disable=too-many-instance-attributes
     """Profile class for the simulation model"""
 
     path: Path

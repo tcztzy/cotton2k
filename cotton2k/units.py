@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any, Type, Union
 
-Number = Union[int, Decimal]  # pylint: disable=unsubscriptable-object
-AnyNumber = Union[float, Number]  # pylint: disable=unsubscriptable-object
+Number = Union[int, Decimal]
+AnyNumber = Union[float, Number]
 
 
 @dataclass
