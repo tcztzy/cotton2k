@@ -8,7 +8,7 @@ from locale import atof, atoi
 from math import acos, cos, exp, pi, radians, sin, tan
 from pathlib import Path
 from re import findall
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 from cotton2k.utils import date_to_day_of_year
 
@@ -92,7 +92,7 @@ def parse_weather(content: str) -> dict:
     """Parse weather file"""
     lines = content.splitlines()
     head_line, *daily_climate_lines = lines
-    result: Dict[str, Any] = dict()
+    result: dict[str, Any] = dict()  # type: ignore
     n_length = len(head_line)
     if n_length >= 31:
         result["isw_rad"] = bool(atoi(head_line[31:34]))
@@ -108,7 +108,7 @@ def parse_weather(content: str) -> dict:
         result["average_wind"] = atof(head_line[61:71])
     clim = list()
     for line in daily_climate_lines:
-        kwargs: Dict[str, Union[bool, float]] = {
+        kwargs: dict[str, Union[bool, float]] = {  # type: ignore
             "_" + k: v for k, v in result.items() if k.startswith("isw")
         }
         (
@@ -209,7 +209,7 @@ class DailyClimate:  # pylint: disable=too-many-instance-attributes
 class Climate:
     """Climate class"""
 
-    _climate: List[DailyClimate]
+    _climate: list[DailyClimate]  # type: ignore
     isw_rad: bool
     isw_tmp: bool
     isw_rain: bool
@@ -224,5 +224,5 @@ class Climate:
 
     def __getitem__(
         self, item: Union[int, slice]
-    ) -> Union[DailyClimate, List[DailyClimate]]:
+    ) -> Union[DailyClimate, list[DailyClimate]]:  # type: ignore
         return self._climate[item]

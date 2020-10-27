@@ -4,7 +4,6 @@ from __future__ import annotations
 from math import pi, sin
 from operator import itemgetter
 from pathlib import Path
-from typing import List
 
 from cotton2k.io import parse_parameter
 
@@ -32,7 +31,7 @@ PARAMETER_RANGES = (
 class Site:
     """Site specific parameters"""
 
-    _site_par: List[float]
+    _site_par: list[float]  # type: ignore
     wind_start_hours_after_sunrise: float = parameter(1)
     wind_max_hours_after_noon: float = parameter(2)
     wind_stop_hours_after_sunset: float = parameter(3)

@@ -1,7 +1,6 @@
 """Input/Output"""
 from locale import atof
 from pathlib import Path
-from typing import List
 
 
 def read_calibration_data(var_number: int, varlist: Path, type_: str = "var"):
@@ -32,7 +31,7 @@ def parse_list_dat(content: str) -> dict:
     return result
 
 
-def parse_parameter(content: str, number: int) -> List[float]:
+def parse_parameter(content: str, number: int) -> list[float]:  # type: ignore
     """Parse the parameter from .dat file"""
     lines = content.splitlines()
     return list(map(lambda line: atof(line[:15]), lines[1 : number + 1]))  # noqa: E203
