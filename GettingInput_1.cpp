@@ -279,7 +279,7 @@ void ReadProfileFile()
         OutIndex[n] = 0;
     Dummy = GetLineData(DataFile);
     nLength = Dummy.GetLength();
-    for (n = 0; n < 23 && 3*n < nLength ; n++)
+    for (int n = 0; n < 23 && 3*n < nLength ; n++)
     {
           int n1 = 3 * n;
           OutIndex[n+1] = atoi(Dummy.Mid(n1, 3)); 
@@ -428,7 +428,7 @@ void ReadCalibrationData()
           return;
     }
 //
-    for (m_idx = 0; m_idx < 1000; m_idx++)
+    for (int m_idx = 0; m_idx < 1000; m_idx++)
     {
         if (DataFile2.eof() == 1)
             break;
@@ -477,7 +477,7 @@ void ReadCalibrationData()
     }
 //     Read values of site related parameters
 	Dummy = GetLineData(DataFile3);  // skip 1st line
-	for (i = 1; i <= 20; i++)
+	for (int i = 1; i <= 20; i++)
 	{
 	    Dummy = GetLineData(DataFile3); 
 		SitePar[i] = atof (Dummy.Left(20));

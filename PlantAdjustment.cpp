@@ -161,7 +161,7 @@ void WriteStateVariables(BOOL bAdjusting)
             Scratch21[DayOfSimulation-1].leafWeightPreFru[i] = LeafWeightPreFru[i];
             Scratch21[DayOfSimulation-1].petioleWeightPreFru[i] = PetioleWeightPreFru[i];
          }
-         for (i = 0; i < 20; i++)
+         for (int i = 0; i < 20; i++)
          {
             Scratch21[DayOfSimulation-1].abscissionLag[i] = AbscissionLag[i];
             Scratch21[DayOfSimulation-1].shedByCarbonStress[i] = ShedByCarbonStress[i];
@@ -536,7 +536,7 @@ void GoBack()
             LeafWeightPreFru[i] = Scratch21[irec].leafWeightPreFru[i];
             PetioleWeightPreFru[i] = Scratch21[irec].petioleWeightPreFru[i];
          }
-         for (i = 0; i < 20; i++)
+         for (int i = 0; i < 20; i++)
          {
             AbscissionLag[i] = Scratch21[irec].abscissionLag[i];
             ShedByCarbonStress[i] = Scratch21[irec].shedByCarbonStress[i];

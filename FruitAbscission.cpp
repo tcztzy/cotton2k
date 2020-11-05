@@ -80,7 +80,7 @@ void FruitingSitesAbscission()
 //  first relevant tagging. If AbscissionLag reaches a value of vabsfr[4],
 //  calculate actual shedding of each site:
       int idecr = 0; // decrease in NumSheddingTags after shedding has been executed.
-      for (lt = 0; lt < NumSheddingTags; lt++)
+      for (int lt = 0; lt < NumSheddingTags; lt++)
 	  {
          if ( AbscissionLag[lt] >= vabsfr[4] || lt >= 20 ) 
 		 {

@@ -620,7 +620,7 @@ void OutputForSoilMaps(int irec, int igo, int nday)
          double wfc = 0; // average value of field-capacity water content.
          double wsa = 0; // average value of saturated water content.
          double wwp = 0; // average value of wilting point water content.
-         for ( l = 0; l < nl; l++)
+         for (int l = 0; l < nl; l++)
 		 {
             wad += thad[l];
             wwp += thetar[l];
@@ -642,7 +642,7 @@ void OutputForSoilMaps(int irec, int igo, int nday)
          capsca[9] = wsa;
          capsca[10] = 0.99;
          tl1 = "WATER    ";
-         for (i = 0; i < 11; i++)
+         for (int i = 0; i < 11; i++)
             range[i] = capsca[i];
       }
 //     Define titles, units, and range of values used for plotting
@@ -704,7 +704,7 @@ void OutputForSoilMaps(int irec, int igo, int nday)
       for (int k = 0; k < maxk; k++)
          for (int l = 0; l < maxl; l++)
 			 khar[l][k] = "  ";
-      for ( k = 0; k < maxk; k++)
+      for (int k = 0; k < maxk; k++)
          for (int l = 0; l < maxl; l++)
 		 {
 	        double araylk; // array element for cell (l,k).
@@ -718,7 +718,8 @@ void OutputForSoilMaps(int irec, int igo, int nday)
                araylk = Array[l][k];
 //     Determine to which range of values belongs araylk, and assign accordingly
 //  the appropriate symbol (ka) to the element of khar for this cell.
-            for (int i = 0; i < 11; i++)
+			int i;
+            for (i = 0; i < 11; i++)
 			{
                if ( araylk <= range[i] )
 				   break;

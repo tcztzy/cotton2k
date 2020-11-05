@@ -358,7 +358,7 @@ void SortArray(int size, double InData[], int indexk[], int indexl[], int indexm
 		OutData[i] = 0;
 	}
 //     Loop over arrays, extract values of the ith member
-	for (i = 0; i < size; i++)
+	for (int i = 0; i < size; i++)
 	{
 		double value = InData[i];
 		int n0 = indexk[i];
@@ -384,7 +384,7 @@ void SortArray(int size, double InData[], int indexk[], int indexl[], int indexm
 		} // for j
 	} // for i
 //     Transfer values back to the input arrays
-	for (i = 0; i < size; i++)
+	for (int i = 0; i < size; i++)
 	{
 		indexk[i] = outk[i];
 		indexl[i] = outl[i];

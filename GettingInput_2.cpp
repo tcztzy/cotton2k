@@ -111,7 +111,7 @@ void InitSoil()
       fstr.close();
 //     Data for soil layers below 180 cm are assumed to be the same
 //  as those for the last defined layer (layer 11 is 165-200 cm).
-      for ( i = 12; i < 14; i++)
+      for (int i = 12; i < 14; i++)
 	  {
           h2oint[i] = h2oint[11];
           rnnh4[i]  = rnnh4[11];
@@ -177,7 +177,7 @@ void InitializeSoilData()
 //     Loop for all soil layers. Compute depth from soil surface to
 //  the end of each layer (sumdl).
       sumdl = 0;
-      for ( l = 0; l < nl; l++)
+      for (int l = 0; l < nl; l++)
 	  {
           sumdl += dl[l];
 //     At start of simulation compute estimated movable fraction of
@@ -247,7 +247,7 @@ void InitializeSoilData()
 	  }
 //     Since the initial value has been set for the first column only
 //  in each layer, these values are now assigned to all the other columns.
-      for ( l = 0; l < nl; l++)
+      for (int l = 0; l < nl; l++)
          for ( int k = 1; k < nk; k++)
 		 {
             VolWaterContent[l][k] = VolWaterContent[l][0];
@@ -263,7 +263,7 @@ void InitializeSoilData()
       TotalSoilNh4N = 0;
       TotalSoilUreaN = 0;
 //
-      for ( l = 0; l < nl; l++)
+      for (int l = 0; l < nl; l++)
          for ( int k = 0; k < nk; k++)
 		 {
             InitialTotalSoilWater += VolWaterContent[l][k] * dl[l] * wk[k];
@@ -387,7 +387,7 @@ void InitializeRootData()
          }
       }
 //     All the state variables of the root system are initialized to zero.
-      for ( l = 0; l < nl; l++)
+      for (int l = 0; l < nl; l++)
 	  {
 	     if (l < 3)
 		 {
@@ -439,7 +439,7 @@ void InitializeRootData()
 //     Start loop for all soil layers containing roots.
       DepthLastRootLayer = 0;
       TotalRootWeight = 0;
-      for (l = 0; l < 7; l++)
+      for (int l = 0; l < 7; l++)
 	  {
          DepthLastRootLayer += dl[l]; //compute total depth to the last layer with roots (DepthLastRootLayer).
 //     For each soil soil cell with roots, compute total root weight 

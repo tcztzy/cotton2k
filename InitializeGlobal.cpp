@@ -150,14 +150,14 @@ void InitializeGlobal()
 		 }
 	  }
 //
-      for ( i = 0; i < 5; i++)
+      for (int i = 0; i < 5; i++)
 	  {
          DefoliationDate[i] = 0;
          DefoliationMethod[i] = 0;
          DefoliantAppRate[i] = 0;
       }
 //
-      for ( i = 0; i < 9; i++)
+      for (int i = 0; i < 9; i++)
 	  {
          AgeOfPreFruNode[i] = 0;
          LeafAreaPreFru[i] = 0;
@@ -168,7 +168,7 @@ void InitializeGlobal()
          PetioleWeightPreFru[i] = 0;
       }
 //
-      for (i = 0; i < 20; i++)
+      for (int i = 0; i < 20; i++)
 	  {
          AbscissionLag[i] = 0;
          DayWaterTableInput[i] = 0;
@@ -196,7 +196,7 @@ void InitializeGlobal()
 		 }
 	  }
 //
-      for (i = 0; i < 365; i++)
+      for (int i = 0; i < 365; i++)
 	  {
          StemWeight[i] =  0;
 	  }

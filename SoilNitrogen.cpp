@@ -519,17 +519,17 @@ void SoilNitrogenAverage()
 		    avno30 += VolNo3NContent[l][k] * dl[l];
             avnh30 += VolNh4NContent[l][k] * dl[l];
          }
-         for ( l = 8; l < 14; l++)
+         for (int l = 8; l < 14; l++)
 		 {
             avno60 += VolNo3NContent[l][k] * dl[l];
             avnh60 += VolNh4NContent[l][k] * dl[l];
          }
-         for ( l = 14; l < 20; l++)
+         for (int l = 14; l < 20; l++)
 		 {
             avno90 += VolNo3NContent[l][k] * dl[l];
             avnh90 += VolNh4NContent[l][k] * dl[l];
          }
-         for ( l = 20; l < 26; l++)
+         for (int l = 20; l < 26; l++)
 		 {
             avno120 += VolNo3NContent[l][k] * dl[l];
             avnh120 += VolNh4NContent[l][k] * dl[l];

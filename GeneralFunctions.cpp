@@ -37,7 +37,7 @@ CString GetLineData(ifstream &DataFile)
      LineString.Empty();
 
      DataFile.getline(m_TempString, 90);
-     for (ii = 0; ii < 90; ii++)
+     for (int ii = 0; ii < 90; ii++)
      {
 //     Ignore end of character string and convert it to space
           if (m_TempString[ii] == 0) 
@@ -106,7 +106,7 @@ int DateToDoy(CString Date, int m_YearStart)
       i0[2] = 28 + LeapYear(iy);
 //     Compute jday.
       int jday = 0;
-      for (i = 0; i < month; i++)
+      for (int i = 0; i < month; i++)
 			jday += i0[i];
       jday += day;
 //   Add correction if this is the next calendar year of simulation.
@@ -333,7 +333,8 @@ double GetFromClim(CString item, int Doy)
 //       Doy -  defines day of year to extract.
 //
 {
-	  for (int i = 0; i < 400; i++)
+      int i;
+	  for (i = 0; i < 400; i++)
 	  {
 		if (Clim[i].nDay == Doy)
 	            		break;

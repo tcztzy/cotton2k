@@ -242,13 +242,13 @@ void SoilTemperature()
          int layer = 0; // soil layer number
 		 double tsolav[maxl]; // hourly average soil temperature C, of a soil layer.
 //     Loop over kk columns, and call SoilHeatFlux().
-         for (k = 0; k < kk; k++)
+         for (int k = 0; k < kk; k++)
 	        SoilHeatFlux ( dlt, iv, nn, layer, k );
 //     If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the 
 //  value computed for the first column. Also, do the same for array memebers of VolWaterContent.
          if ( isw <= 1 ) 
-            for (l = 0; l < nl; l++)
-               for (k = 1; k < nk; k++)
+            for (int l = 0; l < nl; l++)
+               for (int k = 1; k < nk; k++)
 			   {
                   SoilTemp[l][k] = SoilTemp[l][0];
                   if (l == 0)
@@ -263,17 +263,17 @@ void SoilTemperature()
 		 {
             iv = 0;
             nn = nk;
-            for (l = 0; l < nl; l++)
+            for (int l = 0; l < nl; l++)
 			{
                layer = l;
                SoilHeatFlux ( dlt, iv, nn, layer, l );
             }
          }
 //     Compute average temperature of soil layers, in degrees C.
-         for (l = 0; l < nl; l++)
+         for (int l = 0; l < nl; l++)
 		 {
             tsolav[l] = 0;
-            for (k = 0; k < nk; k++)
+            for (int k = 0; k < nk; k++)
 			{
 	           SoilTempDailyAvrg[l][k] += SoilTemp[l][k];
                tsolav[l] += SoilTemp[l][k] - 273.161;
@@ -284,7 +284,7 @@ void SoilTemperature()
 //  shading of each column, only columns which are shaded 5% or more by canopy are used.
          double tfc = 0; // average foliage temperature, weighted by shading in each column
          double shading = 0; // sum of shaded area in all shaded columns, used to compute TFC
-         for (k = 0; k < nk; k++)
+         for (int k = 0; k < nk; k++)
 		 {
 	        if (rracol[k] <= 0.95) 
 			{
@@ -304,7 +304,7 @@ void SoilTemperature()
 			 File19 << ihr+1;
 			 File19.setf(ios::fixed);
 			 File19.precision(3);
-			 for (l = 0; l < 8; l++)
+			 for (int l = 0; l < 8; l++)
 			 {
 			    File19.width(8);
 			    File19 << tsolav[l];
@@ -313,7 +313,7 @@ void SoilTemperature()
 			 for (int n = 0; n < 4; n++)
 			 {
 			     File19 << "          ";
-			     for (l = 8*(n+1); l < 8*(n+2); l++)
+			     for (int l = 8*(n+1); l < 8*(n+2); l++)
 				 {
 			        File19.width(8);
 			        File19 << tsolav[l];
@@ -359,7 +359,7 @@ void SoilTemperature()
 	     Scratch21[DayOfSimulation-1].cumEvaporation = CumEvaporation;
       }
 //  compute daily averages.
-      for (l = 0; l < nl; l++)
+      for (int l = 0; l < nl; l++)
          for (int k = 0; k < nk; k++)
             SoilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k] / iter1;
 }

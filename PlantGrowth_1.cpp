@@ -219,7 +219,7 @@ void LeafWaterPotential()
       for (int k = 0; k < NumVegBranches; k++)  // loop for all other nodes
 	  {
          nbrch = NumFruitBranches[k];
-         for ( l = 0; l < nbrch; l++)
+         for (int l = 0; l < nbrch; l++)
 		 {
             nnid = NumNodes[k][l];
             for (int m = 0; m < nnid; m++)

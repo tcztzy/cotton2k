@@ -67,7 +67,7 @@ void CapillaryFlow()
 //  SoilPsi, VolNo3NContent and VolUreaNContent values to arrays psi1, nit and nur, respectively.
       for (int k = 0; k < nk; k++)
 	  {
-         for ( l = 0; l < nlx; l++)
+         for (int l = 0; l < nlx; l++)
 		 {
             q1[l] = VolWaterContent[l][k];
             q01[l] = VolWaterContent[l][k];
@@ -99,7 +99,7 @@ void CapillaryFlow()
 //  one-dimensional arrays are defined for each layer: assign the VolWaterContent values 
 //  to  q1 and q01. Assign SoilPsi, VolNo3NContent, VolUreaNContent, thad and thts values 
 //  of the soil cells to arrays psi1, nit, nur, qr1 and qs1, respectively.
-      for (l = 0; l < nlx; l++)
+      for (int l = 0; l < nlx; l++)
 	  {
          for (int k = 0; k < nk; k++)
 		 {
@@ -119,7 +119,7 @@ void CapillaryFlow()
          NitrogenFlow(nk, q01, q1, wk1, nit, nur);
 //     Reassign the updated values of q1, nit, nur and psi1 back to 
 //  VolWaterContent, VolNo3NContent, VolUreaNContent and SoilPsi.
-         for (k = 0; k < nk; k++)
+         for (int k = 0; k < nk; k++)
 		 {
             VolWaterContent[l][k] = q1[k];
             SoilPsi[l][k] = psi1[k] - PsiOsmotic ( VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
@@ -134,7 +134,7 @@ void CapillaryFlow()
       if ( WaterDrainedOut > 0 ) 
          CumWaterDrained += 10 * WaterDrainedOut / RowSpace;
 //  Compute the soil water potential for all soil cells.
-      for (l = 0; l < nl; l++)
+      for (int l = 0; l < nl; l++)
 	  {
          int j = SoilHorizonNum[l];
          for (int k = 0; k < nk; k++)
@@ -457,7 +457,7 @@ void DripFlow(double Drip)
          }
 //     For all the cells in the ring, as in the 1st cell, saturate VolWaterContent to uplimit, 
 //  and update VolNo3NContent and VolUreaNContent.
-         for ( l = 1; l < nl; l++)
+         for (int l = 1; l < nl; l++)
 		 {
             if (l >= WaterTableLayer) 
                   uplimit = PoreSpace[l];

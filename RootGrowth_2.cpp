@@ -526,7 +526,7 @@ void RootSummation()
             roots += rootsv[l][k];
 		 }
 //
-      for (l = 0; l < maxl; l++)
+      for (int l = 0; l < maxl; l++)
          for (int k = 0; k < maxk; k++)
              Scratch21[DayOfSimulation-1].rootsv[l][k] = rootsv[l][k];
 //     Convert total root weight from g per slab to g per plant.
@@ -546,7 +546,7 @@ void RootSummation()
             double rwt[3]; // total weight of roots of class i, g per slab.
             for (int i = 0; i < 3; i++)
                rwt[i] = 0;
-            for (l = 0; l < NumLayersWithRoots; l++)
+            for (int l = 0; l < NumLayersWithRoots; l++)
 			{
                rootl[l] = 0;
                for (int i = 0; i < 3; i++)
@@ -593,7 +593,7 @@ void RootSummation()
             File34 << TotalRootWeight << endl;
 //
             File34 << " Root Weight of each class per slab = " << endl;
-			for (i = 0; i < NumRootAgeGroups; i++)
+			for (int i = 0; i < NumRootAgeGroups; i++)
 			{
 	              File34.precision(3);
                   File34.width(13);
@@ -604,14 +604,14 @@ void RootSummation()
 //  per cm**3 soil volume for each cell.
             File34 << "  Root weight capable of uptake (in mg / cm**3 soil volume) :" << endl;
             File34 << " Layer ";
-			for (i = 0; i < nk; i++)
+			for (int i = 0; i < nk; i++)
 			{
                   File34.width(9);
                   File34 << i+1;
 			}
 			File34 << endl;
 
-            for (l = 0; l < NumLayersWithRoots; l++)
+            for (int l = 0; l < NumLayersWithRoots; l++)
 			{
                File34.width(5);
                File34 << l+1 << " ";

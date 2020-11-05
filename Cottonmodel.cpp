@@ -248,7 +248,7 @@ BOOL C2KApp::DoAdjustments()
       if (sumsad <= 0)
           return FALSE;
 //     Loop for all adjustment data, and check if there is an adjustment for this day.
-      for (i = 0; i < 30; i++)
+      for (int i = 0; i < 30; i++)
       {
 	     if (Daynum == MapDataDate[i])       
          {
@@ -276,7 +276,7 @@ BOOL C2KApp::DoAdjustments()
 //  be used for next adjustment), and assign zero to the present msadte, and to array nadj[].
             kprevadj = MapDataDate[i] - DayEmerge + 1;
             MapDataDate[i] = 0;
-            for( jj = 0; jj < 5; jj++)
+            for(int jj = 0; jj < 5; jj++)
                  nadj[jj] = FALSE;
             continue;
          }// end if Daynum

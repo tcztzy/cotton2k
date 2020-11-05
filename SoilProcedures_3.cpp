@@ -105,7 +105,7 @@ void WaterUptake()
          } // end loop l
 //
          difupt = 0;
-         for ( l = 0; l < NumLayersWithRoots; l++)
+         for (int l = 0; l < NumLayersWithRoots; l++)
             for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
                if (upf[l][k] > 0 && VolWaterContent[l][k] > thetar[l]) 
 			   {
@@ -139,7 +139,7 @@ void WaterUptake()
             Transp = difupt;
       } while (difupt > 0);    // end of do; repeat if difupt greater than 0.
 //  recompute SoilPsi for all soil cells with roots by calling function PSIQ, 
-      for ( l = 0; l < NumLayersWithRoots; l++)
+      for (int l = 0; l < NumLayersWithRoots; l++)
 	  {
          int j = SoilHorizonNum[l];
          for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
@@ -314,7 +314,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 	                 // of the layer above it (or the column to the left of it)
       double avcond[40]; // average hydraulic conductivity of two adjacent soil cells
 	  double condmin = 0.000006;  // minimum value of conductivity, used for computing averages
-      for ( i = 1; i < nn; i++)
+      for (int i = 1; i < nn; i++)
 	  {
          dy[i] = 0.5 * (dd[i-1] + dd[i]);
          if (cond[i-1] <= condmin && cond[i] <= condmin) 
@@ -333,10 +333,10 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
       double qx[40]; // previous value of q1.
       double addq[40]; // water added to qx
       double sumaddq = 0; // sum of addq
-      for ( i = 0; i < nn; i++)
+      for (int i = 0; i < nn; i++)
               qx[i] = q1[i]; 
 //     Loop from the second to the last but one soil cells.
-      for ( i = 1; i < nn-1; i++)
+      for (int i = 1; i < nn-1; i++)
 	  {
 //     Compute the difference in soil water potential between adjacent cells (deltpsi). 
 //  This difference is not allowed to be greater than 1000 bars, in order to prevent computational
@@ -411,7 +411,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
          }
       }
 //     Water content q1[i] and soil water potential psi1[i] are updated.
-      for ( i = 0; i < nn; i++)
+      for (int i = 0; i < nn; i++)
 	  {
          q1[i] = qx[i] + addq[i];
          if (iv == 1)
@@ -420,7 +420,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 	  }
 //     Compute the implicit part of the solution, weighted by RatioImplicit, starting
 //  loop from the second cell.
-      for ( i = 1; i < nn; i++)
+      for (int i = 1; i < nn; i++)
 	  {
 //     Mean conductivity (avcond) between adjacent cells is made "dimensionless" (ky) by 
 //  multiplying it by the time step (delt)and dividing it by cell length (dd) and by dy. 
@@ -435,7 +435,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 	  }
 //     ky[i] is the conductivity between soil cells i and i-1, whereas kx[i] is between i and i+1. 
 //  Another loop, until the last but one soil cell, computes kx in a similar manner.
-      for ( i = 0; i < nn-1; i++)
+      for (int i = 0; i < nn-1; i++)
 	  {
          kx[i] = 1000 * avcond[i+1] * delt / (dy[i+1] * dd[i]);
          if (kx[i] < 0.0000001) kx[i] = 0;
@@ -443,7 +443,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
       }
 //     Arrays used for the implicit numeric solution:
       double a1[40], b1[40], cau[40], cc1[40], d1[40], dau[40];
-      for ( i = 0; i < nn; i++)
+      for (int i = 0; i < nn; i++)
 	  {
 //     Arrays a1, b1, and cc1 are computed for the implicit part of
 //  the solution, weighted by RatioImplicit.
@@ -470,7 +470,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 //     Intermediate arrays dau and cau are computed.
          cau[nn-1] = psi1[nn-1];
          dau[nn-1] = 0;
-         for ( i = nn-2; i > 0; i--)
+         for (int i = nn-2; i > 0; i--)
 		 {
             double p = a1[i] * dau[i+1] + b1[i]; // temporary
             dau[i] = -cc1[i] / p;
@@ -481,7 +481,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
          psi1[0] = psiq(q1[0],qr1[0],qs1[0],alpha[j],beta[j]);
 //     psi1 is now computed for soil cells 1 to nn-2. q1 is
 //  computed from psi1 by function qpsi.
-         for ( i = 1; i < nn-1; i++)
+         for (int i = 1; i < nn-1; i++)
 		 {
             if (iv == 1) 
 				j = SoilHorizonNum[i];
@@ -497,7 +497,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 //  described previously are repeated in the opposite direction.
          cau[0] = psi1[0];
          dau[0] = 0;
-         for ( i = 1; i < nn-1; i++)
+         for (int i = 1; i < nn-1; i++)
 		 {
             double p = a1[i] * dau[i-1] + b1[i]; // temporary
             dau[i] = -cc1[i] / p;
@@ -506,7 +506,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
          if (iv == 1) 
 			 j = SoilHorizonNum[nn-1];
          psi1[nn-1] = psiq(q1[nn-1],qr1[nn-1],qs1[nn-1],alpha[j],beta[j]);
-         for ( i = nn-2; i > 0; i--)
+         for (int i = nn-2; i > 0; i--)
 		 {
             if (iv == 1) 
 				j = SoilHorizonNum[i];
@@ -516,7 +516,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 	  }
 //     The limits of water content are now checked and corrected, and
 //  function WaterBalance() is called to correct water amounts.
-      for ( i = 0; i < nn; i++)
+      for (int i = 0; i < nn; i++)
 	  {
          if (q1[i] < qr1[i]) 
 			 q1[i] = qr1[i];
@@ -553,7 +553,7 @@ void WaterBalance ( double q1[], double qx[], double dd[], int nn )
          dabs += fabs(q1[i]-qx[i]);
       }
       if (dabs > 0) 
-         for (i = 0; i < nn; i++)
+         for (int i = 0; i < nn; i++)
             q1[i] = q1[i] - fabs(q1[i] - qx[i]) * dev / (dabs * dd[i]);
 
 }
@@ -586,7 +586,7 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
       double qup[40] = {40 * 0}; // amount of nitrate N moving to the following cell.
       double udn[40] = {40 * 0}; // amount of urea N moving to the previous cell.
       double uup[40] = {40 * 0}; // amount of urea N moving to the following cell.
-      for (i = 0; i < nn; i++)
+      for (int i = 0; i < nn; i++)
       {
 //     The amout of water in each soil cell before (aq0) and after (aq1) water movement is 
 //  computed from the previous values of water content (q01), the present values (q1), 
@@ -626,7 +626,7 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
          }
       }
 //     Loop over all cells to update nit and nur arrays.
-      for (i = 0; i < nn; i++)
+      for (int i = 0; i < nn; i++)
       {
          nit[i] += (qdn[i] + qup[i]) / dd[i];
          nur[i] += (udn[i] + uup[i]) / dd[i];

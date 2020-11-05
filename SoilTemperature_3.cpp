@@ -285,7 +285,7 @@ void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )
       double dltmin = dlt; // minimum time step for the explicit solution.
       avdif[0] = 0;
       dy[0] = 0;
-      for ( i = 1; i < nn; i++)
+      for (int i = 1; i < nn; i++)
       {
 //     Compute average diffusivities avdif between layer i and the previous (i-1),
 //  and dy(i), distance (cm) between centers of layer i and the previous (i-1)
@@ -304,7 +304,7 @@ void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )
 // start iterations. Store temperature data in array ts0. count iterations.
       for(int  ii = 0; ii < iterx; ii++)
       {
-         for( i = 0; i < nn; i++)
+         for(int i = 0; i < nn; i++)
 		 {
             ts0[i] = ts1[i];
             if ( iv == 1 )
@@ -328,7 +328,7 @@ void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )
 	        cau[0] = ts1[0];
 //     Loop from the second to the last but one soil cells. Compute
 //  nondimensional diffusivities to next and previous layers.
-            for( i = 1; i < nn-1; i++)
+            for(int i = 1; i < nn-1; i++)
 			{
                ckx = avdif[i+1] * dlt1 / (dz[i] * dy[i+1]);
                cky = avdif[i] * dlt1 / (dz[i] * dy[i]);
@@ -344,7 +344,7 @@ void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )
 //     Correct value of last layer (nn-1) for explicit heat movement to/from layer nn-2
             ts1[nn-1] = ts1[nn-1] - (1- beta1) * (ts1[nn-1] - ts1[nn-2]) * ckx * dz[nn-2] / dz[nn-1];
 //     Continue with the implicit solution
-            for( i = nn-2; i >= 0; i--)
+            for(int i = nn-2; i >= 0; i--)
                ts1[i] = dau[i] * ts1[i+1] + cau[i];
 		 }
     	 else
@@ -352,7 +352,7 @@ void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )
 //     Alternate direction of computation for odd iteration number
             dau[nn-1] = 0;
 	        cau[nn-1] = ts1[nn-1];
-            for( i = nn-2; i > 0; i--)
+            for(int i = nn-2; i > 0; i--)
 			{
                ckx = avdif[i+1] * dlt1 / (dz[i] * dy[i+1]);
                cky = avdif[i] * dlt1 / (dz[i] * dy[i]);
@@ -364,7 +364,7 @@ void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )
                cau[i] = (varb + beta1 * cky * cau[i+1]) / vara;
             }
             ts1[0] = ts1[0] - (1- beta1) * (ts1[0] - ts1[1]) * cky * dz[1] / dz[0];
-            for( i = 1; i < nn; i++)
+            for(int i = 1; i < nn; i++)
 			   ts1[i] = dau[i] * ts1[i-1] + cau[i];
 		 }  // end if numiter
 //     Call HeatBalance to correct quantitative deviations caused by the
@@ -372,7 +372,7 @@ void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )
          HeatBalance ( nn );
       } // end of iterx loop
 //     Set values of SoiTemp 
-      for (i = 0; i < nn; i++)
+      for (int i = 0; i < nn; i++)
       {
 	      if (iv == 1)
                SoilTemp[i][n0] = ts1[i];
@@ -484,7 +484,7 @@ void HeatBalance( int nn )
       }
       if (dabs > 0)
 	  {
-         for ( i = 0; i <  nn; i++)
+         for (int i = 0; i <  nn; i++)
             ts1[i] = ts1[i] - fabs(ts1[i] - ts0[i]) * dev / (dabs * dz[i] * hcap[i]);
 	  }
 }

@@ -182,7 +182,7 @@ void RootsCapableOfUptake()
 //     Loop for all soil soil cells with roots. compute for each soil cell root-weight capable 
 //  of uptake (RootWtCapblUptake) as the sum of products of root weight and capability of 
 //  uptake index (cuind) for each root class in it.
-	  for ( l = 0; l < NumLayersWithRoots; l++)
+	  for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
 	        for (int i = 0; i < 3; i++)
                if (RootWeight[l][k][i] > 1.e-15)
@@ -228,10 +228,10 @@ void ApplyFertilizer()
 //     Calculate the actual depth of fertilizer incorporation in the soil (fertdp) as the sum of 
 //  all soil layers affected by incorporation.
                 double fertdp = 0; // depth of broadcast fertilizer incorporation, cm
-                for ( l = 0; l < lplow; l++)
+                for (int l = 0; l < lplow; l++)
 				    fertdp += dl[l];
 //     Update the nitrogen contents of all soil soil cells affected by this fertilizer application.
-                for ( l = 0; l < lplow; l++)
+                for (int l = 0; l < lplow; l++)
                     for (int k = 0; k < nk; k++)
 				    {
                         VolNh4NContent[l][k] += NFertilizer[i].amtamm * ferc / fertdp;
@@ -625,7 +625,7 @@ double AveragePsi()
 	}
 	double sumpsi = 0; // weighted sum of avgpsi 
 	double sumnum = 0; // sum of weighting coefficients for computing AverageSoilPsi.
-	for ( j = 0; j < 9; j++)
+	for (int j = 0; j < 9; j++)
 	{
          if (psinum[j] > 0 && sumdl[j] > 0)
 		 {

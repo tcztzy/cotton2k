@@ -77,7 +77,7 @@ void cotplt(int mtype)
       int m0; // number of node on fruiting branch in reverse order.
       int nbrch; // the number of fruiting branches on a vegetative stem.
       int nnid; // the number of nodes on a fruiting branch.
-	  for (k = 0; k < NumVegBranches; k++)
+	  for (int k = 0; k < NumVegBranches; k++)
 	  {
          nbrch = NumFruitBranches[k];
 //     Right side of the graph.
@@ -120,7 +120,7 @@ void cotplt(int mtype)
 			} // for m
 		 } // for l
 //     Repeat for the left side of the graph.
-		 for (l = 1; l < nbrch; l+=2)
+		 for (int l = 1; l < nbrch; l+=2)
 		 {
             nnid  = NumNodes[k][l];
 			for (int m = 0; m < nnid; m++)
@@ -168,10 +168,10 @@ void cotplt(int mtype)
 			for (int m = 0; m < 5; m++)
 				File24 << prt[0][lx][m];
 			File24 << "            " << pri[1][lx];
-			for (m = 0; m < 5; m++)
+			for (int m = 0; m < 5; m++)
 				File24 << prt[1][lx][m];
 			File24 << "            " << pri[2][lx];
-			for (m = 0; m < 5; m++)
+			for (int m = 0; m < 5; m++)
 				File24 << prt[2][lx][m];
 			File24 << endl;
             if ( lx1 >= 0 )
@@ -180,10 +180,10 @@ void cotplt(int mtype)
   			    for (int m = 0; m < 5; m++)
 				   File24 << prt[0][lx1][m];
 			    File24 << pri[0][lx1] << "            ";
-  			    for (m = 0; m < 5; m++)
+  			    for (int m = 0; m < 5; m++)
 				   File24 << prt[1][lx1][m];
 			    File24 << pri[1][lx1] << "            " ;
-  			    for (m = 0; m < 5; m++)
+  			    for (int m = 0; m < 5; m++)
 				   File24 << prt[2][lx1][m];
 			    File24 << pri[2][lx1] << endl;
 			}
@@ -199,10 +199,10 @@ void cotplt(int mtype)
   			for (int m = 0; m < 5; m++)
 			   File24 << prt[0][lx][m];
 			File24 << pri[0][lx] << "            ";
-  			for (m = 0; m < 5; m++)
+  			for (int m = 0; m < 5; m++)
 			   File24 << prt[1][lx][m];
 			File24 << pri[1][lx] << "            " ;
-  			for (m = 0; m < 5; m++)
+  			for (int m = 0; m < 5; m++)
 			   File24 << prt[2][lx][m];
 			File24 << pri[2][lx] << endl;
             if ( lx1 >= 0 )
@@ -211,10 +211,10 @@ void cotplt(int mtype)
 			   for (int m = 0; m < 5; m++)
 			    	File24 << prt[0][lx1][m];
 			   File24 << "            " << pri[1][lx1];
-			   for (m = 0; m < 5; m++)
+			   for (int m = 0; m < 5; m++)
 			    	File24 << prt[1][lx1][m];
 			   File24 << "            " << pri[2][lx1];
-			   for (m = 0; m < 5; m++)
+			   for (int m = 0; m < 5; m++)
 			    	File24 << prt[2][lx1][m];
 			   File24 << endl;
 			}
@@ -311,7 +311,7 @@ void sitecode()
 //  the average, mcode = 5 if below. If it is a young green boll, define mcode = 7 if retention
 //  is above the average, mcode = 5 if below. For abscised squares or bolls (fcode is 4 or 5) 
 //  define mcode as 4 or 5, respectively.
-	  for (k = 0; k < NumVegBranches; k++)
+	  for (int k = 0; k < NumVegBranches; k++)
 	  {
          int nbrch = NumFruitBranches[k];
 		 for (int l = 0; l < nbrch; l++)

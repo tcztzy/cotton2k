@@ -641,7 +641,7 @@ void EvapoTranspiration(int jtout)
       double cltcoram = CloudTypeCorr[iamhr];  //  cloud type correction during early morning 
       double cltcorpm = CloudTypeCorr[ipmhr];  //  cloud type correction during late afternoon
 //
-      for ( ihr = 0; ihr < 24; ihr++)  //  2nd hourly loop
+      for (int ihr = 0; ihr < 24; ihr++)  //  2nd hourly loop
 	  {
          double ti = ihr + 0.5;           // middle of the hourly interval
 //      Compute saturated vapor pressure (svp), using function VaporPressure().

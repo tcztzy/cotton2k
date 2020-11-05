@@ -74,7 +74,7 @@ double PotentialRootGrowth()
             PotGroRoots[l][k] = 0;
 	  RootImpedance();
       double sumpdr = 0;  // sum of potential root growth rate for the whole slab
-      for (l = 0; l < NumLayersWithRoots; l++)
+      for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = 0; k < nk; k++)
 		 {
 //     Check if this soil cell contains roots (if RootAge is greater
@@ -141,7 +141,8 @@ void RootImpedance()
          int j = SoilHorizonNum[l];
 	     double Bd = BulkDensity[j]; // bulk density for this layer
 //
-	     for (int jj = 0; jj < inrim; jj++)
+         int jj;
+         for (jj = 0; jj < inrim; jj++)
 		 {
              if ( Bd <= tstbd[jj][0] )
 			    	 break;
@@ -156,7 +157,8 @@ void RootImpedance()
 	     for (int k = 0; k < nk; k++)
 		 {
             double Vh2o = VolWaterContent[l][k] / Bd;
-            for (int ik = 0; ik < ncurve; ik++)
+            int ik;
+            for (ik = 0; ik < ncurve; ik++)
 			{
 		       if (Vh2o <= gh2oc[ik])
 					break;
@@ -422,7 +424,7 @@ void ComputeActualRootGrowth(double sumpdr )
             / sumpdr;
 	  pavail = 0;   
 //
-      for (l = 0; l < NumLayersWithRoots; l++)
+      for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = 0; k < nk; k++)
 		 {
 //     adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
@@ -451,7 +453,7 @@ void ComputeActualRootGrowth(double sumpdr )
          }
 //     The proportional amount of mass is added to the mass of the last (inactive) 
 //  root class in each soil cell.
-         for (l = 0; l <= LastTaprootLayer; l++)
+         for (int l = 0; l <= LastTaprootLayer; l++)
 		 {
             RootWeight[l][PlantRowColumn][NumRootAgeGroups-1] += availt * tpwt[l][0] / sumwt;
             RootWeight[l][PlantRowColumn+1][NumRootAgeGroups-1] +=  availt * tpwt[l][1] / sumwt;
@@ -461,7 +463,7 @@ void ComputeActualRootGrowth(double sumpdr )
 //  exceeds the threshold rtminc, and call RedistRootNewGrowth() for this cell. Otherwise, all 
 //  new growth is contained in the same cell, and the actual growth in this cell, 
 //  ActualRootGrowth(l,k) will be equal to adwr1(l,k).
-      for (l = 0; l < nl; l++)
+      for (int l = 0; l < nl; l++)
          for (int k = 0; k < nk; k++)
             if ( RootAge[l][k] > 0 ) 
 			{
@@ -481,7 +483,7 @@ void ComputeActualRootGrowth(double sumpdr )
       for (int i = 0; i < NumRootAgeGroups; i++)
          sumind += RootGrowthIndex[i];
 //
-      for (l = 0; l < NumLayersWithRoots; l++)
+      for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = 0; k < nk; k++)
 		 {
             if ( RootAge[l][k] > 0 ) 
@@ -489,7 +491,7 @@ void ComputeActualRootGrowth(double sumpdr )
                double sumgr = 0; // sum of growth index multiplied by root weight, for all classes in a cell.
                for (int i = 0; i < NumRootAgeGroups; i++)
                   sumgr += RootGrowthIndex[i] * RootWeight[l][k][i];
-               for (i = 0; i < NumRootAgeGroups; i++)
+               for (int i = 0; i < NumRootAgeGroups; i++)
 			   {
                   if ( sumgr > 0 ) 
                      RootWeight[l][k][i] += ActualRootGrowth[l][k] * RootGrowthIndex[i] * RootWeight[l][k][i] / sumgr;
@@ -504,7 +506,7 @@ void ComputeActualRootGrowth(double sumpdr )
 		   TapRootGrowth();
 //     Call functions for growth of lateral roots
       InitiateLateralRoots();
-      for (l = 0; l < LastTaprootLayer; l++)
+      for (int l = 0; l < LastTaprootLayer; l++)
 	  {
          if ( LateralRootFlag[l] == 2 ) 
 		 {
@@ -514,7 +516,7 @@ void ComputeActualRootGrowth(double sumpdr )
       }
 //     Initialize DailyRootLoss (weight of sloughed roots) for this day.
       DailyRootLoss = 0;
-      for (l = 0; l < NumLayersWithRoots; l++)
+      for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = 0; k < nk; k++)
 		 {
 //     Check RootAge to determine if this soil cell contains roots, and then compute root 
