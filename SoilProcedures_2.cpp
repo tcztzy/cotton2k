@@ -10,10 +10,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 //////////////////////////
 void CapillaryFlow()     
 //     This function computes the capillary water flow between soil cells. It is called by 

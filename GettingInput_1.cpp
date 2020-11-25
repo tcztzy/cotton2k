@@ -12,9 +12,6 @@
 #include "resource.h"
 #include <math.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 //
 // Definitions of File scope variables:
    bool bLat,                // true if latitude is south, false if north

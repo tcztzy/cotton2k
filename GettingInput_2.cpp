@@ -13,9 +13,6 @@
 #include "resource.h"
 //
 #include <math.h>
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 //
 // Definitions of variables with file scope:
 //

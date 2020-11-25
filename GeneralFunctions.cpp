@@ -17,10 +17,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 ///////////////////////////////////////////////////////////////////////
 CString GetLineData(ifstream &DataFile)
 //     This function safely reads a line from input. All data are read into a temporary character

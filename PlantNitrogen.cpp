@@ -15,10 +15,7 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include "resource.h"
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 //  File scope variables
       double burres; // reserve N in burrs, in g per plant.
       double leafrs; // reserve N in leaves, in g per plant.

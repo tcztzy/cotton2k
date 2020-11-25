@@ -11,9 +11,6 @@
 #include "resource.h"
 #include <math.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WriteStateVariables(bool bAdjusting)
 //     This function stores all state or rate variables, needed for output, or for rerunning

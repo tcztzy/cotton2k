@@ -11,9 +11,6 @@
 #include "resource.h"
 #include <math.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 //////////////////////////
 void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
 //     This function solves the energy balance equations at the soil surface, and at the

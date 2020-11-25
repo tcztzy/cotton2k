@@ -12,10 +12,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 //  arrays with file scope:
       double dz[maxl];  // equal to the dl array in a columnn, or wk in a row.
 	  double ts1[maxl]; // array of soil temperatures.

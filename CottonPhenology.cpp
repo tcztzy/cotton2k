@@ -16,10 +16,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 //   Declaration of file-scope variables:  
    double FibLength;           // fiber length
    double FibStrength;         // fiber strength

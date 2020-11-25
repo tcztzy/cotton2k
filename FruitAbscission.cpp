@@ -16,11 +16,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-//
+
 //////////////////////////////////////////////////
 void FruitingSitesAbscission()
 //     This function simulates the abscission of squares and bolls.

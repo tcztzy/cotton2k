@@ -9,10 +9,7 @@
 #include "resource.h"
 #include "dialogs.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 //////////////////////////
 void ColumnShading()      
 //     This function computes light interception by crop canopy and shading 

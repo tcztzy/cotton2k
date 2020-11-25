@@ -8,10 +8,7 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include "resource.h"
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 // File scope variables:
 double bsize[3][30][5]; // average boll size (g seeds + lint per boll)
 int    mcode[3][30][5]; // code indicating state of fruit.

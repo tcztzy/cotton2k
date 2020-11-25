@@ -16,9 +16,6 @@
 #include "resource.h"
 #include <math.h>  
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 //////////////////////////
 /*                References for soil nitrogen routines:
                 ======================================

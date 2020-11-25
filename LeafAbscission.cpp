@@ -12,10 +12,6 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-//
 //////////////////////////////////////////////////
 void LeafAbscission()
 //     This function simulates leaf abscission. It is called from

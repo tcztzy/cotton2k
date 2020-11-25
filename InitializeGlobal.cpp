@@ -1,10 +1,7 @@
 // File InitializeGlobal.cpp
 //
 #include "CottonSimulation.h"
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 ///////////////////////////////////////////////////////////////////////////
 void InitializeGlobal()
 //     This function initializes many "global" variables at the start of a

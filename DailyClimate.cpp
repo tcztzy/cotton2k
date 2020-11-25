@@ -31,9 +31,6 @@
 #include "dialogs.h"
 #include <math.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 //     Definition of file scope variables:
     double declination,      // daily declination angle, in radians.
            SolarNoon,        // time of solar noon, hours.

@@ -12,11 +12,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-//
+
 double ptsred; // The effect of moisture stress on the photosynthetic rate
 //////////////////////////////////////////////////
 double PhysiologicalAge()  // computes physiological age

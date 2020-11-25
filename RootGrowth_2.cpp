@@ -15,11 +15,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-//
+
 //////////////////////////////////////////////////
 void RedistRootNewGrowth(int l, int k, double addwt)
 //     This function computes the redistribution of new growth of

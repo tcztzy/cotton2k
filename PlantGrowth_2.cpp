@@ -11,10 +11,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 //////////////////////////////////////////////////////////////////
 double PotentialStemGrowth (double stemnew)  
 //     This function computes and returns the potential stem growth of cotton

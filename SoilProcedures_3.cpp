@@ -14,10 +14,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 ////////////////////////////////////////////////////////////////////////////
 void GravityFlow(double applywat)       
 //     This function computes the water redistribution in the soil or surface irrigation

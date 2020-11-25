@@ -13,10 +13,7 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include "resource.h"
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 /////////////////////////////////////////////////////////////
 void outputplt(const string& ProfileName)
 //     This function writes the output file that will be used to plot

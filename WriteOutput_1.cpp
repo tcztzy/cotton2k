@@ -10,10 +10,7 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include "resource.h"
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 /////////////////////////////////////////////////////////////
 void OpenOutputFiles(CString m_fileDesc, const string& ProfileName)
 //     This function opens the output files that will be used by

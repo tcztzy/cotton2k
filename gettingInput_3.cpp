@@ -10,10 +10,7 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include "resource.h"
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 int OpenClimateFile()
 //     This function gets the climate data file. It is called by ReadInput(),

@@ -14,10 +14,7 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 #include <math.h>
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
 //     The following is a documentation of the root sub-model used in COTTON2K. It is 

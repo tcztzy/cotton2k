@@ -16,9 +16,6 @@
 #include "GeneralFunctions.h"
 #include "resource.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 //////////////////////////
 void SoilProcedures(const string& ProfileName)    
 //     This function manages all the soil related processes, and is executed once each 
