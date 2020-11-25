@@ -18,7 +18,7 @@
 #define new DEBUG_NEW
 #endif
 /////////////////////////////////////////////////////////////
-void outputplt(string ProfileName)
+void outputplt(const string& ProfileName)
 //     This function writes the output file that will be used to plot
 //  plant charts at the end of the simulation. It is called from DataOutput().
 //     The values of the variables to plot are taken from structure Scratch21.
@@ -221,7 +221,7 @@ void outputplt(string ProfileName)
    }
 }
 ///////////////////////
-void output2(string ProfileName)
+void output2(const string& ProfileName)
 //     This function is optionally called from DataOutput().  It writes output of stress
 //  factors to file F01, when the output flag OutIndex(6) is non-zero.
 //     The values of the variables to plot are taken from structure Scratch21.
@@ -269,7 +269,7 @@ void output2(string ProfileName)
 	  }
 }
 ///////////////////////
-void output3(string ProfileName)
+void output3(const string& ProfileName)
 //     This procedure is optionally called from DataOutput(). It writes output of weights of 
 //  dry matter of plant parts to file F01. Data are extracted from structure Scratch21. 
 //     Global variables referenced:    OutIndex, PlantPopulation
@@ -337,7 +337,7 @@ void output3(string ProfileName)
 	  }
 }
 ///////////////////////
-void output4(string ProfileName)
+void output4(const string& ProfileName)
 //     This procedure is optionally called from DataOutput(). It writes output of water
 //  and evapotranspiration data to file F01, when the output flag OutIndex(4) is non-zero.
 //     Data are extracted from structure Scratch21. 
@@ -403,7 +403,7 @@ void output4(string ProfileName)
 	  }
 }
 ///////////////////////
-void output5(string ProfileName)
+void output5(const string& ProfileName)
 //     This procedure is optionally called from DataOutput() when the output flag
 // OutIndex[5] is non-zero. It writes output of weather variables to file F01.
 //     OutIndex[1] determines if the units are in  metric or English.
@@ -487,7 +487,7 @@ void output5(string ProfileName)
 	  }
 }
 ///////////////////////
-void output6(string ProfileName)
+void output6(const string& ProfileName)
 //     This procedure is always called from DataOutput().
 //     It writes output of final yields to file F01 and file S01.
 {
@@ -518,7 +518,7 @@ void output6(string ProfileName)
 	  File22 << LintYield * 0.893 / 500 << endl;
 }
 ///////////////////////
-void output7(string ProfileName)
+void output7(const string& ProfileName)
 //     This function is called by DataOutput(). It writes soil map output by calling
 //  OutputForSoilMaps(). If the day of year is between DayStartSoilMaps and DayStopSoilMaps,
 //  the following will be executed at SoilMapFreq day intervals. It will also be executed 
@@ -563,7 +563,7 @@ void output7(string ProfileName)
       }
 }
 //////////////////////////////////////////////////////////////
-void OutputForSoilMaps(int irec, int igo, int nday, string ProfileName)
+void OutputForSoilMaps(int irec, int igo, int nday, const string& ProfileName)
 //     This function plots the soil slab and the array variables in each cell. It is called from
 //  function output7().
 //

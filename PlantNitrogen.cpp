@@ -42,7 +42,7 @@
       double addnr;  // daily added nitrogen to root, g per plant.
       double addnv;  // daily added nitrogen to vegetative shoot, g per plant.
 //////////////////////////////////////////////////
-void PlantNitrogen(string ProfileName)
+void PlantNitrogen(const string& ProfileName)
 //     This function simulates the nitrogen accumulation and distribution in cotton plants,
 //  and computes nitrogen stresses. It is called from SimulateThisDay().
 //
@@ -142,7 +142,7 @@ void PlantNitrogen(string ProfileName)
 	  }
 }
 //////////////////////////
-void NitrogenRequirement (string ProfileName)
+void NitrogenRequirement (const string& ProfileName)
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
@@ -234,7 +234,7 @@ void NitrogenRequirement (string ProfileName)
 	  }
 }
 //////////////////////////
-void NitrogenSupply (string ProfileName)
+void NitrogenSupply (const string& ProfileName)
 //     This function computes the supply of N by uptake from the soil reserves, 
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //
@@ -703,7 +703,7 @@ void NitrogenUptakeRequirement()
            TotalRequiredN += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
 }
 ///////////////////////////////////////////////////////////////////////////////
-void PlantNitrogenBal(string ProfileName)
+void PlantNitrogenBal(const string& ProfileName)
 //     This function calculates the nitrogen balance in the cotton
 //  plant, for diagnostic purposes. It is called from SimulateThisDay().
 //     Units are g per plant.

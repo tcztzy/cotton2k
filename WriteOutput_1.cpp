@@ -15,7 +15,7 @@
 #define new DEBUG_NEW
 #endif
 /////////////////////////////////////////////////////////////
-void OpenOutputFiles(CString m_fileDesc, string ProfileName)
+void OpenOutputFiles(CString m_fileDesc, const string& ProfileName)
 //     This function opens the output files that will be used by
 //  this simulation. It is called from function ReadProfileFile().
 //
@@ -257,7 +257,7 @@ void OpenOutputFiles(CString m_fileDesc, string ProfileName)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(string ProfileName)            
+void DailyOutput(const string& ProfileName)            
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -317,7 +317,7 @@ void DailyOutput(string ProfileName)
           bEnd = true;
 }
 //////////////////////////
-void output1(string ProfileName)
+void output1(const string& ProfileName)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
 //
@@ -431,7 +431,7 @@ void output1(string ProfileName)
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void DataOutput(string ProfileName)
+void DataOutput(const string& ProfileName)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),

@@ -48,7 +48,7 @@ double PhysiologicalAge()  // computes physiological age
       return dayfd / 24;
 }
 /////////////////////////////////////////////////////////////////////////
-void Stress(string ProfileName)                      
+void Stress(const string& ProfileName)                      
 //     This function computes the water stress variables affecting
 // the cotton plants. It is called by SimulateThisDay() and calls LeafWaterPotential().
 //
@@ -115,7 +115,7 @@ void Stress(string ProfileName)
 		   WaterStressStem = vstrs[8];
 }
 //////////////////////////
-void LeafWaterPotential(string ProfileName)
+void LeafWaterPotential(const string& ProfileName)
 //     This function simulates the leaf water potential of cotton plants. It has been 
 //  adapted from the model of Moshe Meron (The relation of cotton leaf water potential to 
 //  soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
@@ -438,7 +438,7 @@ void GetNetPhotosynthesis()            // computes net photosynthesis.
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-void PlantGrowth(string ProfileName)                 
+void PlantGrowth(const string& ProfileName)                 
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),

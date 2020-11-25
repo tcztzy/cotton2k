@@ -489,7 +489,7 @@ void HeatBalance( int nn )
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////////
-void PredictEmergence(int hour, string ProfileName)
+void PredictEmergence(int hour, const string& ProfileName)
 //     This function predicts date of emergence. It is called from SoilTemperature().
 //     There is one referenced argument (hour).
 //

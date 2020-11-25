@@ -372,7 +372,7 @@ double SoilWaterOnRootGrowth(double psislk)
       return smf;
 }
 //////////////////////////
-void ComputeActualRootGrowth(double sumpdr, string ProfileName)
+void ComputeActualRootGrowth(double sumpdr, const string& ProfileName)
 //     This function calculates the actual root growth rate. It is called from function 
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(), 
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), 

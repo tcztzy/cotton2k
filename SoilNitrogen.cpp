@@ -460,7 +460,7 @@ void Denitrification(int l, int k)
       SoilNitrogenLoss += dnrate * dl[l] * wk[k];
 }
 /////////////////////////
-void SoilNitrogenBal(string ProfileName)  
+void SoilNitrogenBal(const string& ProfileName)  
 //     This function computes the nitrogen balances in the soil,
 //  for diagnostic purposes. It is called by SimulateThisDay().
 //     The following global variables are referenced here:
@@ -495,7 +495,7 @@ void SoilNitrogenBal(string ProfileName)
 	  File47 << SoilNitrogenLoss << endl;
 }
 //////////////////////////
-void SoilNitrogenAverage(string ProfileName)
+void SoilNitrogenAverage(const string& ProfileName)
 //     This function computes average values of soil N. It is called by SimulateThisDay().
 //     The following global variables are referenced here:
 //  dl, Kday, nk, VolNh4NContent, VolNo3NContent.

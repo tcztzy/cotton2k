@@ -20,7 +20,7 @@
 //
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.
 //////////////////////////////////////////////////
-void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdroot, string ProfileName)
+void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdroot, const string& ProfileName)
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
@@ -472,7 +472,7 @@ double AddPlantHeight(double denf2)
       return addz;
 }
 //////////////////////////
-void CheckDryMatterBal(string ProfileName)                 
+void CheckDryMatterBal(const string& ProfileName)                 
 //     This function checks the dry matter balances in the cotton model, for diagnostic 
 //  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
 //     The following global variables are referenced here:
@@ -549,7 +549,7 @@ void Pix()        // effects of pix applied.
 //  ***   to be added   ***
 }
 //////////////////////////
-void Defoliate(string ProfileName)              
+void Defoliate(const string& ProfileName)              
 //     This function simulates the effects of defoliating chemicals
 //  applied on the cotton. It is called from SimulateThisDay().
 //

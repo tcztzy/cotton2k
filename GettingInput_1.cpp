@@ -28,7 +28,7 @@
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-void ReadInput(string ProfileName)
+void ReadInput(const string& ProfileName)
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -57,7 +57,7 @@ void ReadInput(string ProfileName)
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
 }
 /////////////////////////////////////////////////////////////////////////////
-void ReadProfileFile(string ProfileName)
+void ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -545,7 +545,7 @@ void InitializeGrid()
 	  }
 }
 //////////////////////////////////////////////////////////
-void WriteInitialInputData(string ProfileName)
+void WriteInitialInputData(const string& ProfileName)
 //     This function writes the input data to File20 (*.B01). It is executed once 
 //  at the beginning of the simulation. It is called by ReadInput().
 //

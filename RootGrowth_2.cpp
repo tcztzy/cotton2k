@@ -502,7 +502,7 @@ void RootCultivation(int j)
 	  }
 }
 //////////////////////////////
-void RootSummation(string ProfileName)
+void RootSummation(const string& ProfileName)
 //     This function has been added for compatibility with GOSSYM root routines. 
 //  It is called from ActualRootGrowth(). It summarizes root data, in a form ready 
 //  for output or plotting. Sums of root weights for cells, for age groups and for 

@@ -20,7 +20,7 @@
 #define new DEBUG_NEW
 #endif
 //////////////////////////
-void SoilProcedures(string ProfileName)    
+void SoilProcedures(const string& ProfileName)    
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -325,7 +325,7 @@ void ApplyFertilizer()
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ComputeIrrigation(string ProfileName)
+void ComputeIrrigation(const string& ProfileName)
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
@@ -555,7 +555,7 @@ void PredictSurfaceIrrigation(double TargetStress)
       }
 }
 ////////////////////////////////////////////////////////////////////////////
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress, string ProfileName)
+void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string& ProfileName)
 //      This function is called from ComputeIrrigation().
 //      It writes output ofapplication of predicted irrigation to file *.B01
 //      Function DoyToDate() is used.
