@@ -1,0 +1,8 @@
+/.idea/
+/.vs/
+/.vscode/
+/build/
+/cmake-build-debug/
+/Debug/
+/Release/
+/CottonModel.vcxproj.user
