@@ -349,7 +349,7 @@ void GetNetPhotosynthesis()            // computes net photosynthesis.
 //     Exit the function and end simulation if there are no leaves.
       if ( TotalLeafWeight <= 0 ) 
       {
-          bEnd = TRUE;
+          bEnd = true;
 		  return;
       }
 //     If this is the first time the function is executed, get the ambient CO2 correction.

@@ -289,7 +289,7 @@ void DailyOutput()
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
       if (DayOfSimulation > 0)
-           WriteStateVariables(FALSE);
+           WriteStateVariables(false);
 //
 //     3. Write plant map output by calling cotplt():
 //     If the output flags (OutIndex(7) or OutIndex(13)) indicate that plant map output is  
@@ -312,9 +312,9 @@ void DailyOutput()
 //
 //     4. Call output1() to write output to F01 and S01 files:
       output1();
-//     Check for end of the simulation and assign TRUE to bEnd.
+//     Check for end of the simulation and assign true to bEnd.
       if ( Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData ) 
-          bEnd = TRUE;
+          bEnd = true;
 }
 //////////////////////////
 void output1()
@@ -444,10 +444,10 @@ void DataOutput()
 //       Date, Kday, LeafAreaIndex, LintYield, MainStemNodes, PlantHeight.
 //
 {
-      BOOL ifg1 = FALSE;  // flags to check if output has been written.
-      BOOL ifg2 = FALSE;  // flags to check if output has been written.
-      BOOL ifg3 = FALSE;  // flags to check if output has been written.
-      BOOL ifg4 = FALSE;  // flags to check if output has been written.
+      bool ifg1 = false;  // flags to check if output has been written.
+      bool ifg2 = false;  // flags to check if output has been written.
+      bool ifg3 = false;  // flags to check if output has been written.
+      bool ifg4 = false;  // flags to check if output has been written.
       double i00; // number of squares, per unit area
       double i01; // number of green bolls, per unit area.
       double i02; // number of open bolls, per unitn area.
@@ -497,25 +497,25 @@ void DataOutput()
 		 {
             File22 << " First square    " << Date;
 			WriteLine22(File22, i00, i01, i02);
-            ifg1 = TRUE;
+            ifg1 = true;
 		 }
          if ( ! ifg2 && Scratch21[irec].daynum == FirstBloom)
 		 {
             File22 << " First Bloom     " << Date;
 			WriteLine22(File22, i00, i01, i02);
-            ifg2 = TRUE;
+            ifg2 = true;
 		 }
          if ( ! ifg3 && i02 > 0.1 ) 
 		 {
             File22 << " 1st open boll   " << Date;
 			WriteLine22(File22, i00, i01, i02);
-            ifg3 = TRUE;
+            ifg3 = true;
 		 }
          if ( ! ifg4 && sixpct <= i02 && i02 > 0. ) 
 		 {
             File22 << " 60% open bolls  " << Date;
 			WriteLine22(File22, i00, i01, i02);
-            ifg4 = TRUE;
+            ifg4 = true;
 		 }
          for (int i = 0; i < 5; i++)
 		 {

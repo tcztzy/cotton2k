@@ -15,12 +15,12 @@
 #define new DEBUG_NEW
 #endif
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void WriteStateVariables(BOOL bAdjusting)
+void WriteStateVariables(bool bAdjusting)
 //     This function stores all state or rate variables, needed for output, or for rerunning
 //  plant adjustments, in the structure Scratch21. It is called from DailySimulation(),
 //  DoAdjustments(), and DailyOutput().
 //     Each record is an array cell, starting from day of start of simulation. 
-//     If the argument bAdjusting is TRUE, the variables needed for plant adjustment rerun 
+//     If the argument bAdjusting is true, the variables needed for plant adjustment rerun
 //  are stored. The variables needed for output are always stored.
 //
 {
@@ -242,7 +242,7 @@ void PlantAdjustments(int i, int jj)
 //  i - the number of this adjustment, as read from the *.MAP file.
 //  jj - the type of this adjustment.
 {
-//     Define nadj(jj) as TRUE or FALSE, where jj is:
+//     Define nadj(jj) as true or false, where jj is:
 //  0 - for main stem nodes.
 //  1 - for height.
 //  2 - for total site number.
@@ -263,11 +263,11 @@ void PlantAdjustments(int i, int jj)
          if (fabs(MapDataMainStemNodes[i] - mnsim) > 1) 
          {
                mntarget = MapDataMainStemNodes[i];
-               nadj[0] = TRUE;
+               nadj[0] = true;
          }
          else
          {
-               nadj[0] = FALSE;
+               nadj[0] = false;
 	           return;
          }
 //     Compute the ratio used to adjust the rate of formation of mainstem nodes.
@@ -284,10 +284,10 @@ void PlantAdjustments(int i, int jj)
          }
 //
          if (AdjAddMSNodesRate == 1)
-             nadj[0] = FALSE;
+             nadj[0] = false;
          else
          {
-             nadj[0] = TRUE;
+             nadj[0] = true;
 //     AdjAddMSNodesRate will be used in function AddFruitingBranch()
              ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
 			 File46 << " Apply plant adjustment for main stem nodes to date " << Date << endl;
@@ -310,11 +310,11 @@ void PlantAdjustments(int i, int jj)
          if (fabs(ddif) > (MapDataPlantHeight[i] + PlantHeight) / 40) 
          {
              ztarget = PlantHeight + 0.9 * ddif;
-             nadj[1] = TRUE;
+             nadj[1] = true;
          }
 	     else
          {
-             nadj[1] = FALSE;
+             nadj[1] = false;
              return;
          }
 //     Compute the ratio to adjust rate of growth of plant height.
@@ -326,10 +326,10 @@ void PlantAdjustments(int i, int jj)
              AdjAddHeightRate = 0;
 //     If AdjAddHeightRate value is near 1, no adjustments are made.
          if (AdjAddHeightRate > 0.98 && AdjAddHeightRate < 1.02)
-             nadj[1] = FALSE;
+             nadj[1] = false;
          else
          {
-             nadj[1] = TRUE;
+             nadj[1] = true;
 //     AdjAddHeightRate will be used in function AddPlantHeight()
              ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
 		     File46 << " Apply plant adjustment for stem height to date " << Date << endl;
@@ -345,7 +345,7 @@ void PlantAdjustments(int i, int jj)
 		 if (FirstSquare <= 0) 
          {
 	         FirstSquare = (int) (Daynum - 3 * MapDataAllSiteNum[i]);
-             nadj[2] = TRUE;
+             nadj[2] = true;
              return;
          }
          double sitesim;      // simulated number of total fruiting sites.
@@ -355,11 +355,11 @@ void PlantAdjustments(int i, int jj)
          if (fabs(MapDataAllSiteNum[i] - NumFruitSites) > 2) 
          {
                sitarget = MapDataAllSiteNum[i];
-               nadj[2] = TRUE;
+               nadj[2] = true;
          }
          else
          {
-             nadj[2] = FALSE;
+             nadj[2] = false;
              return;
          }
 //     Compute the ratio to adjust the rate of formation of sites on fruiting branches. 
@@ -376,10 +376,10 @@ void PlantAdjustments(int i, int jj)
                  AdjAddSitesRate = 0;
          }
 	     if (AdjAddSitesRate == 1) 
-             nadj[2] = FALSE;
+             nadj[2] = false;
          else
          {
-             nadj[2] = TRUE;
+             nadj[2] = true;
 //     AdjAddSitesRate will be used in function AddFruitingNode()
              ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
 			 File46 << " Apply plant adjustment for total number of sites to date " << Date << endl;
@@ -395,7 +395,7 @@ void PlantAdjustments(int i, int jj)
 //  divided by the length of the  adjustment period. 
          if ((NumSquares - MapDataSquareNum[i]) > 1 && NumAdjustDays > 0) 
          {
-             nadj[3] = TRUE;
+             nadj[3] = true;
 	         AdjSquareAbsc = 1 - pow( (MapDataSquareNum[i] / NumSquares), (1 / (double) NumAdjustDays) );
 //     AdjSquareAbsc will be used in function AdjustAbscission()
              ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
@@ -403,7 +403,7 @@ void PlantAdjustments(int i, int jj)
              GoBack();  
          }
          else
-             nadj[3] = FALSE;
+             nadj[3] = false;
          return;
 //
       case 4: // number of green bolls
@@ -413,14 +413,14 @@ void PlantAdjustments(int i, int jj)
          if ((NumGreenBolls - MapDataGreenBollNum[i]) > 1 && NumAdjustDays > 0) 
          {
              AdjGreenBollAbsc = 1 - pow( (MapDataGreenBollNum[i] / NumGreenBolls), (1 / (double) NumAdjustDays) );
-             nadj[4] = TRUE;
+             nadj[4] = true;
 //     AdjGreenBollAbsc will be used in function AdjustAbscission()
              ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
 			 File46 << " Apply plant adjustment for number of green bolls to date " << Date << endl;
              GoBack();  
          }
          else
-             nadj[4] = FALSE;
+             nadj[4] = false;
          return;
      }  // end switch
 } 

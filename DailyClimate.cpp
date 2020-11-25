@@ -84,9 +84,9 @@ void DayClim()
     double rainToday; // The amount of rain today, mm
     rainToday = GetFromClim("rain", Daynum);
     if (rainToday >= 2.5)
-		  bPollinSwitch = FALSE;
+		  bPollinSwitch = false;
     else
-          bPollinSwitch = TRUE;
+          bPollinSwitch = true;
 //     Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
 //     Note: this is modified from the original GOSSYM - RRUNOFF routine. It is called here
 //  for rainfall only, but it is not activated when irrigation is applied.
@@ -908,7 +908,7 @@ double SimulateRunoff(double rain)
 //     The argument used here:  rain = today,s rainfall.
 //     The return value:  the amount of water (mm) lost by runoff.
 {
-      static BOOL bFirst = TRUE; // if this is the first time the function is called.
+      static bool bFirst = true; // if this is the first time the function is called.
       static int  iGroup;   // soil group number (by clay and sand in upper soil layer)
       static double d01;    // Adjustment of curve number for soil groups A,B,C.
 //     The following is computed only the first time the function is called.
@@ -937,7 +937,7 @@ double SimulateRunoff(double rain)
              iGroup = 2;
              d01 = 1.09;
           }
-          bFirst = FALSE;
+          bFirst = false;
       }
 //     Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability
 //  to accept new rainfall. This also includes all irrigations.

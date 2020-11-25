@@ -94,7 +94,7 @@
         NumFruitBranches[3], NumNodes[3][30], OutIndex[24], pixday[10], pixmth[10],
         RootColNumLeft[maxl], RootColNumRight[maxl], SoilHorizonNum[maxl];
 ////    Boolean    //// 
-    extern BOOL bEnd, bPollinSwitch, nadj[5];
+    extern bool bEnd, bPollinSwitch, nadj[5];
 ////    Double    //// 
     extern double AbscisedFruitSites, AbscisedLeafWeight, ActualBollGrowth, ActualBurrGrowth, 
         ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl, 

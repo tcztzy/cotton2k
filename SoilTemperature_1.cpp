@@ -121,10 +121,10 @@ void SoilTemperature()
       if ( Daynum <= DayStart ) 
            SoilTemperatureInit ( jt1, jt2 );
 //     Set output flag jtout, indicating if output of soil temperature is required.
-      BOOL jtout = FALSE;  // output flag for soil temperature data
+      bool jtout = false;  // output flag for soil temperature data
       if ( OutIndex[16] > 0 ) 
          if ( Daynum >= jt1 && Daynum <= jt2 )
-			 jtout = TRUE;
+			 jtout = true;
 //     Compute dts, the daily change in deep soil temperature (C), as
 //  a site-dependent function of Daynum.
       double dts = 2 * pi * SitePar[10] / 365 * cos(2 * pi * (Daynum - SitePar[11]) / 365);
@@ -181,30 +181,30 @@ void SoilTemperature()
 	        if (shadeav > 0.000001) 
                   etp1 = etp0 * (1 - rracol[k]) / shadeav;
 //     Check if mulch is on for this date and for this column.
-            BOOL bMulchon; // is TRUE if this column is covered with plastic mulch now, FALSE if not.
+            bool bMulchon; // is true if this column is covered with plastic mulch now, false if not.
             if (MulchIndicator == 0 || Daynum < DayStartMulch || Daynum > DayEndMulch) 
-	           bMulchon = FALSE;
+	           bMulchon = false;
             else
 			{
 	           if (MulchIndicator == 1) 
-                  bMulchon = TRUE;   
+                  bMulchon = true;
 	           else if (MulchIndicator == 2) 
 			   {
 	              if (k >= PlantRowColumn && k <= (PlantRowColumn+1)) 
-                     bMulchon = FALSE;   
+                     bMulchon = false;
                   else
-                     bMulchon = TRUE;   
+                     bMulchon = true;
 			   }
 	           else if (MulchIndicator >= 3) 
 			   {
 	              if (k >= (PlantRowColumn-1) && k <= (PlantRowColumn+2)) 
-                     bMulchon = FALSE;
+                     bMulchon = false;
                   else
-                     bMulchon = TRUE;   
+                     bMulchon = true;
 			   }
 			}
             double ess = 0; //   evaporation rate from surface of a soil column (mm / sec).
-            if (bMulchon == FALSE) 
+            if (bMulchon == false)
 			{
 //     The potential evaporation rate (escol1k) from a column is the sum of the radiation
 //  component of the Penman equation(es1hour), multiplied by the relative radiation reaching 
@@ -295,7 +295,7 @@ void SoilTemperature()
 		 if (shading >= 0.01)
 			   tfc = tfc / shading;
 //     If there is an output flag, write data to file TMS.
-         if ( jtout > 0 ) 
+         if (jtout) 
 		 {
              ofstream File19("Output\\" + ProfileName + ".TMS", ios::app);
 			 File19.width(5);

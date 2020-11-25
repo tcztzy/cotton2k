@@ -17,8 +17,8 @@
 #endif
 //
 // Definitions of File scope variables:
-   BOOL bLat,                // TRUE if latitude is south, FALSE if north
-        bLong;               // TRUE if longitude is west, FALSE if east 
+   bool bLat,                // true if latitude is south, false if north
+        bLong;               // true if longitude is west, false if east
    int  nSiteNum,            // index number for site. 
         LastDayOfActualWeather,   // last day of actual weather. 
         nVarNum;             // index number for cultivar. 
@@ -204,14 +204,14 @@ void ReadProfileFile()
 //  above sea level), and the index number for this geographic site.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.GetLength();
-	bLat = FALSE;
-	bLong = FALSE;
+	bLat = false;
+	bLong = false;
     if (nLength > 1)
 	{
           Latitude = atof(Dummy.Left(10));
 		  if (Latitude < 0)
 		  {
-			  bLat = TRUE;
+			  bLat = true;
 			  Latitude = -Latitude;
 		  }
 	}
@@ -220,7 +220,7 @@ void ReadProfileFile()
           Longitude = atof(Dummy.Mid(10,10));
 		  if (Longitude < 0)
 		  {
-			  bLong = TRUE;
+			  bLong = true;
 			  Longitude = -Longitude;
 		  }
 	}
@@ -312,7 +312,7 @@ void ReadProfileFile()
             CString msg = " planting date or emergence date must";
             msg += " be given in the profile file !!";
 			AfxMessageBox(msg);
-            bEnd = TRUE;
+            bEnd = true;
          }
 	  }
 //     If the date of emergence has been given in the input: isw = 1 if simulation

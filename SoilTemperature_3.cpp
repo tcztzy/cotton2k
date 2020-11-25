@@ -132,7 +132,7 @@ void CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv,
       sprintf(C1, "%10.3g", tv);
       msg += " tv = " + (CString) C1 + "\n";
 	  AfxMessageBox(msg);
-      bEnd = TRUE;
+      bEnd = true;
 }
 /////////////////////////////////////////
 void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, double sf,
@@ -229,7 +229,7 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, d
       sprintf(C1, "%10.3g", tm);
       msg += " tm = " + (CString) C1 + "\n";
 	  AfxMessageBox(msg);
-      bEnd = TRUE;
+      bEnd = true;
 }
 ///////////////////////////////////////////////////////////////////
 void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )

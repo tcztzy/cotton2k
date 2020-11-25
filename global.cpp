@@ -118,10 +118,10 @@
 //
 // boolean variables:    
 //
-	BOOL bEnd,               // flag indicating abnormal simulation end. 
-         bPollinSwitch,      // pollination switch: FALSE = no pollination, TRUE = yes.
-         nadj[5];            // Plant map adjustment is necessary if nadj(jj) = TRUE,
-    // not necessary if FALSE, where jj is:   0 - for main stem nodes.
+	bool bEnd,               // flag indicating abnormal simulation end.
+         bPollinSwitch,      // pollination switch: false = no pollination, true = yes.
+         nadj[5];            // Plant map adjustment is necessary if nadj(jj) = true,
+    // not necessary if false, where jj is:   0 - for main stem nodes.
     // 1 - for plant height. 2 - for total site number. 3 - for square number.
     // 4 - for green boll number.  
 //
