@@ -86,8 +86,8 @@ void WaterUptake()
 //  function. These are set from limiting soil water potentials (-15 to -1 bars).
             double vh2lo; //  lower limit of water content for the transpiration function
             double vh2hi; //  upper limit of water content for the transpiration function
-            vh2lo = qpsi(-15,thad[l],thts[l],alpha[j],beta[j]); 
-            vh2hi = qpsi(-1,thad[l],thts[l],alpha[j],beta[j]);  
+            vh2lo = qpsi(-15,thad[l],thts[l],alpha[j],vanGenuchtenBeta[j]); 
+            vh2hi = qpsi(-1,thad[l],thts[l],alpha[j],vanGenuchtenBeta[j]);  
             for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
 			{
                double redfac; // reduction factor for water uptake, caused by low levels of soil 
@@ -143,7 +143,7 @@ void WaterUptake()
 	  {
          int j = SoilHorizonNum[l];
          for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
-            SoilPsi[l][k] = psiq(VolWaterContent[l][k],thad[l],thts[l],alpha[j],beta[j] )
+            SoilPsi[l][k] = psiq(VolWaterContent[l][k],thad[l],thts[l],alpha[j],vanGenuchtenBeta[j] )
                           - PsiOsmotic ( VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
 	  } // end l & k loops
 //      compute ActualTranspiration as actual water transpired, in mm.
@@ -283,7 +283,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 //       numiter = counter for the number of iterations.
 //
 //     Global variables referenced: 
-//       alpha, beta, RatioImplicit, SaturatedHydCond, SoilHorizonNum.
+//       alpha, vanGenuchtenBeta, RatioImplicit, SaturatedHydCond, SoilHorizonNum.
 //   
 {
       double delt = 1 / (double) noitr; // the time step of this iteration (fraction of day)
@@ -298,7 +298,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 	  {
          if (iv == 1) 
              j = SoilHorizonNum[i]; // for vertical flow
-         cond[i] = wcond(q1[i],qr1[i],qs1[i],beta[j],SaturatedHydCond[j],pp1[i]);
+         cond[i] = wcond(q1[i],qr1[i],qs1[i],vanGenuchtenBeta[j],SaturatedHydCond[j],pp1[i]);
          kx[i] = 0;
          ky[i] = 0;
       }
@@ -416,7 +416,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
          q1[i] = qx[i] + addq[i];
          if (iv == 1)
              j = SoilHorizonNum[i];
-         psi1[i] = psiq(q1[i],qr1[i],qs1[i],alpha[j],beta[j]);
+         psi1[i] = psiq(q1[i],qr1[i],qs1[i],alpha[j],vanGenuchtenBeta[j]);
 	  }
 //     Compute the implicit part of the solution, weighted by RatioImplicit, starting
 //  loop from the second cell.
@@ -458,7 +458,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
          }
 //     The water content of each soil cell is converted to water
 //  potential by function psiq and stored in array d1 (in bar units).
-         d1[i] = psiq(q1[i],qr1[i],qs1[i],alpha[j],beta[j]);
+         d1[i] = psiq(q1[i],qr1[i],qs1[i],alpha[j],vanGenuchtenBeta[j]);
 	  }
 //     The solution of the simultaneous equations in the implicit method alternates between 
 //  the two directions along the arrays. The reason for this is because the direction of the
@@ -478,7 +478,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 		 }
          if (iv == 1) 
 			j = SoilHorizonNum[0];
-         psi1[0] = psiq(q1[0],qr1[0],qs1[0],alpha[j],beta[j]);
+         psi1[0] = psiq(q1[0],qr1[0],qs1[0],alpha[j],vanGenuchtenBeta[j]);
 //     psi1 is now computed for soil cells 1 to nn-2. q1 is
 //  computed from psi1 by function qpsi.
          for (int i = 1; i < nn-1; i++)
@@ -486,7 +486,7 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
             if (iv == 1) 
 				j = SoilHorizonNum[i];
             psi1[i] = dau[i] * psi1[i-1] + cau[i];
-            q1[i] = qpsi(psi1[i],qr1[i],qs1[i],alpha[j],beta[j]);
+            q1[i] = qpsi(psi1[i],qr1[i],qs1[i],alpha[j],vanGenuchtenBeta[j]);
 		 }
 	  }
 //     The alternative direction of solution is executed here. the
@@ -505,13 +505,13 @@ void WaterFlux( double q1[], double psi1[], double dd[], double qr1[],
 		 }
          if (iv == 1) 
 			 j = SoilHorizonNum[nn-1];
-         psi1[nn-1] = psiq(q1[nn-1],qr1[nn-1],qs1[nn-1],alpha[j],beta[j]);
+         psi1[nn-1] = psiq(q1[nn-1],qr1[nn-1],qs1[nn-1],alpha[j],vanGenuchtenBeta[j]);
          for (int i = nn-2; i > 0; i--)
 		 {
             if (iv == 1) 
 				j = SoilHorizonNum[i];
             psi1[i] = dau[i] * psi1[i+1] + cau[i];
-            q1[i] = qpsi(psi1[i],qr1[i],qs1[i],alpha[j],beta[j]);
+            q1[i] = qpsi(psi1[i],qr1[i],qs1[i],alpha[j],vanGenuchtenBeta[j]);
 		 }
 	  }
 //     The limits of water content are now checked and corrected, and

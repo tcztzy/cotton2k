@@ -23,7 +23,7 @@ void CapillaryFlow()
 //     It calls functions:   Drain(), NitrogenFlow(), psiq(), PsiOsmotic(), WaterFlux().
 //
 //     The following global variables are referenced:
-//       alpha, ,beta, Daynum, DayStart, dl, ElCondSatSoilToday, nk, nl, PoreSpace,
+//       alpha, ,vanGenuchtenBeta, Daynum, DayStart, dl, ElCondSatSoilToday, nk, nl, PoreSpace,
 //       RowSpace, SoilHorizonNum, thad ,thts, WaterTableLayer, wk.
 //     The following global variables are set:
 //       CumWaterDrained, SoilPsi, VolNo3NContent, VolUreaNContent, VolWaterContent.
@@ -44,7 +44,7 @@ void CapillaryFlow()
 	  {
          int j = SoilHorizonNum[l];  //  the soil horizon number
          for (int k = 0; k < nk; k++)
-            SoilPsi[l][k] = psiq(VolWaterContent[l][k],thad[l],thts[l],alpha[j],beta[j])
+            SoilPsi[l][k] = psiq(VolWaterContent[l][k],thad[l],thts[l],alpha[j],vanGenuchtenBeta[j])
                           - PsiOsmotic ( VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
       }
 //    
@@ -139,7 +139,7 @@ void CapillaryFlow()
          int j = SoilHorizonNum[l];
          for (int k = 0; k < nk; k++)
 		 {
-            SoilPsi[l][k] = psiq(VolWaterContent[l][k],thad[l],thts[l],alpha[j],beta[j])
+            SoilPsi[l][k] = psiq(VolWaterContent[l][k],thad[l],thts[l],alpha[j],vanGenuchtenBeta[j])
                           - PsiOsmotic ( VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
          }
       }

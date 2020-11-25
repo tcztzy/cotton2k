@@ -587,7 +587,7 @@ double AveragePsi()
 //     The functions psiq() and PsiOsmotic() are called.
 //
 //     The following global variables are referenced here:
-//       airdr, alpha, beta, dl, ElCondSatSoilToday, NumLayersWithRoots, RootColNumLeft, 
+//       airdr, alpha, vanGenuchtenBeta, dl, ElCondSatSoilToday, NumLayersWithRoots, RootColNumLeft, 
 //       RootColNumRight, RootWtCapblUptake, SoilHorizonNum, thetas, VolWaterContent, wk.
 {
 //     Constants used:
@@ -633,7 +633,7 @@ double AveragePsi()
 //     Compute avgwat and the parameters to compute the soil water potential in each soil horizon
             avgwat = sumwat[j] / psinum[j]; 
 //     Soil water potential computed for a soil profile layer:
-            double avgpsi = psiq(avgwat, airdr[j],thetas[j],alpha[j],beta[j])
+            double avgpsi = psiq(avgwat, airdr[j],thetas[j],alpha[j],vanGenuchtenBeta[j])
                           - PsiOsmotic ( avgwat, thetas[j], ElCondSatSoilToday);
 //     Use this to compute the average for the whole root zone.
 	        sumpsi += avgpsi * psinum[j];

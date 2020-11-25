@@ -122,7 +122,7 @@ void LeafWaterPotential()
 //     It is called from Stress(). It calls wcond() and LeafResistance().
 //
 //     The following global variables are referenced here:
-//       AgeOfPreFruNode, AverageSoilPsi, beta, dl, Kday, LeafAge, NumFruitBranches, 
+//       AgeOfPreFruNode, AverageSoilPsi, vanGenuchtenBeta, dl, Kday, LeafAge, NumFruitBranches, 
 //       NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, OutIndex, 
 //       pi, PlantHeight, PoreSpace, ReferenceETP, RootColNumLeft, RootColNumRight, 
 //       RootWtCapblUptake, SaturatedHydCond, SoilPsi, thad, thts, VolWaterContent, wk.
@@ -197,7 +197,7 @@ void LeafWaterPotential()
 //     Compute hydraulic conductivity (cond), and soil resistance near
 //  the root surface  (rsoil).
       double cond; // soil hydraulic conductivity near the root surface.
-      cond = wcond(vh2,thad[0],thts[0],beta[0],SaturatedHydCond[0],PoreSpace[0]) / 24;
+      cond = wcond(vh2,thad[0],thts[0],vanGenuchtenBeta[0],SaturatedHydCond[0],PoreSpace[0]) / 24;
       cond = cond * 2 * sumlv / rootvol / log(dumyrs);
       if ( cond < vpsil[6] )
 		   cond = vpsil[6];

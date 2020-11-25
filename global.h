@@ -132,7 +132,7 @@
      extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk], AgeOfBoll[3][30][5], 
          AgeOfPreFruNode[9], AgeOfSite[3][30][5], airdr[9], AirTemp[24], albedo[24], 
          alpha[9], AvrgNodeTemper[3][30][5], 
-         beta[9], BollWeight[3][30][5], BulkDensity[9], BurrWeight[3][30][5], 
+         vanGenuchtenBeta[9], BollWeight[3][30][5], BulkDensity[9], BurrWeight[3][30][5], 
          cgind[3], ClayVolumeFraction[maxl], CloudCoverRatio[24], CloudTypeCorr[24], 
          CultivationDepth[5], 
          DefoliantAppRate[5], DelayNewFruBranch[3], DelayNewNode[3][30], 

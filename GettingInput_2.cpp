@@ -127,7 +127,7 @@ void InitializeSoilData()
 //     It calls ReadSoilHydraulicData().
 //
 //     Global and file scope variables referenced:
-//        airdr, alpha, beta, BulkDensity, condfc, Date, dl, h2oint, ldepth, 
+//        airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, Date, dl, h2oint, ldepth, 
 //        nl, oma, OutIndex, ProfileName, psisfc, wk.
 //     Global and file scope variables set:
 //        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter, InitialTotalSoilWater, 
@@ -165,14 +165,14 @@ void InitializeSoilData()
               thetas[j] = PoreSpace[l];
           thad[l] = airdr[j];
           thts[l] = thetas[j];
-          FieldCapacity[l] = qpsi(psisfc,thad[l],thts[l],alpha[j],beta[j]);
-          MaxWaterCapacity[l] = qpsi(psidra,thad[l],thts[l],alpha[j],beta[j]);
-          thetar[l] = qpsi(-15.,thad[l],thts[l],alpha[j],beta[j]);
+          FieldCapacity[l] = qpsi(psisfc,thad[l],thts[l],alpha[j],vanGenuchtenBeta[j]);
+          MaxWaterCapacity[l] = qpsi(psidra,thad[l],thts[l],alpha[j],vanGenuchtenBeta[j]);
+          thetar[l] = qpsi(-15.,thad[l],thts[l],alpha[j],vanGenuchtenBeta[j]);
 //     When the saturated hydraulic conductivity (SaturatedHydCond) is not
 //  given, it is computed from the hydraulic conductivity at field
 //  capacity (condfc), using the wcond function.
           if (SaturatedHydCond[j] <= 0)  
-              SaturatedHydCond[j] = condfc[j] / wcond( FieldCapacity[l],thad[l],thts[l],beta[j],1,1 );
+              SaturatedHydCond[j] = condfc[j] / wcond( FieldCapacity[l],thad[l],thts[l],vanGenuchtenBeta[j],1,1 );
 	  }
 //     Loop for all soil layers. Compute depth from soil surface to
 //  the end of each layer (sumdl).
@@ -278,7 +278,7 @@ void InitializeSoilData()
 int ReadSoilHydraulicData()
 //     This functions reads the soil hydrology file. It is called by InitializeSoilData().
 //     Global or file scope Variables set here:
-//  airdr, alpha, beta, BulkDensity, condfc, conmax, ldepth, pclay, psand, 
+//  airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, conmax, ldepth, pclay, psand, 
 //  psidra, psisfc, RatioImplicit, SaturatedHydCond, thetas
 //     Return value = number of soilhorizons (lyrsol)
 {
@@ -298,7 +298,7 @@ int ReadSoilHydraulicData()
 		  airdr[i] = 0;
 		  thetas[i] = 0;
 		  alpha[i] = 0;
-		  beta[i] = 0;
+		  vanGenuchtenBeta[i] = 0;
 		  SaturatedHydCond[i] = 0;
 		  condfc[i] = 0;
 		  BulkDensity[i] = 0;
@@ -334,7 +334,7 @@ int ReadSoilHydraulicData()
           airdr[il] =  atof(Dummy.Mid(10,10));
           thetas[il] =  atof(Dummy.Mid(20,10));
           alpha[il] =  atof(Dummy.Mid(30,10));
-          beta[il] =  atof(Dummy.Mid(40,10));
+          vanGenuchtenBeta[il] =  atof(Dummy.Mid(40,10));
           SaturatedHydCond[il] =  atof(Dummy.Mid(50,10));
           condfc[il] =  atof(Dummy.Mid(60,10));
 //     Second line for each layer
