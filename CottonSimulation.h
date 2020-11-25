@@ -111,7 +111,7 @@ using namespace std;
     void   NitrogenUptakeRequirement();
 // O
 	int    OpenClimateFile();
-	void   OpenOutputFiles(CString m_fileDesc, const string& ProfileName);
+	void   OpenOutputFiles(const string& m_fileDesc, const string& ProfileName);
     void   output1(const string& ProfileName);
     void   output2(const string& ProfileName);
     void   output3(const string& ProfileName);

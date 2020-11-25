@@ -12,7 +12,7 @@
 #include "resource.h"
 
 /////////////////////////////////////////////////////////////
-void OpenOutputFiles(CString m_fileDesc, const string& ProfileName)
+void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 //     This function opens the output files that will be used by
 //  this simulation. It is called from function ReadProfileFile().
 //

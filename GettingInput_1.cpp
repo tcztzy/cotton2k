@@ -321,7 +321,7 @@ void ReadProfileFile(const string& ProfileName)
          Kday = 1;
       }
 //     Call function OpenOutputFiles() to open the output files.
-      OpenOutputFiles(m_fileDesc, ProfileName);
+      OpenOutputFiles((string)m_fileDesc, ProfileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
