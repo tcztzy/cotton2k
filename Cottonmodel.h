@@ -21,14 +21,14 @@ public:
     CString GetJobFile();
     void GetProfilesList(CString JobFileName);
     void RunTheModel();
-	void DailySimulation();
-	void SimulateThisDay();
-    BOOL DoAdjustments();
+	void DailySimulation(CString ProfileName);
+	void SimulateThisDay(CString ProfileName);
+    BOOL DoAdjustments(CString ProfileName);
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 
     CProgCtrlDlg* pdlg;         // pointer to the progress control dialog
-    CStringArray ProfileArray;  // array of the profile names
+	CStringArray ProfileArray;  // array of the profile names
 };

@@ -48,7 +48,7 @@ double PhysiologicalAge()  // computes physiological age
       return dayfd / 24;
 }
 /////////////////////////////////////////////////////////////////////////
-void Stress()                      
+void Stress(string ProfileName)                      
 //     This function computes the water stress variables affecting
 // the cotton plants. It is called by SimulateThisDay() and calls LeafWaterPotential().
 //
@@ -61,7 +61,7 @@ void Stress()
 //     The following constant parameters are used:
 	  const double vstrs[9] = { -3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05 };
 //     Call LeafWaterPotential() to compute leaf water potentials.
-      LeafWaterPotential();
+      LeafWaterPotential(ProfileName);
 //     The running averages, for the last three days, are computed:
 //  AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
       AverageLwpMin += (LwpMin - LwpMinX[2]) / 3;
@@ -115,7 +115,7 @@ void Stress()
 		   WaterStressStem = vstrs[8];
 }
 //////////////////////////
-void LeafWaterPotential()
+void LeafWaterPotential(string ProfileName)
 //     This function simulates the leaf water potential of cotton plants. It has been 
 //  adapted from the model of Moshe Meron (The relation of cotton leaf water potential to 
 //  soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
@@ -438,7 +438,7 @@ void GetNetPhotosynthesis()            // computes net photosynthesis.
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-void PlantGrowth()                 
+void PlantGrowth(string ProfileName)                 
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -493,7 +493,7 @@ void PlantGrowth()
 //     cdroot is carbohydrate requirement for root growth, g per plant per day.
 //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
       double cdstem, cdleaf, cdpet, cdroot;
-      DryMatterBalance(cdstem, cdleaf, cdpet, cdroot);
+      DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, ProfileName);
 //     If it is after first square, call ActualFruitGrowth() to compute actual
 //  growth rate of squares and bolls.
       if ( FruitingCode[0][0][0] > 0 ) 
@@ -531,7 +531,7 @@ void PlantGrowth()
 //     Call AddPlantHeight to compute PlantHeight.
       PlantHeight += AddPlantHeight(denf2);
 //     Call ActualRootGrowth() to compute actual root growth.
-      ComputeActualRootGrowth( sumpdr );
+      ComputeActualRootGrowth(sumpdr, ProfileName);
 //     Output data to file *.CHB
       if (OutIndex[18] > 0) 
 	  {

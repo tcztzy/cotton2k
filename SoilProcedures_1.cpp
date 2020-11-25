@@ -20,7 +20,7 @@
 #define new DEBUG_NEW
 #endif
 //////////////////////////
-void SoilProcedures()    
+void SoilProcedures(string ProfileName)    
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -49,7 +49,7 @@ void SoilProcedures()
       if (MaxIrrigation > 0) 
          if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) 
 		 {
-			ComputeIrrigation();
+			ComputeIrrigation(ProfileName);
 			if (IrrigMethod == 2)
 				DripWaterAmount = AppliedWater;
 			else
@@ -325,7 +325,7 @@ void ApplyFertilizer()
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ComputeIrrigation()
+void ComputeIrrigation(string ProfileName)
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
@@ -347,7 +347,7 @@ void ComputeIrrigation()
       if (AppliedWater > 0.00001) 
 	  {
          LastIrrigation = Daynum;
-         OutputPredictedIrrigation(AppliedWater, TargetStress); 
+         OutputPredictedIrrigation(AppliedWater, TargetStress, ProfileName); 
       }
 }
 ///////////////////////////////////////////////////////////////////////
@@ -555,12 +555,12 @@ void PredictSurfaceIrrigation(double TargetStress)
       }
 }
 ////////////////////////////////////////////////////////////////////////////
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress)
+void OutputPredictedIrrigation(double AppliedWater, double TargetStress, string ProfileName)
 //      This function is called from ComputeIrrigation().
 //      It writes output ofapplication of predicted irrigation to file *.B01
 //      Function DoyToDate() is used.
 //      Arguments used: AppliedWater, TargetStress.
-//      Global variables referenced: Daynum, iyear, ProfileName, WaterStress.
+//      Global variables referenced: Daynum, iyear, WaterStress.
 {
          ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
 		 File20 << " Predicted irrigation on " << DoyToDate(Daynum, iyear) << " - ";

@@ -190,7 +190,7 @@ double tdewest(double maxt)
 	return esttdew;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-void ReadAgriculturalInput()
+void ReadAgriculturalInput(string ProfileName)
 //     This function opens the agricultural inputs data file and reads it. 
 //  It is called by ReadInput() once at the beginning of the simulation.
 //

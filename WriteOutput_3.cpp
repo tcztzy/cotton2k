@@ -18,13 +18,13 @@
 #define new DEBUG_NEW
 #endif
 /////////////////////////////////////////////////////////////
-void outputplt()
+void outputplt(string ProfileName)
 //     This function writes the output file that will be used to plot
 //  plant charts at the end of the simulation. It is called from DataOutput().
 //     The values of the variables to plot are taken from structure Scratch21.
 //
 //     The following global variables are referenced here:
-//  DayEmerge, OutIndex, PlantPopulation, ProfileName, RowSpace.
+//  DayEmerge, OutIndex, PlantPopulation, RowSpace.
 {
 //     indexPLT indicates what type of data to write in the .PLT file:
 //  indexPLT = 0 : metric (OutIndex(1)=0),  weights and numbers per plant (OutIndex(2)=0)
@@ -221,7 +221,7 @@ void outputplt()
    }
 }
 ///////////////////////
-void output2()
+void output2(string ProfileName)
 //     This function is optionally called from DataOutput().  It writes output of stress
 //  factors to file F01, when the output flag OutIndex(6) is non-zero.
 //     The values of the variables to plot are taken from structure Scratch21.
@@ -269,10 +269,10 @@ void output2()
 	  }
 }
 ///////////////////////
-void output3()
+void output3(string ProfileName)
 //     This procedure is optionally called from DataOutput(). It writes output of weights of 
 //  dry matter of plant parts to file F01. Data are extracted from structure Scratch21. 
-//     Global variables referenced:    OutIndex, PlantPopulation, ProfileName
+//     Global variables referenced:    OutIndex, PlantPopulation
 {
 //  Write header lines.
       double multi;  // multiplier for some data
@@ -337,11 +337,11 @@ void output3()
 	  }
 }
 ///////////////////////
-void output4()
+void output4(string ProfileName)
 //     This procedure is optionally called from DataOutput(). It writes output of water
 //  and evapotranspiration data to file F01, when the output flag OutIndex(4) is non-zero.
 //     Data are extracted from structure Scratch21. 
-//     Global variables referenced:         OutIndex, ProfileName
+//     Global variables referenced:         OutIndex
 {
 //     Write header lines.
       double multi;  // multiplier for some data
@@ -403,7 +403,7 @@ void output4()
 	  }
 }
 ///////////////////////
-void output5()
+void output5(string ProfileName)
 //     This procedure is optionally called from DataOutput() when the output flag
 // OutIndex[5] is non-zero. It writes output of weather variables to file F01.
 //     OutIndex[1] determines if the units are in  metric or English.
@@ -487,7 +487,7 @@ void output5()
 	  }
 }
 ///////////////////////
-void output6()
+void output6(string ProfileName)
 //     This procedure is always called from DataOutput().
 //     It writes output of final yields to file F01 and file S01.
 {
@@ -518,7 +518,7 @@ void output6()
 	  File22 << LintYield * 0.893 / 500 << endl;
 }
 ///////////////////////
-void output7()
+void output7(string ProfileName)
 //     This function is called by DataOutput(). It writes soil map output by calling
 //  OutputForSoilMaps(). If the day of year is between DayStartSoilMaps and DayStopSoilMaps,
 //  the following will be executed at SoilMapFreq day intervals. It will also be executed 
@@ -536,34 +536,34 @@ void output7()
 //     If the output flag (OutIndex(8)) indicates that this output is
 //  requested - produce soil slab maps for VolWaterContent.
             if ( OutIndex[8] > 0 )
-                 OutputForSoilMaps( irec, 2, nDaynum);
+                 OutputForSoilMaps(irec, 2, nDaynum, ProfileName);
 //     If the output flag (OutIndex(9)) indicates that this output is
 //  requested - produce soil slab maps for rootsv and for RootWtCapblUptake.
             if ( OutIndex[9] > 0 )
 			{
-                OutputForSoilMaps( irec, 3, nDaynum );
-                OutputForSoilMaps( irec, 6, nDaynum );
+                OutputForSoilMaps(irec, 3, nDaynum, ProfileName);
+                OutputForSoilMaps(irec, 6, nDaynum, ProfileName);
             }
 //     If the output flag (OutIndex(10)) indicates that this output is
 //  requested - produce soil slab maps for VolNo3NContent and for VolNh4NContent.
             if ( OutIndex[10] > 0 )
 			{
-                OutputForSoilMaps( irec, 1, nDaynum );
-                OutputForSoilMaps( irec, 7, nDaynum );
+                OutputForSoilMaps(irec, 1, nDaynum, ProfileName);
+                OutputForSoilMaps(irec, 7, nDaynum, ProfileName);
 			}
 //     If the output flag (OutIndex(11)) indicates that this output is
 //  requested - produce soil slab maps for soil water potential.
             if ( OutIndex[11] > 0 )
-                OutputForSoilMaps( irec, 4, nDaynum );
+                OutputForSoilMaps(irec, 4, nDaynum, ProfileName);
 //     If the output flag (OutIndex(12)) indicates that this output is
 //  requested - produce soil slab maps for soil temperature.
             if ( OutIndex[12] > 0 )
-                OutputForSoilMaps( irec, 5, nDaynum );
+                OutputForSoilMaps(irec, 5, nDaynum, ProfileName);
          }
       }
 }
 //////////////////////////////////////////////////////////////
-void OutputForSoilMaps(int irec, int igo, int nday)
+void OutputForSoilMaps(int irec, int igo, int nday, string ProfileName)
 //     This function plots the soil slab and the array variables in each cell. It is called from
 //  function output7().
 //

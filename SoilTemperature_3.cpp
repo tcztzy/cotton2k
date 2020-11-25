@@ -489,12 +489,12 @@ void HeatBalance( int nn )
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////////
-void PredictEmergence(int hour)
+void PredictEmergence(int hour, string ProfileName)
 //     This function predicts date of emergence. It is called from SoilTemperature().
 //     There is one referenced argument (hour).
 //
 //     The following global variables are referenced here:
-//       Daynum, dl, iyear, DayPlant, PlantRowColumn, nl, ProfileName, SoilPsi, SoilTemp.
+//       Daynum, dl, iyear, DayPlant, PlantRowColumn, nl, SoilPsi, SoilTemp.
 //     The following global variables are set here:
 //       DayEmerge, isw, Kday.
 //

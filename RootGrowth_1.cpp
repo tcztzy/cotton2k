@@ -372,7 +372,7 @@ double SoilWaterOnRootGrowth(double psislk)
       return smf;
 }
 //////////////////////////
-void ComputeActualRootGrowth(double sumpdr )
+void ComputeActualRootGrowth(double sumpdr, string ProfileName)
 //     This function calculates the actual root growth rate. It is called from function 
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(), 
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), 
@@ -540,5 +540,5 @@ void ComputeActualRootGrowth(double sumpdr )
       CumPlantNLoss  += DailyRootLoss * RootNConc;
       PixInPlants -= DailyRootLoss * pixcon;
 //     Call function RootSummation().
-      RootSummation();
+      RootSummation(ProfileName);
 }

@@ -180,23 +180,24 @@ void C2KApp::RunTheModel()
 //     Global variables referenced:  DayFinish, DayStart 
 //
 {
+    string ProfileName; // name of input file with profile data (without the extension ".PRO").
     for (int i = 0; i < ProfileArray.GetSize(); i++)
     {
 		ProfileName = ProfileArray.GetAt(i);
 //     Read the input data for this simulation
-        ReadInput();
+        ReadInput(ProfileName);
 //     Create a modeless dialog with progress control
         int range = DayFinish - DayStart + 1;
         pdlg = new CProgCtrlDlg;
         pdlg->m_uiRangeTo = range;
-        pdlg->m_ProfileName = ProfileName;
+        pdlg->m_ProfileName = ProfileName.c_str();
         pdlg->m_Running = "Running the Simulation";
         pdlg->Create();
 //     Do daily simulations
-        DailySimulation();
+        DailySimulation(ProfileName.c_str());
 //     Write output data
         pdlg->m_Running = "Writing Output Files";
-        DataOutput();
+        DataOutput(ProfileName);
         pdlg->EndDialog(i);
         delete pdlg;  //  check if needed
     }
@@ -204,7 +205,7 @@ void C2KApp::RunTheModel()
     AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. " );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void C2KApp::DailySimulation()
+void C2KApp::DailySimulation(CString ProfileName)
 //     This function controls the dynamic phase of the simulation, allowing
 //  for in-run adjustments when there is an input of plant map adjustments.
 //     It calls the functions:
@@ -220,10 +221,10 @@ void C2KApp::DailySimulation()
 //  of TRUE end simulation.
 	  while (! bEnd)
 	  {
-         BOOL bAdjustToDo = DoAdjustments();
+         BOOL bAdjustToDo = DoAdjustments(ProfileName);
          pdlg->ProgressStepit();
 //     Execute simulation for this day.
-         SimulateThisDay();
+         SimulateThisDay(ProfileName);
 //     If there are pending plant adjustments, call WriteStateVariables() to write
 //  state variables of this day in a scratch file.
          if (bAdjustToDo)
@@ -231,7 +232,7 @@ void C2KApp::DailySimulation()
 	  } // end while
 }
 ///////////////////////////////////////////////////////////////////////////////
-BOOL C2KApp::DoAdjustments()
+BOOL C2KApp::DoAdjustments(CString ProfileName)
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -261,13 +262,13 @@ BOOL C2KApp::DoAdjustments()
 //  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
             for (int jj = 0; jj < 5; jj++)
             {
-                PlantAdjustments(i, jj);
+                PlantAdjustments(i, jj, (string)ProfileName);
 //     If adjustment is necessary, rerun the simulation for the previous NumAdjustDays (number
 //  of days) and call WriteStateVariables() to write state variables in scratch structure.
                 if (nadj[jj])
                    for(int j1 = 0; j1 < NumAdjustDays; j1++)
                    {
-                       SimulateThisDay();
+                       SimulateThisDay(ProfileName);
                        if (Kday > 0) 
                            WriteStateVariables(TRUE); 
                    }     // end for j1, and if nadj 
@@ -284,7 +285,7 @@ BOOL C2KApp::DoAdjustments()
       return TRUE;
 }
 //////////////////////////////////////////////////
-void C2KApp::SimulateThisDay()
+void C2KApp::SimulateThisDay(CString ProfileName)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
@@ -313,9 +314,9 @@ void C2KApp::SimulateThisDay()
           Kday = 0;
 //     The following functions are executed each day (also before emergence).
       ColumnShading();      // computes light interception and soil shading.
-      DayClim();            // computes climate variables for today.
-      SoilTemperature();    // executes all modules of soil and canopy temperature.
-      SoilProcedures();     // executes all other soil processes.
+      DayClim((string)ProfileName);            // computes climate variables for today.
+      SoilTemperature((string)ProfileName);    // executes all modules of soil and canopy temperature.
+      SoilProcedures((string)ProfileName);     // executes all other soil processes.
       SoilNitrogen();       // computes nitrogen transformations in the soil.
       SoilSum();            // computes totals of water and N in the soil.
 //     The following is executed each day after plant emergence:
@@ -326,24 +327,24 @@ void C2KApp::SimulateThisDay()
          DayInc = PhysiologicalAge();    // computes physiological age
          if(pixday[0] > 0)
              Pix();        // effects of pix applied.
-         Defoliate();                    // effects of defoliants applied.
-         Stress();                       // computes water stress factors.
+         Defoliate((string)ProfileName);         // effects of defoliants applied.
+         Stress((string)ProfileName);            // computes water stress factors.
          GetNetPhotosynthesis();         // computes net photosynthesis.
-         PlantGrowth();                  // executes all modules of plant growth.
+         PlantGrowth((string)ProfileName);       // executes all modules of plant growth.
          CottonPhenology();              // executes all modules of plant phenology.
-         PlantNitrogen();                // computes plant nitrogen allocation.
-         CheckDryMatterBal();            // checks plant dry matter balance.
+         PlantNitrogen((string)ProfileName);     // computes plant nitrogen allocation.
+         CheckDryMatterBal((string)ProfileName); // checks plant dry matter balance.
 //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
 //  nitrogen averages by layer, and write this information to files.
          if ( OutIndex[20] > 0 )
 		 {
-	        PlantNitrogenBal();          // checks plant nitrogen balance.
-	        SoilNitrogenBal();           // checks soil nitrogen balance.
-	        SoilNitrogenAverage();       // computes average soil nitrogen by layers.
+	        PlantNitrogenBal((string)ProfileName);          // checks plant nitrogen balance.
+	        SoilNitrogenBal((string)ProfileName);           // checks soil nitrogen balance.
+	        SoilNitrogenAverage((string)ProfileName);       // computes average soil nitrogen by layers.
 		 }
       }
 //     Call DailyOutput for reporting some simulation data for this day.
-      DailyOutput();
+      DailyOutput((string)ProfileName);
 //     Check if the date to stop simulation has been reached, or if this is the last day
 //  with available weather data. Simulation will also stop when no leaves remain on the plant.
 //  bEnd = TRUE  indicates stopping this simulation.

@@ -73,7 +73,7 @@
         }   Irrig[150];
 ////    Strings    //// 
 	extern CString ActWthFileName, AgrInputFileName, Date, FrameTitle, 
-        PlantmapFileName, PrdWthFileName, ProfileName, 
+        PlantmapFileName, PrdWthFileName,
         SoilHydFileName, SoilInitFileName; 
 ////    Integers    //// 
 	extern int DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef, DayOfSimulation,

@@ -15,11 +15,11 @@
 #define new DEBUG_NEW
 #endif
 /////////////////////////////////////////////////////////////
-void OpenOutputFiles(CString m_fileDesc)
+void OpenOutputFiles(CString m_fileDesc, string ProfileName)
 //     This function opens the output files that will be used by
 //  this simulation. It is called from function ReadProfileFile().
 //
-//     The following global variables are referenced here:     OutIndex[], ProfileName
+//     The following global variables are referenced here:     OutIndex[]
 //     The following argument is used:
 //       m_fileDesc = the description of this profile file.
 //
@@ -257,7 +257,7 @@ void OpenOutputFiles(CString m_fileDesc)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput()            
+void DailyOutput(string ProfileName)            
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -304,27 +304,27 @@ void DailyOutput()
             if ( (idum % PlantMapFreq) == 0 ) 
 			{
                if ( OutIndex[7] > 0 ) 
-                  cotplt(1);
+                  cotplt(1, ProfileName);
                if ( OutIndex[13] > 0 ) 
-                  cotplt(4);
+                  cotplt(4, ProfileName);
             }
          }
 //
 //     4. Call output1() to write output to F01 and S01 files:
-      output1();
+      output1(ProfileName);
 //     Check for end of the simulation and assign true to bEnd.
       if ( Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData ) 
           bEnd = true;
 }
 //////////////////////////
-void output1()
+void output1(string ProfileName)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
 //
 //     The following global variables are referenced here:
 //       AbscisedFruitSites, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, isw, Kday, 
 //       LeafAreaIndex, LastDayWeatherData, LintYield, MainStemNodes, NumFruitSites, NumGreenBolls, 
-//       NumOpenBolls, NumSquares, OutIndex, PlantHeight, PlantPopulation, ProfileName
+//       NumOpenBolls, NumSquares, OutIndex, PlantHeight, PlantPopulation
 {
        ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
 //     Date of first square and date of first bloom are written to file F01.
@@ -431,14 +431,14 @@ void output1()
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void DataOutput()
+void DataOutput(string ProfileName)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),
 //  output5(), output6(), and output7() for executing further output.
 //
 //     The following global variables are referenced here:
-//       DefoliationDate, OutIndex, PlantPopulation, NumOpenBolls, ProfileName.
+//       DefoliationDate, OutIndex, PlantPopulation, NumOpenBolls.
 //
 //     The following global variables are set here (extracted from the structure Scratch21):
 //       Date, Kday, LeafAreaIndex, LintYield, MainStemNodes, PlantHeight.
@@ -530,18 +530,18 @@ void DataOutput()
       File22 << " Max yield on    " << Date;
 	  WriteLine22(File22, i00, i01, i02);
 //     Call procedures for printing output
-      outputplt();
+      outputplt(ProfileName);
       if ( OutIndex[6] > 0 ) 
-		   output2();
+		   output2(ProfileName);
       if ( OutIndex[3] > 0 )
-		  output3();
+		  output3(ProfileName);
       if ( OutIndex[4] > 0 )
-		  output4();
+		  output4(ProfileName);
       if ( OutIndex[5] > 0 )
-		   output5();
-      output6();
+		   output5(ProfileName);
+      output6(ProfileName);
       if ( OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
-           output7();
+           output7(ProfileName);
 }
 ////////////////////////
 void WriteLine22(ofstream &File22, double i00, double i01, double i02)

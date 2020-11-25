@@ -227,7 +227,7 @@ void WriteStateVariables(bool bAdjusting)
      }
 }
 //////////////////////////
-void PlantAdjustments(int i, int jj)
+void PlantAdjustments(int i, int jj, string ProfileName)
 //     This function adjusts plant height and plant fruiting map, when data for such 
 //  adjustments are available.
 //     This function is called from DoAdjustments(). it calls GoBack().

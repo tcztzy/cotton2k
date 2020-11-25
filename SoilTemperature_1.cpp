@@ -103,7 +103,7 @@ void ColumnShading()
       } // end for k
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-void SoilTemperature()   
+void SoilTemperature(string ProfileName)   
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
@@ -111,7 +111,7 @@ void SoilTemperature()
 //     The following global variables are referenced here:
 //       ActualTranspiration, AirTemp, Date, DayEndMulchDaynum, DayPlant, DayStart, DayStartMulch, 
 //       DewPointTemp, dl, FoliageTemp, isw, MulchIndicator, MulchTemp, nk, nl, OutIndex, 
-//       PlantRowColumn, ProfileName, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
+//       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
 //       ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es, SoilTemp, 
@@ -119,7 +119,7 @@ void SoilTemperature()
 {
 	  static int jt1, jt2;  //  Julian dates for start and end of output.
       if ( Daynum <= DayStart ) 
-           SoilTemperatureInit ( jt1, jt2 );
+           SoilTemperatureInit (jt1, jt2, ProfileName);
 //     Set output flag jtout, indicating if output of soil temperature is required.
       bool jtout = false;  // output flag for soil temperature data
       if ( OutIndex[16] > 0 ) 
@@ -339,7 +339,7 @@ void SoilTemperature()
          }
 //     If emergence date is to be simulated, call PredictEmergence().
          if ( isw == 0 && Daynum >= DayPlant )  
-			        PredictEmergence(ihr);
+			        PredictEmergence(ihr, ProfileName);
       } // end of hourly loop
 //      At the end of the day compute actual daily evaporation and its cumulative sum.
 	  if (kk == 1) 
@@ -482,14 +482,14 @@ void SoilTemperature()
   Soil Sci. Soc. Am. Proc. 33:354-360.
 */
 ////////////////////////////////////////////////////////////////////////
-void SoilTemperatureInit(int &jt1, int &jt2)
+void SoilTemperatureInit(int &jt1, int &jt2, string ProfileName)
 //     This function is called from SoilTemperature() at the start of the simulation. It sets 
 //  initial values to soil and canopy temperatures.
 //     The following arguments are set in this function:
 //  jt1, jt2 - input of start and stop of output of soil temperatures.
 //
 //     The following global variables are referenced here:
-//  Clim (structure), DayFinish, Daynum, DayStart, nl, OutIndex, ProfileName, SitePar.
+//  Clim (structure), DayFinish, Daynum, DayStart, nl, OutIndex, SitePar.
 //     The following global variables are set here:
 //  DeepSoilTemperature, SoilTemp.
 {

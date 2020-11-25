@@ -502,7 +502,7 @@ void RootCultivation(int j)
 	  }
 }
 //////////////////////////////
-void RootSummation()
+void RootSummation(string ProfileName)
 //     This function has been added for compatibility with GOSSYM root routines. 
 //  It is called from ActualRootGrowth(). It summarizes root data, in a form ready 
 //  for output or plotting. Sums of root weights for cells, for age groups and for 
@@ -510,7 +510,7 @@ void RootSummation()
 //
 //     The following global variables are referenced here:
 //  dl, Kday, nk, nl, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, 
-//  ProfileName, OutIndex, RootWeight, RootWtCapblUptake, RowSpace, wk
+//  OutIndex, RootWeight, RootWtCapblUptake, RowSpace, wk
 //     The following global variable is set here:     TotalRootWeight
 {
 //     Compute the root weight (of all age classes) for all soil cells as

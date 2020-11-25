@@ -42,7 +42,7 @@
       double addnr;  // daily added nitrogen to root, g per plant.
       double addnv;  // daily added nitrogen to vegetative shoot, g per plant.
 //////////////////////////////////////////////////
-void PlantNitrogen()
+void PlantNitrogen(string ProfileName)
 //     This function simulates the nitrogen accumulation and distribution in cotton plants,
 //  and computes nitrogen stresses. It is called from SimulateThisDay().
 //
@@ -94,8 +94,8 @@ void PlantNitrogen()
       addnr = 0;  // daily added nitrogen to root, g per plant.
       addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
 //   The following subroutines are now called:
-      NitrogenRequirement(); //  computes the N requirements for growth.
-      NitrogenSupply();      //  computes the supply of N from uptake and reserves.
+      NitrogenRequirement(ProfileName); //  computes the N requirements for growth.
+      NitrogenSupply(ProfileName);      //  computes the supply of N from uptake and reserves.
       NitrogenAllocation();  //  computes the allocation of N in the plant.
       if ( xtran > 0 )
          ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
@@ -142,7 +142,7 @@ void PlantNitrogen()
 	  }
 }
 //////////////////////////
-void NitrogenRequirement ()
+void NitrogenRequirement (string ProfileName)
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
@@ -234,7 +234,7 @@ void NitrogenRequirement ()
 	  }
 }
 //////////////////////////
-void NitrogenSupply ()
+void NitrogenSupply (string ProfileName)
 //     This function computes the supply of N by uptake from the soil reserves, 
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //
@@ -703,7 +703,7 @@ void NitrogenUptakeRequirement()
            TotalRequiredN += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
 }
 ///////////////////////////////////////////////////////////////////////////////
-void PlantNitrogenBal()
+void PlantNitrogenBal(string ProfileName)
 //     This function calculates the nitrogen balance in the cotton
 //  plant, for diagnostic purposes. It is called from SimulateThisDay().
 //     Units are g per plant.

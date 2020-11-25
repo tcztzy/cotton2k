@@ -16,13 +16,13 @@
 double bsize[3][30][5]; // average boll size (g seeds + lint per boll)
 int    mcode[3][30][5]; // code indicating state of fruit.
 /////////////////////////////////////////////////////////////
-void cotplt(int mtype)
+void cotplt(int mtype, string ProfileName)
 //     This function executes output of plant maps. It plots the cotton plant with the 
 //  corresponding symbols at the correct locations. It is called from function DailyOutput().
 //     It calls bollsize() and sitecode().
 //
 //     The following global and file scope variables are referenced here:
-//       bsize, Date, FruitingCode, mcode, NumFruitBranches, NumNodes, NumVegBranches, ProfileName.
+//       bsize, Date, FruitingCode, mcode, NumFruitBranches, NumNodes, NumVegBranches.
 //     The following argument is referenced here:
 //       mtype - defines the type of plant map requested:
 //        (1) - Average plant map (mcode); function sitecode() is called.

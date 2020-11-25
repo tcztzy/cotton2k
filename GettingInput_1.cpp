@@ -28,7 +28,7 @@
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-void ReadInput()
+void ReadInput(string ProfileName)
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -40,14 +40,14 @@ void ReadInput()
 //     The following functions are called to read initial values of some variables from 
 //  input files, or initialize them otherwise.
 	InitializeGlobal();
-	ReadProfileFile();
+	ReadProfileFile(ProfileName);
 	ReadCalibrationData();
 	LastDayOfActualWeather = OpenClimateFile();
 	InitializeGrid();
 	ReadSoilImpedance();
-    WriteInitialInputData();
+    WriteInitialInputData(ProfileName);
 	InitSoil();
-	ReadAgriculturalInput();
+	ReadAgriculturalInput(ProfileName);
 	ReadPlantMapInput();
 	InitializeSoilData();
 	InitializeSoilTemperature();
@@ -57,7 +57,7 @@ void ReadInput()
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
 }
 /////////////////////////////////////////////////////////////////////////////
-void ReadProfileFile()
+void ReadProfileFile(string ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -66,10 +66,9 @@ void ReadProfileFile()
 //  DayStopPlantMaps, DayStopSoilMaps, Elevation, isw, iyear, Latitude, Longitude, m_mulchdata, 
 //  MulchIndicator, nSiteNum, nVarNum, OutIndex, PlantmapFileName, PlantMapFreq, PlantsPerM, 
 //  PrdWthFileName, RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
-//     The following global variable is referenced here:   ProfileName
 //
 {
-    CString strFileName = "PROFILES\\" + ProfileName + ".PRO"; // file name with path
+    CString strFileName = ("PROFILES\\" + ProfileName + ".PRO").c_str(); // file name with path
     CFile file;
     CFileStatus status;
     CString strMessage;
@@ -325,7 +324,7 @@ void ReadProfileFile()
          Kday = 1;
       }
 //     Call function OpenOutputFiles() to open the output files.
-      OpenOutputFiles(m_fileDesc);
+      OpenOutputFiles(m_fileDesc, ProfileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
@@ -546,7 +545,7 @@ void InitializeGrid()
 	  }
 }
 //////////////////////////////////////////////////////////
-void WriteInitialInputData()
+void WriteInitialInputData(string ProfileName)
 //     This function writes the input data to File20 (*.B01). It is executed once 
 //  at the beginning of the simulation. It is called by ReadInput().
 //
@@ -556,7 +555,7 @@ void WriteInitialInputData()
 //  ActWthFileName, AgrInputFileName, CO2EnrichmentFactor, DayEmerge, DayEndCO2, DayFinish, 
 //  DayPlant, DayStart, DayStartCO2, Elevation, iyear, Latitude, Longitude, m_mulchdata, 
 //  maxk, MulchIndicator, OutIndex, PerPlantArea, PlantmapFileName, PlantsPerM, 
-//  PrdWthFileName, ProfileName, RowSpace, SiteName, SkipRowWidth, SoilHydFileName,
+//  PrdWthFileName, RowSpace, SiteName, SkipRowWidth, SoilHydFileName,
 //  SoilInitFileName, VarName.
 {
       ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
