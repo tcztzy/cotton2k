@@ -20,8 +20,6 @@ int OpenClimateFile()
 //  Return value: LastDayOfActualWeather.
 //
 {
-    CFile file;
-    CFileStatus status;
     CString strMessage;
     int LastDayOfPredictedWeather = 0;    // last DOY of predicted weather data
 	int LastDayOfActualWeather = 0;       // last DOY of actual weather data
@@ -30,7 +28,7 @@ int OpenClimateFile()
 	{
        fs::path strFileName = fs::path("climate") / (string)PrdWthFileName;
 //     If file does not exist, display message.
-       if (!file.GetStatus(strFileName.string().c_str(), status))
+       if (!fs::exists(strFileName))
 	   {
           AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
           AfxMessageBox(strMessage);
@@ -55,7 +53,7 @@ int OpenClimateFile()
 	{
        fs::path strFileName = fs::path("climate") / (string)ActWthFileName;
 //     If file does not exist, display message.
-       if (!file.GetStatus(strFileName.string().c_str(), status))
+       if (!fs::exists(strFileName))
 	   {
           AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
           AfxMessageBox(strMessage);

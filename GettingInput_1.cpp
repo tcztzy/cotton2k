@@ -66,11 +66,9 @@ void ReadProfileFile(const string& ProfileName)
 //
 {
     fs::path strFileName = fs::path("profiles") / (ProfileName + ".pro"); // file name with path
-    CFile file;
-    CFileStatus status;
     CString strMessage;
-//     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName.string().c_str(), status))
+//     If file does not exist, or can not be opened, display message
+    if (!fs::exists(strFileName))
     {
          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
@@ -333,11 +331,9 @@ void ReadCalibrationData()
 {
 //     Open file of variety file list. 
     fs::path strFileName = fs::path("data") / "vars" / "varlist.dat";
-    CFile file;
-    CFileStatus status;
     CString strMessage;
 //     If file does not exist, display message and and open a new file
-    if (!file.GetStatus(strFileName.string().c_str(), status))
+    if (!fs::exists(strFileName))
     {
          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
@@ -386,7 +382,7 @@ void ReadCalibrationData()
 //
     strFileName = fs::path("data") / "vars" / VarFile;
 //  If file does not exist, or can not be opened, display message
-    if (!file.GetStatus(strFileName.string().c_str(), status))
+    if (!fs::exists(strFileName))
     {
          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
@@ -410,7 +406,7 @@ void ReadCalibrationData()
 //     Open file of site file list. 
     strFileName = fs::path("data") / "site" / "sitelist.dat";
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName.string().c_str(), status))
+    if (!fs::exists(strFileName))
     {
          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
@@ -459,7 +455,7 @@ void ReadCalibrationData()
 //
     strFileName = fs::path("data") / "site" / SiteFile;
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName.string().c_str(), status))
+    if (!fs::exists(strFileName))
     {
          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
