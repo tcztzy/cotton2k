@@ -300,7 +300,7 @@ void C2KApp::SimulateThisDay(CString ProfileName)
 {
 //    Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
          Daynum++;
-	     Date = DoyToDate(Daynum, iyear);
+	     Date = DoyToDate(Daynum, iyear).c_str();
          DayOfSimulation = Daynum - DayStart + 1; 
 //    Compute Kday (days from emergence).
       if (DayEmerge <= 0)

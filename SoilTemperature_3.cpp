@@ -603,7 +603,7 @@ void PredictEmergence(int hour, const string& ProfileName)
          isw = 2;
          DayEmerge = Daynum;
          Kday = 1;
-         CString gerday = DoyToDate ( DayEmerge, iyear );
+         string gerday = DoyToDate ( DayEmerge, iyear );
          ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 		 File46 << " Predicted Germination on " << gerday << " (Day of Year = " << DayEmerge << " )" << endl;
          ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);

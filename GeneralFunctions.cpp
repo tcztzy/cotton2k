@@ -100,7 +100,7 @@ int DateToDoy(string Date, int m_YearStart)
 	  return jday;
 }
 ///////////////////////////////////////////////////////////////////////////
-CString DoyToDate(int Doy, int m_YearStart) 
+string DoyToDate(int Doy, int m_YearStart) 
 //     This function converts day of year (sometimes called 'Julian date')
 // to calendar date, allowing for leap years and for days in the following year.
 //     Arguments input:
@@ -114,7 +114,7 @@ CString DoyToDate(int Doy, int m_YearStart)
 // and m_YearStart is a 4-digit number).
 //
 {
-      static CString MonthName[] =
+      static string MonthName[] =
 	  { "JAN","FEB","MAR","APR","MAY","JUN", "JUL","AUG","SEP","OCT","NOV","DEC" };
       static int mday[] =
 	  { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -145,23 +145,23 @@ CString DoyToDate(int Doy, int m_YearStart)
          iday = iday - mday[i];
 	  }
 //   Construct date string.
-	  CString Date1 = "  ";
+	  string Date1 = "  ";
       char Cday[3];
       sprintf(Cday, "%2d", iday);
 	  if ( Cday[0] == ' ')
                Cday[0] = '0';
-      Date1.SetAt(0, Cday[0]);
-      Date1.SetAt(1, Cday[1]);
+      Date1.replace(0, 1, 1, Cday[0]);
+      Date1.replace(1, 1, 1, Cday[1]);
 
-	  CString Date2 = "    ";
+	  string Date2 = "    ";
       char Cyear[5];
       sprintf(Cyear, "%4d", iy);
-      Date2.SetAt(0, Cyear[0]);
-      Date2.SetAt(1, Cyear[1]);
-      Date2.SetAt(2, Cyear[2]);
-      Date2.SetAt(3, Cyear[3]);
+      Date2.replace(0, 1, 1, Cyear[0]);
+      Date2.replace(1, 1, 1, Cyear[1]);
+      Date2.replace(2, 1, 1, Cyear[2]);
+      Date2.replace(3, 1, 1, Cyear[3]);
 
-	  CString DateOut;
+	  string DateOut;
 	  DateOut = Date1 + "-" + MonthName[month - 1] + "-" + Date2;
       return DateOut;
 }
