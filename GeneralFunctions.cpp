@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////////////////////////////
 string GetLineData(ifstream &DataFile)
 //     This function safely reads a line from input. All data are read into a temporary character
-//  string with the "getline" command. It stops at end of line, and converts it to CString.
+//  string with the "getline" command. It stops at end of line, and converts it to string.
 //     Input        : the ifstream file which is being read.
 //     return value : string with the trailing blanks removed.
 //
