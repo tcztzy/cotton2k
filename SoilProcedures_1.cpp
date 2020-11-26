@@ -133,7 +133,7 @@ void SoilProcedures(const string& ProfileName)
          int kkk = Daynum / OutIndex[17];
          if (kkk * OutIndex[17] == Daynum) 
 		 {
-            ofstream File42("Output\\" + ProfileName + ".WAT", ios::app);
+            ofstream File42(fs::path("output") / (ProfileName + ".WAT"), ios::app);
 			File42 << endl << " Average Values by Layers on Day of Year ";
 			File42 << Daynum << endl;
 			File42 << " Layer          VolWaterContent          SoilPsi " << endl;
@@ -559,7 +559,7 @@ void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const s
 //      Arguments used: AppliedWater, TargetStress.
 //      Global variables referenced: Daynum, iyear, WaterStress.
 {
-         ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
+         ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
 		 File20 << " Predicted irrigation on " << DoyToDate(Daynum, iyear) << " - ";
 		 if (OutIndex[1] == 0)
             File20 << AppliedWater << " mm. ";

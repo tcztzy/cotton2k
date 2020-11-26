@@ -30,7 +30,7 @@ void outputplt(const string& ProfileName)
 //  indexPLT = 3 : English (OutIndex(1)=1), weights and numbers per area  (OutIndex(2)=1)
       int indexPLT = OutIndex[1] + 2 * OutIndex[2];
 //
-      ofstream File25("Output\\" + ProfileName + ".PLT", ios::out);
+      ofstream File25(fs::path("output") / (ProfileName + ".PLT"), ios::out);
 //     Write heading (first line) in the '*.PLT' file (File25). This line includes:
 //  Name of simulation (Profile name)in col 7-26; index in col 30, and
 //  date of emergence (day of year) in cols 31-40
@@ -224,7 +224,7 @@ void output2(const string& ProfileName)
 //     The values of the variables to plot are taken from structure Scratch21.
 {
 //     Write header lines.
-      ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+      ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
       File46.unsetf(ios::left);
 	  File46 << endl << "                            Stress factors output" << endl;
 	  File46 << "                %                            Leaf           Veg.    Leaf    Soil" << endl;
@@ -273,7 +273,7 @@ void output3(const string& ProfileName)
 {
 //  Write header lines.
       double multi;  // multiplier for some data
-	  ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+	  ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
       File46.unsetf(ios::left);
       if ( OutIndex[2] == 0)
 	  {
@@ -342,7 +342,7 @@ void output4(const string& ProfileName)
 {
 //     Write header lines.
       double multi;  // multiplier for some data
-	  ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+	  ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
       File46.unsetf(ios::left);
       File46 << endl << "                          Water and ET variables" << endl;
 	  File46 << "    Date      Potential   Net    ---- Actual Cumulative --  Total      " << endl;
@@ -407,7 +407,7 @@ void output5(const string& ProfileName)
 //
 {
 //     Write header lines.
-	  ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+	  ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
       File46.unsetf(ios::left);
       if ( OutIndex[1] == 0)
       {
@@ -488,7 +488,7 @@ void output6(const string& ProfileName)
 //     This procedure is always called from DataOutput().
 //     It writes output of final yields to file F01 and file S01.
 {
-	  ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+	  ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
       File46 << endl << "      Lint Yield:  kgs / ha  lbs / acre   bales / acre" << endl;
       File46.unsetf(ios::left);
 	  File46.setf(ios::fixed);
@@ -501,7 +501,7 @@ void output6(const string& ProfileName)
 	  File46.width(13);
 	  File46 << LintYield * 0.893 / 500 << endl;
 //
-      ofstream File22("Output\\" + ProfileName + ".S01", ios::app);
+      ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);
       File22 << endl << "      Lint Yield:  kgs / ha  lbs / acre   bales / acre" << endl;
       File22.unsetf(ios::left);
 	  File22.setf(ios::fixed);
@@ -725,7 +725,7 @@ void OutputForSoilMaps(int irec, int igo, int nday, const string& ProfileName)
 		 } //
 //     Write the data of the soil slab to file SMP, first line includes title
 //  (keyword) and date.
-      ofstream File23("Output\\" + ProfileName + ".SMP", ios::app);
+      ofstream File23(fs::path("output") / (ProfileName + ".SMP"), ios::app);
 	  File23.width(9);
 	  File23 << endl << tl1 << "           " << DoyToDate(nday, iyear) << endl << endl;
 //     Next line includes range data.

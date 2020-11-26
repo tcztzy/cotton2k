@@ -286,7 +286,7 @@ void PlantAdjustments(int i, int jj, const string& ProfileName)
          {
              nadj[0] = true;
 //     AdjAddMSNodesRate will be used in function AddFruitingBranch()
-             ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+             ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for main stem nodes to date " << Date << endl;
              GoBack();  
          }
@@ -328,7 +328,7 @@ void PlantAdjustments(int i, int jj, const string& ProfileName)
          {
              nadj[1] = true;
 //     AdjAddHeightRate will be used in function AddPlantHeight()
-             ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+             ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 		     File46 << " Apply plant adjustment for stem height to date " << Date << endl;
              GoBack();
          }
@@ -378,7 +378,7 @@ void PlantAdjustments(int i, int jj, const string& ProfileName)
          {
              nadj[2] = true;
 //     AdjAddSitesRate will be used in function AddFruitingNode()
-             ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+             ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for total number of sites to date " << Date << endl;
              GoBack();  
          }
@@ -395,7 +395,7 @@ void PlantAdjustments(int i, int jj, const string& ProfileName)
              nadj[3] = true;
 	         AdjSquareAbsc = 1 - pow( (MapDataSquareNum[i] / NumSquares), (1 / (double) NumAdjustDays) );
 //     AdjSquareAbsc will be used in function AdjustAbscission()
-             ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+             ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for number of squares to date " << Date << endl;
              GoBack();  
          }
@@ -412,7 +412,7 @@ void PlantAdjustments(int i, int jj, const string& ProfileName)
              AdjGreenBollAbsc = 1 - pow( (MapDataGreenBollNum[i] / NumGreenBolls), (1 / (double) NumAdjustDays) );
              nadj[4] = true;
 //     AdjGreenBollAbsc will be used in function AdjustAbscission()
-             ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+             ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for number of green bolls to date " << Date << endl;
              GoBack();  
          }

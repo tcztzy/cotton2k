@@ -102,7 +102,7 @@ void PlantNitrogen(const string& ProfileName)
 //   Optional output of N content to file *.NB2
       if (OutIndex[20] > 0)
 	  {
-         ofstream File37("Output\\" + ProfileName + ".NB2", ios::app);
+         ofstream File37(fs::path("output") / (ProfileName + ".NB2"), ios::app);
 	     File37.width(5);
 	     File37 << Kday;
 	     File37.setf(ios::fixed);
@@ -203,7 +203,7 @@ void NitrogenRequirement (const string& ProfileName)
 //     Optional output of N requirement data to file *.NB3
       if (OutIndex[20] > 0)
 	  {
-         ofstream File38("Output\\" + ProfileName + ".NB3", ios::app);
+         ofstream File38(fs::path("output") / (ProfileName + ".NB3"), ios::app);
 	     File38.width(5);
 	     File38 << Kday;
 	     File38.setf(ios::fixed);
@@ -323,7 +323,7 @@ void NitrogenSupply (const string& ProfileName)
 //   Optional output of N supply and reserve data to file *.NB4
       if (OutIndex[20] > 0)
 	  {
-         ofstream File39("Output\\" + ProfileName + ".NB4", ios::app);
+         ofstream File39(fs::path("output") / (ProfileName + ".NB4"), ios::app);
 	     File39.width(5);
 	     File39 << Kday;
 	     File39.setf(ios::fixed);
@@ -723,7 +723,7 @@ void PlantNitrogenBal(const string& ProfileName)
       double balpn; // the plant nitrogen balance, which should be zero.
       balpn = addn - plantn - CumPlantNLoss;
 //
-      ofstream File47("Output\\" + ProfileName + ".NB1", ios::app);
+      ofstream File47(fs::path("output") / (ProfileName + ".NB1"), ios::app);
 	  File47.width(4);
 	  File47 << Kday;
 	  File47.setf(ios::fixed);

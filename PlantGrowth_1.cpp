@@ -253,7 +253,7 @@ void LeafWaterPotential(const string& ProfileName)
 //     If the output flag is non-zero, write daily values to file 44 (*.LWP)
       if (OutIndex[19] > 0) 
 	  {
-         ofstream File44("Output\\" + ProfileName + ".LWP", ios::app);
+         ofstream File44(fs::path("output") / (ProfileName + ".LWP"), ios::app);
 		 File44.unsetf(ios::left);
          File44.width(5);
 		 File44 << Kday;
@@ -531,7 +531,7 @@ void PlantGrowth(const string& ProfileName)
 //     Output data to file *.CHB
       if (OutIndex[18] > 0) 
 	  {
-         ofstream File36("Output\\" + ProfileName + ".CHB", ios::app);
+         ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::app);
 		 File36.unsetf(ios::left);
          File36.width(11);
          File36 << Date;

@@ -33,7 +33,7 @@ void cotplt(int mtype, const string& ProfileName)
 	  CString char4[13] = { "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-",
                          "9-", "0-", "A-", "$-", "X-" };
 	  char chari = 'I'; // symbols used in plots.
-      ofstream File24("Output\\" + ProfileName + ".PLM", ios::app);
+      ofstream File24(fs::path("output") / (ProfileName + ".PLM"), ios::app);
 //     Print two blank lines to begin a new plot.
  	  File24 << endl << endl;
       if ( mtype == 1 ) 

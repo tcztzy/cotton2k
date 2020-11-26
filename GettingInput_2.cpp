@@ -42,21 +42,21 @@ void ReadSoilImpedance()
 //        gh2oc, impede, inrim, ncurve, tstbd.
 //
 {
-       string strFileName = "DATA\\SOILIMPD.DAT";
+       fs::path strFileName = fs::path("data") / "soilimpd.dat";
        CFile file;
        CFileStatus status;
 	   CString strMessage;
 //  If file does not exist, or can not be opened, display message.
-       if (!file.GetStatus(strFileName.c_str(), status))
+       if (!file.GetStatus(strFileName.string().c_str(), status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
           AfxMessageBox(strMessage);
 		  return;
 	   }
 	   ifstream DataFile(strFileName, ios::in);
        if ( DataFile.fail() )
 	   {
-            AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+            AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
             DataFile.close();
 	   }
 //     Read data from file
@@ -85,11 +85,11 @@ void InitSoil()
 //        rnnh4, rnno3, oma, h2oint.
 {
 //     The the file containing the initial soil data is opened for input.
-      string strFileName = "SOILS\\" + (string)SoilInitFileName;
+      fs::path strFileName = fs::path("soils") / (string)SoilInitFileName;
       ifstream fstr(strFileName, ios::in);
       if ( fstr.fail() )
       {
-          CString CSTemp = (" Can not open file \n" + strFileName).c_str();
+          CString CSTemp = (" Can not open file \n" + strFileName.string()).c_str();
           MessageBox( NULL, CSTemp, NULL, MB_OK);
           fstr.close();
 		  return;
@@ -280,11 +280,11 @@ int ReadSoilHydraulicData()
 //     Return value = number of soilhorizons (lyrsol)
 {
 //     The the file containing the hydraulic soil data is opened for input.
-      string m_FileName = "SOILS\\" + (string)SoilHydFileName;
+      fs::path m_FileName = fs::path("soils") / (string)SoilHydFileName;
       ifstream DataFile(m_FileName, ios::in);
       if ( DataFile.fail() )
       {
-          AfxMessageBox((_T("Error opening ") + m_FileName + ".").c_str());
+          AfxMessageBox((_T("Error opening ") + m_FileName.string() + ".").c_str());
           DataFile.close();
           return 0;
       }

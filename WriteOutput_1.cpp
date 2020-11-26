@@ -52,7 +52,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 	  CTime timeSys = CTime::GetCurrentTime();
       CString Rundate = timeSys.Format( "%A, %B %d, %Y" );
 //     Open file F01 and write header to it.
-      ofstream File46("Output\\" + ProfileName + ".F01", ios::out);
+      ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::out);
       File46.unsetf(ios::left);
 	  File46.width(50);
 	  File46 << "COTTON2K Version 4.0 (2004)" << endl;
@@ -112,7 +112,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 	  File46 << endl;
 //
 // Open the input information file B01, and write its header. 
-      ofstream File20("Output\\" + ProfileName + ".B01", ios::out);
+      ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::out);
       File20.unsetf(ios::left);
 	  File20.width(50);
 	  File20 << "COTTON2K Version 4.0 (2003)" << endl;
@@ -132,7 +132,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 	  File20 << m_fileDesc << endl << endl;
 //
 // Open the summary output file S01, and write its header. 
-      ofstream File22("Output\\" + ProfileName + ".S01", ios::out);
+      ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::out);
 	  File22 << endl << "                         SUMMARY OF SIMULATION RUN" << endl;
       File22.setf(ios::left);
 	  File22 << "Profile Name:    ";
@@ -165,13 +165,13 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
       int imap; // indicator for soil-map or plant-map output.
       imap = OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12];
       if (imap > 0) 
-         ofstream File23("Output\\" + ProfileName + ".SMP", ios::out);
+         ofstream File23(fs::path("output") / (ProfileName + ".SMP"), ios::out);
 //
 //      When any of the output flags 7 or 13 is non-zero, open output
 //  file for plant map data, as unit 24.
       imap = OutIndex[7] + OutIndex[13];
       if (imap > 0) 
-         ofstream File24("Output\\" + ProfileName + ".PLM", ios::out);
+         ofstream File24(fs::path("output") / (ProfileName + ".PLM"), ios::out);
 //
 //      The following files are used for checking during model
 // development. They are not intended for general use.
@@ -179,8 +179,8 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 //  and ".WA2". These files are opened when the flag OutIndex[17] is non-zero.
       if (OutIndex[17] > 0) 
       {
-         ofstream File42("Output\\" + ProfileName + ".WAT", ios::out);
-         ofstream File56("Output\\" + ProfileName + ".WA2", ios::out);
+         ofstream File42(fs::path("output") / (ProfileName + ".WAT"), ios::out);
+         ofstream File56(fs::path("output") / (ProfileName + ".WA2"), ios::out);
          File56 << "    DATE    vertical water content  for columns 0 and 9";
 		 File56 << endl;
       }
@@ -188,7 +188,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 //      For the root data output,  the extension is '.RUT'. The file
 //  is opened when the flag OutIndex[22] is non-zero.
       if (OutIndex[22] > 0) 
-         ofstream File34("Output\\" + ProfileName + ".RUT", ios::out);
+         ofstream File34(fs::path("output") / (ProfileName + ".RUT"), ios::out);
 //
 //      When the output flag 15 is non-zero: file '.TM1' which is used for output
 //  of computed 24-hour weather data for plotting is opened, and its header line is written.
@@ -198,18 +198,18 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 //  outputs simulated soil temperatue data, is opened as unit 19.
       if (OutIndex[15] > 0) 
 	  {
-         ofstream File17("Output\\" + ProfileName + ".TM1", ios::out);
+         ofstream File17(fs::path("output") / (ProfileName + ".TM1"), ios::out);
          File17 <<  "     TIME         RAD         TMP          RH      WND        ETREF";
 		 File17 << endl;
 	  }
       if (OutIndex[15] > 1) 
-         ofstream File18("Output\\" + ProfileName + ".TM2", ios::out);
+         ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::out);
 //
 //      When the output flag 18 is non-zero, file '.CHB', which outputs plant carbon balance data, 
 //  is opened, and the heading for this file is written.
       if (OutIndex[18] > 0) 
 	  {
-         ofstream File36("Output\\" + ProfileName + ".CHB", ios::out);
+         ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::out);
          File36 << "    DATE       CDSTEM   CDLEAF     CDPET    CDROOT    CSTRES    STEMWT    LEAFWT     PETWT    ROOTWT    SUMPDR      NR";
 		 File36 << endl;
 	  }
@@ -218,7 +218,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 //  potential and related data, is opened, and the heading for this file is written.
       if (OutIndex[19] > 0) 
 	  {
-         ofstream File44("Output\\" + ProfileName + ".LWP", ios::out);
+         ofstream File44(fs::path("output") / (ProfileName + ".LWP"), ios::out);
          File44 << " KDAY  PSISOIL   COND      RSOIL     RROOT     RSHOOT    RLEAF     PSILN     PSILD ";
 		 File44 << endl;
 	  }
@@ -227,26 +227,26 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 //  are opened and the headings for these files are written.
       if (OutIndex[20] > 0) 
 	  {
-         ofstream File35("Output\\" + ProfileName + ".NB0", ios::out);
+         ofstream File35(fs::path("output") / (ProfileName + ".NB0"), ios::out);
          File35 << " KDAY  VNO3C                              VNH4C";
 		 File35 << endl;
          File35 << "       0 - 30  30 - 60  60 - 90 90 - 120  0 - 30  30 - 60  60 - 90 90 - 120";
 		 File35 << endl;
          File35 << "                   in parts per million (per volume)" << endl;
-         ofstream File47("Output\\" + ProfileName + ".NB1", ios::out);
+         ofstream File47(fs::path("output") / (ProfileName + ".NB1"), ios::out);
          File47 << " KDAY  BALSN    FERN     ORGN   UPTAKEN    SOILN   SNLOSS    BALPN    ADDN   PLANTN    NLOSS";
 		 File47 << endl;
-         ofstream File37("Output\\" + ProfileName + ".NB2", ios::out);
+         ofstream File37(fs::path("output") / (ProfileName + ".NB2"), ios::out);
          File37 << "    CHECKING  NITROGEN IN PLANT PARTS  ";
 		 File37 << endl;
          File37 << " KDAY SLEAFN   PETN  STEMN  ROOTN  BURRN  SEEDN SQRN   LEAFCN  PETCN STEMCN ROOTCN  BURCN SEEDCN PETCNO3";
 		 File37 << endl;
-         ofstream File38("Output\\" + ProfileName + ".NB3", ios::out);
+         ofstream File38(fs::path("output") / (ProfileName + ".NB3"), ios::out);
          File38 << "    CHECKING  NITROGEN REQUIREMENTS";
 		 File38 << endl;
          File38 << " KDAY RQNLEF RQNPET RQNSTM RQNRUT   REQV RQNSQR RQNSED RQNBUR   REQF   REQTOT";
 		 File38 << endl;
-         ofstream File39("Output\\" + ProfileName + ".NB4", ios::out);
+         ofstream File39(fs::path("output") / (ProfileName + ".NB4"), ios::out);
          File39 << "    CHECKING  NITROGEN SUPPLY POOLS";
 		 File39 << endl;
          File39 << " KDAY SUPNO3 SUPNH4   UPTN LEAFRS PETRS  STEMRS ROOTRS BURRES   RESN   PETN  NPOOL";
@@ -323,7 +323,7 @@ void output1(const string& ProfileName)
 //       LeafAreaIndex, LastDayWeatherData, LintYield, MainStemNodes, NumFruitSites, NumGreenBolls, 
 //       NumOpenBolls, NumSquares, OutIndex, PlantHeight, PlantPopulation
 {
-       ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
+       ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 //     Date of first square and date of first bloom are written to file F01.
       if ( Daynum == FirstSquare  )
 			 File46 << " ** First square on " << Date << " **" << endl;
@@ -386,7 +386,7 @@ void output1(const string& ProfileName)
 //
 //    Also, write information to the 'summary file' (S01) if this is
 //  the day of first square, first bloom, or day of last actual weather data.
-          ofstream File22("Output\\" + ProfileName + ".S01", ios::app);
+          ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);
           if ( Daynum == LastDayWeatherData )
 		  {
 			 File22 << " Last act. wthr.";
@@ -449,7 +449,7 @@ void DataOutput(const string& ProfileName)
       double i01; // number of green bolls, per unit area.
       double i02; // number of open bolls, per unitn area.
       double sixpct = NumOpenBolls * 0.6; // 60 percent of the final number of open bolls.
-      ofstream File22("Output\\" + ProfileName + ".S01", ios::app);
+      ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);
 //     Start reading data from struct Scratch21.
 //     Read data for each day, and compute the local variables i00,
 //  i01, i02. Convert from per plant to per sq m, or to English units.

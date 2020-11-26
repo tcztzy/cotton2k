@@ -28,11 +28,11 @@ int OpenClimateFile()
 //     Open file of predicted weather data.
     if (PrdWthFileName.GetLength() > 0)
 	{
-       string strFileName = "CLIMATE\\" + (string)PrdWthFileName;
+       fs::path strFileName = fs::path("climate") / (string)PrdWthFileName;
 //     If file does not exist, display message.
-       if (!file.GetStatus(strFileName.c_str(), status))
+       if (!file.GetStatus(strFileName.string().c_str(), status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
           AfxMessageBox(strMessage);
 	   }
        else
@@ -40,7 +40,7 @@ int OpenClimateFile()
 	      ifstream DataFile(strFileName, ios::in);
           if ( DataFile.fail() )
 		  {
-             AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+             AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
              DataFile.close();
 		  }
           else
@@ -53,11 +53,11 @@ int OpenClimateFile()
 //     Open file of actual weather data.
     if (ActWthFileName.GetLength() > 0)
 	{
-       string strFileName = "CLIMATE\\" + (string)ActWthFileName;
+       fs::path strFileName = fs::path("climate") / (string)ActWthFileName;
 //     If file does not exist, display message.
-       if (!file.GetStatus(strFileName.c_str(), status))
+       if (!file.GetStatus(strFileName.string().c_str(), status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
           AfxMessageBox(strMessage);
        }
 	   else
@@ -65,7 +65,7 @@ int OpenClimateFile()
           ifstream DataFile1(strFileName, ios::in);
           if ( DataFile1.fail() )
 		  {
-             AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+             AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
              DataFile1.close();
 		  }
 		  else
@@ -202,11 +202,11 @@ void ReadAgriculturalInput(const string& ProfileName)
 //
 {
 //     Open the input file
-	 string  m_FilePath = "AGINPUT\\" + (string)AgrInputFileName;
+	 fs::path  m_FilePath = fs::path("aginput") / (string)AgrInputFileName;
      ifstream DataFile(m_FilePath, ios::in);
      if ( DataFile.fail() )
      {
-          AfxMessageBox((" Can not open file \n" + m_FilePath).c_str());
+          AfxMessageBox((" Can not open file \n" + m_FilePath.string()).c_str());
           DataFile.close();
      }
 //     Line #1: Read file description.
@@ -386,7 +386,7 @@ void ReadAgriculturalInput(const string& ProfileName)
      }  //  end while DataFile
 //
 //     Writing of Agricultural Input Data to file B01:
-     ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
+     ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
      if (NumIrrigations > 0)
 //     Write irrigations set by input:
      {
@@ -681,7 +681,7 @@ void ReadPlantMapInput()
         }
         PlantmapFileName = PlantmapFileName.Left(newlen) + Exten.c_str();
     }
-	string m_FilePath = "PLANTMAP\\" + (string)PlantmapFileName;
+	fs::path m_FilePath = fs::path("plantmap") / (string)PlantmapFileName;
 //
     ifstream DataFile(m_FilePath, ios::in);
     if ( DataFile.fail() )

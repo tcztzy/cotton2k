@@ -294,7 +294,7 @@ void SoilTemperature(const string& ProfileName)
 //     If there is an output flag, write data to file TMS.
          if (jtout) 
 		 {
-             ofstream File19("Output\\" + ProfileName + ".TMS", ios::app);
+             ofstream File19(fs::path("output") / (ProfileName + ".TMS"), ios::app);
 			 File19.width(5);
 			 File19 << Daynum;
 			 File19.width(5);
@@ -504,7 +504,7 @@ void SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName)
 		  jt1 = dlg.m_StartDate;
 		  jt2 = dlg.m_EndDate;
 //     File *.TMS is used for checking the soil temperature routines. Write header of output:
-          ofstream File19("Output\\" + ProfileName + ".TMS", ios::out);
+          ofstream File19(fs::path("output") / (ProfileName + ".TMS"), ios::out);
 		  File19 << " Day of Year hour ----------------  TS FOR ALL LAYERS  -------------------" << endl;
 		  File19 << "                  1      2       3       4       5       6       7       8" << endl;
 		  File19 << "                  9     10      11      12      13      14      15      16" << endl;

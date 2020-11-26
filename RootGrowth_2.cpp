@@ -556,7 +556,7 @@ void RootSummation(const string& ProfileName)
                   }
 			}
 //    Write these computed results in file 34.
-            ofstream File34("Output\\" + ProfileName + ".RUT", ios::app);
+            ofstream File34(fs::path("output") / (ProfileName + ".RUT"), ios::app);
 			File34 << endl;
 		    File34.unsetf(ios::left);
             File34 << " ROOT DATA FOR DAY Kday=";

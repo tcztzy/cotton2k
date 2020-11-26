@@ -142,7 +142,7 @@ void DayClim(const string& ProfileName)
 //     Write output file if requested.
     if (jtout > 1) 
 	{
-        ofstream File18("Output\\" + ProfileName + ".TM2", ios::app);
+        ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::app);
         File18 << endl;
         File18 << " hour     radiation    temperature             RelativeHumidity           wind" << endl;
         for (int ihr = 0; ihr < 24; ihr++)  //  Start hourly loop.
@@ -165,7 +165,7 @@ void DayClim(const string& ProfileName)
 //     Write output file if requested.
     if (jtout > 1) 
 	{
-        ofstream File18("Output\\" + ProfileName + ".TM2", ios::app);
+        ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::app);
         File18 << endl << " DayTimeTemp, NightTimeTemp, AvrgDailyTemp =   ";
         File18.precision(2);
         File18.width(10);
@@ -610,7 +610,7 @@ void EvapoTranspiration(int jtout, const string& ProfileName)
          if (jtout > 1) 
 		 {
 // write output to file
-            ofstream File18("Output\\" + ProfileName + ".TM2", ios::app);
+            ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::app);
             if (ihr == 0) 
 	        {
                File18 << "    ***********" << endl << "  date =";

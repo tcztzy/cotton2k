@@ -65,21 +65,21 @@ void ReadProfileFile(const string& ProfileName)
 //  PrdWthFileName, RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
 //
 {
-    string strFileName = "PROFILES\\" + ProfileName + ".PRO"; // file name with path
+    fs::path strFileName = fs::path("profiles") / (ProfileName + ".pro"); // file name with path
     CFile file;
     CFileStatus status;
     CString strMessage;
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName.c_str(), status))
+    if (!file.GetStatus(strFileName.string().c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
-          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
           DataFile.close();
           return;
     }
@@ -332,21 +332,21 @@ void ReadCalibrationData()
 //  SiteName, SitePar, VarName, VarPar
 {
 //     Open file of variety file list. 
-    string strFileName = "DATA\\VARS\\VARLIST.DAT";
+    fs::path strFileName = fs::path("data") / "vars" / "varlist.dat";
     CFile file;
     CFileStatus status;
     CString strMessage;
 //     If file does not exist, display message and and open a new file
-    if (!file.GetStatus(strFileName.c_str(), status))
+    if (!file.GetStatus(strFileName.string().c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
-          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
           DataFile.close();
           return;
     }
@@ -384,18 +384,18 @@ void ReadCalibrationData()
 	}
     DataFile.close();
 //
-    strFileName = "DATA\\VARS\\" + VarFile;
+    strFileName = fs::path("data") / "vars" / VarFile;
 //  If file does not exist, or can not be opened, display message
-    if (!file.GetStatus(strFileName.c_str(), status))
+    if (!file.GetStatus(strFileName.string().c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile1(strFileName, ios::in);
     if ( DataFile1.fail() )
     {
-          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
           DataFile1.close();
           return;
     }
@@ -408,11 +408,11 @@ void ReadCalibrationData()
 	}
     DataFile1.close();
 //     Open file of site file list. 
-    strFileName = "DATA\\SITE\\SITELIST.DAT";
+    strFileName = fs::path("data") / "site" / "sitelist.dat";
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName.c_str(), status))
+    if (!file.GetStatus(strFileName.string().c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
          return;
     }
@@ -420,7 +420,7 @@ void ReadCalibrationData()
     ifstream DataFile2(strFileName, ios::in);
     if ( DataFile2.fail() )
     {
-          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
           DataFile.close();
           return;
     }
@@ -457,18 +457,18 @@ void ReadCalibrationData()
 	}
     DataFile2.close();
 //
-    strFileName = "DATA\\SITE\\" + SiteFile;
+    strFileName = fs::path("data") / "site" / SiteFile;
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName.c_str(), status))
+    if (!file.GetStatus(strFileName.string().c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile3(strFileName, ios::in);
     if ( DataFile3.fail() )
     {
-          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
+          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
           DataFile3.close();
           return;
     }
@@ -556,7 +556,7 @@ void WriteInitialInputData(const string& ProfileName)
 //  PrdWthFileName, RowSpace, SiteName, SkipRowWidth, SoilHydFileName,
 //  SoilInitFileName, VarName.
 {
-      ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
+      ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
       File20 << "    Latitude.. "; 
       File20.setf(ios::fixed);
 	  File20.width(8);

@@ -473,7 +473,7 @@ void SoilNitrogenBal(const string& ProfileName)
       balsn = SoilNitrogenAtStart + CumFertilizerN + MineralizedOrganicN
             - CumNitrogenUptake - TotalSoilNitrogen - SoilNitrogenLoss;
 //     Output to file NB1
-      ofstream File47("Output\\" + ProfileName + ".NB1", ios::app);
+      ofstream File47(fs::path("output") / (ProfileName + ".NB1"), ios::app);
 	  File47.width(4);
 	  File47 << Kday;
 	  File47.setf(ios::fixed);
@@ -542,7 +542,7 @@ void SoilNitrogenAverage(const string& ProfileName)
       avno120 = 1000 *  avno120 / (30 * nk);
       avnh120 = 1000 *  avnh120 / (30 * nk);
 //
-      ofstream File35("Output\\" + ProfileName + ".NB0", ios::app);
+      ofstream File35(fs::path("output") / (ProfileName + ".NB0"), ios::app);
 	  File35.width(4);
 	  File35 << Kday;
 	  File35.setf(ios::fixed);

@@ -63,7 +63,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdr
 //     If output flag is non zero, write daily carbon balance data to file CHB
       if (OutIndex[18] > 0) 
 	  {
-         ofstream File36("Output\\" + ProfileName + ".CHB", ios::app);
+         ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::app);
 		 File36.unsetf(ios::left);
          File36.width(6);
          File36 << Kday;
@@ -495,7 +495,7 @@ void CheckDryMatterBal(const string& ProfileName)
 //  Report results to file *.CHB
       if (OutIndex[18] > 0) 
 	  {
-         ofstream File36("Output\\" + ProfileName + ".CHB", ios::app);
+         ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::app);
 		 File36.unsetf(ios::left);
          File36 << " Kday=";
          File36.width(3);
@@ -617,7 +617,7 @@ void Defoliate(const string& ProfileName)
          if ( Daynum == DefoliationDate[i] ) 
 		 {
 //     Report defoliation to output file B01.
-            ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
+            ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
 			File20 << " ****   defoliant applied on " << Date;
 			File20 << "    ****" << endl;
 //     If it is a predicted defoliation, assign tdfkgh as 2.5 .
