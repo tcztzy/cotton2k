@@ -21,7 +21,7 @@
         nVarNum;             // index number for cultivar. 
    double SkipRowWidth,      // the smaller distance between skip rows, cm
         PlantsPerM;          // average number of plants pre meter of row.
-   CString m_mulchdata,      // string containing input data of mulching
+   string m_mulchdata,      // string containing input data of mulching
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
@@ -65,21 +65,21 @@ void ReadProfileFile(const string& ProfileName)
 //  PrdWthFileName, RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
 //
 {
-    CString strFileName = ("PROFILES\\" + ProfileName + ".PRO").c_str(); // file name with path
+    string strFileName = "PROFILES\\" + ProfileName + ".PRO"; // file name with path
     CFile file;
     CFileStatus status;
     CString strMessage;
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName, status))
+    if (!file.GetStatus(strFileName.c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
           DataFile.close();
           return;
     }
@@ -153,14 +153,14 @@ void ReadProfileFile(const string& ProfileName)
 //     For advanced users only: If soil mulch is used, read relevant parameters.
     if (nLength > 41)
 	{
-           m_mulchdata = Dummy.substr(40).c_str();
-	       MulchIndicator = atoi (m_mulchdata.Left(10) );
+           m_mulchdata = Dummy.substr(40);
+	       MulchIndicator = atoi (m_mulchdata.substr(0,10).c_str() );
            if (MulchIndicator > 0)
            {
-              MulchTranSW = atof (m_mulchdata.Mid(10, 10));
-              MulchTranLW = atof (m_mulchdata.Mid(20, 10));
-			  DayStartMulch = atoi (m_mulchdata.Mid(30, 5));
-			  DayEndMulch = atoi (m_mulchdata.Mid(35, 5));
+              MulchTranSW = atof (m_mulchdata.substr(10, 10).c_str());
+              MulchTranLW = atof (m_mulchdata.substr(20, 10).c_str());
+			  DayStartMulch = atoi (m_mulchdata.substr(30, 5).c_str());
+			  DayEndMulch = atoi (m_mulchdata.substr(35, 5).c_str());
               if (DayEndMulch <= 0)
                   DayEndMulch = DateToDoy(DateSimEnd.c_str(), iyear);
            }
@@ -305,9 +305,9 @@ void ReadProfileFile(const string& ProfileName)
          isw = 0;
          if (DayPlant <= 0) 
 		 {
-            CString msg = " planting date or emergence date must";
+            string msg = " planting date or emergence date must";
             msg += " be given in the profile file !!";
-			AfxMessageBox(msg);
+			AfxMessageBox(msg.c_str());
             bEnd = true;
          }
 	  }
@@ -332,47 +332,48 @@ void ReadCalibrationData()
 //  SiteName, SitePar, VarName, VarPar
 {
 //     Open file of variety file list. 
-    CString strFileName = "DATA\\VARS\\VARLIST.DAT";
+    string strFileName = "DATA\\VARS\\VARLIST.DAT";
     CFile file;
     CFileStatus status;
     CString strMessage;
 //     If file does not exist, display message and and open a new file
-    if (!file.GetStatus(strFileName, status))
+    if (!file.GetStatus(strFileName.c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
           DataFile.close();
           return;
     }
 //
-    CString Dummy, VarFile;
+    string Dummy, VarFile;
+    // FIXME: if it go through to the last blank line, it wouldn't break because it doesn't reach the eof
     for (int m_idx = 0; m_idx < 1000; m_idx++)
     {
         if (DataFile.eof() == 1)
             break;
-        Dummy = GetLineData(DataFile).c_str();
-        int nLength = Dummy.GetLength();
+        Dummy = GetLineData(DataFile);
+        int nLength = Dummy.length();
 	    int num;
-	    CString Name, FileName;
+	    string Name, FileName;
         if (nLength >= 4)
 		{
-           num = atoi(Dummy.Left(4));
+           num = atoi(Dummy.substr(0,4).c_str());
 		}
         if (nLength >= 25)
 		{
-           Name = Dummy.Mid(5,20);
-           Name.Remove(' ');
+           Name = Dummy.substr(5,20);
+           Name.erase(remove(Name.begin(), Name.end(), ' '), Name.end());
 		}
         if (nLength >= 45)
 		{
-           FileName = Dummy.Mid(40,20);
-           FileName.Remove(' ');
+           FileName = Dummy.substr(40,20);
+           FileName.erase(remove(FileName.begin(), FileName.end(), ' '), FileName.end());
 		}
 	    if (num == nVarNum)
 		{
@@ -385,16 +386,16 @@ void ReadCalibrationData()
 //
     strFileName = "DATA\\VARS\\" + VarFile;
 //  If file does not exist, or can not be opened, display message
-    if (!file.GetStatus(strFileName, status))
+    if (!file.GetStatus(strFileName.c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile1(strFileName, ios::in);
     if ( DataFile1.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
           DataFile1.close();
           return;
     }
@@ -402,24 +403,24 @@ void ReadCalibrationData()
 	GetLineData(DataFile1);  // skip 1st line
 	for (int i = 1; i <= 60; i++)
 	{
-	    Dummy = GetLineData(DataFile1).c_str(); 
-		VarPar[i] = atof (Dummy.Left(20));
+	    Dummy = GetLineData(DataFile1); 
+		VarPar[i] = atof (Dummy.substr(0,20).c_str());
 	}
     DataFile1.close();
 //     Open file of site file list. 
     strFileName = "DATA\\SITE\\SITELIST.DAT";
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName, status))
+    if (!file.GetStatus(strFileName.c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
          AfxMessageBox(strMessage);
          return;
     }
-    CString SiteFile;
+    string SiteFile;
     ifstream DataFile2(strFileName, ios::in);
     if ( DataFile2.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
           DataFile.close();
           return;
     }
@@ -429,23 +430,23 @@ void ReadCalibrationData()
         if (DataFile2.eof() == 1)
             break;
 
-        Dummy = GetLineData(DataFile2).c_str();
-        int nLength = Dummy.GetLength();
+        Dummy = GetLineData(DataFile2);
+        int nLength = Dummy.length();
 	    int num;
-	    CString Name, FileName;
+	    string Name, FileName;
         if (nLength >= 4)
 		{
-           num =  atoi(Dummy.Left(4));
+           num =  atoi(Dummy.substr(0,4).c_str());
 		}
         if (nLength >= 25)
 		{
-           Name = Dummy.Mid(5,20);
-           Name.Remove(' ');
+           Name = Dummy.substr(5,20);
+           Name.erase(remove(Name.begin(), Name.end(), ' '), Name.end());
 		}
         if (nLength >= 45)
 		{
-           FileName = Dummy.Mid(40,20);
-           FileName.Remove(' ');
+           FileName = Dummy.substr(40,20);
+           FileName.erase(remove(FileName.begin(), FileName.end(), ' '), FileName.end());
 		}
 	    if (num == nSiteNum)
 		{
@@ -458,16 +459,16 @@ void ReadCalibrationData()
 //
     strFileName = "DATA\\SITE\\" + SiteFile;
 //     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName, status))
+    if (!file.GetStatus(strFileName.c_str(), status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
          AfxMessageBox(strMessage);
          return;
     }
     ifstream DataFile3(strFileName, ios::in);
     if ( DataFile3.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          AfxMessageBox(("Error opening " + strFileName + ".").c_str());
           DataFile3.close();
           return;
     }
@@ -475,8 +476,8 @@ void ReadCalibrationData()
 	GetLineData(DataFile3);  // skip 1st line
 	for (int i = 1; i <= 20; i++)
 	{
-	    Dummy = GetLineData(DataFile3).c_str(); 
-		SitePar[i] = atof (Dummy.Left(20));
+	    Dummy = GetLineData(DataFile3); 
+		SitePar[i] = atof (Dummy.substr(0,20).c_str());
 	}
     DataFile3.close();
 }
@@ -647,7 +648,7 @@ void WriteInitialInputData(const string& ProfileName)
 		 File20 << "    to ...... " << DoyToDate(DayEndCO2, iyear) << endl;
 	  }
 //
-	  if (m_mulchdata.GetLength() > 0 && MulchIndicator > 0)
+	  if (m_mulchdata.length() > 0 && MulchIndicator > 0)
 	  {
 			  File20 << "   Polyethylene mulch cover. Transmissivity values are: " << endl;
 			  File20 << " For short waves:  ";
