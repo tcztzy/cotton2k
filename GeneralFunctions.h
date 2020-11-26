@@ -15,4 +15,4 @@ using namespace std;
    double wcond ( double q, double qr, double qsat, double beta, double SaturatedHydCond, double PoreSpace );
    double psiq ( double q, double qr, double qsat, double alpha, double beta );
    double PsiOsmotic ( double q, double qsat, double ec );
-   double GetFromClim(CString item, int Doy);
+   double GetFromClim(string item, int Doy);

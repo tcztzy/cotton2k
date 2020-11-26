@@ -309,7 +309,7 @@ double PsiOsmotic ( double q, double qsat, double ec)
 	     return 0;
 }
 ///////////////////////////////////////////////////////////////////////////////
-double GetFromClim(CString item, int Doy)
+double GetFromClim(string item, int Doy)
 //     This function extracts daily climate values for day of year Doy
 //  from the structure Clim.
 //     Input arguments:
