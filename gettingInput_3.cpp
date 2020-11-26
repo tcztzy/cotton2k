@@ -28,11 +28,11 @@ int OpenClimateFile()
 //     Open file of predicted weather data.
     if (PrdWthFileName.GetLength() > 0)
 	{
-       CString strFileName = "CLIMATE\\" + PrdWthFileName;
+       string strFileName = "CLIMATE\\" + (string)PrdWthFileName;
 //     If file does not exist, display message.
-       if (!file.GetStatus(strFileName, status))
+       if (!file.GetStatus(strFileName.c_str(), status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
           AfxMessageBox(strMessage);
 	   }
        else
@@ -40,7 +40,7 @@ int OpenClimateFile()
 	      ifstream DataFile(strFileName, ios::in);
           if ( DataFile.fail() )
 		  {
-             AfxMessageBox("Error opening " + strFileName + ".");
+             AfxMessageBox(("Error opening " + strFileName + ".").c_str());
              DataFile.close();
 		  }
           else
@@ -53,11 +53,11 @@ int OpenClimateFile()
 //     Open file of actual weather data.
     if (ActWthFileName.GetLength() > 0)
 	{
-       CString strFileName = "CLIMATE\\" + ActWthFileName;
+       string strFileName = "CLIMATE\\" + (string)ActWthFileName;
 //     If file does not exist, display message.
-       if (!file.GetStatus(strFileName, status))
+       if (!file.GetStatus(strFileName.c_str(), status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
           AfxMessageBox(strMessage);
        }
 	   else
@@ -65,7 +65,7 @@ int OpenClimateFile()
           ifstream DataFile1(strFileName, ios::in);
           if ( DataFile1.fail() )
 		  {
-             AfxMessageBox("Error opening " + strFileName + ".");
+             AfxMessageBox(("Error opening " + strFileName + ".").c_str());
              DataFile1.close();
 		  }
 		  else
@@ -89,33 +89,32 @@ int ReadClimateData(ifstream &DataFile)
 //
 {
 //     Read 1st line
-      CString Dummy = GetLineData(DataFile).c_str();
-      int nLength = Dummy.GetLength();
+      string Dummy = GetLineData(DataFile);
+      int nLength = Dummy.length();
 //     The following variables inform if the data in the climate file are in metric or "English" units.
 	  int iswRad = 0, iswTmp = 0, iswRain = 0, iswDewt = 0, iswWind = 0;
 	  double AverageWind = 0;
-	  CString Name, FileName;
       if (nLength >= 31)
-           iswRad = atoi(Dummy.Mid(31,3));
+           iswRad = atoi(Dummy.substr(31,3).c_str());
       if (nLength >= 34)
-           iswTmp = atoi(Dummy.Mid(34,3));
+           iswTmp = atoi(Dummy.substr(34,3).c_str());
       if (nLength >= 37)
-           iswRain = atoi(Dummy.Mid(37,3));
+           iswRain = atoi(Dummy.substr(37,3).c_str());
       if (nLength >= 40)
-           iswWind = atoi(Dummy.Mid(40,3));
+           iswWind = atoi(Dummy.substr(40,3).c_str());
       if (nLength >= 43)
-           iswDewt = atoi(Dummy.Mid(43,3));
+           iswDewt = atoi(Dummy.substr(43,3).c_str());
       if (nLength >= 61)
-           AverageWind = atof(Dummy.Mid(61,10));
+           AverageWind = atof(Dummy.substr(61,10).c_str());
 //     Read all other lines
 	  int jdd = 0;    // day of year
       while ( DataFile.eof() == 0 )
       {
 //     Test for end of file, and get the day of year (jdd)
-          Dummy = GetLineData(DataFile).c_str();
+          Dummy = GetLineData(DataFile);
           if (DataFile.eof() )  
               break;
-          jdd = atoi(Dummy.Left(4));
+          jdd = atoi(Dummy.substr(0,4).c_str());
           int j = jdd - DayStart;   // days from start of simulation
 //     Daily weather data are stored in the structure Clim, derived from
 //  struct Climstruct {int nDay; float Rad, Tmax, Tmin, Rain, Wind, Tdew; }
@@ -123,10 +122,10 @@ int ReadClimateData(ifstream &DataFile)
 		  {
 			   Clim[j].nDay = jdd;
 //     Get float values
-			   Clim[j].Rad =  atof(Dummy.Mid(21,7));//  Radiation data
-			   Clim[j].Tmax = atof(Dummy.Mid(28,7));//  maximum temperature data
-			   Clim[j].Tmin =  atof(Dummy.Mid(35,7));//  minimum temperature data
-			   Clim[j].Rain =  atof(Dummy.Mid(42,7));//  rain data
+			   Clim[j].Rad =  atof(Dummy.substr(21,7).c_str());//  Radiation data
+			   Clim[j].Tmax = atof(Dummy.substr(28,7).c_str());//  maximum temperature data
+			   Clim[j].Tmin =  atof(Dummy.substr(35,7).c_str());//  minimum temperature data
+			   Clim[j].Rain =  atof(Dummy.substr(42,7).c_str());//  rain data
 //     If iswRad is 1, convert solar radiation from MJ/m2 to langleys.
                if ( iswRad == 1 )
 			           Clim[j].Rad = Clim[j].Rad * 23.884;
@@ -137,7 +136,7 @@ int ReadClimateData(ifstream &DataFile)
                     Clim[j].Tmin = (Clim[j].Tmin - 32) / 1.8;
 			   }
 //     Check if wind data are available
-			   double f6 =  atof(Dummy.Mid(49,7));
+			   double f6 =  atof(Dummy.substr(49,7).c_str());
 		       if (iswWind < 0 || f6 <=0)
 			        Clim[j].Wind = AverageWind;
 			   else
@@ -152,7 +151,7 @@ int ReadClimateData(ifstream &DataFile)
 			        Clim[j].Tdew = -100;
 			   else
 			   {
-			        Clim[j].Tdew =  atof(Dummy.Mid(56,7));
+			        Clim[j].Tdew =  atof(Dummy.substr(56,7).c_str());
 //     If iswDewt is 0, convert dewpoint temperatures from F to C.
                     if ( iswTmp == 0 )
                           Clim[j].Tdew = (Clim[j].Tdew - 32) / 1.8;
@@ -203,21 +202,20 @@ void ReadAgriculturalInput(const string& ProfileName)
 //
 {
 //     Open the input file
-	 CString  m_FilePath = "AGINPUT\\" + AgrInputFileName;
+	 string  m_FilePath = "AGINPUT\\" + (string)AgrInputFileName;
      ifstream DataFile(m_FilePath, ios::in);
      if ( DataFile.fail() )
      {
-          CString CSTemp = " Can not open file \n" + m_FilePath;
-          AfxMessageBox(CSTemp);
+          AfxMessageBox((" Can not open file \n" + m_FilePath).c_str());
           DataFile.close();
      }
 //     Line #1: Read file description.
-	CString Dummy = GetLineData(DataFile).c_str();
-    CString m_AgrInptDesc; // Description of the Profile file
-    if (Dummy.GetLength() > 20)
+	string Dummy = GetLineData(DataFile);
+    string m_AgrInptDesc; // Description of the Profile file
+    if (Dummy.length() > 20)
     {
-        m_AgrInptDesc = Dummy.Mid(20,55);
-        m_AgrInptDesc.TrimRight();
+        m_AgrInptDesc = Dummy.substr(20,55);
+        m_AgrInptDesc.erase(m_AgrInptDesc.find_last_not_of(" \r\n\t\f\v") + 1);
     }
     else   
         m_AgrInptDesc = "";
@@ -233,20 +231,20 @@ void ReadAgriculturalInput(const string& ProfileName)
      {
          int isddph; // vertical placement of DRIP, cm from soil surface.
          int isdhrz; // horizontal placement of DRIP, cm from left edge of soil slab.
-         CString cdate; // date of this application.
+         string cdate; // date of this application.
 //
-         CString StrTemp = GetLineData(DataFile).c_str();
+         string StrTemp = GetLineData(DataFile);
 //     The type of input is defined from the first 5 characters of the line.
-         if ( StrTemp.Left(5)  == "IRRIG" )
+         if ( StrTemp.substr(0,5)  == "IRRIG" )
 		 {
 //     Structure Irrigation {int day, method, LocationColumnDrip, LocationLayerDrip; 
 //                           double amount; }   Irrig[150];
-            cdate = StrTemp.Mid(19,11);
-			Irrig[NumIrrigations].day = DateToDoy(cdate, iyear);     // day of year of this irrigation
-            Irrig[NumIrrigations].amount = atof(StrTemp.Mid(30,15)); // net amount of water applied, mm
-            Irrig[NumIrrigations].method = atoi(StrTemp.Mid(45,5));  // method of irrigation: 1=  2=drip
-            isdhrz = atoi(StrTemp.Mid(50,5));              // horizontal placement cm
-            isddph = atoi(StrTemp.Mid(55,5));              // vertical placement cm
+            cdate = StrTemp.substr(19,11);
+			Irrig[NumIrrigations].day = DateToDoy(cdate.c_str(), iyear);     // day of year of this irrigation
+            Irrig[NumIrrigations].amount = atof(StrTemp.substr(30,15).c_str()); // net amount of water applied, mm
+            Irrig[NumIrrigations].method = atoi(StrTemp.substr(45,5).c_str());  // method of irrigation: 1=  2=drip
+            isdhrz = atoi(StrTemp.substr(50,5).c_str());              // horizontal placement cm
+            isddph = atoi(StrTemp.substr(55,5).c_str());              // vertical placement cm
 //     If this is a drip irrigation, convert distances to soil
 //  layer and column numbers by calling SlabLoc.
             if ( Irrig[NumIrrigations].method == 2 )
@@ -257,18 +255,20 @@ void ReadAgriculturalInput(const string& ProfileName)
             NumIrrigations++;
 		 }
 //
-         else if ( StrTemp.Left(5) == "FERTI" )
+         else if ( StrTemp.substr(0,5) == "FERTI" )
 		 {
 //     Structure NFertilizer {int day; double amtamm, amtnit, amtura,
 //		                      int mthfrt, ksdr, lsdr; }    NFertilizer[150];
-            cdate = StrTemp.Mid(19,11);
-	        NFertilizer[NumNitApps].day = DateToDoy(cdate, iyear);             // day of year
-            NFertilizer[NumNitApps].amtamm = (float) atof(StrTemp.Mid(30,10)); //ammonium N (kg/ha)
-            NFertilizer[NumNitApps].amtnit = (float) atof(StrTemp.Mid(40,10)); //nitrate N (kg/ha)
-            NFertilizer[NumNitApps].amtura = (float) atof(StrTemp.Mid(50,10)); //urea N (kg/ha)
-            NFertilizer[NumNitApps].mthfrt = (int) atoi(StrTemp.Mid(60,5));    // method of application
-            isdhrz = atoi(StrTemp.Mid(65,5));
-            isddph = atoi(StrTemp.Mid(70,5));
+            cdate = StrTemp.substr(19,11);
+	        NFertilizer[NumNitApps].day = DateToDoy(cdate.c_str(), iyear);             // day of year
+            NFertilizer[NumNitApps].amtamm = (float) atof(StrTemp.substr(30,10).c_str()); //ammonium N (kg/ha)
+            NFertilizer[NumNitApps].amtnit = (float) atof(StrTemp.substr(40,10).c_str()); //nitrate N (kg/ha)
+            NFertilizer[NumNitApps].amtura = (float) atof(StrTemp.substr(50,10).c_str()); //urea N (kg/ha)
+            NFertilizer[NumNitApps].mthfrt = (int) atoi(StrTemp.substr(60,5).c_str());    // method of application
+            isdhrz = atoi(StrTemp.substr(65,5).c_str());
+            // NOTE: string.substr will check boundary
+            if (StrTemp.length() > 70)
+                isddph = atoi(StrTemp.substr(70,5).c_str());
 //      If this is a side dressing or drip, convert distances to soil
 //  layer and column numbers by calling SlabLoc.
             if ( NFertilizer[NumNitApps].mthfrt == 1 || NFertilizer[NumNitApps].mthfrt == 3 )
@@ -284,23 +284,23 @@ void ReadAgriculturalInput(const string& ProfileName)
             NumNitApps++;
 		 }
 //
-         else if ( StrTemp.Left(5) == "CULTI" )
+         else if ( StrTemp.substr(0,5) == "CULTI" )
 		 {
-                cdate = StrTemp.Mid(19,11);
-				CultivationDate[icult] = DateToDoy(cdate, iyear);
-                CultivationDepth[icult] = (float) atof(StrTemp.Mid(30,5));
+                cdate = StrTemp.substr(19,11);
+				CultivationDate[icult] = DateToDoy(cdate.c_str(), iyear);
+                CultivationDepth[icult] = (float) atof(StrTemp.substr(30,5).c_str());
                 icult++;
 		 }
 //
-         else if ( StrTemp.Left(3) == "DEF" )
+         else if ( StrTemp.substr(0,3) == "DEF" )
 		 {
-            cdate = StrTemp.Mid(19,11);
-            int pgrmth = atoi (StrTemp.Mid(30,5)); // code number for method of application.
-            DefoliationDate[idef] = DateToDoy( cdate, iyear );
+            cdate = StrTemp.substr(19,11);
+            int pgrmth = atoi (StrTemp.substr(30,5).c_str()); // code number for method of application.
+            DefoliationDate[idef] = DateToDoy( cdate.c_str(), iyear );
 //     If this is input for defoliation prediction, define the rate as -99.9,
 //  and pgrmth in this case is the percentage of boll opening for which defoliation
 //  will be activated, and cdate is the latest date for defoliation application.
-            if ( StrTemp.Mid(4,5) == "PREDI" )
+            if ( StrTemp.substr(4,5) == "PREDI" )
 			{
                 DefoliantAppRate[idef] =  -99.9;
 			}
@@ -310,8 +310,8 @@ void ReadAgriculturalInput(const string& ProfileName)
 //  Store the method of application code number as DEFMTH(IDEF).
             else
 			{
-                   double rtepgr = (float) atof (StrTemp.Mid(40,10));  // rate of application
-                   int pgunit = atoi (StrTemp.Mid(50,5)) - 1; // code number for rate units used.
+                   double rtepgr = (float) atof (StrTemp.substr(40,10).c_str());  // rate of application
+                   int pgunit = atoi (StrTemp.substr(50,5).c_str()) - 1; // code number for rate units used.
                    if ( rtepgr > 0.01 )
 			       {
                        if ( pgunit == 1 )
@@ -330,15 +330,15 @@ void ReadAgriculturalInput(const string& ProfileName)
             idef++;
 		 }
 //
-         else if ( StrTemp.Left(5) == "PIX  " )
+         else if ( StrTemp.substr(0,5) == "PIX  " )
 		 {
-            cdate = StrTemp.Mid(19,11);
-            pixmth[ipx] = atoi (StrTemp.Mid(30,5));
-            double rtepgr = (float) atof (StrTemp.Mid(40,10)); // rate of application.
-            int pgunit = atoi (StrTemp.Mid(50,5)) - 1;         // code number for rate units used.
+            cdate = StrTemp.substr(19,11);
+            pixmth[ipx] = atoi (StrTemp.substr(30,5).c_str());
+            double rtepgr = (float) atof (StrTemp.substr(40,10).c_str()); // rate of application.
+            int pgunit = atoi (StrTemp.substr(50,5).c_str()) - 1;         // code number for rate units used.
             if ( rtepgr > 0.01 )
 			{
-                    pixday[ipx] = DateToDoy( cdate, iyear );
+                    pixday[ipx] = DateToDoy( cdate.c_str(), iyear );
                     if ( pgunit == 1 )
                         rtepgr = rtepgr * 8;
                     if ( pgunit == 2 ) 
@@ -352,29 +352,29 @@ void ReadAgriculturalInput(const string& ProfileName)
             ipx++;
 		 }
 //
-         else if ( StrTemp.Left(5) == "WATER" )
+         else if ( StrTemp.substr(0,5) == "WATER" )
 		 {
-                cdate = StrTemp.Mid(19,11);
-                LevelsOfWaterTable[NumWaterTableData] = (float) atof(StrTemp.Mid(30,5));
-                ElCondSatSoil[NumWaterTableData] = (float) atof(StrTemp.Mid(35,10));
-				DayWaterTableInput[NumWaterTableData] = DateToDoy(cdate, iyear);
+                cdate = StrTemp.substr(19,11);
+                LevelsOfWaterTable[NumWaterTableData] = (float) atof(StrTemp.substr(30,5).c_str());
+                ElCondSatSoil[NumWaterTableData] = (float) atof(StrTemp.substr(35,10).c_str());
+				DayWaterTableInput[NumWaterTableData] = DateToDoy(cdate.c_str(), iyear);
                 NumWaterTableData++;
 		 }
 //
-         else if ( StrTemp.Left(5) == "PREDI" )
+         else if ( StrTemp.substr(0,5) == "PREDI" )
 		 {
-                 MaxIrrigation = atof (StrTemp.Mid(20,7));
-                 IrrigMethod = atoi (StrTemp.Mid(28,2));
-                 CString datstrir = StrTemp.Mid(30,15);
-                 datstrir.Remove(' ');
-				 DayStartPredIrrig = DateToDoy(datstrir, iyear); // date to start the predicted irrigation.
-                 CString datstpir = StrTemp.Mid(45,15);
-                 datstpir.Remove(' ');
-				 DayStopPredIrrig = DateToDoy(datstpir, iyear); // date to stop the predicted irrigation.
-                 MinDaysBetweenIrrig = atoi (StrTemp.Mid(60,5));
-                 isdhrz = atoi (StrTemp.Mid(65,5));
-                 isddph = atoi (StrTemp.Mid(70,5));
-                 IrrigationDepth = (float) atof (StrTemp.Mid(75,5));
+                 MaxIrrigation = atof (StrTemp.substr(20,7).c_str());
+                 IrrigMethod = atoi (StrTemp.substr(28,2).c_str());
+                 string datstrir = StrTemp.substr(30,15);
+                 datstrir.erase(remove(datstrir.begin(), datstrir.end(), ' '), datstrir.end());
+				 DayStartPredIrrig = DateToDoy(datstrir.c_str(), iyear); // date to start the predicted irrigation.
+                 string datstpir = StrTemp.substr(45,15);
+                 datstpir.erase(remove(datstpir.begin(), datstpir.end(), ' '), datstpir.end());
+				 DayStopPredIrrig = DateToDoy(datstpir.c_str(), iyear); // date to stop the predicted irrigation.
+                 MinDaysBetweenIrrig = atoi (StrTemp.substr(60,5).c_str());
+                 isdhrz = atoi (StrTemp.substr(65,5).c_str());
+                 isddph = atoi (StrTemp.substr(70,5).c_str());
+                 IrrigationDepth = (float) atof (StrTemp.substr(75,5).c_str());
 //     If this is a drip irrigation, convert distances (input in cm)
 //  to soil layer and column numbers by calling SlabLoc.
                  if ( IrrigMethod == 2 )
@@ -408,7 +408,7 @@ void ReadAgriculturalInput(const string& ProfileName)
             else
                File20	<< Irrig[ii].amount / 25.4; // net amount of water applied, inches
 //     Methods of irrigation: (0, "SPRINKLER") (1, "FURROW") (2, "DRIP")
-            CString IrrMethod = "";
+            string IrrMethod = "";
             if ( Irrig[ii].method == 0)
                  IrrMethod = "Sprinkler";
             else if ( Irrig[ii].method == 1 )
@@ -460,7 +460,7 @@ void ReadAgriculturalInput(const string& ProfileName)
                File20	<< NFertilizer[ii].amtura / 1.121F; // net amount of Urea N, lbs/ac
             }
 //     Methods of application: (0, "Broadcast") (1, "Side-dress") (2, "Foliar") (3, "DRIP")
-            CString FMethod = "";
+            string FMethod = "";
             if ( NFertilizer[ii].mthfrt == 0)
                  FMethod = "Broadcast";
             else if ( NFertilizer[ii].mthfrt == 1 )
@@ -574,7 +574,7 @@ void ReadAgriculturalInput(const string& ProfileName)
     if (MaxIrrigation > 0)
 //     Write data for setting predicted irrigations:
      {
-         CString IrrMethod = "";
+         string IrrMethod = "";
          if ( IrrigMethod == 0)
               IrrMethod = "Sprinkler";
          else if ( IrrigMethod == 1 )
@@ -664,9 +664,9 @@ void ReadPlantMapInput()
 {
     if (PlantmapFileName.GetLength() <= 0)
         return;
-	CString Exten = ".MAP";
+	string Exten = ".MAP";
 //     Check file extension
-    if (PlantmapFileName.Right(4) != Exten)  
+    if (PlantmapFileName.Right(4) != Exten.c_str())  
     {
         int strlen = PlantmapFileName.GetLength();
         int newlen = strlen;
@@ -679,9 +679,9 @@ void ReadPlantMapInput()
                 break;
             }
         }
-        PlantmapFileName = PlantmapFileName.Left(newlen) + Exten;
+        PlantmapFileName = PlantmapFileName.Left(newlen) + Exten.c_str();
     }
-	CString m_FilePath = "PLANTMAP\\" + PlantmapFileName;
+	string m_FilePath = "PLANTMAP\\" + (string)PlantmapFileName;
 //
     ifstream DataFile(m_FilePath, ios::in);
     if ( DataFile.fail() )
@@ -690,12 +690,12 @@ void ReadPlantMapInput()
           return;
     }
 //     Line #1: Read file description.
-	CString Dummy = GetLineData(DataFile).c_str();
-    CString m_PmapDesc; // Description of the Profile file
-    if (Dummy.GetLength() > 20)
+	string Dummy = GetLineData(DataFile);
+    string m_PmapDesc; // Description of the Profile file
+    if (Dummy.length() > 20)
     {
-        m_PmapDesc = Dummy.Mid(20,55);
-        m_PmapDesc.TrimRight();
+        m_PmapDesc = Dummy.substr(20,55);
+        m_PmapDesc.erase(m_PmapDesc.find_last_not_of(" \r\n\t\f\v") + 1);
     }
     else   
         m_PmapDesc = "";
@@ -703,19 +703,19 @@ void ReadPlantMapInput()
     int i = 0;
     while (DataFile.eof() == 0)
     {
-		  CString StrTemp = GetLineData(DataFile).c_str();
-		  if (StrTemp.GetLength() <= 0)
+		  string StrTemp = GetLineData(DataFile);
+		  if (StrTemp.length() <= 0)
 			  break;
 //
-          MapDataDate[i] =          DateToDoy((StrTemp.Left(11)), iyear);   // day of year
-          MapDataPlantHeight[i] =   (double) atof(StrTemp.Mid(11, 9) );  // Plant height, cm
-          MapDataMainStemNodes[i] = (double) atof(StrTemp.Mid(20, 10) ); // Number of mainstem nodes
-          MapDataSquareNum[i] =     (double) atof(StrTemp.Mid(30, 10) ); // Number of squares per plant
-          MapDataGreenBollNum[i] =  (double) atof(StrTemp.Mid(40, 10) ); // Number of green bolls per plant
-		  if (StrTemp.GetLength() >= 61)  // old style *.MAP file from older versions
-             MapDataAllSiteNum[i] =    (double) atof(StrTemp.Mid(60, 10) ); // Number of total sites per plant
+          MapDataDate[i] =          DateToDoy(StrTemp.substr(0,11).c_str(), iyear);   // day of year
+          MapDataPlantHeight[i] =   (double) atof(StrTemp.substr(11, 9).c_str() );  // Plant height, cm
+          MapDataMainStemNodes[i] = (double) atof(StrTemp.substr(20, 10).c_str() ); // Number of mainstem nodes
+          MapDataSquareNum[i] =     (double) atof(StrTemp.substr(30, 10).c_str() ); // Number of squares per plant
+          MapDataGreenBollNum[i] =  (double) atof(StrTemp.substr(40, 10).c_str() ); // Number of green bolls per plant
+		  if (StrTemp.length() >= 61)  // old style *.MAP file from older versions
+             MapDataAllSiteNum[i] =    (double) atof(StrTemp.substr(60, 10).c_str() ); // Number of total sites per plant
           else
-             MapDataAllSiteNum[i] =    (double) atof(StrTemp.Mid(50, 10) ); // Number of total sites per plant
+             MapDataAllSiteNum[i] =    (double) atof(StrTemp.substr(50, 10).c_str() ); // Number of total sites per plant
 //
 		  i++;
 		  if (i >= 20) 
