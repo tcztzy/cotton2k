@@ -42,28 +42,28 @@ void ReadSoilImpedance()
 //        gh2oc, impede, inrim, ncurve, tstbd.
 //
 {
-       CString strFileName = "DATA\\SOILIMPD.DAT";
+       string strFileName = "DATA\\SOILIMPD.DAT";
        CFile file;
        CFileStatus status;
 	   CString strMessage;
 //  If file does not exist, or can not be opened, display message.
-       if (!file.GetStatus(strFileName, status))
+       if (!file.GetStatus(strFileName.c_str(), status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
+          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.c_str());
           AfxMessageBox(strMessage);
 		  return;
 	   }
 	   ifstream DataFile(strFileName, ios::in);
        if ( DataFile.fail() )
 	   {
-            AfxMessageBox("Error opening " + strFileName + ".");
+            AfxMessageBox(("Error opening " + strFileName + ".").c_str());
             DataFile.close();
 	   }
 //     Read data from file
-       CString Dummy = GetLineData(DataFile).c_str(); // 1st line
-	   CString SoilName = Dummy;
-       Dummy = GetLineData(DataFile).c_str(); // 2nd line
-	   ncurve = atoi(Dummy);
+       string Dummy = GetLineData(DataFile); // 1st line
+	   string SoilName = Dummy;
+       Dummy = GetLineData(DataFile); // 2nd line
+	   ncurve = atoi(Dummy.c_str());
 	   if (ncurve > 10)
 		   ncurve = 10;
 	   for(int i = 0; i < ncurve; i++)
@@ -85,11 +85,11 @@ void InitSoil()
 //        rnnh4, rnno3, oma, h2oint.
 {
 //     The the file containing the initial soil data is opened for input.
-      CString strFileName = "SOILS\\" + SoilInitFileName;
+      string strFileName = "SOILS\\" + (string)SoilInitFileName;
       ifstream fstr(strFileName, ios::in);
       if ( fstr.fail() )
       {
-          CString CSTemp = " Can not open file \n" + strFileName;
+          CString CSTemp = (" Can not open file \n" + strFileName).c_str();
           MessageBox( NULL, CSTemp, NULL, MB_OK);
           fstr.close();
 		  return;
@@ -280,11 +280,11 @@ int ReadSoilHydraulicData()
 //     Return value = number of soilhorizons (lyrsol)
 {
 //     The the file containing the hydraulic soil data is opened for input.
-      CString m_FileName = "SOILS\\" + SoilHydFileName;
+      string m_FileName = "SOILS\\" + (string)SoilHydFileName;
       ifstream DataFile(m_FileName, ios::in);
       if ( DataFile.fail() )
       {
-          AfxMessageBox(_T("Error opening ") + m_FileName + ".");
+          AfxMessageBox((_T("Error opening ") + m_FileName + ".").c_str());
           DataFile.close();
           return 0;
       }
@@ -304,18 +304,18 @@ int ReadSoilHydraulicData()
 	  }
 //     The following code reads data from the file to the variables: 
 //     -Reading line 1--------------------------------------------------------------//
-      CString Dummy = GetLineData(DataFile).c_str();
-      CString m_fileDesc = ""; // Description of the Hydraulic file
-      if (Dummy.GetLength() > 1)
-          m_fileDesc = Dummy.TrimRight();
+      string Dummy = GetLineData(DataFile);
+      string m_fileDesc = ""; // Description of the Hydraulic file
+      if (Dummy.length() > 1)
+          m_fileDesc = Dummy.erase(Dummy.find_last_not_of(" \r\n\t\f\v") + 1);
 //     -Reading line 2--------------------------------------------------------------//
-      Dummy = GetLineData(DataFile).c_str();
+      Dummy = GetLineData(DataFile);
       int lyrsol;   // the number of soil horizons in the slab (down to 2 m).
-      lyrsol =  atoi(Dummy.Left(10));
-      RatioImplicit = atof(Dummy.Mid(10,10));
-      conmax =   atof(Dummy.Mid(20,10));
-      psisfc =   atof(Dummy.Mid(30,10));
-      psidra =   atof(Dummy.Mid(40,10));
+      lyrsol =  atoi(Dummy.substr(0,10).c_str());
+      RatioImplicit = atof(Dummy.substr(10,10).c_str());
+      conmax =   atof(Dummy.substr(20,10).c_str());
+      psisfc =   atof(Dummy.substr(30,10).c_str());
+      psidra =   atof(Dummy.substr(40,10).c_str());
 	  if (lyrsol > 9)
           lyrsol = 9; // not more than 9 layers
 	  if (psisfc > 0)
@@ -326,19 +326,19 @@ int ReadSoilHydraulicData()
       for (int il = 0; il < lyrsol; il++)
       {
 //     First line for each layer
-          Dummy = GetLineData(DataFile).c_str();
-          ldepth[il] =  atof(Dummy.Left(10));
-          airdr[il] =  atof(Dummy.Mid(10,10));
-          thetas[il] =  atof(Dummy.Mid(20,10));
-          alpha[il] =  atof(Dummy.Mid(30,10));
-          vanGenuchtenBeta[il] =  atof(Dummy.Mid(40,10));
-          SaturatedHydCond[il] =  atof(Dummy.Mid(50,10));
-          condfc[il] =  atof(Dummy.Mid(60,10));
+          Dummy = GetLineData(DataFile);
+          ldepth[il] =  atof(Dummy.substr(0,10).c_str());
+          airdr[il] =  atof(Dummy.substr(10,10).c_str());
+          thetas[il] =  atof(Dummy.substr(20,10).c_str());
+          alpha[il] =  atof(Dummy.substr(30,10).c_str());
+          vanGenuchtenBeta[il] =  atof(Dummy.substr(40,10).c_str());
+          SaturatedHydCond[il] =  atof(Dummy.substr(50,10).c_str());
+          condfc[il] =  atof(Dummy.substr(60,10).c_str());
 //     Second line for each layer
-          Dummy = GetLineData(DataFile).c_str();
-          BulkDensity[il] =  atof(Dummy.Left(10));
-          pclay[il] =  atof(Dummy.Mid(10,10));
-          psand[il] =  atof(Dummy.Mid(20,10));
+          Dummy = GetLineData(DataFile);
+          BulkDensity[il] =  atof(Dummy.substr(0,10).c_str());
+          pclay[il] =  atof(Dummy.substr(10,10).c_str());
+          psand[il] =  atof(Dummy.substr(20,10).c_str());
       }
       DataFile.close();
       return lyrsol;
