@@ -84,38 +84,38 @@ void ReadProfileFile(const string& ProfileName)
           return;
     }
 //     Line #1: Read file description.
-	CString Dummy = GetLineData(DataFile).c_str();
-    CString m_fileDesc; // Description of the Profile file
-    if (Dummy.GetLength() > 20)
+	string Dummy = GetLineData(DataFile);
+    string m_fileDesc; // Description of the Profile file
+    if (Dummy.length() > 20)
     {
-        m_fileDesc = Dummy.Mid(20);
-        m_fileDesc.TrimRight();
+        m_fileDesc = Dummy.substr(20);
+        m_fileDesc.erase(m_fileDesc.find_last_not_of(" \r\n\t\f\v") + 1);
     }
     else   
         m_fileDesc = "";
 //     Line #2: Read dates of emergence, start and end of simulation, and planting date. 
-	CString DateEmerge, DateSimStart, DateSimEnd, DatePlant;
-    Dummy = GetLineData(DataFile).c_str();
-    int nLength = Dummy.GetLength();
+	string DateEmerge, DateSimStart, DateSimEnd, DatePlant;
+    Dummy = GetLineData(DataFile);
+    int nLength = Dummy.length();
     if (nLength >= 14)
     {
-       DateEmerge =  Dummy.Left(14);
-       DateEmerge.Remove(' ');
+       DateEmerge =  Dummy.substr(0,14);
+       DateEmerge.erase(remove(DateEmerge.begin(), DateEmerge.end(), ' '), DateEmerge.end());
     }
     if (nLength >= 23)
     {
-       DateSimStart = Dummy.Mid(15,14);
-       DateSimStart.Remove(' ');
+       DateSimStart = Dummy.substr(15,14);
+       DateSimStart.erase(remove(DateSimStart.begin(), DateSimStart.end(), ' '), DateSimStart.end());
     }
     if (nLength >= 38)
     {
-       DateSimEnd = Dummy.Mid(30,14);
-       DateSimEnd.Remove(' ');
+       DateSimEnd = Dummy.substr(30,14);
+       DateSimEnd.erase(remove(DateSimEnd.begin(), DateSimEnd.end(), ' '), DateSimEnd.end());
     }
     if (nLength >= 53)
     {
-       DatePlant = Dummy.Mid(45,14);
-       DatePlant.Remove(' ');
+       DatePlant = Dummy.substr(45,14);
+       DatePlant.erase(remove(DatePlant.begin(), DatePlant.end(), ' '), DatePlant.end());
     }
     else 
        DatePlant = "";
@@ -123,29 +123,29 @@ void ReadProfileFile(const string& ProfileName)
 //	for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
     if (nLength > 76)
 	{
-       CString ttt = Dummy.Mid(60,10);
-       ttt.Remove(' ');
-       CO2EnrichmentFactor = atof(ttt);
-       ttt = Dummy.Mid(70,5);
-       ttt.Remove(' ');
-       DayStartCO2 = atoi(ttt);
-       ttt = Dummy.Mid(75);
-       ttt.Remove(' ');
-       DayEndCO2 = atoi(ttt);
+       string ttt = Dummy.substr(60,10);
+       ttt.erase(remove(ttt.begin(), ttt.end(), ' '), ttt.end());
+       CO2EnrichmentFactor = atof(ttt.c_str());
+       ttt = Dummy.substr(70,5);
+       ttt.erase(remove(ttt.begin(), ttt.end(), ' '), ttt.end());
+       DayStartCO2 = atoi(ttt.c_str());
+       ttt = Dummy.substr(75);
+       ttt.erase(remove(ttt.begin(), ttt.end(), ' '), ttt.end());
+       DayEndCO2 = atoi(ttt.c_str());
 	}
     else  
        CO2EnrichmentFactor = 0;
 //     Line #3: Names of weather files: actual and predicted. 
-    Dummy = GetLineData(DataFile).c_str();
-    nLength = Dummy.GetLength();
+    Dummy = GetLineData(DataFile);
+    nLength = Dummy.length();
     if (nLength > 1)
     {
-        ActWthFileName = Dummy.Left(20);
+        ActWthFileName = Dummy.substr(0,20).c_str();
         ActWthFileName.Remove(' ');
     }
     if (nLength > 21)
     {
-        PrdWthFileName = Dummy.Mid(20,20);
+        PrdWthFileName = Dummy.substr(20,20).c_str();
         PrdWthFileName.Remove(' ');
     }
     else 
@@ -153,7 +153,7 @@ void ReadProfileFile(const string& ProfileName)
 //     For advanced users only: If soil mulch is used, read relevant parameters.
     if (nLength > 41)
 	{
-           m_mulchdata = Dummy.Mid(40);
+           m_mulchdata = Dummy.substr(40).c_str();
 	       MulchIndicator = atoi (m_mulchdata.Left(10) );
            if (MulchIndicator > 0)
            {
@@ -162,7 +162,7 @@ void ReadProfileFile(const string& ProfileName)
 			  DayStartMulch = atoi (m_mulchdata.Mid(30, 5));
 			  DayEndMulch = atoi (m_mulchdata.Mid(35, 5));
               if (DayEndMulch <= 0)
-                  DayEndMulch = DateToDoy(DateSimEnd, iyear);
+                  DayEndMulch = DateToDoy(DateSimEnd.c_str(), iyear);
            }
 	}
     else
@@ -172,39 +172,39 @@ void ReadProfileFile(const string& ProfileName)
 	}
 //     Line #4: Names of files for soil hydraulic data, soil initial
 //  conditions, agricultural input, and plant map adjustment.
-    Dummy = GetLineData(DataFile).c_str();
-    nLength = Dummy.GetLength();
+    Dummy = GetLineData(DataFile);
+    nLength = Dummy.length();
     if (nLength > 1)
     {
-       SoilHydFileName = Dummy.Left(20);
+       SoilHydFileName = Dummy.substr(0,20).c_str();
        SoilHydFileName.Remove(' ');
     }
     if (nLength > 20)
     {
-       SoilInitFileName = Dummy.Mid(20,20);
+       SoilInitFileName = Dummy.substr(20,20).c_str();
        SoilInitFileName.Remove(' ');
     }
     if (nLength > 40)
     {
-       AgrInputFileName = Dummy.Mid(40,20);
+       AgrInputFileName = Dummy.substr(40,20).c_str();
        AgrInputFileName.Remove(' ');
     }
     if (nLength > 60)
     {
-       PlantmapFileName = Dummy.Mid(60);
+       PlantmapFileName = Dummy.substr(60).c_str();
        PlantmapFileName.Remove(' ');
     }
     else 
        PlantmapFileName = "";
 //     Line #5: Latitude and longitude of this site, elevation (in m
 //  above sea level), and the index number for this geographic site.
-    Dummy = GetLineData(DataFile).c_str();
-    nLength = Dummy.GetLength();
+    Dummy = GetLineData(DataFile);
+    nLength = Dummy.length();
 	bLat = false;
 	bLong = false;
     if (nLength > 1)
 	{
-          Latitude = atof(Dummy.Left(10));
+          Latitude = atof(Dummy.substr(0,10).c_str());
 		  if (Latitude < 0)
 		  {
 			  bLat = true;
@@ -213,7 +213,7 @@ void ReadProfileFile(const string& ProfileName)
 	}
     if (nLength >= 20)
 	{
-          Longitude = atof(Dummy.Mid(10,10));
+          Longitude = atof(Dummy.substr(10,10).c_str());
 		  if (Longitude < 0)
 		  {
 			  bLong = true;
@@ -221,51 +221,51 @@ void ReadProfileFile(const string& ProfileName)
 		  }
 	}
     if (nLength >= 30)
-          Elevation = atof(Dummy.Mid(20,10));
+          Elevation = atof(Dummy.substr(20,10).c_str());
     if (nLength > 30)
-          nSiteNum = atoi(Dummy.Mid(30));
+          nSiteNum = atoi(Dummy.substr(30).c_str());
 //     Line #6: Row spacing in cm, skip-row spacing in cm (blank or 0 
 //  for no skip rows), number of plants per meter of row, and index
 //  number for the cultivar.
-    Dummy = GetLineData(DataFile).c_str();
-    nLength = Dummy.GetLength();
+    Dummy = GetLineData(DataFile);
+    nLength = Dummy.length();
     if (nLength > 1)
-          RowSpace =  atof(Dummy.Left(10));
+          RowSpace =  atof(Dummy.substr(0,10).c_str());
     if (nLength >= 20)
-          SkipRowWidth = atof(Dummy.Mid(10,10));
+          SkipRowWidth = atof(Dummy.substr(10,10).c_str());
     if (nLength >= 30)
-          PlantsPerM = atof(Dummy.Mid(20,10));
+          PlantsPerM = atof(Dummy.substr(20,10).c_str());
     if (nLength > 30)
-          nVarNum = atoi(Dummy.Mid(30));
+          nVarNum = atoi(Dummy.substr(30).c_str());
 //     Line #7: Frequency in days for output of soil maps, and dates 
 //  for start and stop of this output (blank or 0 if no such output is
 //  required. Same is repeated for output of plant maps.
-	CString SoilMapStartDate, SoilMapStopDate, PlantMapStartDate, PlantMapStopDate; 
-    Dummy = GetLineData(DataFile).c_str();
-    nLength = Dummy.GetLength();
+    string SoilMapStartDate, SoilMapStopDate, PlantMapStartDate, PlantMapStopDate; 
+    Dummy = GetLineData(DataFile);
+    nLength = Dummy.length();
     if (nLength > 9)
-          SoilMapFreq = atoi(Dummy.Left(10));
+          SoilMapFreq = atoi(Dummy.substr(0,10).c_str());
     if (nLength >= 16)
     {
-          SoilMapStartDate =  Dummy.Mid(14,11);
-          SoilMapStartDate.Remove(' ');
+          SoilMapStartDate =  Dummy.substr(14,11);
+          SoilMapStartDate.erase(remove(SoilMapStartDate.begin(), SoilMapStartDate.end(), ' '), SoilMapStartDate.end());
     }
     if (nLength >= 31)
     {
-          SoilMapStopDate =  Dummy.Mid(29,11);
-          SoilMapStopDate.Remove(' ');
+          SoilMapStopDate =  Dummy.substr(29,11);
+          SoilMapStopDate.erase(remove(SoilMapStopDate.begin(), SoilMapStopDate.end(), ' '), SoilMapStopDate.end());
     }
     if (nLength > 41)
-          PlantMapFreq = atoi(Dummy.Mid(40,10));
+          PlantMapFreq = atoi(Dummy.substr(40,10).c_str());
     if (nLength >= 56)
     {
-          PlantMapStartDate =  Dummy.Mid(54,11);
-          PlantMapStartDate.Remove(' ');
+          PlantMapStartDate =  Dummy.substr(54,11);
+          PlantMapStartDate.erase(remove(PlantMapStartDate.begin(), PlantMapStartDate.end(), ' '), PlantMapStartDate.end());
     }
     if (nLength >= 71)
     {
-          PlantMapStopDate =  Dummy.Mid(69,11);
-          PlantMapStopDate.Remove(' ');
+          PlantMapStopDate =  Dummy.substr(69,11);
+          PlantMapStopDate.erase(remove(PlantMapStopDate.begin(), PlantMapStopDate.end(), ' '), PlantMapStopDate.end());
     }
 //     Line #8: 23 output flags.
 // - Line 8 consists of zeros and ones.  "1" tells the simulator to
@@ -273,25 +273,25 @@ void ReadProfileFile(const string& ProfileName)
 //   should be produced.  
     for (int n = 0; n < 24; n++)
         OutIndex[n] = 0;
-    Dummy = GetLineData(DataFile).c_str();
-    nLength = Dummy.GetLength();
+    Dummy = GetLineData(DataFile);
+    nLength = Dummy.length();
     for (int n = 0; n < 23 && 3*n < nLength ; n++)
     {
           int n1 = 3 * n;
-          OutIndex[n+1] = atoi(Dummy.Mid(n1, 3)); 
+          OutIndex[n+1] = atoi(Dummy.substr(n1, 3).c_str()); 
     }
     DataFile.close();
 //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of 
 // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
-    iyear = atoi(DateSimStart.Mid(7,4));
-    DayStart = DateToDoy(DateSimStart, iyear);
-    DayEmerge = DateToDoy(DateEmerge, iyear);
-    DayFinish = DateToDoy(DateSimEnd, iyear);
-    DayPlant = DateToDoy(DatePlant, iyear);
-    DayStartSoilMaps = DateToDoy(SoilMapStartDate, iyear);
-    DayStopSoilMaps = DateToDoy(SoilMapStopDate, iyear);
-    DayStartPlantMaps = DateToDoy(PlantMapStartDate, iyear);
-    DayStopPlantMaps = DateToDoy(PlantMapStopDate, iyear);
+    iyear = atoi(DateSimStart.substr(7,4).c_str());
+    DayStart = DateToDoy(DateSimStart.c_str(), iyear);
+    DayEmerge = DateToDoy(DateEmerge.c_str(), iyear);
+    DayFinish = DateToDoy(DateSimEnd.c_str(), iyear);
+    DayPlant = DateToDoy(DatePlant.c_str(), iyear);
+    DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), iyear);
+    DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), iyear);
+    DayStartPlantMaps = DateToDoy(PlantMapStartDate.c_str(), iyear);
+    DayStopPlantMaps = DateToDoy(PlantMapStopDate.c_str(), iyear);
 //     If the output frequency indicators are zero, they are set to 999.
       if ( SoilMapFreq <= 0 ) 
 		   SoilMapFreq = 999;
@@ -321,7 +321,7 @@ void ReadProfileFile(const string& ProfileName)
          Kday = 1;
       }
 //     Call function OpenOutputFiles() to open the output files.
-      OpenOutputFiles((string)m_fileDesc, ProfileName);
+      OpenOutputFiles(m_fileDesc, ProfileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
