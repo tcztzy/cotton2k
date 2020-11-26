@@ -7,7 +7,7 @@ using namespace std;
 //  =======================
     string GetLineData(ifstream &DataFile);
 // Date conversion functions:
-    int DateToDoy(CString Date, int m_YearStart);
+    int DateToDoy(string Date, int m_YearStart);
     CString DoyToDate(int Doy, int m_YearStart);
     int LeapYear(int nYear);
 //  soil water functions:

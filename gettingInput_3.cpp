@@ -238,7 +238,7 @@ void ReadAgriculturalInput(const string& ProfileName)
 //     Structure Irrigation {int day, method, LocationColumnDrip, LocationLayerDrip; 
 //                           double amount; }   Irrig[150];
             cdate = StrTemp.substr(19,11);
-			Irrig[NumIrrigations].day = DateToDoy(cdate.c_str(), iyear);     // day of year of this irrigation
+			Irrig[NumIrrigations].day = DateToDoy(cdate, iyear);     // day of year of this irrigation
             Irrig[NumIrrigations].amount = atof(StrTemp.substr(30,15).c_str()); // net amount of water applied, mm
             Irrig[NumIrrigations].method = atoi(StrTemp.substr(45,5).c_str());  // method of irrigation: 1=  2=drip
             isdhrz = atoi(StrTemp.substr(50,5).c_str());              // horizontal placement cm
@@ -258,7 +258,7 @@ void ReadAgriculturalInput(const string& ProfileName)
 //     Structure NFertilizer {int day; double amtamm, amtnit, amtura,
 //		                      int mthfrt, ksdr, lsdr; }    NFertilizer[150];
             cdate = StrTemp.substr(19,11);
-	        NFertilizer[NumNitApps].day = DateToDoy(cdate.c_str(), iyear);             // day of year
+	        NFertilizer[NumNitApps].day = DateToDoy(cdate, iyear);             // day of year
             NFertilizer[NumNitApps].amtamm = (float) atof(StrTemp.substr(30,10).c_str()); //ammonium N (kg/ha)
             NFertilizer[NumNitApps].amtnit = (float) atof(StrTemp.substr(40,10).c_str()); //nitrate N (kg/ha)
             NFertilizer[NumNitApps].amtura = (float) atof(StrTemp.substr(50,10).c_str()); //urea N (kg/ha)
@@ -285,7 +285,7 @@ void ReadAgriculturalInput(const string& ProfileName)
          else if ( StrTemp.substr(0,5) == "CULTI" )
 		 {
                 cdate = StrTemp.substr(19,11);
-				CultivationDate[icult] = DateToDoy(cdate.c_str(), iyear);
+				CultivationDate[icult] = DateToDoy(cdate, iyear);
                 CultivationDepth[icult] = (float) atof(StrTemp.substr(30,5).c_str());
                 icult++;
 		 }
@@ -294,7 +294,7 @@ void ReadAgriculturalInput(const string& ProfileName)
 		 {
             cdate = StrTemp.substr(19,11);
             int pgrmth = atoi (StrTemp.substr(30,5).c_str()); // code number for method of application.
-            DefoliationDate[idef] = DateToDoy( cdate.c_str(), iyear );
+            DefoliationDate[idef] = DateToDoy( cdate, iyear );
 //     If this is input for defoliation prediction, define the rate as -99.9,
 //  and pgrmth in this case is the percentage of boll opening for which defoliation
 //  will be activated, and cdate is the latest date for defoliation application.
@@ -336,7 +336,7 @@ void ReadAgriculturalInput(const string& ProfileName)
             int pgunit = atoi (StrTemp.substr(50,5).c_str()) - 1;         // code number for rate units used.
             if ( rtepgr > 0.01 )
 			{
-                    pixday[ipx] = DateToDoy( cdate.c_str(), iyear );
+                    pixday[ipx] = DateToDoy( cdate, iyear );
                     if ( pgunit == 1 )
                         rtepgr = rtepgr * 8;
                     if ( pgunit == 2 ) 
@@ -355,7 +355,7 @@ void ReadAgriculturalInput(const string& ProfileName)
                 cdate = StrTemp.substr(19,11);
                 LevelsOfWaterTable[NumWaterTableData] = (float) atof(StrTemp.substr(30,5).c_str());
                 ElCondSatSoil[NumWaterTableData] = (float) atof(StrTemp.substr(35,10).c_str());
-				DayWaterTableInput[NumWaterTableData] = DateToDoy(cdate.c_str(), iyear);
+				DayWaterTableInput[NumWaterTableData] = DateToDoy(cdate, iyear);
                 NumWaterTableData++;
 		 }
 //
@@ -365,10 +365,10 @@ void ReadAgriculturalInput(const string& ProfileName)
                  IrrigMethod = atoi (StrTemp.substr(28,2).c_str());
                  string datstrir = StrTemp.substr(30,15);
                  datstrir.erase(remove(datstrir.begin(), datstrir.end(), ' '), datstrir.end());
-				 DayStartPredIrrig = DateToDoy(datstrir.c_str(), iyear); // date to start the predicted irrigation.
+				 DayStartPredIrrig = DateToDoy(datstrir, iyear); // date to start the predicted irrigation.
                  string datstpir = StrTemp.substr(45,15);
                  datstpir.erase(remove(datstpir.begin(), datstpir.end(), ' '), datstpir.end());
-				 DayStopPredIrrig = DateToDoy(datstpir.c_str(), iyear); // date to stop the predicted irrigation.
+				 DayStopPredIrrig = DateToDoy(datstpir, iyear); // date to stop the predicted irrigation.
                  MinDaysBetweenIrrig = atoi (StrTemp.substr(60,5).c_str());
                  isdhrz = atoi (StrTemp.substr(65,5).c_str());
                  isddph = atoi (StrTemp.substr(70,5).c_str());
@@ -705,7 +705,7 @@ void ReadPlantMapInput()
 		  if (StrTemp.length() <= 0)
 			  break;
 //
-          MapDataDate[i] =          DateToDoy(StrTemp.substr(0,11).c_str(), iyear);   // day of year
+          MapDataDate[i] =          DateToDoy(StrTemp.substr(0,11), iyear);   // day of year
           MapDataPlantHeight[i] =   (double) atof(StrTemp.substr(11, 9).c_str() );  // Plant height, cm
           MapDataMainStemNodes[i] = (double) atof(StrTemp.substr(20, 10).c_str() ); // Number of mainstem nodes
           MapDataSquareNum[i] =     (double) atof(StrTemp.substr(30, 10).c_str() ); // Number of squares per plant

@@ -160,7 +160,7 @@ void ReadProfileFile(const string& ProfileName)
 			  DayStartMulch = atoi (m_mulchdata.substr(30, 5).c_str());
 			  DayEndMulch = atoi (m_mulchdata.substr(35, 5).c_str());
               if (DayEndMulch <= 0)
-                  DayEndMulch = DateToDoy(DateSimEnd.c_str(), iyear);
+                  DayEndMulch = DateToDoy(DateSimEnd, iyear);
            }
 	}
     else
@@ -282,14 +282,14 @@ void ReadProfileFile(const string& ProfileName)
 //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of 
 // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
     iyear = atoi(DateSimStart.substr(7,4).c_str());
-    DayStart = DateToDoy(DateSimStart.c_str(), iyear);
-    DayEmerge = DateToDoy(DateEmerge.c_str(), iyear);
-    DayFinish = DateToDoy(DateSimEnd.c_str(), iyear);
-    DayPlant = DateToDoy(DatePlant.c_str(), iyear);
-    DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), iyear);
-    DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), iyear);
-    DayStartPlantMaps = DateToDoy(PlantMapStartDate.c_str(), iyear);
-    DayStopPlantMaps = DateToDoy(PlantMapStopDate.c_str(), iyear);
+    DayStart = DateToDoy(DateSimStart, iyear);
+    DayEmerge = DateToDoy(DateEmerge, iyear);
+    DayFinish = DateToDoy(DateSimEnd, iyear);
+    DayPlant = DateToDoy(DatePlant, iyear);
+    DayStartSoilMaps = DateToDoy(SoilMapStartDate, iyear);
+    DayStopSoilMaps = DateToDoy(SoilMapStopDate, iyear);
+    DayStartPlantMaps = DateToDoy(PlantMapStartDate, iyear);
+    DayStopPlantMaps = DateToDoy(PlantMapStopDate, iyear);
 //     If the output frequency indicators are zero, they are set to 999.
       if ( SoilMapFreq <= 0 ) 
 		   SoilMapFreq = 999;

@@ -35,7 +35,7 @@ string GetLineData(ifstream &DataFile)
 /////////////////////////////////////////////////////////////////////////
 // Date conversion functions:
 //
-int DateToDoy(CString Date, int m_YearStart) 
+int DateToDoy(string Date, int m_YearStart) 
 //     This function converts calendar date string to day of year, and
 //  allows for leap years and dates in the following year.
 //     Day of year, sometimes called "Julian date", counts the days from 
@@ -54,24 +54,24 @@ int DateToDoy(CString Date, int m_YearStart)
 //  m_YearStart or m_YearStart+1
 //
 {
-	static CString MonthName[] =
+	static string MonthName[] =
 	{ "JAN","FEB","MAR","APR","MAY","JUN", "JUL","AUG","SEP","OCT","NOV","DEC" };
     static int i0[] =
 	{  0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 };
 
-      Date.Remove(' ');  // remove blanks
+      Date.erase(remove(Date.begin(), Date.end(), ' '), Date.end());
 //   If the date string is blank, or old style date format, return 0.
-      if ( Date.IsEmpty() )
+      if ( Date.empty() )
           return 0;
-      else if (Date.Mid(2,1) == '/') 
+      else if (Date.substr(2,1) == "/") 
 	  {
-          AfxMessageBox(Date + " == ERROR: Old date format used " );
+          AfxMessageBox((Date + " == ERROR: Old date format used " ).c_str());
 		  return 0;
 	  }
 
-	  int day = atoi (Date.Left(2));  //  Convert characters to integers for day.
-      int iy = atoi (Date.Mid(7));    //  Convert characters to integers for year.
-      CString stmon = Date.Mid(3,3);  //  Get string month
+	  int day = atoi (Date.substr(0,2).c_str());  //  Convert characters to integers for day.
+      int iy = atoi (Date.substr(7).c_str());    //  Convert characters to integers for year.
+      string stmon = Date.substr(3,3);  //  Get string month
 
       int month = 0 ;
 	  for (int i = 0; i < 12; i++)
@@ -83,7 +83,7 @@ int DateToDoy(CString Date, int m_YearStart)
 
       if (month == 0)
 	  {
-          AfxMessageBox(" Error in month definition:  " + stmon);
+          AfxMessageBox((" Error in month definition:  " + stmon).c_str());
 		  return 0;
 	  }
 //     Adjust number of days in February for leap years.
