@@ -66,17 +66,12 @@ void ReadProfileFile(const string& ProfileName)
 //
 {
     fs::path strFileName = fs::path("profiles") / (ProfileName + ".pro"); // file name with path
-    CString strMessage;
 //     If file does not exist, or can not be opened, display message
     if (!fs::exists(strFileName))
         throw FileNotExists(strFileName);
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
-    {
-          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-          DataFile.close();
-          return;
-    }
+        throw FileNotOpened(strFileName);
 //     Line #1: Read file description.
 	string Dummy = GetLineData(DataFile);
     string m_fileDesc; // Description of the Profile file
@@ -327,17 +322,12 @@ void ReadCalibrationData()
 {
 //     Open file of variety file list. 
     fs::path strFileName = fs::path("data") / "vars" / "varlist.dat";
-    CString strMessage;
 //     If file does not exist, display message and and open a new file
     if (!fs::exists(strFileName))
         throw FileNotExists(strFileName);
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
-    {
-          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-          DataFile.close();
-          return;
-    }
+        throw FileNotOpened(strFileName);
 //
     string Dummy, VarFile;
     // FIXME: if it go through to the last blank line, it wouldn't break because it doesn't reach the eof
@@ -378,11 +368,7 @@ void ReadCalibrationData()
         throw FileNotExists(strFileName);
     ifstream DataFile1(strFileName, ios::in);
     if ( DataFile1.fail() )
-    {
-          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-          DataFile1.close();
-          return;
-    }
+        throw FileNotOpened(strFileName);
 //     Read values of variety related parameters
 	GetLineData(DataFile1);  // skip 1st line
 	for (int i = 1; i <= 60; i++)
@@ -399,11 +385,7 @@ void ReadCalibrationData()
     string SiteFile;
     ifstream DataFile2(strFileName, ios::in);
     if ( DataFile2.fail() )
-    {
-          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-          DataFile.close();
-          return;
-    }
+        throw FileNotOpened(strFileName);
 //
     for (int m_idx = 0; m_idx < 1000; m_idx++)
     {
@@ -443,11 +425,7 @@ void ReadCalibrationData()
         throw FileNotExists(strFileName);
     ifstream DataFile3(strFileName, ios::in);
     if ( DataFile3.fail() )
-    {
-          AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-          DataFile3.close();
-          return;
-    }
+        throw FileNotOpened(strFileName);
 //     Read values of site related parameters
 	GetLineData(DataFile3);  // skip 1st line
 	for (int i = 1; i <= 20; i++)

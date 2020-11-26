@@ -191,7 +191,17 @@ class FileNotExists
 public:
 
     FileNotExists(const fs::path filePath) noexcept
-        : Cotton2KException("The file  " + filePath.string() + "  does not exist! It will be opened as a new file.")
+        : Cotton2KException("The file  " + filePath.string() + "  does not exist!")
+    {
+    }
+};
+class FileNotOpened
+    : public Cotton2KException
+{
+public:
+
+    FileNotOpened(const fs::path filePath) noexcept
+        : Cotton2KException("Can't open " + filePath.string() + ".")
     {
     }
 };

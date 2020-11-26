@@ -20,7 +20,6 @@ int OpenClimateFile()
 //  Return value: LastDayOfActualWeather.
 //
 {
-    CString strMessage;
     int LastDayOfPredictedWeather = 0;    // last DOY of predicted weather data
 	int LastDayOfActualWeather = 0;       // last DOY of actual weather data
 //     Open file of predicted weather data.
@@ -34,10 +33,7 @@ int OpenClimateFile()
 	   {
 	      ifstream DataFile(strFileName, ios::in);
           if ( DataFile.fail() )
-		  {
-             AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-             DataFile.close();
-		  }
+            throw FileNotOpened(strFileName);
           else
 		  {
              LastDayOfPredictedWeather = ReadClimateData(DataFile);
@@ -56,10 +52,7 @@ int OpenClimateFile()
 	   {
           ifstream DataFile1(strFileName, ios::in);
           if ( DataFile1.fail() )
-		  {
-             AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-             DataFile1.close();
-		  }
+              throw FileNotOpened(strFileName);
 		  else
 		  {
              LastDayOfActualWeather = ReadClimateData(DataFile1);
@@ -197,10 +190,7 @@ void ReadAgriculturalInput(const string& ProfileName)
 	 fs::path  m_FilePath = fs::path("aginput") / (string)AgrInputFileName;
      ifstream DataFile(m_FilePath, ios::in);
      if ( DataFile.fail() )
-     {
-          AfxMessageBox((" Can not open file \n" + m_FilePath.string()).c_str());
-          DataFile.close();
-     }
+         throw FileNotOpened(m_FilePath);
 //     Line #1: Read file description.
 	string Dummy = GetLineData(DataFile);
     string m_AgrInptDesc; // Description of the Profile file
@@ -677,10 +667,7 @@ void ReadPlantMapInput()
 //
     ifstream DataFile(m_FilePath, ios::in);
     if ( DataFile.fail() )
-    {
-          DataFile.close();
-          return;
-    }
+        throw FileNotOpened(m_FilePath);
 //     Line #1: Read file description.
 	string Dummy = GetLineData(DataFile);
     string m_PmapDesc; // Description of the Profile file

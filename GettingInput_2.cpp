@@ -43,15 +43,10 @@ void ReadSoilImpedance()
 //
 {
        fs::path strFileName = fs::path("data") / "soilimpd.dat";
-	   CString strMessage;
 //  If file does not exist, or can not be opened, display message.
        if (!fs::exists(strFileName)) throw FileNotExists(strFileName);
 	   ifstream DataFile(strFileName, ios::in);
-       if ( DataFile.fail() )
-	   {
-            AfxMessageBox(("Error opening " + strFileName.string() + ".").c_str());
-            DataFile.close();
-	   }
+       if ( DataFile.fail() ) throw FileNotOpened(strFileName);
 //     Read data from file
        string Dummy = GetLineData(DataFile); // 1st line
 	   string SoilName = Dummy;
@@ -81,12 +76,7 @@ void InitSoil()
       fs::path strFileName = fs::path("soils") / (string)SoilInitFileName;
       ifstream fstr(strFileName, ios::in);
       if ( fstr.fail() )
-      {
-          CString CSTemp = (" Can not open file \n" + strFileName.string()).c_str();
-          MessageBox( NULL, CSTemp, NULL, MB_OK);
-          fstr.close();
-		  return;
-      }
+          throw FileNotOpened(strFileName);
 //     The description of this file is read from the first line of the file.
       char dscrip[100];
       fstr.getline(dscrip, 99);
@@ -276,11 +266,7 @@ int ReadSoilHydraulicData()
       fs::path m_FileName = fs::path("soils") / (string)SoilHydFileName;
       ifstream DataFile(m_FileName, ios::in);
       if ( DataFile.fail() )
-      {
-          AfxMessageBox((_T("Error opening ") + m_FileName.string() + ".").c_str());
-          DataFile.close();
-          return 0;
-      }
+            throw FileNotOpened(m_FileName);
 //     Zeroise arrays of data values.
       for (int i = 0; i < 9; i++)
 	  {
