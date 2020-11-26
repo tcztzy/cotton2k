@@ -60,9 +60,9 @@ void ReadSoilImpedance()
             DataFile.close();
 	   }
 //     Read data from file
-       CString Dummy = GetLineData(DataFile); // 1st line
+       CString Dummy = GetLineData(DataFile).c_str(); // 1st line
 	   CString SoilName = Dummy;
-       Dummy = GetLineData(DataFile); // 2nd line
+       Dummy = GetLineData(DataFile).c_str(); // 2nd line
 	   ncurve = atoi(Dummy);
 	   if (ncurve > 10)
 		   ncurve = 10;
@@ -304,12 +304,12 @@ int ReadSoilHydraulicData()
 	  }
 //     The following code reads data from the file to the variables: 
 //     -Reading line 1--------------------------------------------------------------//
-      CString Dummy = GetLineData(DataFile);
+      CString Dummy = GetLineData(DataFile).c_str();
       CString m_fileDesc = ""; // Description of the Hydraulic file
       if (Dummy.GetLength() > 1)
           m_fileDesc = Dummy.TrimRight();
 //     -Reading line 2--------------------------------------------------------------//
-      Dummy = GetLineData(DataFile);
+      Dummy = GetLineData(DataFile).c_str();
       int lyrsol;   // the number of soil horizons in the slab (down to 2 m).
       lyrsol =  atoi(Dummy.Left(10));
       RatioImplicit = atof(Dummy.Mid(10,10));
@@ -326,7 +326,7 @@ int ReadSoilHydraulicData()
       for (int il = 0; il < lyrsol; il++)
       {
 //     First line for each layer
-          Dummy = GetLineData(DataFile);
+          Dummy = GetLineData(DataFile).c_str();
           ldepth[il] =  atof(Dummy.Left(10));
           airdr[il] =  atof(Dummy.Mid(10,10));
           thetas[il] =  atof(Dummy.Mid(20,10));
@@ -335,7 +335,7 @@ int ReadSoilHydraulicData()
           SaturatedHydCond[il] =  atof(Dummy.Mid(50,10));
           condfc[il] =  atof(Dummy.Mid(60,10));
 //     Second line for each layer
-          Dummy = GetLineData(DataFile);
+          Dummy = GetLineData(DataFile).c_str();
           BulkDensity[il] =  atof(Dummy.Left(10));
           pclay[il] =  atof(Dummy.Mid(10,10));
           psand[il] =  atof(Dummy.Mid(20,10));

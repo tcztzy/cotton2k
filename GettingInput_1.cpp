@@ -84,7 +84,7 @@ void ReadProfileFile(const string& ProfileName)
           return;
     }
 //     Line #1: Read file description.
-	CString Dummy = GetLineData(DataFile);
+	CString Dummy = GetLineData(DataFile).c_str();
     CString m_fileDesc; // Description of the Profile file
     if (Dummy.GetLength() > 20)
     {
@@ -95,7 +95,7 @@ void ReadProfileFile(const string& ProfileName)
         m_fileDesc = "";
 //     Line #2: Read dates of emergence, start and end of simulation, and planting date. 
 	CString DateEmerge, DateSimStart, DateSimEnd, DatePlant;
-    Dummy = GetLineData(DataFile);
+    Dummy = GetLineData(DataFile).c_str();
     int nLength = Dummy.GetLength();
     if (nLength >= 14)
     {
@@ -136,7 +136,7 @@ void ReadProfileFile(const string& ProfileName)
     else  
        CO2EnrichmentFactor = 0;
 //     Line #3: Names of weather files: actual and predicted. 
-    Dummy = GetLineData(DataFile);
+    Dummy = GetLineData(DataFile).c_str();
     nLength = Dummy.GetLength();
     if (nLength > 1)
     {
@@ -172,7 +172,7 @@ void ReadProfileFile(const string& ProfileName)
 	}
 //     Line #4: Names of files for soil hydraulic data, soil initial
 //  conditions, agricultural input, and plant map adjustment.
-    Dummy = GetLineData(DataFile);
+    Dummy = GetLineData(DataFile).c_str();
     nLength = Dummy.GetLength();
     if (nLength > 1)
     {
@@ -198,7 +198,7 @@ void ReadProfileFile(const string& ProfileName)
        PlantmapFileName = "";
 //     Line #5: Latitude and longitude of this site, elevation (in m
 //  above sea level), and the index number for this geographic site.
-    Dummy = GetLineData(DataFile);
+    Dummy = GetLineData(DataFile).c_str();
     nLength = Dummy.GetLength();
 	bLat = false;
 	bLong = false;
@@ -227,7 +227,7 @@ void ReadProfileFile(const string& ProfileName)
 //     Line #6: Row spacing in cm, skip-row spacing in cm (blank or 0 
 //  for no skip rows), number of plants per meter of row, and index
 //  number for the cultivar.
-    Dummy = GetLineData(DataFile);
+    Dummy = GetLineData(DataFile).c_str();
     nLength = Dummy.GetLength();
     if (nLength > 1)
           RowSpace =  atof(Dummy.Left(10));
@@ -241,7 +241,7 @@ void ReadProfileFile(const string& ProfileName)
 //  for start and stop of this output (blank or 0 if no such output is
 //  required. Same is repeated for output of plant maps.
 	CString SoilMapStartDate, SoilMapStopDate, PlantMapStartDate, PlantMapStopDate; 
-    Dummy = GetLineData(DataFile);
+    Dummy = GetLineData(DataFile).c_str();
     nLength = Dummy.GetLength();
     if (nLength > 9)
           SoilMapFreq = atoi(Dummy.Left(10));
@@ -273,7 +273,7 @@ void ReadProfileFile(const string& ProfileName)
 //   should be produced.  
     for (int n = 0; n < 24; n++)
         OutIndex[n] = 0;
-    Dummy = GetLineData(DataFile);
+    Dummy = GetLineData(DataFile).c_str();
     nLength = Dummy.GetLength();
     for (int n = 0; n < 23 && 3*n < nLength ; n++)
     {
@@ -356,7 +356,7 @@ void ReadCalibrationData()
     {
         if (DataFile.eof() == 1)
             break;
-        Dummy = GetLineData(DataFile);
+        Dummy = GetLineData(DataFile).c_str();
         int nLength = Dummy.GetLength();
 	    int num;
 	    CString Name, FileName;
@@ -399,10 +399,10 @@ void ReadCalibrationData()
           return;
     }
 //     Read values of variety related parameters
-	Dummy = GetLineData(DataFile1);  // skip 1st line
+	GetLineData(DataFile1);  // skip 1st line
 	for (int i = 1; i <= 60; i++)
 	{
-	    Dummy = GetLineData(DataFile1); 
+	    Dummy = GetLineData(DataFile1).c_str(); 
 		VarPar[i] = atof (Dummy.Left(20));
 	}
     DataFile1.close();
@@ -429,7 +429,7 @@ void ReadCalibrationData()
         if (DataFile2.eof() == 1)
             break;
 
-        Dummy = GetLineData(DataFile2);
+        Dummy = GetLineData(DataFile2).c_str();
         int nLength = Dummy.GetLength();
 	    int num;
 	    CString Name, FileName;
@@ -472,10 +472,10 @@ void ReadCalibrationData()
           return;
     }
 //     Read values of site related parameters
-	Dummy = GetLineData(DataFile3);  // skip 1st line
+	GetLineData(DataFile3);  // skip 1st line
 	for (int i = 1; i <= 20; i++)
 	{
-	    Dummy = GetLineData(DataFile3); 
+	    Dummy = GetLineData(DataFile3).c_str(); 
 		SitePar[i] = atof (Dummy.Left(20));
 	}
     DataFile3.close();

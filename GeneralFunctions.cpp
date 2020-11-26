@@ -19,30 +19,17 @@
 #include <math.h>
 
 ///////////////////////////////////////////////////////////////////////
-CString GetLineData(ifstream &DataFile)
+string GetLineData(ifstream &DataFile)
 //     This function safely reads a line from input. All data are read into a temporary character
 //  string with the "getline" command. It stops at end of line, and converts it to CString.
 //     Input        : the ifstream file which is being read.
-//     return value : CString with the trailing blanks removed.
+//     return value : string with the trailing blanks removed.
 //
 {
-     char  m_TempString[91];   // Temporarily stores a character array.
-     for (int ii = 0; ii < 90; ii++)
-         m_TempString[ii] = ' ';
-     m_TempString[90] = '\0';
-     CString LineString;
-     LineString.Empty();
-
-     DataFile.getline(m_TempString, 90);
-     for (int ii = 0; ii < 90; ii++)
-     {
-//     Ignore end of character string and convert it to space
-          if (m_TempString[ii] == 0) 
-              m_TempString[ii] = 32;
-          LineString += m_TempString[ii];
-     }
-//     Cut blanks at end of string.
-     LineString.TrimRight();
+     char tmp[91];   // Temporarily stores a character array.
+     DataFile.getline(tmp, 90);
+     string LineString = tmp;
+     LineString.erase(LineString.find_last_not_of(" \r\n\t\f\v") + 1);
      return LineString;
 }
 /////////////////////////////////////////////////////////////////////////

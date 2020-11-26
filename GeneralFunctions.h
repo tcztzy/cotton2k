@@ -5,7 +5,7 @@ using namespace std;
 //
 //  definition of functions
 //  =======================
-    CString GetLineData(ifstream &DataFile);
+    string GetLineData(ifstream &DataFile);
 // Date conversion functions:
     int DateToDoy(CString Date, int m_YearStart);
     CString DoyToDate(int Doy, int m_YearStart);

@@ -89,7 +89,7 @@ int ReadClimateData(ifstream &DataFile)
 //
 {
 //     Read 1st line
-      CString Dummy = GetLineData(DataFile);
+      CString Dummy = GetLineData(DataFile).c_str();
       int nLength = Dummy.GetLength();
 //     The following variables inform if the data in the climate file are in metric or "English" units.
 	  int iswRad = 0, iswTmp = 0, iswRain = 0, iswDewt = 0, iswWind = 0;
@@ -112,7 +112,7 @@ int ReadClimateData(ifstream &DataFile)
       while ( DataFile.eof() == 0 )
       {
 //     Test for end of file, and get the day of year (jdd)
-          Dummy = GetLineData(DataFile);
+          Dummy = GetLineData(DataFile).c_str();
           if (DataFile.eof() )  
               break;
           jdd = atoi(Dummy.Left(4));
@@ -212,7 +212,7 @@ void ReadAgriculturalInput(const string& ProfileName)
           DataFile.close();
      }
 //     Line #1: Read file description.
-	CString Dummy = GetLineData(DataFile);
+	CString Dummy = GetLineData(DataFile).c_str();
     CString m_AgrInptDesc; // Description of the Profile file
     if (Dummy.GetLength() > 20)
     {
@@ -235,7 +235,7 @@ void ReadAgriculturalInput(const string& ProfileName)
          int isdhrz; // horizontal placement of DRIP, cm from left edge of soil slab.
          CString cdate; // date of this application.
 //
-         CString StrTemp = GetLineData(DataFile);
+         CString StrTemp = GetLineData(DataFile).c_str();
 //     The type of input is defined from the first 5 characters of the line.
          if ( StrTemp.Left(5)  == "IRRIG" )
 		 {
@@ -690,7 +690,7 @@ void ReadPlantMapInput()
           return;
     }
 //     Line #1: Read file description.
-	CString Dummy = GetLineData(DataFile);
+	CString Dummy = GetLineData(DataFile).c_str();
     CString m_PmapDesc; // Description of the Profile file
     if (Dummy.GetLength() > 20)
     {
@@ -703,7 +703,7 @@ void ReadPlantMapInput()
     int i = 0;
     while (DataFile.eof() == 0)
     {
-		  CString StrTemp = GetLineData(DataFile);
+		  CString StrTemp = GetLineData(DataFile).c_str();
 		  if (StrTemp.GetLength() <= 0)
 			  break;
 //
