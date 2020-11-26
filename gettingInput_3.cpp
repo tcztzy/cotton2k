@@ -29,10 +29,7 @@ int OpenClimateFile()
        fs::path strFileName = fs::path("climate") / (string)PrdWthFileName;
 //     If file does not exist, display message.
        if (!fs::exists(strFileName))
-	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-          AfxMessageBox(strMessage);
-	   }
+          throw FileNotExists(strFileName);
        else
 	   {
 	      ifstream DataFile(strFileName, ios::in);
@@ -54,10 +51,7 @@ int OpenClimateFile()
        fs::path strFileName = fs::path("climate") / (string)ActWthFileName;
 //     If file does not exist, display message.
        if (!fs::exists(strFileName))
-	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-          AfxMessageBox(strMessage);
-       }
+	       throw FileNotExists(strFileName);
 	   else
 	   {
           ifstream DataFile1(strFileName, ios::in);

@@ -1,6 +1,9 @@
 //   global.h
 #pragma once
+#include <exception>
+#include <filesystem>
 #include "stdafx.h"
+namespace fs = std::filesystem;
 //
 //  definition of global variables
 //  ==============================
@@ -169,4 +172,26 @@
          VarPar[61], VolNh4NContent[maxl][maxk], VolNo3NContent[maxl][maxk], VolUreaNContent[maxl][maxk], 
          VolWaterContent[maxl][maxk], 
          WindSpeed[24], wk[maxk];
-    
+
+
+
+
+class Cotton2KException
+    : public std::exception
+{
+public:
+    Cotton2KException(const std::string& _Message)
+        : exception(_Message.c_str(), 1)
+    {
+    }
+};
+class FileNotExists
+    : public Cotton2KException
+{
+public:
+
+    FileNotExists(const fs::path filePath) noexcept
+        : Cotton2KException("The file  " + filePath.string() + "  does not exist! It will be opened as a new file.")
+    {
+    }
+};

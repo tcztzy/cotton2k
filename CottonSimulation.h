@@ -4,9 +4,7 @@
 #include "global.h"
 #include <fstream>  // Necessary for file I/O
 #include <algorithm>
-#include <filesystem>
 using namespace std;
-namespace fs = std::filesystem;
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

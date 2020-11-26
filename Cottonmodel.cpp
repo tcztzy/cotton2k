@@ -76,7 +76,14 @@ BOOL C2KApp::InitInstance()
 //     Get the list of the "Profiles" to run.
 	GetProfilesList(JobFileName);
 //     Now run the model.
-    RunTheModel();
+    try
+    {
+        RunTheModel();
+    }
+    catch (Cotton2KException e)
+    {
+        AfxMessageBox(e.what());
+    }
 	return TRUE;
 }
 /////////////////////////////////////////////////////////////////////////////

@@ -45,12 +45,7 @@ void ReadSoilImpedance()
        fs::path strFileName = fs::path("data") / "soilimpd.dat";
 	   CString strMessage;
 //  If file does not exist, or can not be opened, display message.
-       if (!fs::exists(strFileName))
-	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-          AfxMessageBox(strMessage);
-		  return;
-	   }
+       if (!fs::exists(strFileName)) throw FileNotExists(strFileName);
 	   ifstream DataFile(strFileName, ios::in);
        if ( DataFile.fail() )
 	   {

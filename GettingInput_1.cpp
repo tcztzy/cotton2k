@@ -69,11 +69,7 @@ void ReadProfileFile(const string& ProfileName)
     CString strMessage;
 //     If file does not exist, or can not be opened, display message
     if (!fs::exists(strFileName))
-    {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-         AfxMessageBox(strMessage);
-         return;
-    }
+        throw FileNotExists(strFileName);
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
@@ -334,11 +330,7 @@ void ReadCalibrationData()
     CString strMessage;
 //     If file does not exist, display message and and open a new file
     if (!fs::exists(strFileName))
-    {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-         AfxMessageBox(strMessage);
-         return;
-    }
+        throw FileNotExists(strFileName);
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
@@ -383,11 +375,7 @@ void ReadCalibrationData()
     strFileName = fs::path("data") / "vars" / VarFile;
 //  If file does not exist, or can not be opened, display message
     if (!fs::exists(strFileName))
-    {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-         AfxMessageBox(strMessage);
-         return;
-    }
+        throw FileNotExists(strFileName);
     ifstream DataFile1(strFileName, ios::in);
     if ( DataFile1.fail() )
     {
@@ -407,11 +395,7 @@ void ReadCalibrationData()
     strFileName = fs::path("data") / "site" / "sitelist.dat";
 //     If file does not exist, or can not be opened, display message 
     if (!fs::exists(strFileName))
-    {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-         AfxMessageBox(strMessage);
-         return;
-    }
+        throw FileNotExists(strFileName);
     string SiteFile;
     ifstream DataFile2(strFileName, ios::in);
     if ( DataFile2.fail() )
@@ -456,11 +440,7 @@ void ReadCalibrationData()
     strFileName = fs::path("data") / "site" / SiteFile;
 //     If file does not exist, or can not be opened, display message 
     if (!fs::exists(strFileName))
-    {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName.string().c_str());
-         AfxMessageBox(strMessage);
-         return;
-    }
+        throw FileNotExists(strFileName);
     ifstream DataFile3(strFileName, ios::in);
     if ( DataFile3.fail() )
     {
