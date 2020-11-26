@@ -120,15 +120,15 @@ void CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv,
          mot++;
 	  }
 //     If reached 50 iterations there must be an error somewhere!
-      CString msg = " Infinite loop in CanopyBalance(). Abnormal stop!! \n";
+      string msg = " Infinite loop in CanopyBalance(). Abnormal stop!! \n";
       char C1[12];
       sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-      msg += " Daynum, ihr, k = " + (CString) C1 + "\n";
+      msg += " Daynum, ihr, k = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", so);
-      msg += " so      = " + (CString) C1 + "\n";
+      msg += " so      = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", tv);
-      msg += " tv = " + (CString) C1 + "\n";
-	  AfxMessageBox(msg);
+      msg += " tv = " + (string) C1 + "\n";
+	  AfxMessageBox(msg.c_str());
       bEnd = true;
 }
 /////////////////////////////////////////
@@ -217,15 +217,15 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, d
 //     Go to next iteration
       } while (mop < 50);
 //     If reached 50 iterations there must be an error somewhere!
-      CString msg = " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! \n";
+      string msg = " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! \n";
       char C1[12];
       sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-      msg += " Daynum, ihr, k = " + (CString) C1 + "\n";
+      msg += " Daynum, ihr, k = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", so);
-      msg += " so      = " + (CString) C1 + "\n";
+      msg += " so      = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", tm);
-      msg += " tm = " + (CString) C1 + "\n";
-	  AfxMessageBox(msg);
+      msg += " tm = " + (string) C1 + "\n";
+	  AfxMessageBox(msg.c_str());
       bEnd = true;
 }
 ///////////////////////////////////////////////////////////////////

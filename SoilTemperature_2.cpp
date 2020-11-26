@@ -313,17 +313,17 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height, double w
 //     Stop simulation if no convergence after 100 iterations.
          if ( mtest > 100 )
 	     {
-             CString msg = " Infinite loop in SensibleHeatTransfer(). Abnormal stop!! \n";
+             string msg = " Infinite loop in SensibleHeatTransfer(). Abnormal stop!! \n";
              char C1[12];
              sprintf(C1, "%10.3g", tenviron);
-             msg += " tenviron = " + (CString) C1 + "\n";
+             msg += " tenviron = " + (string) C1 + "\n";
              sprintf(C1, "%10.3g", tsf);
-             msg += " tsf      = " + (CString) C1 + "\n";
+             msg += " tsf      = " + (string) C1 + "\n";
              sprintf(C1, "%10.3g", height);
-             msg += " PlantHeight = " + (CString) C1 + "\n";
+             msg += " PlantHeight = " + (string) C1 + "\n";
              sprintf(C1, "%10.3g", u);
-             msg += " u = " + (CString) C1 + "\n";
-		     AfxMessageBox(msg);
+             msg += " u = " + (string) C1 + "\n";
+		     AfxMessageBox(msg.c_str());
              bEnd = true;
 		     return 0;
          }
@@ -485,17 +485,17 @@ void SoilSurfaceBalance (int ihr, int k, double ess, double rlzero, double rss, 
          mon++;
 	  } // end while loop
 //     If (mon >= 50) send message on error and end simulation.
-      CString msg = " Infinite loop in SoilSurfaceBalance(). Abnormal stop!! \n";
+      string msg = " Infinite loop in SoilSurfaceBalance(). Abnormal stop!! \n";
       char C1[12];
       sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-      msg += " Daynum, ihr, k = " + (CString) C1 + "\n";
+      msg += " Daynum, ihr, k = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", so);
-      msg += " so      = " + (CString) C1 + "\n";
+      msg += " so      = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", so2);
-      msg += " so2 = " + (CString) C1 + "\n";
+      msg += " so2 = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", so3);
-      msg += " so3 = " + (CString) C1 + "\n";
-	  AfxMessageBox(msg);
+      msg += " so3 = " + (string) C1 + "\n";
+	  AfxMessageBox(msg.c_str());
       bEnd = true;
 }
 /////////////////////////////////////////
@@ -597,15 +597,15 @@ bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
 	      }
           if (mtnit > 30)
 	      {
-              CString msg = " Infinite loop in SoilMulchBalance(). Abnormal stop!! \n";
+              string msg = " Infinite loop in SoilMulchBalance(). Abnormal stop!! \n";
               char C1[12];
               sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-              msg += " Daynum, ihr, k = " + (CString) C1 + "\n";
+              msg += " Daynum, ihr, k = " + (string) C1 + "\n";
               sprintf(C1, "%10.3g", so);
-              msg += " so      = " + (CString) C1 + "\n";
+              msg += " so      = " + (string) C1 + "\n";
               sprintf(C1, "%10.3g", tm);
-              msg += " tm = " + (CString) C1 + "\n";
-	          AfxMessageBox(msg);
+              msg += " tm = " + (string) C1 + "\n";
+	          AfxMessageBox(msg.c_str());
               return true;
 	      }
       } while (fabs(tm - tmold1) > 0.05 || fabs(so - soold1) > 0.05);

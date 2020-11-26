@@ -26,11 +26,11 @@ void cotplt(int mtype, const string& ProfileName)
 //        (4) - Average boll size (bsize); function bollsize() is called.
 {
 //     The following constants are used:
-	  CString char1[7] = { "-X", "-*", "-$", "-A", "-A", "-A", "-B" };
-	  CString char2[7] = { "X-", "*-", "$-", "A-", "A-", "A-", "B-" };
-	  CString char3[13] = { "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8",
+	  string char1[7] = { "-X", "-*", "-$", "-A", "-A", "-A", "-B" };
+	  string char2[7] = { "X-", "*-", "$-", "A-", "A-", "A-", "B-" };
+	  string char3[13] = { "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8",
                          "-9", "-0", "-A", "-$", "-X" };
-	  CString char4[13] = { "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-",
+	  string char4[13] = { "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-",
                          "9-", "0-", "A-", "$-", "X-" };
 	  char chari = 'I'; // symbols used in plots.
       ofstream File24(fs::path("output") / (ProfileName + ".PLM"), ios::app);
@@ -59,7 +59,7 @@ void cotplt(int mtype, const string& ProfileName)
       }
 //     Blank pri and prt.
       char pri[3][30]; // character defined as 'I' for existing stem nodes.
-      CString prt[3][30][5]; // array of character symbols used in plot.
+      string prt[3][30][5]; // array of character symbols used in plot.
 	  for (int k = 0; k < 3; k++)
 		  for (int l = 0; l < 30; l++)
 		  {
