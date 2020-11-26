@@ -128,8 +128,7 @@ void CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv,
       msg += " so      = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", tv);
       msg += " tv = " + (string) C1 + "\n";
-	  AfxMessageBox(msg.c_str());
-      bEnd = true;
+	throw Cotton2KException(msg);
 }
 /////////////////////////////////////////
 void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, double sf,
@@ -225,8 +224,7 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, d
       msg += " so      = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", tm);
       msg += " tm = " + (string) C1 + "\n";
-	  AfxMessageBox(msg.c_str());
-      bEnd = true;
+	throw Cotton2KException(msg);
 }
 ///////////////////////////////////////////////////////////////////
 void SoilHeatFlux ( double dlt, int iv, int nn, int layer, int n0 )

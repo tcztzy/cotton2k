@@ -323,9 +323,7 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height, double w
              msg += " PlantHeight = " + (string) C1 + "\n";
              sprintf(C1, "%10.3g", u);
              msg += " u = " + (string) C1 + "\n";
-		     AfxMessageBox(msg.c_str());
-             bEnd = true;
-		     return 0;
+		 throw Cotton2KException(msg);
          }
 //     Compute ug1 and  ug1res to check convergence
          ug1 = ustar / g1; 
@@ -495,8 +493,7 @@ void SoilSurfaceBalance (int ihr, int k, double ess, double rlzero, double rss, 
       msg += " so2 = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", so3);
       msg += " so3 = " + (string) C1 + "\n";
-	  AfxMessageBox(msg.c_str());
-      bEnd = true;
+	throw Cotton2KException(msg);
 }
 /////////////////////////////////////////
 bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, double sf,
@@ -605,8 +602,7 @@ bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
               msg += " so      = " + (string) C1 + "\n";
               sprintf(C1, "%10.3g", tm);
               msg += " tm = " + (string) C1 + "\n";
-	          AfxMessageBox(msg.c_str());
-              return true;
+	        throw Cotton2KException(msg);
 	      }
       } while (fabs(tm - tmold1) > 0.05 || fabs(so - soold1) > 0.05);
 //

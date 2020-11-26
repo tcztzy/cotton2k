@@ -296,8 +296,7 @@ void ReadProfileFile(const string& ProfileName)
 		 {
             string msg = " planting date or emergence date must";
             msg += " be given in the profile file !!";
-			AfxMessageBox(msg.c_str());
-            bEnd = true;
+            throw Cotton2KException(msg);
          }
 	  }
 //     If the date of emergence has been given in the input: isw = 1 if simulation

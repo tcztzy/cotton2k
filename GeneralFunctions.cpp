@@ -64,10 +64,7 @@ int DateToDoy(string Date, int m_YearStart)
       if ( Date.empty() )
           return 0;
       else if (Date.substr(2,1) == "/") 
-	  {
-          AfxMessageBox((Date + " == ERROR: Old date format used " ).c_str());
-		  return 0;
-	  }
+          throw Cotton2KException(Date + " == ERROR: Old date format used " );
 
 	  int day = atoi (Date.substr(0,2).c_str());  //  Convert characters to integers for day.
       int iy = atoi (Date.substr(7).c_str());    //  Convert characters to integers for year.
@@ -82,10 +79,7 @@ int DateToDoy(string Date, int m_YearStart)
 		  }
 
       if (month == 0)
-	  {
-          AfxMessageBox((" Error in month definition:  " + stmon).c_str());
-		  return 0;
-	  }
+          throw Cotton2KException(" Error in month definition:  " + stmon);
 //     Adjust number of days in February for leap years.
       i0[2] = 28 + LeapYear(iy);
 //     Compute jday.
