@@ -6,7 +6,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "dialogs.h"
 #include <math.h>
 
 //////////////////////////
@@ -495,13 +494,9 @@ void SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName)
       jt2 = 0;
       if ( OutIndex[16] > 0 ) 
 	  {
-		  InputDatesDlg dlg;
-          dlg.m_StartDate = DayStart;
-          dlg.m_EndDate = DayFinish;
-		  dlg.m_OutputType = "Hourly values of Computed Soil temperature";
-          dlg.DoModal();
-		  jt1 = dlg.m_StartDate;
-		  jt2 = dlg.m_EndDate;
+        // NOTE: Used to dialog input DayStart DayFinish
+		  jt1 = DayStart;
+		  jt2 = DayFinish;
 //     File *.TMS is used for checking the soil temperature routines. Write header of output:
           ofstream File19(fs::path("output") / (ProfileName + ".TMS"), ios::out);
 		  File19 << " Day of Year hour ----------------  TS FOR ALL LAYERS  -------------------" << endl;

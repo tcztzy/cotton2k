@@ -28,7 +28,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "dialogs.h"
 #include <math.h>
 
 //     Definition of file scope variables:
@@ -104,13 +103,9 @@ void DayClim(const string& ProfileName)
 	static int j2 = 0;
     if (OutIndex[15] > 0 && Daynum <= DayStart) 
 	{
-	     InputDatesDlg dlg;
-         dlg.m_StartDate = DayStart;
-         dlg.m_EndDate = DayFinish;
-		 dlg.m_OutputType = " Computed Hourly Values of Weather Variables.";
-         dlg.DoModal();
-		 j1 = dlg.m_StartDate;
-		 j2 = dlg.m_EndDate;
+	     // NOTE: Used to dialog input DayStart DayFinish
+		 j1 = DayStart;
+		 j2 = DayFinish;
 	}	
 	int jtout;  // jtout > 0 if output is required
     if (OutIndex[15] > 0 && Daynum >= j1 && Daynum <= j2)
