@@ -11,7 +11,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 #include <math.h>
 
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.

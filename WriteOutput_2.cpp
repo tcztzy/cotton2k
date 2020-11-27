@@ -7,7 +7,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 
 // File scope variables:
 double bsize[3][30][5]; // average boll size (g seeds + lint per boll)

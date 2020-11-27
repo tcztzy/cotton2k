@@ -14,7 +14,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 
 //  File scope variables
       double burres; // reserve N in burrs, in g per plant.

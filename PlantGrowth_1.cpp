@@ -10,7 +10,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 #include <math.h>
 
 double ptsred; // The effect of moisture stress on the photosynthetic rate

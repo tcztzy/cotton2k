@@ -6,7 +6,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 #include "dialogs.h"
 #include <math.h>
 

@@ -14,7 +14,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 #include <math.h>
 
 //   Declaration of file-scope variables:  

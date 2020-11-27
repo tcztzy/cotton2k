@@ -14,7 +14,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 
 //////////////////////////
 void SoilProcedures(const string& ProfileName)    

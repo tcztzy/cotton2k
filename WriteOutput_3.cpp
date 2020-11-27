@@ -12,7 +12,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 
 /////////////////////////////////////////////////////////////
 void outputplt(const string& ProfileName)
