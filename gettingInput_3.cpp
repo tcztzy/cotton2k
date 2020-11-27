@@ -22,7 +22,7 @@ int OpenClimateFile()
     int LastDayOfPredictedWeather = 0;    // last DOY of predicted weather data
 	int LastDayOfActualWeather = 0;       // last DOY of actual weather data
 //     Open file of predicted weather data.
-    if (PrdWthFileName.GetLength() > 0)
+    if (PrdWthFileName.length() > 0)
 	{
        fs::path strFileName = fs::path("climate") / (string)PrdWthFileName;
 //     If file does not exist, display message.
@@ -41,7 +41,7 @@ int OpenClimateFile()
 	   }
 	}
 //     Open file of actual weather data.
-    if (ActWthFileName.GetLength() > 0)
+    if (ActWthFileName.length() > 0)
 	{
        fs::path strFileName = fs::path("climate") / (string)ActWthFileName;
 //     If file does not exist, display message.
@@ -643,13 +643,13 @@ void ReadPlantMapInput()
 //       MapDataPlantHeight[], MapDataSquareNum[], MapDataAllSiteNum[];
 //
 {
-    if (PlantmapFileName.GetLength() <= 0)
+    if (PlantmapFileName.length() <= 0)
         return;
 	string Exten = ".MAP";
 //     Check file extension
-    if (PlantmapFileName.Right(4) != Exten.c_str())  
+    if (PlantmapFileName.substr(PlantmapFileName.length() - 4) != Exten)  
     {
-        int strlen = PlantmapFileName.GetLength();
+        int strlen = PlantmapFileName.length();
         int newlen = strlen;
         for ( int ii = 4; ii > 0 ; ii-- )
         {
@@ -660,7 +660,7 @@ void ReadPlantMapInput()
                 break;
             }
         }
-        PlantmapFileName = PlantmapFileName.Left(newlen) + Exten.c_str();
+        PlantmapFileName = PlantmapFileName.substr(0,newlen) + Exten;
     }
 	fs::path m_FilePath = fs::path("plantmap") / (string)PlantmapFileName;
 //

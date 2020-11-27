@@ -38,7 +38,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 	cs.style = WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE | WS_VISIBLE
 		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-    cs.lpszName = FrameTitle;
+    cs.lpszName = FrameTitle.c_str();
 	return TRUE;
 }
 /////////////////////////////////////////////////////////////////////////////

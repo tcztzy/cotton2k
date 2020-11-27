@@ -128,13 +128,13 @@ void ReadProfileFile(const string& ProfileName)
     nLength = Dummy.length();
     if (nLength > 1)
     {
-        ActWthFileName = Dummy.substr(0,20).c_str();
-        ActWthFileName.Remove(' ');
+        ActWthFileName = Dummy.substr(0,20);
+        ActWthFileName.erase(remove(ActWthFileName.begin(), ActWthFileName.end(), ' '), ActWthFileName.end());
     }
     if (nLength > 21)
     {
-        PrdWthFileName = Dummy.substr(20,20).c_str();
-        PrdWthFileName.Remove(' ');
+        PrdWthFileName = Dummy.substr(20,20);
+        PrdWthFileName.erase(remove(PrdWthFileName.begin(), PrdWthFileName.end(), ' '), PrdWthFileName.end());
     }
     else 
         PrdWthFileName = "";
@@ -164,23 +164,23 @@ void ReadProfileFile(const string& ProfileName)
     nLength = Dummy.length();
     if (nLength > 1)
     {
-       SoilHydFileName = Dummy.substr(0,20).c_str();
-       SoilHydFileName.Remove(' ');
+       SoilHydFileName = Dummy.substr(0,20);
+       SoilHydFileName.erase(remove(SoilHydFileName.begin(), SoilHydFileName.end(), ' '), SoilHydFileName.end());
     }
     if (nLength > 20)
     {
-       SoilInitFileName = Dummy.substr(20,20).c_str();
-       SoilInitFileName.Remove(' ');
+       SoilInitFileName = Dummy.substr(20,20);
+       SoilInitFileName.erase(remove(SoilInitFileName.begin(), SoilInitFileName.end(), ' '), SoilInitFileName.end());
     }
     if (nLength > 40)
     {
-       AgrInputFileName = Dummy.substr(40,20).c_str();
-       AgrInputFileName.Remove(' ');
+       AgrInputFileName = Dummy.substr(40,20);
+       AgrInputFileName.erase(remove(AgrInputFileName.begin(), AgrInputFileName.end(), ' '), AgrInputFileName.end());
     }
     if (nLength > 60)
     {
-       PlantmapFileName = Dummy.substr(60).c_str();
-       PlantmapFileName.Remove(' ');
+       PlantmapFileName = Dummy.substr(60);
+       PlantmapFileName.erase(remove(PlantmapFileName.begin(), PlantmapFileName.end(), ' '), PlantmapFileName.end());
     }
     else 
        PlantmapFileName = "";
@@ -631,18 +631,18 @@ void WriteInitialInputData(const string& ProfileName)
 			  }
 	  }
 //     Write names of the other input files
-      if (ActWthFileName.GetLength() > 0)
+      if (ActWthFileName.length() > 0)
       {
          File20 << "    Actual Weather Input File:     " << ActWthFileName << endl; 
          File20 << "    Last date read from Actual Weather File: " 
                 << DoyToDate(LastDayOfActualWeather, iyear) << endl; 
       } 
-      if (PrdWthFileName.GetLength() > 0)
+      if (PrdWthFileName.length() > 0)
          File20 << "    Predicted Weather Input File:  " << PrdWthFileName << endl; 
       File20 << "    Cultural Input File:           " << AgrInputFileName << endl; 
       File20 << "    Initial Soil Data Input File:  " << SoilInitFileName << endl; 
       File20 << "    Soil Hydrology Input File:     " << SoilHydFileName << endl; 
-      if (PlantmapFileName.GetLength() > 0)
+      if (PlantmapFileName.length() > 0)
          File20 << "    Plant Map Adjustment File:     " << PlantmapFileName << endl << endl; 
 //   Write names of the site and the variety
       File20 << "    Site...     " << SiteName << endl; 
