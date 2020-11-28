@@ -1,8 +1,16 @@
 /.idea/
 /.vs/
 /.vscode/
+# VSCode CMake tools build directory
 /build/
+# CLion default build directory
 /cmake-build-debug/
+# VS debug and release files
 /Debug/
 /Release/
-/CottonModel.vcxproj.user
+/tests/Debug/
+/tests/Release/
+# User defined
+*.vcxproj.user
+# VS packages installation location
+/packages/
