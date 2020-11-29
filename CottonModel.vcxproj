@@ -358,12 +358,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CottonModel.h" />
+    <ClInclude Include="CottonPhenology.h" />
     <ClInclude Include="CottonSimulation.h" />
+    <ClInclude Include="DailyClimate.h" />
     <ClInclude Include="Dialogs.h" />
+    <ClInclude Include="FruitAbscission.h" />
     <ClInclude Include="GeneralFunctions.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="LeafAbscission.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Output.h" />
+    <ClInclude Include="PlantAdjustment.h" />
+    <ClInclude Include="PlantGrowth.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RootGrowth.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>

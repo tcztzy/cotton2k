@@ -10,6 +10,7 @@
 #include <ctime>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
+#include "PlantAdjustment.h"
 
 /////////////////////////////////////////////////////////////
 void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)

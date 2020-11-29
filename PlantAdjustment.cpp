@@ -5,9 +5,10 @@
 //       PlantAdjustments()
 //       GoBack()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+
+tuple<string> GoBack(const string& Date);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WriteStateVariables(bool bAdjusting, const string& Date)

@@ -8,9 +8,21 @@
 // GetNetPhotosynthesis()
 // PlantGrowth()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+#include "RootGrowth.h"
+
+void LeafWaterPotential(const string&);
+double LeafResistance(double);
+// PlantGrowth_2
+void PotentialLeafGrowth();
+void PotentialFruitGrowth();
+double PotentialStemGrowth(double stemnew);
+// PlantGrowth_3
+void DryMatterBalance(double& cdstem, double& cdleaf, double& cdpet, double& cdroot, const string& ProfileName);
+void ActualFruitGrowth();
+void ActualLeafGrowth();
+double AddPlantHeight(double denf2);
 
 double ptsred; // The effect of moisture stress on the photosynthetic rate
 //////////////////////////////////////////////////

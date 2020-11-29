@@ -7,8 +7,12 @@
 // SlabLoc()
 // ReadPlantMapInput()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
+
+int ReadClimateData(ifstream&, const int&);
+double tdewest(double);
+int SlabLoc(int, int);
 
 ///////////////////////////////////////////////////////////////////////////////
 int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName, const int& DayStart)

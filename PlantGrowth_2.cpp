@@ -7,9 +7,10 @@
 // PotentialFruitGrowth()
 // TemperatureOnFruitGrowthRate()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
-#include <math.h>
+#include "global.h"
+
+double TemperatureOnLeafGrowthRate(double);
+double TemperatureOnFruitGrowthRate(double);
 
 //////////////////////////////////////////////////////////////////
 double PotentialStemGrowth (double stemnew)  

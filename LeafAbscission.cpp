@@ -8,8 +8,13 @@
 // DefoliationLeafAbscission()
 // SortArray()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
+#include "global.h"
+
+void PreFruitLeafAbscission(double);
+void MainStemLeafAbscission(int, int, double);
+void FruitNodeLeafAbscission(int, int, int, double);
+void DefoliationLeafAbscission();
+void SortArray(int, double[], int[], int[], int[]);
 
 //////////////////////////////////////////////////
 void LeafAbscission()

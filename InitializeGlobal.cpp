@@ -1,6 +1,6 @@
 // File InitializeGlobal.cpp
 //
-#include "CottonSimulation.h"
+#include "global.h"
 
 ///////////////////////////////////////////////////////////////////////////
 void InitializeGlobal()

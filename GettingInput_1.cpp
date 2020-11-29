@@ -7,9 +7,26 @@
 // InitializeGrid()
 // WriteInitialInputData()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+#include "Output.h"
+
+using namespace std;
+
+tuple<int, string, string, string, string, string, string> ReadProfileFile(const string&);
+void ReadCalibrationData();
+void InitializeGrid();
+void WriteInitialInputData(const string&, const string&, const string&, const string&, const string&, const string&, const string&, const int&);
+// GettingInput_2
+void InitSoil(const string&);
+void ReadSoilImpedance();
+void InitializeSoilData(const string&);
+void InitializeSoilTemperature();
+void InitializeRootData();
+// GettingInput_3
+void ReadPlantMapInput(const string&);
+int OpenClimateFile(const string&, const string&, const int&);
+void ReadAgriculturalInput(const string&, const string&);
 
 //
 // Definitions of File scope variables:

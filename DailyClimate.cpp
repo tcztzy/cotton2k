@@ -26,9 +26,25 @@
 //  sunangle()
 //  SimulateRunoff()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+#include "DailyClimate.h"
+
+void ComputeDayLength();
+double dayrad(double, double, double, double);
+double daytmp(double);
+double tdewhour(double, double);
+double dayrh(double, double);
+double daywnd(double, double, double, double, double, double);
+void AverageAirTemperatures();
+void EvapoTranspiration(int, const string&, const string&);
+double cloudcov(double, double, double);
+double clcor(int, double, double, double);
+double del(double, double);
+double gam(double, double);
+double refalbed(double, double, double, double);
+void sunangle(double, double&, double&);
+double SimulateRunoff(double, const int&);
 
 //     Definition of file scope variables:
     double declination,      // daily declination angle, in radians.

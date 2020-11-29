@@ -20,6 +20,11 @@
 #include "MainFrm.h"
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
+#include "CottonPhenology.h"
+#include "DailyClimate.h"
+#include "Input.h"
+#include "PlantAdjustment.h"
+#include "PlantGrowth.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //    Class C2KApp

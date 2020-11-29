@@ -10,7 +10,7 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+#include "Input.h"
 
 //  arrays with file scope:
       double dz[maxl];  // equal to the dl array in a columnn, or wk in a row.

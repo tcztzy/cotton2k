@@ -139,6 +139,33 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CottonPhenology.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LeafAbscission.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FruitAbscission.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DailyClimate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Output.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlantAdjustment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlantGrowth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RootGrowth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\CottonModel.ico">

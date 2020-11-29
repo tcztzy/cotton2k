@@ -16,7 +16,6 @@
 //
 #include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
 
 ///////////////////////////////////////////////////////////////////////
 string GetLineData(ifstream &DataFile)

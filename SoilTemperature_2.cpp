@@ -9,6 +9,7 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include <math.h>
+#include "DailyClimate.h"
 
 //////////////////////////
 void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)

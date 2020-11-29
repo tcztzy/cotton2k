@@ -12,9 +12,17 @@
 //       AdjustBollAbscission()
 //       ComputeSiteNumbers()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+
+double SiteAbscissionRatio(int, int, int, int);
+void SquareAbscission(int, int, int, double);
+void BollAbscission(int, int, int, double, double);
+void AdjustAbscission();
+void AdjustSquareAbscission(int, int, int, double);
+void AdjustYoungBollAbscission(int, int, int, double, double);
+void AdjustBollAbscission(int, int, int, int, double);
+void ComputeSiteNumbers();
 
 //////////////////////////////////////////////////
 void FruitingSitesAbscission()

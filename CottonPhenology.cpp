@@ -12,9 +12,20 @@
 // NewBollFormation()
 // BollOpening()
 //
-#include "CottonSimulation.h"
+#include "global.h"
+#include "LeafAbscission.h"
+#include "FruitAbscission.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+
+void PreFruitingNode(double);
+double DaysToFirstSquare();
+void CreateFirstSquare(double);
+void AddVegetativeBranch(double, double, double);
+void AddFruitingBranch(int, double, double);
+void AddFruitingNode(int, int, double, double);
+void FruitingSite(int, int, int, int&);
+void NewBollFormation(int, int, int);
+void BollOpening(int, int, int, double);
 
 //   Declaration of file-scope variables:  
    double FibLength;           // fiber length

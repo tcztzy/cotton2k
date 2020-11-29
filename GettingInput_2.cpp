@@ -8,9 +8,12 @@
 // InitializeSoilTemperature()
 // form()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+#include "Input.h"
+
+int ReadSoilHydraulicData(const string&);
+
 //
 // Definitions of variables with file scope:
 //

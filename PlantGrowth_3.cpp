@@ -9,9 +9,10 @@
 // *** Pix() *** to be added
 // Defoliate()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
-#include <math.h>
+#include <fstream>
+#include "global.h"
+
+using namespace std;
 
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.
 //////////////////////////////////////////////////
