@@ -11,7 +11,7 @@
 #include <math.h>
 
 //////////////////////////
-void CapillaryFlow()     
+void CapillaryFlow(const int& DayStart)
 //     This function computes the capillary water flow between soil cells. It is called by 
 //  SoilProcedures(), noitr times per day.  The number of iterations (noitr) has been computed 
 //  in SoilProcedures() as a function of the amount of water applied. It is executed only once 

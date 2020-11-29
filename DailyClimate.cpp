@@ -42,7 +42,7 @@
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-void DayClim(const string& ProfileName, const string& Date)
+void DayClim(const string& ProfileName, const string& Date, const int& DayStart)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -89,7 +89,7 @@ void DayClim(const string& ProfileName, const string& Date)
     double runoffToday = 0; // amount of runoff today, mm
     if (rainToday >= 2.0)
     {
-        runoffToday = SimulateRunoff(rainToday);
+        runoffToday = SimulateRunoff(rainToday, DayStart);
         if (runoffToday < rainToday)
             rainToday -= runoffToday;
         else
@@ -882,7 +882,7 @@ void sunangle (double ti, double &coszhr, double &sunahr)
           sunahr = fabs(acos(coszhr) * 180 / pi - 90);
 }
 ///////////////////////////////////////////////////////////////////////////////
-double SimulateRunoff(double rain)
+double SimulateRunoff(double rain, const int& DayStart)
 //     This function is called from DayClim() and is executed on each day with raifall more 
 //  than 2 mm. It computes the runoff and the retained portion of the rainfall. Note: This
 //  function is based on the code of GOSSYM. No changes have been made from the original GOSSYM 

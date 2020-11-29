@@ -98,7 +98,7 @@ void ColumnShading()
       } // end for k
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-void SoilTemperature(const string& ProfileName)   
+void SoilTemperature(const string& ProfileName, const int& DayStart)
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
@@ -114,7 +114,7 @@ void SoilTemperature(const string& ProfileName)
 {
 	  static int jt1, jt2;  //  Julian dates for start and end of output.
       if ( Daynum <= DayStart ) 
-           SoilTemperatureInit (jt1, jt2, ProfileName);
+           SoilTemperatureInit (jt1, jt2, ProfileName, DayStart);
 //     Set output flag jtout, indicating if output of soil temperature is required.
       bool jtout = false;  // output flag for soil temperature data
       if ( OutIndex[16] > 0 ) 
@@ -477,7 +477,7 @@ void SoilTemperature(const string& ProfileName)
   Soil Sci. Soc. Am. Proc. 33:354-360.
 */
 ////////////////////////////////////////////////////////////////////////
-void SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName)
+void SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName, const int& DayStart)
 //     This function is called from SoilTemperature() at the start of the simulation. It sets 
 //  initial values to soil and canopy temperatures.
 //     The following arguments are set in this function:

@@ -35,7 +35,7 @@ using namespace std;
 // C
     void   CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv, 
 		   double c2, double sf, double so, double thet, double tm, double &tv);
-    void   CapillaryFlow();   
+    void   CapillaryFlow(const int& DayStart);
     double CellDistance(int l, int k, int l0, int k0);
     void   CheckDryMatterBal(const string& ProfileName, const string& Date);
     double clcor (int ihr, double ck, double isrhr, double coszhr);
@@ -51,8 +51,8 @@ using namespace std;
     void   CreateFirstSquare(double stemNRatio);
 // D
     void   DailyOutput(const string& ProfileName, const string& Date);
-    tuple<string>   DataOutput(const string& ProfileName, const string& Date);
-    void   DayClim(const string& ProfileName, const string& Date);
+    tuple<string>   DataOutput(const string& ProfileName, const string& Date, const int& DayStart);
+    void   DayClim(const string& ProfileName, const string& Date, const int& DayStart);
     double dayrad( double ti, double radsum, double sinb, double c11);
 	double dayrh( double tt, double tdew);
     double DaysToFirstSquare(); 
@@ -99,7 +99,7 @@ using namespace std;
     void   LeafWaterPotential(const string& ProfileName);
 // M
     void   MainStemLeafAbscission(int k, int l, double droplf);
-    void   MineralizeNitrogen(int l, int k);
+    void   MineralizeNitrogen(int l, int k, const int& DayStart);
     void   MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm,
            double sf, double hsgp, double hsgm, double so, double thet, double &tm, double tv);
 // N
@@ -112,7 +112,7 @@ using namespace std;
     void   NitrogenUptake(int l, int k, double reqnc);
     void   NitrogenUptakeRequirement();
 // O
-	int    OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName);
+	int    OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName, const int& DayStart);
 	void   OpenOutputFiles(const string& m_fileDesc, const string& ProfileName);
     void   output1(const string& ProfileName, const string& Date);
     void   output2(const string& ProfileName);
@@ -120,7 +120,7 @@ using namespace std;
     void   output4(const string& ProfileName);
     void   output5(const string& ProfileName);
     void   output6(const string& ProfileName);
-    void   output7(const string& ProfileName);
+    void   output7(const string& ProfileName, const int& DayStart);
     void   OutputForSoilMaps(int irec, int igo, int nday, const string& ProfileName);
     void   outputplt(const string& ProfileName);
     void   OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string& ProfileName); 
@@ -146,10 +146,10 @@ using namespace std;
 // R
     void   ReadAgriculturalInput(const string& ProfileName, const string& AgrInputFileName);
 	void   ReadCalibrationData();
-    int    ReadClimateData(ifstream &DataFile);
-    void   ReadInput(const string& ProfileName);
+    int    ReadClimateData(ifstream &DataFile, const int& DayStart);
+    tuple<int>   ReadInput(const string& ProfileName);
 	void   ReadPlantMapInput(const string& PlantmapFileName);
-	tuple<string, string, string, string, string, string>   ReadProfileFile(const string& ProfileName);
+	tuple<int, string, string, string, string, string, string>   ReadProfileFile(const string& ProfileName);
 	int    ReadSoilHydraulicData(const string& SoilHydFileName);
     void   ReadSoilImpedance();
     void   RedistRootNewGrowth(int l, int k, double adwr1);
@@ -162,7 +162,7 @@ using namespace std;
     void   RootSummation(const string& ProfileName);
 // S
     double SensibleHeatTransfer(double tsf, double tenviron, double PlantHeight, double wndcanp);
-    double SimulateRunoff(double rain);
+    double SimulateRunoff(double rain, const int& DayStart);
     double SiteAbscissionRatio(int k, int l, int m, int lt);
     void   sitecode();
     int    SlabLoc(int isd,int index);
@@ -173,16 +173,16 @@ using namespace std;
     bool   SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, double sf,
 	       double &so, double &so2, double &so3, double thet, double &tm, double tv, double wndcanp);
     double SoilNitrateOnRootGrowth(double vno3lk);
-    void   SoilNitrogen();       
+    void   SoilNitrogen(const int& DayStart);
 	void   SoilNitrogenAverage(const string& ProfileName);
 	void   SoilNitrogenBal(const string& ProfileName);   
-    void   SoilProcedures(const string& ProfileName);    
+    void   SoilProcedures(const string& ProfileName, const int& DayStart);
     void   SoilSurfaceBalance (int ihr, int k, double ess, double rlzero, double rss, double sf, 
 		   double hsg, double &so, double &so2, double &so3, double thet, double tm, double tv);
     void   SoilSum();           
     double SoilTemOnRootGrowth(double t);
-    void   SoilTemperature(const string& ProfileName);   
-    void   SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName);
+    void   SoilTemperature(const string& ProfileName, const int& DayStart);
+    void   SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName, const int& DayStart);
     void   SoilWaterDataInp();
     double SoilWaterOnRootGrowth(double psislk);
     void   SortArray(int size, double InData[], int indexk[], int indexl[], int indexm[]);
@@ -206,6 +206,6 @@ using namespace std;
     void   WaterTable();        // WATERTBL
     void   WaterUptake();       // UPTAKE
     double SoilWaterEffect (int l, int k, double xx);
-    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& SoilHydFileName, const string& SoilInitFileName, const string& AgrInputFileName, const string& PlantmapFileName);
+    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& SoilHydFileName, const string& SoilInitFileName, const string& AgrInputFileName, const string& PlantmapFileName, const int& DayStart);
 	void   WriteLine22(ofstream &File22, double i00, double i01, double i02);
     void   WriteStateVariables(bool bAdjusting, const string& Date);

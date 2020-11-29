@@ -24,7 +24,7 @@
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-void ReadInput(const string& ProfileName)
+tuple<int> ReadInput(const string& ProfileName)
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -35,20 +35,22 @@ void ReadInput(const string& ProfileName)
 {
 //     The following functions are called to read initial values of some variables from 
 //  input files, or initialize them otherwise.
+    int
+        DayStart;         // Date (DOY) to start simulation.
     string
         ActWthFileName,   // name of input file with actual weather data.
         PrdWthFileName,   // name of input file with predicted weather data.
         SoilHydFileName,  // name of input file with soil hydrology data.
-        SoilInitFileName,    // name of input file with initial soil data.
+        SoilInitFileName, // name of input file with initial soil data.
         AgrInputFileName, // name of input file with agricultural input data
         PlantmapFileName; // name of input file with plant map adjustment data.
 	InitializeGlobal();
-	tie(ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
+	tie(DayStart, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
 	ReadCalibrationData();
-	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName);
+	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart);
 	InitializeGrid();
 	ReadSoilImpedance();
-    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
+    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName, DayStart);
 	InitSoil(SoilInitFileName);
 	ReadAgriculturalInput(ProfileName, AgrInputFileName);
 	ReadPlantMapInput(PlantmapFileName);
@@ -58,9 +60,10 @@ void ReadInput(const string& ProfileName)
 //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
+    return make_tuple(DayStart);
 }
 /////////////////////////////////////////////////////////////////////////////
-tuple<string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)
+tuple<int, string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -285,7 +288,7 @@ tuple<string, string, string, string, string, string> ReadProfileFile(const stri
 //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of 
 // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
     iyear = atoi(DateSimStart.substr(7,4).c_str());
-    DayStart = DateToDoy(DateSimStart, iyear);
+    int DayStart = DateToDoy(DateSimStart, iyear);
     DayEmerge = DateToDoy(DateEmerge, iyear);
     DayFinish = DateToDoy(DateSimEnd, iyear);
     DayPlant = DateToDoy(DatePlant, iyear);
@@ -322,7 +325,7 @@ tuple<string, string, string, string, string, string> ReadProfileFile(const stri
       }
 //     Call function OpenOutputFiles() to open the output files.
       OpenOutputFiles(m_fileDesc, ProfileName);
-      return make_tuple(ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
+      return make_tuple(DayStart, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
@@ -509,7 +512,7 @@ void InitializeGrid()
 	  }
 }
 //////////////////////////////////////////////////////////
-void WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& SoilHydFileName, const string& SoilInitFileName, const string& AgrInputFileName, const string& PlantmapFileName)
+void WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& SoilHydFileName, const string& SoilInitFileName, const string& AgrInputFileName, const string& PlantmapFileName, const int& DayStart)
 //     This function writes the input data to File20 (*.B01). It is executed once 
 //  at the beginning of the simulation. It is called by ReadInput().
 //

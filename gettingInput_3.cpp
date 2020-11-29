@@ -11,7 +11,7 @@
 #include "GeneralFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName)
+int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName, const int& DayStart)
 //     This function gets the climate data file. It is called by ReadInput(),
 // and it calls ReadClimateData().
 //  Global variables set:  LastDayWeatherData.
@@ -34,7 +34,7 @@ int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName)
             throw FileNotOpened(strFileName);
           else
 		  {
-             LastDayOfPredictedWeather = ReadClimateData(DataFile);
+             LastDayOfPredictedWeather = ReadClimateData(DataFile, DayStart);
              DataFile.close();
 		  }
 	   }
@@ -53,7 +53,7 @@ int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName)
               throw FileNotOpened(strFileName);
 		  else
 		  {
-             LastDayOfActualWeather = ReadClimateData(DataFile1);
+             LastDayOfActualWeather = ReadClimateData(DataFile1, DayStart);
              DataFile1.close();
 		  }
 	   }
@@ -65,7 +65,7 @@ int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName)
     return LastDayOfActualWeather;
 }
 /////////////////////////////////////////////////////
-int ReadClimateData(ifstream &DataFile)
+int ReadClimateData(ifstream &DataFile, const int& DayStart)
 //     This function reads the climate data file. It is called by OpenClimateFile(), and it
 //  calls GetLineData().
 //     It stores the data read from the file in the structure Clim.

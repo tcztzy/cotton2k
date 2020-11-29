@@ -16,7 +16,7 @@
 #include "GeneralFunctions.h"
 
 //////////////////////////
-void SoilProcedures(const string& ProfileName)    
+void SoilProcedures(const string& ProfileName, const int& DayStart)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -100,7 +100,7 @@ void SoilProcedures(const string& ProfileName)
          for (int iter = 0; iter < noitr; iter++)
 		 {
              GravityFlow(applywat);
-             CapillaryFlow();
+             CapillaryFlow(DayStart);
          }
 	  }
       if (DripWaterAmount > 0) 
@@ -116,14 +116,14 @@ void SoilProcedures(const string& ProfileName)
          for (int iter = 0; iter < noitr; iter++)
 		 {
              DripFlow(applywat);
-             CapillaryFlow();
+             CapillaryFlow(DayStart);
          }
 	  }
 //     When no water is added, there is only one iteration in this day.
       if (WaterToApply + DripWaterAmount <= 0) 
 	  {
 		 noitr = 1;
-         CapillaryFlow();
+         CapillaryFlow(DayStart);
 	  }
 //     If the output flag OutIndex(17) is non-zero, write to output file *.WAT.
 //  This flag is also the interval in days between outputs. This is used for checking only.

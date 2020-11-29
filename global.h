@@ -78,7 +78,7 @@ namespace fs = std::filesystem;
 	extern std::string FrameTitle; 
 ////    Integers    //// 
 	extern int DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef, DayOfSimulation,
-        Daynum, DayPlant, DayStart, DayStartCO2, DayStartMulch, DayStartPlantMaps, 
+        Daynum, DayPlant, DayStartCO2, DayStartMulch, DayStartPlantMaps, 
         DayStartPredIrrig, DayStartSoilMaps, DayStopPlantMaps, DayStopPredIrrig, 
         DayStopSoilMaps, 
         FirstBloom, FirstSquare,     

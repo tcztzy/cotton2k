@@ -36,7 +36,7 @@
   recovery and modeling of nitrogen mineralized from labeled sorghum
   residues. Soil Sci. Soc. Am. J. 55:1031-1037.
 ************************************************************************/
-void SoilNitrogen()  
+void SoilNitrogen(const int& DayStart)
 //     This function computes the transformations of the nitrogen
 // compounds in the soil. It is called each day from SimulateThisDay().
 //     It calls UreaHydrolysis(), MineralizeNitrogen{}, Nitrification(),
@@ -64,7 +64,7 @@ void SoilNitrogen()
 		 {
            if (VolUreaNContent[l][k] > 0)    
                           UreaHydrolysis( l, k );
-           MineralizeNitrogen( l, k );
+           MineralizeNitrogen( l, k, DayStart );
            if ( VolNh4NContent[l][k] > 0.00001 )  
                           Nitrification( l, k, depth[l] );
 //     Denitrification() is called if there are enough water and nitrates in the
@@ -172,7 +172,7 @@ double SoilWaterEffect (int l, int k, double xx)
       return wf;
 }
 ///////////////////////////////////////////
-void MineralizeNitrogen(int l, int k)
+void MineralizeNitrogen(int l, int k, const int& DayStart)
 //     This function computes the mineralization of organic nitrogen in the soil, and the 
 //  immobilization of mineral nitrogen by soil microorganisms. It is called by function 
 //  SoilNitrogen(). 

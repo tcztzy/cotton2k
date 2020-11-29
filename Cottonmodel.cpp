@@ -173,11 +173,12 @@ void C2KApp::RunTheModel()
 {
     string ProfileName; // name of input file with profile data (without the extension ".PRO").
     string Date;        // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
+    int DayStart;       // Date (DOY) to start simulation.
     for (int i = 0; i < ProfileArray.GetSize(); i++)
     {
 		ProfileName = ProfileArray.GetAt(i);
 //     Read the input data for this simulation
-        ReadInput(ProfileName);
+        tie(DayStart) = ReadInput(ProfileName);
 //     Create a modeless dialog with progress control
         int range = DayFinish - DayStart + 1;
         pdlg = new CProgCtrlDlg;
@@ -186,10 +187,10 @@ void C2KApp::RunTheModel()
         pdlg->m_Running = "Running the Simulation";
         pdlg->Create();
 //     Do daily simulations
-        tie(Date) = DailySimulation(ProfileName, Date);
+        tie(Date) = DailySimulation(ProfileName, Date, DayStart);
 //     Write output data
         pdlg->m_Running = "Writing Output Files";
-        tie(Date) = DataOutput(ProfileName, Date);
+        tie(Date) = DataOutput(ProfileName, Date, DayStart);
         pdlg->EndDialog(i);
         delete pdlg;  //  check if needed
     }
@@ -197,7 +198,7 @@ void C2KApp::RunTheModel()
     AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. " );
 }
 ////////////////////////////////////////////////////////////////////////////////
-tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date)
+tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date, const int& DayStart)
 //     This function controls the dynamic phase of the simulation, allowing
 //  for in-run adjustments when there is an input of plant map adjustments.
 //     It calls the functions:
@@ -215,10 +216,10 @@ tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date)
 	  while (! bEnd)
 	  {
          BOOL bAdjustToDo;
-         tie(bAdjustToDo, date) = DoAdjustments(ProfileName, date);
+         tie(bAdjustToDo, date) = DoAdjustments(ProfileName, date, DayStart);
          pdlg->ProgressStepit();
 //     Execute simulation for this day.
-         tie(date) = SimulateThisDay(ProfileName);
+         tie(date) = SimulateThisDay(ProfileName, DayStart);
 //     If there are pending plant adjustments, call WriteStateVariables() to write
 //  state variables of this day in a scratch file.
          if (bAdjustToDo)
@@ -227,7 +228,7 @@ tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date)
       return make_tuple(date);
 }
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date)
+tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& DayStart)
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -264,7 +265,7 @@ tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date
                 if (nadj[jj])
                    for(int j1 = 0; j1 < NumAdjustDays; j1++)
                    {
-                       tie(date) = SimulateThisDay(ProfileName);
+                       tie(date) = SimulateThisDay(ProfileName, DayStart);
                        if (Kday > 0) 
                            WriteStateVariables(TRUE, date); 
                    }     // end for j1, and if nadj 
@@ -281,7 +282,7 @@ tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date
       return make_tuple(TRUE, date);
 }
 //////////////////////////////////////////////////
-tuple<string> C2KApp::SimulateThisDay(string ProfileName)
+tuple<string> C2KApp::SimulateThisDay(string ProfileName, const int& DayStart)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
@@ -310,10 +311,10 @@ tuple<string> C2KApp::SimulateThisDay(string ProfileName)
           Kday = 0;
 //     The following functions are executed each day (also before emergence).
       ColumnShading();      // computes light interception and soil shading.
-      DayClim(ProfileName, Date);            // computes climate variables for today.
-      SoilTemperature(ProfileName);    // executes all modules of soil and canopy temperature.
-      SoilProcedures(ProfileName);     // executes all other soil processes.
-      SoilNitrogen();       // computes nitrogen transformations in the soil.
+      DayClim(ProfileName, Date, DayStart);            // computes climate variables for today.
+      SoilTemperature(ProfileName, DayStart);    // executes all modules of soil and canopy temperature.
+      SoilProcedures(ProfileName, DayStart);     // executes all other soil processes.
+      SoilNitrogen(DayStart);       // computes nitrogen transformations in the soil.
       SoilSum();            // computes totals of water and N in the soil.
 //     The following is executed each day after plant emergence:
       if (Daynum >= DayEmerge && isw > 0)
