@@ -88,9 +88,9 @@ using namespace std;
 	void   InitializeGrid();
     void   InitiateLateralRoots();
 	void   InitializeRootData();
-    void   InitializeSoilData();
+    void   InitializeSoilData(const string& SoilHydFileName);
 	void   InitializeSoilTemperature();
-	void   InitSoil();
+	void   InitSoil(const string& SoilInitFileName);
 // L
     void   LateralRootGrowthLeft(int l);
     void   LateralRootGrowthRight(int l);
@@ -149,8 +149,8 @@ using namespace std;
     int    ReadClimateData(ifstream &DataFile);
     void   ReadInput(const string& ProfileName);
 	void   ReadPlantMapInput(const string& PlantmapFileName);
-	tuple<string, string, string, string>   ReadProfileFile(const string& ProfileName);
-	int    ReadSoilHydraulicData();
+	tuple<string, string, string, string, string, string>   ReadProfileFile(const string& ProfileName);
+	int    ReadSoilHydraulicData(const string& SoilHydFileName);
     void   ReadSoilImpedance();
     void   RedistRootNewGrowth(int l, int k, double adwr1);
     double refalbed(double isrhr, double rad, double coszhr, double sunahr);
@@ -206,6 +206,6 @@ using namespace std;
     void   WaterTable();        // WATERTBL
     void   WaterUptake();       // UPTAKE
     double SoilWaterEffect (int l, int k, double xx);
-    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& AgrInputFileName, const string& PlantmapFileName);
+    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& SoilHydFileName, const string& SoilInitFileName, const string& AgrInputFileName, const string& PlantmapFileName);
 	void   WriteLine22(ofstream &File22, double i00, double i01, double i02);
     void   WriteStateVariables(bool bAdjusting);

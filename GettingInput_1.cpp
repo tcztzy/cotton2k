@@ -38,19 +38,21 @@ void ReadInput(const string& ProfileName)
     string
         ActWthFileName,   // name of input file with actual weather data.
         PrdWthFileName,   // name of input file with predicted weather data.
+        SoilHydFileName,  // name of input file with soil hydrology data.
+        SoilInitFileName,    // name of input file with initial soil data.
         AgrInputFileName, // name of input file with agricultural input data
         PlantmapFileName; // name of input file with plant map adjustment data.
 	InitializeGlobal();
-	tie(ActWthFileName, PrdWthFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
+	tie(ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
 	ReadCalibrationData();
 	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName);
 	InitializeGrid();
 	ReadSoilImpedance();
-    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, AgrInputFileName, PlantmapFileName);
-	InitSoil();
+    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
+	InitSoil(SoilInitFileName);
 	ReadAgriculturalInput(ProfileName, AgrInputFileName);
 	ReadPlantMapInput(PlantmapFileName);
-	InitializeSoilData();
+	InitializeSoilData(SoilHydFileName);
 	InitializeSoilTemperature();
 	InitializeRootData();
 //     initialize some variables at the start of simulation.
@@ -58,7 +60,7 @@ void ReadInput(const string& ProfileName)
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
 }
 /////////////////////////////////////////////////////////////////////////////
-tuple<string, string, string, string> ReadProfileFile(const string& ProfileName)
+tuple<string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -169,11 +171,13 @@ tuple<string, string, string, string> ReadProfileFile(const string& ProfileName)
 //  conditions, agricultural input, and plant map adjustment.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
+    string SoilHydFileName;
     if (nLength > 1)
     {
        SoilHydFileName = Dummy.substr(0,20);
        SoilHydFileName.erase(remove(SoilHydFileName.begin(), SoilHydFileName.end(), ' '), SoilHydFileName.end());
     }
+    string SoilInitFileName;
     if (nLength > 20)
     {
        SoilInitFileName = Dummy.substr(20,20);
@@ -318,7 +322,7 @@ tuple<string, string, string, string> ReadProfileFile(const string& ProfileName)
       }
 //     Call function OpenOutputFiles() to open the output files.
       OpenOutputFiles(m_fileDesc, ProfileName);
-      return make_tuple(ActWthFileName, PrdWthFileName, AgrInputFileName, PlantmapFileName);
+      return make_tuple(ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
@@ -505,7 +509,7 @@ void InitializeGrid()
 	  }
 }
 //////////////////////////////////////////////////////////
-void WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& AgrInputFileName, const string& PlantmapFileName)
+void WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& SoilHydFileName, const string& SoilInitFileName, const string& AgrInputFileName, const string& PlantmapFileName)
 //     This function writes the input data to File20 (*.B01). It is executed once 
 //  at the beginning of the simulation. It is called by ReadInput().
 //

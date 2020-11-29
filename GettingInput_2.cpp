@@ -63,7 +63,7 @@ void ReadSoilImpedance()
 	   DataFile.close();
 }
 //////////////////////////////////////////////////////////////////
-void InitSoil()
+void InitSoil(const string& SoilInitFileName)
 //     This function opens the initial soil data file and reads it. It is executed
 //  once at the beginning of the simulation. It is called by ReadInput().
 //
@@ -71,7 +71,7 @@ void InitSoil()
 //        rnnh4, rnno3, oma, h2oint.
 {
 //     The the file containing the initial soil data is opened for input.
-      fs::path strFileName = fs::path("soils") / (string)SoilInitFileName;
+      fs::path strFileName = fs::path("soils") / SoilInitFileName;
       ifstream fstr(strFileName, ios::in);
       if ( fstr.fail() )
           throw FileNotOpened(strFileName);
@@ -98,7 +98,7 @@ void InitSoil()
 	  }
 }
 //////////////////////////////////////////////////////////
-void InitializeSoilData()
+void InitializeSoilData(const string& SoilHydFileName)
 //     This function computes and sets the initial soil data. It is
 //  executed once at the beginning of the simulation, after the soil
 //  hydraulic data file has been read. It is called by ReadInput().
@@ -114,7 +114,7 @@ void InitializeSoilData()
 //        VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent
 {
       int lyrsol;  // the number of soil horizons in the slab (down to 2 m).
-      lyrsol = ReadSoilHydraulicData();  
+      lyrsol = ReadSoilHydraulicData(SoilHydFileName);
 //
       int j = 0; // horizon number
       double sumdl = 0; // depth to the bottom this layer (cm);
@@ -253,7 +253,7 @@ void InitializeSoilData()
       InitialTotalSoilWater = 10 * InitialTotalSoilWater / RowSpace;
 }
 /////////////////////////////////////////////////////////////////////
-int ReadSoilHydraulicData()
+int ReadSoilHydraulicData(const string& SoilHydFileName)
 //     This functions reads the soil hydrology file. It is called by InitializeSoilData().
 //     Global or file scope Variables set here:
 //  airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, conmax, ldepth, pclay, psand, 
@@ -261,7 +261,7 @@ int ReadSoilHydraulicData()
 //     Return value = number of soilhorizons (lyrsol)
 {
 //     The the file containing the hydraulic soil data is opened for input.
-      fs::path m_FileName = fs::path("soils") / (string)SoilHydFileName;
+      fs::path m_FileName = fs::path("soils") / SoilHydFileName;
       ifstream DataFile(m_FileName, ios::in);
       if ( DataFile.fail() )
             throw FileNotOpened(m_FileName);
