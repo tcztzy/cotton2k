@@ -73,11 +73,11 @@ BOOL C2KApp::InitInstance()
 //     The main window has been initialized, so show and update it.
 	pFrame->ShowWindow(m_nCmdShow);
 	pFrame->UpdateWindow();
-//     Get the list of the "Profiles" to run.
-	GetProfilesList(JobFileName);
-//     Now run the model.
     try
     {
+        // Get the list of the "Profiles" to run.
+        GetProfilesList(fs::path((string)JobFileName));
+        // Now run the model.
         RunTheModel();
     }
     catch (Cotton2KException e)
@@ -127,33 +127,20 @@ CString C2KApp::GetJobFile()
     }
 }
 /////////////////////////////////////////////////////////////////////////
-void C2KApp::GetProfilesList(CString JobFileName)
+void C2KApp::GetProfilesList(fs::path JobFileName)
 //     Function GetProfilesList() opens the "JOB" file, reads it, and gets
 //  from it the profile list. It is called from InitInstance().
 //     Input argument: name of the JOB file (with path)
 //    
 {
 //     Check if the file exists
-    CFile file;
-    CFileStatus status;
-    if (!file.GetStatus(JobFileName, status))
-    {
-        CString strMessage;
-        AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, JobFileName);
-        AfxMessageBox(strMessage);
-		return;
-    }
+    if (!fs::exists(JobFileName))
+        throw FileNotExists(JobFileName);
 //     Open the selected Job file for input.
     ifstream DataFile(JobFileName, ios::in);
     if ( DataFile.fail() )
-    {
 //     When the file can not be opened:
-       DataFile.close();
-       CString strMessage;
-       AfxFormatString1(strMessage, IDS_FILE_NOT_OPENED, JobFileName);
-       AfxMessageBox(strMessage);
-       return;
-	}
+        throw FileNotOpened(JobFileName);
 	char m_TempString[100];
 //     Skip the first line of the file.
     DataFile.getline(m_TempString, 99);

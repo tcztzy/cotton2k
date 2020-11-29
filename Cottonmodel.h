@@ -12,7 +12,9 @@
 #include "resource.h"       // main symbols
 #include "dialogs.h"       // main symbols
 #include <string>
+#include <filesystem>
 using namespace std;
+namespace fs = std::filesystem;
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:
 //
@@ -21,7 +23,7 @@ class C2KApp : public CWinApp
 public:
 	C2KApp();
     CString GetJobFile();
-    void GetProfilesList(CString JobFileName);
+    void GetProfilesList(fs::path JobFileName);
     void RunTheModel();
 	tuple<string> DailySimulation(string ProfileName, const string& Date);
 	tuple<string> SimulateThisDay(string ProfileName);
