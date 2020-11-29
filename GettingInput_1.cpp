@@ -35,13 +35,14 @@ void ReadInput(const string& ProfileName)
 {
 //     The following functions are called to read initial values of some variables from 
 //  input files, or initialize them otherwise.
+    string PrdWthFileName;
 	InitializeGlobal();
-	ReadProfileFile(ProfileName);
+	tie(PrdWthFileName) = ReadProfileFile(ProfileName);
 	ReadCalibrationData();
-	LastDayOfActualWeather = OpenClimateFile();
+	LastDayOfActualWeather = OpenClimateFile(PrdWthFileName);
 	InitializeGrid();
 	ReadSoilImpedance();
-    WriteInitialInputData(ProfileName);
+    WriteInitialInputData(ProfileName, PrdWthFileName);
 	InitSoil();
 	ReadAgriculturalInput(ProfileName);
 	ReadPlantMapInput();
@@ -53,7 +54,7 @@ void ReadInput(const string& ProfileName)
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
 }
 /////////////////////////////////////////////////////////////////////////////
-void ReadProfileFile(const string& ProfileName)
+tuple<string> ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -131,6 +132,7 @@ void ReadProfileFile(const string& ProfileName)
         ActWthFileName = Dummy.substr(0,20);
         ActWthFileName.erase(remove(ActWthFileName.begin(), ActWthFileName.end(), ' '), ActWthFileName.end());
     }
+    string PrdWthFileName; // name of input file with predicted weather data.
     if (nLength > 21)
     {
         PrdWthFileName = Dummy.substr(20,20);
@@ -309,6 +311,7 @@ void ReadProfileFile(const string& ProfileName)
       }
 //     Call function OpenOutputFiles() to open the output files.
       OpenOutputFiles(m_fileDesc, ProfileName);
+      return make_tuple(PrdWthFileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
@@ -495,7 +498,7 @@ void InitializeGrid()
 	  }
 }
 //////////////////////////////////////////////////////////
-void WriteInitialInputData(const string& ProfileName)
+void WriteInitialInputData(const string& ProfileName, const string& PrdWthFileName)
 //     This function writes the input data to File20 (*.B01). It is executed once 
 //  at the beginning of the simulation. It is called by ReadInput().
 //

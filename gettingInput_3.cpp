@@ -11,7 +11,7 @@
 #include "GeneralFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-int OpenClimateFile()
+int OpenClimateFile(const string& PrdWthFileName)
 //     This function gets the climate data file. It is called by ReadInput(),
 // and it calls ReadClimateData().
 //  Global variables referenced:  ActWthFileName, PrdWthFileName.

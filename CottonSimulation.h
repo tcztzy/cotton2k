@@ -4,6 +4,7 @@
 #include "global.h"
 #include <fstream>  // Necessary for file I/O
 #include <algorithm>
+#include <tuple>
 using namespace std;
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -111,7 +112,7 @@ using namespace std;
     void   NitrogenUptake(int l, int k, double reqnc);
     void   NitrogenUptakeRequirement();
 // O
-	int    OpenClimateFile();
+	int    OpenClimateFile(const string& PrdWthFileName);
 	void   OpenOutputFiles(const string& m_fileDesc, const string& ProfileName);
     void   output1(const string& ProfileName);
     void   output2(const string& ProfileName);
@@ -148,7 +149,7 @@ using namespace std;
     int    ReadClimateData(ifstream &DataFile);
     void   ReadInput(const string& ProfileName);
 	void   ReadPlantMapInput();
-	void   ReadProfileFile(const string& ProfileName);
+	tuple<string>   ReadProfileFile(const string& ProfileName);
 	int    ReadSoilHydraulicData();
     void   ReadSoilImpedance();
     void   RedistRootNewGrowth(int l, int k, double adwr1);
@@ -205,6 +206,6 @@ using namespace std;
     void   WaterTable();        // WATERTBL
     void   WaterUptake();       // UPTAKE
     double SoilWaterEffect (int l, int k, double xx);
-    void   WriteInitialInputData(const string& ProfileName);
+    void   WriteInitialInputData(const string& ProfileName, const string& PrdWthFileName);
 	void   WriteLine22(ofstream &File22, double i00, double i01, double i02);
     void   WriteStateVariables(bool bAdjusting);
