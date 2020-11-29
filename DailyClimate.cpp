@@ -42,7 +42,7 @@
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-void DayClim(const string& ProfileName)
+void DayClim(const string& ProfileName, const string& Date)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -171,7 +171,7 @@ void DayClim(const string& ProfileName)
 		File18 << AvrgDailyTemp << endl;
 	}
 //     Compute potential evapotranspiration.
-    EvapoTranspiration(jtout, ProfileName);
+    EvapoTranspiration(jtout, ProfileName, Date);
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 void ComputeDayLength()
@@ -562,7 +562,7 @@ double VaporPressure( double tt )
       return VaporPressure;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EvapoTranspiration(int jtout, const string& ProfileName)
+void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date)
 //     Function EvapoTranspiration() computes the rate of reference evapotranspiration
 //  and related variables. The following subroutines and functions are called for each
 //  hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(), clearskyemiss(), del(), 

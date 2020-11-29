@@ -11,6 +11,8 @@
 #include "stdafx.h"
 #include "resource.h"       // main symbols
 #include "dialogs.h"       // main symbols
+#include <string>
+using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:
 //
@@ -21,9 +23,9 @@ public:
     CString GetJobFile();
     void GetProfilesList(CString JobFileName);
     void RunTheModel();
-	void DailySimulation(CString ProfileName);
-	void SimulateThisDay(CString ProfileName);
-    BOOL DoAdjustments(CString ProfileName);
+	tuple<string> DailySimulation(CString ProfileName, const string& Date);
+	tuple<string> SimulateThisDay(CString ProfileName);
+    tuple<BOOL, string> DoAdjustments(CString ProfileName, const string& Date);
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 	afx_msg void OnAppAbout();

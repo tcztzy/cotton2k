@@ -433,7 +433,7 @@ void GetNetPhotosynthesis()            // computes net photosynthesis.
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-void PlantGrowth(const string& ProfileName)                 
+void PlantGrowth(const string& ProfileName, const string& Date)
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),

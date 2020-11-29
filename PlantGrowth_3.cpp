@@ -467,7 +467,7 @@ double AddPlantHeight(double denf2)
       return addz;
 }
 //////////////////////////
-void CheckDryMatterBal(const string& ProfileName)                 
+void CheckDryMatterBal(const string& ProfileName, const string& Date)
 //     This function checks the dry matter balances in the cotton model, for diagnostic 
 //  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
 //     The following global variables are referenced here:
@@ -544,7 +544,7 @@ void Pix()        // effects of pix applied.
 //  ***   to be added   ***
 }
 //////////////////////////
-void Defoliate(const string& ProfileName)              
+void Defoliate(const string& ProfileName, const string& Date)
 //     This function simulates the effects of defoliating chemicals
 //  applied on the cotton. It is called from SimulateThisDay().
 //
