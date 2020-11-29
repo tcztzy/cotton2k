@@ -128,7 +128,6 @@
 // string variables:
 //
     std::string 
-        ActWthFileName,      // name of input file with actual weather data.
         AgrInputFileName,    // name of input file with agricultural input data
 	    Date,                // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
         FrameTitle,          // Name of the Job file, used for main frame window title.

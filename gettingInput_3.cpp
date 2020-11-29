@@ -11,7 +11,7 @@
 #include "GeneralFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-int OpenClimateFile(const string& PrdWthFileName)
+int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName)
 //     This function gets the climate data file. It is called by ReadInput(),
 // and it calls ReadClimateData().
 //  Global variables referenced:  ActWthFileName, PrdWthFileName.
@@ -24,7 +24,7 @@ int OpenClimateFile(const string& PrdWthFileName)
 //     Open file of predicted weather data.
     if (PrdWthFileName.length() > 0)
 	{
-       fs::path strFileName = fs::path("climate") / (string)PrdWthFileName;
+       fs::path strFileName = fs::path("climate") / PrdWthFileName;
 //     If file does not exist, display message.
        if (!fs::exists(strFileName))
           throw FileNotExists(strFileName);
@@ -43,7 +43,7 @@ int OpenClimateFile(const string& PrdWthFileName)
 //     Open file of actual weather data.
     if (ActWthFileName.length() > 0)
 	{
-       fs::path strFileName = fs::path("climate") / (string)ActWthFileName;
+       fs::path strFileName = fs::path("climate") / ActWthFileName;
 //     If file does not exist, display message.
        if (!fs::exists(strFileName))
 	       throw FileNotExists(strFileName);

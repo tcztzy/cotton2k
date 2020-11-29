@@ -35,14 +35,16 @@ void ReadInput(const string& ProfileName)
 {
 //     The following functions are called to read initial values of some variables from 
 //  input files, or initialize them otherwise.
-    string PrdWthFileName;
+    string
+        ActWthFileName, // name of input file with actual weather data.
+        PrdWthFileName; // name of input file with predicted weather data.
 	InitializeGlobal();
-	tie(PrdWthFileName) = ReadProfileFile(ProfileName);
+	tie(ActWthFileName, PrdWthFileName) = ReadProfileFile(ProfileName);
 	ReadCalibrationData();
-	LastDayOfActualWeather = OpenClimateFile(PrdWthFileName);
+	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName);
 	InitializeGrid();
 	ReadSoilImpedance();
-    WriteInitialInputData(ProfileName, PrdWthFileName);
+    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName);
 	InitSoil();
 	ReadAgriculturalInput(ProfileName);
 	ReadPlantMapInput();
@@ -54,7 +56,7 @@ void ReadInput(const string& ProfileName)
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
 }
 /////////////////////////////////////////////////////////////////////////////
-tuple<string> ReadProfileFile(const string& ProfileName)
+tuple<string, string> ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -127,6 +129,7 @@ tuple<string> ReadProfileFile(const string& ProfileName)
 //     Line #3: Names of weather files: actual and predicted. 
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
+    string ActWthFileName;
     if (nLength > 1)
     {
         ActWthFileName = Dummy.substr(0,20);
@@ -311,7 +314,7 @@ tuple<string> ReadProfileFile(const string& ProfileName)
       }
 //     Call function OpenOutputFiles() to open the output files.
       OpenOutputFiles(m_fileDesc, ProfileName);
-      return make_tuple(PrdWthFileName);
+      return make_tuple(ActWthFileName, PrdWthFileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
@@ -498,7 +501,7 @@ void InitializeGrid()
 	  }
 }
 //////////////////////////////////////////////////////////
-void WriteInitialInputData(const string& ProfileName, const string& PrdWthFileName)
+void WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName)
 //     This function writes the input data to File20 (*.B01). It is executed once 
 //  at the beginning of the simulation. It is called by ReadInput().
 //
