@@ -75,7 +75,7 @@ namespace fs = std::filesystem;
 	    double amount; 
         }   Irrig[150];
 ////    Strings    //// 
-	extern std::string AgrInputFileName, Date, FrameTitle,
+	extern std::string Date, FrameTitle,
         PlantmapFileName,
         SoilHydFileName, SoilInitFileName; 
 ////    Integers    //// 

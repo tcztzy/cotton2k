@@ -170,7 +170,7 @@ double tdewest(double maxt)
 	return esttdew;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-void ReadAgriculturalInput(const string& ProfileName)
+void ReadAgriculturalInput(const string& ProfileName, const string& AgrInputFileName)
 //     This function opens the agricultural inputs data file and reads it. 
 //  It is called by ReadInput() once at the beginning of the simulation.
 //
@@ -186,7 +186,7 @@ void ReadAgriculturalInput(const string& ProfileName)
 //
 {
 //     Open the input file
-	 fs::path  m_FilePath = fs::path("aginput") / (string)AgrInputFileName;
+	 fs::path  m_FilePath = fs::path("aginput") / AgrInputFileName;
      ifstream DataFile(m_FilePath, ios::in);
      if ( DataFile.fail() )
          throw FileNotOpened(m_FilePath);

@@ -144,12 +144,12 @@ using namespace std;
     void   PreFruitLeafAbscission(double droplf );
     double PsiOnTranspiration (double PsiAverage);
 // R
-    void   ReadAgriculturalInput(const string& ProfileName);
+    void   ReadAgriculturalInput(const string& ProfileName, const string& AgrInputFileName);
 	void   ReadCalibrationData();
     int    ReadClimateData(ifstream &DataFile);
     void   ReadInput(const string& ProfileName);
 	void   ReadPlantMapInput();
-	tuple<string, string>   ReadProfileFile(const string& ProfileName);
+	tuple<string, string, string>   ReadProfileFile(const string& ProfileName);
 	int    ReadSoilHydraulicData();
     void   ReadSoilImpedance();
     void   RedistRootNewGrowth(int l, int k, double adwr1);
@@ -206,6 +206,6 @@ using namespace std;
     void   WaterTable();        // WATERTBL
     void   WaterUptake();       // UPTAKE
     double SoilWaterEffect (int l, int k, double xx);
-    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName);
+    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& AgrInputFileName);
 	void   WriteLine22(ofstream &File22, double i00, double i01, double i02);
     void   WriteStateVariables(bool bAdjusting);
