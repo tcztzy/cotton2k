@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "../GeneralFunctions.h"
+#include "GeneralFunctions.h"
 
 TEST(GeneralFunctions, LeapYear) {
     EXPECT_EQ(LeapYear(1900), 0);
