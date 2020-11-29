@@ -199,7 +199,7 @@ void C2KApp::RunTheModel()
         pdlg->m_Running = "Running the Simulation";
         pdlg->Create();
 //     Do daily simulations
-        tie(Date) = DailySimulation(ProfileName.c_str(), Date);
+        tie(Date) = DailySimulation(ProfileName, Date);
 //     Write output data
         pdlg->m_Running = "Writing Output Files";
         tie(Date) = DataOutput(ProfileName, Date);
@@ -210,7 +210,7 @@ void C2KApp::RunTheModel()
     AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. " );
 }
 ////////////////////////////////////////////////////////////////////////////////
-tuple<string> C2KApp::DailySimulation(CString ProfileName, const string& Date)
+tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date)
 //     This function controls the dynamic phase of the simulation, allowing
 //  for in-run adjustments when there is an input of plant map adjustments.
 //     It calls the functions:
@@ -240,7 +240,7 @@ tuple<string> C2KApp::DailySimulation(CString ProfileName, const string& Date)
       return make_tuple(date);
 }
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string> C2KApp::DoAdjustments(CString ProfileName, const string& Date)
+tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date)
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -271,7 +271,7 @@ tuple<BOOL, string> C2KApp::DoAdjustments(CString ProfileName, const string& Dat
 //  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
             for (int jj = 0; jj < 5; jj++)
             {
-                tie(date) = PlantAdjustments(i, jj, (string)ProfileName, date);
+                tie(date) = PlantAdjustments(i, jj, ProfileName, date);
 //     If adjustment is necessary, rerun the simulation for the previous NumAdjustDays (number
 //  of days) and call WriteStateVariables() to write state variables in scratch structure.
                 if (nadj[jj])
@@ -294,7 +294,7 @@ tuple<BOOL, string> C2KApp::DoAdjustments(CString ProfileName, const string& Dat
       return make_tuple(TRUE, date);
 }
 //////////////////////////////////////////////////
-tuple<string> C2KApp::SimulateThisDay(CString ProfileName)
+tuple<string> C2KApp::SimulateThisDay(string ProfileName)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
@@ -323,9 +323,9 @@ tuple<string> C2KApp::SimulateThisDay(CString ProfileName)
           Kday = 0;
 //     The following functions are executed each day (also before emergence).
       ColumnShading();      // computes light interception and soil shading.
-      DayClim((string)ProfileName, Date);            // computes climate variables for today.
-      SoilTemperature((string)ProfileName);    // executes all modules of soil and canopy temperature.
-      SoilProcedures((string)ProfileName);     // executes all other soil processes.
+      DayClim(ProfileName, Date);            // computes climate variables for today.
+      SoilTemperature(ProfileName);    // executes all modules of soil and canopy temperature.
+      SoilProcedures(ProfileName);     // executes all other soil processes.
       SoilNitrogen();       // computes nitrogen transformations in the soil.
       SoilSum();            // computes totals of water and N in the soil.
 //     The following is executed each day after plant emergence:
@@ -336,24 +336,24 @@ tuple<string> C2KApp::SimulateThisDay(CString ProfileName)
          DayInc = PhysiologicalAge();    // computes physiological age
          if(pixday[0] > 0)
              Pix();        // effects of pix applied.
-         Defoliate((string)ProfileName, Date);         // effects of defoliants applied.
-         Stress((string)ProfileName);            // computes water stress factors.
+         Defoliate(ProfileName, Date);         // effects of defoliants applied.
+         Stress(ProfileName);            // computes water stress factors.
          GetNetPhotosynthesis();         // computes net photosynthesis.
-         PlantGrowth((string)ProfileName, Date);       // executes all modules of plant growth.
+         PlantGrowth(ProfileName, Date);       // executes all modules of plant growth.
          CottonPhenology();              // executes all modules of plant phenology.
-         PlantNitrogen((string)ProfileName);     // computes plant nitrogen allocation.
-         CheckDryMatterBal((string)ProfileName, Date); // checks plant dry matter balance.
+         PlantNitrogen(ProfileName);     // computes plant nitrogen allocation.
+         CheckDryMatterBal(ProfileName, Date); // checks plant dry matter balance.
 //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
 //  nitrogen averages by layer, and write this information to files.
          if ( OutIndex[20] > 0 )
 		 {
-	        PlantNitrogenBal((string)ProfileName);          // checks plant nitrogen balance.
-	        SoilNitrogenBal((string)ProfileName);           // checks soil nitrogen balance.
-	        SoilNitrogenAverage((string)ProfileName);       // computes average soil nitrogen by layers.
+	        PlantNitrogenBal(ProfileName);          // checks plant nitrogen balance.
+	        SoilNitrogenBal(ProfileName);           // checks soil nitrogen balance.
+	        SoilNitrogenAverage(ProfileName);       // computes average soil nitrogen by layers.
 		 }
       }
 //     Call DailyOutput for reporting some simulation data for this day.
-      DailyOutput((string)ProfileName, Date);
+      DailyOutput(ProfileName, Date);
 //     Check if the date to stop simulation has been reached, or if this is the last day
 //  with available weather data. Simulation will also stop when no leaves remain on the plant.
 //  bEnd = TRUE  indicates stopping this simulation.
