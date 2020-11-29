@@ -148,8 +148,8 @@ using namespace std;
 	void   ReadCalibrationData();
     int    ReadClimateData(ifstream &DataFile);
     void   ReadInput(const string& ProfileName);
-	void   ReadPlantMapInput();
-	tuple<string, string, string>   ReadProfileFile(const string& ProfileName);
+	void   ReadPlantMapInput(const string& PlantmapFileName);
+	tuple<string, string, string, string>   ReadProfileFile(const string& ProfileName);
 	int    ReadSoilHydraulicData();
     void   ReadSoilImpedance();
     void   RedistRootNewGrowth(int l, int k, double adwr1);
@@ -206,6 +206,6 @@ using namespace std;
     void   WaterTable();        // WATERTBL
     void   WaterUptake();       // UPTAKE
     double SoilWaterEffect (int l, int k, double xx);
-    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& AgrInputFileName);
+    void   WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& AgrInputFileName, const string& PlantmapFileName);
 	void   WriteLine22(ofstream &File22, double i00, double i01, double i02);
     void   WriteStateVariables(bool bAdjusting);

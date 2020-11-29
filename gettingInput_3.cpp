@@ -14,7 +14,6 @@
 int OpenClimateFile(const string& ActWthFileName, const string& PrdWthFileName)
 //     This function gets the climate data file. It is called by ReadInput(),
 // and it calls ReadClimateData().
-//  Global variables referenced:  ActWthFileName, PrdWthFileName.
 //  Global variables set:  LastDayWeatherData.
 //  Return value: LastDayOfActualWeather.
 //
@@ -633,11 +632,11 @@ int SlabLoc(int isd, int index)
 	  return result;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ReadPlantMapInput()
+void ReadPlantMapInput(const string& PlantmapFileName)
 //     This sunbroutine opens and reads an ascii file with input of
 //  observed plant map adjustment data. It is used to adjust the simulation.
 //     It is called by ReadInput().
-//     The following global variables are referenced:    iyear, PlantmapFileName
+//     The following global variables are referenced:    iyear, 
 //     The following global variables are set:
 //       MapDataGreenBollNum[], MapDataDate[], MapDataMainStemNodes[], 
 //       MapDataPlantHeight[], MapDataSquareNum[], MapDataAllSiteNum[];
@@ -647,6 +646,7 @@ void ReadPlantMapInput()
         return;
 	string Exten = ".MAP";
 //     Check file extension
+    string plantMapFileName = PlantmapFileName;
     if (PlantmapFileName.substr(PlantmapFileName.length() - 4) != Exten)  
     {
         int strlen = PlantmapFileName.length();
@@ -660,9 +660,10 @@ void ReadPlantMapInput()
                 break;
             }
         }
-        PlantmapFileName = PlantmapFileName.substr(0,newlen) + Exten;
+        // NOTE: Even PlantmapFileName had been changed here, it never be used then
+        plantMapFileName = PlantmapFileName.substr(0,newlen) + Exten;
     }
-	fs::path m_FilePath = fs::path("plantmap") / (string)PlantmapFileName;
+	fs::path m_FilePath = fs::path("plantmap") / plantMapFileName;
 //
     ifstream DataFile(m_FilePath, ios::in);
     if ( DataFile.fail() )

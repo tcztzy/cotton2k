@@ -38,17 +38,18 @@ void ReadInput(const string& ProfileName)
     string
         ActWthFileName,   // name of input file with actual weather data.
         PrdWthFileName,   // name of input file with predicted weather data.
-        AgrInputFileName; // name of input file with agricultural input data
+        AgrInputFileName, // name of input file with agricultural input data
+        PlantmapFileName; // name of input file with plant map adjustment data.
 	InitializeGlobal();
-	tie(AgrInputFileName, ActWthFileName, PrdWthFileName) = ReadProfileFile(ProfileName);
+	tie(ActWthFileName, PrdWthFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
 	ReadCalibrationData();
 	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName);
 	InitializeGrid();
 	ReadSoilImpedance();
-    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, AgrInputFileName);
+    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, AgrInputFileName, PlantmapFileName);
 	InitSoil();
 	ReadAgriculturalInput(ProfileName, AgrInputFileName);
-	ReadPlantMapInput();
+	ReadPlantMapInput(PlantmapFileName);
 	InitializeSoilData();
 	InitializeSoilTemperature();
 	InitializeRootData();
@@ -57,15 +58,15 @@ void ReadInput(const string& ProfileName)
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
 }
 /////////////////////////////////////////////////////////////////////////////
-tuple<string, string, string> ReadProfileFile(const string& ProfileName)
+tuple<string, string, string, string> ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
-//  ActWthFileName, AgrInputFileName, bEnd, bLat, bLong, CO2EnrichmentFactor, DayEmerge,
+//  bEnd, bLat, bLong, CO2EnrichmentFactor, DayEmerge,
 //  DayEndCO2, DayFinish, DayPlant, DayStart, DayStartCO2, DayStartPlantMaps, DayStartSoilMaps,
 //  DayStopPlantMaps, DayStopSoilMaps, Elevation, isw, iyear, Latitude, Longitude, m_mulchdata, 
-//  MulchIndicator, nSiteNum, nVarNum, OutIndex, PlantmapFileName, PlantMapFreq, PlantsPerM, 
-//  PrdWthFileName, RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
+//  MulchIndicator, nSiteNum, nVarNum, OutIndex, PlantMapFreq, PlantsPerM, 
+//  RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
 //
 {
     fs::path strFileName = fs::path("profiles") / (ProfileName + ".pro"); // file name with path
@@ -184,6 +185,7 @@ tuple<string, string, string> ReadProfileFile(const string& ProfileName)
        AgrInputFileName = Dummy.substr(40,20);
        AgrInputFileName.erase(remove(AgrInputFileName.begin(), AgrInputFileName.end(), ' '), AgrInputFileName.end());
     }
+    string PlantmapFileName;
     if (nLength > 60)
     {
        PlantmapFileName = Dummy.substr(60);
@@ -316,7 +318,7 @@ tuple<string, string, string> ReadProfileFile(const string& ProfileName)
       }
 //     Call function OpenOutputFiles() to open the output files.
       OpenOutputFiles(m_fileDesc, ProfileName);
-      return make_tuple(AgrInputFileName, ActWthFileName, PrdWthFileName);
+      return make_tuple(ActWthFileName, PrdWthFileName, AgrInputFileName, PlantmapFileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
@@ -503,17 +505,17 @@ void InitializeGrid()
 	  }
 }
 //////////////////////////////////////////////////////////
-void WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& AgrInputFileName)
+void WriteInitialInputData(const string& ProfileName, const string& ActWthFileName, const string& PrdWthFileName, const string& AgrInputFileName, const string& PlantmapFileName)
 //     This function writes the input data to File20 (*.B01). It is executed once 
 //  at the beginning of the simulation. It is called by ReadInput().
 //
 //     The following global or file-scope variables are set here:
 //  DayEndMulch, DayStartMulch, MulchTranLW, MulchTranSW.
 //     The following global or file-scope variables are referenced here:
-//  ActWthFileName, AgrInputFileName, CO2EnrichmentFactor, DayEmerge, DayEndCO2, DayFinish, 
+//  CO2EnrichmentFactor, DayEmerge, DayEndCO2, DayFinish, 
 //  DayPlant, DayStart, DayStartCO2, Elevation, iyear, Latitude, Longitude, m_mulchdata, 
-//  maxk, MulchIndicator, OutIndex, PerPlantArea, PlantmapFileName, PlantsPerM, 
-//  PrdWthFileName, RowSpace, SiteName, SkipRowWidth, SoilHydFileName,
+//  maxk, MulchIndicator, OutIndex, PerPlantArea, PlantsPerM, 
+//  RowSpace, SiteName, SkipRowWidth, SoilHydFileName,
 //  SoilInitFileName, VarName.
 {
       ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);

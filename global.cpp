@@ -130,7 +130,6 @@
     std::string 
 	    Date,                // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
         FrameTitle,          // Name of the Job file, used for main frame window title.
-        PlantmapFileName,    // name of input file with plant map adjustment data.
         SoilHydFileName,     // name of input file with soil hydrology data.
         SoilInitFileName;    // name of input file with initial soil data.
 //

@@ -76,7 +76,6 @@ namespace fs = std::filesystem;
         }   Irrig[150];
 ////    Strings    //// 
 	extern std::string Date, FrameTitle,
-        PlantmapFileName,
         SoilHydFileName, SoilInitFileName; 
 ////    Integers    //// 
 	extern int DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef, DayOfSimulation,
