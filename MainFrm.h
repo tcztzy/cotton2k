@@ -6,7 +6,7 @@ class CMainFrame : public CFrameWnd
 {
 	DECLARE_DYNAMIC(CMainFrame)
 public:
-	CMainFrame();
+	CMainFrame(string);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual ~CMainFrame();
 #ifdef _DEBUG
@@ -19,5 +19,6 @@ protected:  // control bar embedded members
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	DECLARE_MESSAGE_MAP()
+private:
+	string _FrameTitle;
 };
-

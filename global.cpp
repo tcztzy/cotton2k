@@ -124,11 +124,6 @@
     // 1 - for plant height. 2 - for total site number. 3 - for square number.
     // 4 - for green boll number.  
 //
-// string variables:
-//
-    std::string
-        FrameTitle;          // Name of the Job file, used for main frame window title.
-//
 // double variables:
 //
 // A         

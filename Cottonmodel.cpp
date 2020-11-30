@@ -65,7 +65,7 @@ BOOL C2KApp::InitInstance()
 	if (JobFileName.GetLength() == 0)
         JobFileName = GetJobFile();
 //     Build and set title of the main frame.
-    FrameTitle = "";
+    string FrameTitle = "";
     CString Slash = "\\";
     int nLen = JobFileName.GetLength();
 //
@@ -76,7 +76,7 @@ BOOL C2KApp::InitInstance()
         FrameTitle = JobFileName[i] + FrameTitle;
     }
 //
-    CFrameWnd* pFrame = new CMainFrame;
+    CFrameWnd* pFrame = new CMainFrame(FrameTitle);
 	m_pMainWnd = pFrame;
 	if (!pFrame->LoadFrame(IDR_MAINFRAME))
 		return FALSE;

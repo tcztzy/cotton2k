@@ -17,8 +17,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame construction/destruction
-CMainFrame::CMainFrame()
+CMainFrame::CMainFrame(string FrameTitle)
 {
+	_FrameTitle = FrameTitle;
 }
 CMainFrame::~CMainFrame()
 {
@@ -38,7 +39,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 	cs.style = WS_OVERLAPPED | WS_CAPTION | FWS_ADDTOTITLE | WS_VISIBLE
 		| WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-    cs.lpszName = FrameTitle.c_str();
+    cs.lpszName = _FrameTitle.c_str();
 	return TRUE;
 }
 /////////////////////////////////////////////////////////////////////////////

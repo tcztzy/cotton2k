@@ -74,8 +74,6 @@ namespace fs = std::filesystem;
         int day, method, LocationColumnDrip, LocationLayerDrip; 
 	    double amount; 
         }   Irrig[150];
-////    Strings    //// 
-	extern std::string FrameTitle; 
 ////    Integers    //// 
 	extern int DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef, DayOfSimulation,
         Daynum, DayPlant, DayStartCO2, DayStartMulch, DayStartPlantMaps, 
