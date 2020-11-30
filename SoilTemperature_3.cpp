@@ -8,9 +8,15 @@
 //       HeatBalance()
 //       PredictEmergence()
 //
-#include "CottonSimulation.h"
+#include <fstream>
+#include "global.h"
 #include "GeneralFunctions.h"
 #include "Input.h"
+
+using namespace std;
+
+double ThermalCondSoil(double, double, int);
+void HeatBalance(int nn);
 
 //  arrays with file scope:
       double dz[maxl];  // equal to the dl array in a columnn, or wk in a row.

@@ -11,9 +11,17 @@
 // SoilNitrogenBal()
 // SoilNitrogenAverage()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
-#include <math.h>  
+#include <fstream>
+#include "global.h"
+
+using namespace std;
+
+void UreaHydrolysis(int, int);
+double SoilWaterEffect(int, int, double);
+void MineralizeNitrogen(int, int, const int&);
+double SoilTemperatureEffect(double);
+void Nitrification(int, int, double);
+void Denitrification(int, int);
 
 //////////////////////////
 /*                References for soil nitrogen routines:

@@ -10,8 +10,13 @@
 // output7()
 // OutputForSoilMaps()
 //
-#include "CottonSimulation.h"
+#include <filesystem>
+#include "global.h"
 #include "GeneralFunctions.h"
+
+namespace fs = std::filesystem;
+
+void OutputForSoilMaps(int, int, int, const string&);
 
 /////////////////////////////////////////////////////////////
 void outputplt(const string& ProfileName)

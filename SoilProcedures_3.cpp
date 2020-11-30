@@ -10,9 +10,14 @@
 // NitrogenFlow()
 // SoilSum()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+
+double PsiOnTranspiration(double);
+void NitrogenUptake(int, int, double);
+void WaterBalance(double[], double[], double[], int);
+// SoilProcedures_2
+double Drain();
 
 ////////////////////////////////////////////////////////////////////////////
 void GravityFlow(double applywat)       

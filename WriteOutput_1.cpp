@@ -8,9 +8,25 @@
 // WriteLine22()
 //
 #include <ctime>
-#include "CottonSimulation.h"
+#include <filesystem>
+#include <fstream>
+#include "global.h"
 #include "GeneralFunctions.h"
 #include "PlantAdjustment.h"
+
+namespace fs = std::filesystem;
+
+void output1(const string&, const string&);
+void WriteLine22(ofstream&, double, double, double);
+// Out this file
+void cotplt(int, const string&, const string&);
+void outputplt(const string&);
+void output2(const string&);
+void output3(const string&);
+void output4(const string&);
+void output5(const string&);
+void output6(const string&);
+void output7(const string&, const int&);
 
 /////////////////////////////////////////////////////////////
 void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
@@ -579,4 +595,3 @@ void WriteLine22(ofstream &File22, double i00, double i01, double i02)
 			File22.width(6);
 			File22 << LintYield << endl;
 }
-

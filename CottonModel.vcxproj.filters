@@ -166,6 +166,18 @@
     <ClInclude Include="RootGrowth.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PlantNitrogen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoilNitrogen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoilProcedures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoilTemperature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\CottonModel.ico">

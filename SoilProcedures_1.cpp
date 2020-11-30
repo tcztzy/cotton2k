@@ -12,8 +12,24 @@
 // AveragePsi()
 // WaterTable()
 //
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
+
+void RootsCapableOfUptake();
+void ApplyFertilizer();
+void ComputeIrrigation(const string&);
+double GetTargetStress();
+void PredictDripIrrigation(double);
+void PredictSurfaceIrrigation(double);
+void OutputPredictedIrrigation(double, double, const string&);
+double AveragePsi();
+void WaterTable();        // WATERTBL
+// SoilProcedure_2
+void CapillaryFlow(const int&);
+void DripFlow(double);
+// SoilProcedures_3
+void WaterUptake();       // UPTAKE
+void GravityFlow(double);
 
 //////////////////////////
 void SoilProcedures(const string& ProfileName, const int& DayStart)

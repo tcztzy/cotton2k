@@ -12,8 +12,19 @@
 // NitrogenUptakeRequirement()
 // PlantNitrogenBal()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
+#include <fstream>
+#include "global.h"
+
+using namespace std;
+
+void NitrogenRequirement(const string&);
+void NitrogenSupply(const string&);
+double PetioleNitrateN();
+void NitrogenAllocation();
+void ExtraNitrogenAllocation();
+void PlantNitrogenContent();
+void GetNitrogenStress();
+void NitrogenUptakeRequirement();
 
 //  File scope variables
       double burres; // reserve N in burrs, in g per plant.

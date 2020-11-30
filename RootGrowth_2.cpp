@@ -11,9 +11,12 @@
 // RootCultivation()
 // RootSummation()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
-#include <math.h>
+#include <fstream>
+#include "global.h"
+
+using namespace std;
+
+double SoilTemOnRootGrowth(double);
 
 //////////////////////////////////////////////////
 void RedistRootNewGrowth(int l, int k, double addwt)

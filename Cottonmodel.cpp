@@ -18,13 +18,18 @@
 #include "stdafx.h"
 #include "Cottonmodel.h"
 #include "MainFrm.h"
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
 #include "CottonPhenology.h"
 #include "DailyClimate.h"
 #include "Input.h"
+#include "Output.h"
 #include "PlantAdjustment.h"
 #include "PlantGrowth.h"
+#include "PlantNitrogen.h"
+#include "SoilNitrogen.h"
+#include "SoilProcedures.h"
+#include "SoilTemperature.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //    Class C2KApp

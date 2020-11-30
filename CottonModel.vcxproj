@@ -371,8 +371,12 @@
     <ClInclude Include="Output.h" />
     <ClInclude Include="PlantAdjustment.h" />
     <ClInclude Include="PlantGrowth.h" />
+    <ClInclude Include="PlantNitrogen.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RootGrowth.h" />
+    <ClInclude Include="SoilNitrogen.h" />
+    <ClInclude Include="SoilProcedures.h" />
+    <ClInclude Include="SoilTemperature.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>

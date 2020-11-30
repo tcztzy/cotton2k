@@ -6,9 +6,14 @@
 // DripFlow()    
 // CellDistance()
 // 
-#include "CottonSimulation.h"
+#include "global.h"
 #include "GeneralFunctions.h"
-#include <math.h>
+
+double Drain();
+double CellDistance(int, int, int, int);
+// SoilProcedures_3
+void WaterFlux(double[], double[], double[], double[], double[], double[], int, int, int, long);
+void NitrogenFlow(int, double[], double[], double[], double[], double[]);
 
 //////////////////////////
 void CapillaryFlow(const int& DayStart)

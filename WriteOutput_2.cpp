@@ -5,8 +5,15 @@
 // sitecode()
 // bollsize()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
+#include <filesystem>
+#include <fstream>
+#include "global.h"
+
+using namespace std;
+namespace fs = std::filesystem;
+
+void sitecode();
+void bollsize();
 
 // File scope variables:
 double bsize[3][30][5]; // average boll size (g seeds + lint per boll)

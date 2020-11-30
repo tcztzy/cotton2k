@@ -6,10 +6,18 @@
 //       SoilSurfaceBalance()
 //       SoilMulchBalance()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
-#include <math.h>
+#include "global.h"
 #include "DailyClimate.h"
+
+using namespace std;
+
+double SensibleHeatTransfer(double, double, double, double);
+bool SoilMulchBalance(int, int, double, double, double, double, double&, double&, double&, double, double&, double, double);
+void SoilSurfaceBalance(int, int, double, double, double, double, double, double&, double&, double&, double, double, double);
+// SoilTemperature_3
+void CanopyBalance(int, int, double, double, double, double, double, double, double, double, double&);
+double ThermalCondSoil(double, double, int);
+void MulchSurfaceBalance(int, int, double, double, double, double, double, double, double, double, double&, double);
 
 //////////////////////////
 void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)

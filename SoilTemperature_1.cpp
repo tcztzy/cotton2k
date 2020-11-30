@@ -4,9 +4,17 @@
 //       SoilTemperature()
 //       SoilTemperatureInit()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
-#include <math.h>
+#include <fstream>
+#include "global.h"
+
+using namespace std;
+
+void   SoilTemperatureInit(int& jt1, int& jt2, const string& ProfileName, const int& DayStart);
+// SoilTemperature_2
+void EnergyBalance(int, int, bool, double, double);
+// SoilTemperature_3
+void SoilHeatFlux(double, int, int, int, int);
+void PredictEmergence(int, const string&);
 
 //////////////////////////
 void ColumnShading()      

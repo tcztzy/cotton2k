@@ -10,9 +10,25 @@
 // SoilWaterOnRootGrowth()
 // ComputeActualRootGrowth()
 //
-#include "CottonSimulation.h"
-#include "GeneralFunctions.h"
-#include <math.h>
+#include "global.h"
+
+using namespace std;
+
+void RootImpedance();
+double SoilTemOnRootGrowth(double);
+double SoilMechanicResistance(int, int);
+double SoilAirOnRootGrowth(double, double, double);
+double SoilNitrateOnRootGrowth(double);
+double SoilWaterOnRootGrowth(double);
+void RedistRootNewGrowth(int, int, double);
+void TapRootGrowth();
+void InitiateLateralRoots();
+void LateralRootGrowthLeft(int);
+void LateralRootGrowthRight(int);
+void RootAging(int, int);
+void RootDeath(int, int);
+void RootCultivation(int);
+void RootSummation(const string&);
 
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
