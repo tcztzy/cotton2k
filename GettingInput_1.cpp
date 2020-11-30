@@ -85,7 +85,7 @@ tuple<int, int, string, string, string, string, string, string> ReadProfileFile(
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
-//  bEnd, bLat, bLong, CO2EnrichmentFactor, DayEmerge,
+//  bLat, bLong, CO2EnrichmentFactor, DayEmerge,
 //  DayEndCO2, DayFinish, DayPlant, DayStart, DayStartCO2, DayStartPlantMaps, DayStartSoilMaps,
 //  DayStopPlantMaps, DayStopSoilMaps, Elevation, isw, iyear, Latitude, Longitude, m_mulchdata, 
 //  MulchIndicator, nSiteNum, nVarNum, OutIndex, PlantMapFreq, PlantsPerM, 

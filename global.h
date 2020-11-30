@@ -93,7 +93,7 @@ namespace fs = std::filesystem;
         NumFruitBranches[3], NumNodes[3][30], OutIndex[24], pixday[10], pixmth[10],
         RootColNumLeft[maxl], RootColNumRight[maxl], SoilHorizonNum[maxl];
 ////    Boolean    //// 
-    extern bool bEnd, bPollinSwitch, nadj[5];
+    extern bool bPollinSwitch, nadj[5];
 ////    Double    //// 
     extern double AbscisedFruitSites, AbscisedLeafWeight, ActualBollGrowth, ActualBurrGrowth, 
         ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl, 
@@ -198,6 +198,21 @@ public:
 
     FileNotOpened(const fs::path filePath) noexcept
         : Cotton2KException("Can't open " + filePath.string() + ".")
+    {
+    }
+};
+class SimulationEnd
+    : public std::exception
+{
+public:
+
+    SimulationEnd() noexcept
+        : std::exception("Simulation end.", 1)
+    {
+    }
+
+    SimulationEnd(const std::string& _Message) noexcept
+        : std::exception(_Message.c_str(), 1)
     {
     }
 };

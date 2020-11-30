@@ -337,7 +337,7 @@ void GetNetPhotosynthesis()            // computes net photosynthesis.
 //       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept, PerPlantArea, 
 //       PlantWeight, ptsred, StemWeight, TotalLeafWeight. 
 //     The following global variables are set here:      
-//       bEnd, CumNetPhotosynth, NetPhotosynthesis.
+//       CumNetPhotosynth, NetPhotosynthesis.
 {
 //  constants:
       const double gsubr = 0.375; // the growth resiration factor.
@@ -354,11 +354,8 @@ void GetNetPhotosynthesis()            // computes net photosynthesis.
 //  are derived from data of the Carbon Dioxide Information Analysis Center (CDIAC).
 //
 //     Exit the function and end simulation if there are no leaves.
-      if ( TotalLeafWeight <= 0 ) 
-      {
-          bEnd = true;
-		  return;
-      }
+      if ( TotalLeafWeight <= 0 )
+          throw SimulationEnd();
 //     If this is the first time the function is executed, get the ambient CO2 correction.
       static double AmbientCO2Factor; // correction factor for ambient CO2 in air
       if ( Daynum <= DayEmerge )

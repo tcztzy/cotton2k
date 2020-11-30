@@ -12,7 +12,7 @@
 using namespace std;
 
 double SensibleHeatTransfer(double, double, double, double);
-bool SoilMulchBalance(int, int, double, double, double, double, double&, double&, double&, double, double&, double, double);
+void SoilMulchBalance(int, int, double, double, double, double, double&, double&, double&, double, double&, double, double);
 void SoilSurfaceBalance(int, int, double, double, double, double, double, double&, double&, double&, double, double, double);
 // SoilTemperature_3
 void CanopyBalance(int, int, double, double, double, double, double, double, double, double, double&);
@@ -39,7 +39,7 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
 //       AirTemp, albedo, CloudCoverRatio, CloudTypeCorr, FieldCapacity, MulchTemp, MulchTranSW,
 //       PlantHeight, Radiation, RelativeHumidity, rracol, SitePar, thad, VolWaterContent, WindSpeed.
 //    The following global variables are set here:
-//       bEnd, SoilTemp, FoliageTemp, MulchTemp.
+//       SoilTemp, FoliageTemp, MulchTemp.
 {
 //     Constants used:
 	  const double stefa1 = 1.38e-12;  // Stefan-Boltsman constant.
@@ -125,8 +125,6 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
 //  for sensible heat transfer: 2 sides of leaf plus stems and petioles.
          double varcc;   // sensible heat transfer coefficient for soil
          varcc = SensibleHeatTransfer(tv, tafk, PlantHeight, wndhr); // canopy to air
-	     if(bEnd)
-			 return;
          rocp = 0.08471 / tafk;
 	     c2 = 2.2 * sf * rocp * varcc;
       }
@@ -143,9 +141,7 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
 	      {
 //     This section executed for mulched columns: call SoilMulchBalance() for soil / mulch interface.
              tmold = tm;
-             bEnd = SoilMulchBalance (ihr, k, rlzero, rsm, rss, sf, so, so2, so3, thet, tm, tv, wndcanp);
-	         if(bEnd)
-			    return;
+             SoilMulchBalance (ihr, k, rlzero, rsm, rss, sf, so, so2, so3, thet, tm, tv, wndcanp);
 	      }
 	      else
 	      {
@@ -154,14 +150,10 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
              tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
              double varc; // sensible heat transfer coefficientS for soil
              varc = SensibleHeatTransfer(so, tafk, 0, wndcanp);
-	         if(bEnd)
-			     return;
              rocp = 0.08471 / tafk;
              double hsg = rocp * varc; // multiplier for computing sensible heat transfer soil to air. 
 //     Call SoilSurfaceBalance() for energy balance in soil surface / air interface.
 		     SoilSurfaceBalance (ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, 0, tv);
-	         if(bEnd)
-			     return;
 	      }
 //
           if (sf >= 0.05)
@@ -181,11 +173,8 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
 	           tv = 0.5 * (tv + tvold);
 		     }
              if (menit > 30)
-		     {
 //     If more than 30 iterations are needed - stop simulation.
-			     bEnd = true;
-	             return;
-		     }
+                 throw SimulationEnd();
           }  // end if sf
       } while (fabs(tv - tvold) > 0.05 || fabs(so - soold) > 0.05 || fabs(tm - tmold) > 0.05);
 //     After convergence - set global variables for the following temperatures:
@@ -214,7 +203,6 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height, double w
 //       height - canopy height, cm, or zero for soil surface and mulch boundaries.
 //     The return value computed in this function:
 //       sensibleHeatTransfer - raw sensible heat transfer coefficient
-//     Global variable set:   bEnd
 {
 //	    Constant values used:
       const double grav = 980;       // acceleration due to gravity (980 cm sec-2).
@@ -331,7 +319,7 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height, double w
              msg += " PlantHeight = " + (string) C1 + "\n";
              sprintf(C1, "%10.3g", u);
              msg += " u = " + (string) C1 + "\n";
-		 throw Cotton2KException(msg);
+		 throw SimulationEnd(msg);
          }
 //     Compute ug1 and  ug1res to check convergence
          ug1 = ustar / g1; 
@@ -355,7 +343,6 @@ void SoilSurfaceBalance (int ihr, int k, double ess, double rlzero, double rss, 
 //
 //     The following global variables are referenced here:
 //       Daynum, dl, MulchTranLW, VolWaterContent.
-//     The following global variable is set here:      bEnd.
 //     The following arguments are set in this function:
 //       so - temperature of soil surface.
 //       so2 - temperature of soil 2nd layer
@@ -501,10 +488,10 @@ void SoilSurfaceBalance (int ihr, int k, double ess, double rlzero, double rss, 
       msg += " so2 = " + (string) C1 + "\n";
       sprintf(C1, "%10.3g", so3);
       msg += " so3 = " + (string) C1 + "\n";
-	throw Cotton2KException(msg);
+	throw SimulationEnd(msg);
 }
 /////////////////////////////////////////
-bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, double sf,
+void SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, double sf,
 	double &so, double &so2, double &so3, double thet, double &tm, double tv, double wndcanp)
 //     This function solves the energy balance equations at the interface of the soil 
 //  surface and the plastic mulch cover and computes the resulting temperatures of the 
@@ -516,7 +503,7 @@ bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
 //     If the return value is true, it means there was an error and simulation will end.
 //
 //     The following global variables are referenced here:
-//       bEnd, Daynum, MulchTranLW, .
+//       Daynum, MulchTranLW.
 //     The following arguments are set in this function:
 //       so - temperature of soil surface.
 //       so2 - temperature of soil 2nd layer
@@ -561,8 +548,6 @@ bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
 //     Call SensibleHeatTransfer() to compute sensible heat transfer between plastic mulch and air
       double varcm; // sensible heat transfer coefficients for mulch to air (before multiplying by ROCP).
       varcm = SensibleHeatTransfer(tm, tafk, 0, wndcanp);
-	  if (bEnd)
-		  return true;
 //
       double hsgm; // multiplier for computing sensible heat transfer from soil to mulch.
       double hsgp; // multiplier for computing sensible heat transfer from mulch to air.
@@ -583,16 +568,12 @@ bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
 //     Energy balance for soil surface (mulch interface)
           hsgm = 2 * rocp * fabs(so - tm);
 	      SoilSurfaceBalance (ihr, k, 0, rlzero, rss, sf, hsgm, so, so2, so3, thet, tm, tv);
-	      if (bEnd)
-		      return true;
 //     Add Long wave radiation reaching the mulch from the soil:
           double rlsp; // total long wave radiation reaching the mulch.
           rlsp = rlsp0 + (1 - MulchTranLW) * eg * stefa1 * pow(so, 4);
 //     Energy balance for mulch (soil and air interface)
           hsgm = 2 * rocp * fabs(so - tm);
           MulchSurfaceBalance (ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, so, thet, tm, tv);
-	      if (bEnd)
-		      return true;
 //     Check number of iterations - do not exceed 30 iterations.
           mtnit++;
           if (mtnit > 8)
@@ -610,9 +591,7 @@ bool SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
               msg += " so      = " + (string) C1 + "\n";
               sprintf(C1, "%10.3g", tm);
               msg += " tm = " + (string) C1 + "\n";
-	        throw Cotton2KException(msg);
+	        throw SimulationEnd(msg);
 	      }
       } while (fabs(tm - tmold1) > 0.05 || fabs(so - soold1) > 0.05);
-//
-      return false;
 }

@@ -214,27 +214,27 @@ tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date, co
 //        DoAdjustments(), SimulateThisDay(), WriteStateVariables()
 //
 //     The following global variable are referenced:   DayStart, Kday.
-//     The following global variable are set:   bEnd, Daynum.
+//     The following global variable are set:   Daynum.
 //
 {
-      string date = Date;
-      Daynum = DayStart - 1;
-	  bEnd = FALSE;
-//     Start the daily loop. If variable bEnd has been assigned a value
-//  of TRUE end simulation.
-	  while (! bEnd)
-	  {
-         BOOL bAdjustToDo;
-         tie(bAdjustToDo, date) = DoAdjustments(ProfileName, date, DayStart, DayFinish);
-         pdlg->ProgressStepit();
-//     Execute simulation for this day.
-         tie(date) = SimulateThisDay(ProfileName, DayStart, DayFinish);
-//     If there are pending plant adjustments, call WriteStateVariables() to write
-//  state variables of this day in a scratch file.
-         if (bAdjustToDo)
-		        WriteStateVariables(TRUE, date);  
-	  } // end while
-      return make_tuple(date);
+    string date = Date;
+    Daynum = DayStart - 1;
+	try
+	{
+        while (true)
+        {
+            BOOL bAdjustToDo;
+            tie(bAdjustToDo, date) = DoAdjustments(ProfileName, date, DayStart, DayFinish);
+            pdlg->ProgressStepit();
+            tie(date) = SimulateThisDay(ProfileName, DayStart, DayFinish);
+            // If there are pending plant adjustments, call WriteStateVariables() to write
+            // state variables of this day in a scratch file.
+            if (bAdjustToDo)
+	            WriteStateVariables(TRUE, date);
+        }
+	}
+    catch (SimulationEnd){}
+    return make_tuple(date);
 }
 ///////////////////////////////////////////////////////////////////////////////
 tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& DayStart, const int& DayFinish)
@@ -304,7 +304,7 @@ tuple<string> C2KApp::SimulateThisDay(string ProfileName, const int& DayStart, c
 //  DayStart, iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex, pixday.
 //
 //     The following global variables are set here:
-//  bEnd, Date, DayInc, Daynum, DayOfSimulation, isw, Kday.
+//  Date, DayInc, Daynum, DayOfSimulation, isw, Kday.
 //
 {
 //    Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
@@ -353,11 +353,10 @@ tuple<string> C2KApp::SimulateThisDay(string ProfileName, const int& DayStart, c
       DailyOutput(ProfileName, Date, DayFinish);
 //     Check if the date to stop simulation has been reached, or if this is the last day
 //  with available weather data. Simulation will also stop when no leaves remain on the plant.
-//  bEnd = TRUE  indicates stopping this simulation.
 //
-      if ( Daynum >= DayFinish || Daynum >= LastDayWeatherData 
-           || (Kday > 10 && LeafAreaIndex < 0.0002) )
-		  bEnd = TRUE;
+      if (Daynum >= DayFinish || Daynum >= LastDayWeatherData
+          || (Kday > 10 && LeafAreaIndex < 0.0002))
+          throw SimulationEnd();
       return make_tuple(Date);
 }
 /////////////////////////////////////////////////////////////////////////////

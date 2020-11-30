@@ -117,7 +117,7 @@ void SoilTemperature(const string& ProfileName, const int& DayStart, const int& 
 //       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
-//       ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es, SoilTemp, 
+//       ActualSoilEvaporation, CumEvaporation, DeepSoilTemperature, es, SoilTemp, 
 //       SoilTempDailyAvrg, VolWaterContent, 
 {
 	  static int jt1, jt2;  //  Julian dates for start and end of output.
@@ -226,8 +226,6 @@ void SoilTemperature(const string& ProfileName, const int& DayStart, const int& 
 			}
 //     Call EnergyBalance to compute soil surface and canopy temperature.
             EnergyBalance (ihr, k, bMulchon, ess, etp1);
-	        if(bEnd) 
-				return;
 	        if (bMulchon) 
 			{
                tmav += MulchTemp[k] - 273.161;

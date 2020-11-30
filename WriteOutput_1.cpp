@@ -331,9 +331,8 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& DayFi
 //
 //     4. Call output1() to write output to F01 and S01 files:
       output1(ProfileName, Date);
-//     Check for end of the simulation and assign true to bEnd.
-      if ( Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData ) 
-          bEnd = true;
+      if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)
+          throw SimulationEnd();
 }
 //////////////////////////
 void output1(const string& ProfileName, const string& Date)
