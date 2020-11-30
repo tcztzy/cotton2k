@@ -489,14 +489,14 @@ void HeatBalance( int nn )
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////////
-void PredictEmergence(int hour, const string& ProfileName)
+tuple<int> PredictEmergence(int hour, const string& ProfileName, const int& dayEmerge)
 //     This function predicts date of emergence. It is called from SoilTemperature().
 //     There is one referenced argument (hour).
 //
 //     The following global variables are referenced here:
 //       Daynum, dl, iyear, DayPlant, PlantRowColumn, nl, SoilPsi, SoilTemp.
 //     The following global variables are set here:
-//       DayEmerge, isw, Kday.
+//       isw, Kday.
 //
 {
       const double dpl = 5; // depth of planting, cm (assumed 5).
@@ -504,6 +504,7 @@ void PredictEmergence(int hour, const string& ProfileName)
       static double HypocotylLength;  // length of hypocotyl, cm.
       static double SeedMoisture;     // moisture content of germinating seeds, percent.
       static int nSeedLayer;          // layer number where the seeds are located.
+      int DayEmerge = dayEmerge;
 //     Define some initial values on day of planting.
       if ( Daynum == DayPlant && hour == 0)
 	  {
@@ -562,7 +563,7 @@ void PredictEmergence(int hour, const string& ProfileName)
             SeedMoisture += dw;
          else
             SeedMoisture = 100;
-         return;
+         return make_tuple(DayEmerge);
 	  }
 //
 //     Phase 2 of of germination - hypocotyl elongation.
@@ -576,7 +577,7 @@ void PredictEmergence(int hour, const string& ProfileName)
       if ( xt < 0 && te < 14 )
 	  {
          DelayOfEmergence += xt / 2;
-         return;
+         return make_tuple(DayEmerge);
 	  }
       else
 	  {
@@ -585,7 +586,7 @@ void PredictEmergence(int hour, const string& ProfileName)
             if ( DelayOfEmergence + xt < 0 )
 			{
                DelayOfEmergence += xt;
-               return;
+               return make_tuple(DayEmerge);
 			}
             else
 			{
@@ -612,4 +613,5 @@ void PredictEmergence(int hour, const string& ProfileName)
          ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);
 		 File22 << " Predicted Germination on " << gerday << " (Day of Year = " << DayEmerge << " )" << endl;
       }
+      return make_tuple(DayEmerge);
 }

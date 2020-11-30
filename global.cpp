@@ -33,7 +33,6 @@
 // Integer variables: 
 //
 	int CultivationDate[5],  // Dates (DOY) of cultivatrion.
-        DayEmerge,           // Date of emergence (DOY).
         DayEndCO2,           // Last date (DOY) with CO2 enrichment.
         DayEndMulch,         // date (DOY) for ending of mulch.
 	    DayFirstDef,         // Date (DOY) of first defoliation.

@@ -384,14 +384,14 @@ double SoilWaterOnRootGrowth(double psislk)
       return smf;
 }
 //////////////////////////
-void ComputeActualRootGrowth(double sumpdr, const string& ProfileName)
+void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& DayEmerge)
 //     This function calculates the actual root growth rate. It is called from function 
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(), 
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), 
 //	RootCultivation(), RootDeath(), RootSummation(), TapRootGrowth().
 //
 //     The following global variables are referenced here:
-//       CarbonAllocatedForRootGrowth, cgind, CultivationDate, DayEmerge, Daynum, DepthLastRootLayer, 
+//       CarbonAllocatedForRootGrowth, cgind, CultivationDate, Daynum, DepthLastRootLayer, 
 //       dl, ExtraCarbon, LateralRootFlag, LastTaprootLayer, nk, nl, NumLayersWithRoots,
 //       NumRootAgeGroups, PerPlantArea, pixcon, PlantRowColumn, PotGroRoots, RootAge, 
 //       RootNConc, RowSpace, TapRootLength, wk.

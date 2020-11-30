@@ -545,12 +545,12 @@ void Pix()        // effects of pix applied.
 //  ***   to be added   ***
 }
 //////////////////////////
-void Defoliate(const string& ProfileName, const string& Date)
+void Defoliate(const string& ProfileName, const string& Date, const int& DayEmerge)
 //     This function simulates the effects of defoliating chemicals
 //  applied on the cotton. It is called from SimulateThisDay().
 //
 //     The following global variables are referenced here:
-//       AvrgDailyTemp, Date, DayEmerge, Daynum, LeafAreaIndex, LightIntercept,
+//       AvrgDailyTemp, Date, Daynum, LeafAreaIndex, LightIntercept,
 //       NumGreenBolls, NumOpenBolls, LwpMin.
 //
 //     The following global variables are set here:

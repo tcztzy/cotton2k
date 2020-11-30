@@ -16,11 +16,11 @@
 
 namespace fs = std::filesystem;
 
-void output1(const string&, const string&);
+void output1(const string&, const string&, const int&);
 void WriteLine22(ofstream&, double, double, double);
 // Out this file
 void cotplt(int, const string&, const string&);
-void outputplt(const string&);
+void outputplt(const string&, const int&);
 void output2(const string&);
 void output3(const string&);
 void output4(const string&);
@@ -29,7 +29,7 @@ void output6(const string&);
 void output7(const string&, const int&, const int&);
 
 /////////////////////////////////////////////////////////////
-void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
+void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName, const int& DayEmerge)
 //     This function opens the output files that will be used by
 //  this simulation. It is called from function ReadProfileFile().
 //
@@ -276,7 +276,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(const string& ProfileName, const string& Date, const int& DayFinish)
+void DailyOutput(const string& ProfileName, const string& Date, const int& DayEmerge, const int& DayFinish)
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -330,17 +330,17 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& DayFi
          }
 //
 //     4. Call output1() to write output to F01 and S01 files:
-      output1(ProfileName, Date);
+      output1(ProfileName, Date, DayEmerge);
       if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)
           throw SimulationEnd();
 }
 //////////////////////////
-void output1(const string& ProfileName, const string& Date)
+void output1(const string& ProfileName, const string& Date, const int& DayEmerge)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
 //
 //     The following global variables are referenced here:
-//       AbscisedFruitSites, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, isw, Kday, 
+//       AbscisedFruitSites, Date, Daynum, FirstBloom, FirstSquare, isw, Kday, 
 //       LeafAreaIndex, LastDayWeatherData, LintYield, MainStemNodes, NumFruitSites, NumGreenBolls, 
 //       NumOpenBolls, NumSquares, OutIndex, PlantHeight, PlantPopulation
 {
@@ -449,7 +449,7 @@ void output1(const string& ProfileName, const string& Date)
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-tuple<string> DataOutput(const string& ProfileName, const string& Date, const int& DayStart, const int& DayFinish)
+tuple<string> DataOutput(const string& ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),
@@ -549,7 +549,7 @@ tuple<string> DataOutput(const string& ProfileName, const string& Date, const in
       File22 << " Max yield on    " << date;
 	  WriteLine22(File22, i00, i01, i02);
 //     Call procedures for printing output
-      outputplt(ProfileName);
+      outputplt(ProfileName, DayEmerge);
       if ( OutIndex[6] > 0 ) 
 		   output2(ProfileName);
       if ( OutIndex[3] > 0 )

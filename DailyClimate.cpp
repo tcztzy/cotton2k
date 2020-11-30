@@ -64,7 +64,7 @@ void DayClim(const string& ProfileName, const string& Date, const int& DayStart,
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
 //     daytemp(), EvapoTranspiration(), tdewhour(), dayrh(), daywnd()
 //         Global variables referenced:
-//    Daynum, DayFinish, DayStart, declination, LastDayWeatherData, Latitude, 
+//    DayStart, declination, LastDayWeatherData, Latitude, 
 //    OutIndex, pi, SitePar
 //         Global variables set:
 //    AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed

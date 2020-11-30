@@ -328,12 +328,12 @@ double LeafResistance( double agel )
       return leafResistance;
 }
 ////////////////////////////////
-void GetNetPhotosynthesis()            // computes net photosynthesis.
+void GetNetPhotosynthesis(const int& DayEmerge)            // computes net photosynthesis.
 //     This function simulates the net photosynthesis of cotton  plants. It is called 
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
 //       BurrWeightOpenBolls, CO2EnrichmentFactor, CottonWeightOpenBolls, 
-//       DayLength, Daynum, DayEmerge, DayEndCO2, DayStartCO2, 
+//       DayLength, Daynum, DayEndCO2, DayStartCO2, 
 //       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept, PerPlantArea, 
 //       PlantWeight, ptsred, StemWeight, TotalLeafWeight. 
 //     The following global variables are set here:      
@@ -442,7 +442,7 @@ void GetNetPhotosynthesis()            // computes net photosynthesis.
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-void PlantGrowth(const string& ProfileName, const string& Date)
+void PlantGrowth(const string& ProfileName, const string& Date, const int& DayEmerge)
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -535,7 +535,7 @@ void PlantGrowth(const string& ProfileName, const string& Date)
 //     Call AddPlantHeight to compute PlantHeight.
       PlantHeight += AddPlantHeight(denf2);
 //     Call ActualRootGrowth() to compute actual root growth.
-      ComputeActualRootGrowth(sumpdr, ProfileName);
+      ComputeActualRootGrowth(sumpdr, ProfileName, DayEmerge);
 //     Output data to file *.CHB
       if (OutIndex[18] > 0) 
 	  {

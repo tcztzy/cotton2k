@@ -18,7 +18,7 @@
 #include "GeneralFunctions.h"
 
 void PreFruitingNode(double);
-double DaysToFirstSquare();
+double DaysToFirstSquare(const int&);
 void CreateFirstSquare(double);
 void AddVegetativeBranch(double, double, double);
 void AddFruitingBranch(int, double, double);
@@ -44,7 +44,7 @@ void BollOpening(int, int, int, double);
 //	        AdjustAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-void CottonPhenology()     
+void CottonPhenology(const int& DayEmerge)     
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -95,7 +95,7 @@ void CottonPhenology()
 //  formation of prefruiting nodes.
       if (FirstSquare <= 0)
       {
-         DaysTo1stSqare = DaysToFirstSquare(); 
+         DaysTo1stSqare = DaysToFirstSquare(DayEmerge); 
          PreFruitingNode(stemNRatio);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
@@ -201,11 +201,11 @@ void PreFruitingNode(double stemNRatio)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-double DaysToFirstSquare()
+double DaysToFirstSquare(const int& DayEmerge)
 //     This function computes and returns tsq1, the number of days from emergence to first
 //  square. It is called from CottonPhenology().
 //     The following global variables are referenced here:
-//        AvrgDailyTemp, DayEmerge, Daynum, Kday, NStressVeg, VarPar, WaterStress.
+//        AvrgDailyTemp, Daynum, Kday, NStressVeg, VarPar, WaterStress.
 //
 {
 //     The following constant parameters are used:

@@ -19,13 +19,13 @@ namespace fs = std::filesystem;
 void OutputForSoilMaps(int, int, int, const string&);
 
 /////////////////////////////////////////////////////////////
-void outputplt(const string& ProfileName)
+void outputplt(const string& ProfileName, const int& DayEmerge)
 //     This function writes the output file that will be used to plot
 //  plant charts at the end of the simulation. It is called from DataOutput().
 //     The values of the variables to plot are taken from structure Scratch21.
 //
 //     The following global variables are referenced here:
-//  DayEmerge, OutIndex, PlantPopulation, RowSpace.
+//  OutIndex, PlantPopulation, RowSpace.
 {
 //     indexPLT indicates what type of data to write in the .PLT file:
 //  indexPLT = 0 : metric (OutIndex(1)=0),  weights and numbers per plant (OutIndex(2)=0)
@@ -526,7 +526,7 @@ void output7(const string& ProfileName, const int& DayStart, const int& DayFinis
 //  if the simulation is ended.
 //
 //     The following global variables are referenced:
-//       DayEmerge, DayFinish, DayStartSoilMaps, DayStopSoilMaps, SoilMapFreq,
+//       DayStartSoilMaps, DayStopSoilMaps, SoilMapFreq,
 {
       for (int nDaynum = DayStartSoilMaps; nDaynum <= DayStopSoilMaps; nDaynum++ )
 	  {

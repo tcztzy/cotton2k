@@ -32,14 +32,14 @@ void WaterUptake();       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(const string& ProfileName, const int& DayStart)
+void SoilProcedures(const string& ProfileName, const int& DayEmerge, const int& DayStart)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
 //  GravityFlow(), RootsCapableOfUptake(), WaterUptake(), WaterTable()
 //
 //     The following global variables are referenced here:
-//       ActualTranspiration, Clim, DayEmerge, Daynum, DayStartPredIrrig, DayStopPredIrrig, 
+//       ActualTranspiration, Clim, Daynum, DayStartPredIrrig, DayStopPredIrrig, 
 //       dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk, nl, NumIrrigations, 
 //       NumWaterTableData, OutIndex, PerPlantArea, SoilPsi, RowSpace, SupplyNH4N, SupplyNO3N, 
 //       VolWaterContent, wk.
