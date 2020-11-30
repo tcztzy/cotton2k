@@ -519,7 +519,7 @@ void output6(const string& ProfileName)
 	  File22 << LintYield * 0.893 / 500 << endl;
 }
 ///////////////////////
-void output7(const string& ProfileName, const int& DayStart)
+void output7(const string& ProfileName, const int& DayStart, const int& DayFinish)
 //     This function is called by DataOutput(). It writes soil map output by calling
 //  OutputForSoilMaps(). If the day of year is between DayStartSoilMaps and DayStopSoilMaps,
 //  the following will be executed at SoilMapFreq day intervals. It will also be executed 

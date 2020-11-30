@@ -177,18 +177,17 @@ void C2KApp::GetProfilesList(fs::path JobFileName)
 void C2KApp::RunTheModel()
 //     This function calls the following functions for each profile: 
 //          ReadInput(), DailySimulation() and  DataOutput()
-//     Global variables set: ProfileName 
-//     Global variables referenced:  DayFinish, DayStart 
 //
 {
     string ProfileName; // name of input file with profile data (without the extension ".PRO").
     string Date;        // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
     int DayStart;       // Date (DOY) to start simulation.
+    int DayFinish;
     for (int i = 0; i < ProfileArray.GetSize(); i++)
     {
 		ProfileName = ProfileArray.GetAt(i);
 //     Read the input data for this simulation
-        tie(DayStart) = ReadInput(ProfileName);
+        tie(DayStart, DayFinish) = ReadInput(ProfileName);
 //     Create a modeless dialog with progress control
         int range = DayFinish - DayStart + 1;
         pdlg = new CProgCtrlDlg;
@@ -197,10 +196,10 @@ void C2KApp::RunTheModel()
         pdlg->m_Running = "Running the Simulation";
         pdlg->Create();
 //     Do daily simulations
-        tie(Date) = DailySimulation(ProfileName, Date, DayStart);
+        tie(Date) = DailySimulation(ProfileName, Date, DayStart, DayFinish);
 //     Write output data
         pdlg->m_Running = "Writing Output Files";
-        tie(Date) = DataOutput(ProfileName, Date, DayStart);
+        tie(Date) = DataOutput(ProfileName, Date, DayStart, DayFinish);
         pdlg->EndDialog(i);
         delete pdlg;  //  check if needed
     }
@@ -208,7 +207,7 @@ void C2KApp::RunTheModel()
     AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. " );
 }
 ////////////////////////////////////////////////////////////////////////////////
-tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date, const int& DayStart)
+tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date, const int& DayStart, const int& DayFinish)
 //     This function controls the dynamic phase of the simulation, allowing
 //  for in-run adjustments when there is an input of plant map adjustments.
 //     It calls the functions:
@@ -226,10 +225,10 @@ tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date, co
 	  while (! bEnd)
 	  {
          BOOL bAdjustToDo;
-         tie(bAdjustToDo, date) = DoAdjustments(ProfileName, date, DayStart);
+         tie(bAdjustToDo, date) = DoAdjustments(ProfileName, date, DayStart, DayFinish);
          pdlg->ProgressStepit();
 //     Execute simulation for this day.
-         tie(date) = SimulateThisDay(ProfileName, DayStart);
+         tie(date) = SimulateThisDay(ProfileName, DayStart, DayFinish);
 //     If there are pending plant adjustments, call WriteStateVariables() to write
 //  state variables of this day in a scratch file.
          if (bAdjustToDo)
@@ -238,7 +237,7 @@ tuple<string> C2KApp::DailySimulation(string ProfileName, const string& Date, co
       return make_tuple(date);
 }
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& DayStart)
+tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& DayStart, const int& DayFinish)
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -275,7 +274,7 @@ tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date
                 if (nadj[jj])
                    for(int j1 = 0; j1 < NumAdjustDays; j1++)
                    {
-                       tie(date) = SimulateThisDay(ProfileName, DayStart);
+                       tie(date) = SimulateThisDay(ProfileName, DayStart, DayFinish);
                        if (Kday > 0) 
                            WriteStateVariables(TRUE, date); 
                    }     // end for j1, and if nadj 
@@ -292,7 +291,7 @@ tuple<BOOL, string> C2KApp::DoAdjustments(string ProfileName, const string& Date
       return make_tuple(TRUE, date);
 }
 //////////////////////////////////////////////////
-tuple<string> C2KApp::SimulateThisDay(string ProfileName, const int& DayStart)
+tuple<string> C2KApp::SimulateThisDay(string ProfileName, const int& DayStart, const int& DayFinish)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
@@ -321,8 +320,8 @@ tuple<string> C2KApp::SimulateThisDay(string ProfileName, const int& DayStart)
           Kday = 0;
 //     The following functions are executed each day (also before emergence).
       ColumnShading();      // computes light interception and soil shading.
-      DayClim(ProfileName, Date, DayStart);            // computes climate variables for today.
-      SoilTemperature(ProfileName, DayStart);    // executes all modules of soil and canopy temperature.
+      DayClim(ProfileName, Date, DayStart, DayFinish);            // computes climate variables for today.
+      SoilTemperature(ProfileName, DayStart, DayFinish);    // executes all modules of soil and canopy temperature.
       SoilProcedures(ProfileName, DayStart);     // executes all other soil processes.
       SoilNitrogen(DayStart);       // computes nitrogen transformations in the soil.
       SoilSum();            // computes totals of water and N in the soil.
@@ -351,7 +350,7 @@ tuple<string> C2KApp::SimulateThisDay(string ProfileName, const int& DayStart)
 		 }
       }
 //     Call DailyOutput for reporting some simulation data for this day.
-      DailyOutput(ProfileName, Date);
+      DailyOutput(ProfileName, Date, DayFinish);
 //     Check if the date to stop simulation has been reached, or if this is the last day
 //  with available weather data. Simulation will also stop when no leaves remain on the plant.
 //  bEnd = TRUE  indicates stopping this simulation.

@@ -36,7 +36,6 @@
         DayEmerge,           // Date of emergence (DOY).
         DayEndCO2,           // Last date (DOY) with CO2 enrichment.
         DayEndMulch,         // date (DOY) for ending of mulch.
-        DayFinish,           // Date (DOY) to end simulation.
 	    DayFirstDef,         // Date (DOY) of first defoliation.
         DayOfSimulation,     // Days from the start of simulation.
         Daynum,              // Days from the start of the first year of simulation (day of year = DOY)

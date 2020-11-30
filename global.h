@@ -75,7 +75,7 @@ namespace fs = std::filesystem;
 	    double amount; 
         }   Irrig[150];
 ////    Integers    //// 
-	extern int DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef, DayOfSimulation,
+	extern int DayEmerge, DayEndCO2, DayEndMulch, DayFirstDef, DayOfSimulation,
         Daynum, DayPlant, DayStartCO2, DayStartMulch, DayStartPlantMaps, 
         DayStartPredIrrig, DayStartSoilMaps, DayStopPlantMaps, DayStopPredIrrig, 
         DayStopSoilMaps, 

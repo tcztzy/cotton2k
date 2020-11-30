@@ -2,4 +2,4 @@
 #include <string>
 
 void ColumnShading();
-void SoilTemperature(const std::string&, const int&);
+void SoilTemperature(const std::string&, const int&, const int&);

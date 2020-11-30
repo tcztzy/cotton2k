@@ -26,7 +26,7 @@ void output3(const string&);
 void output4(const string&);
 void output5(const string&);
 void output6(const string&);
-void output7(const string&, const int&);
+void output7(const string&, const int&, const int&);
 
 /////////////////////////////////////////////////////////////
 void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
@@ -276,7 +276,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(const string& ProfileName, const string& Date)
+void DailyOutput(const string& ProfileName, const string& Date, const int& DayFinish)
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -450,7 +450,7 @@ void output1(const string& ProfileName, const string& Date)
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-tuple<string> DataOutput(const string& ProfileName, const string& Date, const int& DayStart)
+tuple<string> DataOutput(const string& ProfileName, const string& Date, const int& DayStart, const int& DayFinish)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),
@@ -561,7 +561,7 @@ tuple<string> DataOutput(const string& ProfileName, const string& Date, const in
 		   output5(ProfileName);
       output6(ProfileName);
       if ( OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
-           output7(ProfileName, DayStart);
+           output7(ProfileName, DayStart, DayFinish);
       return make_tuple(date);
 }
 ////////////////////////

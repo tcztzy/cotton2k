@@ -58,7 +58,7 @@ double SimulateRunoff(double, const int&);
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-void DayClim(const string& ProfileName, const string& Date, const int& DayStart)
+void DayClim(const string& ProfileName, const string& Date, const int& DayStart, const int& DayFinish)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
