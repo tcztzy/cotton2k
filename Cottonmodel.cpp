@@ -215,37 +215,36 @@ tuple<string, int> C2KApp::DailySimulation(string ProfileName, const string& Dat
 //     It calls the functions:
 //        DoAdjustments(), SimulateThisDay(), WriteStateVariables()
 //
-//     The following global variable are referenced:   DayStart, Kday.
-//     The following global variable are set:   Daynum.
+//     The following global variable are referenced:   Kday.
 //
 {
     string date = Date;
     int DayEmerge = dayEmerge;
-    Daynum = DayStart - 1;
+    int Daynum = DayStart - 1; // Days from the start of the first year of simulation (day of year = DOY)
 	try
 	{
         while (true)
         {
             BOOL bAdjustToDo;
-            tie(bAdjustToDo, date, DayEmerge) = DoAdjustments(ProfileName, date, DayEmerge, DayStart, DayFinish, DayPlant);
+            tie(bAdjustToDo, date, Daynum, DayEmerge) = DoAdjustments(ProfileName, date, Daynum, DayEmerge, DayStart, DayFinish, DayPlant);
             pdlg->ProgressStepit();
-            tie(date, DayEmerge) = SimulateThisDay(ProfileName, DayEmerge, DayStart, DayFinish, DayPlant);
+            tie(date, Daynum, DayEmerge) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant);
             // If there are pending plant adjustments, call WriteStateVariables() to write
             // state variables of this day in a scratch file.
             if (bAdjustToDo)
-	            WriteStateVariables(TRUE, date);
+	            WriteStateVariables(TRUE, date, Daynum);
         }
 	}
     catch (SimulationEnd){}
     return make_tuple(date, DayEmerge);
 }
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string, int> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant)
+tuple<BOOL, string, int, int> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant)
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
 //
-//     The following global variable are referenced:  Daynum, Kday, 
+//     The following global variable are referenced:  Kday, 
 //     The following global variable are set:   MapDataDate, nadj, NumAdjustDays.
 //
 {
@@ -253,11 +252,12 @@ tuple<BOOL, string, int> C2KApp::DoAdjustments(string ProfileName, const string&
 	  static int kprevadj = 0;  // day after emergence of the previous plant map adjustment.
       int sumsad = 0;  // sum for checking if any adjustments are due 
       string date = Date;
+      int Daynum = daynum;
       int DayEmerge = dayEmerge;
       for (int i = 0; i < 30; i++)
           sumsad += MapDataDate[i];
       if (sumsad <= 0)
-          return make_tuple(FALSE, date, DayEmerge);
+          return make_tuple(FALSE, date, Daynum, DayEmerge);
 //     Loop for all adjustment data, and check if there is an adjustment for this day.
       for (int i = 0; i < 30; i++)
       {
@@ -272,15 +272,15 @@ tuple<BOOL, string, int> C2KApp::DoAdjustments(string ProfileName, const string&
 //  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
             for (int jj = 0; jj < 5; jj++)
             {
-                tie(date) = PlantAdjustments(i, jj, ProfileName, date);
+                tie(date, Daynum) = PlantAdjustments(i, jj, ProfileName, date, Daynum);
 //     If adjustment is necessary, rerun the simulation for the previous NumAdjustDays (number
 //  of days) and call WriteStateVariables() to write state variables in scratch structure.
                 if (nadj[jj])
                    for(int j1 = 0; j1 < NumAdjustDays; j1++)
                    {
-                       tie(date, DayEmerge) = SimulateThisDay(ProfileName, DayEmerge, DayStart, DayFinish, DayPlant);
+                       tie(date, Daynum, DayEmerge) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant);
                        if (Kday > 0) 
-                           WriteStateVariables(TRUE, date); 
+                           WriteStateVariables(TRUE, date, Daynum); 
                    }     // end for j1, and if nadj 
             }            // end for jj
 //     After finishing this adjustment date, set kprevadj (date of previous adjustment, to 
@@ -292,10 +292,10 @@ tuple<BOOL, string, int> C2KApp::DoAdjustments(string ProfileName, const string&
             continue;
          }// end if Daynum
       }// end do i
-      return make_tuple(TRUE, date, DayEmerge);
+      return make_tuple(TRUE, date, Daynum, DayEmerge);
 }
 //////////////////////////////////////////////////
-tuple<string, int> C2KApp::SimulateThisDay(string ProfileName, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant)
+tuple<string, int, int> C2KApp::SimulateThisDay(string ProfileName, const int& daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
@@ -304,14 +304,15 @@ tuple<string, int> C2KApp::SimulateThisDay(string ProfileName, const int& dayEme
 //     CheckDryMatterBal(), PlantNitrogenBal(), SoilNitrogenBal(), SoilNitrogenAverage(),
 //     DailyOutput();
 //     
-//     The following global variables are referenced here:  DayFinish, 
-//  DayStart, iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex, pixday.
+//     The following global variables are referenced here:
+//  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex, pixday.
 //
 //     The following global variables are set here:
-//  Date, DayInc, Daynum, DayOfSimulation, isw, Kday.
+//  DayInc, DayOfSimulation, isw, Kday.
 //
 {
 //    Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
+         int Daynum = daynum;
          Daynum++;
 	     string Date = DoyToDate(Daynum, iyear);
          int DayEmerge = dayEmerge;
@@ -324,11 +325,11 @@ tuple<string, int> C2KApp::SimulateThisDay(string ProfileName, const int& dayEme
       if (Kday < 0) 
           Kday = 0;
 //     The following functions are executed each day (also before emergence).
-      ColumnShading(DayEmerge);      // computes light interception and soil shading.
-      DayClim(ProfileName, Date, DayStart, DayFinish);            // computes climate variables for today.
-      tie(DayEmerge) = SoilTemperature(ProfileName, DayEmerge, DayStart, DayFinish, DayPlant);    // executes all modules of soil and canopy temperature.
-      SoilProcedures(ProfileName, DayEmerge, DayStart);     // executes all other soil processes.
-      SoilNitrogen(DayStart);       // computes nitrogen transformations in the soil.
+      ColumnShading(Daynum, DayEmerge);      // computes light interception and soil shading.
+      DayClim(ProfileName, Date, Daynum, DayStart, DayFinish);            // computes climate variables for today.
+      tie(DayEmerge) = SoilTemperature(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant);    // executes all modules of soil and canopy temperature.
+      SoilProcedures(ProfileName, Daynum, DayEmerge, DayStart);     // executes all other soil processes.
+      SoilNitrogen(Daynum, DayStart);       // computes nitrogen transformations in the soil.
       SoilSum();            // computes totals of water and N in the soil.
 //     The following is executed each day after plant emergence:
       if (Daynum >= DayEmerge && isw > 0)
@@ -338,12 +339,12 @@ tuple<string, int> C2KApp::SimulateThisDay(string ProfileName, const int& dayEme
          DayInc = PhysiologicalAge();    // computes physiological age
          if(pixday[0] > 0)
              Pix();        // effects of pix applied.
-         Defoliate(ProfileName, Date, DayEmerge);         // effects of defoliants applied.
+         Defoliate(ProfileName, Date, Daynum, DayEmerge);         // effects of defoliants applied.
          Stress(ProfileName);            // computes water stress factors.
-         GetNetPhotosynthesis(DayEmerge);         // computes net photosynthesis.
-         PlantGrowth(ProfileName, Date, DayEmerge);       // executes all modules of plant growth.
-         CottonPhenology(DayEmerge);              // executes all modules of plant phenology.
-         PlantNitrogen(ProfileName, DayEmerge);     // computes plant nitrogen allocation.
+         GetNetPhotosynthesis(Daynum, DayEmerge);         // computes net photosynthesis.
+         PlantGrowth(ProfileName, Date, Daynum, DayEmerge);       // executes all modules of plant growth.
+         CottonPhenology(Daynum, DayEmerge);              // executes all modules of plant phenology.
+         PlantNitrogen(ProfileName, Daynum, DayEmerge);     // computes plant nitrogen allocation.
          CheckDryMatterBal(ProfileName, Date); // checks plant dry matter balance.
 //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
 //  nitrogen averages by layer, and write this information to files.
@@ -355,14 +356,14 @@ tuple<string, int> C2KApp::SimulateThisDay(string ProfileName, const int& dayEme
 		 }
       }
 //     Call DailyOutput for reporting some simulation data for this day.
-      DailyOutput(ProfileName, Date, DayEmerge, DayFinish);
+      DailyOutput(ProfileName, Date, Daynum, DayEmerge, DayFinish);
 //     Check if the date to stop simulation has been reached, or if this is the last day
 //  with available weather data. Simulation will also stop when no leaves remain on the plant.
 //
       if (Daynum >= DayFinish || Daynum >= LastDayWeatherData
           || (Kday > 10 && LeafAreaIndex < 0.0002))
           throw SimulationEnd();
-      return make_tuple(Date, DayEmerge);
+      return make_tuple(Date, Daynum, DayEmerge);
 }
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About

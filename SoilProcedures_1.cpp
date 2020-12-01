@@ -16,30 +16,30 @@
 #include "GeneralFunctions.h"
 
 void RootsCapableOfUptake();
-void ApplyFertilizer();
-void ComputeIrrigation(const string&);
-double GetTargetStress();
-void PredictDripIrrigation(double);
-void PredictSurfaceIrrigation(double);
-void OutputPredictedIrrigation(double, double, const string&);
+void ApplyFertilizer(const int&);
+void ComputeIrrigation(const string&, const int&);
+double GetTargetStress(const int&);
+void PredictDripIrrigation(double, const int&);
+void PredictSurfaceIrrigation(double, const int&);
+void OutputPredictedIrrigation(double, double, const string&, const int&);
 double AveragePsi();
-void WaterTable();        // WATERTBL
+void WaterTable(const int& Daynum);        // WATERTBL
 // SoilProcedure_2
-void CapillaryFlow(const int&);
+void CapillaryFlow(const int&, const int&);
 void DripFlow(double);
 // SoilProcedures_3
 void WaterUptake();       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(const string& ProfileName, const int& DayEmerge, const int& DayStart)
+void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
 //  GravityFlow(), RootsCapableOfUptake(), WaterUptake(), WaterTable()
 //
 //     The following global variables are referenced here:
-//       ActualTranspiration, Clim, Daynum, DayStartPredIrrig, DayStopPredIrrig, 
+//       ActualTranspiration, Clim, DayStartPredIrrig, DayStopPredIrrig, 
 //       dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk, nl, NumIrrigations, 
 //       NumWaterTableData, OutIndex, PerPlantArea, SoilPsi, RowSpace, SupplyNH4N, SupplyNO3N, 
 //       VolWaterContent, wk.
@@ -51,7 +51,7 @@ void SoilProcedures(const string& ProfileName, const int& DayEmerge, const int& 
       const double cpardrip = 0.2;
 	  const double cparelse = 0.4;
 //     Call function ApplyFertilizer() for nitrogen fertilizer application.
-      ApplyFertilizer();
+      ApplyFertilizer(Daynum);
 	  double DripWaterAmount = 0; // amount of water applied by drip irrigation
       double WaterToApply;        // amount of water applied by non-drip irrigation or rainfall
 //     Check if there is rain on this day
@@ -61,7 +61,7 @@ void SoilProcedures(const string& ProfileName, const int& DayEmerge, const int& 
       if (MaxIrrigation > 0) 
          if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) 
 		 {
-			ComputeIrrigation(ProfileName);
+			ComputeIrrigation(ProfileName, Daynum);
 			if (IrrigMethod == 2)
 				DripWaterAmount = AppliedWater;
 			else
@@ -102,7 +102,7 @@ void SoilProcedures(const string& ProfileName, const int& DayEmerge, const int& 
       }
 //     Call function WaterTable() for saturating soil below water table.
       if (NumWaterTableData > 0) 
-     		  WaterTable();
+     		  WaterTable(Daynum);
       if (WaterToApply > 0) 
 	  {
 //     For rain or surface irrigation.
@@ -116,7 +116,7 @@ void SoilProcedures(const string& ProfileName, const int& DayEmerge, const int& 
          for (int iter = 0; iter < noitr; iter++)
 		 {
              GravityFlow(applywat);
-             CapillaryFlow(DayStart);
+             CapillaryFlow(Daynum, DayStart);
          }
 	  }
       if (DripWaterAmount > 0) 
@@ -132,14 +132,14 @@ void SoilProcedures(const string& ProfileName, const int& DayEmerge, const int& 
          for (int iter = 0; iter < noitr; iter++)
 		 {
              DripFlow(applywat);
-             CapillaryFlow(DayStart);
+             CapillaryFlow(Daynum, DayStart);
          }
 	  }
 //     When no water is added, there is only one iteration in this day.
       if (WaterToApply + DripWaterAmount <= 0) 
 	  {
 		 noitr = 1;
-         CapillaryFlow(DayStart);
+         CapillaryFlow(Daynum, DayStart);
 	  }
 //     If the output flag OutIndex(17) is non-zero, write to output file *.WAT.
 //  This flag is also the interval in days between outputs. This is used for checking only.
@@ -201,12 +201,12 @@ void RootsCapableOfUptake()
                   RootWtCapblUptake[l][k] += RootWeight[l][k][i] * cuind[i];
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-void ApplyFertilizer()   
+void ApplyFertilizer(const int& Daynum)   
 //     This function simulates the application of nitrogen fertilizer on each date
 //  of application. It is called from SoilProcedures().
 //
 //     The following global variables are referenced here:
-//       Daynum, dl, LightIntercept, LocationColumnDrip, LocationLayerDrip, 
+//       dl, LightIntercept, LocationColumnDrip, LocationLayerDrip, 
 //       NFertilizer, nk, nl, NumNitApps, RowSpace, wk.
 //     The following global variables are set here:  
 //       CumFertilizerN, LeafNitrogen, VolNh4NContent, VolNo3NContent, VolUreaNContent.
@@ -337,33 +337,33 @@ void ApplyFertilizer()
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ComputeIrrigation(const string& ProfileName)
+void ComputeIrrigation(const string& ProfileName, const int& Daynum)
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
 //  OutputPredictedIrrigation().
 //     The following global variables are referenced here: 
-//       AppliedWater, Daynum, IrrigMethod.
+//       AppliedWater, IrrigMethod.
 //     The following global variable is set here:       LastIrrigation. 
 {  
-      double TargetStress = GetTargetStress();
+      double TargetStress = GetTargetStress(Daynum);
       if (TargetStress == -9999)
           return;
 //
       if ( IrrigMethod == 2 ) 
-	      PredictDripIrrigation(TargetStress);
+	      PredictDripIrrigation(TargetStress, Daynum);
 	  else
-	      PredictSurfaceIrrigation(TargetStress);
+	      PredictSurfaceIrrigation(TargetStress, Daynum);
 //     If the amount of water to be applied (AppliedWater) is non zero update the date of 
 //  last irrigation, and write report in output file *.B01.
       if (AppliedWater > 0.00001) 
 	  {
          LastIrrigation = Daynum;
-         OutputPredictedIrrigation(AppliedWater, TargetStress, ProfileName); 
+         OutputPredictedIrrigation(AppliedWater, TargetStress, ProfileName, Daynum); 
       }
 }
 ///////////////////////////////////////////////////////////////////////
-double GetTargetStress()
+double GetTargetStress(const int& Daynum)
 //     This function computes and returns the target water stress factor.
 //     A target water stress factor is defined for each growth stage.
 //  The following growth stages are used: before first square; before
@@ -386,7 +386,7 @@ double GetTargetStress()
 //
 //     This function is called from ComputeIrrigation().
 //     The following global variables are referenced here:
-//       Daynum, FirstBloom, FirstSquare, Kday, NumGreenBolls, NumOpenBolls.
+//       FirstBloom, FirstSquare, Kday, NumGreenBolls, NumOpenBolls.
 //     The following global variable is set here:  DayStopPredIrrig,.
 {
 	  const double strestgt[10] = { .70, .95, .99, .99, .99, .95, .90, .80, .60, .40 };
@@ -427,12 +427,12 @@ double GetTargetStress()
       return tgtstr;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void PredictDripIrrigation(double TargetStress)
+void PredictDripIrrigation(double TargetStress, const int& Daynum)
 //     This function computes the amount of water (mm) needed for predicted drip
 //  irrigation, considering the effects of water stress.
 //     It is called from ComputeIrrigation(). It calls the function GetFromClim().
 //     The following global variables are referenced here:
-//       ActualSoilEvaporation, ActualTranspiration, Daynum, DayStartPredIrrig, Irrig, 
+//       ActualSoilEvaporation, ActualTranspiration, DayStartPredIrrig, Irrig, 
 //       LastIrrigation, MaxIrrigation, MinDaysBetweenIrrig, NumIrrigations, WaterStress.
 //     The following global variable is set here:    AppliedWater.
 //     The argument used is TargetStress.
@@ -507,12 +507,12 @@ void PredictDripIrrigation(double TargetStress)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void PredictSurfaceIrrigation(double TargetStress)
+void PredictSurfaceIrrigation(double TargetStress, const int& Daynum)
 //     This function computes the amount of predicted irrigation applied at soil surface,
 //  by sprinkler or furrow. It is called from ComputeIrrigation().
 //
 //     The following global variables are referenced here: 
-//       Daynum, DayStartPredIrrig, dl, IrrigationDepth, LastIrrigation, MaxWaterCapacity, 
+//       DayStartPredIrrig, dl, IrrigationDepth, LastIrrigation, MaxWaterCapacity, 
 //       MinDaysBetweenIrrig, nl, RowSpace, VolWaterContent, WaterStress, wk
 //     The following global variable is set here:       AppliedWater. 
 //     The argument used: TargetStress
@@ -567,12 +567,12 @@ void PredictSurfaceIrrigation(double TargetStress)
       }
 }
 ////////////////////////////////////////////////////////////////////////////
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string& ProfileName)
+void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string& ProfileName, const int& Daynum)
 //      This function is called from ComputeIrrigation().
 //      It writes output ofapplication of predicted irrigation to file *.B01
 //      Function DoyToDate() is used.
 //      Arguments used: AppliedWater, TargetStress.
-//      Global variables referenced: Daynum, iyear, WaterStress.
+//      Global variables referenced: iyear, WaterStress.
 {
          ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
 		 File20 << " Predicted irrigation on " << DoyToDate(Daynum, iyear) << " - ";
@@ -660,13 +660,13 @@ double AveragePsi()
     return averagePsi;
 }
 /////////////////////////////////////////////////////////////////////////////
-void WaterTable()       
+void WaterTable(const int& Daynum)       
 //     This function sets the water saturation of the soil layers below the water 
 //  table, if it has been defined in the input. It is called from  SoilProcedures() 
 //  if water table data have been input.
 //
 //     The following global variables are referenced here:
-//       Daynum. dl, DayWaterTableInput, ElCondSatSoil, LevelsOfWaterTable, MaxWaterCapacity,
+//       dl, DayWaterTableInput, ElCondSatSoil, LevelsOfWaterTable, MaxWaterCapacity,
 //       nk, nl, NumWaterTableData, PoreSpace, MaxWaterCapacity, RowSpace, wk.
 //
 //     The following global variables are set here:

@@ -1,2 +1,2 @@
 #pragma once
-void FruitingSitesAbscission();
+void FruitingSitesAbscission(const int&);

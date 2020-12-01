@@ -73,7 +73,7 @@ double PotentialRootGrowth()
 //  SoilMechanicResistance(), SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
 //
 //     The following global variables are referenced here:
-//       cgind, Date, Daynum, NumLayersWithRoots, NumRootAgeGroups, nk, OutIndex, 
+//       cgind, NumLayersWithRoots, NumRootAgeGroups, nk, OutIndex, 
 //       PerPlantArea, PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg, 
 //       VolNo3NContent, VolWaterContent.
 //     The following global variables are set here:    PotGroRoots, RootGroFactor
@@ -384,7 +384,7 @@ double SoilWaterOnRootGrowth(double psislk)
       return smf;
 }
 //////////////////////////
-void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& DayEmerge)
+void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& Daynum, const int& DayEmerge)
 //     This function calculates the actual root growth rate. It is called from function 
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(), 
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), 

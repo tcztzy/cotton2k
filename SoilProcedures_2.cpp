@@ -16,7 +16,7 @@ void WaterFlux(double[], double[], double[], double[], double[], double[], int, 
 void NitrogenFlow(int, double[], double[], double[], double[], double[]);
 
 //////////////////////////
-void CapillaryFlow(const int& DayStart)
+void CapillaryFlow(const int& Daynum, const int& DayStart)
 //     This function computes the capillary water flow between soil cells. It is called by 
 //  SoilProcedures(), noitr times per day.  The number of iterations (noitr) has been computed 
 //  in SoilProcedures() as a function of the amount of water applied. It is executed only once 
@@ -24,7 +24,7 @@ void CapillaryFlow(const int& DayStart)
 //     It calls functions:   Drain(), NitrogenFlow(), psiq(), PsiOsmotic(), WaterFlux().
 //
 //     The following global variables are referenced:
-//       alpha, ,vanGenuchtenBeta, Daynum, DayStart, dl, ElCondSatSoilToday, nk, nl, PoreSpace,
+//       alpha, ,vanGenuchtenBeta, DayStart, dl, ElCondSatSoilToday, nk, nl, PoreSpace,
 //       RowSpace, SoilHorizonNum, thad ,thts, WaterTableLayer, wk.
 //     The following global variables are set:
 //       CumWaterDrained, SoilPsi, VolNo3NContent, VolUreaNContent, VolWaterContent.

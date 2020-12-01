@@ -17,7 +17,7 @@
 
 using namespace std;
 
-void NitrogenRequirement(const string&, const int&);
+void NitrogenRequirement(const string&, const int&, const int&);
 void NitrogenSupply(const string&);
 double PetioleNitrateN();
 void NitrogenAllocation();
@@ -49,7 +49,7 @@ void NitrogenUptakeRequirement();
       double addnr;  // daily added nitrogen to root, g per plant.
       double addnv;  // daily added nitrogen to vegetative shoot, g per plant.
 //////////////////////////////////////////////////
-void PlantNitrogen(const string& ProfileName, const int& DayEmerge)
+void PlantNitrogen(const string& ProfileName, const int& Daynum, const int& DayEmerge)
 //     This function simulates the nitrogen accumulation and distribution in cotton plants,
 //  and computes nitrogen stresses. It is called from SimulateThisDay().
 //
@@ -101,7 +101,7 @@ void PlantNitrogen(const string& ProfileName, const int& DayEmerge)
       addnr = 0;  // daily added nitrogen to root, g per plant.
       addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
 //   The following subroutines are now called:
-      NitrogenRequirement(ProfileName, DayEmerge); //  computes the N requirements for growth.
+      NitrogenRequirement(ProfileName, Daynum, DayEmerge); //  computes the N requirements for growth.
       NitrogenSupply(ProfileName);      //  computes the supply of N from uptake and reserves.
       NitrogenAllocation();  //  computes the allocation of N in the plant.
       if ( xtran > 0 )
@@ -149,13 +149,13 @@ void PlantNitrogen(const string& ProfileName, const int& DayEmerge)
 	  }
 }
 //////////////////////////
-void NitrogenRequirement (const string& ProfileName, const int& DayEmerge)
+void NitrogenRequirement (const string& ProfileName, const int& Daynum, const int& DayEmerge)
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
 //       ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth, 
 //       CarbonAllocatedForRootGrowth, CottonWeightGreenBolls, 
-//       Daynum, ExtraCarbon, OutIndex, Kday, 
+//       ExtraCarbon, OutIndex, Kday, 
 //       SeedNitrogen, TotalActualLeafGrowth, TotalActualPetioleGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, PetioleNO3NConc, reqf, reqtot, reqv, rqnbur,

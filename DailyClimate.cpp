@@ -30,21 +30,21 @@
 #include "GeneralFunctions.h"
 #include "DailyClimate.h"
 
-void ComputeDayLength();
+void ComputeDayLength(const int&);
 double dayrad(double, double, double, double);
-double daytmp(double);
-double tdewhour(double, double);
+double daytmp(double, const int&);
+double tdewhour(double, double, const int&);
 double dayrh(double, double);
 double daywnd(double, double, double, double, double, double);
 void AverageAirTemperatures();
-void EvapoTranspiration(int, const string&, const string&);
+void EvapoTranspiration(int, const string&, const string&, const int&);
 double cloudcov(double, double, double);
 double clcor(int, double, double, double);
 double del(double, double);
 double gam(double, double);
 double refalbed(double, double, double, double);
 void sunangle(double, double&, double&);
-double SimulateRunoff(double, const int&);
+double SimulateRunoff(double, const int&, const int&);
 
 //     Definition of file scope variables:
     double declination,      // daily declination angle, in radians.
@@ -58,7 +58,7 @@ double SimulateRunoff(double, const int&);
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-void DayClim(const string& ProfileName, const string& Date, const int& DayStart, const int& DayFinish)
+void DayClim(const string& ProfileName, const string& Date, const int& Daynum, const int& DayStart, const int& DayFinish)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -71,7 +71,7 @@ void DayClim(const string& ProfileName, const string& Date, const int& DayStart,
 //
 {
 //     Compute day length and related variables:
-	ComputeDayLength();
+	ComputeDayLength(Daynum);
 //
     double xlat = Latitude * pi / 180;         // latitude converted to radians.
     double cd = cos(xlat) * cos(declination);  // amplitude of the sine of the solar height.
@@ -105,7 +105,7 @@ void DayClim(const string& ProfileName, const string& Date, const int& DayStart,
     double runoffToday = 0; // amount of runoff today, mm
     if (rainToday >= 2.0)
     {
-        runoffToday = SimulateRunoff(rainToday, DayStart);
+        runoffToday = SimulateRunoff(rainToday, Daynum, DayStart);
         if (runoffToday < rainToday)
             rainToday -= runoffToday;
         else
@@ -142,9 +142,9 @@ void DayClim(const string& ProfileName, const string& Date, const int& DayStart,
 //     Compute hourly global radiation, using function dayrad.
          Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
 //     Compute hourly temperature, using function daytmp.
-         AirTemp[ihr] = daytmp(ti);
+         AirTemp[ihr] = daytmp(ti, Daynum);
 //     Compute hourly dew point temperature, using function tdewhour.
-         DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr]);
+         DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr], Daynum);
 //     Compute hourly relative humidity, using function dayrh.
          RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
 //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
@@ -187,15 +187,15 @@ void DayClim(const string& ProfileName, const string& Date, const int& DayStart,
 		File18 << AvrgDailyTemp << endl;
 	}
 //     Compute potential evapotranspiration.
-    EvapoTranspiration(jtout, ProfileName, Date);
+    EvapoTranspiration(jtout, ProfileName, Date, Daynum);
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void ComputeDayLength()
+void ComputeDayLength(const int& Daynum)
 //     Function ComputeDayLength() computes day length, declination, time of
 //  solar noon, and extra-terrestrial radiation for this day. The CIMIS
 //  (California Irrigation Management Information System) algorithms are used. 
 //     Global variables referenced here:  
-//  Daynum, iyear, Latitude, Longitude, pi, 
+//  iyear, Latitude, Longitude, pi, 
 //     Global variables set here:   
 //  DayLength, declination
 //
@@ -278,7 +278,7 @@ double dayrad( double ti, double radsum, double sinb, double c11)
 //  relative humidity by equations from daily characteristics.
 //  Agricultural Systems 51:377-393. 
 ///////////////////////////////////////////////////////////////////////////////////////////
-double daytmp ( double ti )
+double daytmp ( double ti, const int& Daynum )
 //     Function daytmp() computes and returns the hourly values of air temperature,
 //  using the measured daily maximum and minimum.
 //     The algorithm is described in Ephrath et al. (1996). It is based on 
@@ -329,7 +329,7 @@ double daytmp ( double ti )
 //  Input argument:
 //     ti - time of day (hours).
 //  Global variables used: 
-//     DayLength, Daynum, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
+//     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
 //
 {
       const double tkk = 15;     // The temperature increase at which the sensible heat flux is
@@ -392,7 +392,7 @@ double daytmp ( double ti )
 //  Agricultural Systems 51:377-393.
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-double tdewhour(double ti, double tt)
+double tdewhour(double ti, double tt, const int& Daynum)
 //     Function tdewhour() computes the hourly values of dew point 
 //  temperature from average dew-point and the daily estimated range. 
 //  This range is computed as a regression on maximum and minimum temperatures.
@@ -400,7 +400,7 @@ double tdewhour(double ti, double tt)
 //     ti - time of day (hours).
 //     tt - air temperature C at this time of day.
 //  Global variables used: 
-//    Daynum, LastDayWeatherData, SitePar, SolarNoon, sunr, suns.
+//    LastDayWeatherData, SitePar, SolarNoon, sunr, suns.
 //
 {
       int im1 = Daynum - 1;     // day of year yeaterday
@@ -578,7 +578,7 @@ double VaporPressure( double tt )
       return VaporPressure;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date)
+void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date, const int& Daynum)
 //     Function EvapoTranspiration() computes the rate of reference evapotranspiration
 //  and related variables. The following subroutines and functions are called for each
 //  hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(), clearskyemiss(), del(), 
@@ -898,7 +898,7 @@ void sunangle (double ti, double &coszhr, double &sunahr)
           sunahr = fabs(acos(coszhr) * 180 / pi - 90);
 }
 ///////////////////////////////////////////////////////////////////////////////
-double SimulateRunoff(double rain, const int& DayStart)
+double SimulateRunoff(double rain, const int& Daynum, const int& DayStart)
 //     This function is called from DayClim() and is executed on each day with raifall more 
 //  than 2 mm. It computes the runoff and the retained portion of the rainfall. Note: This
 //  function is based on the code of GOSSYM. No changes have been made from the original GOSSYM 
@@ -912,7 +912,7 @@ double SimulateRunoff(double rain, const int& DayStart)
 //  3rd ed. John Wiley & Sons, Inc.                               
 //
 //     The following global variables are referenced here:
-//  ClayVolumeFraction, Daynum, DayStart, Irrig (structure), NumIrrigations, SandVolumeFraction.
+//  ClayVolumeFraction, Irrig (structure), NumIrrigations, SandVolumeFraction.
 //     The argument used here:  rain = today,s rainfall.
 //     The return value:  the amount of water (mm) lost by runoff.
 {

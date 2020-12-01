@@ -328,12 +328,12 @@ double LeafResistance( double agel )
       return leafResistance;
 }
 ////////////////////////////////
-void GetNetPhotosynthesis(const int& DayEmerge)            // computes net photosynthesis.
+void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge)            // computes net photosynthesis.
 //     This function simulates the net photosynthesis of cotton  plants. It is called 
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
 //       BurrWeightOpenBolls, CO2EnrichmentFactor, CottonWeightOpenBolls, 
-//       DayLength, Daynum, DayEndCO2, DayStartCO2, 
+//       DayLength, DayEndCO2, DayStartCO2, 
 //       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept, PerPlantArea, 
 //       PlantWeight, ptsred, StemWeight, TotalLeafWeight. 
 //     The following global variables are set here:      
@@ -442,7 +442,7 @@ void GetNetPhotosynthesis(const int& DayEmerge)            // computes net photo
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-void PlantGrowth(const string& ProfileName, const string& Date, const int& DayEmerge)
+void PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge)
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -535,7 +535,7 @@ void PlantGrowth(const string& ProfileName, const string& Date, const int& DayEm
 //     Call AddPlantHeight to compute PlantHeight.
       PlantHeight += AddPlantHeight(denf2);
 //     Call ActualRootGrowth() to compute actual root growth.
-      ComputeActualRootGrowth(sumpdr, ProfileName, DayEmerge);
+      ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayEmerge);
 //     Output data to file *.CHB
       if (OutIndex[18] > 0) 
 	  {

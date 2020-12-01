@@ -25,12 +25,12 @@ void HeatBalance(int nn);
       double hcap[maxl]; // heat capacity of soil layer (cal cm-3 oC-1).
 /////////////////////////////////////////
 void CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv,
-		double c2, double sf, double so, double thet, double tm, double &tv)
+		double c2, double sf, double so, double thet, double tm, double &tv, const int& Daynum)
 //     This function solves the energy balance equations at the foliage / air interface, and 
 //  computes the resulting temperature of the foliage. It is Called from EnergyBalance().
 //     Units for all energy fluxes are: cal cm-2 sec-1.
 //
-//     The following global variables are referenced here:    Daynum, MulchTranLW.
+//     The following global variables are referenced here:    MulchTranLW.
 //     The following argument is set in this function:
 //       tv - temperature of plant canopy.
 //     The following arguments are referenced in this function:
@@ -137,12 +137,12 @@ void CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv,
 }
 /////////////////////////////////////////
 void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, double sf,
-                 double hsgp, double hsgm, double so, double thet, double &tm, double tv)
+                 double hsgp, double hsgm, double so, double thet, double &tm, double tv, const int& Daynum)
 //     This function solves the energy balance equations for the transparent (polyethylene) mulch, 
 //  and computes its resulting temperature (tm). It is called from EnrgyBalance(), and uses 
 //  function ThermalCondSoil(). Units for all energy fluxes are: cal cm-2 sec-1.
 //
-//     The following global variables are referenced here:        Daynum, MulchTranLW.
+//     The following global variables are referenced here:        MulchTranLW.
 //     The following argument is set in this function:
 //       tm - temperature of surface mulch(K) 
 //     The following arguments are used in this function:
@@ -489,12 +489,12 @@ void HeatBalance( int nn )
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////////
-tuple<int> PredictEmergence(int hour, const string& ProfileName, const int& dayEmerge, const int& DayPlant)
+tuple<int> PredictEmergence(int hour, const string& ProfileName, const int& Daynum, const int& dayEmerge, const int& DayPlant)
 //     This function predicts date of emergence. It is called from SoilTemperature().
 //     There is one referenced argument (hour).
 //
 //     The following global variables are referenced here:
-//       Daynum, dl, iyear, PlantRowColumn, nl, SoilPsi, SoilTemp.
+//       dl, iyear, PlantRowColumn, nl, SoilPsi, SoilTemp.
 //     The following global variables are set here:
 //       isw, Kday.
 //

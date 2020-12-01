@@ -4,4 +4,4 @@
 using namespace std;
 
 double PotentialRootGrowth();
-void ComputeActualRootGrowth(double, const string&, const int&);
+void ComputeActualRootGrowth(double, const string&, const int&, const int&);

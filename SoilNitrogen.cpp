@@ -18,7 +18,7 @@ using namespace std;
 
 void UreaHydrolysis(int, int);
 double SoilWaterEffect(int, int, double);
-void MineralizeNitrogen(int, int, const int&);
+void MineralizeNitrogen(int, int, const int&, const int&);
 double SoilTemperatureEffect(double);
 void Nitrification(int, int, double);
 void Denitrification(int, int);
@@ -44,14 +44,14 @@ void Denitrification(int, int);
   recovery and modeling of nitrogen mineralized from labeled sorghum
   residues. Soil Sci. Soc. Am. J. 55:1031-1037.
 ************************************************************************/
-void SoilNitrogen(const int& DayStart)
+void SoilNitrogen(const int& Daynum, const int& DayStart)
 //     This function computes the transformations of the nitrogen
 // compounds in the soil. It is called each day from SimulateThisDay().
 //     It calls UreaHydrolysis(), MineralizeNitrogen{}, Nitrification(),
 // Denitrification().
 //
 //     The following global variables are referenced here:
-//       Daynum, DayStart, dl, FieldCapacity, nk, nl, SoilTempDailyAvrg, 
+//       dl, FieldCapacity, nk, nl, SoilTempDailyAvrg, 
 //       VolWaterContent, VolNh4NContent, VolNo3NContent, VolUreaNContent.
 {
       static double depth[maxl]; // depth to the end of each layer.
@@ -72,7 +72,7 @@ void SoilNitrogen(const int& DayStart)
 		 {
            if (VolUreaNContent[l][k] > 0)    
                           UreaHydrolysis( l, k );
-           MineralizeNitrogen( l, k, DayStart );
+           MineralizeNitrogen( l, k, Daynum, DayStart );
            if ( VolNh4NContent[l][k] > 0.00001 )  
                           Nitrification( l, k, depth[l] );
 //     Denitrification() is called if there are enough water and nitrates in the
@@ -180,7 +180,7 @@ double SoilWaterEffect (int l, int k, double xx)
       return wf;
 }
 ///////////////////////////////////////////
-void MineralizeNitrogen(int l, int k, const int& DayStart)
+void MineralizeNitrogen(int l, int k, const int& Daynum, const int& DayStart)
 //     This function computes the mineralization of organic nitrogen in the soil, and the 
 //  immobilization of mineral nitrogen by soil microorganisms. It is called by function 
 //  SoilNitrogen(). 
@@ -194,7 +194,7 @@ void MineralizeNitrogen(int l, int k, const int& DayStart)
 //  the average maximum decay rate of FreshOrganicMatter decay rate = 0.03 will be used here.
 //
 //     The following global variables are referenced here:
-//  Daynum, DayStart, dl, SoilTempDailyAvrg, wk.
+//  dl, SoilTempDailyAvrg, wk.
 //     The following global variables are set here:
 //  FreshOrganicMatter, FreshOrganicNitrogen, HumusNitrogen, HumusOrganicMatter, 
 //  MineralizedOrganicN, VolNh4NContent, VolNo3NContent

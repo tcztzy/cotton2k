@@ -18,14 +18,14 @@
 #include "GeneralFunctions.h"
 
 void PreFruitingNode(double);
-double DaysToFirstSquare(const int&);
+double DaysToFirstSquare(const int&, const int&);
 void CreateFirstSquare(double);
 void AddVegetativeBranch(double, double, double);
 void AddFruitingBranch(int, double, double);
 void AddFruitingNode(int, int, double, double);
-void FruitingSite(int, int, int, int&);
+void FruitingSite(int, int, int, int&, const int&);
 void NewBollFormation(int, int, int);
-void BollOpening(int, int, int, double);
+void BollOpening(int, int, int, double, const int&);
 
 //   Declaration of file-scope variables:  
    double FibLength;           // fiber length
@@ -44,14 +44,14 @@ void BollOpening(int, int, int, double);
 //	        AdjustAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-void CottonPhenology(const int& DayEmerge)     
+void CottonPhenology(const int& Daynum, const int& DayEmerge)     
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
 //  AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), FruitingSite(),
 //  LeafAbscission(), FruitingSitesAbscission().
 //     The following global variables are referenced here:
-//        CarbonStress, Daynum, DensityFactor, Kday, NStressVeg, NumFruitBranches, 
+//        CarbonStress, DensityFactor, Kday, NStressVeg, NumFruitBranches, 
 //        NumNodes, NumVegBranches, PerPlantArea, StemNitrogen, TotalStemWeight, VarPar. 
 //     The following global variable are set here:
 //        FirstSquare, NumFruitSites.
@@ -95,7 +95,7 @@ void CottonPhenology(const int& DayEmerge)
 //  formation of prefruiting nodes.
       if (FirstSquare <= 0)
       {
-         DaysTo1stSqare = DaysToFirstSquare(DayEmerge); 
+         DaysTo1stSqare = DaysToFirstSquare(Daynum, DayEmerge); 
          PreFruitingNode(stemNRatio);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
@@ -107,7 +107,7 @@ void CottonPhenology(const int& DayEmerge)
 //      if a first square has not been formed, call LeafAbscission() and exit.
          else
          {
-            LeafAbscission();
+            LeafAbscission(Daynum);
 	        return;
          }
       }
@@ -142,13 +142,13 @@ void CottonPhenology(const int& DayEmerge)
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-               FruitingSite( k, l, m, nwfl );
+               FruitingSite( k, l, m, nwfl, Daynum );
 		 }
 	  }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
-      FruitingSitesAbscission();
+      FruitingSitesAbscission(Daynum);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-      LeafAbscission();
+      LeafAbscission(Daynum);
 }
 //////////////////////////
 void PreFruitingNode(double stemNRatio)
@@ -201,11 +201,11 @@ void PreFruitingNode(double stemNRatio)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-double DaysToFirstSquare(const int& DayEmerge)
+double DaysToFirstSquare(const int& Daynum, const int& DayEmerge)
 //     This function computes and returns tsq1, the number of days from emergence to first
 //  square. It is called from CottonPhenology().
 //     The following global variables are referenced here:
-//        AvrgDailyTemp, Daynum, Kday, NStressVeg, VarPar, WaterStress.
+//        AvrgDailyTemp, Kday, NStressVeg, VarPar, WaterStress.
 //
 {
 //     The following constant parameters are used:
@@ -499,12 +499,12 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio)
       DelayNewNode[k][l] = 0;
 }
 //////////////////////////////////////////////////
-void FruitingSite(int k, int l, int m, int & NodeRecentWhiteFlower)
+void FruitingSite(int k, int l, int m, int & NodeRecentWhiteFlower, const int& Daynum)
 //     Function FruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
 //        AvrgDailyTemp, CottonWeightGreenBolls, 
-//        DayFirstDef, DayInc, Daynum, Kday, KdayAdjust, LeafAreaIndex, nadj, 
+//        DayFirstDef, DayInc, Kday, KdayAdjust, LeafAreaIndex, nadj, 
 //        NStressVeg, NumAdjustDays, NumFruitBranches, NStressFruiting, WaterStress, VarPar.
 //     The following global variable are set here:
 //        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight, 
@@ -623,7 +623,7 @@ void FruitingSite(int k, int l, int m, int & NodeRecentWhiteFlower)
       }
 //     If this node is an older green boll (FruitingCode = 2):
       if ( FruitingCode[k][l][m] == 2 ) 
-	      BollOpening(k, l, m, boltmp[k][l][m]);
+	      BollOpening(k, l, m, boltmp[k][l][m], Daynum);
 }
 /////////////////////////
 void NewBollFormation(int k, int l, int m)
@@ -684,11 +684,11 @@ void NewBollFormation(int k, int l, int m)
       SquareWeight[k][l][m] = 0;
 }
 /////////////////////////
-void BollOpening(int k, int l, int m, double tmpboll)
+void BollOpening(int k, int l, int m, double tmpboll, const int& Daynum)
 //     Function BollOpening() simulates the transition of each fruiting site 
 //  from green to dehissed (open) boll. It is called from FruitingSite().
 //     The following global variables are referenced here:
-//        AgeOfBoll, BollWeight, BurrWeight, DayFirstDef, Daynum, FruitFraction, 
+//        AgeOfBoll, BollWeight, BurrWeight, DayFirstDef, FruitFraction, 
 //        LeafAreaIndex, PlantPopulation, VarPar 
 //     The following global variable are set here:
 //        BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls, CottonWeightOpenBolls,

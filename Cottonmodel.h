@@ -26,8 +26,8 @@ public:
     void GetProfilesList(fs::path JobFileName);
     void RunTheModel();
 	tuple<string, int> DailySimulation(string ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant);
-	tuple<string, int> SimulateThisDay(string ProfileName, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant);
-    tuple<BOOL, string, int> DoAdjustments(string ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant);
+	tuple<string, int, int> SimulateThisDay(string ProfileName, const int& daynum, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant);
+    tuple<BOOL, string, int, int> DoAdjustments(string ProfileName, const string& Date, const int& daynum, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant);
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 	afx_msg void OnAppAbout();

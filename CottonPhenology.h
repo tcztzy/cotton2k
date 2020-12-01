@@ -1,2 +1,2 @@
 #pragma once
-void CottonPhenology(const int&);
+void CottonPhenology(const int&, const int&);

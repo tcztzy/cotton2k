@@ -3,5 +3,5 @@
 
 using namespace std;
 
-void PlantNitrogen(const string&, const int&);
+void PlantNitrogen(const string&, const int&, const int&);
 void PlantNitrogenBal(const string&);

@@ -12,15 +12,15 @@
 using namespace std;
 
 double SensibleHeatTransfer(double, double, double, double);
-void SoilMulchBalance(int, int, double, double, double, double, double&, double&, double&, double, double&, double, double);
-void SoilSurfaceBalance(int, int, double, double, double, double, double, double&, double&, double&, double, double, double);
+void SoilMulchBalance(int, int, double, double, double, double, double&, double&, double&, double, double&, double, double, const int&);
+void SoilSurfaceBalance(int, int, double, double, double, double, double, double&, double&, double&, double, double, double, const int&);
 // SoilTemperature_3
-void CanopyBalance(int, int, double, double, double, double, double, double, double, double, double&);
+void CanopyBalance(int, int, double, double, double, double, double, double, double, double, double&, const int&);
 double ThermalCondSoil(double, double, int);
-void MulchSurfaceBalance(int, int, double, double, double, double, double, double, double, double, double&, double);
+void MulchSurfaceBalance(int, int, double, double, double, double, double, double, double, double, double&, double, const int&);
 
 //////////////////////////
-void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
+void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1, const int& Daynum)
 //     This function solves the energy balance equations at the soil surface, and at the
 //  foliage / atmosphere interface. It computes the resulting temperatures of the soil
 //  surface, plastic mulch (if exists) and the plant canopy.
@@ -141,7 +141,7 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
 	      {
 //     This section executed for mulched columns: call SoilMulchBalance() for soil / mulch interface.
              tmold = tm;
-             SoilMulchBalance (ihr, k, rlzero, rsm, rss, sf, so, so2, so3, thet, tm, tv, wndcanp);
+             SoilMulchBalance (ihr, k, rlzero, rsm, rss, sf, so, so2, so3, thet, tm, tv, wndcanp, Daynum);
 	      }
 	      else
 	      {
@@ -153,7 +153,7 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
              rocp = 0.08471 / tafk;
              double hsg = rocp * varc; // multiplier for computing sensible heat transfer soil to air. 
 //     Call SoilSurfaceBalance() for energy balance in soil surface / air interface.
-		     SoilSurfaceBalance (ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, 0, tv);
+		     SoilSurfaceBalance (ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, 0, tv, Daynum);
 	      }
 //
           if (sf >= 0.05)
@@ -161,7 +161,7 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1)
 //     This section executed for shaded columns only.
              tvold = tv; 
 //     Compute canopy energy balance for shaded columns
-             CanopyBalance (ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tm, tv);
+             CanopyBalance (ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tm, tv, Daynum);
 //     Increment the number of iterations.
              menit++;
              if (menit > 10)
@@ -335,14 +335,14 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height, double w
 }
 /////////////////////////////////////////
 void SoilSurfaceBalance (int ihr, int k, double ess, double rlzero, double rss, double sf,
-		double hsg, double &so, double &so2, double &so3, double thet, double tm, double tv)
+		double hsg, double &so, double &so2, double &so3, double thet, double tm, double tv, const int& Daynum)
 //     This function is called from EnergyBalance(). It calls function ThermalCondSoil().
 //     It solves the energy balance equations at the soil surface, and
 //  computes the resulting temperature of the soil surface.
 //     Units for all energy fluxes are: cal cm-2 sec-1.
 //
 //     The following global variables are referenced here:
-//       Daynum, dl, MulchTranLW, VolWaterContent.
+//       dl, MulchTranLW, VolWaterContent.
 //     The following arguments are set in this function:
 //       so - temperature of soil surface.
 //       so2 - temperature of soil 2nd layer
@@ -492,7 +492,7 @@ void SoilSurfaceBalance (int ihr, int k, double ess, double rlzero, double rss, 
 }
 /////////////////////////////////////////
 void SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, double sf,
-	double &so, double &so2, double &so3, double thet, double &tm, double tv, double wndcanp)
+	double &so, double &so2, double &so3, double thet, double &tm, double tv, double wndcanp, const int& Daynum)
 //     This function solves the energy balance equations at the interface of the soil 
 //  surface and the plastic mulch cover and computes the resulting temperatures of the 
 //  soil surface and of the plastic mulch.  
@@ -503,7 +503,7 @@ void SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
 //     If the return value is true, it means there was an error and simulation will end.
 //
 //     The following global variables are referenced here:
-//       Daynum, MulchTranLW.
+//       MulchTranLW.
 //     The following arguments are set in this function:
 //       so - temperature of soil surface.
 //       so2 - temperature of soil 2nd layer
@@ -567,13 +567,13 @@ void SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, do
           tmold1 = tm; // previous value of temperature of mulch (k)
 //     Energy balance for soil surface (mulch interface)
           hsgm = 2 * rocp * fabs(so - tm);
-	      SoilSurfaceBalance (ihr, k, 0, rlzero, rss, sf, hsgm, so, so2, so3, thet, tm, tv);
+	      SoilSurfaceBalance (ihr, k, 0, rlzero, rss, sf, hsgm, so, so2, so3, thet, tm, tv, Daynum);
 //     Add Long wave radiation reaching the mulch from the soil:
           double rlsp; // total long wave radiation reaching the mulch.
           rlsp = rlsp0 + (1 - MulchTranLW) * eg * stefa1 * pow(so, 4);
 //     Energy balance for mulch (soil and air interface)
           hsgm = 2 * rocp * fabs(so - tm);
-          MulchSurfaceBalance (ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, so, thet, tm, tv);
+          MulchSurfaceBalance (ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, so, thet, tm, tv, Daynum);
 //     Check number of iterations - do not exceed 30 iterations.
           mtnit++;
           if (mtnit > 8)

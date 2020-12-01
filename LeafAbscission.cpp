@@ -10,21 +10,21 @@
 //
 #include "global.h"
 
-void PreFruitLeafAbscission(double);
-void MainStemLeafAbscission(int, int, double);
-void FruitNodeLeafAbscission(int, int, int, double);
-void DefoliationLeafAbscission();
+void PreFruitLeafAbscission(double, const int&);
+void MainStemLeafAbscission(int, int, double, const int&);
+void FruitNodeLeafAbscission(int, int, int, double, const int&);
+void DefoliationLeafAbscission(const int&);
 void SortArray(int, double[], int[], int[], int[]);
 
 //////////////////////////////////////////////////
-void LeafAbscission()
+void LeafAbscission(const int& Daynum)
 //     This function simulates leaf abscission. It is called from
 //  CottonPhenology(). It calls the following functions:
 //        FruitNodeLeafAbscission(), MainStemLeafAbscission(), 
 //        PreFruitLeafAbscission(), DefoliationLeafAbscission().
 //
 //     The following global variables are referenced here:
-//        Daynum, DayFirstDef, NumFruitBranches, NumVegBranches,  
+//        DayFirstDef, NumFruitBranches, NumVegBranches,  
 //        PerPlantArea, TotalLeafArea, TotalLeafWeight.
 //
 //     The following global variables are set here:
@@ -40,7 +40,7 @@ void LeafAbscission()
       droplf = vdrop1 - vdrop2 * LeafAreaIndex;
 //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
 //  prefruiting node leaves.
-      PreFruitLeafAbscission(droplf);
+      PreFruitLeafAbscission(droplf, Daynum);
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
       for (int k = 0; k < NumVegBranches; k++)
@@ -48,11 +48,11 @@ void LeafAbscission()
            int nbrch; // number of fruiting branches on a vegetative branch.
            nbrch = NumFruitBranches[k];
            for (int l = 0; l < nbrch; l++)
-               MainStemLeafAbscission(k,l,droplf);
+               MainStemLeafAbscission(k,l,droplf, Daynum);
       }
 //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
       if ( DayFirstDef > 0 && Daynum >= DayFirstDef )
-		   DefoliationLeafAbscission();
+		   DefoliationLeafAbscission(Daynum);
 //     If the reserves in the leaf are too high, add the lost reserves
 //  to AbscisedLeafWeight and adjust ReserveC.
       if ( ReserveC > 0 ) 
@@ -72,12 +72,12 @@ void LeafAbscission()
 		   LeafAreaIndex = 0.0001;
 }
 /////////////////////////
-void PreFruitLeafAbscission(double droplf )
+void PreFruitLeafAbscission(double droplf, const int& Daynum)
 //     This function simulates the abscission of prefruiting node
 //  leaves. It is called from function LeafAbscission().
 //
 //     The following global variables are referenced here:
-//        DayInc, Daynum, DayFirstDef, FirstSquare, LeafAreaIndex, LeafNConc, NumPreFruNodes,
+//        DayInc, DayFirstDef, FirstSquare, LeafAreaIndex, LeafNConc, NumPreFruNodes,
 //        PetioleNConc, pixcon.
 //
 //     The following global variable are set here:
@@ -120,13 +120,13 @@ void PreFruitLeafAbscission(double droplf )
       }
 }
 /////////////////////////
-void MainStemLeafAbscission(int k, int l, double droplf)
+void MainStemLeafAbscission(int k, int l, double droplf, const int& Daynum)
 //     This function simulates the abscission of main stem leaves
 //  on node l of vegetative branch k. It is called from function
 //  LeafAbscission(). It calls function FruitNodeLeafAbscission().
 //
 //     The following global variables are referenced here:
-//        Daynum, DayFirstDef, LeafAge, LeafAreaIndex, LeafNConc, 
+//        DayFirstDef, LeafAge, LeafAreaIndex, LeafNConc, 
 //        NumNodes, PetioleNConc, pixcon.
 //
 //     The following global variable are set here:
@@ -164,16 +164,16 @@ void MainStemLeafAbscission(int k, int l, double droplf)
 //     Loop over all nodes on this fruiting branch and call FruitNodeLeafAbscission().
       int nnid = NumNodes[k][l]; // node number on this fruiting branch.
       for (int m = 0; m < nnid; m++)
-          FruitNodeLeafAbscission(k, l, m, droplf);
+          FruitNodeLeafAbscission(k, l, m, droplf, Daynum);
 }
 /////////////////////////
-void FruitNodeLeafAbscission(int k, int l, int m, double droplf)
+void FruitNodeLeafAbscission(int k, int l, int m, double droplf, const int& Daynum)
 //     This function simulates the abscission of fruiting node
 //  leaves on node m of fruiting branch l of vegetative branch k. It is
 //  called from function MainStemLeafAbscission().
 //
 //     The following global variables are referenced here:
-//        Daynum, DayFirstDef, LeafAge, LeafAreaIndex, LeafNConc, PetioleNConc, pixcon.
+//        DayFirstDef, LeafAge, LeafAreaIndex, LeafNConc, PetioleNConc, pixcon.
 //
 //     The following global variables are set here:
 //        AbscisedLeafWeight, CumPlantNLoss, LeafAreaNodes, LeafNitrogen, LeafWeightNodes,
@@ -210,12 +210,12 @@ void FruitNodeLeafAbscission(int k, int l, int m, double droplf)
       }
 }
 /////////////////////////
-void DefoliationLeafAbscission()
+void DefoliationLeafAbscission(const int& Daynum)
 //     This function simulates leaf abscission caused by defoliants.
 //     It is called from function LeafAbscission().
 //
 //     The following global variables are referenced here:
-//        Daynum, DayFirstDef, LeafNConc, NumPreFruNodes, PercentDefoliation, 
+//        DayFirstDef, LeafNConc, NumPreFruNodes, PercentDefoliation, 
 //        PetioleNConc, pixcon.
 //
 //     The following global variable are set here:

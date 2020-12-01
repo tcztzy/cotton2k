@@ -25,13 +25,13 @@ void AdjustBollAbscission(int, int, int, int, double);
 void ComputeSiteNumbers();
 
 //////////////////////////////////////////////////
-void FruitingSitesAbscission()
+void FruitingSitesAbscission(const int& Daynum)
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
 //	SquareAbscission(), BollAbscission(), AdjustAbscission() and ComputeSiteNumbers()
 //
 //     The following global variables are referenced here:
-//  CarbonStress, DayInc, Daynum, FruitingCode, ginp, Gintot, Kday, KdayAdjust, NitrogenStress, 
+//  CarbonStress, DayInc, FruitingCode, ginp, Gintot, Kday, KdayAdjust, NitrogenStress, 
 //  NumAdjustDays, NumFruitBranches, NumNodes, NumVegBranches, VarPar, WaterStress.
 //
 //     The following global variable are set here:

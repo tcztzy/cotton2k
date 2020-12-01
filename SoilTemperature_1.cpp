@@ -9,20 +9,20 @@
 
 using namespace std;
 
-void   SoilTemperatureInit(int& jt1, int& jt2, const string& ProfileName, const int& DayStart, const int& DayFinish);
+void SoilTemperatureInit(int&, int&, const string&, const int&, const int&, const int&);
 // SoilTemperature_2
-void EnergyBalance(int, int, bool, double, double);
+void EnergyBalance(int, int, bool, double, double, const int&);
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int);
-tuple<int> PredictEmergence(int, const string&, const int&, const int&);
+tuple<int> PredictEmergence(int, const string&, const int&, const int&, const int&);
 
 //////////////////////////
-void ColumnShading(const int& DayEmerge)
+void ColumnShading(const int& Daynum, const int& DayEmerge)
 //     This function computes light interception by crop canopy and shading 
 //  of soil columns by the plants. It is called from SimulateThisDay().
 //
 //     The following global variables are referenced here:
-//       Daynum, isw, LeafAreaIndex, PlantHeight, PlantRowColumn, nk, RowSpace. 
+//       isw, LeafAreaIndex, PlantHeight, PlantRowColumn, nk, RowSpace. 
 //     The following global variables are set here:    LightIntercept, rracol. 
 {
 //     Before emergence: no light interception and no shading. LightIntercept is
@@ -106,13 +106,13 @@ void ColumnShading(const int& DayEmerge)
       } // end for k
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant)
+tuple<int> SoilTemperature(const string& ProfileName, const int& Daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant)
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
 //
 //     The following global variables are referenced here:
-//       ActualTranspiration, AirTemp, Date, DayEndMulchDaynum, DayStart, DayStartMulch, 
+//       ActualTranspiration, AirTemp, DayEndMulchDaynum, DayStartMulch, 
 //       DewPointTemp, dl, FoliageTemp, isw, MulchIndicator, MulchTemp, nk, nl, OutIndex, 
 //       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
 //       rracol, SitePar, thad, wk
@@ -123,7 +123,7 @@ tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, cons
     int DayEmerge = dayEmerge;
 	  static int jt1, jt2;  //  Julian dates for start and end of output.
       if ( Daynum <= DayStart ) 
-           SoilTemperatureInit (jt1, jt2, ProfileName, DayStart, DayFinish);
+           SoilTemperatureInit (jt1, jt2, ProfileName, Daynum, DayStart, DayFinish);
 //     Set output flag jtout, indicating if output of soil temperature is required.
       bool jtout = false;  // output flag for soil temperature data
       if ( OutIndex[16] > 0 ) 
@@ -226,7 +226,7 @@ tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, cons
                ess = escol1k / dlt; 
 			}
 //     Call EnergyBalance to compute soil surface and canopy temperature.
-            EnergyBalance (ihr, k, bMulchon, ess, etp1);
+            EnergyBalance (ihr, k, bMulchon, ess, etp1, Daynum);
 	        if (bMulchon) 
 			{
                tmav += MulchTemp[k] - 273.161;
@@ -341,7 +341,7 @@ tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, cons
          }
 //     If emergence date is to be simulated, call PredictEmergence().
          if ( isw == 0 && Daynum >= DayPlant )  
-			        tie(DayEmerge) = PredictEmergence(ihr, ProfileName, DayEmerge, DayPlant);
+			        tie(DayEmerge) = PredictEmergence(ihr, ProfileName, Daynum, DayEmerge, DayPlant);
       } // end of hourly loop
 //      At the end of the day compute actual daily evaporation and its cumulative sum.
 	  if (kk == 1) 
@@ -485,14 +485,14 @@ tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, cons
   Soil Sci. Soc. Am. Proc. 33:354-360.
 */
 ////////////////////////////////////////////////////////////////////////
-void SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName, const int& DayStart, const int& DayFinish)
+void SoilTemperatureInit(int &jt1, int &jt2, const string& ProfileName, const int& Daynum, const int& DayStart, const int& DayFinish)
 //     This function is called from SoilTemperature() at the start of the simulation. It sets 
 //  initial values to soil and canopy temperatures.
 //     The following arguments are set in this function:
 //  jt1, jt2 - input of start and stop of output of soil temperatures.
 //
 //     The following global variables are referenced here:
-//  Clim (structure), Daynum, nl, OutIndex, SitePar.
+//  Clim (structure), nl, OutIndex, SitePar.
 //     The following global variables are set here:
 //  DeepSoilTemperature, SoilTemp.
 {

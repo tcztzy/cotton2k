@@ -16,7 +16,7 @@
 
 namespace fs = std::filesystem;
 
-void output1(const string&, const string&, const int&);
+void output1(const string&, const string&, const int&, const int&);
 void WriteLine22(ofstream&, double, double, double);
 // Out this file
 void cotplt(int, const string&, const string&);
@@ -276,12 +276,12 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName, const 
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(const string& ProfileName, const string& Date, const int& DayEmerge, const int& DayFinish)
+void DailyOutput(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& DayFinish)
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
 //     The following global variables are referenced here:
-//       Daynum, DayOfSimulation, DayStartPlantMaps, DayStopPlantMaps, dl, NumFruitBranches, 
+//       DayOfSimulation, DayStartPlantMaps, DayStopPlantMaps, dl, NumFruitBranches, 
 //       NumPreFruNodes, OutIndex, PlantMapFreq, RowSpace, VolNo3NContent, wk,    
 //     The following global variables are set here:      MainStemNodes, SumNO3N90.
 {
@@ -308,7 +308,7 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& DayEm
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
       if (DayOfSimulation > 0)
-           WriteStateVariables(false, Date);
+           WriteStateVariables(false, Date, Daynum);
 //
 //     3. Write plant map output by calling cotplt():
 //     If the output flags (OutIndex(7) or OutIndex(13)) indicate that plant map output is  
@@ -330,12 +330,12 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& DayEm
          }
 //
 //     4. Call output1() to write output to F01 and S01 files:
-      output1(ProfileName, Date, DayEmerge);
+      output1(ProfileName, Date, Daynum, DayEmerge);
       if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)
           throw SimulationEnd();
 }
 //////////////////////////
-void output1(const string& ProfileName, const string& Date, const int& DayEmerge)
+void output1(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
 //
