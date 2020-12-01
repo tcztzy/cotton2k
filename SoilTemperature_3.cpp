@@ -489,12 +489,12 @@ void HeatBalance( int nn )
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////////
-tuple<int> PredictEmergence(int hour, const string& ProfileName, const int& dayEmerge)
+tuple<int> PredictEmergence(int hour, const string& ProfileName, const int& dayEmerge, const int& DayPlant)
 //     This function predicts date of emergence. It is called from SoilTemperature().
 //     There is one referenced argument (hour).
 //
 //     The following global variables are referenced here:
-//       Daynum, dl, iyear, DayPlant, PlantRowColumn, nl, SoilPsi, SoilTemp.
+//       Daynum, dl, iyear, PlantRowColumn, nl, SoilPsi, SoilTemp.
 //     The following global variables are set here:
 //       isw, Kday.
 //

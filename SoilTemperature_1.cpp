@@ -14,7 +14,7 @@ void   SoilTemperatureInit(int& jt1, int& jt2, const string& ProfileName, const 
 void EnergyBalance(int, int, bool, double, double);
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int);
-tuple<int> PredictEmergence(int, const string&, const int&);
+tuple<int> PredictEmergence(int, const string&, const int&, const int&);
 
 //////////////////////////
 void ColumnShading(const int& DayEmerge)
@@ -106,13 +106,13 @@ void ColumnShading(const int& DayEmerge)
       } // end for k
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, const int& DayStart, const int& DayFinish)
+tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant)
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
 //
 //     The following global variables are referenced here:
-//       ActualTranspiration, AirTemp, Date, DayEndMulchDaynum, DayPlant, DayStart, DayStartMulch, 
+//       ActualTranspiration, AirTemp, Date, DayEndMulchDaynum, DayStart, DayStartMulch, 
 //       DewPointTemp, dl, FoliageTemp, isw, MulchIndicator, MulchTemp, nk, nl, OutIndex, 
 //       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
 //       rracol, SitePar, thad, wk
@@ -341,7 +341,7 @@ tuple<int> SoilTemperature(const string& ProfileName, const int& dayEmerge, cons
          }
 //     If emergence date is to be simulated, call PredictEmergence().
          if ( isw == 0 && Daynum >= DayPlant )  
-			        tie(DayEmerge) = PredictEmergence(ihr, ProfileName, DayEmerge);
+			        tie(DayEmerge) = PredictEmergence(ihr, ProfileName, DayEmerge, DayPlant);
       } // end of hourly loop
 //      At the end of the day compute actual daily evaporation and its cumulative sum.
 	  if (kk == 1) 

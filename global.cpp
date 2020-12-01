@@ -38,7 +38,6 @@
 	    DayFirstDef,         // Date (DOY) of first defoliation.
         DayOfSimulation,     // Days from the start of simulation.
         Daynum,              // Days from the start of the first year of simulation (day of year = DOY)
-        DayPlant,            // Date (DOY) of planting.
         DayStartCO2,         // First date (DOY) with CO2 enrichment.
         DayStartMulch,       // Date (DOY) for beginning of mulch.
         DayStartPlantMaps,   // Date (DOY) to start plant maps output.
