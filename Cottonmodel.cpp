@@ -202,7 +202,7 @@ void C2KApp::RunTheModel()
         tie(Date, DayEmerge, PlantHeight) = DailySimulation(ProfileName, Date, DayEmerge, DayStart, DayFinish, DayPlant, 4.0);
 //     Write output data
         pdlg->m_Running = "Writing Output Files";
-        DataOutput(ProfileName, Date, DayEmerge, DayStart, DayFinish, PlantHeight);
+        DataOutput(ProfileName, DayEmerge, DayStart, DayFinish, PlantHeight);
         pdlg->EndDialog(i);
         delete pdlg;  //  check if needed
     }
