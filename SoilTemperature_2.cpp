@@ -20,7 +20,7 @@ double ThermalCondSoil(double, double, int);
 void MulchSurfaceBalance(int, int, double, double, double, double, double, double, double, double, double&, double, const int&);
 
 //////////////////////////
-void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1, const int& Daynum)
+void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1, const int& Daynum, double rracol[20])
 //     This function solves the energy balance equations at the soil surface, and at the
 //  foliage / atmosphere interface. It computes the resulting temperatures of the soil
 //  surface, plastic mulch (if exists) and the plant canopy.
@@ -37,7 +37,7 @@ void EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1, cons
 //       etp1 - actual transpiration rate (mm / sec).
 //     The following global variables are referenced here:
 //       AirTemp, albedo, CloudCoverRatio, CloudTypeCorr, FieldCapacity, MulchTemp, MulchTranSW,
-//       PlantHeight, Radiation, RelativeHumidity, rracol, SitePar, thad, VolWaterContent, WindSpeed.
+//       PlantHeight, Radiation, RelativeHumidity, SitePar, thad, VolWaterContent, WindSpeed.
 //    The following global variables are set here:
 //       SoilTemp, FoliageTemp, MulchTemp.
 {

@@ -316,9 +316,9 @@
         PotGroSquares[3][30][5], // potential growth rate of an individual square, g day-1.
         PotGroStem;          // potential growth rate of stems, g plant-1 day-1.
 // R
-     double
+    double
         Radiation[24],       // hourly global radiation, W / m2.
-	    RatioImplicit,       // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
+        RatioImplicit,       // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
         ReferenceETP[24],    // reference evapotranspiration, mm per hour.
         ReferenceTransp,     // daily sum of hourly reference evapotranspiration, mm per day.
         RelativeHumidity[24], // hourly values of relative humidity (%). 
@@ -333,9 +333,8 @@
         RootNitrogen,        // total root nitroge, g per plant.
         RootWeight[maxl][maxk][3], // weight of dry matter of root tissue in a soil cell for an age group, in g per cell.
         RootWeightLoss,      // total cumulative weight of sloughed roots, g per plant.
-	    RootWtCapblUptake[maxl][maxk], // root weight capable of uptake, in g per soil cell.
-        RowSpace,            // average row spacing, cm.
-        rracol[maxk];        // the relative radiation received by a soil column, as affected by shading by plant canopy.
+        RootWtCapblUptake[maxl][maxk], // root weight capable of uptake, in g per soil cell.
+        RowSpace;            // average row spacing, cm.
 // S
      double 
         SandVolumeFraction[maxl], // fraction by volume of sand plus silt in the soil.

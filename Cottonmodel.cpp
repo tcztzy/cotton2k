@@ -317,6 +317,7 @@ tuple<string, int, int> C2KApp::SimulateThisDay(string ProfileName, const int& d
 	     string Date = DoyToDate(Daynum, iyear);
          int DayEmerge = dayEmerge;
          DayOfSimulation = Daynum - DayStart + 1; 
+         double rracol[20]; // the relative radiation received by a soil column, as affected by shading by plant canopy.
 //    Compute Kday (days from emergence).
       if (DayEmerge <= 0)
          Kday = 0;
@@ -325,9 +326,9 @@ tuple<string, int, int> C2KApp::SimulateThisDay(string ProfileName, const int& d
       if (Kday < 0) 
           Kday = 0;
 //     The following functions are executed each day (also before emergence).
-      ColumnShading(Daynum, DayEmerge);      // computes light interception and soil shading.
+      ColumnShading(Daynum, DayEmerge, rracol);      // computes light interception and soil shading.
       DayClim(ProfileName, Date, Daynum, DayStart, DayFinish);            // computes climate variables for today.
-      tie(DayEmerge) = SoilTemperature(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant);    // executes all modules of soil and canopy temperature.
+      tie(DayEmerge) = SoilTemperature(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, rracol);    // executes all modules of soil and canopy temperature.
       SoilProcedures(ProfileName, Daynum, DayEmerge, DayStart);     // executes all other soil processes.
       SoilNitrogen(Daynum, DayStart);       // computes nitrogen transformations in the soil.
       SoilSum();            // computes totals of water and N in the soil.
