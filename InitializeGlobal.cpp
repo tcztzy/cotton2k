@@ -74,7 +74,6 @@ void InitializeGlobal()
       pixdn = 1;
       pixdz = 1;
       PixInPlants = 0;
-      PlantHeight = 4.0;
       PlantWeight = 0;
       PotGroStem = 0; 
 

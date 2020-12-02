@@ -16,8 +16,8 @@
 
 namespace fs = std::filesystem;
 
-void output1(const string&, const string&, const int&, const int&);
-void WriteLine22(ofstream&, double, double, double);
+void output1(const string&, const string&, const int&, const int&, const double&);
+void WriteLine22(ofstream&, double, double, double, const double&);
 // Out this file
 void cotplt(int, const string&, const string&);
 void outputplt(const string&, const int&);
@@ -276,7 +276,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName, const 
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& DayFinish)
+void DailyOutput(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& DayFinish, const double& PlantHeight)
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -308,7 +308,7 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& Daynu
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
       if (DayOfSimulation > 0)
-           WriteStateVariables(false, Date, Daynum);
+           WriteStateVariables(false, Date, Daynum, PlantHeight);
 //
 //     3. Write plant map output by calling cotplt():
 //     If the output flags (OutIndex(7) or OutIndex(13)) indicate that plant map output is  
@@ -330,12 +330,12 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& Daynu
          }
 //
 //     4. Call output1() to write output to F01 and S01 files:
-      output1(ProfileName, Date, Daynum, DayEmerge);
+      output1(ProfileName, Date, Daynum, DayEmerge, PlantHeight);
       if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)
           throw SimulationEnd();
 }
 //////////////////////////
-void output1(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge)
+void output1(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const double& PlantHeight)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
 //
@@ -449,7 +449,7 @@ void output1(const string& ProfileName, const string& Date, const int& Daynum, c
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-tuple<string> DataOutput(const string& ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish)
+tuple<string> DataOutput(const string& ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish, double PlantHeight)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),
@@ -515,25 +515,25 @@ tuple<string> DataOutput(const string& ProfileName, const string& Date, const in
          if ( ! ifg1 && Scratch21[irec].daynum == FirstSquare)
 		 {
             File22 << " First square    " << date;
-			WriteLine22(File22, i00, i01, i02);
+			WriteLine22(File22, i00, i01, i02, PlantHeight);
             ifg1 = true;
 		 }
          if ( ! ifg2 && Scratch21[irec].daynum == FirstBloom)
 		 {
             File22 << " First Bloom     " << date;
-			WriteLine22(File22, i00, i01, i02);
+			WriteLine22(File22, i00, i01, i02, PlantHeight);
             ifg2 = true;
 		 }
          if ( ! ifg3 && i02 > 0.1 ) 
 		 {
             File22 << " 1st open boll   " << date;
-			WriteLine22(File22, i00, i01, i02);
+			WriteLine22(File22, i00, i01, i02, PlantHeight);
             ifg3 = true;
 		 }
          if ( ! ifg4 && sixpct <= i02 && i02 > 0. ) 
 		 {
             File22 << " 60% open bolls  " << date;
-			WriteLine22(File22, i00, i01, i02);
+			WriteLine22(File22, i00, i01, i02, PlantHeight);
             ifg4 = true;
 		 }
          for (int i = 0; i < 5; i++)
@@ -541,13 +541,13 @@ tuple<string> DataOutput(const string& ProfileName, const string& Date, const in
             if (Scratch21[irec].daynum == DefoliationDate[i]) 
 			{
                File22 << " Defoliation     " << date;
-			   WriteLine22(File22, i00, i01, i02);
+			   WriteLine22(File22, i00, i01, i02, PlantHeight);
 			}
 		 } 
 	  }
 //     When end of file is reached report final LintYield in file 22.
       File22 << " Max yield on    " << date;
-	  WriteLine22(File22, i00, i01, i02);
+	  WriteLine22(File22, i00, i01, i02, PlantHeight);
 //     Call procedures for printing output
       outputplt(ProfileName, DayEmerge);
       if ( OutIndex[6] > 0 ) 
@@ -564,7 +564,7 @@ tuple<string> DataOutput(const string& ProfileName, const string& Date, const in
       return make_tuple(date);
 }
 ////////////////////////
-void WriteLine22(ofstream &File22, double i00, double i01, double i02)
+void WriteLine22(ofstream &File22, double i00, double i01, double i02, const double& PlantHeight)
 //     This function writes a formatted line in file *.S01. It is called from DataOutput().
 //     Global variables referenced: 
 //       Kday, LeafAreaIndex, LintYield, MainStemNodes, PlantHeight. 

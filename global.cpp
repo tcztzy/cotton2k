@@ -289,7 +289,6 @@
         pixdz,               // effect of PIX application on the growth rate of stem weight and of height.
         PixInPlants,              // total amount of PIX in the plant, g per plant.
         pixppa[10],          // rate of PIX application, pints per acre.
-        PlantHeight,         // plant height, cm.
 	    PlantPopulation,     // plant population, plants per hectar. 
         PlantRowLocation,    // distance of plant row from slab edge, cm.
 		PlantWeight,         // total plant weight, g.  

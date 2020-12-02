@@ -11,13 +11,13 @@ using namespace std;
 
 void SoilTemperatureInit(int&, int&, const string&, const int&, const int&, const int&);
 // SoilTemperature_2
-void EnergyBalance(int, int, bool, double, double, const int&, double[20]);
+void EnergyBalance(int, int, bool, double, double, const int&, const double&, double[20]);
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int);
 tuple<int> PredictEmergence(int, const string&, const int&, const int&, const int&);
 
 //////////////////////////
-void ColumnShading(const int& Daynum, const int& DayEmerge, double rracol[20])
+void ColumnShading(const int& Daynum, const int& DayEmerge, const double& PlantHeight, double rracol[20])
 //     This function computes light interception by crop canopy and shading 
 //  of soil columns by the plants. It is called from SimulateThisDay().
 //
@@ -106,7 +106,7 @@ void ColumnShading(const int& Daynum, const int& DayEmerge, double rracol[20])
       } // end for k
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-tuple<int> SoilTemperature(const string& ProfileName, const int& Daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, double rracol[20])
+tuple<int> SoilTemperature(const string& ProfileName, const int& Daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, const double& PlantHeight, double rracol[20])
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
@@ -226,7 +226,7 @@ tuple<int> SoilTemperature(const string& ProfileName, const int& Daynum, const i
                ess = escol1k / dlt; 
 			}
 //     Call EnergyBalance to compute soil surface and canopy temperature.
-            EnergyBalance (ihr, k, bMulchon, ess, etp1, Daynum, rracol);
+            EnergyBalance (ihr, k, bMulchon, ess, etp1, Daynum, PlantHeight, rracol);
 	        if (bMulchon) 
 			{
                tmav += MulchTemp[k] - 273.161;

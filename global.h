@@ -115,7 +115,7 @@ namespace fs = std::filesystem;
 	    NetPhotosynthesis, NightTimeTemp, NitrogenStress, NStressFruiting, 
         NStressRoots, NStressVeg, NumGreenBolls, NumOpenBolls, NumSquares,	
         PercentDefoliation, PerPlantArea, PetioleNConc, PetioleNitrogen, PetioleNO3NConc, 
-        pixcon, pixda, pixdn, pixdz, PixInPlants, PlantHeight, PlantPopulation, PlantRowLocation, 
+        pixcon, pixda, pixdn, pixdz, PixInPlants, PlantPopulation, PlantRowLocation, 
         PlantWeight, PlantWeightAtStart, PotGroAllBolls, PotGroAllBurrs, 
         PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem, 
 	    RatioImplicit, ReferenceTransp, ReserveC, Rn, RootNConc, RootNitrogen, 
