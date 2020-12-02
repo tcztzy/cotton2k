@@ -449,7 +449,7 @@ void output1(const string& ProfileName, const string& Date, const int& Daynum, c
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-tuple<string> DataOutput(const string& ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish, double PlantHeight)
+void DataOutput(const string& ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish, double PlantHeight)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),
@@ -561,7 +561,6 @@ tuple<string> DataOutput(const string& ProfileName, const string& Date, const in
       output6(ProfileName);
       if ( OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
            output7(ProfileName, DayStart, DayFinish);
-      return make_tuple(date);
 }
 ////////////////////////
 void WriteLine22(ofstream &File22, double i00, double i01, double i02, const double& PlantHeight)

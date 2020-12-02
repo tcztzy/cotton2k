@@ -1,4 +1,4 @@
 #pragma once
 void OpenOutputFiles(const std::string&, const std::string&, const int&);
 void DailyOutput(const std::string&, const std::string&, const int&, const int&, const int&, const double&);
-tuple<string> DataOutput(const string&, const string&, const int&, const int&, const int&, double);
+void DataOutput(const string&, const string&, const int&, const int&, const int&, double);
