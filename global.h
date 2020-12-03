@@ -61,19 +61,22 @@ namespace fs = std::filesystem;
           squareWeight[3][30][5], 
           volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk],
           volUreaNContent[maxl][maxk];
-    }       Scratch21[400];  
-//
+    };  
+    extern struct scratch Scratch21[400];
     extern struct Climstruct {
         int nDay; double Rad, Tmax, Tmin, Rain, Wind, Tdew; 
-        }   Clim[400];  
+    };
+    extern struct Climstruct Clim[400];
     extern struct NitrogenFertilizer {
         int day, mthfrt, ksdr, lsdr; 
 	    double amtamm, amtnit, amtura;  
-        }   NFertilizer[150];
+    };
+    extern struct NitrogenFertilizer NFertilizer[150];
     extern struct Irrigation {
         int day, method, LocationColumnDrip, LocationLayerDrip; 
 	    double amount; 
-        }   Irrig[150];
+    }   Irrig[150];
+    extern struct Irrigation Irrig[150];
 ////    Integers    //// 
 	extern int DayEndCO2, DayEndMulch, DayFirstDef, DayOfSimulation,
         DayStartCO2, DayStartMulch, DayStartPlantMaps, 
