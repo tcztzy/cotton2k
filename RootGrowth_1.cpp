@@ -20,15 +20,15 @@ double SoilMechanicResistance(int, int);
 double SoilAirOnRootGrowth(double, double, double);
 double SoilNitrateOnRootGrowth(double);
 double SoilWaterOnRootGrowth(double);
-void RedistRootNewGrowth(int, int, double);
-void TapRootGrowth();
+tuple<int> RedistRootNewGrowth(int, int, double, int);
+tuple<int> TapRootGrowth(int);
 void InitiateLateralRoots();
 void LateralRootGrowthLeft(int);
 void LateralRootGrowthRight(int);
 void RootAging(int, int);
 void RootDeath(int, int);
 void RootCultivation(int);
-void RootSummation(const string&);
+void RootSummation(const string&, const int&);
 
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
@@ -66,14 +66,14 @@ void RootSummation(const string&);
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth()
+double PotentialRootGrowth(const int& NumLayersWithRoots)
 //     This function calculates the potential root growth rate.  The return value 
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from 
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), 
 //  SoilMechanicResistance(), SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
 //
 //     The following global variables are referenced here:
-//       cgind, NumLayersWithRoots, NumRootAgeGroups, nk, OutIndex, 
+//       cgind, NumRootAgeGroups, nk, OutIndex, 
 //       PerPlantArea, PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg, 
 //       VolNo3NContent, VolWaterContent.
 //     The following global variables are set here:    PotGroRoots, RootGroFactor
@@ -384,7 +384,7 @@ double SoilWaterOnRootGrowth(double psislk)
       return smf;
 }
 //////////////////////////
-void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& Daynum, const int& DayEmerge)
+tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots)
 //     This function calculates the actual root growth rate. It is called from function 
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(), 
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), 
@@ -427,7 +427,7 @@ void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int
       if ( sumpdr <= 0 ) 
 	  {
          pavail += CarbonAllocatedForRootGrowth * 0.01 * RowSpace / PerPlantArea;
-         return;
+         return make_tuple(NumLayersWithRoots);
       }
       double actgf; // actual growth factor (ratio of available C to potential growth).
 //     The ratio of available C to potential root growth (actgf) is calculated. 
@@ -484,7 +484,7 @@ void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int
                   rtconc += RootWeight[l][k][i] * cgind[i];
                rtconc = rtconc / (dl[l] * wk[k]);
                if ( rtconc > rtminc ) 
-                  RedistRootNewGrowth(l,k,adwr1[l][k]);
+                  tie(NumLayersWithRoots) = RedistRootNewGrowth(l,k,adwr1[l][k], NumLayersWithRoots);
                else
                   ActualRootGrowth[l][k] += adwr1[l][k];
             }
@@ -515,7 +515,7 @@ void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int
 //     Call function TapRootGrowth() for taproot elongation, if the taproot
 //  has not already reached the bottom of the slab.
       if ( LastTaprootLayer < nl-1 || TapRootLength < DepthLastRootLayer ) 
-		   TapRootGrowth();
+		   tie(NumLayersWithRoots) = TapRootGrowth(NumLayersWithRoots);
 //     Call functions for growth of lateral roots
       InitiateLateralRoots();
       for (int l = 0; l < LastTaprootLayer; l++)
@@ -552,5 +552,6 @@ void ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int
       CumPlantNLoss  += DailyRootLoss * RootNConc;
       PixInPlants -= DailyRootLoss * pixcon;
 //     Call function RootSummation().
-      RootSummation(ProfileName);
+      RootSummation(ProfileName, NumLayersWithRoots);
+      return make_tuple(NumLayersWithRoots);
 }

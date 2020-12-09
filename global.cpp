@@ -90,7 +90,6 @@
 	    NumFruitBranches[3], // number of fruiting branches at each vegetative branch.
         NumFruitSites,       // total number of fruiting sites per plant.
         NumIrrigations,      // number of irrigations. 
-	    NumLayersWithRoots,  // number of soil layers with roots. 
         NumNitApps,          // number of applications of nitrogen fertilizer.
         NumNodes[3][30],     // number of nodes on each fruiting branch.
         NumPreFruNodes,      // number of prefruiting nodes, per plant.

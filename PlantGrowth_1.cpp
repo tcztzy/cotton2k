@@ -12,7 +12,7 @@
 #include "GeneralFunctions.h"
 #include "RootGrowth.h"
 
-void LeafWaterPotential(const string&, const double&);
+void LeafWaterPotential(const string&, const double&, const int&);
 double LeafResistance(double);
 // PlantGrowth_2
 void PotentialLeafGrowth();
@@ -55,7 +55,7 @@ double PhysiologicalAge()  // computes physiological age
       return dayfd / 24;
 }
 /////////////////////////////////////////////////////////////////////////
-void Stress(const string& ProfileName, const double& PlantHeight)                      
+void Stress(const string& ProfileName, const double& PlantHeight, const int& NumLayersWithRoots)                      
 //     This function computes the water stress variables affecting
 // the cotton plants. It is called by SimulateThisDay() and calls LeafWaterPotential().
 //
@@ -68,7 +68,7 @@ void Stress(const string& ProfileName, const double& PlantHeight)
 //     The following constant parameters are used:
 	  const double vstrs[9] = { -3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05 };
 //     Call LeafWaterPotential() to compute leaf water potentials.
-      LeafWaterPotential(ProfileName, PlantHeight);
+      LeafWaterPotential(ProfileName, PlantHeight, NumLayersWithRoots);
 //     The running averages, for the last three days, are computed:
 //  AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
       AverageLwpMin += (LwpMin - LwpMinX[2]) / 3;
@@ -122,7 +122,7 @@ void Stress(const string& ProfileName, const double& PlantHeight)
 		   WaterStressStem = vstrs[8];
 }
 //////////////////////////
-void LeafWaterPotential(const string& ProfileName, const double& PlantHeight)
+void LeafWaterPotential(const string& ProfileName, const double& PlantHeight, const int& NumLayersWithRoots)
 //     This function simulates the leaf water potential of cotton plants. It has been 
 //  adapted from the model of Moshe Meron (The relation of cotton leaf water potential to 
 //  soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
@@ -130,7 +130,7 @@ void LeafWaterPotential(const string& ProfileName, const double& PlantHeight)
 //
 //     The following global variables are referenced here:
 //       AgeOfPreFruNode, AverageSoilPsi, vanGenuchtenBeta, dl, Kday, LeafAge, NumFruitBranches, 
-//       NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, OutIndex, 
+//       NumNodes, NumPreFruNodes, NumVegBranches, OutIndex, 
 //       pi, PlantHeight, PoreSpace, ReferenceETP, RootColNumLeft, RootColNumRight, 
 //       RootWtCapblUptake, SaturatedHydCond, SoilPsi, thad, thts, VolWaterContent, wk.
 //     The following global variables are set here:
@@ -442,7 +442,7 @@ void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge)            //
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, double PlantHeight)
+tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight)
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -481,7 +481,7 @@ tuple<double> PlantGrowth(const string& ProfileName, const string& Date, const i
 //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
       double sumpdr; // total potential growth rate of roots in g per slab. this is 
 	                 // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-      sumpdr = PotentialRootGrowth();
+      sumpdr = PotentialRootGrowth(NumLayersWithRoots);
 //     Total potential growth rate of roots is converted from g per
 //  slab (sumpdr) to g per plant (PotGroAllRoots).
       PotGroAllRoots = sumpdr * 100 * PerPlantArea / RowSpace;
@@ -535,7 +535,7 @@ tuple<double> PlantGrowth(const string& ProfileName, const string& Date, const i
 //     Call AddPlantHeight to compute PlantHeight.
       PlantHeight += AddPlantHeight(denf2);
 //     Call ActualRootGrowth() to compute actual root growth.
-      ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayEmerge);
+      tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayEmerge, NumLayersWithRoots);
 //     Output data to file *.CHB
       if (OutIndex[18] > 0) 
 	  {
@@ -569,5 +569,5 @@ tuple<double> PlantGrowth(const string& ProfileName, const string& Date, const i
          File36 << NStressRoots;
          File36 << endl;
 	  }
-      return make_tuple(PlantHeight);
+      return make_tuple(NumLayersWithRoots, PlantHeight);
 }

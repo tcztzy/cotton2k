@@ -88,7 +88,7 @@ namespace fs = std::filesystem;
         LocationColumnDrip, LocationLayerDrip, 
 		MainStemNodes, MinDaysBetweenIrrig, MulchIndicator, 
         ncurve, nk, nl, noitr, NumAbscisedLeaves, NumAdjustDays, NumFruitSites,
-        NumIrrigations, NumLayersWithRoots, NumNitApps, NumPreFruNodes, NumRootAgeGroups,  
+        NumIrrigations, NumNitApps, NumPreFruNodes, NumRootAgeGroups,  
         NumSheddingTags, NumVegBranches, NumWaterTableData, 
         PlantMapFreq, PlantRowColumn, SoilMapFreq, WaterTableLayer;
     extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5], 

@@ -276,7 +276,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName, const 
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& DayFinish, const double& PlantHeight)
+void DailyOutput(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& DayFinish, const int& NumLayersWithRoots, const double& PlantHeight)
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -308,7 +308,7 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& Daynu
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
       if (DayOfSimulation > 0)
-           WriteStateVariables(false, Date, Daynum, PlantHeight);
+           WriteStateVariables(false, Date, Daynum, NumLayersWithRoots, PlantHeight);
 //
 //     3. Write plant map output by calling cotplt():
 //     If the output flags (OutIndex(7) or OutIndex(13)) indicate that plant map output is  

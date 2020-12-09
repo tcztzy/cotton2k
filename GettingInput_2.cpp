@@ -436,7 +436,7 @@ void InitializeRootData()
 //     Initial value of taproot length, TapRootLength, is computed to the
 // middle of the last layer with roots. The last soil layer with
 // taproot, LastTaprootLayer, is defined.
-      NumLayersWithRoots = 7;
+      int NumLayersWithRoots = 7;
       TapRootLength = (DepthLastRootLayer - 0.5 * dl[NumLayersWithRoots - 1]);
       LastTaprootLayer = 6;
 }

@@ -15,24 +15,24 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-void RootsCapableOfUptake();
+void RootsCapableOfUptake(const int&);
 void ApplyFertilizer(const int&);
 void ComputeIrrigation(const string&, const int&);
 double GetTargetStress(const int&);
 void PredictDripIrrigation(double, const int&);
 void PredictSurfaceIrrigation(double, const int&);
 void OutputPredictedIrrigation(double, double, const string&, const int&);
-double AveragePsi();
+double AveragePsi(const int&);
 void WaterTable(const int& Daynum);        // WATERTBL
 // SoilProcedure_2
 void CapillaryFlow(const int&, const int&);
 void DripFlow(double);
 // SoilProcedures_3
-void WaterUptake();       // UPTAKE
+void WaterUptake(const int&);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart)
+void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart, const int& NumLayersWithRoots)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -91,10 +91,10 @@ void SoilProcedures(const string& ProfileName, const int& Daynum, const int& Day
 //     The following will be executed only after plant emergence
       if (Daynum >= DayEmerge && isw > 0) 
 	  {
-         RootsCapableOfUptake();  // function computes roots capable of uptake for each soil cell
-         AverageSoilPsi = AveragePsi(); // function computes the average matric soil water 
+         RootsCapableOfUptake(NumLayersWithRoots);  // function computes roots capable of uptake for each soil cell
+         AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water 
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
-         WaterUptake(); // function  computes water and nitrogen uptake by plants.
+         WaterUptake(NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
 //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
          CumTranspiration += ActualTranspiration;
@@ -178,12 +178,12 @@ void SoilProcedures(const string& ProfileName, const int& Daynum, const int& Day
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-void RootsCapableOfUptake()
+void RootsCapableOfUptake(const int& NumLayersWithRoots)
 //     This function computes the weight of roots capable of uptake for all soil cells.
 //  It is called from SoilProcedures().
 //
 //     The following global variables are referenced here:
-//       nk, nl, NumLayersWithRoots, RootColNumLeft, RootColNumRight, RootWeight. 
+//       nk, nl, RootColNumLeft, RootColNumRight, RootWeight. 
 //     The following global variable is set here:     RootWtCapblUptake
 {
       const double cuind[3] = { 1, 0.5, 0 }; // the indices for the relative capability of uptake 
@@ -591,7 +591,7 @@ void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const s
 		 File20 << endl;
 }
 ////////////////////////////////////////////////////////////////////////////////
-double AveragePsi()
+double AveragePsi(const int& NumLayersWithRoots)
 //     This function computes and returns the average soil water potential of the root zone of  
 //  the soil slab. This average is weighted by the amount of active roots (roots capable of 
 //  uptake) in each soil cell. Soil zones without roots are not included. 

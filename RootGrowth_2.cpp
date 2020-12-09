@@ -19,7 +19,7 @@ using namespace std;
 double SoilTemOnRootGrowth(double);
 
 //////////////////////////////////////////////////
-void RedistRootNewGrowth(int l, int k, double addwt)
+tuple<int> RedistRootNewGrowth(int l, int k, double addwt, int NumLayersWithRoots)
 //     This function computes the redistribution of new growth of
 //  roots into adjacent soil cells. It is called from ActualRootGrowth().
 //     Redistribution is affected by the factors rgfdn, rgfsd, rgfup.
@@ -34,7 +34,7 @@ void RedistRootNewGrowth(int l, int k, double addwt)
 //     The following global variables are referenced here:
 //       dl, nk, nl, PlantRowColumn, RootGroFactor, wk.
 //     The following global variables are set here:
-//       ActualRootGrowth, DepthLastRootLayer, LastTaprootLayer, NumLayersWithRoots, 
+//       ActualRootGrowth, DepthLastRootLayer, LastTaprootLayer, 
 //       RootAge, RootColNumLeft, RootColNumRight, TapRootLength.
 {
 //     The following constant parameters are used. These are relative factors for root growth
@@ -85,7 +85,7 @@ void RedistRootNewGrowth(int l, int k, double addwt)
       if ( srwp < 1e-10 ) 
 	  {
          ActualRootGrowth[l][k] = addwt;
-         return;
+         return make_tuple(NumLayersWithRoots);
       }
 //     Allocate the added dry matter to this and the adjoining
 //  soil cells in proportion to the EFAC factors.
@@ -129,9 +129,10 @@ void RedistRootNewGrowth(int l, int k, double addwt)
 		   RootColNumLeft[l] = km1;
       if ( kp1 > RootColNumRight[l] )
 		   RootColNumRight[l] = kp1;
+      return make_tuple(NumLayersWithRoots);
 }
 //////////////////////////////
-void TapRootGrowth()
+tuple<int> TapRootGrowth(int NumLayersWithRoots)
 //     This function computes the elongation of the taproot. It is
 //  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
 //
@@ -152,7 +153,7 @@ void TapRootGrowth()
       int klocp1 = PlantRowColumn + 1; // the second column in which taproot growth occurs.
       if ( VolWaterContent[LastTaprootLayer][PlantRowColumn] >= PoreSpace[LastTaprootLayer]
            || VolWaterContent[LastTaprootLayer][klocp1] >= PoreSpace[LastTaprootLayer] ) 
-		   return;
+		   return make_tuple(NumLayersWithRoots);
 //     Average soil resistance (avres) is computed at the root tip.
 // avres = average value of RootGroFactor for the two soil cells at the tip of the taproot.
       double avres = 0.5 * (RootGroFactor[LastTaprootLayer][PlantRowColumn] 
@@ -177,7 +178,7 @@ void TapRootGrowth()
 //  roots, NumLayersWithRoots is also redefined and two soil cells of the new layer
 //  are defined as containing roots (by initializing RootColNumLeft and RootColNumRight).
 	  if (LastTaprootLayer > nl - 2 || TapRootLength <= DepthLastRootLayer) 
-		  return;
+		  return make_tuple(NumLayersWithRoots);
 //     The following is executed when the taproot reaches a new soil layer.
       LastTaprootLayer++;
       DepthLastRootLayer += dl[LastTaprootLayer];
@@ -217,6 +218,7 @@ void TapRootGrowth()
          RootWeight[LastTaprootLayer][klocp1][i] += tran;
          RootWeight[LastTaprootLayer-1][klocp1][i] -= tran;
 	  }
+      return make_tuple(NumLayersWithRoots);
 }
 //////////////////////////////
 void InitiateLateralRoots()
@@ -500,14 +502,14 @@ void RootCultivation(int j)
 	  }
 }
 //////////////////////////////
-void RootSummation(const string& ProfileName)
+void RootSummation(const string& ProfileName, const int& NumLayersWithRoots)
 //     This function has been added for compatibility with GOSSYM root routines. 
 //  It is called from ActualRootGrowth(). It summarizes root data, in a form ready 
 //  for output or plotting. Sums of root weights for cells, for age groups and for 
 //  the total slab are calculated. TotalRootWeight is calculated in g per plant.
 //
 //     The following global variables are referenced here:
-//  dl, Kday, nk, nl, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, 
+//  dl, Kday, nk, nl, NumRootAgeGroups, PerPlantArea, 
 //  OutIndex, RootWeight, RootWtCapblUptake, RowSpace, wk
 //     The following global variable is set here:     TotalRootWeight
 {

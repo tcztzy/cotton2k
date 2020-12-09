@@ -41,7 +41,7 @@ void GravityFlow(double applywat)
          CumWaterDrained += 10 * WaterDrainedOut / RowSpace;
 }
 ///////////////////////////////////////////////////////////////////////////////////
-void WaterUptake()
+void WaterUptake(const int& NumLayersWithRoots)
 //     This function computes the uptake of water by plant roots from the soil
 //  (i.e., actual transpiration rate). It is called from SoilProcedures(). 
 //     It calls PsiOnTranspiration(), psiq(), PsiOsmotic().

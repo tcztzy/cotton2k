@@ -3,5 +3,5 @@
 
 using namespace std;
 
-double PotentialRootGrowth();
-void ComputeActualRootGrowth(double, const string&, const int&, const int&);
+double PotentialRootGrowth(const int&);
+tuple<int> ComputeActualRootGrowth(double, const string&, const int&, const int&, int);
