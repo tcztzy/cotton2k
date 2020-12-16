@@ -26,8 +26,8 @@ void InitiateLateralRoots();
 void LateralRootGrowthLeft(int);
 void LateralRootGrowthRight(int);
 void RootAging(int, int);
-void RootDeath(int, int);
-void RootCultivation(int);
+double RootDeath(int, int, double);
+double RootCultivation(int, double);
 void RootSummation(const string&, const int&);
 
 //////////////////////////////////////////////////
@@ -527,7 +527,7 @@ tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, con
 		 }
       }
 //     Initialize DailyRootLoss (weight of sloughed roots) for this day.
-      DailyRootLoss = 0;
+      double DailyRootLoss = 0; // total weight of sloughed roots, g per plant per day.
       for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = 0; k < nk; k++)
 		 {
@@ -536,13 +536,13 @@ tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, con
             if ( RootAge[l][k] > 0 ) 
 			{
                RootAging(l,k);
-               RootDeath(l,k);
+               DailyRootLoss = RootDeath(l,k,DailyRootLoss);
             }
 		 }
 //     Check if cultivation is executed in this day and call RootCultivation().
       for (int j = 0; j < 5; j++)
          if ( CultivationDate[j] == Daynum ) 
-			  RootCultivation(j);
+			  DailyRootLoss = RootCultivation(j, DailyRootLoss);
 //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
       DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / RowSpace;
       RootWeightLoss += DailyRootLoss;

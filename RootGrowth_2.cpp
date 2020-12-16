@@ -413,7 +413,7 @@ void RootAging(int l, int k)
 	  }
 }
 //////////////////////////////
-void RootDeath(int l, int k)
+double RootDeath(int l, int k, double DailyRootLoss)
 {
 //     This function computes the death of root tissue in each soil cell containing roots. 
 //  When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i 
@@ -457,9 +457,10 @@ void RootDeath(int l, int k)
             RootWeight[l][k][i] -= RootWeight[l][k][i] * dthfac;
          }
 	  }
+      return DailyRootLoss;
 }
 //////////////////////////////
-void RootCultivation(int j)
+double RootCultivation(int j, double DailyRootLoss)
 //     This function is executed on the day of soil cultivation. It is called from 
 //  ActualRootGrowth(). It has been adapted from GOSSYM. It is assumed that the roots in the 
 //  upper soil layers, as defined by the depth of cultivation, are destroyed, with the 
@@ -500,6 +501,7 @@ void RootCultivation(int j)
                }
          }
 	  }
+      return DailyRootLoss;
 }
 //////////////////////////////
 void RootSummation(const string& ProfileName, const int& NumLayersWithRoots)
