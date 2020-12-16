@@ -17,13 +17,13 @@
 #include "FruitAbscission.h"
 #include "GeneralFunctions.h"
 
-void PreFruitingNode(double);
+void PreFruitingNode(double, const double&);
 double DaysToFirstSquare(const int&, const int&);
 void CreateFirstSquare(double);
 void AddVegetativeBranch(double, double, double);
 void AddFruitingBranch(int, double, double);
 void AddFruitingNode(int, int, double, double);
-void FruitingSite(int, int, int, int&, const int&);
+void FruitingSite(int, int, int, int&, const int&, const double&);
 void NewBollFormation(int, int, int);
 void BollOpening(int, int, int, double, const int&);
 
@@ -44,7 +44,7 @@ void BollOpening(int, int, int, double, const int&);
 //	        AdjustAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-void CottonPhenology(const int& Daynum, const int& DayEmerge)     
+void CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayInc)     
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -96,7 +96,7 @@ void CottonPhenology(const int& Daynum, const int& DayEmerge)
       if (FirstSquare <= 0)
       {
          DaysTo1stSqare = DaysToFirstSquare(Daynum, DayEmerge); 
-         PreFruitingNode(stemNRatio);
+         PreFruitingNode(stemNRatio, DayInc);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
          if ( Kday >= (int) DaysTo1stSqare ) 
@@ -107,7 +107,7 @@ void CottonPhenology(const int& Daynum, const int& DayEmerge)
 //      if a first square has not been formed, call LeafAbscission() and exit.
          else
          {
-            LeafAbscission(Daynum);
+            LeafAbscission(Daynum, DayInc);
 	        return;
          }
       }
@@ -142,16 +142,16 @@ void CottonPhenology(const int& Daynum, const int& DayEmerge)
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-               FruitingSite( k, l, m, nwfl, Daynum );
+               FruitingSite( k, l, m, nwfl, Daynum, DayInc );
 		 }
 	  }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
-      FruitingSitesAbscission(Daynum);
+      FruitingSitesAbscission(Daynum, DayInc);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-      LeafAbscission(Daynum);
+      LeafAbscission(Daynum, DayInc);
 }
 //////////////////////////
-void PreFruitingNode(double stemNRatio)
+void PreFruitingNode(double stemNRatio, const double& DayInc)
 //     This function checks if a new prefruiting node is to be added, and then sets it. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
@@ -499,7 +499,7 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio)
       DelayNewNode[k][l] = 0;
 }
 //////////////////////////////////////////////////
-void FruitingSite(int k, int l, int m, int & NodeRecentWhiteFlower, const int& Daynum)
+void FruitingSite(int k, int l, int m, int & NodeRecentWhiteFlower, const int& Daynum, const double& DayInc)
 //     Function FruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:

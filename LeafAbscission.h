@@ -1,2 +1,2 @@
 #pragma once
-void LeafAbscission(const int&);
+void LeafAbscission(const int&, const double&);

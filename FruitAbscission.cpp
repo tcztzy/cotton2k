@@ -15,7 +15,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-double SiteAbscissionRatio(int, int, int, int);
+double SiteAbscissionRatio(int, int, int, int, const double&);
 void SquareAbscission(int, int, int, double);
 void BollAbscission(int, int, int, double, double);
 void AdjustAbscission();
@@ -25,7 +25,7 @@ void AdjustBollAbscission(int, int, int, int, double);
 void ComputeSiteNumbers();
 
 //////////////////////////////////////////////////
-void FruitingSitesAbscission(const int& Daynum)
+void FruitingSitesAbscission(const int& Daynum, const double& DayInc)
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
 //	SquareAbscission(), BollAbscission(), AdjustAbscission() and ComputeSiteNumbers()
@@ -105,7 +105,7 @@ void FruitingSitesAbscission(const int& Daynum)
                      if ( FruitingCode[k][l][m] == 1 || FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7 )   
 					 {
                         double abscissionRatio; // ratio of abscission for a fruiting site.
-                        abscissionRatio = SiteAbscissionRatio(k, l, m, lt);
+                        abscissionRatio = SiteAbscissionRatio(k, l, m, lt, DayInc);
 						if (abscissionRatio > 0)
 						{
                            if (FruitingCode[k][l][m] == 1) 
@@ -135,7 +135,7 @@ void FruitingSitesAbscission(const int& Daynum)
       ComputeSiteNumbers();
 }
 /////////////////////////
-double SiteAbscissionRatio(int k, int l, int m, int lt)
+double SiteAbscissionRatio(int k, int l, int m, int lt, const double& DayInc)
 //     This function computes and returns the probability of abscission of a single 
 //  site (k, l, m). It is called from function FruitingSitesAbscission(). 
 //

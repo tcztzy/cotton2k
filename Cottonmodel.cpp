@@ -340,14 +340,14 @@ tuple<string, int, int, int, double> C2KApp::SimulateThisDay(string ProfileName,
 	  {
 //     If this day is after emergence, assign to isw the value of 2.
          isw = 2;
-         DayInc = PhysiologicalAge();    // computes physiological age
+         double DayInc = PhysiologicalAge();    // physiological days increment for this day. computes physiological age
          if(pixday[0] > 0)
              Pix();        // effects of pix applied.
          Defoliate(ProfileName, Date, Daynum, DayEmerge);         // effects of defoliants applied.
          Stress(ProfileName, PlantHeight, NumLayersWithRoots);            // computes water stress factors.
          GetNetPhotosynthesis(Daynum, DayEmerge);         // computes net photosynthesis.
-         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(ProfileName, Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight);       // executes all modules of plant growth.
-         CottonPhenology(Daynum, DayEmerge);              // executes all modules of plant phenology.
+         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(ProfileName, Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, DayInc);       // executes all modules of plant growth.
+         CottonPhenology(Daynum, DayEmerge, DayInc);              // executes all modules of plant phenology.
          PlantNitrogen(ProfileName, Daynum, DayEmerge);     // computes plant nitrogen allocation.
          CheckDryMatterBal(ProfileName, Date); // checks plant dry matter balance.
 //     If the relevant output flag is not zero, compute soil nitrogen balance and soil

@@ -10,14 +10,14 @@
 //
 #include "global.h"
 
-void PreFruitLeafAbscission(double, const int&);
+void PreFruitLeafAbscission(double, const int&, const double&);
 void MainStemLeafAbscission(int, int, double, const int&);
 void FruitNodeLeafAbscission(int, int, int, double, const int&);
 void DefoliationLeafAbscission(const int&);
 void SortArray(int, double[], int[], int[], int[]);
 
 //////////////////////////////////////////////////
-void LeafAbscission(const int& Daynum)
+void LeafAbscission(const int& Daynum, const double& DayInc)
 //     This function simulates leaf abscission. It is called from
 //  CottonPhenology(). It calls the following functions:
 //        FruitNodeLeafAbscission(), MainStemLeafAbscission(), 
@@ -40,7 +40,7 @@ void LeafAbscission(const int& Daynum)
       droplf = vdrop1 - vdrop2 * LeafAreaIndex;
 //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
 //  prefruiting node leaves.
-      PreFruitLeafAbscission(droplf, Daynum);
+      PreFruitLeafAbscission(droplf, Daynum, DayInc);
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
       for (int k = 0; k < NumVegBranches; k++)
@@ -72,7 +72,7 @@ void LeafAbscission(const int& Daynum)
 		   LeafAreaIndex = 0.0001;
 }
 /////////////////////////
-void PreFruitLeafAbscission(double droplf, const int& Daynum)
+void PreFruitLeafAbscission(double droplf, const int& Daynum, const double& DayInc)
 //     This function simulates the abscission of prefruiting node
 //  leaves. It is called from function LeafAbscission().
 //

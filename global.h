@@ -107,7 +107,7 @@ namespace fs = std::filesystem;
         CottonWeightGreenBolls, CottonWeightOpenBolls, CumEvaporation, CumFertilizerN, 
         CumNetPhotosynth, CumNitrogenUptake, CumPlantNLoss, CumTranspiration, 
         CumWaterAdded, CumWaterDrained, 
-        DayInc, DayLength, DayTimeTemp, dclay,  
+        DayLength, DayTimeTemp, dclay,  
         DeepSoilTemperature, DensityFactor, DepthLastRootLayer, dsand, 
         ElCondSatSoilToday, Elevation, ExtraCarbon, FruitGrowthRatio,  
         ginp, Gintot, GreenBollsLost,

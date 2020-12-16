@@ -22,7 +22,7 @@ double PotentialStemGrowth(double stemnew);
 void DryMatterBalance(double& cdstem, double& cdleaf, double& cdpet, double& cdroot, const string& ProfileName);
 void ActualFruitGrowth();
 void ActualLeafGrowth();
-double AddPlantHeight(double denf2);
+double AddPlantHeight(double denf2, const double&);
 
 double ptsred; // The effect of moisture stress on the photosynthetic rate
 //////////////////////////////////////////////////
@@ -442,7 +442,7 @@ void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge)            //
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight)
+tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc)
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -533,7 +533,7 @@ tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, co
       double denf2; // effect of plant density on plant growth in height.
       denf2 = 1 + z1 * (DensityFactor - 1);
 //     Call AddPlantHeight to compute PlantHeight.
-      PlantHeight += AddPlantHeight(denf2);
+      PlantHeight += AddPlantHeight(denf2, DayInc);
 //     Call ActualRootGrowth() to compute actual root growth.
       tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayEmerge, NumLayersWithRoots);
 //     Output data to file *.CHB

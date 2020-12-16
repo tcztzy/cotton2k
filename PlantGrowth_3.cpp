@@ -391,7 +391,7 @@ void ActualLeafGrowth()
 	  } // loop k
 }
 //////////////////////////
-double AddPlantHeight(double denf2)
+double AddPlantHeight(double denf2, const double& DayInc)
 //     This function simulates the growth in height of the main stem of cotton plants. 
 //  It is called from PlantGrowth(). It returns the added plant height (cm).
 //     The following global variables are referenced here:
