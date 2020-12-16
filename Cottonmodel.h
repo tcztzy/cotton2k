@@ -25,7 +25,7 @@ public:
     CString GetJobFile();
     void GetProfilesList(fs::path JobFileName);
     void RunTheModel();
-	tuple<string, int, double> DailySimulation(string ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, double PlantHeight);
+	tuple<string, int, double> DailySimulation(string ProfileName, const string& Date, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant);
 	tuple<string, int, int, int, double> SimulateThisDay(string ProfileName, const int& daynum, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int, double PlantHeight);
     tuple<BOOL, string, int, int, int, double> DoAdjustments(string ProfileName, const string& Date, const int& daynum, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int, double PlantHeight);
 	virtual BOOL InitInstance();
