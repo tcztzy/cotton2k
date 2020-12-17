@@ -8,10 +8,10 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-tuple<string, int, int, double> GoBack(const string&, const int&, int, double, double[40][20][3]);
+tuple<string, int, int, double> GoBack(const string&, const int&, int, double, double[40][20][3], double[40][20]);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void WriteStateVariables(bool bAdjusting, const string& Date, const int& Daynum, const int& NumLayersWithRoots, const double& PlantHeight, const double RootWeight[40][20][3])
+void WriteStateVariables(bool bAdjusting, const string& Date, const int& Daynum, const int& NumLayersWithRoots, const double& PlantHeight, const double RootWeight[40][20][3], const double RootAge[40][20])
 //     This function stores all state or rate variables, needed for output, or for rerunning
 //  plant adjustments, in the structure Scratch21. It is called from DailySimulation(),
 //  DoAdjustments(), and DailyOutput().
@@ -223,7 +223,7 @@ void WriteStateVariables(bool bAdjusting, const string& Date, const int& Daynum,
      }
 }
 //////////////////////////
-tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& ProfileName, const string& Date, const int& daynum, int NumLayersWithRoots, double PlantHeight, double RootWeight[40][20][3])
+tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& ProfileName, const string& Date, const int& daynum, int NumLayersWithRoots, double PlantHeight, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function adjusts plant height and plant fruiting map, when data for such 
 //  adjustments are available.
 //     This function is called from DoAdjustments(). it calls GoBack().
@@ -289,7 +289,7 @@ tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& Pr
 //     AdjAddMSNodesRate will be used in function AddFruitingBranch()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for main stem nodes to date " << date << endl;
-             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight);
+             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight, RootAge);
          }
          return make_tuple(date, Daynum, NumLayersWithRoots, PlantHeight);
 //
@@ -331,7 +331,7 @@ tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& Pr
 //     AdjAddHeightRate will be used in function AddPlantHeight()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 		     File46 << " Apply plant adjustment for stem height to date " << date << endl;
-             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight);
+             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight, RootAge);
          }
          return make_tuple(date, Daynum, NumLayersWithRoots, PlantHeight);
 //
@@ -381,7 +381,7 @@ tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& Pr
 //     AdjAddSitesRate will be used in function AddFruitingNode()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for total number of sites to date " << date << endl;
-             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight);
+             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight, RootAge);
          }
          return make_tuple(date, Daynum, NumLayersWithRoots, PlantHeight);
 //
@@ -398,7 +398,7 @@ tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& Pr
 //     AdjSquareAbsc will be used in function AdjustAbscission()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for number of squares to date " << date << endl;
-             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight);
+             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight, RootAge);
          }
          else
              nadj[3] = false;
@@ -415,7 +415,7 @@ tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& Pr
 //     AdjGreenBollAbsc will be used in function AdjustAbscission()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for number of green bolls to date " << date << endl;
-             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight);
+             tie(date, Daynum, NumLayersWithRoots, PlantHeight) = GoBack(date, Daynum, NumLayersWithRoots, PlantHeight, RootWeight, RootAge);
          }
          else
              nadj[4] = false;
@@ -424,7 +424,7 @@ tuple<string, int, int, double> PlantAdjustments(int i, int jj, const string& Pr
      return make_tuple(date, Daynum, NumLayersWithRoots, PlantHeight);
 } 
 ///////////////////////////////////////////////////////////////////////
-tuple<string, int, int, double> GoBack(const string& Date, const int& daynum, int NumLayersWithRoots, double PlantHeight, double RootWeight[40][20][3])
+tuple<string, int, int, double> GoBack(const string& Date, const int& daynum, int NumLayersWithRoots, double PlantHeight, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function reads state variables retroactively NumAdjustDays days earlier. 
 //  Thus, all required global state variables will assume their values
 //  at beginning of adjustment period.

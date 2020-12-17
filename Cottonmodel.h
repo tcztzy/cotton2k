@@ -25,9 +25,9 @@ public:
     CString GetJobFile();
     void GetProfilesList(fs::path JobFileName);
     void RunTheModel();
-	tuple<string, int, double> DailySimulation(string, const string&, const int&, const int&, const int&, const int&, double[40][20][3]);
-	tuple<string, int, int, int, double> SimulateThisDay(string, const int&, const int&, const int&, const int&, const int&, int, double, double[40][20][3]);
-    tuple<BOOL, string, int, int, int, double> DoAdjustments(string, const string&, const int&, const int&, const int&, const int&, const int&, int, double, double[40][20][3]);
+	tuple<string, int, double> DailySimulation(string, const string&, const int&, const int&, const int&, const int&, double[40][20][3], double[40][20]);
+	tuple<string, int, int, int, double> SimulateThisDay(string, const int&, const int&, const int&, const int&, const int&, int, double, double[40][20][3], double[40][20]);
+    tuple<BOOL, string, int, int, int, double> DoAdjustments(string, const string&, const int&, const int&, const int&, const int&, const int&, int, double, double[40][20][3], double[40][20]);
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 	afx_msg void OnAppAbout();

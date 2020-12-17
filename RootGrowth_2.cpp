@@ -19,7 +19,7 @@ using namespace std;
 double SoilTemOnRootGrowth(double);
 
 //////////////////////////////////////////////////
-tuple<int> RedistRootNewGrowth(int l, int k, double addwt, int NumLayersWithRoots)
+tuple<int> RedistRootNewGrowth(int l, int k, double addwt, int NumLayersWithRoots, double RootAge[40][20])
 //     This function computes the redistribution of new growth of
 //  roots into adjacent soil cells. It is called from ActualRootGrowth().
 //     Redistribution is affected by the factors rgfdn, rgfsd, rgfup.
@@ -132,7 +132,7 @@ tuple<int> RedistRootNewGrowth(int l, int k, double addwt, int NumLayersWithRoot
       return make_tuple(NumLayersWithRoots);
 }
 //////////////////////////////
-tuple<int> TapRootGrowth(int NumLayersWithRoots, double RootWeight[40][20][3])
+tuple<int> TapRootGrowth(int NumLayersWithRoots, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function computes the elongation of the taproot. It is
 //  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
 //
@@ -244,7 +244,7 @@ void InitiateLateralRoots()
 	  }
 }
 //////////////////////////////
-void LateralRootGrowthLeft(int l, double RootWeight[40][20][3])
+void LateralRootGrowthLeft(int l, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the left. It is called from ActualRootGrowth(). 
 //     It calls function SoilTemOnRootGrowth().
@@ -310,7 +310,7 @@ void LateralRootGrowthLeft(int l, double RootWeight[40][20][3])
 	  }
 }
 //////////////////////////////
-void LateralRootGrowthRight(int l, double RootWeight[40][20][3])
+void LateralRootGrowthRight(int l, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the right. It is called from ActualRootGrowth(). 
 //     It calls function SoilTemOnRootGrowth().
@@ -377,7 +377,7 @@ void LateralRootGrowthRight(int l, double RootWeight[40][20][3])
 	  }
 }
 ///////////////////////////////////////////////////////////////////////////////
-void RootAging(int l, int k, double RootWeight[40][20][3])
+void RootAging(int l, int k, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function is called from ActualRootGrowth(). It updates the variable celage(l,k) 
 //  for the age of roots in each soil cell containing roots. When root age reaches a threshold 
 //  thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion
@@ -413,7 +413,7 @@ void RootAging(int l, int k, double RootWeight[40][20][3])
 	  }
 }
 //////////////////////////////
-double RootDeath(int l, int k, double DailyRootLoss, double RootWeight[40][20][3])
+double RootDeath(int l, int k, double DailyRootLoss, double RootWeight[40][20][3], const double RootAge[40][20])
 {
 //     This function computes the death of root tissue in each soil cell containing roots. 
 //  When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i 

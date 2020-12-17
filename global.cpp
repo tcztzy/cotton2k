@@ -322,7 +322,6 @@
         rlat1[maxl],         // lateral root length (cm) to the left of the tap root
         rlat2[maxl],	     // lateral root length (cm) to the right of the tap root
         Rn,                  // daily total net radiation, W m-2.
-        RootAge[maxl][maxk], // the time (in days) from the first appearance of roots in a soil cell.
         RootGroFactor[maxl][maxk], // root growth correction factor in a soil cell (0 to 1).
         RootImpede[maxl][maxk], // root mechanical impedance for a soil cell, kg cm-2.
         RootNConc,           // average nitrogen concentration in roots.
