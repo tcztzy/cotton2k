@@ -22,7 +22,7 @@ void InitSoil(const string&);
 void ReadSoilImpedance();
 void InitializeSoilData(const string&);
 void InitializeSoilTemperature();
-void InitializeRootData();
+void InitializeRootData(double[40][20][3]);
 // GettingInput_3
 void ReadPlantMapInput(const string&);
 int OpenClimateFile(const string&, const string&, const int&);
@@ -41,7 +41,7 @@ void ReadAgriculturalInput(const string&, const string&);
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-tuple<int, int, int, int> ReadInput(const string& ProfileName)
+tuple<int, int, int, int> ReadInput(const string& ProfileName, double RootWeight[40][20][3])
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -76,7 +76,7 @@ tuple<int, int, int, int> ReadInput(const string& ProfileName)
 	ReadPlantMapInput(PlantmapFileName);
 	InitializeSoilData(SoilHydFileName);
 	InitializeSoilTemperature();
-	InitializeRootData();
+	InitializeRootData(RootWeight);
 //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;

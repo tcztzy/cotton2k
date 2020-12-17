@@ -442,7 +442,7 @@ void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge)            //
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc)
+tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc, double RootWeight[40][20][3])
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -481,7 +481,7 @@ tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, co
 //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
       double sumpdr; // total potential growth rate of roots in g per slab. this is 
 	                 // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-      sumpdr = PotentialRootGrowth(NumLayersWithRoots);
+      sumpdr = PotentialRootGrowth(NumLayersWithRoots, RootWeight);
 //     Total potential growth rate of roots is converted from g per
 //  slab (sumpdr) to g per plant (PotGroAllRoots).
       PotGroAllRoots = sumpdr * 100 * PerPlantArea / RowSpace;
@@ -535,7 +535,7 @@ tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, co
 //     Call AddPlantHeight to compute PlantHeight.
       PlantHeight += AddPlantHeight(denf2, DayInc);
 //     Call ActualRootGrowth() to compute actual root growth.
-      tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayEmerge, NumLayersWithRoots);
+      tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayEmerge, NumLayersWithRoots, RootWeight);
 //     Output data to file *.CHB
       if (OutIndex[18] > 0) 
 	  {

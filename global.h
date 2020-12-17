@@ -162,7 +162,7 @@ namespace fs = std::filesystem;
          PotGroPetioleWeightPreFru[9], PotGroRoots[maxl][maxk], PotGroSquares[3][30][5], 
          Radiation[24], ReferenceETP[24], RelativeHumidity[24], rlat1[maxl], rlat2[maxl], 
          RootAge[maxl][maxk], RootGroFactor[maxl][maxk], RootImpede[maxl][maxk], 
-         RootWeight[maxl][maxk][3], RootWtCapblUptake[maxl][maxk],
+         RootWtCapblUptake[maxl][maxk],
          SandVolumeFraction[maxl], SaturatedHydCond[9], ShedByCarbonStress[20], 
          ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk], 
          SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], SquareWeight[3][30][5], 

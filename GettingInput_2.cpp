@@ -324,7 +324,7 @@ int ReadSoilHydraulicData(const string& SoilHydFileName)
       return lyrsol;
 }
 //////////////////////////////////////////////////////////
-void InitializeRootData()
+void InitializeRootData(double RootWeight[40][20][3])
 //     This function initializes the root submodel parameters and variables. It is called
 //  by ReadInput(). it is executed once at the beginning of the simulation. 
 //

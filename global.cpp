@@ -327,7 +327,6 @@
         RootImpede[maxl][maxk], // root mechanical impedance for a soil cell, kg cm-2.
         RootNConc,           // average nitrogen concentration in roots.
         RootNitrogen,        // total root nitroge, g per plant.
-        RootWeight[maxl][maxk][3], // weight of dry matter of root tissue in a soil cell for an age group, in g per cell.
         RootWeightLoss,      // total cumulative weight of sloughed roots, g per plant.
         RootWtCapblUptake[maxl][maxk], // root weight capable of uptake, in g per soil cell.
         RowSpace;            // average row spacing, cm.

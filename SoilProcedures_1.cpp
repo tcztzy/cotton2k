@@ -15,7 +15,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-void RootsCapableOfUptake(const int&);
+void RootsCapableOfUptake(const int&, const double[40][20][3]);
 void ApplyFertilizer(const int&);
 void ComputeIrrigation(const string&, const int&);
 double GetTargetStress(const int&);
@@ -32,7 +32,7 @@ void WaterUptake(const int&);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart, const int& NumLayersWithRoots)
+void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart, const int& NumLayersWithRoots, const double RootWeight[40][20][3])
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -91,7 +91,7 @@ void SoilProcedures(const string& ProfileName, const int& Daynum, const int& Day
 //     The following will be executed only after plant emergence
       if (Daynum >= DayEmerge && isw > 0) 
 	  {
-         RootsCapableOfUptake(NumLayersWithRoots);  // function computes roots capable of uptake for each soil cell
+         RootsCapableOfUptake(NumLayersWithRoots, RootWeight);  // function computes roots capable of uptake for each soil cell
          AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water 
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
          WaterUptake(NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
@@ -178,7 +178,7 @@ void SoilProcedures(const string& ProfileName, const int& Daynum, const int& Day
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-void RootsCapableOfUptake(const int& NumLayersWithRoots)
+void RootsCapableOfUptake(const int& NumLayersWithRoots, const double RootWeight[40][20][3])
 //     This function computes the weight of roots capable of uptake for all soil cells.
 //  It is called from SoilProcedures().
 //
