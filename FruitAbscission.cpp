@@ -22,10 +22,10 @@ void AdjustAbscission();
 void AdjustSquareAbscission(int, int, int, double);
 void AdjustYoungBollAbscission(int, int, int, double, double);
 void AdjustBollAbscission(int, int, int, int, double);
-void ComputeSiteNumbers();
+tuple<double> ComputeSiteNumbers();
 
 //////////////////////////////////////////////////
-void FruitingSitesAbscission(const int& Daynum, const double& DayInc)
+tuple<double> FruitingSitesAbscission(const int& Daynum, const double& DayInc)
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
 //	SquareAbscission(), BollAbscission(), AdjustAbscission() and ComputeSiteNumbers()
@@ -132,7 +132,9 @@ void FruitingSitesAbscission(const int& Daynum, const double& DayInc)
       if (Kday > KdayAdjust && Kday <= (KdayAdjust + NumAdjustDays)) 
           AdjustAbscission();
 //
-      ComputeSiteNumbers();
+      double AbscisedFruitSites;
+      tie(AbscisedFruitSites) = ComputeSiteNumbers();
+      return make_tuple(AbscisedFruitSites);
 }
 /////////////////////////
 double SiteAbscissionRatio(int k, int l, int m, int lt, const double& DayInc)
@@ -553,7 +555,7 @@ void AdjustBollAbscission(int k, int l, int m, int jx, double gin1)
       }
 }
 ////////////////////
-void ComputeSiteNumbers()
+tuple<double> ComputeSiteNumbers()
 //     This function calculates square, green boll, open boll, and abscised site numbers 
 //  (NumSquares, NumGreenBolls, NumOpenBolls, and AbscisedFruitSites, respectively), as 
 //  the sums of FruitFraction in all sites with appropriate FruitingCode.
@@ -587,5 +589,6 @@ void ComputeSiteNumbers()
 		 }
 	  }
 //
-      AbscisedFruitSites = NumFruitSites - NumSquares - NumGreenBolls - NumOpenBolls;
+      double AbscisedFruitSites = NumFruitSites - NumSquares - NumGreenBolls - NumOpenBolls;
+      return make_tuple(AbscisedFruitSites);
 }

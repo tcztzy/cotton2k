@@ -44,7 +44,7 @@ void BollOpening(int, int, int, double, const int&);
 //	        AdjustAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-void CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayInc)     
+tuple<double> CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayInc)     
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -108,7 +108,7 @@ void CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayI
          else
          {
             LeafAbscission(Daynum, DayInc);
-	        return;
+	        return make_tuple(0);
          }
       }
 //     The following is executed after the appearance of the first square.
@@ -146,9 +146,11 @@ void CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayI
 		 }
 	  }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
-      FruitingSitesAbscission(Daynum, DayInc);
+      double AbscisedFruitSites;
+      tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc);
 //     Call LeafAbscission() to simulate the abscission of leaves.
       LeafAbscission(Daynum, DayInc);
+      return make_tuple(AbscisedFruitSites);
 }
 //////////////////////////
 void PreFruitingNode(double stemNRatio, const double& DayInc)

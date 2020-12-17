@@ -122,7 +122,6 @@
 //
 // A         
     double 
-        AbscisedFruitSites,  // total number of abscised fruit sites, per plant.
         AbscisedLeafWeight,  // weight of abscissed leaves, g per plant.
         AbscissionLag[20],// the time (in physiological days) from tagging fruiting sites for shedding.
 	    ActualBollGrowth,    // total actual growth of seedcotton in bolls, g plant-1 day-1.

@@ -8,7 +8,6 @@ void InitializeGlobal()
 //  simulation. It is called from ReadInput(). Note that initialization
 //  is needed at the start of each simulation (NOT at start of the run).
 {
-      AbscisedFruitSites = 0;
       AbscisedLeafWeight = 0;
       addwtbl = 0;
       AppliedWater = 0;

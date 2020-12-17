@@ -98,7 +98,7 @@ namespace fs = std::filesystem;
 ////    Boolean    //// 
     extern bool bPollinSwitch, nadj[5];
 ////    Double    //// 
-    extern double AbscisedFruitSites, AbscisedLeafWeight, ActualBollGrowth, ActualBurrGrowth, 
+    extern double AbscisedLeafWeight, ActualBollGrowth, ActualBurrGrowth, 
         ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl, 
         AdjAddHeightRate, AdjAddMSNodesRate, AdjAddSitesRate, AdjGreenBollAbsc,  
         AdjSquareAbsc, AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp, 
