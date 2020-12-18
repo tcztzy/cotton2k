@@ -43,7 +43,7 @@ double PotentialStemGrowth (double stemnew)
       return potentialStemGrowth;
 }
 //////////////////////////
-void PotentialLeafGrowth()
+void PotentialLeafGrowth(const double& WaterStress)
 //     This function simulates the potential growth of leaves of cotton plants. 
 //  It is called from PlantGrowth(). It calls function TemperatureOnLeafGrowthRate().
 //
@@ -252,7 +252,7 @@ double TemperatureOnLeafGrowthRate(double t)
       return temperatureOnLeafGrowthRate;
 }
 ////////////////////////////////////////////////////////////////////////
-void PotentialFruitGrowth(const double& DayLength)
+void PotentialFruitGrowth(const double& DayLength, const double& WaterStress)
 //     This function simulates the potential growth of fruiting sites of cotton plants.
 //  It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
 //

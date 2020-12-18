@@ -230,25 +230,26 @@ tuple<string, int, double> C2KApp::DailySimulation(string ProfileName, const str
     double PlantHeight = 4.0;
     double AbscisedFruitSites = 0; // total number of abscised fruit sites, per plant.
     double AbscisedLeafWeight = 0; // weight of abscissed leaves, g per plant.
+    double WaterStress = 1; // general water stress index (0 to 1).
 	try
 	{
         while (true)
         {
             BOOL bAdjustToDo;
-            tie(bAdjustToDo, date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight) = DoAdjustments(ProfileName, date, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, RootWeight, RootAge);
+            tie(bAdjustToDo, date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = DoAdjustments(ProfileName, date, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
             pdlg->ProgressStepit();
-            tie(date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, RootWeight, RootAge);
+            tie(date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
             // If there are pending plant adjustments, call WriteStateVariables() to write
             // state variables of this day in a scratch file.
             if (bAdjustToDo)
-	            WriteStateVariables(TRUE, date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, RootWeight, RootAge);
+	            WriteStateVariables(TRUE, date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
         }
 	}
     catch (SimulationEnd){}
     return make_tuple(date, DayEmerge, PlantHeight);
 }
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string, int, int, int, double, double, double> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<BOOL, string, int, int, int, double, double, double, double> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -266,7 +267,7 @@ tuple<BOOL, string, int, int, int, double, double, double> C2KApp::DoAdjustments
       for (int i = 0; i < 30; i++)
           sumsad += MapDataDate[i];
       if (sumsad <= 0)
-          return make_tuple(FALSE, date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight);
+          return make_tuple(FALSE, date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 //     Loop for all adjustment data, and check if there is an adjustment for this day.
       for (int i = 0; i < 30; i++)
       {
@@ -281,15 +282,15 @@ tuple<BOOL, string, int, int, int, double, double, double> C2KApp::DoAdjustments
 //  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
             for (int jj = 0; jj < 5; jj++)
             {
-                tie(date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight) = PlantAdjustments(i, jj, ProfileName, date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, RootWeight, RootAge);
+                tie(date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = PlantAdjustments(i, jj, ProfileName, date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
 //     If adjustment is necessary, rerun the simulation for the previous NumAdjustDays (number
 //  of days) and call WriteStateVariables() to write state variables in scratch structure.
                 if (nadj[jj])
                    for(int j1 = 0; j1 < NumAdjustDays; j1++)
                    {
-                       tie(date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, RootWeight, RootAge);
+                       tie(date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
                        if (Kday > 0) 
-                           WriteStateVariables(TRUE, date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, RootWeight, RootAge);
+                           WriteStateVariables(TRUE, date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
                    }     // end for j1, and if nadj 
             }            // end for jj
 //     After finishing this adjustment date, set kprevadj (date of previous adjustment, to 
@@ -301,10 +302,10 @@ tuple<BOOL, string, int, int, int, double, double, double> C2KApp::DoAdjustments
             continue;
          }// end if Daynum
       }// end do i
-      return make_tuple(TRUE, date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight);
+      return make_tuple(TRUE, date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 }
 //////////////////////////////////////////////////
-tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(string ProfileName, const int& daynum, int DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<string, int, int, int, double, double, double, double> C2KApp::SimulateThisDay(string ProfileName, const int& daynum, int DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
@@ -338,7 +339,7 @@ tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(str
       ColumnShading(Daynum, DayEmerge, PlantHeight, rracol);      // computes light interception and soil shading.
       tie(DayLength) = DayClim(ProfileName, Date, Daynum, DayStart, DayFinish);            // computes climate variables for today.
       tie(DayEmerge) = SoilTemperature(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, PlantHeight, rracol);    // executes all modules of soil and canopy temperature.
-      SoilProcedures(ProfileName, Daynum, DayEmerge, DayStart, NumLayersWithRoots, RootWeight);     // executes all other soil processes.
+      SoilProcedures(ProfileName, Daynum, DayEmerge, DayStart, NumLayersWithRoots, WaterStress, RootWeight);     // executes all other soil processes.
       SoilNitrogen(Daynum, DayStart);       // computes nitrogen transformations in the soil.
       SoilSum();            // computes totals of water and N in the soil.
 //     The following is executed each day after plant emergence:
@@ -350,10 +351,10 @@ tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(str
          if(pixday[0] > 0)
              Pix();        // effects of pix applied.
          Defoliate(ProfileName, Date, Daynum, DayEmerge);         // effects of defoliants applied.
-         Stress(ProfileName, PlantHeight, NumLayersWithRoots);            // computes water stress factors.
+         tie(WaterStress) = Stress(ProfileName, PlantHeight, NumLayersWithRoots);            // computes water stress factors.
          GetNetPhotosynthesis(Daynum, DayEmerge, DayLength);         // computes net photosynthesis.
-         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(ProfileName, Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, DayInc, DayLength, RootWeight, RootAge);       // executes all modules of plant growth.
-         tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(Daynum, DayEmerge, DayInc, AbscisedLeafWeight);              // executes all modules of plant phenology.
+         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(ProfileName, Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, DayInc, DayLength, WaterStress, RootWeight, RootAge);       // executes all modules of plant growth.
+         tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(Daynum, DayEmerge, DayInc, WaterStress, AbscisedLeafWeight);              // executes all modules of plant phenology.
          PlantNitrogen(ProfileName, Daynum, DayEmerge);     // computes plant nitrogen allocation.
          CheckDryMatterBal(ProfileName, Date, AbscisedLeafWeight); // checks plant dry matter balance.
 //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
@@ -366,14 +367,14 @@ tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(str
 		 }
       }
 //     Call DailyOutput for reporting some simulation data for this day.
-      DailyOutput(ProfileName, Date, Daynum, DayEmerge, DayFinish, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, RootWeight, RootAge);
+      DailyOutput(ProfileName, Date, Daynum, DayEmerge, DayFinish, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
 //     Check if the date to stop simulation has been reached, or if this is the last day
 //  with available weather data. Simulation will also stop when no leaves remain on the plant.
 //
       if (Daynum >= DayFinish || Daynum >= LastDayWeatherData
           || (Kday > 10 && LeafAreaIndex < 0.0002))
           throw SimulationEnd();
-      return make_tuple(Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight);
+      return make_tuple(Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 }
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About

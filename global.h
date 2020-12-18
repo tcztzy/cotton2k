@@ -128,7 +128,7 @@ namespace fs = std::filesystem;
         TotalLeafWeight, TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSoilNh4N, 
         TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight, 
         TotalStemWeight,  
-        WaterStress, WaterStressStem; 
+        WaterStressStem; 
 
      extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk], AgeOfBoll[3][30][5], 
          AgeOfPreFruNode[9], AgeOfSite[3][30][5], airdr[9], AirTemp[24], albedo[24], 

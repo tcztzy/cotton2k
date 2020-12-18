@@ -16,7 +16,7 @@ using namespace std;
 
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.
 //////////////////////////////////////////////////
-void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdroot, const string& ProfileName)
+void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdroot, const string& ProfileName, const double& WaterStress)
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:

@@ -15,11 +15,11 @@
 void LeafWaterPotential(const string&, const double&, const int&);
 double LeafResistance(double);
 // PlantGrowth_2
-void PotentialLeafGrowth();
-void PotentialFruitGrowth(const double&);
+void PotentialLeafGrowth(const double&);
+void PotentialFruitGrowth(const double&, const double&);
 double PotentialStemGrowth(double stemnew);
 // PlantGrowth_3
-void DryMatterBalance(double& cdstem, double& cdleaf, double& cdpet, double& cdroot, const string& ProfileName);
+void DryMatterBalance(double&, double&, double&, double&, const string&, const double&);
 void ActualFruitGrowth();
 void ActualLeafGrowth();
 double AddPlantHeight(double denf2, const double&);
@@ -55,7 +55,7 @@ double PhysiologicalAge()  // computes physiological age
       return dayfd / 24;
 }
 /////////////////////////////////////////////////////////////////////////
-void Stress(const string& ProfileName, const double& PlantHeight, const int& NumLayersWithRoots)                      
+tuple<double> Stress(const string& ProfileName, const double& PlantHeight, const int& NumLayersWithRoots)                      
 //     This function computes the water stress variables affecting
 // the cotton plants. It is called by SimulateThisDay() and calls LeafWaterPotential().
 //
@@ -84,9 +84,8 @@ void Stress(const string& ProfileName, const double& PlantHeight, const int& Num
       if ( Kday < 5 ) 
 	  {
          ptsred = 1;
-         WaterStress = 1;
          WaterStressStem = 1;
-         return;
+         return make_tuple(1);
       }
 //     The computation of ptsred, the effect of moisture stress on
 //  the photosynthetic rate, is based on the following work: Ephrath,
@@ -104,6 +103,7 @@ void Stress(const string& ProfileName, const double& PlantHeight, const int& Num
 // maximum value of the function, is used for truncating it.
 //     The minimum value of WaterStress is 0.05, and the maximum is 1.
       double psilim; // limiting value of AverageLwp.
+      double WaterStress;
       psilim = -0.5 * vstrs[5] / vstrs[6];
       if ( AverageLwp > psilim ) 
          WaterStress = 1;
@@ -120,6 +120,7 @@ void Stress(const string& ProfileName, const double& PlantHeight, const int& Num
       WaterStressStem =  WaterStress * (1 + vstrs[7] * (2 - WaterStress)) - vstrs[7];
       if ( WaterStressStem < vstrs[8] )
 		   WaterStressStem = vstrs[8];
+      return make_tuple(WaterStress);
 }
 //////////////////////////
 void LeafWaterPotential(const string& ProfileName, const double& PlantHeight, const int& NumLayersWithRoots)
@@ -442,7 +443,7 @@ void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge, const double&
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc, const double& DayLength, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc, const double& DayLength, const double& WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -458,11 +459,11 @@ tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, co
 //        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight. 
 {
 //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
-      PotentialLeafGrowth();
+      PotentialLeafGrowth(WaterStress);
 //     If it is after first square, call PotentialFruitGrowth() to compute potential
 //  growth rate of squares and bolls.
       if ( FruitingCode[0][0][0] > 0 ) 
-		  PotentialFruitGrowth(DayLength);
+		  PotentialFruitGrowth(DayLength, WaterStress);
 //     Active stem tissue (stemnew) is the difference between TotalStemWeight 
 //  and the value of StemWeight(kkday). 
       int voldstm = 32; // constant parameter (days for stem tissue to become "old")
@@ -497,7 +498,7 @@ tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, co
 //     cdroot is carbohydrate requirement for root growth, g per plant per day.
 //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
       double cdstem, cdleaf, cdpet, cdroot;
-      DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, ProfileName);
+      DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, ProfileName, WaterStress);
 //     If it is after first square, call ActualFruitGrowth() to compute actual
 //  growth rate of squares and bolls.
       if ( FruitingCode[0][0][0] > 0 ) 

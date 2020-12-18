@@ -18,12 +18,12 @@
 #include "GeneralFunctions.h"
 
 void PreFruitingNode(double, const double&);
-double DaysToFirstSquare(const int&, const int&);
+double DaysToFirstSquare(const int&, const int&, const double&);
 tuple<double> CreateFirstSquare(double, double);
 void AddVegetativeBranch(double, double, double);
-void AddFruitingBranch(int, double, double);
-void AddFruitingNode(int, int, double, double);
-void FruitingSite(int, int, int, int&, const int&, const double&);
+void AddFruitingBranch(int, double, double, const double&);
+void AddFruitingNode(int, int, double, double, const double& WaterStress);
+void FruitingSite(int, int, int, int&, const int&, const double&, const double&);
 void NewBollFormation(int, int, int);
 void BollOpening(int, int, int, double, const int&);
 
@@ -44,7 +44,7 @@ void BollOpening(int, int, int, double, const int&);
 //	        AdjustAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-tuple<double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayInc, double AbscisedLeafWeight)
+tuple<double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayInc, const double& WaterStress, double AbscisedLeafWeight)
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -95,7 +95,7 @@ tuple<double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, c
 //  formation of prefruiting nodes.
       if (FirstSquare <= 0)
       {
-         DaysTo1stSqare = DaysToFirstSquare(Daynum, DayEmerge); 
+         DaysTo1stSqare = DaysToFirstSquare(Daynum, DayEmerge, WaterStress);
          PreFruitingNode(stemNRatio, DayInc);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
@@ -132,22 +132,22 @@ tuple<double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, c
       for (int k = 0; k < NumVegBranches; k++)
 	  {
          if ( NumFruitBranches[k] < 30 ) 
-            AddFruitingBranch( k, delayVegByCStress, stemNRatio );
+            AddFruitingBranch( k, delayVegByCStress, stemNRatio, WaterStress );
 //     Loop over all existing fruiting branches, and call AddFruitingNode() to 
 //  decide if a new node on this fruiting branch is to be added.
          for (int l = 0; l < NumFruitBranches[k]; l++)
 		 {
             if ( NumNodes[k][l] < nidmax ) 
-                 AddFruitingNode( k, l, delayFrtByCStress, stemNRatio );
+                 AddFruitingNode( k, l, delayFrtByCStress, stemNRatio, WaterStress );
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-               FruitingSite( k, l, m, nwfl, Daynum, DayInc );
+               FruitingSite( k, l, m, nwfl, Daynum, DayInc, WaterStress);
 		 }
 	  }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
       double AbscisedFruitSites;
-      tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc);
+      tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc, WaterStress);
 //     Call LeafAbscission() to simulate the abscission of leaves.
       tie(AbscisedLeafWeight) = LeafAbscission(Daynum, DayInc, AbscisedLeafWeight);
       return make_tuple(AbscisedFruitSites, AbscisedLeafWeight);
@@ -203,7 +203,7 @@ void PreFruitingNode(double stemNRatio, const double& DayInc)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-double DaysToFirstSquare(const int& Daynum, const int& DayEmerge)
+double DaysToFirstSquare(const int& Daynum, const int& DayEmerge, const double& WaterStress)
 //     This function computes and returns tsq1, the number of days from emergence to first
 //  square. It is called from CottonPhenology().
 //     The following global variables are referenced here:
@@ -343,7 +343,7 @@ void AddVegetativeBranch(double delayVegByCStress, double stemNRatio, double Day
       NumNodes[NumVegBranches-1][0] = 1;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingBranch (int k, double delayVegByCStress, double stemNRatio)
+void AddFruitingBranch (int k, double delayVegByCStress, double stemNRatio, const double& WaterStress)
 //     This function decides if a new fruiting branch is to be added to a vegetative
 //  branch, and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
@@ -427,7 +427,7 @@ void AddFruitingBranch (int k, double delayVegByCStress, double stemNRatio)
       DelayNewFruBranch[k] = 0;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio)
+void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio, const double& WaterStress)
 //     Function AddFruitingNode() decides if a new node is to be added to a fruiting branch, 
 //  and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
@@ -502,7 +502,7 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio)
       DelayNewNode[k][l] = 0;
 }
 //////////////////////////////////////////////////
-void FruitingSite(int k, int l, int m, int & NodeRecentWhiteFlower, const int& Daynum, const double& DayInc)
+void FruitingSite(int k, int l, int m, int & NodeRecentWhiteFlower, const int& Daynum, const double& DayInc, const double& WaterStress)
 //     Function FruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:

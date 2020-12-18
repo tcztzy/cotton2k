@@ -25,7 +25,7 @@ void AdjustBollAbscission(int, int, int, int, double);
 tuple<double> ComputeSiteNumbers();
 
 //////////////////////////////////////////////////
-tuple<double> FruitingSitesAbscission(const int& Daynum, const double& DayInc)
+tuple<double> FruitingSitesAbscission(const int& Daynum, const double& DayInc, const double& WaterStress)
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
 //	SquareAbscission(), BollAbscission(), AdjustAbscission() and ComputeSiteNumbers()

@@ -17,11 +17,11 @@
 
 void RootsCapableOfUptake(const int&, const double[40][20][3]);
 void ApplyFertilizer(const int&);
-void ComputeIrrigation(const string&, const int&);
+void ComputeIrrigation(const string&, const int&, const double&);
 double GetTargetStress(const int&);
-void PredictDripIrrigation(double, const int&);
-void PredictSurfaceIrrigation(double, const int&);
-void OutputPredictedIrrigation(double, double, const string&, const int&);
+void PredictDripIrrigation(double, const int&, const double&);
+void PredictSurfaceIrrigation(double, const int&, const double&);
+void OutputPredictedIrrigation(double, double, const string&, const int&, const double&);
 double AveragePsi(const int&);
 void WaterTable(const int& Daynum);        // WATERTBL
 // SoilProcedure_2
@@ -32,7 +32,7 @@ void WaterUptake(const int&);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart, const int& NumLayersWithRoots, const double RootWeight[40][20][3])
+void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart, const int& NumLayersWithRoots, const double& WaterStress, const double RootWeight[40][20][3])
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -61,7 +61,7 @@ void SoilProcedures(const string& ProfileName, const int& Daynum, const int& Day
       if (MaxIrrigation > 0) 
          if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) 
 		 {
-			ComputeIrrigation(ProfileName, Daynum);
+			ComputeIrrigation(ProfileName, Daynum, WaterStress);
 			if (IrrigMethod == 2)
 				DripWaterAmount = AppliedWater;
 			else
@@ -337,7 +337,7 @@ void ApplyFertilizer(const int& Daynum)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ComputeIrrigation(const string& ProfileName, const int& Daynum)
+void ComputeIrrigation(const string& ProfileName, const int& Daynum, const double& WaterStress)
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
@@ -351,15 +351,15 @@ void ComputeIrrigation(const string& ProfileName, const int& Daynum)
           return;
 //
       if ( IrrigMethod == 2 ) 
-	      PredictDripIrrigation(TargetStress, Daynum);
+	      PredictDripIrrigation(TargetStress, Daynum, WaterStress);
 	  else
-	      PredictSurfaceIrrigation(TargetStress, Daynum);
+	      PredictSurfaceIrrigation(TargetStress, Daynum, WaterStress);
 //     If the amount of water to be applied (AppliedWater) is non zero update the date of 
 //  last irrigation, and write report in output file *.B01.
       if (AppliedWater > 0.00001) 
 	  {
          LastIrrigation = Daynum;
-         OutputPredictedIrrigation(AppliedWater, TargetStress, ProfileName, Daynum); 
+         OutputPredictedIrrigation(AppliedWater, TargetStress, ProfileName, Daynum, WaterStress);
       }
 }
 ///////////////////////////////////////////////////////////////////////
@@ -427,7 +427,7 @@ double GetTargetStress(const int& Daynum)
       return tgtstr;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void PredictDripIrrigation(double TargetStress, const int& Daynum)
+void PredictDripIrrigation(double TargetStress, const int& Daynum, const double& WaterStress)
 //     This function computes the amount of water (mm) needed for predicted drip
 //  irrigation, considering the effects of water stress.
 //     It is called from ComputeIrrigation(). It calls the function GetFromClim().
@@ -507,7 +507,7 @@ void PredictDripIrrigation(double TargetStress, const int& Daynum)
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void PredictSurfaceIrrigation(double TargetStress, const int& Daynum)
+void PredictSurfaceIrrigation(double TargetStress, const int& Daynum, const double& WaterStress)
 //     This function computes the amount of predicted irrigation applied at soil surface,
 //  by sprinkler or furrow. It is called from ComputeIrrigation().
 //
@@ -567,7 +567,7 @@ void PredictSurfaceIrrigation(double TargetStress, const int& Daynum)
       }
 }
 ////////////////////////////////////////////////////////////////////////////
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string& ProfileName, const int& Daynum)
+void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string& ProfileName, const int& Daynum, const double& WaterStress)
 //      This function is called from ComputeIrrigation().
 //      It writes output ofapplication of predicted irrigation to file *.B01
 //      Function DoyToDate() is used.
