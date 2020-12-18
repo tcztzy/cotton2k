@@ -302,7 +302,7 @@ tuple<BOOL, string, int, int, int, double, double, double> C2KApp::DoAdjustments
       return make_tuple(TRUE, date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight);
 }
 //////////////////////////////////////////////////
-tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(string ProfileName, const int& daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(string ProfileName, const int& daynum, int DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
@@ -322,7 +322,6 @@ tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(str
          int Daynum = daynum;
          Daynum++;
 	     string Date = DoyToDate(Daynum, iyear);
-         int DayEmerge = dayEmerge;
          double DayLength; // day length, hours.
          DayOfSimulation = Daynum - DayStart + 1; 
          double rracol[20]; // the relative radiation received by a soil column, as affected by shading by plant canopy.
