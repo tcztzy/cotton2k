@@ -44,7 +44,6 @@
         DayStartSoilMaps,    // Date (DOY) to start soil slab maps output.
         DayStopPlantMaps,    // Date (DOY) to stop plant maps output.
         DayStopPredIrrig,    // Date (DOY) for stopping predicted irrigation.
-        DayStopSoilMaps,     // Date (DOY) to stop soil slab maps output.
         DayWaterTableInput[20], // Dates (DOY) of water table input data.
         DefoliationDate[5],  // Dates (DOY) of defoliant applications.
         DefoliationMethod[5];// code number of method of application of defoliants:

@@ -26,7 +26,7 @@ void output3(const string&);
 void output4(const string&);
 void output5(const string&);
 void output6(const string&);
-void output7(const string&, const int&, const int&);
+void output7(const string&, const int&, const int&, const int&);
 
 /////////////////////////////////////////////////////////////
 void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName, const int& DayEmerge)
@@ -449,7 +449,7 @@ void output1(const string& ProfileName, const string& Date, const int& Daynum, c
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void DataOutput(const string& ProfileName, const int& DayEmerge, const int& DayStart, const int& DayFinish, double PlantHeight)
+void DataOutput(const string& ProfileName, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayStopSoilMaps, double PlantHeight)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),
@@ -560,7 +560,7 @@ void DataOutput(const string& ProfileName, const int& DayEmerge, const int& DayS
 		   output5(ProfileName);
       output6(ProfileName);
       if ( OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
-           output7(ProfileName, DayStart, DayFinish);
+           output7(ProfileName, DayStart, DayFinish, DayStopSoilMaps);
 }
 ////////////////////////
 void WriteLine22(ofstream &File22, double i00, double i01, double i02, const double& PlantHeight)
