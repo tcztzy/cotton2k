@@ -13,7 +13,7 @@
 
 using namespace std;
 
-tuple<int, int, int, int, int, string, string, string, string, string, string> ReadProfileFile(const string&);
+tuple<int, int, int, int, int, int, string, string, string, string, string, string> ReadProfileFile(const string&);
 void ReadCalibrationData();
 void InitializeGrid();
 void WriteInitialInputData(const string&, const string&, const string&, const string&, const string&, const string&, const string&, const int&, const int&, const int&, const int&);
@@ -41,7 +41,7 @@ void ReadAgriculturalInput(const string&, const string&);
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-tuple<int, int, int, int, int> ReadInput(const string& ProfileName, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, int, int, int, int, int> ReadInput(const string& ProfileName, double RootWeight[40][20][3], double RootAge[40][20])
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -57,6 +57,7 @@ tuple<int, int, int, int, int> ReadInput(const string& ProfileName, double RootW
         DayStart,         // Date (DOY) to start simulation.
         DayFinish,        // Date (DOY) to end simulation.
         DayPlant,
+        DayStartSoilMaps,
         DayStopSoilMaps;
     string
         ActWthFileName,   // name of input file with actual weather data.
@@ -66,7 +67,7 @@ tuple<int, int, int, int, int> ReadInput(const string& ProfileName, double RootW
         AgrInputFileName, // name of input file with agricultural input data
         PlantmapFileName; // name of input file with plant map adjustment data.
 	InitializeGlobal();
-	tie(DayEmerge, DayStart, DayFinish, DayPlant, DayStopSoilMaps, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
+	tie(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
 	ReadCalibrationData();
 	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart);
 	InitializeGrid();
@@ -81,10 +82,10 @@ tuple<int, int, int, int, int> ReadInput(const string& ProfileName, double RootW
 //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
-    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStopSoilMaps);
+    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps);
 }
 /////////////////////////////////////////////////////////////////////////////
-tuple<int, int, int, int, int, string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)
+tuple<int, int, int, int, int, int, string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -313,7 +314,7 @@ tuple<int, int, int, int, int, string, string, string, string, string, string> R
     int DayEmerge = DateToDoy(DateEmerge, iyear);
     int DayFinish = DateToDoy(DateSimEnd, iyear);
     int DayPlant = DateToDoy(DatePlant, iyear);
-    DayStartSoilMaps = DateToDoy(SoilMapStartDate, iyear);
+    int DayStartSoilMaps = DateToDoy(SoilMapStartDate, iyear);
     int DayStopSoilMaps = DateToDoy(SoilMapStopDate, iyear);
     DayStartPlantMaps = DateToDoy(PlantMapStartDate, iyear);
     DayStopPlantMaps = DateToDoy(PlantMapStopDate, iyear);
@@ -346,7 +347,7 @@ tuple<int, int, int, int, int, string, string, string, string, string, string> R
       }
 //     Call function OpenOutputFiles() to open the output files.
       OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge);
-      return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStopSoilMaps, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
+      return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()

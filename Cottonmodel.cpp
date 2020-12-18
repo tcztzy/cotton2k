@@ -185,6 +185,7 @@ void C2KApp::RunTheModel()
     int DayStart;       // Date (DOY) to start simulation.
     int DayFinish;
     int DayPlant;       // Date (DOY) of planting.
+    int DayStartSoilMaps;    // Date (DOY) to start soil slab maps output.
     int DayStopSoilMaps; // Date (DOY) to stop soil slab maps output.
     double PlantHeight; // plant height, cm.
     double RootWeight[40][20][3]; // weight of dry matter of root tissue in a soil cell for an age group, in g per cell.
@@ -193,7 +194,7 @@ void C2KApp::RunTheModel()
     {
 		ProfileName = ProfileArray.GetAt(i);
 //     Read the input data for this simulation
-        tie(DayEmerge, DayStart, DayFinish, DayPlant, DayStopSoilMaps) = ReadInput(ProfileName, RootWeight, RootAge);
+        tie(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps) = ReadInput(ProfileName, RootWeight, RootAge);
 //     Create a modeless dialog with progress control
         int range = DayFinish - DayStart + 1;
         pdlg = new CProgCtrlDlg;
@@ -205,7 +206,7 @@ void C2KApp::RunTheModel()
         tie(Date, DayEmerge, PlantHeight) = DailySimulation(ProfileName, Date, DayEmerge, DayStart, DayFinish, DayPlant, RootWeight, RootAge);
 //     Write output data
         pdlg->m_Running = "Writing Output Files";
-        DataOutput(ProfileName, DayEmerge, DayStart, DayFinish, DayStopSoilMaps, PlantHeight);
+        DataOutput(ProfileName, DayEmerge, DayStart, DayFinish, DayStartSoilMaps, DayStopSoilMaps, PlantHeight);
         pdlg->EndDialog(i);
         delete pdlg;  //  check if needed
     }

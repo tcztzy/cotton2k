@@ -40,8 +40,7 @@
         DayStartCO2,         // First date (DOY) with CO2 enrichment.
         DayStartMulch,       // Date (DOY) for beginning of mulch.
         DayStartPlantMaps,   // Date (DOY) to start plant maps output.
-        DayStartPredIrrig,   // Date (DOY) for starting predicted irrigation.   
-        DayStartSoilMaps,    // Date (DOY) to start soil slab maps output.
+        DayStartPredIrrig,   // Date (DOY) for starting predicted irrigation.  
         DayStopPlantMaps,    // Date (DOY) to stop plant maps output.
         DayStopPredIrrig,    // Date (DOY) for stopping predicted irrigation.
         DayWaterTableInput[20], // Dates (DOY) of water table input data.
