@@ -323,6 +323,7 @@ tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(str
          Daynum++;
 	     string Date = DoyToDate(Daynum, iyear);
          int DayEmerge = dayEmerge;
+         double DayLength; // day length, hours.
          DayOfSimulation = Daynum - DayStart + 1; 
          double rracol[20]; // the relative radiation received by a soil column, as affected by shading by plant canopy.
 //    Compute Kday (days from emergence).
@@ -334,7 +335,7 @@ tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(str
           Kday = 0;
 //     The following functions are executed each day (also before emergence).
       ColumnShading(Daynum, DayEmerge, PlantHeight, rracol);      // computes light interception and soil shading.
-      DayClim(ProfileName, Date, Daynum, DayStart, DayFinish);            // computes climate variables for today.
+      tie(DayLength) = DayClim(ProfileName, Date, Daynum, DayStart, DayFinish);            // computes climate variables for today.
       tie(DayEmerge) = SoilTemperature(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, PlantHeight, rracol);    // executes all modules of soil and canopy temperature.
       SoilProcedures(ProfileName, Daynum, DayEmerge, DayStart, NumLayersWithRoots, RootWeight);     // executes all other soil processes.
       SoilNitrogen(Daynum, DayStart);       // computes nitrogen transformations in the soil.
@@ -349,8 +350,8 @@ tuple<string, int, int, int, double, double, double> C2KApp::SimulateThisDay(str
              Pix();        // effects of pix applied.
          Defoliate(ProfileName, Date, Daynum, DayEmerge);         // effects of defoliants applied.
          Stress(ProfileName, PlantHeight, NumLayersWithRoots);            // computes water stress factors.
-         GetNetPhotosynthesis(Daynum, DayEmerge);         // computes net photosynthesis.
-         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(ProfileName, Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, DayInc, RootWeight, RootAge);       // executes all modules of plant growth.
+         GetNetPhotosynthesis(Daynum, DayEmerge, DayLength);         // computes net photosynthesis.
+         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(ProfileName, Date, Daynum, DayEmerge, NumLayersWithRoots, PlantHeight, DayInc, DayLength, RootWeight, RootAge);       // executes all modules of plant growth.
          tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(Daynum, DayEmerge, DayInc, AbscisedLeafWeight);              // executes all modules of plant phenology.
          PlantNitrogen(ProfileName, Daynum, DayEmerge);     // computes plant nitrogen allocation.
          CheckDryMatterBal(ProfileName, Date, AbscisedLeafWeight); // checks plant dry matter balance.

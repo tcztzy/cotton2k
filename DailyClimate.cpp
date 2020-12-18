@@ -30,16 +30,16 @@
 #include "GeneralFunctions.h"
 #include "DailyClimate.h"
 
-void ComputeDayLength(const int&);
+tuple<double> ComputeDayLength(const int&);
 double dayrad(double, double, double, double);
-double daytmp(double, const int&);
+double daytmp(double, const int&, const double&);
 double tdewhour(double, double, const int&);
 double dayrh(double, double);
 double daywnd(double, double, double, double, double, double);
 void AverageAirTemperatures();
-void EvapoTranspiration(int, const string&, const string&, const int&);
+void EvapoTranspiration(int, const string&, const string&, const int&, const double&);
 double cloudcov(double, double, double);
-double clcor(int, double, double, double);
+double clcor(int, double, double, double, const double&);
 double del(double, double);
 double gam(double, double);
 double refalbed(double, double, double, double);
@@ -58,7 +58,7 @@ double SimulateRunoff(double, const int&, const int&);
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-void DayClim(const string& ProfileName, const string& Date, const int& Daynum, const int& DayStart, const int& DayFinish)
+tuple<double> DayClim(const string& ProfileName, const string& Date, const int& Daynum, const int& DayStart, const int& DayFinish)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -71,7 +71,8 @@ void DayClim(const string& ProfileName, const string& Date, const int& Daynum, c
 //
 {
 //     Compute day length and related variables:
-	ComputeDayLength(Daynum);
+    double DayLength;
+	tie(DayLength) = ComputeDayLength(Daynum);
 //
     double xlat = Latitude * pi / 180;         // latitude converted to radians.
     double cd = cos(xlat) * cos(declination);  // amplitude of the sine of the solar height.
@@ -142,7 +143,7 @@ void DayClim(const string& ProfileName, const string& Date, const int& Daynum, c
 //     Compute hourly global radiation, using function dayrad.
          Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
 //     Compute hourly temperature, using function daytmp.
-         AirTemp[ihr] = daytmp(ti, Daynum);
+         AirTemp[ihr] = daytmp(ti, Daynum, DayLength);
 //     Compute hourly dew point temperature, using function tdewhour.
          DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr], Daynum);
 //     Compute hourly relative humidity, using function dayrh.
@@ -187,10 +188,11 @@ void DayClim(const string& ProfileName, const string& Date, const int& Daynum, c
 		File18 << AvrgDailyTemp << endl;
 	}
 //     Compute potential evapotranspiration.
-    EvapoTranspiration(jtout, ProfileName, Date, Daynum);
+    EvapoTranspiration(jtout, ProfileName, Date, Daynum, DayLength);
+    return make_tuple(DayLength);
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void ComputeDayLength(const int& Daynum)
+tuple<double> ComputeDayLength(const int& Daynum)
 //     Function ComputeDayLength() computes day length, declination, time of
 //  solar noon, and extra-terrestrial radiation for this day. The CIMIS
 //  (California Irrigation Management Information System) algorithms are used. 
@@ -243,9 +245,10 @@ void ComputeDayLength(const int& Daynum)
           ht = 1;         //  arctic circle
 	  else if (ht < -1) 
           ht = -1;
-      DayLength = 2 * acos(ht) * 12 / pi;
+      double DayLength = 2 * acos(ht) * 12 / pi;
       sunr = SolarNoon - DayLength / 2;
       suns = sunr + DayLength;
+      return make_tuple(DayLength);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 double dayrad( double ti, double radsum, double sinb, double c11)
@@ -278,7 +281,7 @@ double dayrad( double ti, double radsum, double sinb, double c11)
 //  relative humidity by equations from daily characteristics.
 //  Agricultural Systems 51:377-393. 
 ///////////////////////////////////////////////////////////////////////////////////////////
-double daytmp ( double ti, const int& Daynum )
+double daytmp ( double ti, const int& Daynum, const double& DayLength)
 //     Function daytmp() computes and returns the hourly values of air temperature,
 //  using the measured daily maximum and minimum.
 //     The algorithm is described in Ephrath et al. (1996). It is based on 
@@ -578,7 +581,7 @@ double VaporPressure( double tt )
       return VaporPressure;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date, const int& Daynum)
+void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date, const int& Daynum, const double& DayLength)
 //     Function EvapoTranspiration() computes the rate of reference evapotranspiration
 //  and related variables. The following subroutines and functions are called for each
 //  hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(), clearskyemiss(), del(), 
@@ -611,7 +614,7 @@ void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date
          CloudCoverRatio[ihr] = cloudcov (Radiation[ihr], isr, cosz );
 //      clcor is called to compute cloud-type correction.
 //      iamhr and ipmhr are set.
-         CloudTypeCorr[ihr] = clcor( ihr, SitePar[7], isr, cosz );
+         CloudTypeCorr[ihr] = clcor( ihr, SitePar[7], isr, cosz, DayLength);
          if ((cosz >= 0.1736) && (iamhr == 0))
              iamhr = ihr;
          if ((ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0))
@@ -768,7 +771,7 @@ double cloudcov (double radihr, double isr, double cosz )
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp.
 // 58-79.
 /////////////////////////////////////////////////////////////////////////////////
-double clcor (int ihr, double ck, double isrhr, double coszhr)
+double clcor (int ihr, double ck, double isrhr, double coszhr, const double& DayLength)
 //     Function clcor() computes cloud type correction, using the CIMIS algorithm.
 //     Input arguments:
 //            ck = cloud type correction factor (data for this location).

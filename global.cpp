@@ -183,7 +183,6 @@
         CumWaterDrained;     // cumulative water drained out from the slab, mm.
 // D    
     double 
-	    DayLength,           // day length, hours.
         DayTimeTemp,         // average day-time temperature, C.
         dclay,               // aggregation factor for clay in water.
         DeepSoilTemperature, // boundary soil temperature of deepest layer (K)

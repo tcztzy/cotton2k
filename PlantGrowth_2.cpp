@@ -252,7 +252,7 @@ double TemperatureOnLeafGrowthRate(double t)
       return temperatureOnLeafGrowthRate;
 }
 ////////////////////////////////////////////////////////////////////////
-void PotentialFruitGrowth()
+void PotentialFruitGrowth(const double& DayLength)
 //     This function simulates the potential growth of fruiting sites of cotton plants.
 //  It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
 //

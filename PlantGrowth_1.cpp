@@ -16,7 +16,7 @@ void LeafWaterPotential(const string&, const double&, const int&);
 double LeafResistance(double);
 // PlantGrowth_2
 void PotentialLeafGrowth();
-void PotentialFruitGrowth();
+void PotentialFruitGrowth(const double&);
 double PotentialStemGrowth(double stemnew);
 // PlantGrowth_3
 void DryMatterBalance(double& cdstem, double& cdleaf, double& cdpet, double& cdroot, const string& ProfileName);
@@ -328,7 +328,7 @@ double LeafResistance( double agel )
       return leafResistance;
 }
 ////////////////////////////////
-void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge)            // computes net photosynthesis.
+void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge, const double& DayLength)            // computes net photosynthesis.
 //     This function simulates the net photosynthesis of cotton  plants. It is called 
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
@@ -442,7 +442,7 @@ void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge)            //
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc, const double& DayLength, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -462,7 +462,7 @@ tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, co
 //     If it is after first square, call PotentialFruitGrowth() to compute potential
 //  growth rate of squares and bolls.
       if ( FruitingCode[0][0][0] > 0 ) 
-		  PotentialFruitGrowth();
+		  PotentialFruitGrowth(DayLength);
 //     Active stem tissue (stemnew) is the difference between TotalStemWeight 
 //  and the value of StemWeight(kkday). 
       int voldstm = 32; // constant parameter (days for stem tissue to become "old")
