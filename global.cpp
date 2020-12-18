@@ -49,7 +49,6 @@
                              // 0 = 'banded'; 1 = 'sprinkler'; 2 = 'broaddcast'.
 
     int FirstBloom,          // Date (DOY) of first bloom.
-        FirstSquare,         // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
         FruitingCode[3][30][5],     // code indicating the developmental state of each fruiting site: 
         // 0 = not yet formed; 1 = square; 2 = set green boll (not susceptible to shedding); 
         // 3 = mature boll; 7 = young green boll (susceptible to shedding). For completely abscised

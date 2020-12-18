@@ -44,7 +44,7 @@ void BollOpening(int, int, int, double, const int&);
 //	        AdjustAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-tuple<double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, const double& DayInc, const double& WaterStress, double AbscisedLeafWeight)
+tuple<int, double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, int FirstSquare, const double& DayInc, const double& WaterStress, double AbscisedLeafWeight)
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -107,8 +107,8 @@ tuple<double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, c
 //      if a first square has not been formed, call LeafAbscission() and exit.
          else
          {
-            tie(AbscisedLeafWeight) = LeafAbscission(Daynum, DayInc, AbscisedLeafWeight);
-	        return make_tuple(0, AbscisedLeafWeight);
+            tie(AbscisedLeafWeight) = LeafAbscission(Daynum, FirstSquare, DayInc, AbscisedLeafWeight);
+	        return make_tuple(FirstSquare, 0, AbscisedLeafWeight);
          }
       }
 //     The following is executed after the appearance of the first square.
@@ -149,8 +149,8 @@ tuple<double, double> CottonPhenology(const int& Daynum, const int& DayEmerge, c
       double AbscisedFruitSites;
       tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc, WaterStress);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-      tie(AbscisedLeafWeight) = LeafAbscission(Daynum, DayInc, AbscisedLeafWeight);
-      return make_tuple(AbscisedFruitSites, AbscisedLeafWeight);
+      tie(AbscisedLeafWeight) = LeafAbscission(Daynum, FirstSquare, DayInc, AbscisedLeafWeight);
+      return make_tuple(FirstSquare, AbscisedFruitSites, AbscisedLeafWeight);
 }
 //////////////////////////
 void PreFruitingNode(double stemNRatio, const double& DayInc)

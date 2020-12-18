@@ -36,7 +36,6 @@ void InitializeGlobal()
 
       ExtraCarbon = 0;
       FirstBloom = 0;
-      FirstSquare = 0;
       FruitGrowthRatio = 1;
 
       ginp = 0.35;

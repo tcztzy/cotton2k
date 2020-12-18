@@ -13,14 +13,14 @@
 
 using namespace std;
 
-tuple<double> PreFruitLeafAbscission(double, const int&, const double&, double);
+tuple<double> PreFruitLeafAbscission(double, const int&, const int&, const double&, double);
 tuple<double> MainStemLeafAbscission(int, int, double, const int&, double);
 tuple<double> FruitNodeLeafAbscission(int, int, int, double, const int&, double);
 tuple<double> DefoliationLeafAbscission(const int&, double);
 void SortArray(int, double[], int[], int[], int[]);
 
 //////////////////////////////////////////////////
-tuple<double> LeafAbscission(const int& Daynum, const double& DayInc, double AbscisedLeafWeight)
+tuple<double> LeafAbscission(const int& Daynum, const int& FirstSquare, const double& DayInc, double AbscisedLeafWeight)
 //     This function simulates leaf abscission. It is called from
 //  CottonPhenology(). It calls the following functions:
 //        FruitNodeLeafAbscission(), MainStemLeafAbscission(), 
@@ -43,7 +43,7 @@ tuple<double> LeafAbscission(const int& Daynum, const double& DayInc, double Abs
       droplf = vdrop1 - vdrop2 * LeafAreaIndex;
 //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
 //  prefruiting node leaves.
-      tie(AbscisedLeafWeight) = PreFruitLeafAbscission(droplf, Daynum, DayInc, AbscisedLeafWeight);
+      tie(AbscisedLeafWeight) = PreFruitLeafAbscission(droplf, Daynum, FirstSquare, DayInc, AbscisedLeafWeight);
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
       for (int k = 0; k < NumVegBranches; k++)
@@ -76,7 +76,7 @@ tuple<double> LeafAbscission(const int& Daynum, const double& DayInc, double Abs
       return make_tuple(AbscisedLeafWeight);
 }
 /////////////////////////
-tuple<double> PreFruitLeafAbscission(double droplf, const int& Daynum, const double& DayInc, double AbscisedLeafWeight)
+tuple<double> PreFruitLeafAbscission(double droplf, const int& Daynum, const int& FirstSquare, const double& DayInc, double AbscisedLeafWeight)
 //     This function simulates the abscission of prefruiting node
 //  leaves. It is called from function LeafAbscission().
 //

@@ -16,7 +16,7 @@
 
 namespace fs = std::filesystem;
 
-void output1(const string&, const string&, const int&, const int&, const double&, const double&);
+void output1(const string&, const string&, const int&, const int&, const int&, const double&, const double&);
 void WriteLine22(ofstream&, double, double, double, const double&);
 // Out this file
 void cotplt(int, const string&, const string&);
@@ -276,7 +276,7 @@ void OpenOutputFiles(const string& m_fileDesc, const string& ProfileName, const 
 	  }
 }
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& DayFinish, const int& NumLayersWithRoots, const double& PlantHeight, const double& AbscisedFruitSites, const double& AbscisedLeafWeight, const double& WaterStress, const double RootWeight[40][20][3], const double RootAge[40][20])
+void DailyOutput(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& DayFinish, const int& FirstSquare, const int& NumLayersWithRoots, const double& PlantHeight, const double& AbscisedFruitSites, const double& AbscisedLeafWeight, const double& WaterStress, const double RootWeight[40][20][3], const double RootAge[40][20])
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -308,7 +308,7 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& Daynu
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
       if (DayOfSimulation > 0)
-           WriteStateVariables(false, Date, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+           WriteStateVariables(false, Date, Daynum, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
 //
 //     3. Write plant map output by calling cotplt():
 //     If the output flags (OutIndex(7) or OutIndex(13)) indicate that plant map output is  
@@ -330,12 +330,12 @@ void DailyOutput(const string& ProfileName, const string& Date, const int& Daynu
          }
 //
 //     4. Call output1() to write output to F01 and S01 files:
-      output1(ProfileName, Date, Daynum, DayEmerge, PlantHeight, AbscisedFruitSites);
+      output1(ProfileName, Date, Daynum, DayEmerge, FirstSquare, PlantHeight, AbscisedFruitSites);
       if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)
           throw SimulationEnd();
 }
 //////////////////////////
-void output1(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const double& PlantHeight, const double& AbscisedFruitSites)
+void output1(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& FirstSquare, const double& PlantHeight, const double& AbscisedFruitSites)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
 //
@@ -449,7 +449,7 @@ void output1(const string& ProfileName, const string& Date, const int& Daynum, c
       }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void DataOutput(const string& ProfileName, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayStartSoilMaps, const int& DayStopSoilMaps, double PlantHeight)
+void DataOutput(const string& ProfileName, const int& DayEmerge, const int& DayStart, const int& DayFinish, const int& DayStartSoilMaps, const int& DayStopSoilMaps, const int& FirstSquare, double PlantHeight)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),

@@ -443,7 +443,7 @@ void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge, const double&
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double PlantHeight, const double& DayInc, const double& DayLength, const double& WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayEmerge, const int& FirstSquare, int NumLayersWithRoots, double PlantHeight, const double& DayInc, const double& DayLength, const double& WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
