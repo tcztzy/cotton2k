@@ -8,16 +8,19 @@
 // DefoliationLeafAbscission()
 // SortArray()
 //
+#include <tuple>
 #include "global.h"
 
-void PreFruitLeafAbscission(double, const int&, const double&);
-void MainStemLeafAbscission(int, int, double, const int&);
-void FruitNodeLeafAbscission(int, int, int, double, const int&);
-void DefoliationLeafAbscission(const int&);
+using namespace std;
+
+tuple<double> PreFruitLeafAbscission(double, const int&, const double&, double);
+tuple<double> MainStemLeafAbscission(int, int, double, const int&, double);
+tuple<double> FruitNodeLeafAbscission(int, int, int, double, const int&, double);
+tuple<double> DefoliationLeafAbscission(const int&, double);
 void SortArray(int, double[], int[], int[], int[]);
 
 //////////////////////////////////////////////////
-void LeafAbscission(const int& Daynum, const double& DayInc)
+tuple<double> LeafAbscission(const int& Daynum, const double& DayInc, double AbscisedLeafWeight)
 //     This function simulates leaf abscission. It is called from
 //  CottonPhenology(). It calls the following functions:
 //        FruitNodeLeafAbscission(), MainStemLeafAbscission(), 
@@ -33,14 +36,14 @@ void LeafAbscission(const int& Daynum, const double& DayInc)
 {
 //     If there are almost no leaves, this routine is not executed.
       if ( LeafAreaIndex <= 0.0001 )
-		  return;
+		  return make_tuple(AbscisedLeafWeight);
 //     Compute droplf as a function of LeafAreaIndex.
 	  const double vdrop1 = 140, vdrop2 = 1; // constant parameters to compute droplf.
       double droplf; // leaf age until its abscission.
       droplf = vdrop1 - vdrop2 * LeafAreaIndex;
 //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
 //  prefruiting node leaves.
-      PreFruitLeafAbscission(droplf, Daynum, DayInc);
+      tie(AbscisedLeafWeight) = PreFruitLeafAbscission(droplf, Daynum, DayInc, AbscisedLeafWeight);
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
       for (int k = 0; k < NumVegBranches; k++)
@@ -48,11 +51,11 @@ void LeafAbscission(const int& Daynum, const double& DayInc)
            int nbrch; // number of fruiting branches on a vegetative branch.
            nbrch = NumFruitBranches[k];
            for (int l = 0; l < nbrch; l++)
-               MainStemLeafAbscission(k,l,droplf, Daynum);
+               tie(AbscisedLeafWeight) = MainStemLeafAbscission(k,l,droplf, Daynum, AbscisedLeafWeight);
       }
 //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
       if ( DayFirstDef > 0 && Daynum >= DayFirstDef )
-		   DefoliationLeafAbscission(Daynum);
+		   tie(AbscisedLeafWeight) = DefoliationLeafAbscission(Daynum, AbscisedLeafWeight);
 //     If the reserves in the leaf are too high, add the lost reserves
 //  to AbscisedLeafWeight and adjust ReserveC.
       if ( ReserveC > 0 ) 
@@ -70,9 +73,10 @@ void LeafAbscission(const int& Daynum, const double& DayInc)
       LeafAreaIndex = TotalLeafArea / PerPlantArea;
       if ( LeafAreaIndex < 0.0001 ) 
 		   LeafAreaIndex = 0.0001;
+      return make_tuple(AbscisedLeafWeight);
 }
 /////////////////////////
-void PreFruitLeafAbscission(double droplf, const int& Daynum, const double& DayInc)
+tuple<double> PreFruitLeafAbscission(double droplf, const int& Daynum, const double& DayInc, double AbscisedLeafWeight)
 //     This function simulates the abscission of prefruiting node
 //  leaves. It is called from function LeafAbscission().
 //
@@ -118,9 +122,10 @@ void PreFruitLeafAbscission(double droplf, const int& Daynum, const double& DayI
                       NumAbscisedLeaves++;
          }
       }
+      return make_tuple(AbscisedLeafWeight);
 }
 /////////////////////////
-void MainStemLeafAbscission(int k, int l, double droplf, const int& Daynum)
+tuple<double> MainStemLeafAbscission(int k, int l, double droplf, const int& Daynum, double AbscisedLeafWeight)
 //     This function simulates the abscission of main stem leaves
 //  on node l of vegetative branch k. It is called from function
 //  LeafAbscission(). It calls function FruitNodeLeafAbscission().
@@ -164,10 +169,11 @@ void MainStemLeafAbscission(int k, int l, double droplf, const int& Daynum)
 //     Loop over all nodes on this fruiting branch and call FruitNodeLeafAbscission().
       int nnid = NumNodes[k][l]; // node number on this fruiting branch.
       for (int m = 0; m < nnid; m++)
-          FruitNodeLeafAbscission(k, l, m, droplf, Daynum);
+          tie(AbscisedLeafWeight) = FruitNodeLeafAbscission(k, l, m, droplf, Daynum, AbscisedLeafWeight);
+      return make_tuple(AbscisedLeafWeight);
 }
 /////////////////////////
-void FruitNodeLeafAbscission(int k, int l, int m, double droplf, const int& Daynum)
+tuple<double> FruitNodeLeafAbscission(int k, int l, int m, double droplf, const int& Daynum, double AbscisedLeafWeight)
 //     This function simulates the abscission of fruiting node
 //  leaves on node m of fruiting branch l of vegetative branch k. It is
 //  called from function MainStemLeafAbscission().
@@ -208,9 +214,10 @@ void FruitNodeLeafAbscission(int k, int l, int m, double droplf, const int& Dayn
          if ( DayFirstDef > 0 && Daynum > DayFirstDef ) // if defoliation has been applied
 			 NumAbscisedLeaves++;
       }
+      return make_tuple(AbscisedLeafWeight);
 }
 /////////////////////////
-void DefoliationLeafAbscission(const int& Daynum)
+tuple<double> DefoliationLeafAbscission(const int& Daynum, double AbscisedLeafWeight)
 //     This function simulates leaf abscission caused by defoliants.
 //     It is called from function LeafAbscission().
 //
@@ -250,7 +257,7 @@ void DefoliationLeafAbscission(const int& Daynum)
 //     When this is after the first day of defoliation - count the
 //  number of existing leaves (lefcnt) and sort them by age
       if ( Daynum <= DayFirstDef ) 
-          return;
+          return make_tuple(AbscisedLeafWeight);
 //	  
       double SortByAge[450]; // array of site ages to be sorted
 	  int indexk[450];// index associated with k
@@ -333,6 +340,7 @@ void DefoliationLeafAbscission(const int& Daynum)
                NumAbscisedLeaves++;
 		  } // if numLeavesToShed
 	  } // for i  
+      return make_tuple(AbscisedLeafWeight);
 }
 ///////////////////////////////////////////////////////////////////////////////
 void SortArray(int size, double InData[], int indexk[], int indexl[], int indexm[])

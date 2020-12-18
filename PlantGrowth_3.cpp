@@ -468,7 +468,7 @@ double AddPlantHeight(double denf2, const double& DayInc)
       return addz;
 }
 //////////////////////////
-void CheckDryMatterBal(const string& ProfileName, const string& Date)
+void CheckDryMatterBal(const string& ProfileName, const string& Date, const double& AbscisedLeafWeight)
 //     This function checks the dry matter balances in the cotton model, for diagnostic 
 //  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
 //     The following global variables are referenced here:

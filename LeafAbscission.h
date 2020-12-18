@@ -1,2 +1,4 @@
 #pragma once
-void LeafAbscission(const int&, const double&);
+#include <tuple>
+
+std::tuple<double> LeafAbscission(const int&, const double&, double);
