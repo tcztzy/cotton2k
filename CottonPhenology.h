@@ -1,2 +1,2 @@
 #pragma once
-tuple<int, double, double> CottonPhenology(const int&, const int&, int, const double&, const double&, double);
+tuple<int, int, double, double> CottonPhenology(const int&, const int&, int, int, const double&, const double&, double);

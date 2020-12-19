@@ -81,7 +81,6 @@ namespace fs = std::filesystem;
 	extern int DayEndCO2, DayEndMulch, DayFirstDef, DayOfSimulation,
         DayStartCO2, DayStartMulch, DayStartPlantMaps, 
         DayStartPredIrrig, DayStopPlantMaps, DayStopPredIrrig, 
-        FirstBloom,
         inrim, IrrigMethod, isw, iyear, Kday, KdayAdjust, 
         LastDayWeatherData, LastIrrigation, LastTaprootLayer, 
         LocationColumnDrip, LocationLayerDrip, 
