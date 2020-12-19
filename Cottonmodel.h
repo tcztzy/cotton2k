@@ -27,7 +27,7 @@ public:
     void RunTheModel();
 	tuple<int, int, int, double> DailySimulation(const string&, string, int, const int&, const int&, const int&, int, int, double[40][20][3], double[40][20]);
 	tuple<string, int, int, int, int, int, double, double, double, double> SimulateThisDay(string, const int&, int, const int&, const int&, const int&, int, int, int, double, double, double, double, double[40][20][3], double[40][20]);
-    tuple<BOOL, string, int, int, int, int, int, double, double, double, double> DoAdjustments(string, const string&, const int&, const int&, const int&, const int&, const int&, int, int, int, double, double, double, double, double[40][20][3], double[40][20]);
+    tuple<BOOL, string, int, int, int, int, int, double, double, double, double> DoAdjustments(const string&, string, int, int, const int&, const int&, const int&, int, int, int, double, double, double, double, double[40][20][3], double[40][20]);
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 	afx_msg void OnAppAbout();

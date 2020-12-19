@@ -249,7 +249,7 @@ tuple<int, int, int, double> C2KApp::DailySimulation(const string& ProfileName, 
     return make_tuple(DayEmerge, FirstBloom, FirstSquare, PlantHeight);
 }
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string, int, int, int, int, int, double, double, double, double> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<BOOL, string, int, int, int, int, int, double, double, double, double> C2KApp::DoAdjustments(const string& ProfileName, string Date, int Daynum, int DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -261,13 +261,10 @@ tuple<BOOL, string, int, int, int, int, int, double, double, double, double> C2K
 //     Check if plant map data are available for this day. If there are no more adjustments, return.
 	  static int kprevadj = 0;  // day after emergence of the previous plant map adjustment.
       int sumsad = 0;  // sum for checking if any adjustments are due 
-      string date = Date;
-      int Daynum = daynum;
-      int DayEmerge = dayEmerge;
       for (int i = 0; i < 30; i++)
           sumsad += MapDataDate[i];
       if (sumsad <= 0)
-          return make_tuple(FALSE, date, Daynum, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
+          return make_tuple(FALSE, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 //     Loop for all adjustment data, and check if there is an adjustment for this day.
       for (int i = 0; i < 30; i++)
       {
@@ -282,15 +279,15 @@ tuple<BOOL, string, int, int, int, int, int, double, double, double, double> C2K
 //  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
             for (int jj = 0; jj < 5; jj++)
             {
-                tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = PlantAdjustments(i, jj, ProfileName, date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+                tie(Date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = PlantAdjustments(i, jj, ProfileName, Date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
 //     If adjustment is necessary, rerun the simulation for the previous NumAdjustDays (number
 //  of days) and call WriteStateVariables() to write state variables in scratch structure.
                 if (nadj[jj])
                    for(int j1 = 0; j1 < NumAdjustDays; j1++)
                    {
-                       tie(date, Daynum, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+                       tie(Date, Daynum, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(ProfileName, Daynum, DayEmerge, DayStart, DayFinish, DayPlant, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
                        if (Kday > 0) 
-                           WriteStateVariables(TRUE, date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+                           WriteStateVariables(TRUE, Date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
                    }     // end for j1, and if nadj 
             }            // end for jj
 //     After finishing this adjustment date, set kprevadj (date of previous adjustment, to 
@@ -302,7 +299,7 @@ tuple<BOOL, string, int, int, int, int, int, double, double, double, double> C2K
             continue;
          }// end if Daynum
       }// end do i
-      return make_tuple(TRUE, date, Daynum, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
+      return make_tuple(TRUE, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 }
 //////////////////////////////////////////////////
 tuple<string, int, int, int, int, int, double, double, double, double> C2KApp::SimulateThisDay(string ProfileName, const int& daynum, int DayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
