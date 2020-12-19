@@ -205,7 +205,7 @@ void C2KApp::RunTheModel()
         int FirstBloom = 0; // Date (DOY) of first bloom.
         int FirstSquare = 0; // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
 //     Do daily simulations
-        tie(Date, DayEmerge, FirstBloom, FirstSquare, PlantHeight) = DailySimulation(ProfileName, Date, DayEmerge, DayStart, DayFinish, DayPlant, FirstBloom, FirstSquare, RootWeight, RootAge);
+        tie(DayEmerge, FirstBloom, FirstSquare, PlantHeight) = DailySimulation(ProfileName, Date, DayEmerge, DayStart, DayFinish, DayPlant, FirstBloom, FirstSquare, RootWeight, RootAge);
 //     Write output data
         pdlg->m_Running = "Writing Output Files";
         DataOutput(ProfileName, DayEmerge, DayStart, DayFinish, DayStartSoilMaps, DayStopSoilMaps, FirstBloom, FirstSquare, PlantHeight);
@@ -216,7 +216,7 @@ void C2KApp::RunTheModel()
     AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. " );
 }
 ////////////////////////////////////////////////////////////////////////////////
-tuple<string, int, int, int, double> C2KApp::DailySimulation(string ProfileName, const string& Date, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int FirstBloom, int FirstSquare, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, int, int, double> C2KApp::DailySimulation(string ProfileName, const string& Date, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int FirstBloom, int FirstSquare, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function controls the dynamic phase of the simulation, allowing
 //  for in-run adjustments when there is an input of plant map adjustments.
 //     It calls the functions:
@@ -248,7 +248,7 @@ tuple<string, int, int, int, double> C2KApp::DailySimulation(string ProfileName,
         }
 	}
     catch (SimulationEnd){}
-    return make_tuple(date, DayEmerge, FirstBloom, FirstSquare, PlantHeight);
+    return make_tuple(DayEmerge, FirstBloom, FirstSquare, PlantHeight);
 }
 ///////////////////////////////////////////////////////////////////////////////
 tuple<BOOL, string, int, int, int, int, int, double, double, double, double> C2KApp::DoAdjustments(string ProfileName, const string& Date, const int& daynum, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
