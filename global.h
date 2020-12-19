@@ -110,7 +110,7 @@ namespace fs = std::filesystem;
         ElCondSatSoilToday, Elevation, ExtraCarbon, FruitGrowthRatio,  
         ginp, Gintot, GreenBollsLost,
         InitialTotalSoilWater, IrrigationDepth, 
-        Latitude, LeafAreaIndex, LeafNConc, LeafNitrogen, LeafWeightAreaRatio, 
+        LeafAreaIndex, LeafNConc, LeafNitrogen, LeafWeightAreaRatio, 
         LightIntercept, LintYield, Longitude, LwpMax, LwpMin, 
         MaxIrrigation, MineralizedOrganicN, MulchTranLW, MulchTranSW, 
 	    NetPhotosynthesis, NightTimeTemp, NitrogenStress, NStressFruiting, 

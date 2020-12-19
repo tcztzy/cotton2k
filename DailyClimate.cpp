@@ -30,20 +30,20 @@
 #include "GeneralFunctions.h"
 #include "DailyClimate.h"
 
-tuple<double> ComputeDayLength(const int&);
+tuple<double> ComputeDayLength(const int&, const double&);
 double dayrad(double, double, double, double);
 double daytmp(double, const int&, const double&);
 double tdewhour(double, double, const int&);
 double dayrh(double, double);
 double daywnd(double, double, double, double, double, double);
 void AverageAirTemperatures();
-void EvapoTranspiration(int, const string&, const string&, const int&, const double&);
+void EvapoTranspiration(int, const string&, const string&, const int&, const double&, const double&);
 double cloudcov(double, double, double);
 double clcor(int, double, double, double, const double&);
 double del(double, double);
 double gam(double, double);
 double refalbed(double, double, double, double);
-void sunangle(double, double&, double&);
+void sunangle(double, double&, double&, const double&);
 double SimulateRunoff(double, const int&, const int&);
 
 //     Definition of file scope variables:
@@ -58,7 +58,7 @@ double SimulateRunoff(double, const int&, const int&);
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-tuple<double> DayClim(const string& ProfileName, const string& Date, const int& Daynum, const int& DayOfSimulation, const int& DayStart, const int& DayFinish)
+tuple<double> DayClim(const string& ProfileName, const string& Date, const int& Daynum, const int& DayOfSimulation, const int& DayStart, const int& DayFinish, const double& Latitude)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -72,7 +72,7 @@ tuple<double> DayClim(const string& ProfileName, const string& Date, const int& 
 {
 //     Compute day length and related variables:
     double DayLength;
-	tie(DayLength) = ComputeDayLength(Daynum);
+	tie(DayLength) = ComputeDayLength(Daynum, Latitude);
 //
     double xlat = Latitude * pi / 180;         // latitude converted to radians.
     double cd = cos(xlat) * cos(declination);  // amplitude of the sine of the solar height.
@@ -188,11 +188,11 @@ tuple<double> DayClim(const string& ProfileName, const string& Date, const int& 
 		File18 << AvrgDailyTemp << endl;
 	}
 //     Compute potential evapotranspiration.
-    EvapoTranspiration(jtout, ProfileName, Date, Daynum, DayLength);
+    EvapoTranspiration(jtout, ProfileName, Date, Daynum, Latitude, DayLength);
     return make_tuple(DayLength);
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-tuple<double> ComputeDayLength(const int& Daynum)
+tuple<double> ComputeDayLength(const int& Daynum, const double& Latitude)
 //     Function ComputeDayLength() computes day length, declination, time of
 //  solar noon, and extra-terrestrial radiation for this day. The CIMIS
 //  (California Irrigation Management Information System) algorithms are used. 
@@ -581,7 +581,7 @@ double VaporPressure( double tt )
       return VaporPressure;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date, const int& Daynum, const double& DayLength)
+void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date, const int& Daynum, const double& Latitude, const double& DayLength)
 //     Function EvapoTranspiration() computes the rate of reference evapotranspiration
 //  and related variables. The following subroutines and functions are called for each
 //  hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(), clearskyemiss(), del(), 
@@ -609,7 +609,7 @@ void EvapoTranspiration(int jtout, const string& ProfileName, const string& Date
          double ti = ihr + 0.5;           // middle of the hourly interval
 //      The following subroutines and functions are called for each
 //  hour: sunangle, cloudcov, clcor, refalbed . 
-         sunangle(ti, cosz, suna);
+         sunangle(ti, cosz, suna, Latitude);
          isr = tmpisr * cosz;
          CloudCoverRatio[ihr] = cloudcov (Radiation[ihr], isr, cosz );
 //      clcor is called to compute cloud-type correction.
@@ -868,7 +868,7 @@ double refalbed(double isrhr, double rad, double coszhr, double sunahr)
 //      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
 /////////////////////////////////////////////////////////////////////////////////
-void sunangle (double ti, double &coszhr, double &sunahr)  
+void sunangle (double ti, double &coszhr, double &sunahr, const double& Latitude)  
 //     sunangle.cpp : computes sun angle for any time of day. 
 //     Input argument:
 //        ti = time of day, hours.
