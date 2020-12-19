@@ -298,7 +298,6 @@ tuple<BOOL, string, int, int, int, int, int, double, double, double, double> C2K
             MapDataDate[i] = 0;
             for(int jj = 0; jj < 5; jj++)
                  nadj[jj] = FALSE;
-            continue;
          }// end if Daynum
       }// end do i
       return make_tuple(TRUE, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
