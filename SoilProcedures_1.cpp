@@ -28,11 +28,11 @@ void WaterTable(const int& Daynum);        // WATERTBL
 void CapillaryFlow(const int&, const int&);
 void DripFlow(double);
 // SoilProcedures_3
-void WaterUptake(const int&);       // UPTAKE
+void WaterUptake(const int&, const int&);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayEmerge, const int& DayStart, const int& FirstBloom, const int& FirstSquare, const int& NumLayersWithRoots, const double& WaterStress, const double RootWeight[40][20][3])
+void SoilProcedures(const string& ProfileName, const int& Daynum, const int& DayOfSimulation, const int& DayEmerge, const int& DayStart, const int& FirstBloom, const int& FirstSquare, const int& NumLayersWithRoots, const double& WaterStress, const double RootWeight[40][20][3])
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -94,7 +94,7 @@ void SoilProcedures(const string& ProfileName, const int& Daynum, const int& Day
          RootsCapableOfUptake(NumLayersWithRoots, RootWeight);  // function computes roots capable of uptake for each soil cell
          AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water 
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
-         WaterUptake(NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
+         WaterUptake(DayOfSimulation, NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
 //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
          CumTranspiration += ActualTranspiration;

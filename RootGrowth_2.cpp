@@ -504,7 +504,7 @@ double RootCultivation(int j, double DailyRootLoss, double RootWeight[40][20][3]
       return DailyRootLoss;
 }
 //////////////////////////////
-void RootSummation(const string& ProfileName, const int& NumLayersWithRoots, double RootWeight[40][20][3])
+void RootSummation(const string& ProfileName, const int& DayOfSimulation, const int& NumLayersWithRoots, double RootWeight[40][20][3])
 //     This function has been added for compatibility with GOSSYM root routines. 
 //  It is called from ActualRootGrowth(). It summarizes root data, in a form ready 
 //  for output or plotting. Sums of root weights for cells, for age groups and for 

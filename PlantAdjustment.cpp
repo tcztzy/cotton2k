@@ -8,10 +8,10 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-tuple<string, int, int, int, int, double, double, double, double> GoBack(const string&, const int&, int, int, int, double, double, double, double, double[40][20][3], double[40][20]);
+tuple<string, int, int, int, int, double, double, double, double> GoBack(const string&, const int&, const int&, int, int, int, double, double, double, double, double[40][20][3], double[40][20]);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void WriteStateVariables(bool bAdjusting, const string& Date, const int& Daynum, const int& FirstBloom, const int& FirstSquare, const int& NumLayersWithRoots, const double& PlantHeight, const double& AbscisedFruitSites, const double& AbscisedLeafWeight, const double& WaterStress, const double RootWeight[40][20][3], const double RootAge[40][20])
+void WriteStateVariables(bool bAdjusting, const string& Date, const int& Daynum, const int& DayOfSimulation, const int& FirstBloom, const int& FirstSquare, const int& NumLayersWithRoots, const double& PlantHeight, const double& AbscisedFruitSites, const double& AbscisedLeafWeight, const double& WaterStress, const double RootWeight[40][20][3], const double RootAge[40][20])
 //     This function stores all state or rate variables, needed for output, or for rerunning
 //  plant adjustments, in the structure Scratch21. It is called from DailySimulation(),
 //  DoAdjustments(), and DailyOutput().
@@ -223,7 +223,7 @@ void WriteStateVariables(bool bAdjusting, const string& Date, const int& Daynum,
      }
 }
 //////////////////////////
-tuple<string, int, int, int, int, double, double, double, double> PlantAdjustments(int i, int jj, const string& ProfileName, const string& Date, const int& daynum, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<string, int, int, int, int, double, double, double, double> PlantAdjustments(int i, int jj, const string& ProfileName, const string& Date, const int& daynum, const int& DayOfSimulation, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function adjusts plant height and plant fruiting map, when data for such 
 //  adjustments are available.
 //     This function is called from DoAdjustments(). it calls GoBack().
@@ -289,7 +289,7 @@ tuple<string, int, int, int, int, double, double, double, double> PlantAdjustmen
 //     AdjAddMSNodesRate will be used in function AddFruitingBranch()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for main stem nodes to date " << date << endl;
-             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, DayOfSimulation, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
          }
          return make_tuple(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 //
@@ -331,7 +331,7 @@ tuple<string, int, int, int, int, double, double, double, double> PlantAdjustmen
 //     AdjAddHeightRate will be used in function AddPlantHeight()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 		     File46 << " Apply plant adjustment for stem height to date " << date << endl;
-             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, DayOfSimulation, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
          }
          return make_tuple(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 //
@@ -381,7 +381,7 @@ tuple<string, int, int, int, int, double, double, double, double> PlantAdjustmen
 //     AdjAddSitesRate will be used in function AddFruitingNode()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for total number of sites to date " << date << endl;
-             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, DayOfSimulation, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
          }
          return make_tuple(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 //
@@ -398,7 +398,7 @@ tuple<string, int, int, int, int, double, double, double, double> PlantAdjustmen
 //     AdjSquareAbsc will be used in function AdjustAbscission()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for number of squares to date " << date << endl;
-             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, DayOfSimulation, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
          }
          else
              nadj[3] = false;
@@ -415,7 +415,7 @@ tuple<string, int, int, int, int, double, double, double, double> PlantAdjustmen
 //     AdjGreenBollAbsc will be used in function AdjustAbscission()
              ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
 			 File46 << " Apply plant adjustment for number of green bolls to date " << date << endl;
-             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
+             tie(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = GoBack(date, Daynum, DayOfSimulation, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge);
          }
          else
              nadj[4] = false;
@@ -424,7 +424,7 @@ tuple<string, int, int, int, int, double, double, double, double> PlantAdjustmen
      return make_tuple(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 } 
 ///////////////////////////////////////////////////////////////////////
-tuple<string, int, int, int, int, double, double, double, double> GoBack(const string& Date, const int& daynum, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<string, int, int, int, int, double, double, double, double> GoBack(const string& Date, const int& daynum, const int& DayOfSimulation, int FirstBloom, int FirstSquare, int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight, double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function reads state variables retroactively NumAdjustDays days earlier. 
 //  Thus, all required global state variables will assume their values
 //  at beginning of adjustment period.

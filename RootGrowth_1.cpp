@@ -28,7 +28,7 @@ void LateralRootGrowthRight(int, double[40][20][3], double[40][20]);
 void RootAging(int, int, double[40][20][3], double[40][20]);
 double RootDeath(int, int, double, double[40][20][3], const double[40][20]);
 double RootCultivation(int, double, double[40][20][3]);
-void RootSummation(const string&, const int&, double[40][20][3]);
+void RootSummation(const string&, const int&, const int&, double[40][20][3]);
 
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
@@ -384,7 +384,7 @@ double SoilWaterOnRootGrowth(double psislk)
       return smf;
 }
 //////////////////////////
-tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& Daynum, const int& DayEmerge, int NumLayersWithRoots, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& Daynum, const int& DayOfSimulation, const int& DayEmerge, int NumLayersWithRoots, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function calculates the actual root growth rate. It is called from function 
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(), 
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), 
@@ -552,6 +552,6 @@ tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, con
       CumPlantNLoss  += DailyRootLoss * RootNConc;
       PixInPlants -= DailyRootLoss * pixcon;
 //     Call function RootSummation().
-      RootSummation(ProfileName, NumLayersWithRoots, RootWeight);
+      RootSummation(ProfileName, DayOfSimulation, NumLayersWithRoots, RootWeight);
       return make_tuple(NumLayersWithRoots);
 }

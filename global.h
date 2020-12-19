@@ -78,7 +78,7 @@ namespace fs = std::filesystem;
     }   Irrig[150];
     extern struct Irrigation Irrig[150];
 ////    Integers    //// 
-	extern int DayEndCO2, DayEndMulch, DayFirstDef, DayOfSimulation,
+	extern int DayEndCO2, DayEndMulch, DayFirstDef,
         DayStartCO2, DayStartMulch, DayStartPlantMaps, 
         DayStartPredIrrig, DayStopPlantMaps, DayStopPredIrrig, 
         inrim, IrrigMethod, isw, iyear, Kday, KdayAdjust, 

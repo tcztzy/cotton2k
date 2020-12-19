@@ -36,7 +36,6 @@
         DayEndCO2,           // Last date (DOY) with CO2 enrichment.
         DayEndMulch,         // date (DOY) for ending of mulch.
 	    DayFirstDef,         // Date (DOY) of first defoliation.
-        DayOfSimulation,     // Days from the start of simulation.
         DayStartCO2,         // First date (DOY) with CO2 enrichment.
         DayStartMulch,       // Date (DOY) for beginning of mulch.
         DayStartPlantMaps,   // Date (DOY) to start plant maps output.
