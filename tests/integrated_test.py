@@ -9,7 +9,7 @@ from itertools import product
 from pathlib import Path
 import re
 
-today = date.today().strftime("%A, %B %d, %Y")
+today = date.today().strftime("%A, %B %d, %Y").ljust(30)
 extensions = ["B01", "F01", "PLM", "PLT", "S01", "SMP", "WA2", "WAT", "LWP", "CHB", "RUT", "TM1", "TM2", "TMS", "NB0", "NB1", "NB2", "NB3", "NB4"]
 fixtures = Path("fixtures")
 parser = ArgumentParser()
