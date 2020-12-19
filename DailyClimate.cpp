@@ -30,7 +30,7 @@
 #include "GeneralFunctions.h"
 #include "DailyClimate.h"
 
-tuple<double> ComputeDayLength(const int&, const double&);
+tuple<double> ComputeDayLength(const int&, const double&, const double&);
 double dayrad(double, double, double, double);
 double daytmp(double, const int&, const double&);
 double tdewhour(double, double, const int&);
@@ -58,7 +58,7 @@ double SimulateRunoff(double, const int&, const int&);
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-tuple<double> DayClim(const string& ProfileName, const string& Date, const int& Daynum, const int& DayOfSimulation, const int& DayStart, const int& DayFinish, const double& Latitude)
+tuple<double> DayClim(const string& ProfileName, const string& Date, const int& Daynum, const int& DayOfSimulation, const int& DayStart, const int& DayFinish, const double& Latitude, const double& Longitude)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -72,7 +72,7 @@ tuple<double> DayClim(const string& ProfileName, const string& Date, const int& 
 {
 //     Compute day length and related variables:
     double DayLength;
-	tie(DayLength) = ComputeDayLength(Daynum, Latitude);
+	tie(DayLength) = ComputeDayLength(Daynum, Latitude, Longitude);
 //
     double xlat = Latitude * pi / 180;         // latitude converted to radians.
     double cd = cos(xlat) * cos(declination);  // amplitude of the sine of the solar height.
@@ -192,7 +192,7 @@ tuple<double> DayClim(const string& ProfileName, const string& Date, const int& 
     return make_tuple(DayLength);
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-tuple<double> ComputeDayLength(const int& Daynum, const double& Latitude)
+tuple<double> ComputeDayLength(const int& Daynum, const double& Latitude, const double& Longitude)
 //     Function ComputeDayLength() computes day length, declination, time of
 //  solar noon, and extra-terrestrial radiation for this day. The CIMIS
 //  (California Irrigation Management Information System) algorithms are used. 

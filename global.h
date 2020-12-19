@@ -111,7 +111,7 @@ namespace fs = std::filesystem;
         ginp, Gintot, GreenBollsLost,
         InitialTotalSoilWater, IrrigationDepth, 
         LeafAreaIndex, LeafNConc, LeafNitrogen, LeafWeightAreaRatio, 
-        LightIntercept, LintYield, Longitude, LwpMax, LwpMin, 
+        LightIntercept, LintYield, LwpMax, LwpMin, 
         MaxIrrigation, MineralizedOrganicN, MulchTranLW, MulchTranSW, 
 	    NetPhotosynthesis, NightTimeTemp, NitrogenStress, NStressFruiting, 
         NStressRoots, NStressVeg, NumGreenBolls, NumOpenBolls, NumSquares,	
