@@ -106,7 +106,17 @@ void ColumnShading(const int& Daynum, const int& DayEmerge, const double& PlantH
       } // end for k
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-tuple<int> SoilTemperature(const string& ProfileName, const int& Daynum, const int& DayOfSimulation, const int& dayEmerge, const int& DayStart, const int& DayFinish, const int& DayPlant, const double& PlantHeight, double rracol[20])
+tuple<int> SoilTemperature(
+    const string& ProfileName,
+    const int& Daynum, 
+    const int& DayOfSimulation,
+    int DayEmerge,
+    const int& DayStart,
+    const int& DayFinish,
+    const int& DayPlant,
+    const double& PlantHeight,
+    double rracol[20]
+)
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
@@ -120,7 +130,6 @@ tuple<int> SoilTemperature(const string& ProfileName, const int& Daynum, const i
 //       ActualSoilEvaporation, CumEvaporation, DeepSoilTemperature, es, SoilTemp, 
 //       SoilTempDailyAvrg, VolWaterContent, 
 {
-    int DayEmerge = dayEmerge;
 	  static int jt1, jt2;  //  Julian dates for start and end of output.
       if ( Daynum <= DayStart ) 
            SoilTemperatureInit (jt1, jt2, ProfileName, Daynum, DayStart, DayFinish);
