@@ -33,10 +33,8 @@
 // Integer variables: 
 //
 	int CultivationDate[5],  // Dates (DOY) of cultivatrion.
-        DayEndCO2,           // Last date (DOY) with CO2 enrichment.
         DayEndMulch,         // date (DOY) for ending of mulch.
 	    DayFirstDef,         // Date (DOY) of first defoliation.
-        DayStartCO2,         // First date (DOY) with CO2 enrichment.
         DayStartMulch,       // Date (DOY) for beginning of mulch.
         DayStartPlantMaps,   // Date (DOY) to start plant maps output.
         DayStartPredIrrig,   // Date (DOY) for starting predicted irrigation.  
@@ -163,7 +161,6 @@
         ClayVolumeFraction[maxl], // fraction by volume of clay in the soil.
 	    CloudCoverRatio[24], // cloud cover ratio (0 to 1).  
         CloudTypeCorr[24],   // hourly cloud type correction.
-        CO2EnrichmentFactor, // factor describing effect of CO2 enrichment.
         conmax,              // the maximum value for non-dimensional hydraulic conductivity
         CottonWeightGreenBolls, // total weight of seedcotton in green bolls, g plant-1.
         CottonWeightOpenBolls, // total weight of seedcotton in open bolls, g per plant.

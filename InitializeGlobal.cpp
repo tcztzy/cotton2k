@@ -20,7 +20,6 @@ void InitializeGlobal()
       BurrWeightOpenBolls = 0;
 
       CarbonAllocatedForRootGrowth = 0;
-      CO2EnrichmentFactor = 0;
       CottonWeightGreenBolls = 0;
       CottonWeightOpenBolls = 0;
       CarbonStress = 1;

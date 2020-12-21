@@ -78,8 +78,8 @@ namespace fs = std::filesystem;
     }   Irrig[150];
     extern struct Irrigation Irrig[150];
 ////    Integers    //// 
-	extern int DayEndCO2, DayEndMulch, DayFirstDef,
-        DayStartCO2, DayStartMulch, DayStartPlantMaps, 
+	extern int DayEndMulch, DayFirstDef,
+        DayStartMulch, DayStartPlantMaps, 
         DayStartPredIrrig, DayStopPlantMaps, DayStopPredIrrig, 
         inrim, IrrigMethod, isw, iyear, Kday, KdayAdjust, 
         LastDayWeatherData, LastIrrigation, LastTaprootLayer, 
@@ -101,7 +101,7 @@ namespace fs = std::filesystem;
         AdjAddHeightRate, AdjAddMSNodesRate, AdjAddSitesRate, AdjGreenBollAbsc,  
         AdjSquareAbsc, AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp, 
 		BloomWeightLoss, BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls, 
-        CarbonAllocatedForRootGrowth, CarbonStress, CO2EnrichmentFactor, conmax, 
+        CarbonAllocatedForRootGrowth, CarbonStress, conmax, 
         CottonWeightGreenBolls, CottonWeightOpenBolls, CumEvaporation, CumFertilizerN, 
         CumNetPhotosynth, CumNitrogenUptake, CumPlantNLoss, CumTranspiration, 
         CumWaterAdded, CumWaterDrained, 

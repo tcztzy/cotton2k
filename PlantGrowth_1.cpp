@@ -329,7 +329,7 @@ double LeafResistance( double agel )
       return leafResistance;
 }
 ////////////////////////////////
-void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge, const double& DayLength)            // computes net photosynthesis.
+void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge, const int& DayStartCO2, const int& DayEndCO2, const double& CO2EnrichmentFactor, const double& DayLength)            // computes net photosynthesis.
 //     This function simulates the net photosynthesis of cotton  plants. It is called 
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
