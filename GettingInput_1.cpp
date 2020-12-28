@@ -13,10 +13,10 @@
 
 using namespace std;
 
-tuple<int, int, int, int, int, int, int, int, double, double, double, string, string, string, string, string, string> ReadProfileFile(const string&);
+tuple<int, int, int, int, int, int, int, int, int, double, double, double, string, string, string, string, string, string> ReadProfileFile(const string&);
 void ReadCalibrationData();
 void InitializeGrid();
-void WriteInitialInputData(const string&, const string&, const string&, const string&, const string&, const string&, const string&, const int&, const int&, const int&, const int&, const int&, const int&, const double&, const double&, const double&);
+void WriteInitialInputData(const string&, const string&, const string&, const string&, const string&, const string&, const string&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const double&, const double&, const double&);
 // GettingInput_2
 void InitSoil(const string&);
 void ReadSoilImpedance();
@@ -41,7 +41,7 @@ void ReadAgriculturalInput(const string&, const string&);
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-tuple<int, int, int, int, int, int, int, int, double, double, double> ReadInput(const string& ProfileName, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, int, int, int, int, int, int, int, int, double, double, double> ReadInput(const string& ProfileName, double RootWeight[40][20][3], double RootAge[40][20])
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -58,7 +58,7 @@ tuple<int, int, int, int, int, int, int, int, double, double, double> ReadInput(
         DayFinish,        // Date (DOY) to end simulation.
         DayPlant,
         DayStartSoilMaps,
-        DayStopSoilMaps, DayStartCO2, DayEndCO2;
+        DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch;
     string
         ActWthFileName,   // name of input file with actual weather data.
         PrdWthFileName,   // name of input file with predicted weather data.
@@ -71,12 +71,12 @@ tuple<int, int, int, int, int, int, int, int, double, double, double> ReadInput(
         Latitude,
         Longitude;
 	InitializeGlobal();
-	tie(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, Latitude, Longitude, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
+	tie(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, CO2EnrichmentFactor, Latitude, Longitude, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName) = ReadProfileFile(ProfileName);
 	ReadCalibrationData();
 	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart);
 	InitializeGrid();
 	ReadSoilImpedance();
-    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName, DayEmerge, DayStart, DayFinish, DayPlant, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, Latitude, Longitude);
+    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName, DayEmerge, DayStart, DayFinish, DayPlant, DayStartCO2, DayEndCO2, DayStartMulch, CO2EnrichmentFactor, Latitude, Longitude);
 	InitSoil(SoilInitFileName);
 	ReadAgriculturalInput(ProfileName, AgrInputFileName);
 	ReadPlantMapInput(PlantmapFileName);
@@ -86,10 +86,10 @@ tuple<int, int, int, int, int, int, int, int, double, double, double> ReadInput(
 //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
-    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, Latitude, Longitude);
+    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, CO2EnrichmentFactor, Latitude, Longitude);
 }
 /////////////////////////////////////////////////////////////////////////////
-tuple<int, int, int, int, int, int, int, int, double, double, double, string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)
+tuple<int, int, int, int, int, int, int, int, int, double, double, double, string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -180,6 +180,7 @@ tuple<int, int, int, int, int, int, int, int, double, double, double, string, st
     else 
         PrdWthFileName = "";
 //     For advanced users only: If soil mulch is used, read relevant parameters.
+    int DayStartMulch = 0;
     if (nLength > 41)
 	{
            m_mulchdata = Dummy.substr(40);
@@ -356,7 +357,7 @@ tuple<int, int, int, int, int, int, int, int, double, double, double, string, st
       }
 //     Call function OpenOutputFiles() to open the output files.
       OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge);
-      return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, Latitude, Longitude, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
+      return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, CO2EnrichmentFactor, Latitude, Longitude, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
 }
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()
@@ -557,6 +558,7 @@ void WriteInitialInputData(
     const int& DayPlant,
     const int& DayStartCO2,
     const int& DayEndCO2,
+    const int& DayStartMulch,
     const double& CO2EnrichmentFactor,
     const double& Latitude,
     const double& Longitude

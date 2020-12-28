@@ -35,7 +35,6 @@
 	int CultivationDate[5],  // Dates (DOY) of cultivatrion.
         DayEndMulch,         // date (DOY) for ending of mulch.
 	    DayFirstDef,         // Date (DOY) of first defoliation.
-        DayStartMulch,       // Date (DOY) for beginning of mulch.
         DayStartPlantMaps,   // Date (DOY) to start plant maps output.
         DayStartPredIrrig,   // Date (DOY) for starting predicted irrigation.  
         DayStopPlantMaps,    // Date (DOY) to stop plant maps output.
