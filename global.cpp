@@ -33,7 +33,6 @@
 // Integer variables: 
 //
 	int CultivationDate[5],  // Dates (DOY) of cultivatrion.
-        DayEndMulch,         // date (DOY) for ending of mulch.
 	    DayFirstDef,         // Date (DOY) of first defoliation.
         DayStartPlantMaps,   // Date (DOY) to start plant maps output.
         DayStartPredIrrig,   // Date (DOY) for starting predicted irrigation.  
