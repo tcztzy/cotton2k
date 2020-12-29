@@ -227,7 +227,7 @@
         LwpX[3];             // array of values of LwpMin + LwpMax for the last 3 days.
 // M
     double
-	    MarginalWaterContent[maxl], // marginal soil water content (as a function of soil texture) for computing soil heat conductivity.
+        MarginalWaterContent[maxl], // marginal soil water content (as a function of soil texture) for computing soil heat conductivity.
         MapDataAllSiteNum[30],    // the number of total sites per plant, input for plant map adjustment.
         MapDataGreenBollNum[30],  // number of green bolls per plant, input for plant map adjustment.
         MapDataMainStemNodes[30], // Number of mainstem nodes, input for plant map adjustment.
@@ -236,9 +236,7 @@
         MaxIrrigation,       // maximum amount of applied water in a predicted irrigation 
         MaxWaterCapacity[maxl], // volumetric water content of a soil layer at maximum capacity, before drainage, cm3 cm-3.
         MineralizedOrganicN, // cumulative amount of mineralized organic N, mgs per slab.
-	    MulchTemp[maxk],     // polyethylene mulch temperature at a column(oK).  
-        MulchTranLW,         // transmissivity of soil mulch to long wave radiation.
-	    MulchTranSW;         // transmissivity of soil mulch to short wave radiation 
+        MulchTemp[maxk];     // polyethylene mulch temperature at a column(oK).  
 // N   
     double
         NetPhotosynthesis,   // net photosynthetic rate, g per plant per day.

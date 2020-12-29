@@ -112,7 +112,7 @@ namespace fs = std::filesystem;
         InitialTotalSoilWater, IrrigationDepth, 
         LeafAreaIndex, LeafNConc, LeafNitrogen, LeafWeightAreaRatio, 
         LightIntercept, LintYield, LwpMax, LwpMin, 
-        MaxIrrigation, MineralizedOrganicN, MulchTranLW, MulchTranSW, 
+        MaxIrrigation, MineralizedOrganicN,
 	    NetPhotosynthesis, NightTimeTemp, NitrogenStress, NStressFruiting, 
         NStressRoots, NStressVeg, NumGreenBolls, NumOpenBolls, NumSquares,	
         PercentDefoliation, PerPlantArea, PetioleNConc, PetioleNitrogen, PetioleNO3NConc, 

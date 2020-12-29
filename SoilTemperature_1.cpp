@@ -11,7 +11,7 @@ using namespace std;
 
 void SoilTemperatureInit(int&, int&, const string&, const int&, const int&, const int&);
 // SoilTemperature_2
-void EnergyBalance(int, int, bool, double, double, const int&, const double&, double[20]);
+void EnergyBalance(int, int, bool, double, double, const int&, const double&, const double&, const double&, double[20]);
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int);
 tuple<int> PredictEmergence(int, const string&, const int&, const int&, const int&);
@@ -117,6 +117,8 @@ tuple<int> SoilTemperature(
     const int& DayStartMulch,
     const int& DayEndMulch,
     const int& MulchIndicator,
+    const double& MulchTranSW,
+    const double& MulchTranLW,
     const double& PlantHeight,
     double rracol[20]
 )
@@ -238,7 +240,7 @@ tuple<int> SoilTemperature(
                ess = escol1k / dlt; 
 			}
 //     Call EnergyBalance to compute soil surface and canopy temperature.
-            EnergyBalance (ihr, k, bMulchon, ess, etp1, Daynum, PlantHeight, rracol);
+            EnergyBalance (ihr, k, bMulchon, ess, etp1, Daynum, PlantHeight, MulchTranSW, MulchTranLW, rracol);
 	        if (bMulchon) 
 			{
                tmav += MulchTemp[k] - 273.161;

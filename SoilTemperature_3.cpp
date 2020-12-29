@@ -25,7 +25,7 @@ void HeatBalance(int nn);
       double hcap[maxl]; // heat capacity of soil layer (cal cm-3 oC-1).
 /////////////////////////////////////////
 void CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv,
-		double c2, double sf, double so, double thet, double tm, double &tv, const int& Daynum)
+		double c2, double sf, double so, double thet, double tm, double &tv, const int& Daynum, const double& MulchTranLW)
 //     This function solves the energy balance equations at the foliage / air interface, and 
 //  computes the resulting temperature of the foliage. It is Called from EnergyBalance().
 //     Units for all energy fluxes are: cal cm-2 sec-1.
