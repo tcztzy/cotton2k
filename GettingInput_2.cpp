@@ -340,7 +340,6 @@ void InitializeRootData(double RootWeight[40][20][3], double RootAge[40][20])
 {
 //     The parameters of the root model are defined for each root class:
 //       grind(i), cuind(i), thtrn(i), trn(i), thdth(i), dth(i).
-	  NumRootAgeGroups = 3;
 	  cgind[0] = 1;
 	  cgind[1] = 1;
 	  cgind[2] = 0.10; 

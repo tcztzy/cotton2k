@@ -132,7 +132,7 @@ tuple<int> RedistRootNewGrowth(int l, int k, double addwt, int NumLayersWithRoot
       return make_tuple(NumLayersWithRoots);
 }
 //////////////////////////////
-tuple<int> TapRootGrowth(int NumLayersWithRoots, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int> TapRootGrowth(const int& NumRootAgeGroups, int NumLayersWithRoots, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function computes the elongation of the taproot. It is
 //  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
 //
@@ -244,7 +244,7 @@ void InitiateLateralRoots()
 	  }
 }
 //////////////////////////////
-void LateralRootGrowthLeft(int l, double RootWeight[40][20][3], double RootAge[40][20])
+void LateralRootGrowthLeft(int l, const int& NumRootAgeGroups, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the left. It is called from ActualRootGrowth(). 
 //     It calls function SoilTemOnRootGrowth().
@@ -310,7 +310,7 @@ void LateralRootGrowthLeft(int l, double RootWeight[40][20][3], double RootAge[4
 	  }
 }
 //////////////////////////////
-void LateralRootGrowthRight(int l, double RootWeight[40][20][3], double RootAge[40][20])
+void LateralRootGrowthRight(int l, const int& NumRootAgeGroups, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the right. It is called from ActualRootGrowth(). 
 //     It calls function SoilTemOnRootGrowth().
@@ -460,7 +460,7 @@ double RootDeath(int l, int k, double DailyRootLoss, double RootWeight[40][20][3
       return DailyRootLoss;
 }
 //////////////////////////////
-double RootCultivation(int j, double DailyRootLoss, double RootWeight[40][20][3])
+double RootCultivation(int j, const int& NumRootAgeGroups, double DailyRootLoss, double RootWeight[40][20][3])
 //     This function is executed on the day of soil cultivation. It is called from 
 //  ActualRootGrowth(). It has been adapted from GOSSYM. It is assumed that the roots in the 
 //  upper soil layers, as defined by the depth of cultivation, are destroyed, with the 
@@ -504,7 +504,7 @@ double RootCultivation(int j, double DailyRootLoss, double RootWeight[40][20][3]
       return DailyRootLoss;
 }
 //////////////////////////////
-void RootSummation(const string& ProfileName, const int& DayOfSimulation, const int& NumLayersWithRoots, double RootWeight[40][20][3])
+void RootSummation(const string& ProfileName, const int& DayOfSimulation, const int& NumRootAgeGroups, const int& NumLayersWithRoots, double RootWeight[40][20][3])
 //     This function has been added for compatibility with GOSSYM root routines. 
 //  It is called from ActualRootGrowth(). It summarizes root data, in a form ready 
 //  for output or plotting. Sums of root weights for cells, for age groups and for 

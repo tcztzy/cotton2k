@@ -439,7 +439,22 @@ tuple<string, int, int, int, int, int, double, double, double, double> C2KApp::S
          Defoliate(ProfileName, Date, Daynum, DayEmerge);         // effects of defoliants applied.
          tie(WaterStress) = Stress(ProfileName, PlantHeight, NumLayersWithRoots);            // computes water stress factors.
          GetNetPhotosynthesis(Daynum, DayEmerge, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayLength);         // computes net photosynthesis.
-         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(ProfileName, Date, Daynum, DayOfSimulation, DayEmerge, FirstSquare, NumLayersWithRoots, PlantHeight, DayInc, DayLength, WaterStress, RootWeight, RootAge);       // executes all modules of plant growth.
+         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(
+             ProfileName,
+             Date,
+             Daynum,
+             DayOfSimulation,
+             DayEmerge,
+             FirstSquare,
+             3, // the number of root classes defined in the model.
+             NumLayersWithRoots,
+             PlantHeight,
+             DayInc,
+             DayLength,
+             WaterStress,
+             RootWeight,
+             RootAge
+         );       // executes all modules of plant growth.
          tie(FirstBloom, FirstSquare, AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(Daynum, DayEmerge, FirstBloom, FirstSquare, DayInc, WaterStress, AbscisedLeafWeight);              // executes all modules of plant phenology.
          PlantNitrogen(ProfileName, Daynum, DayEmerge);     // computes plant nitrogen allocation.
          CheckDryMatterBal(ProfileName, Date, AbscisedLeafWeight); // checks plant dry matter balance.

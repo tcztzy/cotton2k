@@ -21,14 +21,14 @@ double SoilAirOnRootGrowth(double, double, double);
 double SoilNitrateOnRootGrowth(double);
 double SoilWaterOnRootGrowth(double);
 tuple<int> RedistRootNewGrowth(int, int, double, int, double[40][20]);
-tuple<int> TapRootGrowth(int, double[40][20][3], double[40][20]);
+tuple<int> TapRootGrowth(const int&, int, double[40][20][3], double[40][20]);
 void InitiateLateralRoots();
-void LateralRootGrowthLeft(int, double[40][20][3], double[40][20]);
-void LateralRootGrowthRight(int, double[40][20][3], double[40][20]);
+void LateralRootGrowthLeft(int, const int&, double[40][20][3], double[40][20]);
+void LateralRootGrowthRight(int, const int&, double[40][20][3], double[40][20]);
 void RootAging(int, int, double[40][20][3], double[40][20]);
 double RootDeath(int, int, double, double[40][20][3], const double[40][20]);
-double RootCultivation(int, double, double[40][20][3]);
-void RootSummation(const string&, const int&, const int&, double[40][20][3]);
+double RootCultivation(int, const int&, double, double[40][20][3]);
+void RootSummation(const string&, const int&, const int&, const int&, double[40][20][3]);
 
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
@@ -66,7 +66,7 @@ void RootSummation(const string&, const int&, const int&, double[40][20][3]);
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(const int& NumLayersWithRoots, const double RootWeight[40][20][3], const double RootAge[40][20])
+double PotentialRootGrowth(const int& NumRootAgeGroups, const int& NumLayersWithRoots, const double RootWeight[40][20][3], const double RootAge[40][20])
 //     This function calculates the potential root growth rate.  The return value 
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from 
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), 
@@ -384,7 +384,7 @@ double SoilWaterOnRootGrowth(double psislk)
       return smf;
 }
 //////////////////////////
-tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& Daynum, const int& DayOfSimulation, const int& DayEmerge, int NumLayersWithRoots, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, const int& Daynum, const int& DayOfSimulation, const int& DayEmerge, int NumLayersWithRoots, const int& NumRootAgeGroups, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function calculates the actual root growth rate. It is called from function 
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(), 
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), 
@@ -515,15 +515,15 @@ tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, con
 //     Call function TapRootGrowth() for taproot elongation, if the taproot
 //  has not already reached the bottom of the slab.
       if ( LastTaprootLayer < nl-1 || TapRootLength < DepthLastRootLayer ) 
-		   tie(NumLayersWithRoots) = TapRootGrowth(NumLayersWithRoots, RootWeight, RootAge);
+		   tie(NumLayersWithRoots) = TapRootGrowth(NumRootAgeGroups, NumLayersWithRoots, RootWeight, RootAge);
 //     Call functions for growth of lateral roots
       InitiateLateralRoots();
       for (int l = 0; l < LastTaprootLayer; l++)
 	  {
          if ( LateralRootFlag[l] == 2 ) 
 		 {
-			 LateralRootGrowthLeft(l, RootWeight, RootAge);
-			 LateralRootGrowthRight(l, RootWeight, RootAge);
+			 LateralRootGrowthLeft(l, NumRootAgeGroups, RootWeight, RootAge);
+			 LateralRootGrowthRight(l, NumRootAgeGroups, RootWeight, RootAge);
 		 }
       }
 //     Initialize DailyRootLoss (weight of sloughed roots) for this day.
@@ -542,7 +542,7 @@ tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, con
 //     Check if cultivation is executed in this day and call RootCultivation().
       for (int j = 0; j < 5; j++)
          if ( CultivationDate[j] == Daynum ) 
-			  DailyRootLoss = RootCultivation(j, DailyRootLoss, RootWeight);
+			  DailyRootLoss = RootCultivation(j, NumRootAgeGroups, DailyRootLoss, RootWeight);
 //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
       DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / RowSpace;
       RootWeightLoss += DailyRootLoss;
@@ -552,6 +552,6 @@ tuple<int> ComputeActualRootGrowth(double sumpdr, const string& ProfileName, con
       CumPlantNLoss  += DailyRootLoss * RootNConc;
       PixInPlants -= DailyRootLoss * pixcon;
 //     Call function RootSummation().
-      RootSummation(ProfileName, DayOfSimulation, NumLayersWithRoots, RootWeight);
+      RootSummation(ProfileName, DayOfSimulation, NumRootAgeGroups, NumLayersWithRoots, RootWeight);
       return make_tuple(NumLayersWithRoots);
 }

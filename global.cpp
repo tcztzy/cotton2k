@@ -80,7 +80,6 @@
         NumNitApps,          // number of applications of nitrogen fertilizer.
         NumNodes[3][30],     // number of nodes on each fruiting branch.
         NumPreFruNodes,      // number of prefruiting nodes, per plant.
-        NumRootAgeGroups,    // the number of root classes defined in the model.
         NumSheddingTags,     // number of 'box-car' units used for moving values in arrays defining fruit shedding
                              // (AbscissionLag, ShedByCarbonStress, ShedByNitrogenStress and ShedByWaterStress). 
         NumVegBranches,      // number of vegetative branches (including the main branch), per plant.
