@@ -25,9 +25,9 @@ public:
     CString GetJobFile();
     void GetProfilesList(fs::path JobFileName);
     void RunTheModel();
-	tuple<int, int, int, double> DailySimulation(const string&, string, int, const int&, const int&, const int&, const int&, const int&, const int&, const int&, int, int, const double&, const double&, const double&, double[40][20][3], double[40][20]);
-	tuple<string, int, int, int, int, int, double, double, double, double> SimulateThisDay(const string&, const int&, int, const int&, const int&, const int&, const int&, const int&, const int&, const int&, int, int, int, const double&, const double&, const double&, double, double, double, double, double[40][20][3], double[40][20]);
-    tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double> DoAdjustments(const string&, string, int, int, int, const int&, const int&, const int&, const int&, const int&, const int&, const int&, int, int, int, const double&, const double&, const double&, double, double, double, double, double[40][20][3], double[40][20]);
+	tuple<int, int, int, double> DailySimulation(const string&, string, int, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, int, int, const double&, const double&, const double&, double[40][20][3], double[40][20]);
+	tuple<string, int, int, int, int, int, double, double, double, double> SimulateThisDay(const string&, const int&, int, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, int, int, int, const double&, const double&, const double&, double, double, double, double, double[40][20][3], double[40][20]);
+    tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double> DoAdjustments(const string&, string, int, int, int, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, int, int, int, const double&, const double&, const double&, double, double, double, double, double[40][20][3], double[40][20]);
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 	afx_msg void OnAppAbout();

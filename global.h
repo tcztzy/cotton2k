@@ -84,7 +84,7 @@ namespace fs = std::filesystem;
         inrim, IrrigMethod, isw, iyear, Kday, KdayAdjust, 
         LastDayWeatherData, LastIrrigation, LastTaprootLayer, 
         LocationColumnDrip, LocationLayerDrip, 
-		MainStemNodes, MinDaysBetweenIrrig, MulchIndicator, 
+		MainStemNodes, MinDaysBetweenIrrig,
         ncurve, nk, nl, noitr, NumAbscisedLeaves, NumAdjustDays, NumFruitSites,
         NumIrrigations, NumNitApps, NumPreFruNodes, NumRootAgeGroups,  
         NumSheddingTags, NumVegBranches, NumWaterTableData, 

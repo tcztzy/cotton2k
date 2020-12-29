@@ -116,6 +116,7 @@ tuple<int> SoilTemperature(
     const int& DayPlant,
     const int& DayStartMulch,
     const int& DayEndMulch,
+    const int& MulchIndicator,
     const double& PlantHeight,
     double rracol[20]
 )

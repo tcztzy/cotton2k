@@ -68,10 +68,6 @@
 	int MainStemNodes,        // number of main stem nodes.
         MinDaysBetweenIrrig, // minimum number of days between consecutive irrigations (used for computing predicted irrigation).
         MapDataDate[30],     // Dates (Doy) when plant map data are available for adjustment.
-        MulchIndicator,      // indicating if and where a soil mulch exists: the value are: 
-        // 0 = no mulch;       1 = plastic layer on all soil surface; 
-        // 2 = plastic layer on all soil surface except one column at each side of the plant row. 
-        // 3 = plastic layer on all soil surface except two columns at each side of the plant row.
         ncurve,              // number of input soil-moisture curves in the impedance table.
         nk,                  // number of vertical columns of soil cells in the slab.
         nl,                  // number of horizontal layers of soil cells in the slab.
