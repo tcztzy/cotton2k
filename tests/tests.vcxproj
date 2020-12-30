@@ -77,7 +77,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>$(OutDir)GeneralFunctions.obj;$(OutDir)global.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)GeneralFunctions.obj;$(OutDir)RootGrowth_1.obj;$(OutDir)RootGrowth_2.obj;$(OutDir)global.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference />
     <ProjectReference />
