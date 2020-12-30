@@ -85,7 +85,7 @@ namespace fs = std::filesystem;
         LastDayWeatherData, LastIrrigation, LastTaprootLayer, 
         LocationColumnDrip, LocationLayerDrip, 
 		MainStemNodes, MinDaysBetweenIrrig,
-        ncurve, nk, nl, noitr, NumAbscisedLeaves, NumAdjustDays, NumFruitSites,
+        nk, nl, noitr, NumAbscisedLeaves, NumAdjustDays, NumFruitSites,
         NumIrrigations, NumNitApps, NumPreFruNodes,
         NumSheddingTags, NumVegBranches, NumWaterTableData, 
         PlantMapFreq, PlantRowColumn, SoilMapFreq, WaterTableLayer;

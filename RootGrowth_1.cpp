@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void RootImpedance();
+void RootImpedance(const int&);
 double SoilTemOnRootGrowth(double);
 double SoilMechanicResistance(int, int);
 double SoilAirOnRootGrowth(double, double, double);
@@ -66,7 +66,7 @@ void RootSummation(const string&, const int&, const int&, const int&, double[40]
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(const int& NumRootAgeGroups, const int& NumLayersWithRoots, const double RootWeight[40][20][3], const double RootAge[40][20])
+double PotentialRootGrowth(const int& NumRootAgeGroups, const int& NumLayersWithRoots, const int& ncurve, const double RootWeight[40][20][3], const double RootAge[40][20])
 //     This function calculates the potential root growth rate.  The return value 
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from 
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), 
@@ -84,7 +84,7 @@ double PotentialRootGrowth(const int& NumRootAgeGroups, const int& NumLayersWith
       for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = 0; k < nk; k++)
             PotGroRoots[l][k] = 0;
-	  RootImpedance();
+	  RootImpedance(ncurve);
       double sumpdr = 0;  // sum of potential root growth rate for the whole slab
       for (int l = 0; l < NumLayersWithRoots; l++)
          for (int k = 0; k < nk; k++)
@@ -137,7 +137,7 @@ double PotentialRootGrowth(const int& NumRootAgeGroups, const int& NumLayersWith
 	  return sumpdr;
 }
 //////////////////////////
-void RootImpedance()
+void RootImpedance(const int& ncurve)
 //     This function calculates soil mechanical impedance to root growth, rtimpd(l,k), 
 //  for all soil cells. It is called from PotentialRootGrowth(). The impedance is a function  
 //  of bulk density and water content in each soil soil cell. No changes have been made 

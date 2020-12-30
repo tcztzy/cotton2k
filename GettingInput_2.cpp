@@ -34,7 +34,7 @@ int ReadSoilHydraulicData(const string&);
         rnno3[14];           // residual nitrogen as nitrate in soil at beginning of season, kg per ha.
                              // defined by input for consecutive 15 cm soil layers.
 ////////////////////////////////////////////////////////////////////////////////////
-void ReadSoilImpedance()
+tuple<int> ReadSoilImpedance()
 //     This function opens the soil root impedance data file and reads it. 
 //  It is called from ReadInput(), and executed once at the beginning of the simulation.
 //  The variables read here are later used to compute soil impedance to root growth.
@@ -52,7 +52,7 @@ void ReadSoilImpedance()
        string Dummy = GetLineData(DataFile); // 1st line
 	   string SoilName = Dummy;
        Dummy = GetLineData(DataFile); // 2nd line
-	   ncurve = atoi(Dummy.c_str());
+	   int ncurve = atoi(Dummy.c_str());
 	   if (ncurve > 10)
 		   ncurve = 10;
 	   for(int i = 0; i < ncurve; i++)
@@ -64,6 +64,7 @@ void ReadSoilImpedance()
 				  DataFile >> tstbd[j][i] >> impede[j][i];
 	   }
 	   DataFile.close();
+       return make_tuple(ncurve);
 }
 //////////////////////////////////////////////////////////////////
 void InitSoil(const string& SoilInitFileName)

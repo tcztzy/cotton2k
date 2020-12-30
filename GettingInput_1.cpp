@@ -19,7 +19,7 @@ void InitializeGrid();
 void WriteInitialInputData(const string&, const string&, const string&, const string&, const string&, const string&, const string&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const int&, const double&, const double&, const double&, const double&, const double&);
 // GettingInput_2
 void InitSoil(const string&);
-void ReadSoilImpedance();
+tuple<int> ReadSoilImpedance();
 void InitializeSoilData(const string&);
 void InitializeSoilTemperature();
 void InitializeRootData(double[40][20][3], double[40][20]);
@@ -41,7 +41,7 @@ void ReadAgriculturalInput(const string&, const string&);
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-tuple<int, int, int, int, int, int, int, int, int, int, int, double, double, double, double, double> ReadInput(const string& ProfileName, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, int, int, int, int, int, int, int, int, int, int, int, double, double, double, double, double> ReadInput(const string& ProfileName, double RootWeight[40][20][3], double RootAge[40][20])
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -59,6 +59,7 @@ tuple<int, int, int, int, int, int, int, int, int, int, int, double, double, dou
         DayPlant,
         DayStartSoilMaps,
         DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator;
+    int ncurve;
     string
         ActWthFileName,   // name of input file with actual weather data.
         PrdWthFileName,   // name of input file with predicted weather data.
@@ -75,7 +76,7 @@ tuple<int, int, int, int, int, int, int, int, int, int, int, double, double, dou
 	ReadCalibrationData();
 	LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart);
 	InitializeGrid();
-	ReadSoilImpedance();
+	tie(ncurve) = ReadSoilImpedance();
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName, DayEmerge, DayStart, DayFinish, DayPlant, DayStartCO2, DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, CO2EnrichmentFactor, Latitude, Longitude);
 	InitSoil(SoilInitFileName);
 	ReadAgriculturalInput(ProfileName, AgrInputFileName);
@@ -86,7 +87,7 @@ tuple<int, int, int, int, int, int, int, int, int, int, int, double, double, dou
 //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
-    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, CO2EnrichmentFactor, Latitude, Longitude);
+    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator, ncurve, MulchTranSW, MulchTranLW, CO2EnrichmentFactor, Latitude, Longitude);
 }
 /////////////////////////////////////////////////////////////////////////////
 tuple<int, int, int, int, int, int, int, int, int, int, int, double, double, double, double, double, string, string, string, string, string, string> ReadProfileFile(const string& ProfileName)

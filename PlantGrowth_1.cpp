@@ -443,7 +443,7 @@ void GetNetPhotosynthesis(const int& Daynum, const int& DayEmerge, const int& Da
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayOfSimulation, const int& DayEmerge, const int& FirstSquare, const int& NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double& DayInc, const double& DayLength, const double& WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
+tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, const int& Daynum, const int& DayOfSimulation, const int& DayEmerge, const int& FirstSquare, const int& NumRootAgeGroups, int NumLayersWithRoots, const int& ncurve, double PlantHeight, const double& DayInc, const double& DayLength, const double& WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function simulates the potential and actual growth of cotton plants. 
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -482,7 +482,7 @@ tuple<int, double> PlantGrowth(const string& ProfileName, const string& Date, co
 //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
       double sumpdr; // total potential growth rate of roots in g per slab. this is 
 	                 // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-      sumpdr = PotentialRootGrowth(NumRootAgeGroups, NumLayersWithRoots, RootWeight, RootAge);
+      sumpdr = PotentialRootGrowth(NumRootAgeGroups, NumLayersWithRoots, ncurve, RootWeight, RootAge);
 //     Total potential growth rate of roots is converted from g per
 //  slab (sumpdr) to g per plant (PotGroAllRoots).
       PotGroAllRoots = sumpdr * 100 * PerPlantArea / RowSpace;

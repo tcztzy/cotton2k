@@ -68,7 +68,6 @@
 	int MainStemNodes,        // number of main stem nodes.
         MinDaysBetweenIrrig, // minimum number of days between consecutive irrigations (used for computing predicted irrigation).
         MapDataDate[30],     // Dates (Doy) when plant map data are available for adjustment.
-        ncurve,              // number of input soil-moisture curves in the impedance table.
         nk,                  // number of vertical columns of soil cells in the slab.
         nl,                  // number of horizontal layers of soil cells in the slab.
         noitr,               // number of iterations per day, for calling some soil water related functions.
