@@ -1,4 +1,7 @@
 #pragma once
-void SoilNitrogen(const int&, const int&);
-void SoilNitrogenBal(const string&);
-void SoilNitrogenAverage(const string&);
+
+void SoilNitrogen(const int &, const int &);
+
+void SoilNitrogenBal(const string &);
+
+void SoilNitrogenAverage(const string &);

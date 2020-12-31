@@ -1,220 +1,216 @@
 //   global.h
 #pragma once
+
 #include <exception>
 #include <filesystem>
 #include "stdafx.h"
+
 namespace fs = std::filesystem;
 //
 //  definition of global variables
 //  ==============================
 //    For dictionary of global variables see file "global.cpp"
 ////    Constants    ////
-	const int maxl = 40;
-    const int maxk = 20;
-	const double pi = 3.14159;
+const int maxl = 40;
+const int maxk = 20;
+const double pi = 3.14159;
 ////    Structures    ////
-    extern struct scratch {
-      int daynum, kday, firstBloom, firstSquare, lastTaprootLayer, mainStemNodes, 
-          numAbscisedLeaves, numFruitSites, numLayersWithRoots, numPreFruNodes, 
-          numSheddingTags, numVegBranches;
-      int fruitingCode[3][30][5], lateralRootFlag[maxl], numFruitBranches[3], numNodes[3][30], 
-          rootColNumLeft[maxl], rootColNumRight[maxl];
- 	  std::string date;
-      double abscisedFruitSites, abscisedLeafWeight, amitri, 
-          averageLwp, averageLwpMin, averageSoilPsi, avrgDailyTemp, 
-          bloomWeightLoss, burrNConc, burrNitrogen, burrWeightGreenBolls, burrWeightOpenBolls, 
-          carbonStress, cottonWeightGreenBolls, cottonWeightOpenBolls, 
-          cumEvaporation, cumFertilizerN, cumNetPhotosynth, cumNitrogenUptake, 
-          cumPlantNLoss, cumTranspiration, cumWaterAdded, cumWaterDrained, 
-          dayTimeTemp, deadwt, deepSoilTemperature, 
-          ep, es, extraCarbon, fruitGrowthRatio, 
-          greenBollsLost, gbw, gintot, h2obal, 
-          leafAreaIndex, leafNConc, leafNitrogen, lightIntercept, lintYield, lwpMin,
-          mineralizedOrganicN, 
-		  netPhotosynthesis, nightTimeTemp, nitrogenStress, nStressFruiting, 
-          nStressRoots, nStressVeg, numGreenBolls, numSquares, numOpenBolls, 
-          petioleNConc, petioleNO3NConc, petioleNitrogen, PixInPlants, plantHeight, plantWeight, 
-		  rad, rain, reserveC, rn, rootNConc, rootNitrogen, rootWeightLoss, runoff,
-          seedNConc, seedNitrogen, soilNitrogenLoss, squareNConc, squareNitrogen, 
-          stemNConc, stemNitrogen, sumNO3N90, supplyNH4N, supplyNO3N,          
-          tapRootLength, tmax, tmin, totalLeafWeight, totalPetioleWeight, totalRequiredN, 
-          totalRootWeight, totalSoilNh4N, totalSoilNo3N, totalSoilUreaN, 
-          totalSoilWater, totalSquareWeight, totalStemWeight,  
-          waterStress, waterStressStem, wind;
-       double abscissionLag[20], ageOfBoll[3][30][5], ageOfPreFruNode[9], ageOfSite[3][30][5], 
-          avrgNodeTemper[3][30][5], 
-          bollWeight[3][30][5], burrWeight[3][30][5],  
-          delayNewFruBranch[3], delayNewNode[3][30], 
-          foliageTemp[maxk], freshOrganicMatter[maxl][maxk], freshOrganicNitrogen[maxl][maxk], 
-          fruitFraction[3][30][5], humusOrganicMatter[maxl][maxk], 
-          leafAge[3][30][5], leafAreaMainStem[3][30], leafAreaNodes[3][30][5], 
-          leafAreaPreFru[9], leafWeightMainStem[3][30], leafWeightNodes[3][30][5], 
-          leafWeightPreFru[9], lwpMinX[3], lwpX[3], 
-          mulchTemp[maxk], nhum[maxl][maxk], 
-          petioleWeightMainStem[3][30], petioleWeightNodes[3][30][5], petioleWeightPreFru[9],
-          potGroLeafAreaMainStem[3][30], potGroLeafWeightMainStem[3][30], 
-          potGroPetioleWeightMainStem[3][30], 
-          rootAge[maxl][maxk], rootsv[maxl][maxk], rootWeight[maxl][maxk][3], 
-          rootWtCapblUptake[maxl][maxk], 
-          shedByCarbonStress[20], shedByNitrogenStress[20], shedByWaterStress[20],
-          soilPsi[maxl][maxk], soilTemp[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
-          squareWeight[3][30][5], 
-          volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk],
-          volUreaNContent[maxl][maxk];
-    };  
-    extern struct scratch Scratch21[400];
-    extern struct Climstruct {
-        int nDay; double Rad, Tmax, Tmin, Rain, Wind, Tdew; 
-    };
-    extern struct Climstruct Clim[400];
-    extern struct NitrogenFertilizer {
-        int day, mthfrt, ksdr, lsdr; 
-	    double amtamm, amtnit, amtura;  
-    };
-    extern struct NitrogenFertilizer NFertilizer[150];
-    extern struct Irrigation {
-        int day, method, LocationColumnDrip, LocationLayerDrip; 
-	    double amount; 
-    }   Irrig[150];
-    extern struct Irrigation Irrig[150];
+extern struct scratch {
+    int daynum, kday, firstBloom, firstSquare, lastTaprootLayer, mainStemNodes,
+            numAbscisedLeaves, numFruitSites, numLayersWithRoots, numPreFruNodes,
+            numSheddingTags, numVegBranches;
+    int fruitingCode[3][30][5], lateralRootFlag[maxl], numFruitBranches[3], numNodes[3][30],
+            rootColNumLeft[maxl], rootColNumRight[maxl];
+    std::string date;
+    double abscisedFruitSites, abscisedLeafWeight, amitri,
+            averageLwp, averageLwpMin, averageSoilPsi, avrgDailyTemp,
+            bloomWeightLoss, burrNConc, burrNitrogen, burrWeightGreenBolls, burrWeightOpenBolls,
+            carbonStress, cottonWeightGreenBolls, cottonWeightOpenBolls,
+            cumEvaporation, cumFertilizerN, cumNetPhotosynth, cumNitrogenUptake,
+            cumPlantNLoss, cumTranspiration, cumWaterAdded, cumWaterDrained,
+            dayTimeTemp, deadwt, deepSoilTemperature,
+            ep, es, extraCarbon, fruitGrowthRatio,
+            greenBollsLost, gbw, gintot, h2obal,
+            leafAreaIndex, leafNConc, leafNitrogen, lightIntercept, lintYield, lwpMin,
+            mineralizedOrganicN,
+            netPhotosynthesis, nightTimeTemp, nitrogenStress, nStressFruiting,
+            nStressRoots, nStressVeg, numGreenBolls, numSquares, numOpenBolls,
+            petioleNConc, petioleNO3NConc, petioleNitrogen, PixInPlants, plantHeight, plantWeight,
+            rad, rain, reserveC, rn, rootNConc, rootNitrogen, rootWeightLoss, runoff,
+            seedNConc, seedNitrogen, soilNitrogenLoss, squareNConc, squareNitrogen,
+            stemNConc, stemNitrogen, sumNO3N90, supplyNH4N, supplyNO3N,
+            tapRootLength, tmax, tmin, totalLeafWeight, totalPetioleWeight, totalRequiredN,
+            totalRootWeight, totalSoilNh4N, totalSoilNo3N, totalSoilUreaN,
+            totalSoilWater, totalSquareWeight, totalStemWeight,
+            waterStress, waterStressStem, wind;
+    double abscissionLag[20], ageOfBoll[3][30][5], ageOfPreFruNode[9], ageOfSite[3][30][5],
+            avrgNodeTemper[3][30][5],
+            bollWeight[3][30][5], burrWeight[3][30][5],
+            delayNewFruBranch[3], delayNewNode[3][30],
+            foliageTemp[maxk], freshOrganicMatter[maxl][maxk], freshOrganicNitrogen[maxl][maxk],
+            fruitFraction[3][30][5], humusOrganicMatter[maxl][maxk],
+            leafAge[3][30][5], leafAreaMainStem[3][30], leafAreaNodes[3][30][5],
+            leafAreaPreFru[9], leafWeightMainStem[3][30], leafWeightNodes[3][30][5],
+            leafWeightPreFru[9], lwpMinX[3], lwpX[3],
+            mulchTemp[maxk], nhum[maxl][maxk],
+            petioleWeightMainStem[3][30], petioleWeightNodes[3][30][5], petioleWeightPreFru[9],
+            potGroLeafAreaMainStem[3][30], potGroLeafWeightMainStem[3][30],
+            potGroPetioleWeightMainStem[3][30],
+            rootAge[maxl][maxk], rootsv[maxl][maxk], rootWeight[maxl][maxk][3],
+            rootWtCapblUptake[maxl][maxk],
+            shedByCarbonStress[20], shedByNitrogenStress[20], shedByWaterStress[20],
+            soilPsi[maxl][maxk], soilTemp[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
+            squareWeight[3][30][5],
+            volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk],
+            volUreaNContent[maxl][maxk];
+};
+extern struct scratch Scratch21[400];
+extern struct Climstruct {
+    int nDay;
+    double Rad, Tmax, Tmin, Rain, Wind, Tdew;
+};
+extern struct Climstruct Clim[400];
+extern struct NitrogenFertilizer {
+    int day, mthfrt, ksdr, lsdr;
+    double amtamm, amtnit, amtura;
+};
+extern struct NitrogenFertilizer NFertilizer[150];
+extern struct Irrigation {
+    int day, method, LocationColumnDrip, LocationLayerDrip;
+    double amount;
+} Irrig[150];
+extern struct Irrigation Irrig[150];
 ////    Integers    //// 
-	extern int DayFirstDef,
-        DayStartPlantMaps, 
-        DayStartPredIrrig, DayStopPlantMaps, DayStopPredIrrig, 
-        inrim, IrrigMethod, isw, iyear, Kday, KdayAdjust, 
-        LastDayWeatherData, LastIrrigation, LastTaprootLayer, 
-        LocationColumnDrip, LocationLayerDrip, 
-		MainStemNodes, MinDaysBetweenIrrig,
+extern int DayFirstDef,
+        DayStartPlantMaps,
+        DayStartPredIrrig, DayStopPlantMaps, DayStopPredIrrig,
+        inrim, IrrigMethod, isw, iyear, Kday, KdayAdjust,
+        LastDayWeatherData, LastIrrigation, LastTaprootLayer,
+        LocationColumnDrip, LocationLayerDrip,
+        MainStemNodes, MinDaysBetweenIrrig,
         nk, nl, noitr, NumAbscisedLeaves, NumAdjustDays, NumFruitSites,
         NumIrrigations, NumNitApps, NumPreFruNodes,
-        NumSheddingTags, NumVegBranches, NumWaterTableData, 
+        NumSheddingTags, NumVegBranches, NumWaterTableData,
         PlantMapFreq, PlantRowColumn, SoilMapFreq, WaterTableLayer;
-    extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5], 
-        FruitingCode[3][30][5], LateralRootFlag[maxl], MapDataDate[30], 
+extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
+        FruitingCode[3][30][5], LateralRootFlag[maxl], MapDataDate[30],
         NumFruitBranches[3], NumNodes[3][30], OutIndex[24], pixday[10], pixmth[10],
         RootColNumLeft[maxl], RootColNumRight[maxl], SoilHorizonNum[maxl];
 ////    Boolean    //// 
-    extern bool bPollinSwitch, nadj[5];
+extern bool bPollinSwitch, nadj[5];
 ////    Double    //// 
-    extern double ActualBollGrowth, ActualBurrGrowth, 
-        ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl, 
-        AdjAddHeightRate, AdjAddMSNodesRate, AdjAddSitesRate, AdjGreenBollAbsc,  
-        AdjSquareAbsc, AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp, 
-		BloomWeightLoss, BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls, 
-        CarbonAllocatedForRootGrowth, CarbonStress, conmax, 
-        CottonWeightGreenBolls, CottonWeightOpenBolls, CumEvaporation, CumFertilizerN, 
-        CumNetPhotosynth, CumNitrogenUptake, CumPlantNLoss, CumTranspiration, 
-        CumWaterAdded, CumWaterDrained, 
-        DayTimeTemp, dclay,  
-        DeepSoilTemperature, DensityFactor, DepthLastRootLayer, dsand, 
-        ElCondSatSoilToday, Elevation, ExtraCarbon, FruitGrowthRatio,  
+extern double ActualBollGrowth, ActualBurrGrowth,
+        ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl,
+        AdjAddHeightRate, AdjAddMSNodesRate, AdjAddSitesRate, AdjGreenBollAbsc,
+        AdjSquareAbsc, AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
+        BloomWeightLoss, BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
+        CarbonAllocatedForRootGrowth, CarbonStress, conmax,
+        CottonWeightGreenBolls, CottonWeightOpenBolls, CumEvaporation, CumFertilizerN,
+        CumNetPhotosynth, CumNitrogenUptake, CumPlantNLoss, CumTranspiration,
+        CumWaterAdded, CumWaterDrained,
+        DayTimeTemp, dclay,
+        DeepSoilTemperature, DensityFactor, DepthLastRootLayer, dsand,
+        ElCondSatSoilToday, Elevation, ExtraCarbon, FruitGrowthRatio,
         ginp, Gintot, GreenBollsLost,
-        InitialTotalSoilWater, IrrigationDepth, 
-        LeafAreaIndex, LeafNConc, LeafNitrogen, LeafWeightAreaRatio, 
-        LightIntercept, LintYield, LwpMax, LwpMin, 
+        InitialTotalSoilWater, IrrigationDepth,
+        LeafAreaIndex, LeafNConc, LeafNitrogen, LeafWeightAreaRatio,
+        LightIntercept, LintYield, LwpMax, LwpMin,
         MaxIrrigation, MineralizedOrganicN,
-	    NetPhotosynthesis, NightTimeTemp, NitrogenStress, NStressFruiting, 
-        NStressRoots, NStressVeg, NumGreenBolls, NumOpenBolls, NumSquares,	
-        PercentDefoliation, PerPlantArea, PetioleNConc, PetioleNitrogen, PetioleNO3NConc, 
-        pixcon, pixda, pixdn, pixdz, PixInPlants, PlantPopulation, PlantRowLocation, 
-        PlantWeight, PlantWeightAtStart, PotGroAllBolls, PotGroAllBurrs, 
-        PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem, 
-	    RatioImplicit, ReferenceTransp, ReserveC, Rn, RootNConc, RootNitrogen, 
+        NetPhotosynthesis, NightTimeTemp, NitrogenStress, NStressFruiting,
+        NStressRoots, NStressVeg, NumGreenBolls, NumOpenBolls, NumSquares,
+        PercentDefoliation, PerPlantArea, PetioleNConc, PetioleNitrogen, PetioleNO3NConc,
+        pixcon, pixda, pixdn, pixdz, PixInPlants, PlantPopulation, PlantRowLocation,
+        PlantWeight, PlantWeightAtStart, PotGroAllBolls, PotGroAllBurrs,
+        PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem,
+        RatioImplicit, ReferenceTransp, ReserveC, Rn, RootNConc, RootNitrogen,
         RootWeightLoss, RowSpace,
-        SeedNConc, SeedNitrogen, SoilNitrogenAtStart, SoilNitrogenLoss, SquareNConc, 
+        SeedNConc, SeedNitrogen, SoilNitrogenAtStart, SoilNitrogenLoss, SquareNConc,
         SquareNitrogen, StemNConc, StemNitrogen, SumNO3N90, SupplyNH4N, SupplyNO3N,
-        TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafArea, 
-        TotalLeafWeight, TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSoilNh4N, 
-        TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight, 
-        TotalStemWeight,  
-        WaterStressStem; 
+        TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafArea,
+        TotalLeafWeight, TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSoilNh4N,
+        TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight,
+        TotalStemWeight,
+        WaterStressStem;
 
-     extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk], AgeOfBoll[3][30][5], 
-         AgeOfPreFruNode[9], AgeOfSite[3][30][5], airdr[9], AirTemp[24], albedo[24], 
-         alpha[9], AvrgNodeTemper[3][30][5], 
-         vanGenuchtenBeta[9], BollWeight[3][30][5], BulkDensity[9], BurrWeight[3][30][5], 
-         cgind[3], ClayVolumeFraction[maxl], CloudCoverRatio[24], CloudTypeCorr[24], 
-         CultivationDepth[5], 
-         DefoliantAppRate[5], DelayNewFruBranch[3], DelayNewNode[3][30], 
-         DewPointTemp[24], dl[maxl], 
-         ElCondSatSoil[20], es1hour[24], es2hour[24], 
-         FieldCapacity[maxl], FoliageTemp[maxk], FreshOrganicMatter[maxl][maxk], 
-         FreshOrganicNitrogen[maxl][maxk], FruitFraction[3][30][5],  
-         gh2oc[10], 
-         HeatCapacitySoilSolid[maxl], HeatCondDrySoil[maxl], HumusNitrogen[maxl][maxk], 
-         HumusOrganicMatter[maxl][maxk], 
-         impede[10][10], 
-         LeafAge[3][30][5], LeafAreaMainStem[3][30], LeafAreaNodes[3][30][5], LeafAreaPreFru[9], 
-         LeafWeightMainStem[3][30], LeafWeightNodes[3][30][5], LeafWeightPreFru[9], 
-         LevelsOfWaterTable[20], LwpMinX[3], LwpX[3], 
-         MarginalWaterContent[maxl], MapDataAllSiteNum[30], MapDataGreenBollNum[30], 
-         MapDataMainStemNodes[30], MapDataPlantHeight[30], 
-         MapDataSquareNum[30], MaxWaterCapacity[maxl], MulchTemp[maxk], 
-         NO3FlowFraction[maxl], 
-         PetioleWeightMainStem[3][30], PetioleWeightNodes[3][30][5], PetioleWeightPreFru[9], 
-         pixppa[10], PoreSpace[maxl], PotGroBolls[3][30][5], PotGroBurrs[3][30][5], 
-         PotGroLeafAreaMainStem[3][30], PotGroLeafAreaNodes[3][30][5], 
-         PotGroLeafAreaPreFru[9], PotGroLeafWeightMainStem[3][30], 
-         PotGroLeafWeightNodes[3][30][5], PotGroLeafWeightPreFru[9],
-         PotGroPetioleWeightMainStem[3][30], PotGroPetioleWeightNodes[3][30][5], 
-         PotGroPetioleWeightPreFru[9], PotGroRoots[maxl][maxk], PotGroSquares[3][30][5], 
-         Radiation[24], ReferenceETP[24], RelativeHumidity[24], rlat1[maxl], rlat2[maxl], 
-         RootGroFactor[maxl][maxk], RootImpede[maxl][maxk], 
-         RootWtCapblUptake[maxl][maxk],
-         SandVolumeFraction[maxl], SaturatedHydCond[9], ShedByCarbonStress[20], 
-         ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk], 
-         SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], SquareWeight[3][30][5], 
-         StemWeight[365],  
-         thad[maxl], thetar[maxl], thetas[9], thts[maxl], tstbd[10][10], 
-         VarPar[61], VolNh4NContent[maxl][maxk], VolNo3NContent[maxl][maxk], VolUreaNContent[maxl][maxk], 
-         VolWaterContent[maxl][maxk], 
-         WindSpeed[24], wk[maxk];
-
-
+extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk], AgeOfBoll[3][30][5],
+        AgeOfPreFruNode[9], AgeOfSite[3][30][5], airdr[9], AirTemp[24], albedo[24],
+        alpha[9], AvrgNodeTemper[3][30][5],
+        vanGenuchtenBeta[9], BollWeight[3][30][5], BulkDensity[9], BurrWeight[3][30][5],
+        cgind[3], ClayVolumeFraction[maxl], CloudCoverRatio[24], CloudTypeCorr[24],
+        CultivationDepth[5],
+        DefoliantAppRate[5], DelayNewFruBranch[3], DelayNewNode[3][30],
+        DewPointTemp[24], dl[maxl],
+        ElCondSatSoil[20], es1hour[24], es2hour[24],
+        FieldCapacity[maxl], FoliageTemp[maxk], FreshOrganicMatter[maxl][maxk],
+        FreshOrganicNitrogen[maxl][maxk], FruitFraction[3][30][5],
+        gh2oc[10],
+        HeatCapacitySoilSolid[maxl], HeatCondDrySoil[maxl], HumusNitrogen[maxl][maxk],
+        HumusOrganicMatter[maxl][maxk],
+        impede[10][10],
+        LeafAge[3][30][5], LeafAreaMainStem[3][30], LeafAreaNodes[3][30][5], LeafAreaPreFru[9],
+        LeafWeightMainStem[3][30], LeafWeightNodes[3][30][5], LeafWeightPreFru[9],
+        LevelsOfWaterTable[20], LwpMinX[3], LwpX[3],
+        MarginalWaterContent[maxl], MapDataAllSiteNum[30], MapDataGreenBollNum[30],
+        MapDataMainStemNodes[30], MapDataPlantHeight[30],
+        MapDataSquareNum[30], MaxWaterCapacity[maxl], MulchTemp[maxk],
+        NO3FlowFraction[maxl],
+        PetioleWeightMainStem[3][30], PetioleWeightNodes[3][30][5], PetioleWeightPreFru[9],
+        pixppa[10], PoreSpace[maxl], PotGroBolls[3][30][5], PotGroBurrs[3][30][5],
+        PotGroLeafAreaMainStem[3][30], PotGroLeafAreaNodes[3][30][5],
+        PotGroLeafAreaPreFru[9], PotGroLeafWeightMainStem[3][30],
+        PotGroLeafWeightNodes[3][30][5], PotGroLeafWeightPreFru[9],
+        PotGroPetioleWeightMainStem[3][30], PotGroPetioleWeightNodes[3][30][5],
+        PotGroPetioleWeightPreFru[9], PotGroRoots[maxl][maxk], PotGroSquares[3][30][5],
+        Radiation[24], ReferenceETP[24], RelativeHumidity[24], rlat1[maxl], rlat2[maxl],
+        RootGroFactor[maxl][maxk], RootImpede[maxl][maxk],
+        RootWtCapblUptake[maxl][maxk],
+        SandVolumeFraction[maxl], SaturatedHydCond[9], ShedByCarbonStress[20],
+        ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk],
+        SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], SquareWeight[3][30][5],
+        StemWeight[365],
+        thad[maxl], thetar[maxl], thetas[9], thts[maxl], tstbd[10][10],
+        VarPar[61], VolNh4NContent[maxl][maxk], VolNo3NContent[maxl][maxk], VolUreaNContent[maxl][maxk],
+        VolWaterContent[maxl][maxk],
+        WindSpeed[24], wk[maxk];
 
 
 class Cotton2KException
-    : public std::exception
-{
+        : public std::exception {
 public:
-    Cotton2KException(const std::string& _Message)
-        : exception(_Message.c_str(), 1)
-    {
+    Cotton2KException(const std::string &_Message)
+            : exception(_Message.c_str(), 1) {
     }
 };
+
 class FileNotExists
-    : public Cotton2KException
-{
+        : public Cotton2KException {
 public:
 
     FileNotExists(const fs::path filePath) noexcept
-        : Cotton2KException("The file  " + filePath.string() + "  does not exist!")
-    {
+            : Cotton2KException("The file  " + filePath.string() + "  does not exist!") {
     }
 };
+
 class FileNotOpened
-    : public Cotton2KException
-{
+        : public Cotton2KException {
 public:
 
     FileNotOpened(const fs::path filePath) noexcept
-        : Cotton2KException("Can't open " + filePath.string() + ".")
-    {
+            : Cotton2KException("Can't open " + filePath.string() + ".") {
     }
 };
+
 class SimulationEnd
-    : public std::exception
-{
+        : public std::exception {
 public:
 
     SimulationEnd() noexcept
-        : std::exception("Simulation end.", 1)
-    {
+            : std::exception("Simulation end.", 1) {
     }
 
-    SimulationEnd(const std::string& _Message) noexcept
-        : std::exception(_Message.c_str(), 1)
-    {
+    SimulationEnd(const std::string &_Message) noexcept
+            : std::exception(_Message.c_str(), 1) {
     }
 };
+
 void InitializeGlobal();
