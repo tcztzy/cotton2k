@@ -24,9 +24,9 @@ class C2KApp : public CWinApp {
 public:
     C2KApp();
 
-    CString GetJobFile();
+    static CString GetJobFile();
 
-    void GetProfilesList(fs::path JobFileName);
+    void GetProfilesList(const fs::path& JobFileName);
 
     void RunTheModel();
 
@@ -35,7 +35,7 @@ public:
                     const int &, const int &, const int &, const int &, int, int, const double &, const double &,
                     const double &, const double &, const double &, double[40][20][3], double[40][20]);
 
-    tuple<string, int, int, int, int, int, double, double, double, double>
+    static tuple<string, int, int, int, int, int, double, double, double, double>
     SimulateThisDay(const string &, const int &, int, const int &, const int &, const int &, const int &, const int &,
                     const int &, const int &, const int &, const int &, int, int, int, const double &, const double &,
                     const double &, const double &, const double &, double, double, double, double, double[40][20][3],
@@ -55,6 +55,6 @@ public:
 
 DECLARE_MESSAGE_MAP()
 
-    CProgCtrlDlg *pdlg;         // pointer to the progress control dialog
+    CProgCtrlDlg *pdlg{};         // pointer to the progress control dialog
     CStringArray ProfileArray;  // array of the profile names
 };

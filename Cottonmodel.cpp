@@ -41,8 +41,7 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp construction
-C2KApp::C2KApp() {
-}
+C2KApp::C2KApp() = default;
 
 C2KApp theApp;
 
@@ -135,7 +134,7 @@ CString C2KApp::GetJobFile()
 }
 
 /////////////////////////////////////////////////////////////////////////
-void C2KApp::GetProfilesList(fs::path JobFileName)
+void C2KApp::GetProfilesList(const fs::path& JobFileName)
 //     Function GetProfilesList() opens the "JOB" file, reads it, and gets
 //  from it the profile list. It is called from InitInstance().
 //     Input argument: name of the JOB file (with path)
