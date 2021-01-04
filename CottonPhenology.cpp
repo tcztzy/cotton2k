@@ -29,7 +29,7 @@ void AddFruitingBranch(int, double, double, const double &);
 
 void AddFruitingNode(int, int, double, double, const double &WaterStress);
 
-tuple<int> FruitingSite(int, int, int, int &, const int &, const double &, const double &, int);
+tuple<int> FruitingSite(int, int, int, int &, const int &, const double &, const double &, int, const Climstruct[]);
 
 void NewBollFormation(int, int, int);
 
@@ -54,7 +54,7 @@ double PhenDelayByNStress;  // phenological delay caused by vegetative nitrogen 
 //////////////////////////////////////////////////
 tuple<int, int, double, double>
 CottonPhenology(const int &Daynum, const int &DayEmerge, int FirstBloom, int FirstSquare, const double &DayInc,
-                const double &WaterStress, double AbscisedLeafWeight)
+                const double &WaterStress, double AbscisedLeafWeight, const Climstruct Clim[400])
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -147,12 +147,12 @@ CottonPhenology(const int &Daynum, const int &DayEmerge, int FirstBloom, int Fir
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-                tie(FirstBloom) = FruitingSite(k, l, m, nwfl, Daynum, DayInc, WaterStress, FirstBloom);
+                tie(FirstBloom) = FruitingSite(k, l, m, nwfl, Daynum, DayInc, WaterStress, FirstBloom, Clim);
         }
     }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
     double AbscisedFruitSites;
-    tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc, WaterStress);
+    tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc, WaterStress, Clim);
 //     Call LeafAbscission() to simulate the abscission of leaves.
     tie(AbscisedLeafWeight) = LeafAbscission(Daynum, FirstSquare, DayInc, AbscisedLeafWeight);
     return make_tuple(FirstBloom, FirstSquare, AbscisedFruitSites, AbscisedLeafWeight);
@@ -508,7 +508,7 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio, 
 
 //////////////////////////////////////////////////
 tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const int &Daynum, const double &DayInc,
-                        const double &WaterStress, int FirstBloom)
+                        const double &WaterStress, int FirstBloom, const Climstruct Clim[400])
 //     Function FruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
@@ -556,8 +556,8 @@ tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const i
         return make_tuple(FirstBloom);
 //     Age of node is modified for low minimum temperatures and for high
 //  maximum temperatures.
-    double tmin = GetFromClim("tmin", Daynum);
-    double tmax = GetFromClim("tmax", Daynum);
+    double tmin = GetFromClim(Clim, "tmin", Daynum);
+    double tmax = GetFromClim(Clim, "tmax", Daynum);
     double ageinc = DayInc; // daily addition to site age.
 //     Adjust leaf aging for low minimum twmperatures.
     if (tmin < vfrsite[2])

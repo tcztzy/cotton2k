@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include "resource.h"       // main symbols
 #include "dialogs.h"       // main symbols
+#include "global.h"
 #include <string>
 #include <filesystem>
 
@@ -33,19 +34,20 @@ public:
     tuple<int, int, int, double>
     DailySimulation(const string &, string, int, const int &, const int &, const int &, const int &, const int &,
                     const int &, const int &, const int &, const int &, int, int, const double &, const double &,
-                    const double &, const double &, const double &, double[40][20][3], double[40][20]);
+                    const double &, const double &, const double &, double[40][20][3], double[40][20],
+                    Climstruct[400]);
 
     static tuple<string, int, int, int, int, int, double, double, double, double>
     SimulateThisDay(const string &, const int &, int, const int &, const int &, const int &, const int &, const int &,
                     const int &, const int &, const int &, const int &, int, int, int, const double &, const double &,
                     const double &, const double &, const double &, double, double, double, double, double[40][20][3],
-                    double[40][20]);
+                    double[40][20], Climstruct[400]);
 
     tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double>
     DoAdjustments(const string &, string, int, int, int, const int &, const int &, const int &, const int &,
                   const int &, const int &, const int &, const int &, const int &, int, int, int, const double &,
                   const double &, const double &, const double &, const double &, double, double, double, double,
-                  double[40][20][3], double[40][20]);
+                  double[40][20][3], double[40][20], Climstruct[400]);
 
     virtual BOOL InitInstance();
 

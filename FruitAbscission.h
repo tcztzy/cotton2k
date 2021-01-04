@@ -2,4 +2,4 @@
 
 #include <tuple>
 
-std::tuple<double> FruitingSitesAbscission(const int &, const double &, const double &);
+std::tuple<double> FruitingSitesAbscission(const int &, const double &, const double &, const Climstruct[400]);

@@ -34,9 +34,9 @@ tuple<double> ComputeDayLength(const int &, const double &, const double &);
 
 double dayrad(double, double, double, double);
 
-double daytmp(double, const int &, const double &);
+double daytmp(double, const int &, const double &, const Climstruct[400]);
 
-double tdewhour(double, double, const int &);
+double tdewhour(double, double, const int &, const Climstruct[400]);
 
 double dayrh(double, double);
 
@@ -58,7 +58,7 @@ double refalbed(double, double, double, double);
 
 void sunangle(double, double &, double &, const double &);
 
-double SimulateRunoff(double, const int &, const int &);
+double SimulateRunoff(double, const int &, const int &, const Climstruct[400]);
 
 //     Definition of file scope variables:
 double declination,      // daily declination angle, in radians.
@@ -73,7 +73,8 @@ tmpisr;           // extraterrestrial radiation, W / m2.
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
 tuple<double> DayClim(const string &ProfileName, const string &Date, const int &Daynum, const int &DayOfSimulation,
-                      const int &DayStart, const int &DayFinish, const double &Latitude, const double &Longitude)
+                      const int &DayStart, const int &DayFinish, const double &Latitude, const double &Longitude,
+                      Climstruct Clim[400])
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -105,11 +106,11 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
 //     The daily radiation integral is computed for later use in function Radiation.
 //  Daily radiation intedral is converted from langleys to Watt m-2, and divided by dsbe.
 //      11.630287 = 1000000 / 3600 / 23.884
-        radsum = GetFromClim("rad", Daynum) * 11.630287 / dsbe;
+        radsum = GetFromClim(Clim, "rad", Daynum) * 11.630287 / dsbe;
     }
 //     Set 'pollination switch' for rainy days (as in GOSSYM).
     double rainToday; // The amount of rain today, mm
-    rainToday = GetFromClim("rain", Daynum);
+    rainToday = GetFromClim(Clim, "rain", Daynum);
     if (rainToday >= 2.5)
         bPollinSwitch = false;
     else
@@ -119,7 +120,7 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
 //  for rainfall only, but it is not activated when irrigation is applied.
     double runoffToday = 0; // amount of runoff today, mm
     if (rainToday >= 2.0) {
-        runoffToday = SimulateRunoff(rainToday, Daynum, DayStart);
+        runoffToday = SimulateRunoff(rainToday, Daynum, DayStart, Clim);
         if (runoffToday < rainToday)
             rainToday -= runoffToday;
         else
@@ -155,13 +156,13 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
 //     Compute hourly global radiation, using function dayrad.
         Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
 //     Compute hourly temperature, using function daytmp.
-        AirTemp[ihr] = daytmp(ti, Daynum, DayLength);
+        AirTemp[ihr] = daytmp(ti, Daynum, DayLength, Clim);
 //     Compute hourly dew point temperature, using function tdewhour.
-        DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr], Daynum);
+        DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr], Daynum, Clim);
 //     Compute hourly relative humidity, using function dayrh.
         RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
 //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
-        WindSpeed[ihr] = daywnd(ti, GetFromClim("wind", Daynum), t1, t2, t3, wnytf);
+        WindSpeed[ihr] = daywnd(ti, GetFromClim(Clim, "wind", Daynum), t1, t2, t3, wnytf);
     }
 //     Write output file if requested.
     if (jtout > 1) {
@@ -293,7 +294,7 @@ double dayrad(double ti, double radsum, double sinb, double c11)
 //  relative humidity by equations from daily characteristics.
 //  Agricultural Systems 51:377-393. 
 ///////////////////////////////////////////////////////////////////////////////////////////
-double daytmp(double ti, const int &Daynum, const double &DayLength)
+double daytmp(double ti, const int &Daynum, const double &DayLength, const Climstruct Clim[400])
 //     Function daytmp() computes and returns the hourly values of air temperature,
 //  using the measured daily maximum and minimum.
 //     The algorithm is described in Ephrath et al. (1996). It is based on 
@@ -364,36 +365,36 @@ double daytmp(double ti, const int &Daynum, const double &DayLength)
 //
     if (ti <= sunr)        //  from midnight to sunrise
     {
-        amp = (GetFromClim("tmax", im1) - GetFromClim("tmin", Daynum))
-              * (1 + (GetFromClim("tmax", im1) - GetFromClim("tmin", Daynum)) / tkk);
+        amp = (GetFromClim(Clim, "tmax", im1) - GetFromClim(Clim, "tmin", Daynum))
+              * (1 + (GetFromClim(Clim, "tmax", im1) - GetFromClim(Clim, "tmin", Daynum)) / tkk);
         sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
 //  compute temperature at sunset:
-        sst = GetFromClim("tmin", Daynum) - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
-        HourlyTemperature = (GetFromClim("tmin", Daynum) - sst * exp((DayLength - 24) / tcoef)
-                             + (sst - GetFromClim("tmin", Daynum)) * exp((suns - ti - 24) / tcoef))
+        sst = GetFromClim(Clim, "tmin", Daynum) - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
+        HourlyTemperature = (GetFromClim(Clim, "tmin", Daynum) - sst * exp((DayLength - 24) / tcoef)
+                             + (sst - GetFromClim(Clim, "tmin", Daynum)) * exp((suns - ti - 24) / tcoef))
                             / (1 - exp((DayLength - 24) / tcoef));
     } else if (ti <= hmax)    //  from sunrise to hmax
     {
-        amp = (GetFromClim("tmax", Daynum) - GetFromClim("tmin", Daynum))
-              * (1 + (GetFromClim("tmax", Daynum) - GetFromClim("tmin", Daynum)) / tkk);
+        amp = (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", Daynum))
+              * (1 + (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", Daynum)) / tkk);
         st = sin(pi * (ti - SolarNoon + DayLength / 2.) / (DayLength + 2 * SitePar[8]));
-        HourlyTemperature = GetFromClim("tmin", Daynum) - tkk / 2
+        HourlyTemperature = GetFromClim(Clim, "tmin", Daynum) - tkk / 2
                             + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
     } else if (ti <= suns)    //  from hmax to sunset
     {
-        amp = (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1))
-              * (1 + (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1)) / tkk);
+        amp = (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", ip1))
+              * (1 + (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", ip1)) / tkk);
         st = sin(pi * (ti - SolarNoon + DayLength / 2) / (DayLength + 2 * SitePar[8]));
-        HourlyTemperature = GetFromClim("tmin", ip1) - tkk / 2
+        HourlyTemperature = GetFromClim(Clim, "tmin", ip1) - tkk / 2
                             + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
     } else                   //  from sunset to midnight
     {
-        amp = (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1))
-              * (1 + (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1)) / tkk);
+        amp = (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", ip1))
+              * (1 + (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", ip1)) / tkk);
         sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
-        sst = GetFromClim("tmin", ip1) - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
-        HourlyTemperature = (GetFromClim("tmin", ip1) - sst * exp((DayLength - 24) / tcoef)
-                             + (sst - GetFromClim("tmin", ip1)) * exp((suns - ti) / tcoef))
+        sst = GetFromClim(Clim, "tmin", ip1) - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
+        HourlyTemperature = (GetFromClim(Clim, "tmin", ip1) - sst * exp((DayLength - 24) / tcoef)
+                             + (sst - GetFromClim(Clim, "tmin", ip1)) * exp((suns - ti) / tcoef))
                             / (1. - exp((DayLength - 24) / tcoef));
     }
     return HourlyTemperature;
@@ -405,7 +406,7 @@ double daytmp(double ti, const int &Daynum, const double &DayLength)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-double tdewhour(double ti, double tt, const int &Daynum)
+double tdewhour(double ti, double tt, const int &Daynum, const Climstruct Clim[400])
 //     Function tdewhour() computes the hourly values of dew point 
 //  temperature from average dew-point and the daily estimated range. 
 //  This range is computed as a regression on maximum and minimum temperatures.
@@ -427,29 +428,29 @@ double tdewhour(double ti, double tt, const int &Daynum)
 //
     if (ti <= sunr)       // from midnight to sunrise
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim("tmax", im1)
-                  + SitePar[14] * GetFromClim("tmin", Daynum);
+        tdrange = SitePar[12] + SitePar[13] * GetFromClim(Clim, "tmax", im1)
+                  + SitePar[14] * GetFromClim(Clim, "tmin", Daynum);
         if (tdrange < 0)
             tdrange = 0;
-        tdmin = GetFromClim("tdew", im1) - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - GetFromClim("tmin", Daynum))
-                         / (GetFromClim("tmax", im1) - GetFromClim("tmin", Daynum));
+        tdmin = GetFromClim(Clim, "tdew", im1) - tdrange / 2;
+        tdewhr = tdmin + tdrange * (tt - GetFromClim(Clim, "tmin", Daynum))
+                         / (GetFromClim(Clim, "tmax", im1) - GetFromClim(Clim, "tmin", Daynum));
     } else if (ti <= hmax)     // from sunrise to hmax
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim("tmax", Daynum)
-                  + SitePar[14] * GetFromClim("tmin", Daynum);
+        tdrange = SitePar[12] + SitePar[13] * GetFromClim(Clim, "tmax", Daynum)
+                  + SitePar[14] * GetFromClim(Clim, "tmin", Daynum);
         if (tdrange < 0) tdrange = 0;
-        tdmin = GetFromClim("tdew", Daynum) - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - GetFromClim("tmin", Daynum))
-                         / (GetFromClim("tmax", Daynum) - GetFromClim("tmin", Daynum));
+        tdmin = GetFromClim(Clim, "tdew", Daynum) - tdrange / 2;
+        tdewhr = tdmin + tdrange * (tt - GetFromClim(Clim, "tmin", Daynum))
+                         / (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", Daynum));
     } else     //  from hmax to midnight
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim("tmax", Daynum)
-                  + SitePar[14] * GetFromClim("tmin", ip1);
+        tdrange = SitePar[12] + SitePar[13] * GetFromClim(Clim, "tmax", Daynum)
+                  + SitePar[14] * GetFromClim(Clim, "tmin", ip1);
         if (tdrange < 0) tdrange = 0;
-        tdmin = GetFromClim("tdew", ip1) - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - GetFromClim("tmin", ip1))
-                         / (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1));
+        tdmin = GetFromClim(Clim, "tdew", ip1) - tdrange / 2;
+        tdewhr = tdmin + tdrange * (tt - GetFromClim(Clim, "tmin", ip1))
+                         / (GetFromClim(Clim, "tmax", Daynum) - GetFromClim(Clim, "tmin", ip1));
     }
     return tdewhr;
 }
@@ -909,7 +910,7 @@ void sunangle(double ti, double &coszhr, double &sunahr, const double &Latitude)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-double SimulateRunoff(double rain, const int &Daynum, const int &DayStart)
+double SimulateRunoff(double rain, const int &Daynum, const int &DayStart, const Climstruct Clim[400])
 //     This function is called from DayClim() and is executed on each day with raifall more 
 //  than 2 mm. It computes the runoff and the retained portion of the rainfall. Note: This
 //  function is based on the code of GOSSYM. No changes have been made from the original GOSSYM 
@@ -965,7 +966,7 @@ double SimulateRunoff(double rain, const int &Daynum, const int &DayStart)
             if (Dayn == Irrig[i].day)
                 amtirr = Irrig[i].amount;
         }
-        PreviousWetting += amtirr + GetFromClim("rain", Dayn);
+        PreviousWetting += amtirr + GetFromClim(Clim, "rain", Dayn);
     }
 //
     double d02; // Adjusting curve number for antecedent rainfall conditions.

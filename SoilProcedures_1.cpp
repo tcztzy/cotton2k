@@ -19,11 +19,11 @@ void RootsCapableOfUptake(const int &, const double[40][20][3]);
 
 void ApplyFertilizer(const int &);
 
-void ComputeIrrigation(const string &, const int &, const int &, const int &, const double &);
+void ComputeIrrigation(const string &, const int &, const int &, const int &, const double &, const Climstruct[400]);
 
 double GetTargetStress(const int &, const int &, const int &);
 
-void PredictDripIrrigation(double, const int &, const double &);
+void PredictDripIrrigation(double, const int &, const double &, const Climstruct[]);
 
 void PredictSurfaceIrrigation(double, const int &, const double &);
 
@@ -44,7 +44,7 @@ void GravityFlow(double);
 //////////////////////////
 void SoilProcedures(const string &ProfileName, const int &Daynum, const int &DayOfSimulation, const int &DayEmerge,
                     const int &DayStart, const int &FirstBloom, const int &FirstSquare, const int &NumLayersWithRoots,
-                    const double &WaterStress, const double RootWeight[40][20][3])
+                    const double &WaterStress, const double RootWeight[40][20][3], const Climstruct Clim[400])
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -67,12 +67,12 @@ void SoilProcedures(const string &ProfileName, const int &Daynum, const int &Day
     double DripWaterAmount = 0; // amount of water applied by drip irrigation
     double WaterToApply;        // amount of water applied by non-drip irrigation or rainfall
 //     Check if there is rain on this day
-    WaterToApply = GetFromClim("rain", Daynum);
+    WaterToApply = GetFromClim(Clim, "rain", Daynum);
 //     If irrigation is to be predicted for this day, call ComputeIrrigation() 
 //  to compute the actual amount of irrigation.
     if (MaxIrrigation > 0)
         if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) {
-            ComputeIrrigation(ProfileName, Daynum, FirstBloom, FirstSquare, WaterStress);
+            ComputeIrrigation(ProfileName, Daynum, FirstBloom, FirstSquare, WaterStress, Clim);
             if (IrrigMethod == 2)
                 DripWaterAmount = AppliedWater;
             else
@@ -324,7 +324,7 @@ void ApplyFertilizer(const int &Daynum)
 
 ////////////////////////////////////////////////////////////////////////////////
 void ComputeIrrigation(const string &ProfileName, const int &Daynum, const int &FirstBloom, const int &FirstSquare,
-                       const double &WaterStress)
+                       const double &WaterStress, const Climstruct Clim[400])
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
@@ -338,7 +338,7 @@ void ComputeIrrigation(const string &ProfileName, const int &Daynum, const int &
         return;
 //
     if (IrrigMethod == 2)
-        PredictDripIrrigation(TargetStress, Daynum, WaterStress);
+        PredictDripIrrigation(TargetStress, Daynum, WaterStress, Clim);
     else
         PredictSurfaceIrrigation(TargetStress, Daynum, WaterStress);
 //     If the amount of water to be applied (AppliedWater) is non zero update the date of 
@@ -413,7 +413,7 @@ double GetTargetStress(const int &Daynum, const int &FirstBloom, const int &Firs
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void PredictDripIrrigation(double TargetStress, const int &Daynum, const double &WaterStress)
+void PredictDripIrrigation(double TargetStress, const int &Daynum, const double &WaterStress, const Climstruct Clim[400])
 //     This function computes the amount of water (mm) needed for predicted drip
 //  irrigation, considering the effects of water stress.
 //     It is called from ComputeIrrigation(). It calls the function GetFromClim().
@@ -434,7 +434,7 @@ void PredictDripIrrigation(double TargetStress, const int &Daynum, const double 
 //     Check if there is an irrigation defined by input, or rain, on this day. 
         bool bIsIrr = false;
         for (int j = 0; j < NumIrrigations; j++) {
-            if (Irrig[j].day == Daynum || GetFromClim("rain", Daynum) > 1) {
+            if (Irrig[j].day == Daynum || GetFromClim(Clim, "rain", Daynum) > 1) {
                 bIsIrr = true; // there is an irrigation today
                 break;
             }
@@ -452,7 +452,7 @@ void PredictDripIrrigation(double TargetStress, const int &Daynum, const double 
 //     The following is executed after the first drip irrigation has been applied.
 //     The "Required water" is computed by adding the amount needed to replace the water loss
 //  from the soil by evapotranspiration today.
-    RequiredWater += ActualTranspiration + ActualSoilEvaporation - GetFromClim("rain", Daynum);
+    RequiredWater += ActualTranspiration + ActualSoilEvaporation - GetFromClim(Clim, "rain", Daynum);
     if (RequiredWater < 0)
         RequiredWater = 0;
     if ((Daynum - MinDaysBetweenIrrig) >= LastIrrigation) {

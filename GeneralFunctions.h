@@ -25,4 +25,4 @@ double psiq(double q, double qr, double qsat, double alpha, double beta);
 
 double PsiOsmotic(double q, double qsat, double ec);
 
-double GetFromClim(string item, int Doy);
+double GetFromClim(const Climstruct Clim[400], const string& item, const int& Doy);

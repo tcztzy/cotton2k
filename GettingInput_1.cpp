@@ -40,7 +40,7 @@ void InitializeRootData(double[40][20][3], double[40][20]);
 // GettingInput_3
 void ReadPlantMapInput(const string &);
 
-int OpenClimateFile(const string &, const string &, const int &);
+int OpenClimateFile(const string &, const string &, const int &, Climstruct[400]);
 
 void ReadAgriculturalInput(const string &, const string &);
 
@@ -58,7 +58,7 @@ VarName,              // name of the cultivar
 SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
 tuple<int, int, int, int, int, int, int, int, int, int, int, int, double, double, double, double, double>
-ReadInput(const string &ProfileName, double RootWeight[40][20][3], double RootAge[40][20])
+ReadInput(const string &ProfileName, double RootWeight[40][20][3], double RootAge[40][20], Climstruct Clim[400])
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -94,7 +94,7 @@ ReadInput(const string &ProfileName, double RootWeight[40][20][3], double RootAg
         ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName,
         PlantmapFileName) = ReadProfileFile(ProfileName);
     ReadCalibrationData();
-    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart);
+    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart, Clim);
     InitializeGrid();
     tie(ncurve) = ReadSoilImpedance();
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,

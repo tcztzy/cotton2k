@@ -16,7 +16,8 @@ GoBack(const string &, const int &, const int &, int, int, int, double, double, 
 void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum, const int &DayOfSimulation,
                          const int &FirstBloom, const int &FirstSquare, const int &NumLayersWithRoots,
                          const double &PlantHeight, const double &AbscisedFruitSites, const double &AbscisedLeafWeight,
-                         const double &WaterStress, const double RootWeight[40][20][3], const double RootAge[40][20])
+                         const double &WaterStress, const double RootWeight[40][20][3], const double RootAge[40][20],
+                         const Climstruct Clim[400])
 //     This function stores all state or rate variables, needed for output, or for rerunning
 //  plant adjustments, in the structure Scratch21. It is called from DailySimulation(),
 //  DoAdjustments(), and DailyOutput().
@@ -75,8 +76,8 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[DayOfSimulation - 1].petioleNO3NConc = PetioleNO3NConc;
     Scratch21[DayOfSimulation - 1].plantHeight = PlantHeight;
     Scratch21[DayOfSimulation - 1].plantWeight = PlantWeight;
-    Scratch21[DayOfSimulation - 1].rad = GetFromClim("rad", Daynum);
-    Scratch21[DayOfSimulation - 1].rain = GetFromClim("rain", Daynum);
+    Scratch21[DayOfSimulation - 1].rad = GetFromClim(Clim, "rad", Daynum);
+    Scratch21[DayOfSimulation - 1].rain = GetFromClim(Clim, "rain", Daynum);
     Scratch21[DayOfSimulation - 1].reserveC = ReserveC;
     Scratch21[DayOfSimulation - 1].rn = Rn;
     Scratch21[DayOfSimulation - 1].rootNConc = RootNConc;
@@ -84,8 +85,8 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[DayOfSimulation - 1].soilNitrogenLoss = SoilNitrogenLoss;
     Scratch21[DayOfSimulation - 1].stemNConc = StemNConc;
     Scratch21[DayOfSimulation - 1].sumNO3N90 = SumNO3N90;
-    Scratch21[DayOfSimulation - 1].tmax = GetFromClim("tmax", Daynum);
-    Scratch21[DayOfSimulation - 1].tmin = GetFromClim("tmin", Daynum);
+    Scratch21[DayOfSimulation - 1].tmax = GetFromClim(Clim, "tmax", Daynum);
+    Scratch21[DayOfSimulation - 1].tmin = GetFromClim(Clim, "tmin", Daynum);
     Scratch21[DayOfSimulation - 1].totalLeafWeight = TotalLeafWeight;
     Scratch21[DayOfSimulation - 1].totalPetioleWeight = TotalPetioleWeight;
     Scratch21[DayOfSimulation - 1].totalRootWeight = TotalRootWeight;
@@ -94,7 +95,7 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[DayOfSimulation - 1].totalStemWeight = TotalStemWeight;
     Scratch21[DayOfSimulation - 1].waterStress = WaterStress;
     Scratch21[DayOfSimulation - 1].waterStressStem = WaterStressStem;
-    Scratch21[DayOfSimulation - 1].wind = GetFromClim("wind", Daynum);
+    Scratch21[DayOfSimulation - 1].wind = GetFromClim(Clim, "wind", Daynum);
 //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {

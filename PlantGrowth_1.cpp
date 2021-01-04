@@ -329,7 +329,8 @@ double LeafResistance(double agel)
 ////////////////////////////////
 void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &DayStartCO2, const int &DayEndCO2,
                           const double &CO2EnrichmentFactor,
-                          const double &DayLength)            // computes net photosynthesis.
+                          const double &DayLength,
+                          const Climstruct Clim[400])            // computes net photosynthesis.
 //     This function simulates the net photosynthesis of cotton  plants. It is called 
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
@@ -389,7 +390,7 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
 //     Convert the average daily short wave radiation from langley per 
 //  day, to Watts per square meter (wattsm).
     double wattsm; // average daily global radiation, W m-2.
-    wattsm = GetFromClim("rad", Daynum) * 697.45 / (DayLength * 60);
+    wattsm = GetFromClim(Clim, "rad", Daynum) * 697.45 / (DayLength * 60);
 //     Compute pstand as an empirical function of wattsm (based on Baker et al., 1972).
     double pstand; // gross photosynthesis for a non-stressed full canopy.
     pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136);

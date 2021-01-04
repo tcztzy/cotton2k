@@ -65,11 +65,10 @@ extern struct scratch {
             volUreaNContent[maxl][maxk];
 };
 extern struct scratch Scratch21[400];
-extern struct Climstruct {
+struct Climstruct {
     int nDay;
     double Rad, Tmax, Tmin, Rain, Wind, Tdew;
 };
-extern struct Climstruct Clim[400];
 extern struct NitrogenFertilizer {
     int day, mthfrt, ksdr, lsdr;
     double amtamm, amtnit, amtura;

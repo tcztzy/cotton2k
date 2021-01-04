@@ -6,14 +6,6 @@
 //
 // Structures:
 //
-struct Climstruct Clim[400];  // structure containing the following daily weather data:
-// int nDay =    day of year.
-// double Rad =  daily global radiation, in langleys.
-// double Tmax = maximum daily temperature, C.
-// double Tmin = minimum daily temperature, C.
-// double Tdew = dew point temperature, C.
-// double Rain = daily rainfall, mm.
-// double Wind = daily wind run, km.
 struct scratch Scratch21[400]; // structure used to store daily values of many state variables,
 //  see details in file global.h
 struct NitrogenFertilizer NFertilizer[150]; // nitrogen fertilizer application information for each day.

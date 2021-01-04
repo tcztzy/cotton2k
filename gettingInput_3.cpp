@@ -10,14 +10,14 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-int ReadClimateData(ifstream &, const int &);
+int ReadClimateData(ifstream &, const int &, Climstruct[]);
 
 double tdewest(double);
 
 int SlabLoc(int, int);
 
 ///////////////////////////////////////////////////////////////////////////////
-int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart)
+int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart, Climstruct Clim[400])
 //     This function gets the climate data file. It is called by ReadInput(),
 // and it calls ReadClimateData().
 //  Global variables set:  LastDayWeatherData.
@@ -37,7 +37,7 @@ int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, 
             if (DataFile.fail())
                 throw FileNotOpened(strFileName);
             else {
-                LastDayOfPredictedWeather = ReadClimateData(DataFile, DayStart);
+                LastDayOfPredictedWeather = ReadClimateData(DataFile, DayStart, Clim);
                 DataFile.close();
             }
         }
@@ -53,7 +53,7 @@ int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, 
             if (DataFile1.fail())
                 throw FileNotOpened(strFileName);
             else {
-                LastDayOfActualWeather = ReadClimateData(DataFile1, DayStart);
+                LastDayOfActualWeather = ReadClimateData(DataFile1, DayStart, Clim);
                 DataFile1.close();
             }
         }
@@ -66,7 +66,7 @@ int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, 
 }
 
 /////////////////////////////////////////////////////
-int ReadClimateData(ifstream &DataFile, const int &DayStart)
+int ReadClimateData(ifstream &DataFile, const int &DayStart, Climstruct Clim[400])
 //     This function reads the climate data file. It is called by OpenClimateFile(), and it
 //  calls GetLineData().
 //     It stores the data read from the file in the structure Clim.
