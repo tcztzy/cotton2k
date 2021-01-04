@@ -6,6 +6,7 @@
 //
 #include <fstream>
 #include "global.h"
+#include "cotton2k.h"
 
 using namespace std;
 

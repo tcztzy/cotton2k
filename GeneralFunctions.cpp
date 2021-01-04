@@ -14,7 +14,6 @@
 //  Extracting climate data -
 //      GetFromClim()
 //
-#include "global.h"
 #include "GeneralFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////

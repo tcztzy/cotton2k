@@ -12,8 +12,7 @@
 #include "resource.h"       // main symbols
 #include "dialogs.h"       // main symbols
 #include "global.h"
-#include <string>
-#include <filesystem>
+#include "cotton2k.h"
 
 using namespace std;
 namespace fs = std::filesystem;

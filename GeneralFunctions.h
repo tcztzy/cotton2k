@@ -1,6 +1,7 @@
 //  General auxiliary functions
 //
 #include <fstream>  // Necessary for file I/O
+#include "cotton2k.h"
 
 using namespace std;
 
