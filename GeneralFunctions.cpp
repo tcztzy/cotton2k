@@ -157,27 +157,6 @@ string DoyToDate(int Doy, int m_YearStart)
     return DateOut;
 }
 
-/////////////////////////////////////////////////////////////////
-int LeapYear(int nYear)
-//    This function returns 1 if this is a leap year, or 0 if not.
-//    Argument input:
-//           nYear = the year (4 digit integer).
-//    Return value:
-//           nLeap =  1 if this is a leap year, 0 if not.
-//
-{
-    int nLeap = 0;
-    if (nYear % 4 == 0)
-        nLeap = 1;
-    if (nYear % 100 == 0)
-        nLeap = 0;
-    if (nYear % 400 == 0)
-        nLeap = 1;
-
-    return nLeap;
-}
-
-//////////////////////////////////////////////////////////////////
 double psiq(double q, double qr, double qsat, double alpha, double beta)
 //     This function computes soil water matric potential (in bars)
 //  for a given value of soil water content, using the Van-Genuchten equation.

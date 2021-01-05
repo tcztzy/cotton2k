@@ -14,3 +14,8 @@
 *.vcxproj.user
 # VS packages installation location
 /packages/
+
+
+# Added by cargo
+
+/target

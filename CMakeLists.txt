@@ -25,3 +25,19 @@ add_executable(cotton2k WIN32
         LeafAbscission.h LeafAbscission.cpp
         FruitAbscission.h FruitAbscission.cpp
         RootGrowth.h RootGrowth_1.cpp RootGrowth_2.cpp)
+# Enable ExternalProject CMake module
+include(ExternalProject)
+ExternalProject_Add(
+        cotton2k.rs
+        DOWNLOAD_COMMAND ""
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND cargo build COMMAND cargo build --release
+        BINARY_DIR "${CMAKE_SOURCE_DIR}"
+        INSTALL_COMMAND ""
+        LOG_BUILD ON
+)
+add_dependencies(cotton2k cotton2k.rs)
+target_link_libraries(cotton2k
+    debug "${CMAKE_SOURCE_DIR}/target/debug/cotton2k.lib"
+    optimized "${CMAKE_SOURCE_DIR}/target/release/cotton2k.lib"
+    ws2_32 userenv advapi32)
