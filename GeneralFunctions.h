@@ -11,7 +11,7 @@ using namespace std;
 string GetLineData(ifstream &DataFile);
 
 // Date conversion functions:
-int DateToDoy(string Date, int m_YearStart);
+//int DateToDoy(string Date, int m_YearStart);
 
 string DoyToDate(int Doy, int m_YearStart);
 
@@ -28,4 +28,5 @@ double GetFromClim(const Climstruct Clim[400], const string& item, const int& Do
 
 extern "C" {
     uint64_t LeapYear(uint64_t);
+    int64_t DateToDoy(const char*, int32_t);
 }

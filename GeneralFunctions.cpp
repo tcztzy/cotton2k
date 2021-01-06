@@ -34,65 +34,6 @@ string GetLineData(ifstream &DataFile)
 /////////////////////////////////////////////////////////////////////////
 // Date conversion functions:
 //
-int DateToDoy(string Date, int m_YearStart)
-//     This function converts calendar date string to day of year, and
-//  allows for leap years and dates in the following year.
-//     Day of year, sometimes called "Julian date", counts the days from 
-//  the beginning of the calendar year. If the simulation continues to the
-//  next year, count continues.
-//
-//     Arguments input:
-//            Date = calendar date string as 'dd-MON-yyyy' (11-character string).
-//            m_YearStart = year of start of simulation (4 digit integer).
-//     Return value:
-//            jday =  Day of year (Julian date).
-//
-//     NOTE: This function does not check for correct input. Make sure that
-//  Date is an 11-character string with dd as a valid 2-digit day of month,
-//  MON a valid 3-letter month name, and yyyy a 4-digit year number equal to
-//  m_YearStart or m_YearStart+1
-//
-{
-    static string MonthName[] =
-            {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-    static int i0[] =
-            {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30};
-
-    Date.erase(remove(Date.begin(), Date.end(), ' '), Date.end());
-//   If the date string is blank, or old style date format, return 0.
-    if (Date.empty())
-        return 0;
-    else if (Date.substr(2, 1) == "/")
-        throw Cotton2KException(Date + " == ERROR: Old date format used ");
-
-    int day = atoi(Date.substr(0, 2).c_str());  //  Convert characters to integers for day.
-    int iy = atoi(Date.substr(7).c_str());    //  Convert characters to integers for year.
-    string stmon = Date.substr(3, 3);  //  Get string month
-
-    int month = 0;
-    for (int i = 0; i < 12; i++)
-        if (stmon == MonthName[i]) {
-            month = i + 1;
-            break;
-        }
-
-    if (month == 0)
-        throw Cotton2KException(" Error in month definition:  " + stmon);
-//     Adjust number of days in February for leap years.
-    i0[2] = 28 + LeapYear(iy);
-//     Compute jday.
-    int jday = 0;
-    for (int i = 0; i < month; i++)
-        jday += i0[i];
-    jday += day;
-//   Add correction if this is the next calendar year of simulation.
-    int nexty = m_YearStart + 1; //    next year
-    if (iy == nexty)
-        jday += 365 + LeapYear(m_YearStart);
-    return jday;
-}
-
-///////////////////////////////////////////////////////////////////////////
 string DoyToDate(int Doy, int m_YearStart)
 //     This function converts day of year (sometimes called 'Julian date')
 // to calendar date, allowing for leap years and for days in the following year.
