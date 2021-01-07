@@ -1,6 +1,6 @@
 //  General auxiliary functions
 //
-#include <fstream>  // Necessary for file I/O
+#include <fstream> // Necessary for file I/O
 #include "cotton2k.h"
 
 using namespace std;
@@ -11,8 +11,6 @@ using namespace std;
 string GetLineData(ifstream &DataFile);
 
 // Date conversion functions:
-//int DateToDoy(string Date, int m_YearStart);
-
 string DoyToDate(int Doy, int m_YearStart);
 
 //  soil water functions:
@@ -22,11 +20,11 @@ double wcond(double q, double qr, double qsat, double beta, double SaturatedHydC
 
 double psiq(double q, double qr, double qsat, double alpha, double beta);
 
-double PsiOsmotic(double q, double qsat, double ec);
+double GetFromClim(const Climstruct Clim[400], const string &item, const int &Doy);
 
-double GetFromClim(const Climstruct Clim[400], const string& item, const int& Doy);
-
-extern "C" {
+extern "C"
+{
     uint64_t LeapYear(uint64_t);
-    int64_t DateToDoy(const char*, int32_t);
+    int64_t DateToDoy(const char *, int32_t);
+    double PsiOsmotic(double q, double qsat, double ec);
 }

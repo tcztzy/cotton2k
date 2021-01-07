@@ -203,26 +203,6 @@ double wcond(double q, double qr, double qsat, double beta, double SaturatedHydC
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-double PsiOsmotic(double q, double qsat, double ec)
-//      This function computes soil water osmotic potential (in bars, positive value).
-//
-//     The following arguments are used:
-//        q - soil water content, cm3 cm-3.
-//        qsat - saturated water content, cm3 cm-3.
-//        ec - electrical conductivity of saturated extract (mmho/cm)
-//
-{
-    double ReturnValue;
-    if (ec > 0) {
-        ReturnValue = 0.36 * ec * qsat / q;
-        if (ReturnValue > 6)
-            ReturnValue = 6;
-        return ReturnValue;
-    } else
-        return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 double GetFromClim(const Climstruct Clim[400], const string& item, const int& Doy)
 //     This function extracts daily climate values for day of year Doy
 //  from the structure Clim.

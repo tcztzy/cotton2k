@@ -242,3 +242,23 @@ pub extern "C" fn PsiOnTranspiration(psi_average: f64) -> f64 {
         rfep
     }
 }
+
+/// This function computes soil water osmotic potential (in bars, positive value).
+#[no_mangle]
+pub extern "C" fn PsiOsmotic(q: f64, qsat: f64, ec: f64) -> f64
+// The following arguments are used:
+//   q - soil water content, cm3 cm-3.
+//   qsat - saturated water content, cm3 cm-3.
+//   ec - electrical conductivity of saturated extract (mmho/cm)
+{
+    if ec > 0f64 {
+        let result = 0.36 * ec * qsat / q;
+        if result > 6f64 {
+            6f64
+        } else {
+            result
+        }
+    } else {
+        0f64
+    }
+}
