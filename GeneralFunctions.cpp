@@ -134,44 +134,6 @@ double psiq(double q, double qr, double qsat, double alpha, double beta)
     return psix;
 }
 
-double wcond(double q, double qr, double qsat, double beta, double SaturatedHydCond, double PoreSpace)
-//     This function computes soil water hydraulic conductivity
-//  for a given value of soil water content, using the Van-Genuchten
-//  equation. The units of the computed conductivity are the same as the given
-//  saturated conductivity (SaturatedHydCond).
-//
-//     The following arguments are used:
-//        beta  - parameter of the van-genuchten equation.
-//        SaturatedHydCond - saturated hydraulic conductivity (at qsat).
-//        PoreSpace - pore space volume.
-//        q - soil water content, cm3 cm-3.
-//        qr - residual water content, cm3 cm-3.
-//        qsat - saturated water content, cm3 cm-3.
-//
-{
-//
-//     For very low values of water content (near the residual water
-//  content) wcond is 0.
-    if ((q - qr) < 0.0001)
-        return 0;
-//     Water content for saturated conductivity is minimum of PoreSpace and qsat.
-//     For very high values of water content (exceeding the saturated
-//  water content or pore space) conductivity is SaturatedHydCond.
-    double xsat = min(qsat, PoreSpace);
-    if (q >= xsat)
-        return SaturatedHydCond;
-//      The following equation is used (in FORTRAN notation):
-//      WCOND = CONDSAT * ((Q-QR)/(XSAT-QR))**0.5
-//             * (1-(1-((Q-QR)/(XSAT-QR))**(1/GAMA))**GAMA)**2
-    double gama = 1 - 1 / beta;
-    double gaminv = 1 / gama;
-    double sweff = (q - qr) / (xsat - qr);  // intermediate variable (effective water content).
-    double acoeff = pow((1 - pow(sweff, gaminv)), gama);  // intermediate variable
-    double bcoeff = pow((1 - acoeff), 2);  // intermediate variable
-    double conductivity = pow(sweff, 0.5) * bcoeff * SaturatedHydCond;
-    return conductivity;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 double GetFromClim(const Climstruct Clim[400], const string& item, const int& Doy)
 //     This function extracts daily climate values for day of year Doy

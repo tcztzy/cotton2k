@@ -295,3 +295,48 @@ pub extern "C" fn qpsi(psi: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f
         }
     }
 }
+
+/// This function computes soil water hydraulic conductivity
+/// for a given value of soil water content, using the Van-Genuchten
+/// equation. The units of the computed conductivity are the same as the given
+/// saturated conductivity (SaturatedHydCond).
+#[no_mangle]
+pub extern "C" fn wcond(
+    q: f64,
+    qr: f64,
+    qsat: f64,
+    beta: f64,
+    saturated_hyd_cond: f64,
+    pore_space: f64,
+) -> f64
+// The following arguments are used:
+//   beta  - parameter of the van-genuchten equation.
+//   saturated_hyd_cond - saturated hydraulic conductivity (at qsat).
+//   pore_space - pore space volume.
+//   q - soil water content, cm3 cm-3.
+//   qr - residual water content, cm3 cm-3.
+//   qsat - saturated water content, cm3 cm-3.
+{
+    // For very low values of water content (near the residual water content) wcond is 0.
+    if (q - qr) < 0.0001 {
+        return 0.;
+    }
+    // Water content for saturated conductivity is minimum of PoreSpace and qsat.
+
+    // For very high values of water content (exceeding the saturated
+    // water content or pore space) conductivity is SaturatedHydCond.
+    let xsat = if qsat < pore_space { qsat } else { pore_space };
+    if q >= xsat {
+        return saturated_hyd_cond;
+    }
+    // The following equation is used (in FORTRAN notation):
+    //   WCOND = CONDSAT * ((Q-QR)/(XSAT-QR))**0.5
+    //           * (1-(1-((Q-QR)/(XSAT-QR))**(1/GAMA))**GAMA)**2
+    let gama = 1. - 1. / beta;
+    let gaminv = 1. / gama;
+    let sweff = (q - qr) / (xsat - qr); // intermediate variable (effective water content).
+    let acoeff = (1. - sweff.powf(gaminv)).powf(gama); // intermediate variable
+    let bcoeff = (1. - acoeff).powi(2); // intermediate variable
+    let conductivity = sweff.powf(0.5) * bcoeff * saturated_hyd_cond;
+    return conductivity;
+}
