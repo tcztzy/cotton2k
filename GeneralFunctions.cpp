@@ -134,36 +134,6 @@ double psiq(double q, double qr, double qsat, double alpha, double beta)
     return psix;
 }
 
-////////////////////////////////////////////////////////////////////
-double qpsi(double psi, double qr, double qsat, double alpha, double beta)
-//     This function computes soil water content (cm3 cm-3) for
-//  a given value of matric potential, using the Van-Genuchten equation.
-//
-//     The following arguments are used:
-//        alpha, beta  - parameters of the van-genuchten equation.
-//        psi - soil water matric potential (bars).
-//        qr - residual water content, cm3 cm-3.
-//        qsat - saturated water content, cm3 cm-3.
-//
-{
-//     For very high values of PSI, saturated water content is assumed.
-//     For very low values of PSI, air-dry water content is assumed.
-    if (psi >= -0.00001)
-        return qsat;
-    else if (psi <= -500000)
-        return qr;
-//     The soil water matric potential is transformed from bars (psi)
-//  to cm in positive value (psix).
-    double psix = 1000 * fabs(psi + 0.00001);
-//     The following equation is used (in FORTRAN notation):
-//      QPSI = QR + (QSAT-QR) / (1 + (ALPHA*PSIX)**BETA)**(1-1/BETA)
-    double gama = 1 - 1 / beta;
-    double term = 1 + pow((alpha * psix), beta);  //  intermediate variable
-    double swfun = qr + (qsat - qr) / pow(term, gama);  //  computed water content
-    if (swfun < (qr + 0.0001))
-        swfun = qr + 0.0001;
-    return swfun;
-}////////////////////////////////////////////////////////////////////////
 double wcond(double q, double qr, double qsat, double beta, double SaturatedHydCond, double PoreSpace)
 //     This function computes soil water hydraulic conductivity
 //  for a given value of soil water content, using the Van-Genuchten

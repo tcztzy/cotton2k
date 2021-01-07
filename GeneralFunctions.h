@@ -14,8 +14,6 @@ string GetLineData(ifstream &DataFile);
 string DoyToDate(int Doy, int m_YearStart);
 
 //  soil water functions:
-double qpsi(double psi, double qr, double qsat, double alpha, double beta);
-
 double wcond(double q, double qr, double qsat, double beta, double SaturatedHydCond, double PoreSpace);
 
 double psiq(double q, double qr, double qsat, double alpha, double beta);
@@ -27,4 +25,5 @@ extern "C"
     uint64_t LeapYear(uint64_t);
     int64_t DateToDoy(const char *, int32_t);
     double PsiOsmotic(double q, double qsat, double ec);
+    double qpsi(double psi, double qr, double qsat, double alpha, double beta);
 }

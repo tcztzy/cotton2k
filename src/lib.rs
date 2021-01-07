@@ -262,3 +262,36 @@ pub extern "C" fn PsiOsmotic(q: f64, qsat: f64, ec: f64) -> f64
         0f64
     }
 }
+
+/// This function computes soil water content (cm3 cm-3) for
+/// a given value of matrix potential, using the Van-Genuchten equation.
+#[no_mangle]
+pub extern "C" fn qpsi(psi: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64
+// The following arguments are used:
+//   alpha, beta  - parameters of the van-genuchten equation.
+//   psi - soil water matrix potential (bars).
+//   qr - residual water content, cm3 cm-3.
+//   qsat - saturated water content, cm3 cm-3.
+{
+    // For very high values of PSI, saturated water content is assumed.
+    // For very low values of PSI, air-dry water content is assumed.
+    if psi >= -0.00001 {
+        qsat
+    } else if psi <= -500000f64 {
+        qr
+    } else {
+        // The soil water matric potential is transformed from bars (psi)
+        // to cm in positive value (psix).
+        let psix = 1000. * (psi + 0.00001).abs();
+        // The following equation is used (in FORTRAN notation):
+        //   QPSI = QR + (QSAT-QR) / (1 + (ALPHA*PSIX)**BETA)**(1-1/BETA)
+        let gama = 1. - 1. / beta;
+        let term = 1. + (alpha * psix).powf(beta); //  intermediate variable
+        let swfun = qr + (qsat - qr) / term.powf(gama); //  computed water content
+        if swfun < (qr + 0.0001) {
+            qr + 0.0001
+        } else {
+            swfun
+        }
+    }
+}
