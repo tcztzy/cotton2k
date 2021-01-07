@@ -16,7 +16,9 @@
 
 using namespace std;
 
-double SoilTemOnRootGrowth(double);
+extern "C" {
+    double SoilTemOnRootGrowth(double);
+}
 
 //////////////////////////////////////////////////
 tuple<int> RedistRootNewGrowth(int l, int k, double addwt, int NumLayersWithRoots, double RootAge[40][20])
