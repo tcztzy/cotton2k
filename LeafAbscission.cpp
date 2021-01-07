@@ -21,8 +21,9 @@ tuple<double> FruitNodeLeafAbscission(int, int, int, double, const int &, double
 
 tuple<double> DefoliationLeafAbscission(const int &, double);
 
-void SortArray(int, double[], int[], int[], int[]);
-
+extern "C" {
+    void SortArray(size_t, double[], int32_t*, int32_t*, int32_t*);
+}
 //////////////////////////////////////////////////
 tuple<double> LeafAbscission(const int &Daynum, const int &FirstSquare, const double &DayInc, double AbscisedLeafWeight)
 //     This function simulates leaf abscission. It is called from
@@ -332,57 +333,4 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
         } // if numLeavesToShed
     } // for i
     return make_tuple(AbscisedLeafWeight);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void SortArray(int size, double InData[], int indexk[], int indexl[], int indexm[])
-//     This function sorts an array of values by its value (larger is first) 
-//  together with three indexes associated with each value. It is called from
-//  DefoliationLeafAbscission().
-//     Arguments:
-//        size -    size of the arrays
-//        InData - array to be sorted by its values (descending)
-//        indexk - first array of associated indexes 	
-//        indexl - second array of associated indexes 	
-//        indexm - third array of associated indexes 	
-//
-{
-//     Zeroise temporary output arrays
-    int outk[450], outl[450], outm[450];
-    double OutData[450];
-    for (int i = 0; i < size; i++) {
-        outk[i] = 0;
-        outl[i] = 0;
-        outm[i] = 0;
-        OutData[i] = 0;
-    }
-//     Loop over arrays, extract values of the ith member
-    for (int i = 0; i < size; i++) {
-        double value = InData[i];
-        int n0 = indexk[i];
-        int n1 = indexl[i];
-        int n2 = indexm[i];
-        for (int j = 0; j < size; j++) {
-            if (value > OutData[j]) {
-                for (int k = size - 1; k > j; k--) {
-                    OutData[k] = OutData[k - 1];
-                    outk[k] = outk[k - 1];
-                    outl[k] = outl[k - 1];
-                    outm[k] = outm[k - 1];
-                }
-                OutData[j] = value;
-                outk[j] = n0;
-                outl[j] = n1;
-                outm[j] = n2;
-                break;
-            } // if value
-        } // for j
-    } // for i
-//     Transfer values back to the input arrays
-    for (int i = 0; i < size; i++) {
-        indexk[i] = outk[i];
-        indexl[i] = outl[i];
-        indexm[i] = outm[i];
-        InData[i] = OutData[i];
-    }
 }
