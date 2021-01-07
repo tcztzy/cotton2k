@@ -4,7 +4,9 @@
 
 using namespace std;
 
-double PhysiologicalAge();
+extern "C" {
+    double PhysiologicalAge(const double[24]);
+}
 
 tuple<double> Stress(const string &, const double &, const int &);
 

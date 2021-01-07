@@ -549,7 +549,7 @@ tuple<string, int, int, int, int, int, double, double, double, double> C2KApp::S
     {
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
-        double DayInc = PhysiologicalAge(); // physiological days increment for this day. computes physiological age
+        double DayInc = PhysiologicalAge(AirTemp); // physiological days increment for this day. computes physiological age
         if (pixday[0] > 0)
             Pix();                                       // effects of pix applied.
         Defoliate(ProfileName, Date, Daynum, DayEmerge); // effects of defoliants applied.
