@@ -18,6 +18,8 @@ PlantGrowth(const string &, const string &, const int &, const int &, const int 
 
 void CheckDryMatterBal(const string &, const string &, const double &);
 
-void Pix();
+extern "C" {
+    void Pix();
+}
 
 void Defoliate(const string &, const string &, const int &, const int &);

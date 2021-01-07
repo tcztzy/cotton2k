@@ -525,12 +525,6 @@ void CheckDryMatterBal(const string &ProfileName, const string &Date, const doub
 }
 
 //////////////////////////
-void Pix()        // effects of pix applied.
-{
-//  ***   to be added   ***
-}
-
-//////////////////////////
 void Defoliate(const string &ProfileName, const string &Date, const int &Daynum, const int &DayEmerge)
 //     This function simulates the effects of defoliating chemicals
 //  applied on the cotton. It is called from SimulateThisDay().

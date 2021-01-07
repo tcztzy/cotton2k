@@ -139,3 +139,7 @@ pub extern "C" fn SoilTemOnRootGrowth(t: f64) -> f64 {
         }
     }
 }
+
+/// effects of pix applied.
+#[no_mangle]
+pub extern "C" fn Pix() { /* TODO */ }
