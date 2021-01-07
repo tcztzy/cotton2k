@@ -109,13 +109,13 @@ pub extern "C" fn PhysiologicalAge(air_temp: *const f64) -> f64 {
 /// LateralRootGrowth(). It computes the effects of soil temperature on the rate
 /// growth. It is essentially based on the usage of GOSSYM, but relative values
 /// are computed here. The computed value returned by this function is between 0 and 1.
-/// 
+///
 /// It is assumed that maximum root growth occurs at or above 30 C, and no root growth
 /// occurs at or below 13.5 C. A quadratic response to temperature between these limits
 /// is assumed.
 ///
 /// The following argument is used:
-/// 
+///
 /// t - Soil temperature (C), daily average.
 ///       
 /// The parameters used are p1, p2, p3, with the following results:
@@ -217,5 +217,28 @@ pub extern "C" fn TemperatureOnFruitGrowthRate(t: f64) -> f64 {
         0.
     } else {
         tfr
+    }
+}
+
+/// The function PsiOnTranspiration() computes and returns the effect of the average soil
+/// matrix water potential on transpiration rate. It is called by WaterUptake().
+/// The argument PsiAverage is the average soil water matrix potential, bars.
+#[no_mangle]
+pub extern "C" fn PsiOnTranspiration(psi_average: f64) -> f64 {
+    // This is a third degree function with two parameters (a, b). It has the
+    // value of 1 when PsiAverage = b - a, and the value of 0 when PsiAverage = - a.
+
+    // The minimum value, however, is set to d, and the maximum value to c.
+    let a = 20.;
+    let b = 14.;
+    let c = 1.00;
+    let d = 0.05;
+    let rfep = ((a + psi_average) / b).powi(3);
+    if rfep > c {
+        c
+    } else if rfep < d {
+        d
+    } else {
+        rfep
     }
 }

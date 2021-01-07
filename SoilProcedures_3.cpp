@@ -13,7 +13,9 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-double PsiOnTranspiration(double);
+extern "C"{
+    double PsiOnTranspiration(double);
+}
 
 void NitrogenUptake(int, int, double);
 
@@ -161,27 +163,6 @@ void WaterUptake(const int &DayOfSimulation, const int &NumLayersWithRoots)
                 } // end if uptk
             } // end loop k & l
     } // end if sumep
-}
-
-//
-///////////////////////////////////////////////////////////////////////////
-double PsiOnTranspiration(double PsiAverage)
-//     The function PsiOnTranspiration() computes and returns the effect of the average soil 
-//  matric water potential on transpiration rate. It is called by WaterUptake().
-//     The argument PsiAverage is the average soil water matric potential, bars.
-//
-{
-//     This is a third degree function with two parameters (a, b). It has the
-//  value of 1 when PsiAverage = b - a, and the value of 0 when PsiAverage = - a.
-//    The minimum value, however, is set to d, and the maximum value to c.
-    const double a = 20, b = 14, c = 1.00, d = 0.05;
-    double rfep = pow(((a + PsiAverage) / b), 3);
-    if (rfep > c)   // value not higher than c
-        rfep = c;
-    if (rfep < d)   // value not lower than d 
-        rfep = d;
-
-    return rfep;
 }
 
 ///////////////////////////////////////////////////////////////////////////
