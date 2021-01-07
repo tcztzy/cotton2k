@@ -142,4 +142,50 @@ pub extern "C" fn SoilTemOnRootGrowth(t: f64) -> f64 {
 
 /// effects of pix applied.
 #[no_mangle]
-pub extern "C" fn Pix() { /* TODO */ }
+pub extern "C" fn Pix() { // TODO
+}
+
+///  This is the temperature function for leaf growth rate. It is called by function
+///  PotentialLeafGrowth(). It is based on the original code of GOSSYM, and the parameters
+///  are the same. The argument t is air temperature (C).
+///
+///  ra is divided by the maximum value. Thus, the function returns values between `0.` and `1.`
+///
+///  This will result :
+///
+///     maximum value of TemperatureOnLeafGrowthRate = 1.00  at  t = 29.86747
+///         for t = 24    TemperatureOnLeafGrowthRate = 0.766
+///         for t = 27    TemperatureOnLeafGrowthRate = 0.953
+///         for t = 30    TemperatureOnLeafGrowthRate = 0.999
+///         for t = 36    TemperatureOnLeafGrowthRate = 0.737
+///         for t = 42    TemperatureOnLeafGrowthRate = 0.0
+///      and for t <= 24 :
+///         for t = 12    TemperatureOnLeafGrowthRate = 0.0
+///         for t = 16    TemperatureOnLeafGrowthRate = 0.269
+///         for t = 20    TemperatureOnLeafGrowthRate = 0.549
+///         for t = 24    TemperatureOnLeafGrowthRate = 0.768
+#[no_mangle]
+pub extern "C" fn TemperatureOnLeafGrowthRate(t: f64) -> f64 {
+    // Constant parameters used:
+    let par: [f64; 8] = [
+        24.,
+        -1.14277,
+        0.0910026,
+        0.00152344,
+        -0.317136,
+        0.0300712,
+        0.000416356,
+        0.2162044,
+    ];
+    // intermediate value for computing temperatureOnLeafGrowthRate.
+    let ra = if t > par[0] {
+        par[1] + t * (par[2] - t * par[3])
+    } else {
+        par[4] + t * (par[5] - t * par[6])
+    };
+    if ra < 0. {
+        0.
+    } else {
+        ra / par[7]
+    }
+}
