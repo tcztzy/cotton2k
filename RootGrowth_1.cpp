@@ -19,11 +19,10 @@ void RootImpedance(const int &);
 extern "C" {
     double SoilTemOnRootGrowth(double);
     double SoilAirOnRootGrowth(double, double, double);
+    double SoilNitrateOnRootGrowth(double);
 }
 
 double SoilMechanicResistance(int, int);
-
-double SoilNitrateOnRootGrowth(double);
 
 double SoilWaterOnRootGrowth(double);
 
@@ -281,29 +280,6 @@ double SoilMechanicResistance(int l, int k)
         rtpct = p3;
 //
     return rtpct;
-}
-
-//////////////////////////
-double SoilNitrateOnRootGrowth(double vno3clk) {
-//     This function calculates the reduction of potential root growth rate in cells with 
-//  low nitrate content. It is called from PotentialRootGrowth().
-//     It has been adapted from GOSSYM. It is assumed that root growth is reduced when 
-//  nitrate N content falls below a certain level. 
-//
-//     The following argument is used:
-//        vno3clk - VolNo3NContent value for this cell
-//
-//     The following constant parameters are used:
-    const double p1 = 0;
-    const double p2 = 1;
-//     Note: This function actually does nothing. It is disabled by the choice of the constant
-//  parameters. It may be redefined when more experimental data become available.
-    double rtrdn; // effect of nitrate deficiency on root growth (the return value).
-    if (vno3clk < p1)
-        rtrdn = p2;
-    else
-        rtrdn = 1;
-    return rtrdn;
 }
 
 //////////////////////////
