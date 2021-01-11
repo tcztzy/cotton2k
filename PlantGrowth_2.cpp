@@ -14,36 +14,6 @@ extern "C" {
     double TemperatureOnFruitGrowthRate(double);
 }
 
-//////////////////////////////////////////////////////////////////
-double PotentialStemGrowth(double stemnew)
-//     This function computes and returns the potential stem growth of cotton
-// plants. It is called from PlantGrowth().
-//     The following argument is used:
-//        stemnew - dry weight of active stem tissue.
-//     The following global variables are referenced here:
-//        DensityFactor, FruitingCode, Kday, VarPar.
-{
-    double potentialStemGrowth;
-//     There are two periods for computation of potential stem growth:
-//     (1) Before the appearance of a square on the third fruiting
-// branch. Potential stem growth is a functon of plant age (Kday, days
-// from emergence).
-    if (FruitingCode[0][2][0] == 0)
-        potentialStemGrowth = VarPar[12] * (VarPar[13] + VarPar[14] * Kday);
-//     (2) After the appearance of a square on the third fruiting
-// branch. It is assumed that all stem tissue that is more than 32
-// days old is not active. Potential stem growth is a function
-// of active stem tissue weight (stemnew), and plant density (denfac).
-    else {
-        double denfac; // effect of plant density on stem growth rate.
-        denfac = 1 - VarPar[15] * (1 - DensityFactor);
-        if (denfac < 0.2)
-            denfac = 0.2;
-        potentialStemGrowth = denfac * VarPar[16] * (VarPar[17] + VarPar[18] * stemnew);
-    }
-    return potentialStemGrowth;
-}
-
 //////////////////////////
 void PotentialLeafGrowth(const double &WaterStress)
 //     This function simulates the potential growth of leaves of cotton plants. 

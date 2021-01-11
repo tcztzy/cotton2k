@@ -8,6 +8,7 @@ use std::slice;
 mod tests;
 
 mod root;
+mod stem;
 
 #[no_mangle]
 pub extern "C" fn LeapYear(year: u64) -> u64 {
