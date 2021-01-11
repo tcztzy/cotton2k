@@ -20,11 +20,10 @@ extern "C" {
     double SoilTemOnRootGrowth(double);
     double SoilAirOnRootGrowth(double, double, double);
     double SoilNitrateOnRootGrowth(double);
+    double SoilWaterOnRootGrowth(double);
 }
 
 double SoilMechanicResistance(int, int);
-
-double SoilWaterOnRootGrowth(double);
 
 tuple<int> RedistRootNewGrowth(int, int, double, int, double[40][20]);
 
@@ -280,32 +279,6 @@ double SoilMechanicResistance(int l, int k)
         rtpct = p3;
 //
     return rtpct;
-}
-
-//////////////////////////
-double SoilWaterOnRootGrowth(double psislk)
-//     This function returns the effect of soil  moisture in cell l,k on cotton root potential 
-// growth rate. It is called from PotentialRootGrowth() and uses the matric potential of this cell.
-//
-//     The following argument is used:
-//        psislk - soil water potential (bars) of this cell.
-//
-{
-//     The following constants are used:
-    const double p1 = 20;
-    const double p2 = 16;
-//     It is assumed that almost no root growth occurs when the soil is
-//  dryer than -p1 (-20 bars), and root growth rate is maximum at a matric
-//  potential of -4 bars (p2 - p1) or wetter.
-    double smf; // effect of soil moisture on root growth (the return value).
-//     smf is computed here as an empirical third degree function,
-//  with values between 0.02 and 1.
-    smf = pow(((p1 + psislk) / p2), 3);
-    if (smf < 0.02)
-        smf = 0.02;
-    if (smf > 1)
-        smf = 1;
-    return smf;
 }
 
 //////////////////////////
