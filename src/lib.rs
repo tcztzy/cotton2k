@@ -7,6 +7,8 @@ use std::slice;
 #[cfg(test)]
 mod tests;
 
+mod root;
+
 #[no_mangle]
 pub extern "C" fn LeapYear(year: u64) -> u64 {
     let is_divisible = |n| year % n == 0;

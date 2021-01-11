@@ -18,11 +18,10 @@ void RootImpedance(const int &);
 
 extern "C" {
     double SoilTemOnRootGrowth(double);
+    double SoilAirOnRootGrowth(double, double, double);
 }
 
 double SoilMechanicResistance(int, int);
-
-double SoilAirOnRootGrowth(double, double, double);
 
 double SoilNitrateOnRootGrowth(double);
 
@@ -282,36 +281,6 @@ double SoilMechanicResistance(int l, int k)
         rtpct = p3;
 //
     return rtpct;
-}
-
-//////////////////////////
-double SoilAirOnRootGrowth(double psislk, double poreSpace, double vh2oclk)
-//     This function calculates the reduction of potential root growth rate in cells with
-//  low oxygen content (high water content). It is called from PotentialRootGrowth().
-//     It has been adapted from GOSSYM, but the critical value of soil moisture potential 
-//  for root growth reduction (i.e., water logging conditions) has been changed.
-//
-//     The following input arguments are used:
-//        poreSpace -  value of PoreSpace (v/v) for this layer.
-//        psislk -  value of SoilPsi for this cell.
-//        vh2oclk - water content (v/v) of this cell
-{
-//     Constant parameters:
-    double p1 = 0;
-    double p2 = 1;
-    double p3 = 0.1;
-//     The following is actually disabled by the choice of the calibration parameters. It 
-//  may be redefined when more experimental data become available.
-    double rtrdo; // Effect of oxygen deficiency on root growth (the return value).
-    if (psislk > p1)
-        rtrdo = p2;
-    else
-        rtrdo = 1;
-//   Reduced root growth when water content is at pore - space saturation
-//  (below water table).
-    if (vh2oclk >= poreSpace)
-        rtrdo = p3;
-    return rtrdo;
 }
 
 //////////////////////////
