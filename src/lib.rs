@@ -296,6 +296,43 @@ pub extern "C" fn qpsi(psi: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f
     }
 }
 
+/// This function computes soil water matric potential (in bars) for a given value of soil water content, using the Van-Genuchten equation.
+#[no_mangle]
+pub extern "C" fn psiq(q: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64
+// The following arguments are used:
+//   alpha, beta  - parameters of the van-genuchten equation.
+//   q - soil water content, cm3 cm-3.
+//   qr - residual water content, cm3 cm-3.
+//   qsat - saturated water content, cm3 cm-3.
+{
+    // For very low values of water content (near the residual water
+    // content) psiq is -500000 bars, and for saturated or higher water
+    // content psiq is -0.00001 bars.
+    if (q - qr) < 0.00001 {
+        return -500000.;
+    } else if q >= qsat {
+        return -0.00001;
+    }
+    // The following equation is used (FORTRAN notation):
+    // PSIX = (((QSAT-QR) / (Q-QR))**(1/GAMA) - 1) **(1/BETA) / ALPHA
+    let gama = 1. - 1. / beta;
+    let gaminv = 1. / gama;
+    let term = ((qsat - qr) / (q - qr)).powf(gaminv); //  intermediate variable
+    let mut psix = (term - 1.).powf(1. / beta) / alpha;
+    if psix < 0.01 {
+        psix = 0.01;
+    }
+    // psix (in cm) is converted to bars (negative value).
+    psix = (0.01 - psix) * 0.001;
+    if psix < -500000. {
+        psix = -500000.;
+    }
+    if psix > -0.00001 {
+        psix = -0.00001;
+    }
+    return psix;
+}
+
 /// This function computes soil water hydraulic conductivity
 /// for a given value of soil water content, using the Van-Genuchten
 /// equation. The units of the computed conductivity are the same as the given
