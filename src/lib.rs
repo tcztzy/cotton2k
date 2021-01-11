@@ -1,4 +1,5 @@
 use chrono::prelude::*;
+use chrono::Duration;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 use std::slice;
@@ -26,6 +27,19 @@ pub extern "C" fn DateToDoy(date_str: *const c_char, year_start: i32) -> i64 {
             }
         }
         Err(..) => 0,
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn DoyToDate(doy: i32, year_start: i32) -> *const u8 {
+    if doy > 0 {
+        (NaiveDate::from_ymd(year_start, 1, 1).pred() + Duration::days(doy.into()))
+            .format("%d-%b-%Y\0")
+            .to_string()
+            .to_uppercase()
+            .as_ptr()
+    } else {
+        (" ".repeat(11) + "\0").as_ptr()
     }
 }
 
