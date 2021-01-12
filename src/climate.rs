@@ -118,9 +118,9 @@ extern "C" fn del(tk: f64, svp: f64) -> f64 {
 }
 
 /// Function clearskyemiss() estimates clear sky emissivity for long wave radiation.
-/// 
+///
 /// Reference:
-/// 
+///
 /// Idso, S.B. 1981. A set of equations for full spectrum and 8- to 14-um and 10.5- to 12.5- um thermal radiation from cloudless skies. Water Resources Res. 17:295.
 #[no_mangle]
 extern "C" fn clearskyemiss(vp: f64, tk: f64) -> f64
@@ -135,5 +135,43 @@ extern "C" fn clearskyemiss(vp: f64, tk: f64) -> f64
         1f64
     } else {
         ea0
+    }
+}
+
+/// Function cloudcov() computes cloud cover for this hour from radiation data, using the CIMIS algorithm. The return value is cloud cover ratio ( 0 to 1 )
+///
+/// This algorithm is described by Dong et al. (1988). Cloud cover fraction is estimated as a function of the ratio of actual solar radiation to extraterrestrial radiation. The parameters of this function have been based on California data.
+///
+/// The equation is for daylight hours, when the sun is not less than 10 degrees above the horizon (coszhr > 0.1736).
+///
+/// Reference:
+///
+/// Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
+#[no_mangle]
+extern "C" fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64
+// Input arguments:
+//   radihr = hourly global radiation in W m-2 .
+//   isr = hourly extraterrestrial radiation in W m-2 . 
+//   cosz = cosine of sun angle from zenith.
+{
+    let p1 = 1.333; //    p1, p2, p3 are constant parameters.
+    let p2 = 1.7778;
+    let p3 = 0.294118;
+    let rasi = if isr > 0f64 { radihr / isr } else { 0f64 }; // ratio of radihr to isr.
+
+    if cosz > 0.1736 && rasi <= p1 / p2 {
+        // computed cloud cover.
+        let clcov = if rasi >= 0.375 {
+            (p1 - p2 * rasi).powf(p3)
+        } else {
+            (p1 - p2 * 0.375).powf(p3)
+        };
+        if clcov < 0f64 {
+            0f64
+        } else {
+            clcov
+        }
+    } else {
+        0f64
     }
 }

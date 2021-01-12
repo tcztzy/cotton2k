@@ -38,6 +38,7 @@ extern "C"
     double dayrh(double, double);
     double refalbed(double, double, double, double);
     double del(double, double);
+    double cloudcov(double, double, double);
 }
 
 double daytmp(double, const int &, const double &, const Climstruct[400]);
@@ -49,8 +50,6 @@ double daywnd(double, double, double, double, double, double);
 void AverageAirTemperatures();
 
 void EvapoTranspiration(int, const string &, const string &, const int &, const double &, const double &);
-
-double cloudcov(double, double, double);
 
 double clcor(int, double, double, double, const double &);
 
@@ -652,44 +651,6 @@ EvapoTranspiration(int jtout, const string &ProfileName, const string &Date, con
     }  //   end of 2nd hourly loop
 }
 
-double cloudcov(double radihr, double isr, double cosz)
-//     Function cloudcov() computes cloud cover for this hour from radiation data, using
-//  the CIMIS algorithm. The return value is cloud cover ratio ( 0 to 1 )
-//  Input arguments:
-//       radihr = hourly global radiation in W m-2 .
-//       isr = hourly extraterrestrial radiation in W m-2 . 
-//       cosz = cosine of sun angle from zenith.
-//     This algorithm is described by Dong et al. (1988). Cloud cover fraction is estimated 
-//  as a function of the ratio of actual solar radiation to extraterrestrial radiation. 
-//  The parameters of this function have been based on California data.
-//      The equation is for daylight hours, when the sun is not less
-//  than 10 degrees above the horizon (coszhr > 0.1736).
-//
-{
-    double p1 = 1.333;  //    p1, p2, p3 are constant parameters.
-    double p2 = 1.7778;
-    double p3 = 0.294118;
-    double rasi = 0;   // ratio of radihr to isr.
-    double clcov = 0;  // computed cloud cover.
-//
-    if (isr > 0)
-        rasi = radihr / isr;
-    if (cosz > 0.1736 && rasi <= p1 / p2) {
-        if (rasi >= 0.375)
-            clcov = pow((p1 - p2 * rasi), p3);
-        else
-            clcov = pow((p1 - p2 * 0.375), p3);
-        if (clcov < 0)
-            clcov = 0;
-    }
-    return clcov;
-}
-
-//      Reference:
-//      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
-// daily and hourly net radiation. CIMIS Final Report June 1988, pp.
-// 58-79.
-/////////////////////////////////////////////////////////////////////////////////
 double clcor(int ihr, double ck, double isrhr, double coszhr, const double &DayLength)
 //     Function clcor() computes cloud type correction, using the CIMIS algorithm.
 //     Input arguments:
