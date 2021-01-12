@@ -106,3 +106,13 @@ extern "C" fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64
         p4
     }
 }
+
+/// Function del() computes the slope of the saturation vapor pressure (svp, in mb) versus air temperature (tk, in K).
+/// This algorithm is the same as used by CIMIS.
+#[no_mangle]
+extern "C" fn del(tk: f64, svp: f64) -> f64 {
+    let a = 10f64.powf(-0.0304 * tk);
+    let b = tk.powi(2);
+    let c = 10f64.powf(-1302.88 / tk);
+    (6790.5 - 5.02808 * tk + 4916.8 * a * b + 174209f64 * c) * svp / b
+}

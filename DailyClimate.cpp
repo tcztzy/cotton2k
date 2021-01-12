@@ -37,6 +37,7 @@ extern "C"
     double dayrad(double, double, double, double);
     double dayrh(double, double);
     double refalbed(double, double, double, double);
+    double del(double, double);
 }
 
 double daytmp(double, const int &, const double &, const Climstruct[400]);
@@ -52,8 +53,6 @@ void EvapoTranspiration(int, const string &, const string &, const int &, const 
 double cloudcov(double, double, double);
 
 double clcor(int, double, double, double, const double &);
-
-double del(double, double);
 
 double gam(double, double);
 
@@ -750,17 +749,6 @@ double clcor(int ihr, double ck, double isrhr, double coszhr, const double &DayL
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp.
 // 58-79.
 /////////////////////////////////////////////////////////////////////////////////
-double del(double tk, double svp)
-//     Function del() computes the slope of the saturation vapor
-//  pressure (svp, in mb) versus air temperature (tk, in K).
-//     This algorithm is the same as used by CIMIS.
-//
-{
-    double a = pow((double) 10, (-0.0304 * tk));
-    double b = pow(tk, 2);
-    double c = pow((double) 10, (-1302.88 / tk));
-    return (6790.5 - 5.02808 * tk + 4916.8 * a * b + 174209 * c) * svp / b;
-}
 
 /////////////////////////////////////////////////////////////////////////////////
 double gam(double elev, double tt)
