@@ -11,6 +11,5 @@ DayClim(const std::string &, const std::string &, const int &, const int &, cons
 extern "C"
 {
     double VaporPressure(double);
+    double clearskyemiss(double, double);
 }
-
-double clearskyemiss(double, double);

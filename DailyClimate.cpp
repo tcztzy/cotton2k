@@ -652,28 +652,6 @@ EvapoTranspiration(int jtout, const string &ProfileName, const string &Date, con
     }  //   end of 2nd hourly loop
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-double clearskyemiss(double vp, double tk)
-//     Function clearskyemiss() estimates clear sky emissivity for long wave radiation.
-//  Input arguments:
-//     vp - vapor pressure of the air in KPa
-//     tk - air temperature in K.
-//
-{
-//     Convert vp to mbars
-    double vp1 = vp * 10; // vapor pressure of the air in mbars.
-//     Compute clear sky emissivity by the method of Idso (1981)
-    double ea0 = 0.70 + 5.95e-05 * vp1 * exp(1500 / tk);
-    if (ea0 > 1)
-        ea0 = 1;
-    return ea0;
-}
-
-//    Reference:
-//      Idso, S.B. 1981. A set of equations for full spectrum and 8- to 14-um
-// and 10.5- to 12.5- um thermal radiation from cloudless skies. Water
-// Resources Res. 17:295.
-/////////////////////////////////////////////////////////////////////////////////
 double cloudcov(double radihr, double isr, double cosz)
 //     Function cloudcov() computes cloud cover for this hour from radiation data, using
 //  the CIMIS algorithm. The return value is cloud cover ratio ( 0 to 1 )

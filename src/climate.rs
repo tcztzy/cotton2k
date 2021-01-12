@@ -116,3 +116,24 @@ extern "C" fn del(tk: f64, svp: f64) -> f64 {
     let c = 10f64.powf(-1302.88 / tk);
     (6790.5 - 5.02808 * tk + 4916.8 * a * b + 174209f64 * c) * svp / b
 }
+
+/// Function clearskyemiss() estimates clear sky emissivity for long wave radiation.
+/// 
+/// Reference:
+/// 
+/// Idso, S.B. 1981. A set of equations for full spectrum and 8- to 14-um and 10.5- to 12.5- um thermal radiation from cloudless skies. Water Resources Res. 17:295.
+#[no_mangle]
+extern "C" fn clearskyemiss(vp: f64, tk: f64) -> f64
+// Input arguments:
+//   vp - vapor pressure of the air in KPa
+//   tk - air temperature in K.
+{
+    let vp1 = vp * 10f64; // vapor pressure of the air in mbars.
+
+    let ea0 = 0.70 + 5.95e-05 * vp1 * std::f64::consts::E.powf(1500f64 / tk); // Compute clear sky emissivity by the method of Idso (1981)
+    if ea0 > 1f64 {
+        1f64
+    } else {
+        ea0
+    }
+}
