@@ -6,3 +6,24 @@ __pycache__/
 cotton2k.egg-info/
 htmlcov/
 coverage.xml
+/.idea/
+/.vs/
+/.vscode/
+# VSCode CMake tools build directory
+/build/
+# CLion default build directory
+/cmake-build-debug/
+# VS debug and release files
+/Debug/
+/Release/
+/tests/Debug/
+/tests/Release/
+# User defined
+*.vcxproj.user
+# VS packages installation location
+/packages/
+
+
+# Added by cargo
+
+/target

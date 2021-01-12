@@ -1,0 +1,13 @@
+[package]
+name = "cotton2k"
+version = "5.0.0"
+authors = ["Tang Ziya <tcztzy@hotmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4"
+
+[lib]
+crate-type = ["staticlib"]

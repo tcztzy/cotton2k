@@ -1,0 +1,19 @@
+
+                         SUMMARY OF SIMULATION RUN
+Profile Name:    hava98              
+Simulation Date: {}
+Description:     Hava 98 standard data                                  
+
+                                   PLANT                   GREEN  OPEN
+     EVENT         DATE       DAE  HEIGHT NODES  LAI  SQARS BOLLS  BOLLS YIELD
+                                    (cm)               (- per plant -)  (kg/ha)
+ Predicted Germination on 29-APR-1998 (Day of Year = 119 )
+ First square    03-JUN-1998   36   19.0     8  0.24   1.0   0.0   0.0     0
+ First Bloom     01-JUL-1998   64   76.9    20  2.15  18.0   1.0   0.0     0
+ 1st open boll   23-AUG-1998  117  165.5    35  4.90   5.1   9.7   1.0   191
+ 60% open bolls  06-SEP-1998  131  175.7    36  4.99   3.3   5.3   6.7  1249
+ Defoliation     01-OCT-1998  156  175.9    36  3.60   0.0   1.6   8.9  1733
+ Max yield on    15-OCT-1998  170  175.9    36  0.06   0.0   0.0  10.5  2115
+
+      Lint Yield:  kgs / ha  lbs / acre   bales / acre
+                    2115.3      1888.9         3.78
