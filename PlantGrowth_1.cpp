@@ -18,6 +18,7 @@ extern "C"
 {
     double LeafResistance(double);
     double PotentialStemGrowth(double, int, unsigned int, double, double, double, double, double, double, double, double);
+    double AddPlantHeight(double denf2, double, uint32_t, uint32_t, double, double, double, double, double, double, double, int32_t, int32_t, int32_t, bool, double, double, double, double, double, double, double, double, double);
 }
 
 // PlantGrowth_2
@@ -31,8 +32,6 @@ void DryMatterBalance(double &, double &, double &, double &, const string &, co
 void ActualFruitGrowth();
 
 void ActualLeafGrowth();
-
-double AddPlantHeight(double denf2, const double &);
 
 double ptsred; // The effect of moisture stress on the photosynthetic rate
 
@@ -500,7 +499,17 @@ PlantGrowth(const string &ProfileName, const string &Date, const int &Daynum, co
     double denf2; // effect of plant density on plant growth in height.
     denf2 = 1 + z1 * (DensityFactor - 1);
     //     Call AddPlantHeight to compute PlantHeight.
-    PlantHeight += AddPlantHeight(denf2, DayInc);
+    int l, l1, l2; // node numbers of top three nodes.
+    l = NumFruitBranches[0] - 1;
+    l1 = l - 1;
+    if (l < 1)
+        l1 = 0;
+    l2 = l - 2;
+    if (l < 2)
+        l2 = 0;
+    double agetop; // average physiological age of top three nodes.
+    agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
+    PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, Kday, KdayAdjust, NumAdjustDays, nadj[1], AdjAddHeightRate, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayOfSimulation, DayEmerge,
                                                       NumLayersWithRoots, NumRootAgeGroups, RootWeight, RootAge);
