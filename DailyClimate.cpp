@@ -35,13 +35,12 @@ tuple<double> ComputeDayLength(const int &, const double &, const double &);
 extern "C"
 {
     double dayrad(double, double, double, double);
+    double dayrh(double, double);
 }
 
 double daytmp(double, const int &, const double &, const Climstruct[400]);
 
 double tdewhour(double, double, const int &, const Climstruct[400]);
-
-double dayrh(double, double);
 
 double daywnd(double, double, double, double, double, double);
 
@@ -428,35 +427,6 @@ double tdewhour(double ti, double tt, const int &Daynum, const Climstruct Clim[4
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-double dayrh(double tt, double tdew)
-//     Function dayrh() computes the hourly values of relative humidity, using the hourly air
-//  and dew point temperatures. It calls function VaporPressure().
-//     If the estimated dew point is higher than the actual air temperature, its value is 
-//  taken as the air temperature (relative humidity 100%).
-//     The relative humidity is calculated as the percentage ratio of the saturated vapor 
-//  pressure at dew point temperature and the saturated vapor pressure at actual air temperature.
-//     Input arguments:
-//        tt - air temperature C at this time of day.
-//        tdew - dew point temperature C at this time of day.
-//
-{
-    double td = min(tt, tdew);  // the dew point temperature (C), is assumed to be tt if tt < tdew.
-    double esvp = VaporPressure(tt);   // the saturated vapor pressure in the air (mbar).
-    double vpa = VaporPressure(td);   // the actual vapor pressure in the air (mbar).
-    double RelHumHour = 100 * vpa / esvp;    // relative humidity at this time of day, %.
-    if (RelHumHour < 1)
-        RelHumHour = 1;
-    if (RelHumHour > 100)
-        RelHumHour = 100;
-    return RelHumHour;
-//     Reference:
-//     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
-//  diurnal patterns of air temperature, radiation, wind speed and
-//  relative humidity by equations from daily characteristics.
-//  Agricultural Systems 51:377-393.
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
 double daywnd(double ti, double wind, double t1, double t2, double t3, double wnytf)
 //     The daywnd function computes the hourly values of wind speed
 //  (m / sec), estimated from the measured total daily wind run.
@@ -551,16 +521,6 @@ void AverageAirTemperatures()
     AvrgDailyTemp = AvrgDailyTemp / 24;
     NightTimeTemp = NightTimeTemp / nn1;
     DayTimeTemp = DayTimeTemp / nn2;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-double VaporPressure(double tt)
-//     VaporPressure() computes the water vapor pressure in the air (in KPa units) as a 
-//  function of the air at temperature tt (C). This equation is widely used.
-//
-{
-    double VaporPressure = .61078 * exp(17.269 * tt / (tt + 237.3));
-    return VaporPressure;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
