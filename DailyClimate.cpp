@@ -38,6 +38,7 @@ extern "C"
     double dayrh(double, double);
     double refalbed(double, double, double, double);
     double del(double, double);
+    double gam(double, double);
     double cloudcov(double, double, double);
 }
 
@@ -52,8 +53,6 @@ void AverageAirTemperatures();
 void EvapoTranspiration(int, const string &, const string &, const int &, const double &, const double &);
 
 double clcor(int, double, double, double, const double &);
-
-double gam(double, double);
 
 void sunangle(double, double &, double &, const double &);
 
@@ -688,17 +687,6 @@ double clcor(int ihr, double ck, double isrhr, double coszhr, const double &DayL
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp.
 // 58-79.
 /////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////////
-double gam(double elev, double tt)
-//     Function gam() computes the psychometric constant at elevation (elev), m above
-//  sea level, and air temperature, C (tt).
-//     This algorithm is the same as used by CIMIS.
-//
-{
-    double bp = 101.3 - .01152 * elev + 5.44e-07 * pow(elev, 2); //  barometric pressure, KPa, at this elevation.
-    return 0.000646 * bp * (1 + 0.000946 * tt);
-}
 
 void sunangle(double ti, double &coszhr, double &sunahr, const double &Latitude)
 //     sunangle.cpp : computes sun angle for any time of day. 

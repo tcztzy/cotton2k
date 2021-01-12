@@ -117,6 +117,17 @@ extern "C" fn del(tk: f64, svp: f64) -> f64 {
     (6790.5 - 5.02808 * tk + 4916.8 * a * b + 174209f64 * c) * svp / b
 }
 
+/// Function gam() computes the psychometric constant at elevation (elev), m above sea level, and air temperature, C (tt).
+/// 
+/// This algorithm is the same as used by CIMIS.
+#[no_mangle]
+extern "C" fn gam(elev: f64, tt: f64) -> f64
+
+{
+    let bp = 101.3 - 0.01152 * elev + 5.44e-07 * elev.powi(2); //  barometric pressure, KPa, at this elevation.
+    0.000646 * bp * (1f64 + 0.000946 * tt)
+}
+
 /// Function clearskyemiss() estimates clear sky emissivity for long wave radiation.
 ///
 /// Reference:
