@@ -36,6 +36,7 @@ extern "C"
 {
     double dayrad(double, double, double, double);
     double dayrh(double, double);
+    double refalbed(double, double, double, double);
 }
 
 double daytmp(double, const int &, const double &, const Climstruct[400]);
@@ -55,8 +56,6 @@ double clcor(int, double, double, double, const double &);
 double del(double, double);
 
 double gam(double, double);
-
-double refalbed(double, double, double, double);
 
 void sunangle(double, double &, double &, const double &);
 
@@ -774,44 +773,6 @@ double gam(double elev, double tt)
     return 0.000646 * bp * (1 + 0.000946 * tt);
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-double refalbed(double isrhr, double rad, double coszhr, double sunahr)
-//     Function refalbed() computes the reference crop albedo, using the
-//  CIMIS algorithm.
-//     This algorithm is described by Dong et al. (1988). Albedo is
-//  estimated as a function of sun elevation above the horizon (suna)
-//  for clear or partly cloudy sky (rasi >= 0.375) and when the sun is
-//  at least 10 degrees above the horizon. 
-//     For very cloudy sky, or when solar altitude is below 10
-//  degrees, the following albedo value is assumed: (p4)+ 0.26
-//     Input arguments:
-//        isrhr = hourly extraterrestrial radiation in W m-2 .
-//        rad = hourly global radiation in W / m-2 .
-//        coszhr = cosine of sun angle from zenith.
-//        sunahr = sun angle from horizon, degrees.
-//
-{
-    const double p1 = 0.00158; //  p1 ... p4 are constant parameters.
-    const double p2 = 0.386;
-    const double p3 = 0.0188;
-    const double p4 = 0.26;
-    double rasi = 0;     //   ratio of rad to isrhr
-    double refalb = p4;  // the reference albedo
-//
-    if (isrhr > 0)
-        rasi = rad / isrhr;
-    if (coszhr > 0.1736 && rasi >= 0.375) {
-        refalb = p1 * sunahr + p2 * exp(-p3 * sunahr);
-        if (refalb > p4)
-            refalb = p4;
-    }
-    return refalb;
-}
-
-//      Reference:
-//      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
-// daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
-/////////////////////////////////////////////////////////////////////////////////
 void sunangle(double ti, double &coszhr, double &sunahr, const double &Latitude)
 //     sunangle.cpp : computes sun angle for any time of day. 
 //     Input argument:

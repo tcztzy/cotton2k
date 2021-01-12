@@ -73,3 +73,36 @@ extern "C" fn dayrh(tt: f64, tdew: f64) -> f64
         relative_humidity
     }
 }
+
+/// Function refalbed() computes the reference crop albedo, using the CIMIS algorithm.
+///
+/// This algorithm is described by Dong et al. (1988). Albedo is estimated as a function of sun elevation above the horizon (suna) for clear or partly cloudy sky (rasi >= 0.375) and when the sun is at least 10 degrees above the horizon.
+///
+/// For very cloudy sky, or when solar altitude is below 10 degrees, the following albedo value is assumed: (p4)+ 0.26
+///
+///  Reference:
+/// Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
+#[no_mangle]
+extern "C" fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64
+// Input arguments:
+//   isrhr = hourly extraterrestrial radiation in W m-2 .
+//   rad = hourly global radiation in W / m-2 .
+//   coszhr = cosine of sun angle from zenith.
+//   sunahr = sun angle from horizon, degrees.
+{
+    let p1 = 0.00158; //  p1 ... p4 are constant parameters.
+    let p2 = 0.386;
+    let p3 = 0.0188;
+    let p4 = 0.26;
+    let rasi = if isrhr > 0. { rad / isrhr } else { 0. }; //   ratio of rad to isrhr
+    if coszhr > 0.1736 && rasi >= 0.375 {
+        let refalb = p1 * sunahr + p2 * std::f64::consts::E.powf(-p3 * sunahr); // the reference albedo
+        if refalb > p4 {
+            p4
+        } else {
+            refalb
+        }
+    } else {
+        p4
+    }
+}

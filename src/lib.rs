@@ -1,3 +1,4 @@
+#![feature(total_cmp)]
 use chrono::prelude::*;
 use chrono::Duration;
 use std::ffi::CStr;
