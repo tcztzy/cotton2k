@@ -8,6 +8,7 @@
 /// proportional to sinb * (1 + c11 * sinb), where the value of c11 is set as 0.4 .
 ///
 /// References:
+///
 /// Spitters, C.J.T., Toussaint, H.A.J.M. and Goudriaan, J. 1986.
 /// Separating the diffuse and direct component of global radiation and
 /// its implications for modeling canopy photosynthesis. Part I.
@@ -118,12 +119,10 @@ extern "C" fn del(tk: f64, svp: f64) -> f64 {
 }
 
 /// Function gam() computes the psychometric constant at elevation (elev), m above sea level, and air temperature, C (tt).
-/// 
+///
 /// This algorithm is the same as used by CIMIS.
 #[no_mangle]
-extern "C" fn gam(elev: f64, tt: f64) -> f64
-
-{
+extern "C" fn gam(elev: f64, tt: f64) -> f64 {
     let bp = 101.3 - 0.01152 * elev + 5.44e-07 * elev.powi(2); //  barometric pressure, KPa, at this elevation.
     0.000646 * bp * (1f64 + 0.000946 * tt)
 }
@@ -184,5 +183,50 @@ extern "C" fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64
         }
     } else {
         0f64
+    }
+}
+
+/// The `daywnd` function computes the hourly values of wind speed (`m/sec`), estimated from the measured total daily wind run.
+///
+/// The algorithm is described by Ephrath et al. (1996). It is based on the following assumptions:
+///
+/// Although the variability of wind speed during any day is very large, the diurnal wind speed curves appear to be characterized by the following repetitive pattern: increase in wind speed from time `t1` in the morning to time `t2` in the afternoon, decrease from `t2` to `t3` in the evening, and a low constant wind speed at night, from `t3` to `t1` in the next day.
+///
+/// The values of `t1`, `t2`, and `t3` have been determined in the calling routine: `t1` is `SitePar(1)` hours after sunrise, `t2` is `SitePar(2)` hours after solar noon, and `t3` is `SitePar(3)` hours after sunset. These parameters are site-specific. They are 1, 3, and 0, respectively, for the San Joaquin valley of California and for Arizona, and 1, 4, and 2, respectively, for the coastal plain of israel.
+///
+/// The wind speed during the night, from `t3` to `t1` next day (`wmin`) is assumed to be proportional to the daily total wind run. The ratio `wnytf` is also site-specific, `SitePar(4)`, ( `0.008` for San Joaquin and Arizona, `0.0025` for the coastal plain of Israel). wmin is the minimum wind speed from `t1` to `t3`.
+///
+/// `wtday` is computed by subtracting the daily integral of wmin, after converting it from m/sec to `km/day`, from the total daily wind run (wndt).
+///
+/// `wmax`, the maximum wind speed at time `t2` (minus `wmin`), is computed from wtday and converted to `m/sec`.
+///
+/// `daywnd` from t1 to t2 is now computed as an increasing sinusoidal function from wmin to `wmin + wmax`, and it is computed from t2 to t3 as a decreasing sinusoidal function from `wmin + wmax` to `wmin`.
+///
+/// Reference:
+///
+/// Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling diurnal patterns of air temperature, radiation, wind speed and relative humidity by equations from daily characteristics. Agricultural Systems 51:377-393.
+#[no_mangle]
+extern "C" fn daywnd(ti: f64, wind: f64, t1: f64, t2: f64, t3: f64, wnytf: f64) -> f64
+// Input arguments:
+// t1 = the hour at which day-time wind begins to blow.
+// t2 = the hour at which day-time wind speed is maximum.
+// t3 = the hour at which day-time wind ceases to blow.
+// ti = the hour of the day.
+// wind = the daily total wind run (km per day).
+// wnytf = Factor for estimating night-time wind (from time t3 to time t1 next day).
+{
+    let pi = 3.14159f64;
+    //   constants related to t1, t2, t3 :
+    let sf1 = 4f64 * (t2 - t1);
+    let sf2 = 4f64 * (t3 - t2);
+    let wmin = wind * wnytf; //  the constant minimum wind speed during the night (m/sec).
+    let wtday = wind - wmin * 3.6 * 24f64; //  integral of wind run from t1 to t3, minus wmin (km).
+    let wmax = wtday * 2f64 * pi / 3.6 / (sf1 + sf2); //  the maximum wind speed (m per sec), above wmin.
+    if ti >= t1 && ti < t2 {
+        wmin + wmax * (2f64 * pi * (ti - t1) / sf1).sin()
+    } else if ti >= t2 && ti < t3 {
+        wmin + wmax * (2f64 * pi * (ti - (2f64 * t2 - t3)) / sf2).sin()
+    } else {
+        wmin
     }
 }
