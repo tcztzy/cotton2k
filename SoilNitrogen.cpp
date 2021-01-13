@@ -22,7 +22,10 @@ double SoilWaterEffect(int, int, double);
 
 void MineralizeNitrogen(int, int, const int &, const int &);
 
-double SoilTemperatureEffect(double);
+extern "C"
+{
+    double SoilTemperatureEffect(double);
+}
 
 void Nitrification(int, int, double);
 
@@ -340,29 +343,6 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
             MineralizedOrganicN -= addvnc * dl[l] * wk[k];
         }
     }
-}
-
-/////////////////////////
-double SoilTemperatureEffect(double tt)
-//     This function computes the effect of temperature on the rate
-//  of mineralization of organic mineralizable nitrogen. It is based on
-//  GODWIN and JONES (1991).
-//     The following argument is used:  tt - soil temperature (C).
-{
-//     The following constant parameters are used:
-    const double tfpar1 = 0.010645;
-    const double tfpar2 = 0.12979;
-//     The temperature function of CERES is replaced by the function
-//  suggested by Vigil and Kissel (1995):
-//               tfm = 0.010645 * exp(0.12979 * tt)
-//     Note: tfm = 0.5 for 29.66 C, tfm = 1 for 35 C, tfm = 2 for 40.34 C.
-    double tfm;
-    tfm = tfpar1 * exp(tfpar2 * tt);
-    if (tfm < 0)
-        tfm = 0;
-    if (tfm > 2)
-        tfm = 2;
-    return tfm;
 }
 
 //////////////////////////////////
