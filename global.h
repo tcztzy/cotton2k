@@ -15,7 +15,7 @@ const int maxl = 40;
 const int maxk = 20;
 const double pi = 3.14159;
 ////    Structures    ////
-extern struct scratch {
+typedef struct scratch {
     int daynum, kday, firstBloom, firstSquare, lastTaprootLayer, mainStemNodes,
             numAbscisedLeaves, numFruitSites, numLayersWithRoots, numPreFruNodes,
             numSheddingTags, numVegBranches;
@@ -63,18 +63,18 @@ extern struct scratch {
             squareWeight[3][30][5],
             volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk],
             volUreaNContent[maxl][maxk];
-};
-extern struct scratch Scratch21[400];
-extern struct NitrogenFertilizer {
+} scratch;
+extern scratch Scratch21[400];
+typedef struct NitrogenFertilizer {
     int day, mthfrt, ksdr, lsdr;
     double amtamm, amtnit, amtura;
-};
-extern struct NitrogenFertilizer NFertilizer[150];
-extern struct Irrigation {
+} NitrogenFertilizer;
+extern NitrogenFertilizer NFertilizer[150];
+typedef struct Irrigation {
     int day, method, LocationColumnDrip, LocationLayerDrip;
     double amount;
-} Irrig[150];
-extern struct Irrigation Irrig[150];
+} Irrigation;
+extern Irrigation Irrig[150];
 ////    Integers    //// 
 extern int DayFirstDef,
         DayStartPlantMaps,
