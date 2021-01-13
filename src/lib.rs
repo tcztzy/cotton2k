@@ -211,20 +211,22 @@ pub extern "C" fn TemperatureOnLeafGrowthRate(t: f64) -> f64 {
     }
 }
 
-/// This function computes the effect of air temperature (t) on growth
-/// rate of bolls in cotton plants. It is called from PotentialFruitGrowth().
+/// This function computes the effect of air temperature (t) on growth rate of bolls in cotton plants. It is called from `PotentialFruitGrowth`.
+/// 
 /// Some values computed by this function:
-/// t (C)       tfr
-/// 12          0.
-/// 15          0.336
-/// 20          0.751
-/// 25          0.978
-/// 26          1.
-/// 28.5        1.024 (maximum)
-/// 30          1.016
-/// 35          0.866
-/// 40          0.527
-/// 45          0.
+/// 
+/// | t (°C) | tfr             |
+/// |:-------|:----------------|
+/// | 12     | 0.              |
+/// | 15     | 0.336           |
+/// | 20     | 0.751           |
+/// | 25     | 0.978           |
+/// | 26     | 1.              |
+/// | 28.5   | 1.024 (maximum) |
+/// | 30     | 1.016           |
+/// | 35     | 0.866           |
+/// | 40     | 0.527           |
+/// | 45     | 0.              |
 #[no_mangle]
 pub extern "C" fn TemperatureOnFruitGrowthRate(t: f64) -> f64 {
     let p1 = -2.041;
@@ -239,8 +241,8 @@ pub extern "C" fn TemperatureOnFruitGrowthRate(t: f64) -> f64 {
     }
 }
 
-/// The function PsiOnTranspiration() computes and returns the effect of the average soil
-/// matrix water potential on transpiration rate. It is called by WaterUptake().
+/// The function `PsiOnTranspiration` computes and returns the effect of the average soil
+/// matrix water potential on transpiration rate. It is called by `WaterUptake`.
 /// The argument PsiAverage is the average soil water matrix potential, bars.
 #[no_mangle]
 pub extern "C" fn PsiOnTranspiration(psi_average: f64) -> f64 {
