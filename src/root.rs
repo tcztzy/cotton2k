@@ -61,3 +61,40 @@ extern "C" fn SoilWaterOnRootGrowth(psislk: f64) -> f64
         smf
     }
 }
+
+/// This function is called from PotentialRootGrowth(), TapRootGrowth() and
+/// LateralRootGrowth(). It computes the effects of soil temperature on the rate
+/// growth. It is essentially based on the usage of GOSSYM, but relative values
+/// are computed here. The computed value returned by this function is between 0 and 1.
+///
+/// It is assumed that maximum root growth occurs at or above 30 C, and no root growth
+/// occurs at or below 13.5 C. A quadratic response to temperature between these limits
+/// is assumed.
+///
+/// The following argument is used:
+///
+/// t - Soil temperature (C), daily average.
+///       
+/// The parameters used are p1, p2, p3, with the following results:
+/// t =      14    16    18    20    22    24    26    28    30   
+/// trf =  .053  .261  .443  .600  .731  .837  .917  .971  1.00
+///
+#[no_mangle]
+pub extern "C" fn SoilTemOnRootGrowth(t: f64) -> f64 {
+    let p1 = -2.12;
+    let p2 = 0.2;
+    let p3 = -0.0032;
+
+    if t >= 30. {
+        1.
+    } else {
+        let trf = p1 + t * (p2 + p3 * t);
+        if trf > 1. {
+            1.
+        } else if trf < 0. {
+            0.
+        } else {
+            trf
+        }
+    }
+}
