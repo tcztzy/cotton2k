@@ -29,7 +29,7 @@ void AdjustYoungBollAbscission(int, int, int, double, double);
 
 void AdjustBollAbscission(int, int, int, int, double);
 
-tuple<double> ComputeSiteNumbers();
+tuple<double> ComputeSiteNumbers(int32_t);
 
 //////////////////////////////////////////////////
 tuple<double> FruitingSitesAbscission(const int &Daynum, const double &DayInc, const double &WaterStress, const Climstruct Clim[400])
@@ -131,7 +131,7 @@ tuple<double> FruitingSitesAbscission(const int &Daynum, const double &DayInc, c
         AdjustAbscission();
 //
     double AbscisedFruitSites;
-    tie(AbscisedFruitSites) = ComputeSiteNumbers();
+    tie(AbscisedFruitSites) = ComputeSiteNumbers(NumVegBranches);
     return make_tuple(AbscisedFruitSites);
 }
 
@@ -536,7 +536,7 @@ void AdjustBollAbscission(int k, int l, int m, int jx, double gin1)
 }
 
 ////////////////////
-tuple<double> ComputeSiteNumbers()
+tuple<double> ComputeSiteNumbers(int32_t NumVegBranches)
 //     This function calculates square, green boll, open boll, and abscised site numbers 
 //  (NumSquares, NumGreenBolls, NumOpenBolls, and AbscisedFruitSites, respectively), as 
 //  the sums of FruitFraction in all sites with appropriate FruitingCode.
