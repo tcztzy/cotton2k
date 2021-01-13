@@ -54,11 +54,11 @@ extern "C" fn SortArray(size: usize, data: *mut f64, ik: *mut i32, il: *mut i32,
     }
     x.sort_by(|a, b| (b.0).partial_cmp(&a.0).unwrap());
     unsafe {
-        for i in 0..size {
-            *(data.offset(i as isize)) = x[i].0;
-            *(ik.offset(i as isize)) = x[i].1;
-            *(il.offset(i as isize)) = x[i].2;
-            *(im.offset(i as isize)) = x[i].3;
+        for (i, _x) in x.iter().enumerate() {
+            *(data.add(i)) = _x.0;
+            *(ik.add(i)) = _x.1;
+            *(il.add(i)) = _x.2;
+            *(im.add(i)) = _x.3;
         }
     }
 }

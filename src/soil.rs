@@ -129,7 +129,7 @@ extern "C" fn psiq(q: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64
     if psix > -0.00001 {
         psix = -0.00001;
     }
-    return psix;
+    psix
 }
 
 /// This function computes soil water osmotic potential (in bars, positive value).

@@ -114,10 +114,9 @@ extern "C" fn AddPlantHeight(
         + number_of_days_for_retroactive_plant_map_adjustment;
     if days_since_emergence > days_since_emergence_to_start_retroactive_plant_map_adjustment
         && days_since_emergence <= kdadjustend
+        && need_adjust
     {
-        if need_adjust {
-            addz *= adjusted_add_height_rate;
-        }
+        addz *= adjusted_add_height_rate;
     }
-    return addz;
+    addz
 }
