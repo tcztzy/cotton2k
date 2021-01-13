@@ -43,9 +43,9 @@ extern "C"
     double daywnd(double, double, double, double, double, double);
 }
 
-double daytmp(double, const int &, const double &, const Climstruct[400]);
+double daytmp(double, const int &, const double &, const ClimateStruct[400]);
 
-double tdewhour(double, double, const int &, const Climstruct[400]);
+double tdewhour(double, double, const int &, const ClimateStruct[400]);
 
 void AverageAirTemperatures();
 
@@ -55,7 +55,7 @@ double clcor(int, double, double, double, const double &);
 
 void sunangle(double, double &, double &, const double &);
 
-double SimulateRunoff(double, const int &, const int &, const Climstruct[400]);
+double SimulateRunoff(double, const int &, const int &, const ClimateStruct[400]);
 
 //     Definition of file scope variables:
 double declination,      // daily declination angle, in radians.
@@ -71,7 +71,7 @@ tmpisr;           // extraterrestrial radiation, W / m2.
 //////////////////////////////////////////////////////////////////////////////
 tuple<double> DayClim(const string &ProfileName, const string &Date, const int &Daynum, const int &DayOfSimulation,
                       const int &DayStart, const int &DayFinish, const double &Latitude, const double &Longitude,
-                      Climstruct Clim[400])
+                      ClimateStruct Clim[400])
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -260,7 +260,7 @@ tuple<double> ComputeDayLength(const int &Daynum, const double &Latitude, const 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-double daytmp(double ti, const int &Daynum, const double &DayLength, const Climstruct Clim[400])
+double daytmp(double ti, const int &Daynum, const double &DayLength, const ClimateStruct Clim[400])
 //     Function daytmp() computes and returns the hourly values of air temperature,
 //  using the measured daily maximum and minimum.
 //     The algorithm is described in Ephrath et al. (1996). It is based on 
@@ -372,7 +372,7 @@ double daytmp(double ti, const int &Daynum, const double &DayLength, const Clims
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-double tdewhour(double ti, double tt, const int &Daynum, const Climstruct Clim[400])
+double tdewhour(double ti, double tt, const int &Daynum, const ClimateStruct Clim[400])
 //     Function tdewhour() computes the hourly values of dew point 
 //  temperature from average dew-point and the daily estimated range. 
 //  This range is computed as a regression on maximum and minimum temperatures.
@@ -653,7 +653,7 @@ void sunangle(double ti, double &coszhr, double &sunahr, const double &Latitude)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-double SimulateRunoff(double rain, const int &Daynum, const int &DayStart, const Climstruct Clim[400])
+double SimulateRunoff(double rain, const int &Daynum, const int &DayStart, const ClimateStruct Clim[400])
 //     This function is called from DayClim() and is executed on each day with raifall more 
 //  than 2 mm. It computes the runoff and the retained portion of the rainfall. Note: This
 //  function is based on the code of GOSSYM. No changes have been made from the original GOSSYM 

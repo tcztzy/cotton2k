@@ -10,14 +10,14 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-int ReadClimateData(ifstream &, const int &, Climstruct[]);
+int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 
 double tdewest(double);
 
 int SlabLoc(int, int);
 
 ///////////////////////////////////////////////////////////////////////////////
-int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart, Climstruct Clim[400])
+int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart, ClimateStruct Clim[400])
 //     This function gets the climate data file. It is called by ReadInput(),
 // and it calls ReadClimateData().
 //  Global variables set:  LastDayWeatherData.
@@ -66,7 +66,7 @@ int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, 
 }
 
 /////////////////////////////////////////////////////
-int ReadClimateData(ifstream &DataFile, const int &DayStart, Climstruct Clim[400])
+int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[400])
 //     This function reads the climate data file. It is called by OpenClimateFile(), and it
 //  calls GetLineData().
 //     It stores the data read from the file in the structure Clim.
@@ -100,7 +100,7 @@ int ReadClimateData(ifstream &DataFile, const int &DayStart, Climstruct Clim[400
         jdd = atoi(Dummy.substr(0, 4).c_str());
         int j = jdd - DayStart;   // days from start of simulation
 //     Daily weather data are stored in the structure Clim, derived from
-//  struct Climstruct {int nDay; float Rad, Tmax, Tmin, Rain, Wind, Tdew; }
+//  struct ClimateStruct {int nDay; float Rad, Tmax, Tmin, Rain, Wind, Tdew; }
         if (j >= 0) {
             Clim[j].nDay = jdd;
 //     Get float values

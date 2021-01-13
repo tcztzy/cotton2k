@@ -11,7 +11,7 @@ using namespace std;
 string GetLineData(ifstream &DataFile);
 
 //  soil water functions:
-double GetFromClim(const Climstruct Clim[400], const string &item, const int &Doy);
+double GetFromClim(const ClimateStruct Clim[400], const string &item, const int &Doy);
 
 extern "C"
 {

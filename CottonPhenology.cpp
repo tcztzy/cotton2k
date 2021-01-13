@@ -29,7 +29,7 @@ void AddFruitingBranch(int, double, double, const double &);
 
 void AddFruitingNode(int, int, double, double, const double &WaterStress);
 
-tuple<int> FruitingSite(int, int, int, int &, const int &, const double &, const double &, int, const Climstruct[]);
+tuple<int> FruitingSite(int, int, int, int &, const int &, const double &, const double &, int, const ClimateStruct[]);
 
 void NewBollFormation(int, int, int);
 
@@ -54,7 +54,7 @@ double PhenDelayByNStress;  // phenological delay caused by vegetative nitrogen 
 //////////////////////////////////////////////////
 tuple<int, int, double, double>
 CottonPhenology(const int &Daynum, const int &DayEmerge, int FirstBloom, int FirstSquare, const double &DayInc,
-                const double &WaterStress, double AbscisedLeafWeight, const Climstruct Clim[400])
+                const double &WaterStress, double AbscisedLeafWeight, const ClimateStruct Clim[400])
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -508,7 +508,7 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio, 
 
 //////////////////////////////////////////////////
 tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const int &Daynum, const double &DayInc,
-                        const double &WaterStress, int FirstBloom, const Climstruct Clim[400])
+                        const double &WaterStress, int FirstBloom, const ClimateStruct Clim[400])
 //     Function FruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:

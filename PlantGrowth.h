@@ -10,7 +10,7 @@ extern "C" {
 
 tuple<double> Stress(const string &, const double &, const int &);
 
-void GetNetPhotosynthesis(const int &, const int &, const int &, const int &, const double &, const double &, const Climstruct[400]);
+void GetNetPhotosynthesis(const int &, const int &, const int &, const int &, const double &, const double &, const ClimateStruct[400]);
 
 tuple<int, double>
 PlantGrowth(const string &, const string &, const int &, const int &, const int &, const int &, const int &, int,

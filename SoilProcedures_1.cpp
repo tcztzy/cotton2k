@@ -19,11 +19,11 @@ void RootsCapableOfUptake(const int &, const double[40][20][3]);
 
 void ApplyFertilizer(const int &);
 
-void ComputeIrrigation(const string &, const int &, const int &, const int &, const double &, const Climstruct[400]);
+void ComputeIrrigation(const string &, const int &, const int &, const int &, const double &, const ClimateStruct[400]);
 
 double GetTargetStress(const int &, const int &, const int &);
 
-void PredictDripIrrigation(double, const int &, const double &, const Climstruct[]);
+void PredictDripIrrigation(double, const int &, const double &, const ClimateStruct[]);
 
 void PredictSurfaceIrrigation(double, const int &, const double &);
 
@@ -44,7 +44,7 @@ void GravityFlow(double);
 //////////////////////////
 void SoilProcedures(const string &ProfileName, const int &Daynum, const int &DayOfSimulation, const int &DayEmerge,
                     const int &DayStart, const int &FirstBloom, const int &FirstSquare, const int &NumLayersWithRoots,
-                    const double &WaterStress, const double RootWeight[40][20][3], const Climstruct Clim[400])
+                    const double &WaterStress, const double RootWeight[40][20][3], const ClimateStruct Clim[400])
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -324,7 +324,7 @@ void ApplyFertilizer(const int &Daynum)
 
 ////////////////////////////////////////////////////////////////////////////////
 void ComputeIrrigation(const string &ProfileName, const int &Daynum, const int &FirstBloom, const int &FirstSquare,
-                       const double &WaterStress, const Climstruct Clim[400])
+                       const double &WaterStress, const ClimateStruct Clim[400])
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
@@ -413,7 +413,7 @@ double GetTargetStress(const int &Daynum, const int &FirstBloom, const int &Firs
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void PredictDripIrrigation(double TargetStress, const int &Daynum, const double &WaterStress, const Climstruct Clim[400])
+void PredictDripIrrigation(double TargetStress, const int &Daynum, const double &WaterStress, const ClimateStruct Clim[400])
 //     This function computes the amount of water (mm) needed for predicted drip
 //  irrigation, considering the effects of water stress.
 //     It is called from ComputeIrrigation(). It calls the function GetFromClim().

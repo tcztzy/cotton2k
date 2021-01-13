@@ -285,7 +285,7 @@ void DailyOutput(const string &ProfileName, const string &Date, const int &Daynu
                  const int &DayEmerge, const int &DayFinish, const int &FirstBloom, const int &FirstSquare,
                  const int &NumLayersWithRoots, const double &PlantHeight, const double &AbscisedFruitSites,
                  const double &AbscisedLeafWeight, const double &WaterStress, const double RootWeight[40][20][3],
-                 const double RootAge[40][20], const Climstruct Clim[400])
+                 const double RootAge[40][20], const ClimateStruct Clim[400])
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //

@@ -2,10 +2,10 @@
 #define COTTON2K_H
 #include <filesystem>
 namespace fs = std::filesystem;
-struct Climstruct {
+typedef struct ClimateStruct {
     int nDay;
     double Rad, Tmax, Tmin, Rain, Wind, Tdew;
-};
+} ClimateStruct;
 
 class Cotton2KException
         : public std::exception {

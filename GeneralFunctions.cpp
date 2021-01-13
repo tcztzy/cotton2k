@@ -32,7 +32,7 @@ string GetLineData(ifstream &DataFile)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-double GetFromClim(const Climstruct Clim[400], const string& item, const int& Doy)
+double GetFromClim(const ClimateStruct Clim[400], const string& item, const int& Doy)
 //     This function extracts daily climate values for day of year Doy
 //  from the structure Clim.
 //     Input arguments:

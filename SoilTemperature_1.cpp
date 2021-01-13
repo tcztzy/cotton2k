@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void SoilTemperatureInit(int &, int &, const string &, const int &, const int &, const int &, const Climstruct[]);
+void SoilTemperatureInit(int &, int &, const string &, const int &, const int &, const int &, const ClimateStruct[]);
 
 // SoilTemperature_2
 void
@@ -121,7 +121,7 @@ tuple<int> SoilTemperature(
         const double &MulchTranLW,
         const double &PlantHeight,
         double rracol[20],
-        const Climstruct Clim[400]
+        const ClimateStruct Clim[400]
 )
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
@@ -477,7 +477,7 @@ tuple<int> SoilTemperature(
 */
 ////////////////////////////////////////////////////////////////////////
 void SoilTemperatureInit(int &jt1, int &jt2, const string &ProfileName, const int &Daynum, const int &DayStart,
-                         const int &DayFinish, const Climstruct Clim[400])
+                         const int &DayFinish, const ClimateStruct Clim[400])
 //     This function is called from SoilTemperature() at the start of the simulation. It sets 
 //  initial values to soil and canopy temperatures.
 //     The following arguments are set in this function:

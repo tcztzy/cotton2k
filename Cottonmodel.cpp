@@ -208,7 +208,7 @@ void C2KApp::RunTheModel()
     double RootAge[40][20];       // the time (in days) from the first appearance of roots in a soil cell.
     double Latitude;              // latitude, degrees.
     double Longitude;             // longitude, degrees.
-    Climstruct Clim[400];         // structure containing the following daily weather data:
+    ClimateStruct Clim[400];         // structure containing the following daily weather data:
                                   // int nDay =    day of year.
                                   // double Rad =  daily global radiation, in langleys.
                                   // double Tmax = maximum daily temperature, C.
@@ -290,7 +290,7 @@ tuple<int, int, int, double> C2KApp::DailySimulation(
     const double &Longitude,
     double RootWeight[40][20][3],
     double RootAge[40][20],
-    Climstruct Clim[400])
+    ClimateStruct Clim[400])
 //     This function controls the dynamic phase of the simulation, allowing
 //  for in-run adjustments when there is an input of plant map adjustments.
 //     It calls the functions:
@@ -394,7 +394,7 @@ tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double
     double WaterStress,
     double RootWeight[40][20][3],
     double RootAge[40][20],
-    Climstruct Clim[400])
+    ClimateStruct Clim[400])
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -505,7 +505,7 @@ tuple<string, int, int, int, int, int, double, double, double, double> C2KApp::S
     double WaterStress,
     double RootWeight[40][20][3],
     double RootAge[40][20],
-    Climstruct Clim[400])
+    ClimateStruct Clim[400])
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),

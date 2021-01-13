@@ -3,4 +3,4 @@
 #include <tuple>
 #include "cotton2k.h"
 
-std::tuple<double> FruitingSitesAbscission(const int &, const double &, const double &, const Climstruct[400]);
+std::tuple<double> FruitingSitesAbscission(const int &, const double &, const double &, const ClimateStruct[400]);
