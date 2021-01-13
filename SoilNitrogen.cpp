@@ -18,13 +18,12 @@ using namespace std;
 
 void UreaHydrolysis(int, int);
 
-double SoilWaterEffect(int, int, double);
-
 void MineralizeNitrogen(int, int, const int &, const int &);
 
 extern "C"
 {
     double SoilTemperatureEffect(double);
+    double SoilWaterEffect(double, double, double, double, double);
 }
 
 void Nitrification(int, int, double);
@@ -124,7 +123,7 @@ void UreaHydrolysis(int l, int k)
 //     Compute the effect of soil moisture using function SoilWaterEffect on the rate of urea 
 //  hydrolysis. The constant swf1 is added to the soil moisture function for mineralization, 
     double swf; // soil moisture effect on rate of urea hydrolysis.
-    swf = SoilWaterEffect(l, k, 0.5) + swf1;
+    swf = SoilWaterEffect(VolWaterContent[l][k], FieldCapacity[l], thetar[l], thts[l], 0.5) + swf1;
     if (swf < 0)
         swf = 0;
     if (swf > 1)
@@ -159,32 +158,6 @@ void UreaHydrolysis(int l, int k)
            7.6      .4228    .0528
    The values for pH 7.2 are used.
 */
-}
-
-/////////////////////////
-double SoilWaterEffect(int l, int k, double xx)
-//     This function computes the effect of soil moisture on the rate of mineralization of 
-//  organic mineralizable nitrogen, and on the rates of urea hydrolysis and nitrification.
-//     It is based on Godwin and Jones (1991).
-//     The following global variables are referenced:
-//       FieldCapacity, thetar, thts, VolWaterContent.
-//     The argument xx is 0.5 when used for mineralization and urea hydrolysis,
-//  or 1.0 when used for nitrification.
-//     l, k are layer and column of this cell.
-//
-{
-    double wf; // the effect of soil moisture on process rate.
-    if (VolWaterContent[l][k] <= FieldCapacity[l])
-//     Soil water content less than field capacity:
-        wf = (VolWaterContent[l][k] - thetar[l]) / (FieldCapacity[l] - thetar[l]);
-    else
-//     Soil water content more than field capacity:
-        wf = 1 - xx * (VolWaterContent[l][k] - FieldCapacity[l])
-                 / (thts[l] - FieldCapacity[l]);
-//
-    if (wf < 0)
-        wf = 0;
-    return wf;
 }
 
 ///////////////////////////////////////////
@@ -249,7 +222,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
 //
 // **  Mineralization of fresh organic matter **
 //     The effects of soil moisture (wf) and of soil temperature (tfac) are computed.
-    double wf = SoilWaterEffect(l, k, 0.5);
+    double wf = SoilWaterEffect(VolWaterContent[l][k], FieldCapacity[l], thetar[l], thts[l], 0.5);
     double tfac = SoilTemperatureEffect(SoilTempDailyAvrg[l][k] - 273.161);
 //     The gross release of dry weight and of N from decomposition of fresh organic matter is computed.
     double grossReleaseN; // gross release of N from decomposition, mg/cm3
@@ -384,7 +357,7 @@ void Nitrification(int l, int k, double DepthOfLayer)
     if (tff < 0)
         tff = 0;
 //     Add the effects of NH4 in soil, soil water content, and depth of soil layer.
-    ratenit = ratenit * sanc * SoilWaterEffect(l, k, 1) * pow(cpardepth, tff);
+    ratenit = ratenit * sanc * SoilWaterEffect(VolWaterContent[l][k], FieldCapacity[l], thetar[l], thts[l], 1) * pow(cpardepth, tff);
     if (ratenit < 0)
         ratenit = 0;
     if (ratenit > 0.10)

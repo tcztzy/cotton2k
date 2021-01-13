@@ -173,3 +173,37 @@ extern "C" fn SoilTemperatureEffect(tt: f64) -> f64
         tfm
     }
 }
+
+#[no_mangle]
+extern "C" fn SoilWaterEffect(
+    volumetric_water_content: f64,
+    field_capacity: f64,
+    volumetric_water_content_at_permanent_wilting_point: f64,
+    volumetric_water_content_saturated: f64,
+    xx: f64,
+) -> f64
+//     This function computes the effect of soil moisture on the rate of mineralization of 
+//  organic mineralizable nitrogen, and on the rates of urea hydrolysis and nitrification.
+//     It is based on Godwin and Jones (1991).
+//     The following global variables are referenced:
+//       FieldCapacity, thetar, thts, VolWaterContent.
+//     The argument xx is 0.5 when used for mineralization and urea hydrolysis,
+//  or 1.0 when used for nitrification.
+//     l, k are layer and column of this cell.
+//
+{
+    let wf = // the effect of soil moisture on process rate.
+    if volumetric_water_content <= field_capacity {
+        // Soil water content less than field capacity:
+        (volumetric_water_content - volumetric_water_content_at_permanent_wilting_point) / (field_capacity - volumetric_water_content_at_permanent_wilting_point)}
+    else{
+        // Soil water content more than field capacity:
+        1f64 - xx * (volumetric_water_content - field_capacity) / (volumetric_water_content_saturated - field_capacity)
+    };
+
+    if wf < 0f64 {
+        0f64
+    } else {
+        wf
+    }
+}
