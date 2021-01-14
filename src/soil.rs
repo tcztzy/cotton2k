@@ -240,3 +240,15 @@ extern "C" fn SoilMechanicResistance(rtimpdmin: f64) -> f64 {
         rtpct
     }
 }
+
+/// This function computes the aggregation factor for 2 mixed soil materials.
+#[no_mangle]
+extern "C" fn form(c0: f64, d0: f64, g0: f64) -> f64
+// Arguments referenced:
+//   c0 - heat conductivity of first material
+//   d0 - heat conductivity of second material	
+//   g0 - shape factor for these materials
+{
+    (2f64 / (1f64 + (c0 / d0 - 1f64) * g0) + 1f64 / (1f64 + (c0 / d0 - 1f64) * (1f64 - 2f64 * g0)))
+        / 3f64
+}
