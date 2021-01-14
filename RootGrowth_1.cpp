@@ -21,9 +21,8 @@ extern "C" {
     double SoilAirOnRootGrowth(double, double, double);
     double SoilNitrateOnRootGrowth(double);
     double SoilWaterOnRootGrowth(double);
+    double SoilMechanicResistance(double);
 }
-
-double SoilMechanicResistance(int, int);
 
 tuple<int> RedistRootNewGrowth(int, int, double, int, double[40][20]);
 
@@ -121,7 +120,36 @@ double PotentialRootGrowth(const int &NumRootAgeGroups, const int &NumLayersWith
 //  calling SoilAirOnRootGrowth(), and the effect of soil nitrate on root growth 
 //  by calling SoilNitrateOnRootGrowth().
                 double rtpct; // effect of soil mechanical resistance on root growth (returned from SoilMechanicResistance).
-                rtpct = SoilMechanicResistance(l, k);
+                //
+                int lp1;      // layer below l.
+                if (l == nl - 1) // last layer
+                    lp1 = l;
+                else
+                    lp1 = l + 1;
+            //
+                int km1, kp1; // columns to the left and to the right of k.
+                if (k == nk - 1) // last column
+                    kp1 = k;
+                else
+                    kp1 = k + 1;
+            //
+                if (k == 0) // first column
+                    km1 = 0;
+                else
+                    km1 = k - 1;
+            //
+                double rtimpd0 = RootImpede[l][k];
+                double rtimpdkm1 = RootImpede[l][km1];
+                double rtimpdkp1 = RootImpede[l][kp1];
+                double rtimpdlp1 = RootImpede[lp1][k];
+                double rtimpdmin = rtimpd0;      // minimum value of rtimpd
+                if (rtimpdkm1 < rtimpdmin)
+                    rtimpdmin = rtimpdkm1;
+                if (rtimpdkp1 < rtimpdmin)
+                    rtimpdmin = rtimpdkp1;
+                if (rtimpdlp1 < rtimpdmin)
+                    rtimpdmin = rtimpdlp1;
+                rtpct = SoilMechanicResistance(rtimpdmin);
                 double rtrdo; // effect of oxygen deficiency on root growth (returned from SoilAirOnRootGrowth).
                 rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], VolWaterContent[l][k]);
                 double rtrdn; // effect of nitrate deficiency on root growth (returned from SoilNitrateOnRootGrowth).
@@ -213,72 +241,6 @@ void RootImpedance(const int &ncurve)
         }
     }
 //
-}
-
-//////////////////////////
-double SoilMechanicResistance(int l, int k)
-//     This function calculates soil mechanical resistance of cell l,k. It is computed 
-//  on the basis of parameters read from the input and calculated in RootImpedance().
-//     It is called from PotentialRootGrowth().
-//     The function has been adapted, without change, from the code of GOSSYM.  Soil mechanical
-//  resistance is computed as an empirical function of bulk density and water content. 
-//  It should be noted, however, that this empirical function is based on data for one type
-//  of soil only, and its applicability for other soil types is questionable. The effect of soil 
-//  moisture is only indirectly reflected in this function. A new module (SoilWaterOnRootGrowth)
-//  has therefore been added in COTTON2K to simulate an additional direct effect of soil
-//  moisture on root growth.
-//
-//     The following global variables are referenced here:
-//       nk, nl, rtimpd
-//     The following arguments are used:
-//       k, l - column and layer numbers pf this cell.
-//
-//     The minimum value of rtimpd of this and neighboring soil cells is used to compute 
-//  rtpct. The code is based on a segment of RUTGRO in GOSSYM, and the values of the p1 to p3
-//  parameters are based on GOSSYM usage:
-{
-    const double p1 = 1.046;
-    const double p2 = 0.034554;
-    const double p3 = 0.5;
-//
-    int lp1;      // layer below l.
-    if (l == nl - 1) // last layer
-        lp1 = l;
-    else
-        lp1 = l + 1;
-//
-    int km1, kp1; // columns to the left and to the right of k.
-    if (k == nk - 1) // last column
-        kp1 = k;
-    else
-        kp1 = k + 1;
-//
-    if (k == 0) // first column
-        km1 = 0;
-    else
-        km1 = k - 1;
-//
-    double rtimpd0 = RootImpede[l][k];
-    double rtimpdkm1 = RootImpede[l][km1];
-    double rtimpdkp1 = RootImpede[l][kp1];
-    double rtimpdlp1 = RootImpede[lp1][k];
-//
-    double rtimpdmin = rtimpd0;      // minimum value of rtimpd
-    if (rtimpdkm1 < rtimpdmin)
-        rtimpdmin = rtimpdkm1;
-    if (rtimpdkp1 < rtimpdmin)
-        rtimpdmin = rtimpdkp1;
-    if (rtimpdlp1 < rtimpdmin)
-        rtimpdmin = rtimpdlp1;
-//
-    double rtpct; // effect of soil mechanical resistance on root growth (the return value).
-    rtpct = p1 - p2 * rtimpdmin;
-    if (rtpct > 1)
-        rtpct = 1;
-    if (rtpct < p3)
-        rtpct = p3;
-//
-    return rtpct;
 }
 
 //////////////////////////

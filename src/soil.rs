@@ -207,3 +207,36 @@ extern "C" fn SoilWaterEffect(
         wf
     }
 }
+
+/// This function calculates soil mechanical resistance of cell l,k. It is computed
+/// on the basis of parameters read from the input and calculated in RootImpedance().
+///
+/// It is called from PotentialRootGrowth().
+///
+///  The function has been adapted, without change, from the code of GOSSYM. Soil mechanical
+/// resistance is computed as an empirical function of bulk density and water content.
+/// It should be noted, however, that this empirical function is based on data for one type
+/// of soil only, and its applicability for other soil types is questionable. The effect of soil
+/// moisture is only indirectly reflected in this function. A new module (SoilWaterOnRootGrowth)
+/// has therefore been added in COTTON2K to simulate an additional direct effect of soil
+/// moisture on root growth.
+///
+/// The minimum value of rtimpd of this and neighboring soil cells is used to compute
+/// rtpct. The code is based on a segment of RUTGRO in GOSSYM, and the values of the p1 to p3
+/// parameters are based on GOSSYM usage:
+#[no_mangle]
+extern "C" fn SoilMechanicResistance(rtimpdmin: f64) -> f64 {
+    let p1 = 1.046;
+    let p2 = 0.034554;
+    let p3 = 0.5;
+
+    // effect of soil mechanical resistance on root growth (the return value).
+    let rtpct = p1 - p2 * rtimpdmin;
+    if rtpct > 1f64 {
+        1f64
+    } else if rtpct < p3 {
+        p3
+    } else {
+        rtpct
+    }
+}
