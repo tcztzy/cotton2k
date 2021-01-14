@@ -9,7 +9,7 @@
 #include "GeneralFunctions.h"
 
 tuple<string, int, int, int, int, double, double, double, double>
-GoBack(const string &, const int &, const int &, int, int, int, double, double, double, double, double[40][20][3],
+GoBack(string, const int &, const int &, int, int, int, double, double, double, double, double[40][20][3],
        double[40][20]);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -437,7 +437,7 @@ PlantAdjustments(int i, int jj, const string &ProfileName, const string &Date, c
 
 ///////////////////////////////////////////////////////////////////////
 tuple<string, int, int, int, int, double, double, double, double>
-GoBack(const string &Date, const int &daynum, const int &DayOfSimulation, int FirstBloom, int FirstSquare,
+GoBack(string Date, const int &daynum, const int &DayOfSimulation, int FirstBloom, int FirstSquare,
        int NumLayersWithRoots, double PlantHeight, double AbscisedFruitSites, double AbscisedLeafWeight,
        double WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function reads state variables retroactively NumAdjustDays days earlier. 
@@ -446,10 +446,9 @@ GoBack(const string &Date, const int &daynum, const int &DayOfSimulation, int Fi
 //     Note that retroactive adjustment begins at (Kday - NumAdjustDays) days earlier.
 //
 {
-    string date = Date;
     int Daynum = daynum;
     if (Kday <= NumAdjustDays)
-        return make_tuple(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites,
+        return make_tuple(Date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites,
                           AbscisedLeafWeight, WaterStress);  // before emergence
     int irec; // the record number in the structure containing the state variables.
     irec = DayOfSimulation - NumAdjustDays - 1;
@@ -478,7 +477,7 @@ GoBack(const string &Date, const int &daynum, const int &DayOfSimulation, int Fi
     CumTranspiration = Scratch21[irec].cumTranspiration;
     CumWaterAdded = Scratch21[irec].cumWaterAdded;
     CumWaterDrained = Scratch21[irec].cumWaterDrained;
-    date = Scratch21[irec].date;
+    Date = Scratch21[irec].date;
     Daynum = Scratch21[irec].daynum;
     DayTimeTemp = Scratch21[irec].dayTimeTemp;
     DeepSoilTemperature = Scratch21[irec].deepSoilTemperature;
@@ -612,6 +611,6 @@ GoBack(const string &Date, const int &daynum, const int &DayOfSimulation, int Fi
                 RootWeight[l][k][i] = Scratch21[irec].rootWeight[l][k][i];
         }
     }
-    return make_tuple(date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites,
+    return make_tuple(Date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites,
                       AbscisedLeafWeight, WaterStress);
 }
