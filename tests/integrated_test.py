@@ -11,7 +11,7 @@ import re
 
 today = date.today().strftime("%A, %B %d, %Y").ljust(30)
 extensions = ["B01", "F01", "PLM", "PLT", "S01", "SMP", "WA2", "WAT", "LWP", "CHB", "RUT", "TM1", "TM2", "TMS", "NB0", "NB1", "NB2", "NB3", "NB4"]
-fixtures = Path("fixtures")
+fixtures = Path(__file__).parent / "fixtures"
 parser = ArgumentParser()
 parser.add_argument("output_dir", type=Path, default=Path('.'))
 parser.add_argument("--profiles", metavar="P", nargs="+", default=["hakb1", "hava98"], help="Profiles to be compared")
