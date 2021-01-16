@@ -183,24 +183,12 @@ void C2KApp::RunTheModel()
 //          ReadInput(), DailySimulation() and  DataOutput()
 //
 {
-    string ProfileName;           // name of input file with profile data (without the extension ".PRO").
-    string Date;                  // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
-    double PlantHeight;           // plant height, cm.
-    double RootWeight[40][20][3]; // weight of dry matter of root tissue in a soil cell for an age group, in g per cell.
-    double RootAge[40][20];       // the time (in days) from the first appearance of roots in a soil cell.
-    ClimateStruct Clim[400];      // structure containing the following daily weather data:
-                                  // int nDay =    day of year.
-                                  // double Rad =  daily global radiation, in langleys.
-                                  // double Tmax = maximum daily temperature, C.
-                                  // double Tmin = minimum daily temperature, C.
-                                  // double Tdew = dew point temperature, C.
-                                  // double Rain = daily rainfall, mm.
-                                  // double Wind = daily wind run, km.
+
     for (int i = 0; i < ProfileArray.GetSize(); i++)
     {
-        ProfileName = ProfileArray.GetAt(i);
+        string ProfileName = ProfileArray.GetAt(i);
         // Read the input data for this simulation
-        Simulation sim = ReadInput(ProfileName, RootWeight, RootAge, Clim);
+        Simulation sim = ReadInput(ProfileName.c_str());
         // Create a modeless dialog with progress control
         int range = sim.day_finish - sim.day_start + 1;
         pdlg = new CProgCtrlDlg;
@@ -211,17 +199,17 @@ void C2KApp::RunTheModel()
         int FirstBloom = 0;  // Date (DOY) of first bloom.
         int FirstSquare = 0; // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
                              // Do daily simulations
-        tie(sim.day_emerge, FirstBloom, FirstSquare, PlantHeight) = DailySimulation(ProfileName, Date, sim.day_emerge, sim.day_start,
-                                                                                    sim.day_finish, sim.day_plant, sim.day_start_co2,
-                                                                                    sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch,
-                                                                                    sim.mulch_indicator, sim.num_curve, FirstBloom,
-                                                                                    FirstSquare, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
-                                                                                    sim.co2_enrichment_factor, sim.latitude, sim.longitude,
-                                                                                    RootWeight, RootAge, Clim);
+        tie(sim.day_emerge, FirstBloom, FirstSquare, sim.plant_height) = DailySimulation(sim.profile_name, sim.date, sim.day_emerge, sim.day_start,
+                                                                                         sim.day_finish, sim.day_plant, sim.day_start_co2,
+                                                                                         sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch,
+                                                                                         sim.mulch_indicator, sim.num_curve, FirstBloom,
+                                                                                         FirstSquare, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
+                                                                                         sim.co2_enrichment_factor, sim.latitude, sim.longitude,
+                                                                                         sim.root_weight, sim.root_age, sim.climate);
         //     Write output data
         pdlg->m_Running = "Writing Output Files";
         DataOutput(ProfileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_start_soil_maps, sim.day_stop_soil_maps, FirstBloom,
-                   FirstSquare, PlantHeight);
+                   FirstSquare, sim.plant_height);
         pdlg->EndDialog(i);
         delete pdlg; //  check if needed
     }
