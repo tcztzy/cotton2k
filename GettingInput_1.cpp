@@ -57,8 +57,7 @@ string m_mulchdata,      // string containing input data of mulching
 VarName,              // name of the cultivar
 SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
-tuple<int, int, int, int, int, int, int, int, int, int, int, int, double, double, double, double, double>
-ReadInput(const string &ProfileName, double RootWeight[40][20][3], double RootAge[40][20], ClimateStruct Clim[400])
+Simulation ReadInput(const string &ProfileName, double RootWeight[40][20][3], double RootAge[40][20], ClimateStruct Clim[400])
 //     This is the main function for reading input. It is called from RunTheModel().
 //     The following global variables are set here:
 //        PlantWeightAtStart , SoilNitrogenAtStart
@@ -110,9 +109,7 @@ ReadInput(const string &ProfileName, double RootWeight[40][20][3], double RootAg
 //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
-    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2,
-                      DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator, ncurve, MulchTranSW, MulchTranLW,
-                      CO2EnrichmentFactor, Latitude, Longitude);
+    return {DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, ncurve, Latitude, Longitude};
 }
 
 /////////////////////////////////////////////////////////////////////////////
