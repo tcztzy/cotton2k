@@ -200,8 +200,7 @@ void C2KApp::RunTheModel()
         DailySimulation(sim);
         //     Write output data
         pdlg->m_Running = "Writing Output Files";
-        DataOutput(ProfileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_start_soil_maps, sim.day_stop_soil_maps, sim.first_bloom,
-                   sim.first_square, sim.plant_height);
+        DataOutput(sim);
         pdlg->EndDialog(i);
         delete pdlg; //  check if needed
     }

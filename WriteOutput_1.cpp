@@ -457,9 +457,7 @@ output1(const string &ProfileName, const string &Date, const int &Daynum, const 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void DataOutput(const string &ProfileName, const int &DayEmerge, const int &DayStart, const int &DayFinish,
-                const int &DayStartSoilMaps, const int &DayStopSoilMaps, const int &FirstBloom, const int &FirstSquare,
-                double PlantHeight)
+void DataOutput(Simulation & sim)
 //     This function is called from RunSimulation() at the end of the simulation. It
 //  gets the data from structure Scratch21 and writes summary data in file *.S01.
 //     It calls the functions WriteLine22(), outputplt(), output2(), output3(), output4(),
@@ -481,7 +479,7 @@ void DataOutput(const string &ProfileName, const int &DayEmerge, const int &DayS
     double i02; // number of open bolls, per unitn area.
     double sixpct = NumOpenBolls * 0.6; // 60 percent of the final number of open bolls.
     string Date;
-    ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);
+    ofstream File22(fs::path("output") / (string(sim.profile_name) + ".S01"), ios::app);
 //     Start reading data from struct Scratch21.
 //     Read data for each day, and compute the local variables i00,
 //  i01, i02. Convert from per plant to per sq m, or to English units.
@@ -496,10 +494,10 @@ void DataOutput(const string &ProfileName, const int &DayEmerge, const int &DayS
         i02 = Scratch21[irec].numOpenBolls;
         i00 = Scratch21[irec].numSquares;
         LintYield = Scratch21[irec].lintYield;
-        PlantHeight = Scratch21[irec].plantHeight;
+        sim.plant_height = Scratch21[irec].plantHeight;
 //     Convert height and LintYield to English units if necessary.
         if (OutIndex[1] == 1) {
-            PlantHeight = PlantHeight / 2.54;
+            sim.plant_height /= 2.54;
             LintYield = LintYield * 0.893;
         }
         if (OutIndex[2] == 1)
@@ -519,49 +517,49 @@ void DataOutput(const string &ProfileName, const int &DayEmerge, const int &DayS
         }
 //     Report first day of open bolls, date of 60% open bolls, and date
 //  of defoliation.
-        if (!ifg1 && Scratch21[irec].daynum == FirstSquare) {
+        if (!ifg1 && Scratch21[irec].daynum == sim.first_square) {
             File22 << " First square    " << Date;
-            WriteLine22(File22, i00, i01, i02, PlantHeight);
+            WriteLine22(File22, i00, i01, i02, sim.plant_height);
             ifg1 = true;
         }
-        if (!ifg2 && Scratch21[irec].daynum == FirstBloom) {
+        if (!ifg2 && Scratch21[irec].daynum == sim.first_bloom) {
             File22 << " First Bloom     " << Date;
-            WriteLine22(File22, i00, i01, i02, PlantHeight);
+            WriteLine22(File22, i00, i01, i02, sim.plant_height);
             ifg2 = true;
         }
         if (!ifg3 && i02 > 0.1) {
             File22 << " 1st open boll   " << Date;
-            WriteLine22(File22, i00, i01, i02, PlantHeight);
+            WriteLine22(File22, i00, i01, i02, sim.plant_height);
             ifg3 = true;
         }
         if (!ifg4 && sixpct <= i02 && i02 > 0.) {
             File22 << " 60% open bolls  " << Date;
-            WriteLine22(File22, i00, i01, i02, PlantHeight);
+            WriteLine22(File22, i00, i01, i02, sim.plant_height);
             ifg4 = true;
         }
         for (int i = 0; i < 5; i++) {
             if (Scratch21[irec].daynum == DefoliationDate[i]) {
                 File22 << " Defoliation     " << Date;
-                WriteLine22(File22, i00, i01, i02, PlantHeight);
+                WriteLine22(File22, i00, i01, i02, sim.plant_height);
             }
         }
     }
 //     When end of file is reached report final LintYield in file 22.
     File22 << " Max yield on    " << Date;
-    WriteLine22(File22, i00, i01, i02, PlantHeight);
+    WriteLine22(File22, i00, i01, i02, sim.plant_height);
 //     Call procedures for printing output
-    outputplt(ProfileName, DayEmerge);
+    outputplt(sim.profile_name, sim.day_emerge);
     if (OutIndex[6] > 0)
-        output2(ProfileName);
+        output2(sim.profile_name);
     if (OutIndex[3] > 0)
-        output3(ProfileName);
+        output3(sim.profile_name);
     if (OutIndex[4] > 0)
-        output4(ProfileName);
+        output4(sim.profile_name);
     if (OutIndex[5] > 0)
-        output5(ProfileName);
-    output6(ProfileName);
+        output5(sim.profile_name);
+    output6(sim.profile_name);
     if (OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
-        output7(ProfileName, DayStart, DayFinish, DayStartSoilMaps, DayStopSoilMaps);
+        output7(sim.profile_name, sim.day_start, sim.day_finish, sim.day_start_soil_maps, sim.day_stop_soil_maps);
 }
 
 ////////////////////////
