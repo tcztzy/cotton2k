@@ -9,8 +9,8 @@
 #endif
 
 #include "stdafx.h"
-#include "resource.h"       // main symbols
-#include "dialogs.h"       // main symbols
+#include "resource.h" // main symbols
+#include "dialogs.h"  // main symbols
 #include "global.h"
 #include "cotton2k.h"
 
@@ -20,21 +20,18 @@ namespace fs = std::filesystem;
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:
 //
-class C2KApp : public CWinApp {
+class C2KApp : public CWinApp
+{
 public:
     C2KApp();
 
     static CString GetJobFile();
 
-    void GetProfilesList(const fs::path& JobFileName);
+    void GetProfilesList(const fs::path &JobFileName);
 
     void RunTheModel();
 
-    tuple<int, int, int, double>
-    DailySimulation(const string &, string, int, const int &, const int &, const int &, const int &, const int &,
-                    const int &, const int &, const int &, const int &, int, int, const double &, const double &,
-                    const double &, const double &, const double &, double[40][20][3], double[40][20],
-                    ClimateStruct[400]);
+    void DailySimulation(Simulation &);
 
     static tuple<string, int, int, int, int, int, double, double, double, double>
     SimulateThisDay(const string &, const int &, int, const int &, const int &, const int &, const int &, const int &,
@@ -54,8 +51,8 @@ public:
 
     afx_msg void OnAppAbout();
 
-DECLARE_MESSAGE_MAP()
+    DECLARE_MESSAGE_MAP()
 
-    CProgCtrlDlg *pdlg{};         // pointer to the progress control dialog
-    CStringArray ProfileArray;  // array of the profile names
+    CProgCtrlDlg *pdlg{};      // pointer to the progress control dialog
+    CStringArray ProfileArray; // array of the profile names
 };

@@ -12,7 +12,7 @@ typedef struct Simulation
 {
     const char *profile_name;               // name of input file with profile data (without the extension ".PRO")
     size_t profile_name_length;             //
-    char *date;                             // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
+    char date[12];                          // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
     int day_emerge;                         // Date of emergence (DOY).
     int day_start;                          // Date (DOY) to start simulation.
     int day_finish;                         // Date (DOY) to finish simulation.
