@@ -196,20 +196,18 @@ void C2KApp::RunTheModel()
         pdlg->m_ProfileName = ProfileName.c_str();
         pdlg->m_Running = "Running the Simulation";
         pdlg->Create();
-        int FirstBloom = 0;  // Date (DOY) of first bloom.
-        int FirstSquare = 0; // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
-                             // Do daily simulations
-        tie(sim.day_emerge, FirstBloom, FirstSquare, sim.plant_height) = DailySimulation(sim.profile_name, sim.date, sim.day_emerge, sim.day_start,
-                                                                                         sim.day_finish, sim.day_plant, sim.day_start_co2,
-                                                                                         sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch,
-                                                                                         sim.mulch_indicator, sim.num_curve, FirstBloom,
-                                                                                         FirstSquare, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
-                                                                                         sim.co2_enrichment_factor, sim.latitude, sim.longitude,
-                                                                                         sim.root_weight, sim.root_age, sim.climate);
+        // Do daily simulations
+        tie(sim.day_emerge, sim.first_bloom, sim.first_square, sim.plant_height) = DailySimulation(sim.profile_name, sim.date, sim.day_emerge, sim.day_start,
+                                                                                                   sim.day_finish, sim.day_plant, sim.day_start_co2,
+                                                                                                   sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch,
+                                                                                                   sim.mulch_indicator, sim.num_curve, sim.first_bloom,
+                                                                                                   sim.first_square, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
+                                                                                                   sim.co2_enrichment_factor, sim.latitude, sim.longitude,
+                                                                                                   sim.root_weight, sim.root_age, sim.climate);
         //     Write output data
         pdlg->m_Running = "Writing Output Files";
-        DataOutput(ProfileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_start_soil_maps, sim.day_stop_soil_maps, FirstBloom,
-                   FirstSquare, sim.plant_height);
+        DataOutput(ProfileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_start_soil_maps, sim.day_stop_soil_maps, sim.first_bloom,
+                   sim.first_square, sim.plant_height);
         pdlg->EndDialog(i);
         delete pdlg; //  check if needed
     }

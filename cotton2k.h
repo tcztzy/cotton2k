@@ -31,9 +31,11 @@ typedef struct Simulation
                                             // 3 = plastic layer on all soil surface except two columns at each side of the plant row.
     double mulch_transmissivity_short_wave; // transmissivity of soil mulch to short wave radiation
     double mulch_transmissivity_long_wave;  // transmissivity of soil mulch to long wave radiation.
-    int num_curve;                          // number of input soil-moisture curves in the impedance table.
     double latitude;                        // degree
     double longitude;                       // degree
+    int num_curve;                          // number of input soil-moisture curves in the impedance table.
+    int first_bloom = 0;                    // Date (DOY) of first bloom.
+    int first_square = 0;                   // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
     double plant_height;                    // plant height, cm.
     double root_weight[40][20][3];          // weight of dry matter of root tissue in a soil cell for an age group, in g per cell.
     double root_age[40][20];                // the time (in days) from the first appearance of roots in a soil cell.

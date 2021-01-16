@@ -74,7 +74,6 @@ Simulation ReadInput(const char *ProfileName)
         DayPlant,
         DayStartSoilMaps,
         DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator;
-    int ncurve;
     string
         ActWthFileName,   // name of input file with actual weather data.
         PrdWthFileName,   // name of input file with predicted weather data.
@@ -91,12 +90,11 @@ Simulation ReadInput(const char *ProfileName)
         DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, CO2EnrichmentFactor, Latitude, Longitude,
         ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName,
         PlantmapFileName) = ReadProfileFile(ProfileName);
-    Simulation sim = {ProfileName, strlen(ProfileName), "           ", DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, 0, Latitude, Longitude};
+    Simulation sim = {ProfileName, strlen(ProfileName), "           ", DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude};
     ReadCalibrationData();
     LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart, sim.climate);
     InitializeGrid();
-    tie(ncurve) = ReadSoilImpedance();
-    sim.num_curve = ncurve;
+    tie(sim.num_curve) = ReadSoilImpedance();
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,
                           AgrInputFileName, PlantmapFileName, DayEmerge, DayStart, DayFinish, DayPlant, DayStartCO2,
                           DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW,
