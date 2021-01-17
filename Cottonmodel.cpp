@@ -186,6 +186,8 @@ void C2KApp::RunTheModel(const char *profile)
     Simulation sim = ReadInput(profile);
     // Create a modeless dialog with progress control
     int range = sim.day_finish - sim.day_start + 1;
+    sim.number_of_states = range;
+    sim.states = (State *) malloc(sizeof(State) * range);
     pdlg = new CProgCtrlDlg;
     pdlg->m_uiRangeTo = range;
     pdlg->m_ProfileName = profile;
@@ -211,7 +213,8 @@ void C2KApp::DailySimulation(Simulation &sim)
 //
 {
     string Date;
-    int Daynum = sim.day_start - 1; // Days from the start of the first year of simulation (day of year = DOY)
+
+    int Daynum = sim.day_start - 1;
     int DayOfSimulation = 1;        // Days from the start of simulation.
     int NumLayersWithRoots = 7;     // number of soil layers with roots. Initialized with 7
     double PlantHeight = 4.0;

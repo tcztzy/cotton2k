@@ -483,6 +483,7 @@ void DataOutput(Simulation & sim)
 //     Start reading data from struct Scratch21.
 //     Read data for each day, and compute the local variables i00,
 //  i01, i02. Convert from per plant to per sq m, or to English units.
+    double plant_height;
     for (int irec = 0; irec < 400; irec++) {
         if (Scratch21[irec].daynum <= 0)
             break;
@@ -494,10 +495,10 @@ void DataOutput(Simulation & sim)
         i02 = Scratch21[irec].numOpenBolls;
         i00 = Scratch21[irec].numSquares;
         LintYield = Scratch21[irec].lintYield;
-        sim.plant_height = Scratch21[irec].plantHeight;
+        plant_height = Scratch21[irec].plantHeight;
 //     Convert height and LintYield to English units if necessary.
         if (OutIndex[1] == 1) {
-            sim.plant_height /= 2.54;
+            plant_height /= 2.54;
             LintYield = LintYield * 0.893;
         }
         if (OutIndex[2] == 1)
@@ -519,34 +520,34 @@ void DataOutput(Simulation & sim)
 //  of defoliation.
         if (!ifg1 && Scratch21[irec].daynum == sim.first_square) {
             File22 << " First square    " << Date;
-            WriteLine22(File22, i00, i01, i02, sim.plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height);
             ifg1 = true;
         }
         if (!ifg2 && Scratch21[irec].daynum == sim.first_bloom) {
             File22 << " First Bloom     " << Date;
-            WriteLine22(File22, i00, i01, i02, sim.plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height);
             ifg2 = true;
         }
         if (!ifg3 && i02 > 0.1) {
             File22 << " 1st open boll   " << Date;
-            WriteLine22(File22, i00, i01, i02, sim.plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height);
             ifg3 = true;
         }
         if (!ifg4 && sixpct <= i02 && i02 > 0.) {
             File22 << " 60% open bolls  " << Date;
-            WriteLine22(File22, i00, i01, i02, sim.plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height);
             ifg4 = true;
         }
         for (int i = 0; i < 5; i++) {
             if (Scratch21[irec].daynum == DefoliationDate[i]) {
                 File22 << " Defoliation     " << Date;
-                WriteLine22(File22, i00, i01, i02, sim.plant_height);
+                WriteLine22(File22, i00, i01, i02, plant_height);
             }
         }
     }
 //     When end of file is reached report final LintYield in file 22.
     File22 << " Max yield on    " << Date;
-    WriteLine22(File22, i00, i01, i02, sim.plant_height);
+    WriteLine22(File22, i00, i01, i02, plant_height);
 //     Call procedures for printing output
     outputplt(sim.profile_name, sim.day_emerge);
     if (OutIndex[6] > 0)

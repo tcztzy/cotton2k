@@ -8,11 +8,17 @@ typedef struct ClimateStruct
     double Rad, Tmax, Tmin, Rain, Wind, Tdew;
 } ClimateStruct;
 
+typedef struct State
+{
+    uint32_t day_number = 0; // Days from the start of the first year of simulation (day of year = DOY)
+    char date[12];           // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
+    double plant_height;     // plant height, cm.
+} State;
+
 typedef struct Simulation
 {
     const char *profile_name;               // name of input file with profile data (without the extension ".PRO")
     size_t profile_name_length;             //
-    char date[12];                          // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
     int day_emerge;                         // Date of emergence (DOY).
     int day_start;                          // Date (DOY) to start simulation.
     int day_finish;                         // Date (DOY) to finish simulation.
@@ -36,7 +42,6 @@ typedef struct Simulation
     int num_curve;                          // number of input soil-moisture curves in the impedance table.
     int first_bloom = 0;                    // Date (DOY) of first bloom.
     int first_square = 0;                   // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
-    double plant_height;                    // plant height, cm.
     double root_weight[40][20][3];          // weight of dry matter of root tissue in a soil cell for an age group, in g per cell.
     double root_age[40][20];                // the time (in days) from the first appearance of roots in a soil cell.
     ClimateStruct climate[400];             // structure containing the following daily weather data:
@@ -47,6 +52,8 @@ typedef struct Simulation
                                             // double Tdew = dew point temperature, C.
                                             // double Rain = daily rainfall, mm.
                                             // double Wind = daily wind run, km.
+    State *states;
+    size_t number_of_states;
 } Simulation;
 
 class Cotton2KException
