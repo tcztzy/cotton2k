@@ -223,7 +223,7 @@ void C2KApp::DailySimulation(Simulation &sim)
     double WaterStress = 1;        // general water stress index (0 to 1).
     try
     {
-        while (true)
+        for (DayOfSimulation = 1; DayOfSimulation <= sim.number_of_states; DayOfSimulation++)
         {
             BOOL bAdjustToDo;
             tie(bAdjustToDo, Date, Daynum, DayOfSimulation, NumLayersWithRoots,
@@ -237,7 +237,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                                                                                                   WaterStress);
             pdlg->ProgressStepit();
             Daynum++;
-            tie(Date, DayOfSimulation, NumLayersWithRoots, PlantHeight,
+            tie(Date, NumLayersWithRoots, PlantHeight,
                 AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, Daynum,
                                                                                        NumLayersWithRoots, PlantHeight,
                                                                                        AbscisedFruitSites,
@@ -308,7 +308,7 @@ tuple<BOOL, string, int, int, int, double, double, double, double> C2KApp::DoAdj
                     for (int j1 = 0; j1 < NumAdjustDays; j1++)
                     {
                         Daynum++;
-                        tie(Date, DayOfSimulation, NumLayersWithRoots, PlantHeight,
+                        tie(Date, NumLayersWithRoots, PlantHeight,
                             AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, Daynum,
                                                                                                    NumLayersWithRoots,
                                                                                                    PlantHeight,
@@ -334,7 +334,7 @@ tuple<BOOL, string, int, int, int, double, double, double, double> C2KApp::DoAdj
 }
 
 //////////////////////////////////////////////////
-tuple<string, int, int, double, double, double, double> C2KApp::SimulateThisDay(
+tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
     Simulation &sim,
     const int &Daynum,
     int NumLayersWithRoots,
@@ -433,7 +433,7 @@ tuple<string, int, int, double, double, double, double> C2KApp::SimulateThisDay(
     //
     if (Daynum >= sim.day_finish || Daynum >= LastDayWeatherData || (Kday > 10 && LeafAreaIndex < 0.0002))
         throw SimulationEnd();
-    return make_tuple(Date, DayOfSimulation, NumLayersWithRoots, PlantHeight,
+    return make_tuple(Date, NumLayersWithRoots, PlantHeight,
                       AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 }
 /////////////////////////////////////////////////////////////////////////////

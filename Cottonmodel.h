@@ -33,7 +33,7 @@ public:
 
     void DailySimulation(Simulation &);
 
-    static tuple<string, int, int, double, double, double, double>
+    static tuple<string, int, double, double, double, double>
     SimulateThisDay(Simulation &, const int &, int, double, double, double, double);
 
     tuple<BOOL, string, int, int, int, double, double, double, double>
