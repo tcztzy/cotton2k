@@ -33,11 +33,8 @@ public:
 
     void DailySimulation(Simulation &);
 
-    static tuple<string, int, int, int, int, int, double, double, double, double>
-    SimulateThisDay(const string &, const int &, int, const int &, const int &, const int &, const int &, const int &,
-                    const int &, const int &, const int &, const int &, int, int, int, const double &, const double &,
-                    const double &, const double &, const double &, double, double, double, double, double[40][20][3],
-                    double[40][20], ClimateStruct[400]);
+    static tuple<string, int, int, double, double, double, double>
+    SimulateThisDay(Simulation &, const int &, int, double, double, double, double);
 
     tuple<BOOL, string, int, int, int, double, double, double, double>
     DoAdjustments(Simulation &, string, int, int, int, double, double, double, double);
