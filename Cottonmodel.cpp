@@ -223,30 +223,15 @@ void C2KApp::DailySimulation(Simulation &sim)
         while (true)
         {
             BOOL bAdjustToDo;
-            tie(bAdjustToDo, Date, Daynum, DayOfSimulation, sim.day_emerge, sim.first_bloom, sim.first_square, NumLayersWithRoots,
-                PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = DoAdjustments(sim.profile_name, Date,
+            tie(bAdjustToDo, Date, Daynum, DayOfSimulation, NumLayersWithRoots,
+                PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = DoAdjustments(sim, Date,
                                                                                                   Daynum,
                                                                                                   DayOfSimulation,
-                                                                                                  sim.day_emerge, sim.day_start,
-                                                                                                  sim.day_finish, sim.day_plant,
-                                                                                                  sim.day_start_co2,
-                                                                                                  sim.day_end_co2,
-                                                                                                  sim.day_start_mulch,
-                                                                                                  sim.day_end_mulch,
-                                                                                                  sim.mulch_indicator,
-                                                                                                  sim.num_curve, sim.first_bloom,
-                                                                                                  sim.first_square,
                                                                                                   NumLayersWithRoots,
-                                                                                                  sim.mulch_transmissivity_short_wave,
-                                                                                                  sim.mulch_transmissivity_long_wave,
-                                                                                                  sim.co2_enrichment_factor,
-                                                                                                  sim.latitude, sim.longitude,
                                                                                                   PlantHeight,
                                                                                                   AbscisedFruitSites,
                                                                                                   AbscisedLeafWeight,
-                                                                                                  WaterStress,
-                                                                                                  sim.root_weight, sim.root_age,
-                                                                                                  sim.climate);
+                                                                                                  WaterStress);
             pdlg->ProgressStepit();
             Daynum++;
             tie(Date, DayOfSimulation, sim.day_emerge, sim.first_bloom, sim.first_square, NumLayersWithRoots, PlantHeight,
@@ -276,36 +261,16 @@ void C2KApp::DailySimulation(Simulation &sim)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double> C2KApp::DoAdjustments(
-    const string &ProfileName,
+tuple<BOOL, string, int, int, int, double, double, double, double> C2KApp::DoAdjustments(
+    Simulation & sim,
     string Date,
     int Daynum,
     int DayOfSimulation,
-    int DayEmerge,
-    const int &DayStart,
-    const int &DayFinish,
-    const int &DayPlant,
-    const int &DayStartCO2,
-    const int &DayEndCO2,
-    const int &DayStartMulch,
-    const int &DayEndMulch,
-    const int &MulchIndicator,
-    const int &ncurve,
-    int FirstBloom,
-    int FirstSquare,
     int NumLayersWithRoots,
-    const double &MulchTranSW,
-    const double &MulchTranLW,
-    const double &CO2EnrichmentFactor,
-    const double &Latitude,
-    const double &Longitude,
     double PlantHeight,
     double AbscisedFruitSites,
     double AbscisedLeafWeight,
-    double WaterStress,
-    double RootWeight[40][20][3],
-    double RootAge[40][20],
-    ClimateStruct Clim[400])
+    double WaterStress)
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -320,7 +285,7 @@ tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double
     for (int i = 0; i < 30; i++)
         sumsad += MapDataDate[i];
     if (sumsad <= 0)
-        return make_tuple(FALSE, Date, Daynum, DayOfSimulation, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots,
+        return make_tuple(FALSE, Date, Daynum, DayOfSimulation, NumLayersWithRoots,
                           PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
     //     Loop for all adjustment data, and check if there is an adjustment for this day.
     for (int i = 0; i < 30; i++)
@@ -336,55 +301,55 @@ tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double
             //  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
             for (int jj = 0; jj < 5; jj++)
             {
-                tie(Date, Daynum, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites,
-                    AbscisedLeafWeight, WaterStress) = PlantAdjustments(i, jj, ProfileName, Date, Daynum,
-                                                                        DayOfSimulation, FirstBloom, FirstSquare,
+                tie(Date, Daynum, sim.first_bloom, sim.first_square, NumLayersWithRoots, PlantHeight, AbscisedFruitSites,
+                    AbscisedLeafWeight, WaterStress) = PlantAdjustments(i, jj, sim.profile_name, Date, Daynum,
+                                                                        DayOfSimulation, sim.first_bloom, sim.first_square,
                                                                         NumLayersWithRoots, PlantHeight,
                                                                         AbscisedFruitSites, AbscisedLeafWeight,
-                                                                        WaterStress, RootWeight, RootAge);
+                                                                        WaterStress, sim.root_weight, sim.root_age);
                 //     If adjustment is necessary, rerun the simulation for the previous NumAdjustDays (number
                 //  of days) and call WriteStateVariables() to write state variables in scratch structure.
                 if (nadj[jj])
                     for (int j1 = 0; j1 < NumAdjustDays; j1++)
                     {
                         Daynum++;
-                        tie(Date, DayOfSimulation, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight,
-                            AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(ProfileName, Daynum,
-                                                                                                   DayEmerge, DayStart,
-                                                                                                   DayFinish, DayPlant,
-                                                                                                   DayStartCO2,
-                                                                                                   DayEndCO2,
-                                                                                                   DayStartMulch,
-                                                                                                   DayEndMulch,
-                                                                                                   MulchIndicator,
-                                                                                                   ncurve, FirstBloom,
-                                                                                                   FirstSquare,
+                        tie(Date, DayOfSimulation, sim.day_emerge, sim.first_bloom, sim.first_square, NumLayersWithRoots, PlantHeight,
+                            AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim.profile_name, Daynum,
+                                                                                                   sim.day_emerge, sim.day_start,
+                                                                                                   sim.day_finish, sim.day_plant,
+                                                                                                   sim.day_start_co2,
+                                                                                                   sim.day_end_co2,
+                                                                                                   sim.day_start_mulch,
+                                                                                                   sim.day_end_mulch,
+                                                                                                   sim.mulch_indicator,
+                                                                                                   sim.num_curve, sim.first_bloom,
+                                                                                                   sim.first_square,
                                                                                                    NumLayersWithRoots,
-                                                                                                   MulchTranSW,
-                                                                                                   MulchTranLW,
-                                                                                                   CO2EnrichmentFactor,
-                                                                                                   Latitude, Longitude,
+                                                                                                   sim.mulch_transmissivity_short_wave,
+                                                                                                   sim.mulch_transmissivity_long_wave,
+                                                                                                   sim.co2_enrichment_factor,
+                                                                                                   sim.latitude, sim.longitude,
                                                                                                    PlantHeight,
                                                                                                    AbscisedFruitSites,
                                                                                                    AbscisedLeafWeight,
                                                                                                    WaterStress,
-                                                                                                   RootWeight, RootAge,
-                                                                                                   Clim);
+                                                                                                   sim.root_weight, sim.root_age,
+                                                                                                   sim.climate);
                         if (Kday > 0)
-                            WriteStateVariables(TRUE, Date, Daynum, DayOfSimulation, FirstBloom, FirstSquare,
+                            WriteStateVariables(TRUE, Date, Daynum, DayOfSimulation, sim.first_bloom, sim.first_square,
                                                 NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight,
-                                                WaterStress, RootWeight, RootAge, Clim);
+                                                WaterStress, sim.root_weight, sim.root_age, sim.climate);
                     } // end for j1, and if nadj
             }         // end for jj
                       //     After finishing this adjustment date, set kprevadj (date of previous adjustment, to
                       //  be used for next adjustment), and assign zero to the present msadte, and to array nadj[].
-            kprevadj = MapDataDate[i] - DayEmerge + 1;
+            kprevadj = MapDataDate[i] - sim.day_emerge + 1;
             MapDataDate[i] = 0;
             for (int jj = 0; jj < 5; jj++)
                 nadj[jj] = FALSE;
         } // end if Daynum
     }     // end do i
-    return make_tuple(TRUE, Date, Daynum, DayOfSimulation, DayEmerge, FirstBloom, FirstSquare, NumLayersWithRoots,
+    return make_tuple(TRUE, Date, Daynum, DayOfSimulation,NumLayersWithRoots,
                       PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 }
 

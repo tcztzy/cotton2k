@@ -39,11 +39,8 @@ public:
                     const double &, const double &, const double &, double, double, double, double, double[40][20][3],
                     double[40][20], ClimateStruct[400]);
 
-    tuple<BOOL, string, int, int, int, int, int, int, double, double, double, double>
-    DoAdjustments(const string &, string, int, int, int, const int &, const int &, const int &, const int &,
-                  const int &, const int &, const int &, const int &, const int &, int, int, int, const double &,
-                  const double &, const double &, const double &, const double &, double, double, double, double,
-                  double[40][20][3], double[40][20], ClimateStruct[400]);
+    tuple<BOOL, string, int, int, int, double, double, double, double>
+    DoAdjustments(Simulation &, string, int, int, int, double, double, double, double);
 
     virtual BOOL InitInstance();
 
