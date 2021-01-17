@@ -27,9 +27,9 @@ public:
 
     static CString GetJobFile();
 
-    void GetProfilesList(const fs::path &JobFileName);
+    std::vector<std::string> GetProfilesList(const fs::path &JobFileName);
 
-    void RunTheModel();
+    void RunTheModel(const char *);
 
     void DailySimulation(Simulation &);
 
@@ -52,5 +52,4 @@ public:
     DECLARE_MESSAGE_MAP()
 
     CProgCtrlDlg *pdlg{};      // pointer to the progress control dialog
-    CStringArray ProfileArray; // array of the profile names
 };

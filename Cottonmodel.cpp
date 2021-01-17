@@ -86,14 +86,18 @@ BOOL C2KApp::InitInstance()
     try
     {
         // Get the list of the "Profiles" to run.
-        GetProfilesList(fs::path((string)JobFileName));
-        // Now run the model.
-        RunTheModel();
+        for (std::string profile : GetProfilesList(fs::path((string)JobFileName)))
+        {
+            // Now run the model.
+            RunTheModel(profile.c_str());
+        }
     }
     catch (Cotton2KException e)
     {
         AfxMessageBox(e.what());
     }
+    //     End of simulation of all profiles
+    AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. ");
     return TRUE;
 }
 
@@ -134,7 +138,7 @@ CString C2KApp::GetJobFile()
 }
 
 /////////////////////////////////////////////////////////////////////////
-void C2KApp::GetProfilesList(const fs::path &JobFileName)
+std::vector<std::string> C2KApp::GetProfilesList(const fs::path &JobFileName)
 //     Function GetProfilesList() opens the "JOB" file, reads it, and gets
 //  from it the profile list. It is called from InitInstance().
 //     Input argument: name of the JOB file (with path)
@@ -153,7 +157,7 @@ void C2KApp::GetProfilesList(const fs::path &JobFileName)
     DataFile.getline(m_TempString, 99);
     //     Read the simulation profiles from the next lines of the file, and store them
     //  in the StringArray ProfileArray.
-    ProfileArray.RemoveAll();
+    std::vector<std::string> ProfileArray;
     int readlength = 99;
     while (readlength > 0)
     {
@@ -161,45 +165,39 @@ void C2KApp::GetProfilesList(const fs::path &JobFileName)
         DataFile.get(m_TempString, 21);
         if (DataFile.eof() == 1)
             break;
-        CString m_String = (CString)m_TempString;
-        m_String.Remove(' ');
-        readlength = m_String.GetLength();
+        std::string m_String = m_TempString;
+        m_String;
+        readlength = m_String.length();
         if (readlength > 4)
-            ProfileArray.Add(m_String.Left(readlength - 4));
+            ProfileArray.push_back(m_String.substr(0, readlength - 4));
         DataFile.getline(m_TempString, 99);
     }
     DataFile.close();
+    return ProfileArray;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void C2KApp::RunTheModel()
+void C2KApp::RunTheModel(const char *profile)
 //     This function calls the following functions for each profile:
 //          ReadInput(), DailySimulation() and  DataOutput()
 //
 {
-
-    for (int i = 0; i < ProfileArray.GetSize(); i++)
-    {
-        string ProfileName = ProfileArray.GetAt(i);
-        // Read the input data for this simulation
-        Simulation sim = ReadInput(ProfileName.c_str());
-        // Create a modeless dialog with progress control
-        int range = sim.day_finish - sim.day_start + 1;
-        pdlg = new CProgCtrlDlg;
-        pdlg->m_uiRangeTo = range;
-        pdlg->m_ProfileName = ProfileName.c_str();
-        pdlg->m_Running = "Running the Simulation";
-        pdlg->Create();
-        // Do daily simulations
-        DailySimulation(sim);
-        //     Write output data
-        pdlg->m_Running = "Writing Output Files";
-        DataOutput(sim);
-        pdlg->EndDialog(i);
-        delete pdlg; //  check if needed
-    }
-    //     End of simulation of all profiles
-    AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. ");
+    // Read the input data for this simulation
+    Simulation sim = ReadInput(profile);
+    // Create a modeless dialog with progress control
+    int range = sim.day_finish - sim.day_start + 1;
+    pdlg = new CProgCtrlDlg;
+    pdlg->m_uiRangeTo = range;
+    pdlg->m_ProfileName = profile;
+    pdlg->m_Running = "Running the Simulation";
+    pdlg->Create();
+    // Do daily simulations
+    DailySimulation(sim);
+    //     Write output data
+    pdlg->m_Running = "Writing Output Files";
+    DataOutput(sim);
+    pdlg->EndDialog(0);
+    delete pdlg; //  check if needed
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,9 +211,9 @@ void C2KApp::DailySimulation(Simulation &sim)
 //
 {
     string Date;
-    int Daynum = sim.day_start - 1;  // Days from the start of the first year of simulation (day of year = DOY)
-    int DayOfSimulation = 1;    // Days from the start of simulation.
-    int NumLayersWithRoots = 7; // number of soil layers with roots. Initialized with 7
+    int Daynum = sim.day_start - 1; // Days from the start of the first year of simulation (day of year = DOY)
+    int DayOfSimulation = 1;        // Days from the start of simulation.
+    int NumLayersWithRoots = 7;     // number of soil layers with roots. Initialized with 7
     double PlantHeight = 4.0;
     double AbscisedFruitSites = 0; // total number of abscised fruit sites, per plant.
     double AbscisedLeafWeight = 0; // weight of abscissed leaves, g per plant.
