@@ -97,12 +97,6 @@ BOOL C2KApp::InitInstance()
     return TRUE;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-int C2KApp::ExitInstance()
-{
-    return CWinApp::ExitInstance();
-}
-
 /////////////////////////////////////////////////////////////////////////
 CString C2KApp::GetJobFile()
 //     Function GetJobFile() is called from InitInstance() when the name of the Job file
