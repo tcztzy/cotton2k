@@ -14,7 +14,7 @@ int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 
 extern "C"
 {
-    double tdewest(double);
+    double tdewest(double, double, double);
 }
 
 int SlabLoc(int, int);
@@ -144,7 +144,7 @@ int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[
         }
 //     Estimate dewpoint temperature when it is not available:
         if (Clim[j].Tdew <= -100)
-            Clim[j].Tdew = tdewest(Clim[j].Tmax);
+            Clim[j].Tdew = tdewest(Clim[j].Tmax, SitePar[5], SitePar[6]);
     }
     DataFile.close();
     return jdd;
