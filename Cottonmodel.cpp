@@ -185,11 +185,8 @@ void C2KApp::RunTheModel(const char *profile)
     // Read the input data for this simulation
     Simulation sim = ReadInput(profile);
     // Create a modeless dialog with progress control
-    int range = sim.day_finish - sim.day_start + 1;
-    sim.number_of_states = range;
-    sim.states = (State *) malloc(sizeof(State) * range);
     pdlg = new CProgCtrlDlg;
-    pdlg->m_uiRangeTo = range;
+    pdlg->m_uiRangeTo = sim.number_of_states;
     pdlg->m_ProfileName = profile;
     pdlg->m_Running = "Running the Simulation";
     pdlg->Create();

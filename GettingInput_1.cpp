@@ -91,6 +91,9 @@ Simulation ReadInput(const char *ProfileName)
         ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName,
         PlantmapFileName) = ReadProfileFile(ProfileName);
     Simulation sim = {ProfileName, strlen(ProfileName), DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude};
+    int range = sim.day_finish - sim.day_start + 1;
+    sim.number_of_states = range;
+    sim.states = (State *) malloc(sizeof(State) * range);
     ReadCalibrationData();
     LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart, sim.climate);
     InitializeGrid();
