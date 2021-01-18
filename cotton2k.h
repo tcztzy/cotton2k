@@ -1,6 +1,7 @@
 #ifndef COTTON2K_H
 #define COTTON2K_H
 #include <filesystem>
+#include "RootGrowth.h"
 namespace fs = std::filesystem;
 typedef struct ClimateStruct
 {
@@ -13,6 +14,7 @@ typedef struct State
     uint32_t day_number = 0;   // Days from the start of the first year of simulation (day of year = DOY)
     char date[12];             // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
     double plant_height = 4.0; // plant height, cm.
+    Root root;
 } State;
 
 typedef struct Simulation
