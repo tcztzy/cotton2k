@@ -13,7 +13,7 @@
 
 using namespace std;
 
-tuple<int, int, int, int, int, int, int, int, int, int, int, double, double, double, double, double, string, string, string, string, string, string>
+tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, double, double, double, double, double, string, string, string, string, string, string>
 ReadProfileFile(const string &);
 
 void ReadCalibrationData();
@@ -67,7 +67,7 @@ Simulation ReadInput(const char *ProfileName)
 {
     //     The following functions are called to read initial values of some variables from
     //  input files, or initialize them otherwise.
-    int
+    uint32_t
         DayEmerge,
         DayStart,  // Date (DOY) to start simulation.
         DayFinish, // Date (DOY) to end simulation.
@@ -115,7 +115,7 @@ Simulation ReadInput(const char *ProfileName)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-tuple<int, int, int, int, int, int, int, int, int, int, int, double, double, double, double, double, string, string, string, string, string, string>
+tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, double, double, double, double, double, string, string, string, string, string, string>
 ReadProfileFile(const string &ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
