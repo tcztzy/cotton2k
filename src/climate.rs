@@ -230,3 +230,20 @@ extern "C" fn daywnd(ti: f64, wind: f64, t1: f64, t2: f64, t3: f64, wnytf: f64) 
         wmin
     }
 }
+
+#[no_mangle]
+extern "C" fn tdewest(maxt: f64, site5: f64, site6: f64) -> f64
+//     This function estimates the approximate daily average dewpoint temperature when 
+//  it is not available. It is called by ReadClimateData().
+//     Global variables referenced: SitePar[5] and SitePar[6]
+//     Argument used:  maxt = maximum temperature of this day.
+//
+{
+    if maxt <= 20f64 {
+        site5
+    } else if maxt >= 40f64 {
+        site6
+    } else {
+        ((40f64 - maxt) * site5 + (maxt - 20f64) * site6) / 20f64
+    }
+}

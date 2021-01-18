@@ -12,7 +12,10 @@
 
 int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 
-double tdewest(double);
+extern "C"
+{
+    double tdewest(double);
+}
 
 int SlabLoc(int, int);
 
@@ -145,25 +148,6 @@ int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[
     }
     DataFile.close();
     return jdd;
-}
-
-//////////////////////////////////////////////////////////
-double tdewest(double maxt)
-//     This function estimates the approximate daily average dewpoint temperature when 
-//  it is not available. It is called by ReadClimateData().
-//     Global variables referenced: SitePar[5] and SitePar[6]
-//     Argument used:  maxt = maximum temperature of this day.
-//
-{
-    double esttdew; // the value to estimate.
-    if (maxt <= 20)
-        esttdew = SitePar[5];
-    else if (maxt >= 40)
-        esttdew = SitePar[6];
-    else
-        esttdew = ((40 - maxt) * SitePar[5] + (maxt - 20) * SitePar[6]) / 20;
-//
-    return esttdew;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
