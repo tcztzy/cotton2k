@@ -41,6 +41,7 @@ extern "C"
     double gam(double, double);
     double cloudcov(double, double, double);
     double daywnd(double, double, double, double, double, double);
+    double clcor(uint8_t, double, double, double, double, double, double);
 }
 
 double daytmp(double, const int &, const double &, const ClimateStruct[400]);
@@ -50,8 +51,6 @@ double tdewhour(double, double, const int &, const ClimateStruct[400]);
 void AverageAirTemperatures();
 
 void EvapoTranspiration(int, const string &, const string &, const int &, const double &, const double &);
-
-double clcor(int, double, double, double, const double &);
 
 void sunangle(double, double &, double &, const double &);
 
@@ -489,7 +488,7 @@ EvapoTranspiration(int jtout, const string &ProfileName, const string &Date, con
         CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
 //      clcor is called to compute cloud-type correction.
 //      iamhr and ipmhr are set.
-        CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, DayLength);
+        CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, DayLength, Radiation[ihr], SolarNoon);
         if ((cosz >= 0.1736) && (iamhr == 0))
             iamhr = ihr;
         if ((ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0))
@@ -584,44 +583,6 @@ EvapoTranspiration(int jtout, const string &ProfileName, const string &Date, con
             es1hour[ihr] = 0;
     }  //   end of 2nd hourly loop
 }
-
-double clcor(int ihr, double ck, double isrhr, double coszhr, const double &DayLength)
-//     Function clcor() computes cloud type correction, using the CIMIS algorithm.
-//     Input arguments:
-//            ck = cloud type correction factor (data for this location).
-//            coszhr = cosine of sun angle from zenith.
-//            ihr = time of day, hours.
-//            isrhr = hourly extraterrestrial radiation in W m-2 .
-//     Global variables used: DayLength, Radiation[], SolarNoon, pi
-//     Note: This algorithm is described by Dong et al. (1988). ck is the
-//  cloud-type correction used in the Monteith equation for estimating
-//  net radiation. The value of this correction depends on site and
-//  time of year. Regional ck values for California are given by Dong
-//  et al. (1988). In the San Joaquin valley of California ck is almost
-//  constant from April to October, with an average value of 60. The value
-//  of ck is site-dependant, assumed to be constant during the growing season.
-//     The daily ck is converted to an hourly value for
-//  clear or partly cloudy sky (rasi >= 0.375) and when the sun is at
-//  least 10 degrees above the horizon.
-//     Evening, night and early morning cloud type correction is temporarily
-//  assigned 0. It is later assigned the values of first or 
-// last non-zero values (in the calling routine). 
-//
-{
-    double rasi = 0;  //  ratio of Radiation to isrhr.
-    if (isrhr > 0)
-        rasi = Radiation[ihr] / isrhr;
-    if (coszhr >= 0.1736 && rasi >= 0.375) {
-        double angle = pi * (ihr - SolarNoon + 0.5) / DayLength; // hour angle (from solar noon) in radians.
-        return ck * pi / 2 * cos(angle);
-    } else return 0;
-}
-
-//      Reference:
-//      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
-// daily and hourly net radiation. CIMIS Final Report June 1988, pp.
-// 58-79.
-/////////////////////////////////////////////////////////////////////////////////
 
 void sunangle(double ti, double &coszhr, double &sunahr, const double &Latitude)
 //     sunangle.cpp : computes sun angle for any time of day. 

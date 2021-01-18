@@ -247,3 +247,55 @@ extern "C" fn tdewest(maxt: f64, site5: f64, site6: f64) -> f64
         ((40f64 - maxt) * site5 + (maxt - 20f64) * site6) / 20f64
     }
 }
+
+#[no_mangle]
+fn clcor(
+    ihr: u8,
+    ck: f64,
+    isrhr: f64,
+    coszhr: f64,
+    day_length: f64,
+    radiation: f64,
+    solar_noon: f64,
+) -> f64
+//     Function clcor() computes cloud type correction, using the CIMIS algorithm.
+//     Input arguments:
+//            ck = cloud type correction factor (data for this location).
+//            coszhr = cosine of sun angle from zenith.
+//            ihr = time of day, hours.
+//            isrhr = hourly extraterrestrial radiation in W m-2 .
+//     Global variables used: DayLength, Radiation[], SolarNoon, pi
+//     Note: This algorithm is described by Dong et al. (1988). ck is the
+//  cloud-type correction used in the Monteith equation for estimating
+//  net radiation. The value of this correction depends on site and
+//  time of year. Regional ck values for California are given by Dong
+//  et al. (1988). In the San Joaquin valley of California ck is almost
+//  constant from April to October, with an average value of 60. The value
+//  of ck is site-dependant, assumed to be constant during the growing season.
+//     The daily ck is converted to an hourly value for
+//  clear or partly cloudy sky (rasi >= 0.375) and when the sun is at
+//  least 10 degrees above the horizon.
+//     Evening, night and early morning cloud type correction is temporarily
+//  assigned 0. It is later assigned the values of first or 
+// last non-zero values (in the calling routine). 
+//
+//      Reference:
+//      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
+// daily and hourly net radiation. CIMIS Final Report June 1988, pp.
+// 58-79.
+{
+    //  ratio of Radiation to isrhr.
+    let pi = 3.14159f64;
+    let rasi = if isrhr > 0f64 {
+        radiation / isrhr
+    } else {
+        0f64
+    };
+    if coszhr >= 0.1736 && rasi >= 0.375 {
+        let angle = pi * ((ihr as f64) - solar_noon + 0.5) / day_length; // hour angle (from solar noon) in radians.
+        ck * pi / 2f64 * angle.cos()
+    } else {
+        0f64
+    }
+}
+
