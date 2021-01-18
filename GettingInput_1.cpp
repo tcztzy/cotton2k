@@ -13,8 +13,7 @@
 
 using namespace std;
 
-tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, double, double, double, double, double, string, string, string, string, string, string>
-ReadProfileFile(const string &);
+Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &, string &);
 
 void ReadCalibrationData();
 
@@ -86,22 +85,18 @@ Simulation ReadInput(const char *ProfileName)
         Latitude,
         Longitude, MulchTranSW, MulchTranLW;
     InitializeGlobal();
-    tie(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2,
-        DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, CO2EnrichmentFactor, Latitude, Longitude,
-        ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName,
-        PlantmapFileName) = ReadProfileFile(ProfileName);
-    Simulation sim = {ProfileName, strlen(ProfileName), DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude};
+    Simulation sim = ReadProfileFile(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
     int range = sim.day_finish - sim.day_start + 1;
     sim.number_of_states = range;
     sim.states = (State *) malloc(sizeof(State) * range);
     ReadCalibrationData();
-    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, DayStart, sim.climate);
+    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, sim.day_start, sim.climate);
     InitializeGrid();
     tie(sim.num_curve) = ReadSoilImpedance();
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,
-                          AgrInputFileName, PlantmapFileName, DayEmerge, DayStart, DayFinish, DayPlant, DayStartCO2,
-                          DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW,
-                          CO2EnrichmentFactor, Latitude, Longitude);
+                          AgrInputFileName, PlantmapFileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant, sim.day_start_co2,
+                          sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch, sim.mulch_indicator, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
+                          sim.co2_enrichment_factor, sim.latitude, sim.longitude);
     InitSoil(SoilInitFileName);
     ReadAgriculturalInput(ProfileName, AgrInputFileName);
     ReadPlantMapInput(PlantmapFileName);
@@ -115,8 +110,8 @@ Simulation ReadInput(const char *ProfileName)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, double, double, double, double, double, string, string, string, string, string, string>
-ReadProfileFile(const string &ProfileName)
+Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, string &PrdWthFileName, string &SoilHydFileName,
+                      string &SoilInitFileName, string &AgrInputFileName, string &PlantmapFileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -127,7 +122,7 @@ ReadProfileFile(const string &ProfileName)
 //  RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
 //
 {
-    fs::path strFileName = fs::path("profiles") / (ProfileName + ".pro"); // file name with path
+    fs::path strFileName = fs::path("profiles") / (string(ProfileName) + ".pro"); // file name with path
                                                                           //     If file does not exist, or can not be opened, display message
     if (!fs::exists(strFileName))
         throw FileNotExists(strFileName);
@@ -173,8 +168,8 @@ ReadProfileFile(const string &ProfileName)
     //     For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates
     //	for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
     double CO2EnrichmentFactor = 0;
-    int DayStartCO2 = 0;
-    int DayEndCO2 = 0;
+    uint32_t DayStartCO2 = 0;
+    uint32_t DayEndCO2 = 0;
     if (nLength > 76)
     {
         string ttt = Dummy.substr(60, 10);
@@ -192,13 +187,11 @@ ReadProfileFile(const string &ProfileName)
     //     Line #3: Names of weather files: actual and predicted.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
-    string ActWthFileName;
     if (nLength > 1)
     {
         ActWthFileName = Dummy.substr(0, 20);
         ActWthFileName.erase(remove(ActWthFileName.begin(), ActWthFileName.end(), ' '), ActWthFileName.end());
     }
-    string PrdWthFileName; // name of input file with predicted weather data.
     if (nLength > 21)
     {
         PrdWthFileName = Dummy.substr(20, 20);
@@ -207,9 +200,9 @@ ReadProfileFile(const string &ProfileName)
     else
         PrdWthFileName = "";
     //     For advanced users only: If soil mulch is used, read relevant parameters.
-    int MulchIndicator = 0;
-    int DayStartMulch = 0;
-    int DayEndMulch = 0;
+    uint32_t MulchIndicator = 0;
+    uint32_t DayStartMulch = 0;
+    uint32_t DayEndMulch = 0;
     double MulchTranSW = 0;
     double MulchTranLW = 0;
     if (nLength > 41)
@@ -235,25 +228,21 @@ ReadProfileFile(const string &ProfileName)
     //  conditions, agricultural input, and plant map adjustment.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
-    string SoilHydFileName;
     if (nLength > 1)
     {
         SoilHydFileName = Dummy.substr(0, 20);
         SoilHydFileName.erase(remove(SoilHydFileName.begin(), SoilHydFileName.end(), ' '), SoilHydFileName.end());
     }
-    string SoilInitFileName;
     if (nLength > 20)
     {
         SoilInitFileName = Dummy.substr(20, 20);
         SoilInitFileName.erase(remove(SoilInitFileName.begin(), SoilInitFileName.end(), ' '), SoilInitFileName.end());
     }
-    string AgrInputFileName;
     if (nLength > 40)
     {
         AgrInputFileName = Dummy.substr(40, 20);
         AgrInputFileName.erase(remove(AgrInputFileName.begin(), AgrInputFileName.end(), ' '), AgrInputFileName.end());
     }
-    string PlantmapFileName;
     if (nLength > 60)
     {
         PlantmapFileName = Dummy.substr(60);
@@ -352,12 +341,12 @@ ReadProfileFile(const string &ProfileName)
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
     iyear = atoi(DateSimStart.substr(7, 4).c_str());
-    int DayStart = DateToDoy(DateSimStart.c_str(), iyear);
-    int DayEmerge = DateToDoy(DateEmerge.c_str(), iyear);
-    int DayFinish = DateToDoy(DateSimEnd.c_str(), iyear);
-    int DayPlant = DateToDoy(DatePlant.c_str(), iyear);
-    int DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), iyear);
-    int DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), iyear);
+    uint32_t DayStart = DateToDoy(DateSimStart.c_str(), iyear);
+    uint32_t DayEmerge = DateToDoy(DateEmerge.c_str(), iyear);
+    uint32_t DayFinish = DateToDoy(DateSimEnd.c_str(), iyear);
+    uint32_t DayPlant = DateToDoy(DatePlant.c_str(), iyear);
+    uint32_t DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), iyear);
+    uint32_t DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), iyear);
     DayStartPlantMaps = DateToDoy(PlantMapStartDate.c_str(), iyear);
     DayStopPlantMaps = DateToDoy(PlantMapStopDate.c_str(), iyear);
     //     If the output frequency indicators are zero, they are set to 999.
@@ -389,10 +378,7 @@ ReadProfileFile(const string &ProfileName)
     }
     //     Call function OpenOutputFiles() to open the output files.
     OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge);
-    return make_tuple(DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2,
-                      DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW,
-                      CO2EnrichmentFactor, Latitude, Longitude, ActWthFileName, PrdWthFileName, SoilHydFileName,
-                      SoilInitFileName, AgrInputFileName, PlantmapFileName);
+    return {ProfileName, strlen(ProfileName), DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude};
 }
 
 //////////////////////////////////////////////////////////
