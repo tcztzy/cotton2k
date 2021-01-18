@@ -215,7 +215,6 @@ void C2KApp::DailySimulation(Simulation &sim)
     string Date;
 
     int Daynum = sim.day_start - 1;
-    int DayOfSimulation = 1;        // Days from the start of simulation.
     int NumLayersWithRoots = 7;     // number of soil layers with roots. Initialized with 7
     double PlantHeight = 4.0;
     double AbscisedFruitSites = 0; // total number of abscised fruit sites, per plant.
@@ -223,10 +222,10 @@ void C2KApp::DailySimulation(Simulation &sim)
     double WaterStress = 1;        // general water stress index (0 to 1).
     try
     {
-        for (DayOfSimulation = 1; DayOfSimulation <= sim.number_of_states; DayOfSimulation++)
+        for (int DayOfSimulation = 1; DayOfSimulation <= sim.number_of_states; DayOfSimulation++)
         {
             BOOL bAdjustToDo;
-            tie(bAdjustToDo, Date, Daynum, DayOfSimulation, NumLayersWithRoots,
+            tie(bAdjustToDo, Date, Daynum, NumLayersWithRoots,
                 PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = DoAdjustments(sim, Date,
                                                                                                   Daynum,
                                                                                                   DayOfSimulation,
@@ -256,7 +255,7 @@ void C2KApp::DailySimulation(Simulation &sim)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string, int, int, int, double, double, double, double> C2KApp::DoAdjustments(
+tuple<BOOL, string, int, int, double, double, double, double> C2KApp::DoAdjustments(
     Simulation & sim,
     string Date,
     int Daynum,
@@ -280,7 +279,7 @@ tuple<BOOL, string, int, int, int, double, double, double, double> C2KApp::DoAdj
     for (int i = 0; i < 30; i++)
         sumsad += MapDataDate[i];
     if (sumsad <= 0)
-        return make_tuple(FALSE, Date, Daynum, DayOfSimulation, NumLayersWithRoots,
+        return make_tuple(FALSE, Date, Daynum, NumLayersWithRoots,
                           PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
     //     Loop for all adjustment data, and check if there is an adjustment for this day.
     for (int i = 0; i < 30; i++)
@@ -329,7 +328,7 @@ tuple<BOOL, string, int, int, int, double, double, double, double> C2KApp::DoAdj
                 nadj[jj] = FALSE;
         } // end if Daynum
     }     // end do i
-    return make_tuple(TRUE, Date, Daynum, DayOfSimulation,NumLayersWithRoots,
+    return make_tuple(TRUE, Date, Daynum, NumLayersWithRoots,
                       PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 }
 
