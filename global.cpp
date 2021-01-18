@@ -142,7 +142,6 @@ BurrWeightOpenBolls; // total weight of burrs in open bolls, g per plant.
 double
         CarbonAllocatedForRootGrowth, // available carbon allocated for root growth, g per plant.
 CarbonStress,        // carbohydrate stress factor.
-cgind[3],            // the index for the capability of growth of class I roots (0 to 1).
 ClayVolumeFraction[maxl], // fraction by volume of clay in the soil.
 CloudCoverRatio[24], // cloud cover ratio (0 to 1).
 CloudTypeCorr[24],   // hourly cloud type correction.

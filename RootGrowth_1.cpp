@@ -11,8 +11,11 @@
 // ComputeActualRootGrowth()
 //
 #include "global.h"
+#include "cotton2k.h"
 
 using namespace std;
+
+const double cgind[3] = {1, 1, 0.10}; // the index for the capability of growth of class I roots (0 to 1).
 
 void RootImpedance(const int &);
 
@@ -86,7 +89,7 @@ double PotentialRootGrowth(const int &NumRootAgeGroups, const int &NumLayersWith
 //  SoilMechanicResistance(), SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
 //
 //     The following global variables are referenced here:
-//       cgind, NumRootAgeGroups, nk, OutIndex, 
+//       NumRootAgeGroups, nk, OutIndex, 
 //       PerPlantArea, PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg, 
 //       VolNo3NContent, VolWaterContent.
 //     The following global variables are set here:    PotGroRoots, RootGroFactor

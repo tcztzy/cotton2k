@@ -328,7 +328,7 @@ void InitializeRootData(double RootWeight[40][20][3], double RootAge[40][20])
 //     Global or file scope variables referenced:
 //        dl, PlantRowColumn, nk, nl, PerPlantArea, RowSpace.
 //     Global or file scope variables set:
-//        ActualRootGrowth[maxl][maxk], cgind[3], DepthLastRootLayer,
+//        ActualRootGrowth[maxl][maxk], DepthLastRootLayer,
 //	      LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots, NumRootAgeGroups, 
 //        PotGroRoots[maxl][maxk], RootAge[maxl][maxk], RootColNumLeft[maxl], 
 //        RootColNumRight[maxl], RootGroFactor[maxl][maxk], RootWeight[maxl][maxk][3], 
@@ -337,9 +337,6 @@ void InitializeRootData(double RootWeight[40][20][3], double RootAge[40][20])
 {
 //     The parameters of the root model are defined for each root class:
 //       grind(i), cuind(i), thtrn(i), trn(i), thdth(i), dth(i).
-    cgind[0] = 1;
-    cgind[1] = 1;
-    cgind[2] = 0.10;
     double rlint = 10; // Vertical interval, in cm, along the taproot, for
     // initiating lateral roots.
     int ll = 1; // Counter for layers with lateral roots.
