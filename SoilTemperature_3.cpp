@@ -20,15 +20,15 @@ double ThermalCondSoil(double, double, int);
 void HeatBalance(int nn);
 
 //  arrays with file scope:
-double dz[maxl];  // equal to the dl array in a columnn, or wk in a row.
-double ts1[maxl]; // array of soil temperatures.
-double ts0[maxl]; // array of previous soil temperatures.
+double dz[maxl];   // equal to the dl array in a columnn, or wk in a row.
+double ts1[maxl];  // array of soil temperatures.
+double ts0[maxl];  // array of previous soil temperatures.
 double hcap[maxl]; // heat capacity of soil layer (cal cm-3 oC-1).
 /////////////////////////////////////////
 void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
                    double c2, double sf, double so, double thet, double tm, double &tv, const int &Daynum,
                    const double &MulchTranLW)
-//     This function solves the energy balance equations at the foliage / air interface, and 
+//     This function solves the energy balance equations at the foliage / air interface, and
 //  computes the resulting temperature of the foliage. It is Called from EnergyBalance().
 //     Units for all energy fluxes are: cal cm-2 sec-1.
 //
@@ -47,68 +47,72 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
 //       thet - air temperature (k).
 //       tm - plastic mulch temperature (K), tm = 0 if column not mulched.
 {
-//     Constants:
-    const double ef = 0.95; // emissivity of the foliage surface
-    const double eg = 0.95; // emissivity of the soil surface
-    const double stefa1 = 1.38e-12; // stefan-boltsman constant.
-//
-    double rlv1; // long wave radiation reaching the canopy
-    if (tm > 0)                   // column is mulched
-        rlv1 = sf * ef * rlzero                                    // from sky
-               + sf * ef * eg * stefa1 * MulchTranLW * pow(so, 4)    // from soil
-               + sf * ef * (1 - MulchTranLW) * stefa1 * pow(tm, 4);  // from mulch
-    else                          // column is not mulched
-        rlv1 = sf * ef * rlzero                               // from sky
-               + sf * ef * eg * stefa1 * pow(so, 4);            // from soil
-//     rlv4 is the multiplier of tv**4 for emitted long wave radiation from vegetation, corrected 
-//  for the amount reflected back from soil surface and absorbed by foliage. This is two-sided 
-//  ( note that when eg = ef = 1, the coefficient corr will be 2)
-    double corr = 1 + eg / (ef + eg - ef * eg); // coefficient
+    //     Constants:
+    const double ef = 0.95;                                         // emissivity of the foliage surface
+    const double eg = 0.95;                                         // emissivity of the soil surface
+    const double stefa1 = 1.38e-12;                                 // stefan-boltsman constant.
+                                                                    //
+    double rlv1;                                                    // long wave radiation reaching the canopy
+    if (tm > 0)                                                     // column is mulched
+        rlv1 = sf * ef * rlzero                                     // from sky
+               + sf * ef * eg * stefa1 * MulchTranLW * pow(so, 4)   // from soil
+               + sf * ef * (1 - MulchTranLW) * stefa1 * pow(tm, 4); // from mulch
+    else                                                            // column is not mulched
+        rlv1 = sf * ef * rlzero                                     // from sky
+               + sf * ef * eg * stefa1 * pow(so, 4);                // from soil
+                                                                    //     rlv4 is the multiplier of tv**4 for emitted long wave radiation from vegetation, corrected
+                                                                    //  for the amount reflected back from soil surface and absorbed by foliage. This is two-sided
+                                                                    //  ( note that when eg = ef = 1, the coefficient corr will be 2)
+    double corr = 1 + eg / (ef + eg - ef * eg);                     // coefficient
     double rlv4 = stefa1 * sf * ef * corr;
     double dsenfheat = c2 * (1 - 0.6 * sf); // derivative of senfheat
-//     Start iterations for tv:
-    int mot = 0; // count of iterations for plant surface
-    while (mot < 50) {
-//     Latent heat flux (hvlat) is computed from the transpiration rate.
+                                            //     Start iterations for tv:
+    int mot = 0;                            // count of iterations for plant surface
+    while (mot < 50)
+    {
+        //     Latent heat flux (hvlat) is computed from the transpiration rate.
         double hvlat = (75.5255 - 0.05752 * tv) * etp1;
         double dhvlat = -0.05752 * etp1; // derivative of hvlat
-//     Emitted long wave radiation from vegetation (cclwe)
+                                         //     Emitted long wave radiation from vegetation (cclwe)
         double cclwe = rlv4 * pow(tv, 4);
-//     Sensible heat transfer from vegetation
+        //     Sensible heat transfer from vegetation
         double tvex = tv; // previous value of tv
-        double tafk; // average air temperature above soil surface (k) in canopy
+        double tafk;      // average air temperature above soil surface (k) in canopy
         if (tm > 0.)
             tafk = (1 - sf) * thet + sf * (0.1 * tm + 0.3 * thet + 0.6 * tv);
         else
             tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
         double senfheat; // sensible heat transfer from foliage
         senfheat = c2 * (tv - tafk);
-//     Compute the energy balance at the plant surface (cc), and
-//  if it is small enough end the computation.
-        double cc = cclwe      // (a) long wave emission from vegetation
-                    - rlv1       // long wave radiation reaching the vegetation
-                    + hvlat      // (b) latent heat transfer
-                    - rsv        // global radiation on vegetation
-                    + senfheat;  // (c) sensible heat transfer from vegetation to air
-        if (fabs(cc) < 10e-6) {
+        //     Compute the energy balance at the plant surface (cc), and
+        //  if it is small enough end the computation.
+        double cc = cclwe       // (a) long wave emission from vegetation
+                    - rlv1      // long wave radiation reaching the vegetation
+                    + hvlat     // (b) latent heat transfer
+                    - rsv       // global radiation on vegetation
+                    + senfheat; // (c) sensible heat transfer from vegetation to air
+        if (fabs(cc) < 10e-6)
+        {
             tv = 0.5 * (tvex + tv);
-            return;  // end iterations for tv
+            return; // end iterations for tv
         }
-//     If cc is not small enough, compute its derivative by tv (ccp).
+        //     If cc is not small enough, compute its derivative by tv (ccp).
         double dcclwe = 4 * rlv4 * pow(tv, 3); // derivative of cclwe
-//     ccp is the derivative of energy balance at the plant surface (by tv)
-        double ccp = dcclwe            // (a)
-                     + dhvlat            // (b)
-                     + dsenfheat;        // (c)
-//     Correct the canopy temperature by  the ratio of cc to ccp.
-        double ccadjust = cc / ccp; // adjustment of tv before next iteration
-//     If adjustment is small enough, no more iterations are needed.
+                                               //     ccp is the derivative of energy balance at the plant surface (by tv)
+        double ccp = dcclwe                    // (a)
+                     + dhvlat                  // (b)
+                     + dsenfheat;              // (c)
+                                               //     Correct the canopy temperature by  the ratio of cc to ccp.
+        double ccadjust = cc / ccp;            // adjustment of tv before next iteration
+                                               //     If adjustment is small enough, no more iterations are needed.
         if (fabs(ccadjust) < 0.002)
             return;
-//     If ccadjust is not the same sign as ccadx, reduce fluctuations
+        //     If ccadjust is not the same sign as ccadx, reduce fluctuations
         double ccadx; // previous value of ccadjust
-        if (mot >= 2) {
-            if (fabs(ccadjust - ccadx) > fabs(ccadjust + ccadx)) {
+        if (mot >= 2)
+        {
+            if (fabs(ccadjust - ccadx) > fabs(ccadjust + ccadx))
+            {
                 ccadjust = (ccadjust + ccadx) * 0.5;
                 tv = (tv + tvex) * 0.5;
             }
@@ -122,28 +126,28 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
         ccadx = ccadjust;
         mot++;
     }
-//     If reached 50 iterations there must be an error somewhere!
+    //     If reached 50 iterations there must be an error somewhere!
     string msg = " Infinite loop in CanopyBalance(). Abnormal stop!! \n";
     char C1[12];
     sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-    msg += " Daynum, ihr, k = " + (string) C1 + "\n";
+    msg += " Daynum, ihr, k = " + (string)C1 + "\n";
     sprintf(C1, "%10.3g", so);
-    msg += " so      = " + (string) C1 + "\n";
+    msg += " so      = " + (string)C1 + "\n";
     sprintf(C1, "%10.3g", tv);
-    msg += " tv = " + (string) C1 + "\n";
+    msg += " tv = " + (string)C1 + "\n";
     throw SimulationEnd(msg);
 }
 
 /////////////////////////////////////////
 void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, double sf,
                          double hsgp, double hsgm, double so, double thet, double &tm, double tv, const int &Daynum)
-//     This function solves the energy balance equations for the transparent (polyethylene) mulch, 
-//  and computes its resulting temperature (tm). It is called from EnrgyBalance(), and uses 
+//     This function solves the energy balance equations for the transparent (polyethylene) mulch,
+//  and computes its resulting temperature (tm). It is called from EnrgyBalance(), and uses
 //  function ThermalCondSoil(). Units for all energy fluxes are: cal cm-2 sec-1.
 //
 //     The following global variables are referenced here:        MulchTranLW.
 //     The following argument is set in this function:
-//       tm - temperature of surface mulch(K) 
+//       tm - temperature of surface mulch(K)
 //     The following arguments are used in this function:
 //       hsgp - multiplier for computing sensible heat transfer from mulch to air
 //       hsgm - multiplier for computing sensible heat transfer from mulch to soil
@@ -158,51 +162,53 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, d
 //       tv - temperature of plant canopy
 {
     double dsenheat; // derivative of sensible heat transfer
-    if (sf <= 0.05)   // if this is a shaded column
+    if (sf <= 0.05)  // if this is a shaded column
         dsenheat = hsgp * (1 - sf * 0.1) + hsgm;
     else
         dsenheat = hsgp + hsgm;
-//     Start iterations for soil mulch temperature (tm)
+    //     Start iterations for soil mulch temperature (tm)
     int mop = 0; // count of iterations for soil mulch energy balance
-    do {
-//     Emitted long wave radiation from soil mulch
+    do
+    {
+        //     Emitted long wave radiation from soil mulch
         double emtlw; // emitted long wave radiation from soil surface
         emtlw = rls5 * pow(tm, 4);
-//     Sensible heat transfer
-        double tafk; // average air temperature above soil surface and in canopy (K)
+        //     Sensible heat transfer
+        double tafk;    // average air temperature above soil surface and in canopy (K)
         double senheat; // sensible heat transfer from soil surface
-        if (sf >= 0.05)     // if this is a shaded column
+        if (sf >= 0.05) // if this is a shaded column
             tafk = (1 - sf) * thet + sf * (0.1 * tm + 0.3 * thet + 0.6 * tv);
         else
             tafk = thet;
         senheat = hsgp * (tm - tafk) + hsgm * (tm - so);
-//     Compute the energy balance tmbal. (positive direction is upward)
-        double tmbal; // energy balance of the soil mulch
-        tmbal = emtlw               // (a) long wave radiation emitted from soil mulch
-                - rlsp                // long wave radiation reaching the soil mulch
-                - rsm                 // global radiation absorbed
-                + senheat;            // (d) heat transfer from soil surface to air
+        //     Compute the energy balance tmbal. (positive direction is upward)
+        double tmbal;      // energy balance of the soil mulch
+        tmbal = emtlw      // (a) long wave radiation emitted from soil mulch
+                - rlsp     // long wave radiation reaching the soil mulch
+                - rsm      // global radiation absorbed
+                + senheat; // (d) heat transfer from soil surface to air
         if (fabs(tmbal) < 10.e-6)
-            return;  // end iterations for tm
-//     If tmbal is not small enough, compute its derivative by tm (tmbalp).
-//     The derivative of emitted long wave radiation
+            return;    // end iterations for tm
+                       //     If tmbal is not small enough, compute its derivative by tm (tmbalp).
+                       //     The derivative of emitted long wave radiation
         double demtlw; // derivative of emtlw
         demtlw = 4 * rls5 * pow(tm, 3);
-//	   The derivative of the energy balance function
-        double tmbalp; // derivative of energy balance at the soil mulch (by tm)
-        tmbalp = demtlw             // (a)
-                 + dsenheat;          // (d)
-//     Correct the upper soil temperature by  the ratio of tmbal to tmbalp.
-        double tmbaladjust; // adjustment of soil mulch temperature before next iteration
+        //	   The derivative of the energy balance function
+        double tmbalp;       // derivative of energy balance at the soil mulch (by tm)
+        tmbalp = demtlw      // (a)
+                 + dsenheat; // (d)
+                             //     Correct the upper soil temperature by  the ratio of tmbal to tmbalp.
+        double tmbaladjust;  // adjustment of soil mulch temperature before next iteration
         tmbaladjust = tmbal / tmbalp;
-//     If adjustment is small enough, no more iterations are needed.
+        //     If adjustment is small enough, no more iterations are needed.
         if (fabs(tmbaladjust) < 0.002)
             return;
-//     If tmbaladjust is not the same sign as tmbalex, reduce fluctuations
-        double tmex; // previous value of mulch temperature (k)
+        //     If tmbaladjust is not the same sign as tmbalex, reduce fluctuations
+        double tmex;    // previous value of mulch temperature (k)
         double tmbalex; // previous value of tmbaladjust.
         if (mop >= 2)
-            if (fabs(tmbaladjust + tmbalex) < fabs(tmbaladjust - tmbalex)) {
+            if (fabs(tmbaladjust + tmbalex) < fabs(tmbaladjust - tmbalex))
+            {
                 tmbaladjust = (tmbaladjust + tmbalex) / 2;
                 tm = (tm + tmex) / 2;
             }
@@ -210,22 +216,22 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, d
             tmbaladjust = 10;
         if (tmbaladjust < -10)
             tmbaladjust = -10;
-//
+        //
         tm = tm - tmbaladjust;
         tmex = tm;
         tmbalex = tmbaladjust;
         mop++;
-//     Go to next iteration
+        //     Go to next iteration
     } while (mop < 50);
-//     If reached 50 iterations there must be an error somewhere!
+    //     If reached 50 iterations there must be an error somewhere!
     string msg = " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! \n";
     char C1[12];
     sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-    msg += " Daynum, ihr, k = " + (string) C1 + "\n";
+    msg += " Daynum, ihr, k = " + (string)C1 + "\n";
     sprintf(C1, "%10.3g", so);
-    msg += " so      = " + (string) C1 + "\n";
+    msg += " so      = " + (string)C1 + "\n";
     sprintf(C1, "%10.3g", tm);
-    msg += " tm = " + (string) C1 + "\n";
+    msg += " tm = " + (string)C1 + "\n";
     throw SimulationEnd(msg);
 }
 
@@ -248,22 +254,26 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
 //       n0 - number of layer or column of this array
 //       nn - number of soil cells in the array.
 {
-//     Constant parameters:
+    //     Constant parameters:
     const double beta1 = 0.90; // weighting factor for the implicit method of computation.
     const double ca = 0.0003;  // heat capacity of air (cal cm-3 oC-1).
-//     Set soil layer number l (needed to define HeatCapacitySoilSolid, PoreSpace, ThermalCondSoil).
-//  Compute for each soil cell the heat capacity and heat diffusivity.
-    static long numiter = 0; // number of this iteration.
-    int l = layer; // soil layer number.
-    double q1[maxl];  // array of water content.
-    double asoi[maxl]; // array of thermal diffusivity of soil cells (cm2 s-1).
-    for (int i = 0; i < nn; i++) {
-        if (iv == 1) {
+                               //     Set soil layer number l (needed to define HeatCapacitySoilSolid, PoreSpace, ThermalCondSoil).
+                               //  Compute for each soil cell the heat capacity and heat diffusivity.
+    static long numiter = 0;   // number of this iteration.
+    int l = layer;             // soil layer number.
+    double q1[maxl];           // array of water content.
+    double asoi[maxl];         // array of thermal diffusivity of soil cells (cm2 s-1).
+    for (int i = 0; i < nn; i++)
+    {
+        if (iv == 1)
+        {
             l = i;
             q1[i] = VolWaterContent[i][n0];
             ts1[i] = SoilTemp[i][n0];
             dz[i] = dl[i];
-        } else {
+        }
+        else
+        {
             q1[i] = VolWaterContent[n0][i];
             ts1[i] = SoilTemp[n0][i];
             dz[i] = wk[i];
@@ -271,32 +281,35 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
         hcap[i] = HeatCapacitySoilSolid[l] + q1[i] + (PoreSpace[l] - q1[i]) * ca;
         asoi[i] = ThermalCondSoil(q1[i], ts1[i], l) / hcap[i];
     }
-//     The numerical solution of the flow equation is a combination of the implicit method 
-//  (weighted by beta1) and the explicit method (weighted by 1-beta1).
-    double dltt; // computed time step required.
-    double avdif[maxl]; // average thermal diffusivity between adjacent cells.
-    double dy[maxl]; // array of distances between centers of adjacent cells (cm).
+    //     The numerical solution of the flow equation is a combination of the implicit method
+    //  (weighted by beta1) and the explicit method (weighted by 1-beta1).
+    double dltt;         // computed time step required.
+    double avdif[maxl];  // average thermal diffusivity between adjacent cells.
+    double dy[maxl];     // array of distances between centers of adjacent cells (cm).
     double dltmin = dlt; // minimum time step for the explicit solution.
     avdif[0] = 0;
     dy[0] = 0;
-    for (int i = 1; i < nn; i++) {
-//     Compute average diffusivities avdif between layer i and the previous (i-1),
-//  and dy(i), distance (cm) between centers of layer i and the previous (i-1)
+    for (int i = 1; i < nn; i++)
+    {
+        //     Compute average diffusivities avdif between layer i and the previous (i-1),
+        //  and dy(i), distance (cm) between centers of layer i and the previous (i-1)
         avdif[i] = (asoi[i] + asoi[i - 1]) / 2;
         dy[i] = (dz[i - 1] + dz[i]) / 2;
-//     Determine the minimum time step required for the explicit solution.
+        //     Determine the minimum time step required for the explicit solution.
         dltt = 0.2 * dy[i] * dz[i] / avdif[i] / (1 - beta1);
         if (dltt < dltmin)
             dltmin = dltt;
     }
-//     Use time step of dlt1 seconds, for iterx iterations
-    int iterx = (int) (dlt / dltmin); // computed number of iterations.
+    //     Use time step of dlt1 seconds, for iterx iterations
+    int iterx = (int)(dlt / dltmin); // computed number of iterations.
     if (dltmin < dlt)
         iterx++;
     double dlt1 = dlt / iterx; // computed time (seconds) of an iteration.
-// start iterations. Store temperature data in array ts0. count iterations.
-    for (int ii = 0; ii < iterx; ii++) {
-        for (int i = 0; i < nn; i++) {
+                               // start iterations. Store temperature data in array ts0. count iterations.
+    for (int ii = 0; ii < iterx; ii++)
+    {
+        for (int i = 0; i < nn; i++)
+        {
             ts0[i] = ts1[i];
             if (iv == 1)
                 l = i;
@@ -305,46 +318,50 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
                 avdif[i] = (asoi[i] + asoi[i - 1]) / 2;
         }
         numiter++;
-//     The solution of the simultaneous equations in the implicit method alternates between
-//  the two directions along the arrays. The reason for this is because the direction of the
-//  solution may cause some cumulative bias. The counter numiter determines the direction
-//  of the solution.
+        //     The solution of the simultaneous equations in the implicit method alternates between
+        //  the two directions along the arrays. The reason for this is because the direction of the
+        //  solution may cause some cumulative bias. The counter numiter determines the direction
+        //  of the solution.
         double cau[maxl], dau[maxl]; // arrays used for the implicit numerical solution.
-        double ckx, cky; // nondimensional diffusivities to next and previous layers.
-        double vara, varb; // used for computing the implicit solution.
-        if ((numiter % 2) == 0) {
-//     1st direction of computation, for an even iteration number:
+        double ckx, cky;             // nondimensional diffusivities to next and previous layers.
+        double vara, varb;           // used for computing the implicit solution.
+        if ((numiter % 2) == 0)
+        {
+            //     1st direction of computation, for an even iteration number:
             dau[0] = 0;
             cau[0] = ts1[0];
-//     Loop from the second to the last but one soil cells. Compute
-//  nondimensional diffusivities to next and previous layers.
-            for (int i = 1; i < nn - 1; i++) {
+            //     Loop from the second to the last but one soil cells. Compute
+            //  nondimensional diffusivities to next and previous layers.
+            for (int i = 1; i < nn - 1; i++)
+            {
                 ckx = avdif[i + 1] * dlt1 / (dz[i] * dy[i + 1]);
                 cky = avdif[i] * dlt1 / (dz[i] * dy[i]);
-//     Correct value of layer 1 for explicit heat movement to/from layer 2
+                //     Correct value of layer 1 for explicit heat movement to/from layer 2
                 if (i == 1)
                     cau[0] = ts1[0] - (1 - beta1) * (ts1[0] - ts1[1]) * cky * dz[1] / dz[0];
                 vara = 1 + beta1 * (ckx + cky) - beta1 * ckx * dau[i - 1];
                 dau[i] = beta1 * cky / vara;
-                varb = ts1[i] + (1 - beta1) * (cky * ts1[i - 1] + ckx * ts1[i + 1]
-                                               - (cky + ckx) * ts1[i]);
+                varb = ts1[i] + (1 - beta1) * (cky * ts1[i - 1] + ckx * ts1[i + 1] - (cky + ckx) * ts1[i]);
                 cau[i] = (varb + beta1 * ckx * cau[i - 1]) / vara;
             }
-//     Correct value of last layer (nn-1) for explicit heat movement to/from layer nn-2
+            //     Correct value of last layer (nn-1) for explicit heat movement to/from layer nn-2
             ts1[nn - 1] = ts1[nn - 1] - (1 - beta1) * (ts1[nn - 1] - ts1[nn - 2]) * ckx * dz[nn - 2] / dz[nn - 1];
-//     Continue with the implicit solution
+            //     Continue with the implicit solution
             for (int i = nn - 2; i >= 0; i--)
                 ts1[i] = dau[i] * ts1[i + 1] + cau[i];
-        } else {
-//     Alternate direction of computation for odd iteration number
+        }
+        else
+        {
+            //     Alternate direction of computation for odd iteration number
             dau[nn - 1] = 0;
             cau[nn - 1] = ts1[nn - 1];
-            for (int i = nn - 2; i > 0; i--) {
+            for (int i = nn - 2; i > 0; i--)
+            {
                 ckx = avdif[i + 1] * dlt1 / (dz[i] * dy[i + 1]);
                 cky = avdif[i] * dlt1 / (dz[i] * dy[i]);
                 if (i == nn - 2)
                     cau[nn - 1] =
-                            ts1[nn - 1] - (1 - beta1) * (ts1[nn - 1] - ts1[nn - 2]) * ckx * dz[nn - 2] / dz[nn - 1];
+                        ts1[nn - 1] - (1 - beta1) * (ts1[nn - 1] - ts1[nn - 2]) * ckx * dz[nn - 2] / dz[nn - 1];
                 vara = 1 + beta1 * (ckx + cky) - beta1 * cky * dau[i + 1];
                 dau[i] = beta1 * ckx / vara;
                 varb = ts1[i] + (1 - beta1) * (ckx * ts1[i + 1] + cky * ts1[i - 1] - (cky + ckx) * ts1[i]);
@@ -353,13 +370,14 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
             ts1[0] = ts1[0] - (1 - beta1) * (ts1[0] - ts1[1]) * cky * dz[1] / dz[0];
             for (int i = 1; i < nn; i++)
                 ts1[i] = dau[i] * ts1[i - 1] + cau[i];
-        }  // end if numiter
-//     Call HeatBalance to correct quantitative deviations caused by the
-//  imlicit part of the solution.
+        } // end if numiter
+          //     Call HeatBalance to correct quantitative deviations caused by the
+          //  imlicit part of the solution.
         HeatBalance(nn);
     } // end of iterx loop
-//     Set values of SoiTemp 
-    for (int i = 0; i < nn; i++) {
+      //     Set values of SoiTemp
+    for (int i = 0; i < nn; i++)
+    {
         if (iv == 1)
             SoilTemp[i][n0] = ts1[i];
         else
@@ -380,16 +398,16 @@ double ThermalCondSoil(double q0, double t0, int l0)
 //       q0 - volumetric soil moisture content.
 //       t0 - soil temperature (K).
 {
-//     Constant parameters:
-    const double bclay = 7.0;  // heat conductivity of clay (= 7 mcal cm-1 s-1 oc-1).
-    const double bsand = 20.0; // heat conductivity of sand (= 20 mcal cm-1 s-1 oc-1).
-    const double cka = 0.0615; // heat conductivity of air (= 0.0615 mcal cm-1 s-1 oc-1).
-    const double ckw = 1.45;   // heat conductivity of water (= 1.45 mcal cm-1 s-1 oc-1).
-//     Convert soil temperature to degrees C.
+    //     Constant parameters:
+    const double bclay = 7.0;   // heat conductivity of clay (= 7 mcal cm-1 s-1 oc-1).
+    const double bsand = 20.0;  // heat conductivity of sand (= 20 mcal cm-1 s-1 oc-1).
+    const double cka = 0.0615;  // heat conductivity of air (= 0.0615 mcal cm-1 s-1 oc-1).
+    const double ckw = 1.45;    // heat conductivity of water (= 1.45 mcal cm-1 s-1 oc-1).
+                                //     Convert soil temperature to degrees C.
     double tcel = t0 - 273.161; // soil temperature, in C.
-//     Compute cpn, the apparent heat conductivity of air in soil pore spaces, when saturated with
-//  water vapor, using a function of soil temperature, which changes linearly between 36 and 40 C.
-    double bb; // effect of temperature on heat conductivity of air saturated with water vapor.
+                                //     Compute cpn, the apparent heat conductivity of air in soil pore spaces, when saturated with
+                                //  water vapor, using a function of soil temperature, which changes linearly between 36 and 40 C.
+    double bb;                  // effect of temperature on heat conductivity of air saturated with water vapor.
     if (tcel <= 36)
         bb = 0.06188;
     else if (tcel > 36 && tcel <= 40)
@@ -398,48 +416,43 @@ double ThermalCondSoil(double q0, double t0, int l0)
         bb = 0.05790;
     double cpn; // apparent heat conductivity of air in soil pore spaces, when it is saturated with water vapor.
     cpn = cka + 0.05 * exp(bb * tcel);
-//     Compute xair, air content of soil per volume, from soil porosity and moisture content.
-//     Compute thermal conductivity (a) for wet soil (soil moisture higher than field capacity),
-//                                  (b) for less wet soil.
-//     In each case compute first ga, and then dair.
+    //     Compute xair, air content of soil per volume, from soil porosity and moisture content.
+    //     Compute thermal conductivity (a) for wet soil (soil moisture higher than field capacity),
+    //                                  (b) for less wet soil.
+    //     In each case compute first ga, and then dair.
     double xair; // air content of soil, per volume.
     xair = PoreSpace[l0] - q0;
     if (xair < 0)
         xair = 0;
-    double dair; // aggregation factor for air in soil pore spaces.
-    double ga; // shape factor for air in pore spaces.
+    double dair;  // aggregation factor for air in soil pore spaces.
+    double ga;    // shape factor for air in pore spaces.
     double hcond; // computed heat conductivity of soil, mcal cm-1 s-1 oc-1.
-    if (q0 >= FieldCapacity[l0]) {
-//     (a) Heat conductivity of soil wetter than field capacity.
+    if (q0 >= FieldCapacity[l0])
+    {
+        //     (a) Heat conductivity of soil wetter than field capacity.
         ga = 0.333 - 0.061 * xair / PoreSpace[l0];
         dair = form(cpn, ckw, ga);
-        hcond = (q0 * ckw + dsand * bsand * SandVolumeFraction[l0]
-                 + dclay * bclay * ClayVolumeFraction[l0] + dair * cpn * xair)
-                / (q0 + dsand * SandVolumeFraction[l0]
-                   + dclay * ClayVolumeFraction[l0] + dair * xair);
-    } else {
-//     (b) For soil less wet than field capacity, compute also ckn (heat conductivity
-// of air in the soil pores).
-        double qq; // soil water content for computing ckn and ga.
+        hcond = (q0 * ckw + dsand * bsand * SandVolumeFraction[l0] + dclay * bclay * ClayVolumeFraction[l0] + dair * cpn * xair) / (q0 + dsand * SandVolumeFraction[l0] + dclay * ClayVolumeFraction[l0] + dair * xair);
+    }
+    else
+    {
+        //     (b) For soil less wet than field capacity, compute also ckn (heat conductivity
+        // of air in the soil pores).
+        double qq;  // soil water content for computing ckn and ga.
         double ckn; // heat conductivity of air in pores in soil.
         qq = q0;
         if (qq < MarginalWaterContent[l0])
             qq = MarginalWaterContent[l0];
         ckn = cka + (cpn - cka) * qq / FieldCapacity[l0];
-        ga = 0.041 + 0.244 * (qq - MarginalWaterContent[l0])
-                     / (FieldCapacity[l0] - MarginalWaterContent[l0]);
+        ga = 0.041 + 0.244 * (qq - MarginalWaterContent[l0]) / (FieldCapacity[l0] - MarginalWaterContent[l0]);
         dair = form(ckn, ckw, ga);
-        hcond = (qq * ckw + dsand * bsand * SandVolumeFraction[l0]
-                 + dclay * bclay * ClayVolumeFraction[l0] + dair * ckn * xair)
-                / (qq + dsand * SandVolumeFraction[l0]
-                   + dclay * ClayVolumeFraction[l0] + dair * xair);
-//     When soil moisture content is less than the limiting value MarginalWaterContent,
-//  modify the value of hcond.
+        hcond = (qq * ckw + dsand * bsand * SandVolumeFraction[l0] + dclay * bclay * ClayVolumeFraction[l0] + dair * ckn * xair) / (qq + dsand * SandVolumeFraction[l0] + dclay * ClayVolumeFraction[l0] + dair * xair);
+        //     When soil moisture content is less than the limiting value MarginalWaterContent,
+        //  modify the value of hcond.
         if (qq <= MarginalWaterContent[l0])
-            hcond = (hcond - HeatCondDrySoil[l0]) * q0 / MarginalWaterContent[l0]
-                    + HeatCondDrySoil[l0];
-    }  // q0
-//     The result is hcond converted from mcal to cal. 
+            hcond = (hcond - HeatCondDrySoil[l0]) * q0 / MarginalWaterContent[l0] + HeatCondDrySoil[l0];
+    } // q0
+      //     The result is hcond converted from mcal to cal.
     double result = hcond / 1000;
     return result;
 }
@@ -461,12 +474,14 @@ void HeatBalance(int nn)
 {
     double dabs = 0; //Sum of absolute value of differences in heat content in
     // the array between beginning and end of this time step.
-    double dev = 0;  // Sum of differences of heat amount in soil.
-    for (int i = 0; i < nn; i++) {
+    double dev = 0; // Sum of differences of heat amount in soil.
+    for (int i = 0; i < nn; i++)
+    {
         dev += dz[i] * hcap[i] * (ts1[i] - ts0[i]);
         dabs += fabs(ts1[i] - ts0[i]);
     }
-    if (dabs > 0) {
+    if (dabs > 0)
+    {
         for (int i = 0; i < nn; i++)
             ts1[i] = ts1[i] - fabs(ts1[i] - ts0[i]) * dev / (dabs * dz[i] * hcap[i]);
     }
@@ -474,7 +489,7 @@ void HeatBalance(int nn)
 
 ////////////////////////////////////////////////////////////////////////////////////
 tuple<int>
-PredictEmergence(int hour, const string &ProfileName, const int &Daynum, const int &dayEmerge, const int &DayPlant)
+PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int &Daynum, const int &dayEmerge, const int &DayPlant)
 //     This function predicts date of emergence. It is called from SoilTemperature().
 //     There is one referenced argument (hour).
 //
@@ -484,99 +499,109 @@ PredictEmergence(int hour, const string &ProfileName, const int &Daynum, const i
 //       isw, Kday.
 //
 {
-    const double dpl = 5; // depth of planting, cm (assumed 5).
+    const double dpl = 5;           // depth of planting, cm (assumed 5).
     static double DelayOfEmergence; // effect of negative values of xt on germination rate.
     static double HypocotylLength;  // length of hypocotyl, cm.
     static double SeedMoisture;     // moisture content of germinating seeds, percent.
     static int nSeedLayer;          // layer number where the seeds are located.
     int DayEmerge = dayEmerge;
-//     Define some initial values on day of planting.
-    if (Daynum == DayPlant && hour == 0) {
+    //     Define some initial values on day of planting.
+    if (Daynum == DayPlant && hour == 0)
+    {
         DelayOfEmergence = 0;
         HypocotylLength = 0.3;
         SeedMoisture = 8;
-//     Compute soil layer number for seed depth.
+        //     Compute soil layer number for seed depth.
         double sumdl = 0; // depth to the bottom of a soil layer.
-        for (int l = 0; l < nl; l++) {
+        for (int l = 0; l < nl; l++)
+        {
             sumdl += dl[l];
-            if (sumdl >= dpl) {
+            if (sumdl >= dpl)
+            {
                 nSeedLayer = l;
                 break;
             }
         }
     }
-//     Compute matric soil moisture potential at seed location.
-//     Define te as soil temperature at seed location, C.
+    //     Compute matric soil moisture potential at seed location.
+    //     Define te as soil temperature at seed location, C.
     double psi; // matric soil moisture potential at seed location.
-    double te; // soil temperature at seed depth, C.
-    psi = SoilPsi[nSeedLayer][PlantRowColumn];
-    te = SoilTemp[nSeedLayer][PlantRowColumn] - 273.161;
+    double te;  // soil temperature at seed depth, C.
+    psi = SoilPsi[nSeedLayer][sim.plant_row_column];
+    te = SoilTemp[nSeedLayer][sim.plant_row_column] - 273.161;
     if (te < 10)
         te = 10;
-//
-//     Phase 1 of of germination - imbibition. This phase is executed when the moisture 
-//  content of germinating seeds is not more than 80%.
-    double dw; // rate of moisture addition to germinating seeds, percent per hour.
+    //
+    //     Phase 1 of of germination - imbibition. This phase is executed when the moisture
+    //  content of germinating seeds is not more than 80%.
+    double dw;  // rate of moisture addition to germinating seeds, percent per hour.
     double xkl; // a function of temperature and moisture, used to calculate dw.
-    if (SeedMoisture <= 80) {
+    if (SeedMoisture <= 80)
+    {
         xkl = .0338 + .0000855 * te * te - 0.003479 * psi;
         if (xkl < 0)
             xkl = 0;
-//     Compute the rate of moisture addition to germinating seeds, percent per hour.
+        //     Compute the rate of moisture addition to germinating seeds, percent per hour.
         dw = xkl * (80 - SeedMoisture);
-//     Compute delw, the marginal value of dw, as a function of soil
-//  temperature and soil water potential.
+        //     Compute delw, the marginal value of dw, as a function of soil
+        //  temperature and soil water potential.
         double delw; // marginal value of dw.
         if (te < 21.2)
             delw = -0.1133 + .000705 * te * te - .001348 * psi + .001177 * psi * psi;
         else if (te < 26.66)
             delw = -.3584 + .001383 * te * te - .03509 * psi + .003507 * psi * psi;
         else if (te < 32.3)
-            delw = -.6955 + .001962 * te * te - .08335 * psi
-                   + .007627 * psi * psi - .006411 * psi * te;
+            delw = -.6955 + .001962 * te * te - .08335 * psi + .007627 * psi * psi - .006411 * psi * te;
         else
-            delw = 3.3929 - .00197 * te * te - .36935 * psi
-                   + .00865 * psi * psi + .007306 * psi * te;
+            delw = 3.3929 - .00197 * te * te - .36935 * psi + .00865 * psi * psi + .007306 * psi * te;
         if (delw < 0.01)
             delw = 0.01;
-//    Add dw to tw, or if dw is less than delw assign 100% to tw.
+        //    Add dw to tw, or if dw is less than delw assign 100% to tw.
         if (dw > delw)
             SeedMoisture += dw;
         else
             SeedMoisture = 100;
         return make_tuple(DayEmerge);
     }
-//
-//     Phase 2 of of germination - hypocotyl elongation.
+    //
+    //     Phase 2 of of germination - hypocotyl elongation.
     double xt; // a function of temperature, used to calculate de.
     if (te > 39.9)
         xt = 0;
     else
         xt = 0.0853 - 0.0057 * (te - 34.44) * (te - 34.44) / (41.9 - te);
-//     At low soil temperatures, when negative values of xt occur,
-//  compute the delay in germination rate.
-    if (xt < 0 && te < 14) {
+    //     At low soil temperatures, when negative values of xt occur,
+    //  compute the delay in germination rate.
+    if (xt < 0 && te < 14)
+    {
         DelayOfEmergence += xt / 2;
         return make_tuple(DayEmerge);
-    } else {
-        if (DelayOfEmergence < 0) {
-            if (DelayOfEmergence + xt < 0) {
+    }
+    else
+    {
+        if (DelayOfEmergence < 0)
+        {
+            if (DelayOfEmergence + xt < 0)
+            {
                 DelayOfEmergence += xt;
                 return make_tuple(DayEmerge);
-            } else {
+            }
+            else
+            {
                 xt += DelayOfEmergence;
                 DelayOfEmergence = 0;
             }
         }
     }
-//     Compute elongation rate of hypocotyl, de, as a sigmoid
-//  function of HypocotylLength. Add de to HypocotylLength.
+    //     Compute elongation rate of hypocotyl, de, as a sigmoid
+    //  function of HypocotylLength. Add de to HypocotylLength.
     double de; // rate of hypocotyl growth, cm per hour.
     de = 0.0567 * xt * HypocotylLength * (10 - HypocotylLength);
     HypocotylLength += de;
-//     Check for completion of emergence (when HypocotylLength exceeds planting
-//  depth) and report germination to output. isw is 2 after emergence.
-    if (HypocotylLength > dpl) {
+    //     Check for completion of emergence (when HypocotylLength exceeds planting
+    //  depth) and report germination to output. isw is 2 after emergence.
+    if (HypocotylLength > dpl)
+    {
         isw = 2;
         DayEmerge = Daynum;
         Kday = 1;

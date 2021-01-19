@@ -321,7 +321,7 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
 }
 
 //////////////////////////////////////////////////////////
-void InitializeRootData(double RootWeight[40][20][3], double RootAge[40][20])
+void InitializeRootData(Simulation & sim, double RootWeight[40][20][3], double RootAge[40][20])
 //     This function initializes the root submodel parameters and variables. It is called
 //  by ReadInput(). it is executed once at the beginning of the simulation. 
 //
@@ -357,11 +357,11 @@ void InitializeRootData(double RootWeight[40][20][3], double RootAge[40][20])
 //     All the state variables of the root system are initialized to zero.
     for (int l = 0; l < nl; l++) {
         if (l < 3) {
-            RootColNumLeft[l] = PlantRowColumn - 1;
-            RootColNumRight[l] = PlantRowColumn + 2;
+            RootColNumLeft[l] = sim.plant_row_column - 1;
+            RootColNumRight[l] = sim.plant_row_column + 2;
         } else if (l < 7) {
-            RootColNumLeft[l] = PlantRowColumn;
-            RootColNumRight[l] = PlantRowColumn + 1;
+            RootColNumLeft[l] = sim.plant_row_column;
+            RootColNumRight[l] = sim.plant_row_column + 1;
         } else {
             RootColNumLeft[l] = 0;
             RootColNumRight[l] = 0;
@@ -377,26 +377,26 @@ void InitializeRootData(double RootWeight[40][20][3], double RootAge[40][20])
         }
     }
 //
-    RootWeight[0][PlantRowColumn - 1][0] = 0.0020;
-    RootWeight[0][PlantRowColumn][0] = 0.0070;
-    RootWeight[0][PlantRowColumn + 1][0] = 0.0070;
-    RootWeight[0][PlantRowColumn + 2][0] = 0.0020;
-    RootWeight[1][PlantRowColumn - 1][0] = 0.0040;
-    RootWeight[1][PlantRowColumn][0] = 0.0140;
-    RootWeight[1][PlantRowColumn + 1][0] = 0.0140;
-    RootWeight[1][PlantRowColumn + 2][0] = 0.0040;
-    RootWeight[2][PlantRowColumn - 1][0] = 0.0060;
-    RootWeight[2][PlantRowColumn][0] = 0.0210;
-    RootWeight[2][PlantRowColumn + 1][0] = 0.0210;
-    RootWeight[2][PlantRowColumn + 2][0] = 0.0060;
-    RootWeight[3][PlantRowColumn][0] = 0.0200;
-    RootWeight[3][PlantRowColumn + 1][0] = 0.0200;
-    RootWeight[4][PlantRowColumn][0] = 0.0150;
-    RootWeight[4][PlantRowColumn + 1][0] = 0.0150;
-    RootWeight[5][PlantRowColumn][0] = 0.0100;
-    RootWeight[5][PlantRowColumn + 1][0] = 0.0100;
-    RootWeight[6][PlantRowColumn][0] = 0.0050;
-    RootWeight[6][PlantRowColumn + 1][0] = 0.0050;
+    RootWeight[0][sim.plant_row_column - 1][0] = 0.0020;
+    RootWeight[0][sim.plant_row_column][0] = 0.0070;
+    RootWeight[0][sim.plant_row_column + 1][0] = 0.0070;
+    RootWeight[0][sim.plant_row_column + 2][0] = 0.0020;
+    RootWeight[1][sim.plant_row_column - 1][0] = 0.0040;
+    RootWeight[1][sim.plant_row_column][0] = 0.0140;
+    RootWeight[1][sim.plant_row_column + 1][0] = 0.0140;
+    RootWeight[1][sim.plant_row_column + 2][0] = 0.0040;
+    RootWeight[2][sim.plant_row_column - 1][0] = 0.0060;
+    RootWeight[2][sim.plant_row_column][0] = 0.0210;
+    RootWeight[2][sim.plant_row_column + 1][0] = 0.0210;
+    RootWeight[2][sim.plant_row_column + 2][0] = 0.0060;
+    RootWeight[3][sim.plant_row_column][0] = 0.0200;
+    RootWeight[3][sim.plant_row_column + 1][0] = 0.0200;
+    RootWeight[4][sim.plant_row_column][0] = 0.0150;
+    RootWeight[4][sim.plant_row_column + 1][0] = 0.0150;
+    RootWeight[5][sim.plant_row_column][0] = 0.0100;
+    RootWeight[5][sim.plant_row_column + 1][0] = 0.0100;
+    RootWeight[6][sim.plant_row_column][0] = 0.0050;
+    RootWeight[6][sim.plant_row_column + 1][0] = 0.0050;
 //     Start loop for all soil layers containing roots.
     DepthLastRootLayer = 0;
     TotalRootWeight = 0;

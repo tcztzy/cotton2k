@@ -405,7 +405,7 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
 */
 ////////////////////////////////////////////////////////////////////////////
 tuple<int, double>
-PlantGrowth(const string &ProfileName, const string &Date, const int &Daynum, const int &DayOfSimulation,
+PlantGrowth(Simulation &sim, const string &ProfileName, const string &Date, const int &Daynum, const int &DayOfSimulation,
             const int &DayEmerge, const int &FirstSquare, const int &NumRootAgeGroups, int NumLayersWithRoots,
             const int &ncurve, double PlantHeight, const double &DayInc, const double &DayLength,
             const double &WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
@@ -511,7 +511,7 @@ PlantGrowth(const string &ProfileName, const string &Date, const int &Daynum, co
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
     PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, Kday, KdayAdjust, NumAdjustDays, nadj[1], AdjAddHeightRate, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
-    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, ProfileName, Daynum, DayOfSimulation, DayEmerge,
+    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, sim, ProfileName, Daynum, DayOfSimulation, DayEmerge,
                                                       NumLayersWithRoots, NumRootAgeGroups, RootWeight, RootAge);
     //     Output data to file *.CHB
     if (OutIndex[18] > 0)

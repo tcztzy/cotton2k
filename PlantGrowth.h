@@ -4,7 +4,8 @@
 
 using namespace std;
 
-extern "C" {
+extern "C"
+{
     double PhysiologicalAge(const double[24]);
 }
 
@@ -13,12 +14,13 @@ tuple<double> Stress(const string &, const double &, const int &);
 void GetNetPhotosynthesis(const int &, const int &, const int &, const int &, const double &, const double &, const ClimateStruct[400]);
 
 tuple<int, double>
-PlantGrowth(const string &, const string &, const int &, const int &, const int &, const int &, const int &, int,
+PlantGrowth(Simulation &, const string &, const string &, const int &, const int &, const int &, const int &, const int &, int,
             const int &, double, const double &, const double &, const double &, double[40][20][3], double[40][20]);
 
 void CheckDryMatterBal(const string &, const string &, const double &);
 
-extern "C" {
+extern "C"
+{
     void Pix();
 }
 

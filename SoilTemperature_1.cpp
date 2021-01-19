@@ -19,10 +19,10 @@ EnergyBalance(int, int, bool, double, double, const int &, const double &, const
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int);
 
-tuple<int> PredictEmergence(int, const string &, const int &, const int &, const int &);
+tuple<int> PredictEmergence(Simulation &, int, const string &, const int &, const int &, const int &);
 
 //////////////////////////
-void ColumnShading(const int &Daynum, const int &DayEmerge, const double &PlantHeight, double rracol[20])
+void ColumnShading(Simulation & sim, const int &Daynum, const int &DayEmerge, const double &PlantHeight, double rracol[20])
 //     This function computes light interception by crop canopy and shading 
 //  of soil columns by the plants. It is called from SimulateThisDay().
 //
@@ -76,9 +76,9 @@ void ColumnShading(const int &Daynum, const int &DayEmerge, const double &PlantH
     double sw1;     // distance from middle of a column to the plant row, cm.
     int j, k0;      // number of columns from plant row location.
     for (int k = 0; k < nk; k++) {
-        if (k <= PlantRowColumn) {
+        if (k <= sim.plant_row_column) {
 //     When the column is on the left of the plant row.
-            j = PlantRowColumn - k;
+            j = sim.plant_row_column - k;
             sw += wk[j];
             sw0 = sw;
             sw1 = sw - wk[j] / 2;
@@ -107,6 +107,7 @@ void ColumnShading(const int &Daynum, const int &DayEmerge, const double &PlantH
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 tuple<int> SoilTemperature(
+        Simulation& sim,
         const string &ProfileName,
         const int &Daynum,
         const int &DayOfSimulation,
@@ -203,12 +204,12 @@ tuple<int> SoilTemperature(
                 if (MulchIndicator == 1)
                     bMulchon = true;
                 else if (MulchIndicator == 2) {
-                    if (k >= PlantRowColumn && k <= (PlantRowColumn + 1))
+                    if (k >= sim.plant_row_column && k <= (sim.plant_row_column + 1))
                         bMulchon = false;
                     else
                         bMulchon = true;
                 } else if (MulchIndicator >= 3) {
-                    if (k >= (PlantRowColumn - 1) && k <= (PlantRowColumn + 2))
+                    if (k >= (sim.plant_row_column - 1) && k <= (sim.plant_row_column + 2))
                         bMulchon = false;
                     else
                         bMulchon = true;
@@ -336,7 +337,7 @@ tuple<int> SoilTemperature(
         }
 //     If emergence date is to be simulated, call PredictEmergence().
         if (isw == 0 && Daynum >= DayPlant)
-            tie(DayEmerge) = PredictEmergence(ihr, ProfileName, Daynum, DayEmerge, DayPlant);
+            tie(DayEmerge) = PredictEmergence(sim, ihr, ProfileName, Daynum, DayEmerge, DayPlant);
     } // end of hourly loop
 //      At the end of the day compute actual daily evaporation and its cumulative sum.
     if (kk == 1) {

@@ -17,7 +17,7 @@ Simulation ReadProfileFile(const char *, string &, string &, string &, string &,
 
 void ReadCalibrationData();
 
-void InitializeGrid();
+void InitializeGrid(Simulation &);
 
 void WriteInitialInputData(const string &, const string &, const string &, const string &, const string &, const string &,
                            const string &, const int &, const int &, const int &, const int &, const int &, const int &,
@@ -33,7 +33,7 @@ void InitializeSoilData(const string &);
 
 void InitializeSoilTemperature();
 
-void InitializeRootData(double[40][20][3], double[40][20]);
+void InitializeRootData(Simulation &, double[40][20][3], double[40][20]);
 
 // GettingInput_3
 void ReadPlantMapInput(const string &);
@@ -88,10 +88,10 @@ Simulation ReadInput(const char *ProfileName)
     Simulation sim = ReadProfileFile(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
     int range = sim.day_finish - sim.day_start + 1;
     sim.number_of_states = range;
-    sim.states = (State *) malloc(sizeof(State) * range);
+    sim.states = (State *)malloc(sizeof(State) * range);
     ReadCalibrationData();
     LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, sim.day_start, sim.climate);
-    InitializeGrid();
+    InitializeGrid(sim);
     tie(sim.num_curve) = ReadSoilImpedance();
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,
                           AgrInputFileName, PlantmapFileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant, sim.day_start_co2,
@@ -102,7 +102,7 @@ Simulation ReadInput(const char *ProfileName)
     ReadPlantMapInput(PlantmapFileName);
     InitializeSoilData(SoilHydFileName);
     InitializeSoilTemperature();
-    InitializeRootData(sim.root_weight, sim.root_age);
+    InitializeRootData(sim, sim.root_weight, sim.root_age);
     //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
@@ -111,7 +111,7 @@ Simulation ReadInput(const char *ProfileName)
 
 /////////////////////////////////////////////////////////////////////////////
 Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, string &PrdWthFileName, string &SoilHydFileName,
-                      string &SoilInitFileName, string &AgrInputFileName, string &PlantmapFileName)
+                           string &SoilInitFileName, string &AgrInputFileName, string &PlantmapFileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -123,7 +123,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
 //
 {
     fs::path strFileName = fs::path("profiles") / (string(ProfileName) + ".pro"); // file name with path
-                                                                          //     If file does not exist, or can not be opened, display message
+                                                                                  //     If file does not exist, or can not be opened, display message
     if (!fs::exists(strFileName))
         throw FileNotExists(strFileName);
     ifstream DataFile(strFileName, ios::in);
@@ -506,7 +506,7 @@ void ReadCalibrationData()
 }
 
 //////////////////////////////////////////////////////////
-void InitializeGrid()
+void InitializeGrid(Simulation &sim)
 //     This function initializes the soil grid variables. It is executed once
 //  at the beginning of the simulation. It is called from ReadInput().
 //
@@ -552,17 +552,17 @@ void InitializeGrid()
     //      PlantRowColumn (the column including the plant row) is now computed from
     //  PlantRowLocation (the distance of the plant row from the edge of the slab).
     double sumwk = 0; // sum of column widths
-    PlantRowColumn = 0;
+    sim.plant_row_column = 0;
     for (int k = 0; k < nk; k++)
     {
         wk[k] = RowSpace / nk;
         sumwk = sumwk + wk[k];
-        if (PlantRowColumn == 0 && sumwk > PlantRowLocation)
+        if (sim.plant_row_column == 0 && sumwk > PlantRowLocation)
         {
             if ((sumwk - PlantRowLocation) > (0.5 * wk[k]))
-                PlantRowColumn = k - 1;
+                sim.plant_row_column = k - 1;
             else
-                PlantRowColumn = k;
+                sim.plant_row_column = k;
         }
     }
 }
