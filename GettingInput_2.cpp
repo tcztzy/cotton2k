@@ -321,7 +321,7 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
 }
 
 //////////////////////////////////////////////////////////
-void InitializeRootData(Simulation & sim, double RootWeight[40][20][3], double RootAge[40][20])
+void InitializeRootData(Simulation & sim)
 //     This function initializes the root submodel parameters and variables. It is called
 //  by ReadInput(). it is executed once at the beginning of the simulation. 
 //
@@ -371,32 +371,32 @@ void InitializeRootData(Simulation & sim, double RootWeight[40][20][3], double R
             PotGroRoots[l][k] = 0;
             RootGroFactor[l][k] = 1;
             ActualRootGrowth[l][k] = 0;
-            RootAge[l][k] = 0;
+            sim.root_age[l][k] = 0;
             for (int i = 0; i < 3; i++)
-                RootWeight[l][k][i] = 0;
+                sim.root_weight[l][k][i] = 0;
         }
     }
 //
-    RootWeight[0][sim.plant_row_column - 1][0] = 0.0020;
-    RootWeight[0][sim.plant_row_column][0] = 0.0070;
-    RootWeight[0][sim.plant_row_column + 1][0] = 0.0070;
-    RootWeight[0][sim.plant_row_column + 2][0] = 0.0020;
-    RootWeight[1][sim.plant_row_column - 1][0] = 0.0040;
-    RootWeight[1][sim.plant_row_column][0] = 0.0140;
-    RootWeight[1][sim.plant_row_column + 1][0] = 0.0140;
-    RootWeight[1][sim.plant_row_column + 2][0] = 0.0040;
-    RootWeight[2][sim.plant_row_column - 1][0] = 0.0060;
-    RootWeight[2][sim.plant_row_column][0] = 0.0210;
-    RootWeight[2][sim.plant_row_column + 1][0] = 0.0210;
-    RootWeight[2][sim.plant_row_column + 2][0] = 0.0060;
-    RootWeight[3][sim.plant_row_column][0] = 0.0200;
-    RootWeight[3][sim.plant_row_column + 1][0] = 0.0200;
-    RootWeight[4][sim.plant_row_column][0] = 0.0150;
-    RootWeight[4][sim.plant_row_column + 1][0] = 0.0150;
-    RootWeight[5][sim.plant_row_column][0] = 0.0100;
-    RootWeight[5][sim.plant_row_column + 1][0] = 0.0100;
-    RootWeight[6][sim.plant_row_column][0] = 0.0050;
-    RootWeight[6][sim.plant_row_column + 1][0] = 0.0050;
+    sim.root_weight[0][sim.plant_row_column - 1][0] = 0.0020;
+    sim.root_weight[0][sim.plant_row_column][0] = 0.0070;
+    sim.root_weight[0][sim.plant_row_column + 1][0] = 0.0070;
+    sim.root_weight[0][sim.plant_row_column + 2][0] = 0.0020;
+    sim.root_weight[1][sim.plant_row_column - 1][0] = 0.0040;
+    sim.root_weight[1][sim.plant_row_column][0] = 0.0140;
+    sim.root_weight[1][sim.plant_row_column + 1][0] = 0.0140;
+    sim.root_weight[1][sim.plant_row_column + 2][0] = 0.0040;
+    sim.root_weight[2][sim.plant_row_column - 1][0] = 0.0060;
+    sim.root_weight[2][sim.plant_row_column][0] = 0.0210;
+    sim.root_weight[2][sim.plant_row_column + 1][0] = 0.0210;
+    sim.root_weight[2][sim.plant_row_column + 2][0] = 0.0060;
+    sim.root_weight[3][sim.plant_row_column][0] = 0.0200;
+    sim.root_weight[3][sim.plant_row_column + 1][0] = 0.0200;
+    sim.root_weight[4][sim.plant_row_column][0] = 0.0150;
+    sim.root_weight[4][sim.plant_row_column + 1][0] = 0.0150;
+    sim.root_weight[5][sim.plant_row_column][0] = 0.0100;
+    sim.root_weight[5][sim.plant_row_column + 1][0] = 0.0100;
+    sim.root_weight[6][sim.plant_row_column][0] = 0.0050;
+    sim.root_weight[6][sim.plant_row_column + 1][0] = 0.0050;
 //     Start loop for all soil layers containing roots.
     DepthLastRootLayer = 0;
     TotalRootWeight = 0;
@@ -406,12 +406,12 @@ void InitializeRootData(Simulation & sim, double RootWeight[40][20][3], double R
 //  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
             for (int i = 0; i < 3; i++) {
-                TotalRootWeight += RootWeight[l][k][i];
-                RootWeight[l][k][i] = RootWeight[l][k][i] * 0.01 * RowSpace / PerPlantArea;
+                TotalRootWeight += sim.root_weight[l][k][i];
+                sim.root_weight[l][k][i] *= 0.01 * RowSpace / PerPlantArea;
             }
 //     initialize RootAge to a non-zero value for each cell containing roots.
-            if (RootWeight[l][k][0] > 0)
-                RootAge[l][k] = 0.01;
+            if (sim.root_weight[l][k][0] > 0)
+                sim.root_age[l][k] = 0.01;
         }
     }
 //     Initial value of taproot length, TapRootLength, is computed to the

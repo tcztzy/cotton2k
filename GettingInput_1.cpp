@@ -33,7 +33,7 @@ void InitializeSoilData(const string &);
 
 void InitializeSoilTemperature();
 
-void InitializeRootData(Simulation &, double[40][20][3], double[40][20]);
+void InitializeRootData(Simulation &);
 
 // GettingInput_3
 void ReadPlantMapInput(const string &);
@@ -102,7 +102,7 @@ Simulation ReadInput(const char *ProfileName)
     ReadPlantMapInput(PlantmapFileName);
     InitializeSoilData(SoilHydFileName);
     InitializeSoilTemperature();
-    InitializeRootData(sim, sim.root_weight, sim.root_age);
+    InitializeRootData(sim);
     //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
