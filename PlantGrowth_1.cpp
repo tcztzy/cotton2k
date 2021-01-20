@@ -405,10 +405,7 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
 */
 ////////////////////////////////////////////////////////////////////////////
 tuple<int, double>
-PlantGrowth(Simulation &sim, const string &ProfileName, const string &Date, const int &Daynum, const int &DayOfSimulation,
-            const int &DayEmerge, const int &FirstSquare, const int &NumRootAgeGroups, int NumLayersWithRoots,
-            const int &ncurve, double PlantHeight, const double &DayInc, const double &DayLength,
-            const double &WaterStress, double RootWeight[40][20][3], double RootAge[40][20])
+PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &DayOfSimulation, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayInc, const double &DayLength, const double &WaterStress)
 //     This function simulates the potential and actual growth of cotton plants.
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -447,7 +444,7 @@ PlantGrowth(Simulation &sim, const string &ProfileName, const string &Date, cons
     //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
     double sumpdr; // total potential growth rate of roots in g per slab. this is
     // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-    sumpdr = PotentialRootGrowth(NumRootAgeGroups, NumLayersWithRoots, ncurve, RootWeight, RootAge);
+    sumpdr = PotentialRootGrowth(NumRootAgeGroups, NumLayersWithRoots, sim.num_curve, sim.root_weight, sim.root_age);
     //     Total potential growth rate of roots is converted from g per
     //  slab (sumpdr) to g per plant (PotGroAllRoots).
     PotGroAllRoots = sumpdr * 100 * PerPlantArea / RowSpace;
@@ -463,14 +460,14 @@ PlantGrowth(Simulation &sim, const string &ProfileName, const string &Date, cons
     //     cdroot is carbohydrate requirement for root growth, g per plant per day.
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
     double cdstem, cdleaf, cdpet, cdroot;
-    DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, ProfileName, WaterStress);
+    DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, sim.profile_name, WaterStress);
     //     If it is after first square, call ActualFruitGrowth() to compute actual
     //  growth rate of squares and bolls.
     if (FruitingCode[0][0][0] > 0)
         ActualFruitGrowth();
     //     Initialize TotalLeafWeight. It is assumed that cotyledons fall off
     //  at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
-    if (FirstSquare > 0)
+    if (sim.first_square > 0)
     {
         TotalLeafWeight = 0;
         TotalLeafArea = 0;
@@ -511,12 +508,12 @@ PlantGrowth(Simulation &sim, const string &ProfileName, const string &Date, cons
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
     PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, Kday, KdayAdjust, NumAdjustDays, nadj[1], AdjAddHeightRate, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
-    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, sim, ProfileName, Daynum, DayOfSimulation, DayEmerge,
-                                                      NumLayersWithRoots, NumRootAgeGroups, RootWeight, RootAge);
+    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, sim, sim.profile_name, Daynum, DayOfSimulation, sim.day_emerge,
+                                                      NumLayersWithRoots, NumRootAgeGroups, sim.root_weight, sim.root_age);
     //     Output data to file *.CHB
     if (OutIndex[18] > 0)
     {
-        ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::app);
+        ofstream File36(fs::path("output") / (string(sim.profile_name) + ".CHB"), ios::app);
         File36.unsetf(ios::left);
         File36.width(11);
         File36 << Date;

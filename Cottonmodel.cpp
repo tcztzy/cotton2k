@@ -390,21 +390,15 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
                              DayLength, sim.climate); // computes net photosynthesis.
         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(
             sim,
-            sim.profile_name,
             Date,
             Daynum,
             DayOfSimulation,
-            sim.day_emerge,
-            sim.first_square,
             3, // the number of root classes defined in the model.
             NumLayersWithRoots,
-            sim.num_curve,
             PlantHeight,
             DayInc,
             DayLength,
-            WaterStress,
-            sim.root_weight,
-            sim.root_age); // executes all modules of plant growth.
+            WaterStress); // executes all modules of plant growth.
         tie(sim.first_bloom, sim.first_square, AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(Daynum, sim.day_emerge,
                                                                                                          sim.first_bloom, sim.first_square,
                                                                                                          DayInc, WaterStress,

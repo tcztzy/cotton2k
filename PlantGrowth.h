@@ -14,8 +14,7 @@ tuple<double> Stress(const string &, const double &, const int &);
 void GetNetPhotosynthesis(const int &, const int &, const int &, const int &, const double &, const double &, const ClimateStruct[400]);
 
 tuple<int, double>
-PlantGrowth(Simulation &, const string &, const string &, const int &, const int &, const int &, const int &, const int &, int,
-            const int &, double, const double &, const double &, const double &, double[40][20][3], double[40][20]);
+PlantGrowth(Simulation &, const string &, const int &, const int &, const int &, int, double, const double &, const double &, const double &);
 
 void CheckDryMatterBal(const string &, const string &, const double &);
 
