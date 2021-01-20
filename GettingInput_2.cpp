@@ -34,7 +34,7 @@ rnnh4[14],           // residual nitrogen as ammonium in soil at beginning of se
 rnno3[14];           // residual nitrogen as nitrate in soil at beginning of season, kg per ha.
 // defined by input for consecutive 15 cm soil layers.
 ////////////////////////////////////////////////////////////////////////////////////
-tuple<int> ReadSoilImpedance()
+void ReadSoilImpedance(Simulation & sim)
 //     This function opens the soil root impedance data file and reads it. 
 //  It is called from ReadInput(), and executed once at the beginning of the simulation.
 //  The variables read here are later used to compute soil impedance to root growth.
@@ -55,6 +55,7 @@ tuple<int> ReadSoilImpedance()
     int ncurve = atoi(Dummy.c_str());
     if (ncurve > 10)
         ncurve = 10;
+    sim.num_curve = ncurve;
     for (int i = 0; i < ncurve; i++) {
         DataFile >> inrim >> gh2oc[i];
         if (inrim > 10)
@@ -63,7 +64,6 @@ tuple<int> ReadSoilImpedance()
             DataFile >> tstbd[j][i] >> impede[j][i];
     }
     DataFile.close();
-    return make_tuple(ncurve);
 }
 
 //////////////////////////////////////////////////////////////////

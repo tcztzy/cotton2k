@@ -27,7 +27,7 @@ void WriteInitialInputData(const string &, const string &, const string &, const
 // GettingInput_2
 void InitSoil(const string &);
 
-tuple<int> ReadSoilImpedance();
+void ReadSoilImpedance(Simulation &);
 
 void InitializeSoilData(const string &);
 
@@ -92,7 +92,7 @@ Simulation ReadInput(const char *ProfileName)
     ReadCalibrationData();
     LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, sim.day_start, sim.climate);
     InitializeGrid(sim);
-    tie(sim.num_curve) = ReadSoilImpedance();
+    ReadSoilImpedance(sim);
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,
                           AgrInputFileName, PlantmapFileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant, sim.day_start_co2,
                           sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch, sim.mulch_indicator, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
