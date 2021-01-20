@@ -1,4 +1,4 @@
 #pragma once
 
-tuple<int, int, double, double>
-CottonPhenology(const int &, const int &, int, int, const double &, const double &, double, const ClimateStruct[400]);
+tuple<double, double>
+CottonPhenology(Simulation &, const int &, const double &, const double &, double);

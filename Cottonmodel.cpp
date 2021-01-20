@@ -399,10 +399,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
             DayInc,
             DayLength,
             WaterStress); // executes all modules of plant growth.
-        tie(sim.first_bloom, sim.first_square, AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(Daynum, sim.day_emerge,
-                                                                                                         sim.first_bloom, sim.first_square,
-                                                                                                         DayInc, WaterStress,
-                                                                                                         AbscisedLeafWeight, sim.climate); // executes all modules of plant phenology.
+        tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(sim, Daynum, DayInc, WaterStress, AbscisedLeafWeight); // executes all modules of plant phenology.
         PlantNitrogen(sim.profile_name, Daynum, sim.day_emerge);                                                                           // computes plant nitrogen allocation.
         CheckDryMatterBal(sim.profile_name, Date, AbscisedLeafWeight);                                                                     // checks plant dry matter balance.
                                                                                                                                            //     If the relevant output flag is not zero, compute soil nitrogen balance and soil

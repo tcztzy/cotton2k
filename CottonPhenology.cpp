@@ -52,9 +52,8 @@ double PhenDelayByNStress;  // phenological delay caused by vegetative nitrogen 
 //	        AdjustAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-tuple<int, int, double, double>
-CottonPhenology(const int &Daynum, const int &DayEmerge, int FirstBloom, int FirstSquare, const double &DayInc,
-                const double &WaterStress, double AbscisedLeafWeight, const ClimateStruct Clim[400])
+tuple<double, double> CottonPhenology(Simulation &sim, const int &Daynum, const double &DayInc,
+                const double &WaterStress, double AbscisedLeafWeight)
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -103,19 +102,19 @@ CottonPhenology(const int &Daynum, const int &DayEmerge, int FirstBloom, int Fir
 //  formed. Function DaysToFirstSquare() is called to compute the  number of days
 //  to 1st square, and function PreFruitingNode() is called to simulate the 
 //  formation of prefruiting nodes.
-    if (FirstSquare <= 0) {
-        DaysTo1stSqare = DaysToFirstSquare(Daynum, DayEmerge, WaterStress);
+    if (sim.first_square <= 0) {
+        DaysTo1stSqare = DaysToFirstSquare(Daynum, sim.day_emerge, WaterStress);
         PreFruitingNode(stemNRatio, DayInc);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
         if (Kday >= (int) DaysTo1stSqare) {
-            FirstSquare = Daynum;
+            sim.first_square = Daynum;
             tie(AbscisedLeafWeight) = CreateFirstSquare(stemNRatio, AbscisedLeafWeight);
         }
 //      if a first square has not been formed, call LeafAbscission() and exit.
         else {
-            tie(AbscisedLeafWeight) = LeafAbscission(Daynum, FirstSquare, DayInc, AbscisedLeafWeight);
-            return make_tuple(FirstBloom, FirstSquare, 0, AbscisedLeafWeight);
+            tie(AbscisedLeafWeight) = LeafAbscission(Daynum, sim.first_square, DayInc, AbscisedLeafWeight);
+            return make_tuple(0, AbscisedLeafWeight);
         }
     }
 //     The following is executed after the appearance of the first square.
@@ -147,15 +146,15 @@ CottonPhenology(const int &Daynum, const int &DayEmerge, int FirstBloom, int Fir
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-                tie(FirstBloom) = FruitingSite(k, l, m, nwfl, Daynum, DayInc, WaterStress, FirstBloom, Clim);
+                tie(sim.first_bloom) = FruitingSite(k, l, m, nwfl, Daynum, DayInc, WaterStress, sim.first_bloom, sim.climate);
         }
     }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
     double AbscisedFruitSites;
-    tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc, WaterStress, Clim);
+    tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc, WaterStress, sim.climate);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-    tie(AbscisedLeafWeight) = LeafAbscission(Daynum, FirstSquare, DayInc, AbscisedLeafWeight);
-    return make_tuple(FirstBloom, FirstSquare, AbscisedFruitSites, AbscisedLeafWeight);
+    tie(AbscisedLeafWeight) = LeafAbscission(Daynum, sim.first_square, DayInc, AbscisedLeafWeight);
+    return make_tuple(AbscisedFruitSites, AbscisedLeafWeight);
 }
 
 //////////////////////////
