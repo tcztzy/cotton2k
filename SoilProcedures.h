@@ -2,7 +2,6 @@
 
 #include <string>
 
-void SoilProcedures(const std::string &, const int &, const int &, const int &, const int &, const int &, const int &,
-                    const int &, const double &, const double[40][20][3], const ClimateStruct[400]);
+void SoilProcedures(Simulation &, const int &, const int &, const int &, const double &);
 
 void SoilSum();

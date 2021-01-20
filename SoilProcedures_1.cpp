@@ -42,9 +42,7 @@ void WaterUptake(const int &, const int &);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(const string &ProfileName, const int &Daynum, const int &DayOfSimulation, const int &DayEmerge,
-                    const int &DayStart, const int &FirstBloom, const int &FirstSquare, const int &NumLayersWithRoots,
-                    const double &WaterStress, const double RootWeight[40][20][3], const ClimateStruct Clim[400])
+void SoilProcedures(Simulation &sim, const int &Daynum, const int &DayOfSimulation, const int &NumLayersWithRoots, const double &WaterStress)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -67,12 +65,12 @@ void SoilProcedures(const string &ProfileName, const int &Daynum, const int &Day
     double DripWaterAmount = 0; // amount of water applied by drip irrigation
     double WaterToApply;        // amount of water applied by non-drip irrigation or rainfall
 //     Check if there is rain on this day
-    WaterToApply = GetFromClim(Clim, "rain", Daynum);
+    WaterToApply = GetFromClim(sim.climate, "rain", Daynum);
 //     If irrigation is to be predicted for this day, call ComputeIrrigation() 
 //  to compute the actual amount of irrigation.
     if (MaxIrrigation > 0)
         if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) {
-            ComputeIrrigation(ProfileName, Daynum, FirstBloom, FirstSquare, WaterStress, Clim);
+            ComputeIrrigation(sim.profile_name, Daynum, sim.first_bloom, sim.first_square, WaterStress, sim.climate);
             if (IrrigMethod == 2)
                 DripWaterAmount = AppliedWater;
             else
@@ -96,9 +94,9 @@ void SoilProcedures(const string &ProfileName, const int &Daynum, const int &Day
     if (Kday > 0)
         Scratch21[DayOfSimulation - 1].amitri = WaterToApply + DripWaterAmount;
 //     The following will be executed only after plant emergence
-    if (Daynum >= DayEmerge && isw > 0) {
+    if (Daynum >= sim.day_emerge && isw > 0) {
         RootsCapableOfUptake(NumLayersWithRoots,
-                             RootWeight);  // function computes roots capable of uptake for each soil cell
+                             sim.root_weight);  // function computes roots capable of uptake for each soil cell
         AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
         WaterUptake(DayOfSimulation, NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
@@ -121,7 +119,7 @@ void SoilProcedures(const string &ProfileName, const int &Daynum, const int &Day
 //  drippers, followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++) {
             GravityFlow(applywat);
-            CapillaryFlow(Daynum, DayStart);
+            CapillaryFlow(Daynum, sim.day_start);
         }
     }
     if (DripWaterAmount > 0) {
@@ -135,20 +133,20 @@ void SoilProcedures(const string &ProfileName, const int &Daynum, const int &Day
 // If water is applied, DripFlow() is called followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++) {
             DripFlow(applywat);
-            CapillaryFlow(Daynum, DayStart);
+            CapillaryFlow(Daynum, sim.day_start);
         }
     }
 //     When no water is added, there is only one iteration in this day.
     if (WaterToApply + DripWaterAmount <= 0) {
         noitr = 1;
-        CapillaryFlow(Daynum, DayStart);
+        CapillaryFlow(Daynum, sim.day_start);
     }
 //     If the output flag OutIndex(17) is non-zero, write to output file *.WAT.
 //  This flag is also the interval in days between outputs. This is used for checking only.
     if (OutIndex[17] > 0) {
         int kkk = Daynum / OutIndex[17];
         if (kkk * OutIndex[17] == Daynum) {
-            ofstream File42(fs::path("output") / (ProfileName + ".WAT"), ios::app);
+            ofstream File42(fs::path("output") / (string(sim.profile_name) + ".WAT"), ios::app);
             File42 << endl << " Average Values by Layers on Day of Year ";
             File42 << Daynum << endl;
             File42 << " Layer          VolWaterContent          SoilPsi " << endl;

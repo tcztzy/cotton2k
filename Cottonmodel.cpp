@@ -372,8 +372,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
     tie(sim.day_emerge) = SoilTemperature(sim, sim.profile_name, Daynum, DayOfSimulation, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant,
                                           sim.day_start_mulch, sim.day_end_mulch, sim.mulch_indicator, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave, PlantHeight,
                                           rracol, sim.climate); // executes all modules of soil and canopy temperature.
-    SoilProcedures(sim.profile_name, Daynum, DayOfSimulation, sim.day_emerge, sim.day_start, sim.first_bloom, sim.first_square,
-                   NumLayersWithRoots, WaterStress, sim.root_weight, sim.climate); // executes all other soil processes.
+    SoilProcedures(sim, Daynum, DayOfSimulation, NumLayersWithRoots, WaterStress); // executes all other soil processes.
     SoilNitrogen(Daynum, sim.day_start);                                           // computes nitrogen transformations in the soil.
     SoilSum();                                                                     // computes totals of water and N in the soil.
                                                                                    //     The following is executed each day after plant emergence:
