@@ -26,7 +26,6 @@ void InitializeGlobal()
     CumEvaporation = 0;
     CumFertilizerN = 0;
     CumNetPhotosynth = 0;
-    AdjSquareAbsc = 0;
     CumNitrogenUptake = 0;
     CumPlantNLoss = 0;
     CumTranspiration = 0;

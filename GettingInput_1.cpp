@@ -13,14 +13,14 @@
 
 using namespace std;
 
-Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &, string &);
+Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &);
 
 void ReadCalibrationData();
 
 void InitializeGrid(Simulation &);
 
 void WriteInitialInputData(const string &, const string &, const string &, const string &, const string &, const string &,
-                           const string &, const int &, const int &, const int &, const int &, const int &, const int &,
+                           const int &, const int &, const int &, const int &, const int &, const int &,
                            const int &, const int &, const int &, const double &, const double &, const double &,
                            const double &, const double &);
 
@@ -36,8 +36,6 @@ void InitializeSoilTemperature();
 void InitializeRootData(Simulation &);
 
 // GettingInput_3
-void ReadPlantMapInput(const string &);
-
 int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400]);
 
 void ReadAgriculturalInput(const string &, const string &);
@@ -78,14 +76,13 @@ Simulation ReadInput(const char *ProfileName)
         PrdWthFileName,   // name of input file with predicted weather data.
         SoilHydFileName,  // name of input file with soil hydrology data.
         SoilInitFileName, // name of input file with initial soil data.
-        AgrInputFileName, // name of input file with agricultural input data
-        PlantmapFileName; // name of input file with plant map adjustment data.
+        AgrInputFileName; // name of input file with agricultural input data
     double
         CO2EnrichmentFactor,
         Latitude,
         Longitude, MulchTranSW, MulchTranLW;
     InitializeGlobal();
-    Simulation sim = ReadProfileFile(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName, PlantmapFileName);
+    Simulation sim = ReadProfileFile(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName);
     int range = sim.day_finish - sim.day_start + 1;
     sim.number_of_states = range;
     sim.states = (State *)malloc(sizeof(State) * range);
@@ -94,12 +91,11 @@ Simulation ReadInput(const char *ProfileName)
     InitializeGrid(sim);
     ReadSoilImpedance(sim);
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,
-                          AgrInputFileName, PlantmapFileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant, sim.day_start_co2,
+                          AgrInputFileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant, sim.day_start_co2,
                           sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch, sim.mulch_indicator, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
                           sim.co2_enrichment_factor, sim.latitude, sim.longitude);
     InitSoil(SoilInitFileName);
     ReadAgriculturalInput(ProfileName, AgrInputFileName);
-    ReadPlantMapInput(PlantmapFileName);
     InitializeSoilData(SoilHydFileName);
     InitializeSoilTemperature();
     InitializeRootData(sim);
@@ -111,7 +107,7 @@ Simulation ReadInput(const char *ProfileName)
 
 /////////////////////////////////////////////////////////////////////////////
 Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, string &PrdWthFileName, string &SoilHydFileName,
-                           string &SoilInitFileName, string &AgrInputFileName, string &PlantmapFileName)
+                           string &SoilInitFileName, string &AgrInputFileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -243,13 +239,6 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
         AgrInputFileName = Dummy.substr(40, 20);
         AgrInputFileName.erase(remove(AgrInputFileName.begin(), AgrInputFileName.end(), ' '), AgrInputFileName.end());
     }
-    if (nLength > 60)
-    {
-        PlantmapFileName = Dummy.substr(60);
-        PlantmapFileName.erase(remove(PlantmapFileName.begin(), PlantmapFileName.end(), ' '), PlantmapFileName.end());
-    }
-    else
-        PlantmapFileName = "";
     //     Line #5: Latitude and longitude of this site, elevation (in m
     //  above sea level), and the index number for this geographic site.
     Dummy = GetLineData(DataFile);
@@ -296,7 +285,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     //     Line #7: Frequency in days for output of soil maps, and dates
     //  for start and stop of this output (blank or 0 if no such output is
     //  required. Same is repeated for output of plant maps.
-    string SoilMapStartDate, SoilMapStopDate, PlantMapStartDate, PlantMapStopDate;
+    string SoilMapStartDate, SoilMapStopDate;
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
     if (nLength > 9)
@@ -310,19 +299,6 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     {
         SoilMapStopDate = Dummy.substr(29, 11);
         SoilMapStopDate.erase(remove(SoilMapStopDate.begin(), SoilMapStopDate.end(), ' '), SoilMapStopDate.end());
-    }
-    if (nLength > 41)
-        PlantMapFreq = atoi(Dummy.substr(40, 10).c_str());
-    if (nLength >= 56)
-    {
-        PlantMapStartDate = Dummy.substr(54, 11);
-        PlantMapStartDate.erase(remove(PlantMapStartDate.begin(), PlantMapStartDate.end(), ' '),
-                                PlantMapStartDate.end());
-    }
-    if (nLength >= 71)
-    {
-        PlantMapStopDate = Dummy.substr(69, 11);
-        PlantMapStopDate.erase(remove(PlantMapStopDate.begin(), PlantMapStopDate.end(), ' '), PlantMapStopDate.end());
     }
     //     Line #8: 23 output flags.
     // - Line 8 consists of zeros and ones.  "1" tells the simulator to
@@ -347,13 +323,9 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     uint32_t DayPlant = DateToDoy(DatePlant.c_str(), iyear);
     uint32_t DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), iyear);
     uint32_t DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), iyear);
-    DayStartPlantMaps = DateToDoy(PlantMapStartDate.c_str(), iyear);
-    DayStopPlantMaps = DateToDoy(PlantMapStopDate.c_str(), iyear);
     //     If the output frequency indicators are zero, they are set to 999.
     if (SoilMapFreq <= 0)
         SoilMapFreq = 999;
-    if (PlantMapFreq <= 0)
-        PlantMapFreq = 999;
     //     If the date of emergence has not been given, emergence will be
     //  simulated by the model. In this case, isw = 0, and a check is
     //  performed to make sure that the date of planting has been given.
@@ -575,7 +547,6 @@ void WriteInitialInputData(
     const string &SoilHydFileName,
     const string &SoilInitFileName,
     const string &AgrInputFileName,
-    const string &PlantmapFileName,
     const int &DayEmerge,
     const int &DayStart,
     const int &DayFinish,
@@ -736,9 +707,6 @@ void WriteInitialInputData(
     File20 << "    Cultural Input File:           " << AgrInputFileName << endl;
     File20 << "    Initial Soil Data Input File:  " << SoilInitFileName << endl;
     File20 << "    Soil Hydrology Input File:     " << SoilHydFileName << endl;
-    if (PlantmapFileName.length() > 0)
-        File20 << "    Plant Map Adjustment File:     " << PlantmapFileName << endl
-               << endl;
     //   Write names of the site and the variety
     File20 << "    Site...     " << SiteName << endl;
     File20 << "    Variety...  " << VarName << endl

@@ -5,11 +5,6 @@
 //       SiteAbscissionRatio()
 //       SquareAbscission()
 //       BollAbscission()
-//       AdjustAbscission()
-//       AdjustSquareAbscission()
-//       AdjustYoungBollAbscission()
-//       AdjustSetBollAbscission()
-//       AdjustBollAbscission()
 //       ComputeSiteNumbers()
 //
 #include "global.h"
@@ -21,25 +16,17 @@ void SquareAbscission(int, int, int, double);
 
 void BollAbscission(int, int, int, double, double);
 
-void AdjustAbscission();
-
-void AdjustSquareAbscission(int, int, int, double);
-
-void AdjustYoungBollAbscission(int, int, int, double, double);
-
-void AdjustBollAbscission(int, int, int, int, double);
-
 tuple<double> ComputeSiteNumbers(int32_t);
 
 //////////////////////////////////////////////////
 tuple<double> FruitingSitesAbscission(const int &Daynum, const double &DayInc, const double &WaterStress, const ClimateStruct Clim[400])
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
-//	SquareAbscission(), BollAbscission(), AdjustAbscission() and ComputeSiteNumbers()
+//	SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //
 //     The following global variables are referenced here:
-//  CarbonStress, DayInc, FruitingCode, ginp, Gintot, Kday, KdayAdjust, NitrogenStress, 
-//  NumAdjustDays, NumFruitBranches, NumNodes, NumVegBranches, VarPar, WaterStress.
+//  CarbonStress, DayInc, FruitingCode, ginp, Gintot, Kday, NitrogenStress, 
+//  NumFruitBranches, NumNodes, NumVegBranches, VarPar, WaterStress.
 //
 //     The following global variable are set here:
 //  AbscissionLag, NumSheddingTags, ShedByCarbonStress, ShedByNitrogenStress, ShedByWaterStress.
@@ -127,8 +114,6 @@ tuple<double> FruitingSitesAbscission(const int &Daynum, const double &DayInc, c
 // number, or green boll number, or open boll number - call AdjustAbscission().
     NumSheddingTags = NumSheddingTags - idecr;
 //
-    if (Kday > KdayAdjust && Kday <= (KdayAdjust + NumAdjustDays))
-        AdjustAbscission();
 //
     double AbscisedFruitSites;
     tie(AbscisedFruitSites) = ComputeSiteNumbers(NumVegBranches);
@@ -302,236 +287,6 @@ void BollAbscission(int k, int l, int m, double abscissionRatio, double gin1)
         GreenBollsLost += BollWeight[k][l][m] + BurrWeight[k][l][m];
         BollWeight[k][l][m] = 0;
         BurrWeight[k][l][m] = 0;
-    }
-}
-
-////////////////////////
-void AdjustAbscission()
-//     This function adjusts the abscission of squares and bolls, to make their 
-//  numbers approximate the recorded plant map data. It is called from function
-//  FruitingSitesAbscission() when plant adjustment is needed.
-//
-//     The following global variables are referenced here:
-//        FruitingCode, FruitFraction, AdjGreenBollAbsc, ginp, Gintot, NumFruitBranches,
-//        NumNodes, NumOpenBolls, NumVegBranches, AdjSquareAbsc.
-//
-{
-    int jx[2]; // if jx[0] = 1 squares are adjusted, if jx[1] = 1 green bolls,
-    for (int i = 0; i < 2; i++)
-        jx[i] = 0;
-//
-    double abscsq; // adjusted rate of abscission of a square.
-//     Compute rate of square abscission for adjusting square number
-    if (nadj[3] && AdjSquareAbsc > 0) {
-        jx[0] = 1;
-        abscsq = AdjSquareAbsc;
-    }
-//     Compute all green bolls susceptible to shedding
-    int nbrch; // fruiting branch number.
-    int nnid; // node number on fruiting branch.
-    double abscgb; // adjusted rate of abscission of a green boll.
-    if (nadj[4] && AdjGreenBollAbsc > 0) {
-        jx[1] = 1;
-        double gbolnum = 0; // number of bolls susceptible to shedding per plant.
-        for (int k = 0; k < NumVegBranches; k++) {
-            nbrch = NumFruitBranches[k];
-            for (int l = 0; l < nbrch; l++) {
-                nnid = NumNodes[k][l];
-                for (int m = 0; m < nnid; m++) {
-                    if (FruitingCode[k][l][m] == 7)
-                        gbolnum += FruitFraction[k][l][m];
-                }
-            }
-        }
-//     Compute rate of young boll abscission for adjusting green boll number
-        if (gbolnum > 0)
-            abscgb = AdjGreenBollAbsc * NumGreenBolls / gbolnum;
-        else
-            abscgb = 0;
-    }
-//     Compute ginning percentage for computing seed weights.
-    double gin1; // ginning percent, used to compute lost nitrogen.
-    if (jx[1] == 1) {
-        if (Gintot > 0)
-            gin1 = Gintot;
-        else
-            gin1 = ginp;
-    }
-//     Start a loop for all fruiting sites.
-    for (int k = 0; k < NumVegBranches; k++) {
-        nbrch = NumFruitBranches[k];
-        for (int l = 0; l < nbrch; l++) {
-            nnid = NumNodes[k][l];
-            for (int m = 0; m < nnid; m++) {
-                if (jx[0] == 1 && FruitingCode[k][l][m] == 1)
-                    AdjustSquareAbscission(k, l, m, abscsq);
-                if (jx[1] == 1 && FruitingCode[k][l][m] == 7)
-                    AdjustYoungBollAbscission(k, l, m, abscgb, gin1);
-            }
-        }
-    }
-}
-
-////////////////////////
-void AdjustSquareAbscission(int k, int l, int m, double abscsq)
-//     This function adjusts the abscission of squares, to
-//  make their numbers approximate the recorded plant map data.
-//  It is called from function AdjustAbscission().
-//
-//     The following global variables are referenced here: SquareNConc.
-//
-//     The following global variable are set here:
-//  BloomWeightLoss, CumPlantNLoss, FruitingCode, FruitFraction, SquareNitrogen, 
-//  SquareWeight, TotalSquareWeight.
-//
-//     The following arguments are used:
-//        abscsq - adjusted rate of abscission of a square.
-//        k, l, m - site location
-//
-{
-//     If this is a square induce abscission ratio abscsq. Compute changes
-//  in dry weight and nitrogen content of squares, and associated losses.
-//  Also, compute FruitFraction for this site.
-    double wtlos; // weight lost by shedding at this site.
-    wtlos = SquareWeight[k][l][m] * abscsq;
-    SquareNitrogen -= wtlos * SquareNConc;
-    CumPlantNLoss += wtlos * SquareNConc;
-    SquareWeight[k][l][m] -= wtlos;
-    BloomWeightLoss += wtlos;
-    TotalSquareWeight -= wtlos;
-    FruitFraction[k][l][m] = FruitFraction[k][l][m] * (1 - abscsq);
-//     If FruitFraction is very small, make it 0 and change FruitingCode to 5.
-    if (FruitFraction[k][l][m] <= 0.001) {
-        FruitFraction[k][l][m] = 0;
-        SquareNitrogen -= SquareWeight[k][l][m] * SquareNConc;
-        CumPlantNLoss += SquareWeight[k][l][m] * SquareNConc;
-        BloomWeightLoss += SquareWeight[k][l][m];
-        TotalSquareWeight -= SquareWeight[k][l][m];
-        SquareWeight[k][l][m] = 0;
-        FruitingCode[k][l][m] = 5;
-    }
-//     If FruitFraction is greater than 1, make it 1 and compute associated changes
-//  in dry weight and nitrogen and their losses.
-    if (FruitFraction[k][l][m] > 1) {
-        wtlos = SquareWeight[k][l][m] * (1 - 1 / FruitFraction[k][l][m]);
-        FruitFraction[k][l][m] = 1;
-        SquareNitrogen -= wtlos * SquareNConc;
-        CumPlantNLoss += wtlos * SquareNConc;
-        SquareWeight[k][l][m] -= wtlos;
-        BloomWeightLoss += wtlos;
-        TotalSquareWeight -= wtlos;
-    }
-}
-
-/////////////////////
-void AdjustYoungBollAbscission(int k, int l, int m, double abscgb, double gin1)
-//     This function adjusts the abscission of young green bolls, to
-//  make their numbers near the recorded plant map data.
-//     It is called from function AdjustAbscission().
-//
-//     The following global variables are referenced here:
-//        BurrNConc, pixcon, SeedNConc.
-//
-//     The following global variable are set here:
-//  BollWeight, BurrNitrogen, BurrWeight, BurrWeightGreenBolls, CottonWeightGreenBolls, 
-//  CumPlantNLoss, FruitFraction, GreenBollsLost, 
-//        PixInPlants, SeedNitrogen.
-//
-//     The following arguments are used:
-//        abscgb - adjusted rate of abscission of a green boll.
-//        gin1 - ginning percent, used to compute lost nitrogen.
-//        k, l, m - loop index.
-//
-{
-//     If this is a green boll induce abscission ratio abscgb. Compute
-//  changes in dry weight and nitrogen content of seedcotton and burrs,
-//  and associated losses. Also compute FruitFraction for this site.
-//
-    SeedNitrogen -= BollWeight[k][l][m] * abscgb * (1 - gin1) * SeedNConc;
-    BurrNitrogen -= BurrWeight[k][l][m] * abscgb * BurrNConc;
-    CumPlantNLoss += BollWeight[k][l][m] * abscgb * (1 - gin1) * SeedNConc;
-    CumPlantNLoss += BurrWeight[k][l][m] * abscgb * BurrNConc;
-    double pixlos; // amount of pix lost by abscission, g per plant.
-    pixlos = (BollWeight[k][l][m] + BurrWeight[k][l][m]) * abscgb * pixcon;
-    PixInPlants = PixInPlants - pixlos;
-    GreenBollsLost += (BollWeight[k][l][m] + BurrWeight[k][l][m]) * abscgb;
-    CottonWeightGreenBolls -= BollWeight[k][l][m] * abscgb;
-    BurrWeightGreenBolls -= BurrWeight[k][l][m] * abscgb;
-    BollWeight[k][l][m] = BollWeight[k][l][m] * (1 - abscgb);
-    BurrWeight[k][l][m] = BurrWeight[k][l][m] * (1 - abscgb);
-    FruitFraction[k][l][m] = FruitFraction[k][l][m] * (1 - abscgb);
-//
-    int jx = 2; // if jx = 2 green bolls, and if jx = 3 open bolls.
-    AdjustBollAbscission(k, l, m, jx, gin1);
-}
-
-/////////////////////
-void AdjustBollAbscission(int k, int l, int m, int jx, double gin1)
-//     This function adjusts the abscission of squares and bolls, to make their numbers 
-//  near the recorded plant map data. It is called from functions 
-//  AdjustYoungBollAbscission() and AdjustSetBollAbscission().
-//
-//     The following global variables are referenced here:
-//  BurrNConc, pixcon, SeedNConc.
-//
-//     The following global variable are set here:
-//  BollWeight, BurrNitrogen, BurrWeight, BurrWeightGreenBolls, BurrWeightOpenBolls, 
-//  CottonWeightGreenBolls, CottonWeightOpenBolls, CumPlantNLoss, 
-//  FruitingCode, FruitFraction, GreenBollsLost, PixInPlants, SeedNitrogen.
-//
-//     The following arguments are used:
-//        gin1 - ginning percent, used to compute lost nitrogen.
-//        jx - if jx = 2 these are green bolls, and if jx = 3 open bolls.
-//        k, l, m - site index.
-//
-{
-//     The following section is activated for both green and open bolls.
-//  If FruitFraction is very small, make it 0 and change FruitingCode to 4.
-    if (FruitFraction[k][l][m] <= 0.001) {
-        SeedNitrogen -= BollWeight[k][l][m] * (1 - gin1) * SeedNConc;
-        BurrNitrogen -= BurrWeight[k][l][m] * BurrNConc;
-        CumPlantNLoss += BollWeight[k][l][m] * (1 - gin1) * SeedNConc;
-        CumPlantNLoss += BurrWeight[k][l][m] * BurrNConc;
-        PixInPlants -= (BollWeight[k][l][m] + BurrWeight[k][l][m]) * pixcon;
-        GreenBollsLost += BollWeight[k][l][m] + BurrWeight[k][l][m];
-//
-        if (jx == 2) {
-            CottonWeightGreenBolls -= BollWeight[k][l][m];
-            BurrWeightGreenBolls -= BurrWeight[k][l][m];
-        } else if (jx == 3) {
-            CottonWeightOpenBolls -= BollWeight[k][l][m];
-            BurrWeightOpenBolls -= BurrWeight[k][l][m];
-        }
-//
-        FruitFraction[k][l][m] = 0;
-        BollWeight[k][l][m] = 0;
-        BurrWeight[k][l][m] = 0;
-        FruitingCode[k][l][m] = 4;
-    }
-//     If FruitFraction is greater than 1, make it 1 and compute associated changes
-//  in dry weight and nitrogen and their losses.
-    if (FruitFraction[k][l][m] > 1) {
-        double bolwlos; // weight of seed cotton lost from a boll.
-        double burwlos; // weight of burrs lost from a boll.
-        bolwlos = BollWeight[k][l][m] * (1 - 1 / FruitFraction[k][l][m]);
-        burwlos = BurrWeight[k][l][m] * (1 - 1 / FruitFraction[k][l][m]);
-        FruitFraction[k][l][m] = 1;
-        SeedNitrogen -= bolwlos * (1 - gin1) * SeedNConc;
-        BurrNitrogen -= burwlos * BurrNConc;
-        CumPlantNLoss += bolwlos * (1 - gin1) * SeedNConc;
-        CumPlantNLoss += burwlos * BurrNConc;
-        PixInPlants -= (bolwlos + burwlos) * pixcon;
-        GreenBollsLost += bolwlos + burwlos;
-        BollWeight[k][l][m] -= bolwlos;
-        BurrWeight[k][l][m] -= burwlos;
-//
-        if (jx == 2) {
-            CottonWeightGreenBolls -= bolwlos;
-            BurrWeightGreenBolls -= burwlos;
-        } else if (jx == 3) {
-            CottonWeightOpenBolls -= bolwlos;
-            BurrWeightOpenBolls -= burwlos;
-        }
     }
 }
 

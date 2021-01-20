@@ -6,7 +6,3 @@
 void WriteStateVariables(bool, const std::string &, const int &, const int &, const int &, const int &, const int &,
                          const double &, const double &, const double &, const double &, const double[40][20][3],
                          const double[40][20], const ClimateStruct[400]);
-
-std::tuple<string, int, int, int, int, double, double, double, double>
-PlantAdjustments(int, int, const std::string &, const std::string &, const int &, const int &, int, int, int, double,
-                 double, double, double, double[40][20][3], double[40][20]);

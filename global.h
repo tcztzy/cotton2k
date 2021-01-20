@@ -80,27 +80,24 @@ typedef struct Irrigation
 extern Irrigation Irrig[150];
 ////    Integers    ////
 extern int DayFirstDef,
-    DayStartPlantMaps,
-    DayStartPredIrrig, DayStopPlantMaps, DayStopPredIrrig,
-    inrim, IrrigMethod, isw, iyear, Kday, KdayAdjust,
+    DayStartPredIrrig, DayStopPredIrrig,
+    inrim, IrrigMethod, isw, iyear, Kday,
     LastDayWeatherData, LastIrrigation, LastTaprootLayer,
     LocationColumnDrip, LocationLayerDrip,
     MainStemNodes, MinDaysBetweenIrrig,
-    nk, nl, noitr, NumAbscisedLeaves, NumAdjustDays, NumFruitSites,
+    nk, nl, noitr, NumAbscisedLeaves, NumFruitSites,
     NumIrrigations, NumNitApps, NumPreFruNodes,
-    NumSheddingTags, NumVegBranches, NumWaterTableData,
-    PlantMapFreq, SoilMapFreq, WaterTableLayer;
+    NumSheddingTags, NumVegBranches, NumWaterTableData, SoilMapFreq, WaterTableLayer;
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
-    FruitingCode[3][30][5], LateralRootFlag[maxl], MapDataDate[30],
+    FruitingCode[3][30][5], LateralRootFlag[maxl],
     NumFruitBranches[3], NumNodes[3][30], OutIndex[24], pixday[10], pixmth[10],
     RootColNumLeft[maxl], RootColNumRight[maxl], SoilHorizonNum[maxl];
 ////    Boolean    ////
-extern bool bPollinSwitch, nadj[5];
+extern bool bPollinSwitch;
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth,
     ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl,
-    AdjAddHeightRate, AdjAddMSNodesRate, AdjAddSitesRate, AdjGreenBollAbsc,
-    AdjSquareAbsc, AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
+    AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
     BloomWeightLoss, BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
     CarbonAllocatedForRootGrowth, CarbonStress, conmax,
     CottonWeightGreenBolls, CottonWeightOpenBolls, CumEvaporation, CumFertilizerN,
@@ -148,9 +145,7 @@ extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk], AgeOfBoll[3][30][
     LeafAge[3][30][5], LeafAreaMainStem[3][30], LeafAreaNodes[3][30][5], LeafAreaPreFru[9],
     LeafWeightMainStem[3][30], LeafWeightNodes[3][30][5], LeafWeightPreFru[9],
     LevelsOfWaterTable[20], LwpMinX[3], LwpX[3],
-    MarginalWaterContent[maxl], MapDataAllSiteNum[30], MapDataGreenBollNum[30],
-    MapDataMainStemNodes[30], MapDataPlantHeight[30],
-    MapDataSquareNum[30], MaxWaterCapacity[maxl], MulchTemp[maxk],
+    MarginalWaterContent[maxl], MaxWaterCapacity[maxl], MulchTemp[maxk],
     NO3FlowFraction[maxl],
     PetioleWeightMainStem[3][30], PetioleWeightNodes[3][30][5], PetioleWeightPreFru[9],
     pixppa[10], PoreSpace[maxl], PotGroBolls[3][30][5], PotGroBurrs[3][30][5],

@@ -27,9 +27,7 @@ struct Irrigation Irrig[150]; // irrigation application information for each day
 //
 int CultivationDate[5],     // Dates (DOY) of cultivatrion.
     DayFirstDef,            // Date (DOY) of first defoliation.
-    DayStartPlantMaps,      // Date (DOY) to start plant maps output.
     DayStartPredIrrig,      // Date (DOY) for starting predicted irrigation.
-    DayStopPlantMaps,       // Date (DOY) to stop plant maps output.
     DayStopPredIrrig,       // Date (DOY) for stopping predicted irrigation.
     DayWaterTableInput[20], // Dates (DOY) of water table input data.
     DefoliationDate[5],     // Dates (DOY) of defoliant applications.
@@ -48,7 +46,6 @@ int FruitingCode[3][30][5], // code indicating the developmental state of each f
     // 2 = two dimensional - used after emergence.
     iyear,                 // year of start of simulation (stored as 4-digit number).
     Kday,                  // number of days since emergence.
-    KdayAdjust,            // days since emergence to start retroactive plant map adjustment.
     LastDayWeatherData,    // last date (DOY) with weather data.
     LastIrrigation,        // date (Doy) of last irrigation (for prediction).
     LastTaprootLayer,      // last soil layer with taproot.
@@ -60,12 +57,10 @@ int FruitingCode[3][30][5], // code indicating the developmental state of each f
 
 int MainStemNodes,       // number of main stem nodes.
     MinDaysBetweenIrrig, // minimum number of days between consecutive irrigations (used for computing predicted irrigation).
-    MapDataDate[30],     // Dates (Doy) when plant map data are available for adjustment.
     nk,                  // number of vertical columns of soil cells in the slab.
     nl,                  // number of horizontal layers of soil cells in the slab.
     noitr,               // number of iterations per day, for calling some soil water related functions.
     NumAbscisedLeaves,   // number of leaves, per plant, lost by abscission.
-    NumAdjustDays,       // number of days for retroactive plant map adjustment.
     NumFruitBranches[3], // number of fruiting branches at each vegetative branch.
     NumFruitSites,       // total number of fruiting sites per plant.
     NumIrrigations,      // number of irrigations.
@@ -80,7 +75,6 @@ int MainStemNodes,       // number of main stem nodes.
 int OutIndex[24],          // output flags.
     pixday[10],            // Date (DOY) of PIX application.
     pixmth[10],            // code number for method of application of PIX: 0 = 'BANDED'; 1 = 'SPKLER'; 2 = 'BDCAST'.
-    PlantMapFreq,          // frequency of output of plant maps, days.
     RootColNumLeft[maxl],  // first column with roots in a soil layer.
     RootColNumRight[maxl], // last column with roots in a soil layer.
     SoilHorizonNum[maxl],  // the soil horizon number associated with each soil layer in the slab.
@@ -89,12 +83,8 @@ int OutIndex[24],          // output flags.
 //
 // boolean variables:
 //
-bool bPollinSwitch, // pollination switch: false = no pollination, true = yes.
-    nadj[5];        // Plant map adjustment is necessary if nadj(jj) = true,
-// not necessary if false, where jj is:   0 - for main stem nodes.
-// 1 - for plant height. 2 - for total site number. 3 - for square number.
-// 4 - for green boll number.
-//
+bool bPollinSwitch; // pollination switch: false = no pollination, true = yes.
+
 // double variables:
 //
 // A
@@ -108,11 +98,6 @@ double
     ActualStemGrowth,             // actual growth rate of stems, g plant-1 day-1.
     ActualTranspiration,          // actual transpiration from plants, mm day-1.
     addwtbl,                      // water added to the slab (in mm) due to high water table.
-    AdjAddHeightRate,             // adjustment ratio for added plant height.
-    AdjAddMSNodesRate,            // adjustment ratio for added mainstem nodes.
-    AdjAddSitesRate,              // the ratio to adjust the rate of formation of sites on fruiting branches.
-    AdjGreenBollAbsc,             // ratio of abscised bolls, used for adjustment.
-    AdjSquareAbsc,                // added abscission ratio of squares, to adjust for reported plant map data.
     AgeOfBoll[3][30][5],          // age of each boll, physiological days from flowering.
     AgeOfPreFruNode[9],           // age of each prefruiting node, physiological days.
     AgeOfSite[3][30][5],          // age of each fruiting site, physiological days from square initiation.
@@ -217,11 +202,6 @@ double
 // M
 double
     MarginalWaterContent[maxl], // marginal soil water content (as a function of soil texture) for computing soil heat conductivity.
-    MapDataAllSiteNum[30],      // the number of total sites per plant, input for plant map adjustment.
-    MapDataGreenBollNum[30],    // number of green bolls per plant, input for plant map adjustment.
-    MapDataMainStemNodes[30],   // Number of mainstem nodes, input for plant map adjustment.
-    MapDataPlantHeight[30],     // average plant height, input for plant map adjustment.
-    MapDataSquareNum[30],       // the number of squares per plant, input for plant map adjustment.
     MaxIrrigation,              // maximum amount of applied water in a predicted irrigation
     MaxWaterCapacity[maxl],     // volumetric water content of a soil layer at maximum capacity, before drainage, cm3 cm-3.
     MineralizedOrganicN,        // cumulative amount of mineralized organic N, mgs per slab.

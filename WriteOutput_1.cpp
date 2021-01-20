@@ -22,8 +22,6 @@ void output1(const string &, const string &, const int &, const int &, const int
 void WriteLine22(ofstream &, double, double, double, const double &);
 
 // Out this file
-void cotplt(int, const string &, const string &);
-
 void outputplt(const string &, const int &);
 
 void output2(const string &);
@@ -290,8 +288,8 @@ void DailyOutput(const string &ProfileName, const string &Date, const int &Daynu
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
 //     The following global variables are referenced here:
-//       DayOfSimulation, DayStartPlantMaps, DayStopPlantMaps, dl, NumFruitBranches, 
-//       NumPreFruNodes, OutIndex, PlantMapFreq, RowSpace, VolNo3NContent, wk,    
+//       DayOfSimulation, dl, NumFruitBranches, 
+//       NumPreFruNodes, OutIndex, RowSpace, VolNo3NContent, wk,    
 //     The following global variables are set here:      MainStemNodes, SumNO3N90.
 {
 //     1. Compute some variables needed for output:
@@ -318,24 +316,6 @@ void DailyOutput(const string &ProfileName, const string &Date, const int &Daynu
     if (DayOfSimulation > 0)
         WriteStateVariables(false, Date, Daynum, DayOfSimulation, FirstBloom, FirstSquare, NumLayersWithRoots,
                             PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge, Clim);
-//
-//     3. Write plant map output by calling cotplt():
-//     If the output flags (OutIndex(7) or OutIndex(13)) indicate that plant map output is  
-//  requested, and if it is after first square - call function cotplt() if day of year is between 
-//  DayStartPlantMaps and DayStopPlantMaps. 
-    if (FruitingCode[0][0][0] > 0 && (OutIndex[7] + OutIndex[13]) > 0)
-        if (Daynum >= DayStartPlantMaps && Daynum <= DayStopPlantMaps) {
-            int idum; // days from start of output period.
-            idum = Daynum - DayStartPlantMaps;
-//     Plant maps will be executed at PlantMapFreq day intervals:
-            if ((idum % PlantMapFreq) == 0) {
-                if (OutIndex[7] > 0)
-                    cotplt(1, ProfileName, Date);
-                if (OutIndex[13] > 0)
-                    cotplt(4, ProfileName, Date);
-            }
-        }
-//
 //     4. Call output1() to write output to F01 and S01 files:
     output1(ProfileName, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, PlantHeight, AbscisedFruitSites);
     if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)

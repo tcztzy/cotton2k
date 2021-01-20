@@ -47,11 +47,6 @@ extern "C" fn AddPlantHeight(
     carbon_stress: f64,
     nitrogen_stress_of_vegetative: f64,
     pixdz: f64,
-    days_since_emergence: i32,
-    days_since_emergence_to_start_retroactive_plant_map_adjustment: i32,
-    number_of_days_for_retroactive_plant_map_adjustment: i32,
-    need_adjust: bool,
-    adjusted_add_height_rate: f64,
     var19: f64,
     var20: f64,
     var21: f64,
@@ -109,14 +104,5 @@ extern "C" fn AddPlantHeight(
     }
     // The effect of temperature is expressed by DayInc. there are also effects of pix, plant density, and of a variety-specific calibration parameter (VarPar(26)).
     addz *= var26 * pixdz * physiological_days_increment * density_factor;
-    // Apply adjustment to addz if plant map data have been read
-    let kdadjustend = days_since_emergence_to_start_retroactive_plant_map_adjustment
-        + number_of_days_for_retroactive_plant_map_adjustment;
-    if days_since_emergence > days_since_emergence_to_start_retroactive_plant_map_adjustment
-        && days_since_emergence <= kdadjustend
-        && need_adjust
-    {
-        addz *= adjusted_add_height_rate;
-    }
     addz
 }

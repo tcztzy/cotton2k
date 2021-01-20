@@ -18,7 +18,7 @@ extern "C"
 {
     double LeafResistance(double);
     double PotentialStemGrowth(double, int, unsigned int, double, double, double, double, double, double, double, double);
-    double AddPlantHeight(double denf2, double, uint32_t, uint32_t, double, double, double, double, double, double, double, int32_t, int32_t, int32_t, bool, double, double, double, double, double, double, double, double, double);
+    double AddPlantHeight(double denf2, double, uint32_t, uint32_t, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double);
 }
 
 // PlantGrowth_2
@@ -506,7 +506,7 @@ PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &D
         l2 = 0;
     double agetop; // average physiological age of top three nodes.
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
-    PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, Kday, KdayAdjust, NumAdjustDays, nadj[1], AdjAddHeightRate, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+    PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, sim, sim.profile_name, Daynum, DayOfSimulation, sim.day_emerge,
                                                       NumLayersWithRoots, NumRootAgeGroups, sim.root_weight, sim.root_age);

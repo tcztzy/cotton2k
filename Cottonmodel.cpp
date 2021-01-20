@@ -10,7 +10,6 @@
 //    GetProfilesList()
 //    RunTheModel()
 //    DailySimulation()
-//    DoAdjustments()
 //    SimulateThisDay()
 //    OnAppAbout()
 //       Class CAoutDlg
@@ -23,7 +22,6 @@
 #include "DailyClimate.h"
 #include "Input.h"
 #include "Output.h"
-#include "PlantAdjustment.h"
 #include "PlantGrowth.h"
 #include "PlantNitrogen.h"
 #include "SoilNitrogen.h"
@@ -201,10 +199,9 @@ void C2KApp::RunTheModel(const char *profile)
 
 ////////////////////////////////////////////////////////////////////////////////
 void C2KApp::DailySimulation(Simulation &sim)
-//     This function controls the dynamic phase of the simulation, allowing
-//  for in-run adjustments when there is an input of plant map adjustments.
+//     This function controls the dynamic phase of the simulation.
 //     It calls the functions:
-//        DoAdjustments(), SimulateThisDay(), WriteStateVariables()
+//        SimulateThisDay(), WriteStateVariables()
 //
 //     The following global variable are referenced:   Kday.
 //
@@ -219,114 +216,16 @@ void C2KApp::DailySimulation(Simulation &sim)
     double WaterStress = 1;        // general water stress index (0 to 1).
     try
     {
-        for (int DayOfSimulation = 1; DayOfSimulation <= sim.number_of_states; DayOfSimulation++)
+        for (int i = 0; i < sim.number_of_states; i++)
         {
-            BOOL bAdjustToDo;
-            tie(bAdjustToDo, Date, Daynum, NumLayersWithRoots,
-                PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = DoAdjustments(sim, Date,
-                                                                                                  Daynum,
-                                                                                                  DayOfSimulation,
-                                                                                                  NumLayersWithRoots,
-                                                                                                  PlantHeight,
-                                                                                                  AbscisedFruitSites,
-                                                                                                  AbscisedLeafWeight,
-                                                                                                  WaterStress);
             pdlg->ProgressStepit();
             Daynum++;
-            tie(Date, NumLayersWithRoots, PlantHeight,
-                AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, Daynum,
-                                                                                       NumLayersWithRoots, PlantHeight,
-                                                                                       AbscisedFruitSites,
-                                                                                       AbscisedLeafWeight, WaterStress);
-            // If there are pending plant adjustments, call WriteStateVariables() to write
-            // state variables of this day in a scratch file.
-            if (bAdjustToDo)
-                WriteStateVariables(TRUE, Date, Daynum, DayOfSimulation, sim.first_bloom, sim.first_square, NumLayersWithRoots,
-                                    PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, sim.root_weight,
-                                    sim.root_age, sim.climate);
+            tie(Date, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
         }
     }
     catch (SimulationEnd)
     {
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-tuple<BOOL, string, int, int, double, double, double, double> C2KApp::DoAdjustments(
-    Simulation &sim,
-    string Date,
-    int Daynum,
-    int DayOfSimulation,
-    int NumLayersWithRoots,
-    double PlantHeight,
-    double AbscisedFruitSites,
-    double AbscisedLeafWeight,
-    double WaterStress)
-//     This function is called from DailySimulation(). It checks if plant adjustment data
-//  are available for this day and calls the necessary functions to compute adjustment.
-//  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
-//
-//     The following global variable are referenced:  Kday,
-//     The following global variable are set:   MapDataDate, nadj, NumAdjustDays.
-//
-{
-    //     Check if plant map data are available for this day. If there are no more adjustments, return.
-    static int kprevadj = 0; // day after emergence of the previous plant map adjustment.
-    int sumsad = 0;          // sum for checking if any adjustments are due
-    for (int i = 0; i < 30; i++)
-        sumsad += MapDataDate[i];
-    if (sumsad <= 0)
-        return make_tuple(FALSE, Date, Daynum, NumLayersWithRoots,
-                          PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
-    //     Loop for all adjustment data, and check if there is an adjustment for this day.
-    for (int i = 0; i < 30; i++)
-    {
-        if (Daynum == MapDataDate[i])
-        {
-            //     Compute NumAdjustDays, the number of days for retroactive adjustment. This can not be more
-            //  than 12 days, limited by the date of the previous adjustment.
-            NumAdjustDays = Kday - kprevadj;
-            if (NumAdjustDays > 12)
-                NumAdjustDays = 12;
-            //     Loop for six possible adjustments. On each iteration call first PlantAdjustments(), which
-            //  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
-            for (int jj = 0; jj < 5; jj++)
-            {
-                tie(Date, Daynum, sim.first_bloom, sim.first_square, NumLayersWithRoots, PlantHeight, AbscisedFruitSites,
-                    AbscisedLeafWeight, WaterStress) = PlantAdjustments(i, jj, sim.profile_name, Date, Daynum,
-                                                                        DayOfSimulation, sim.first_bloom, sim.first_square,
-                                                                        NumLayersWithRoots, PlantHeight,
-                                                                        AbscisedFruitSites, AbscisedLeafWeight,
-                                                                        WaterStress, sim.root_weight, sim.root_age);
-                //     If adjustment is necessary, rerun the simulation for the previous NumAdjustDays (number
-                //  of days) and call WriteStateVariables() to write state variables in scratch structure.
-                if (nadj[jj])
-                    for (int j1 = 0; j1 < NumAdjustDays; j1++)
-                    {
-                        Daynum++;
-                        tie(Date, NumLayersWithRoots, PlantHeight,
-                            AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, Daynum,
-                                                                                                   NumLayersWithRoots,
-                                                                                                   PlantHeight,
-                                                                                                   AbscisedFruitSites,
-                                                                                                   AbscisedLeafWeight,
-                                                                                                   WaterStress);
-                        if (Kday > 0)
-                            WriteStateVariables(TRUE, Date, Daynum, DayOfSimulation, sim.first_bloom, sim.first_square,
-                                                NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight,
-                                                WaterStress, sim.root_weight, sim.root_age, sim.climate);
-                    } // end for j1, and if nadj
-            }         // end for jj
-                      //     After finishing this adjustment date, set kprevadj (date of previous adjustment, to
-                      //  be used for next adjustment), and assign zero to the present msadte, and to array nadj[].
-            kprevadj = MapDataDate[i] - sim.day_emerge + 1;
-            MapDataDate[i] = 0;
-            for (int jj = 0; jj < 5; jj++)
-                nadj[jj] = FALSE;
-        } // end if Daynum
-    }     // end do i
-    return make_tuple(TRUE, Date, Daynum, NumLayersWithRoots,
-                      PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
 }
 
 //////////////////////////////////////////////////
@@ -339,7 +238,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
     double AbscisedLeafWeight,
     double WaterStress)
 //     This function executes all the simulation computations in a day. It is called from
-//  DailySimulation(), and DoAdjustments().   It calls the following functions:
+//  DailySimulation().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
 //     SoilNitrogen(), SoilSum(), PhysiologicalAge(), Pix(), Defoliate(), Stress(),
 //     GetNetPhotosynthesis(), PlantGrowth(), CottonPhenology(), PlantNitrogen(),

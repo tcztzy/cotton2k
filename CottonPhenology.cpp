@@ -48,8 +48,7 @@ double PhenDelayByNStress;  // phenological delay caused by vegetative nitrogen 
 //      LeafAbscission() calls PreFruitLeafAbscission(), MainStemLeafAbscission(),
 //          FruitNodeLeafAbscission(), DefoliationLeafAbscission()
 //          === see file LeafAbscission.cpp
-//      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission(),
-//	        AdjustAbscission() and ComputeSiteNumbers()
+//      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
 tuple<double, double> CottonPhenology(Simulation &sim, const int &Daynum, const double &DayInc,
@@ -391,15 +390,6 @@ void AddFruitingBranch(int k, double delayVegByCStress, double stemNRatio, const
         TimeToNextFruBranch = TimeToNextFruBranch * vfrtbr[6];
     TimeToNextFruBranch = TimeToNextFruBranch * (1 + vfrtbr[7] * (1 - DensityFactor))
                           + DelayNewFruBranch[k];
-//     Apply adjustment to ageinc if plant map data indicate it.
-    if (Kday > KdayAdjust && Kday <= (KdayAdjust + NumAdjustDays)) {
-        if (nadj[0]) {
-            if (AdjAddMSNodesRate == 0)
-                TimeToNextFruBranch = 100;
-            else
-                TimeToNextFruBranch = TimeToNextFruBranch / AdjAddMSNodesRate;
-        }
-    }
 //     Check if the the age of the last fruiting branch exceeds TimeToNextFruBranch. If so, form the new fruiting branch:
     if (AgeOfSite[k][nbrch][0] < TimeToNextFruBranch)
         return;
@@ -470,15 +460,6 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio, 
                         + tav * (vfrtnod[3] + tav * (vfrtnod[4] + tav * vfrtnod[5]));
     TimeToNextFruNode = TimeToNextFruNode
                         * (1 + VarPar[37] * (1 - DensityFactor)) + DelayNewNode[k][l];
-//     Check if plant adjustment by map data is needed
-    if (Kday > KdayAdjust && Kday <= (KdayAdjust + NumAdjustDays)) {
-        if (nadj[2]) {
-            if (AdjAddSitesRate == 0)
-                TimeToNextFruNode = 100;
-            else
-                TimeToNextFruNode = TimeToNextFruNode / AdjAddSitesRate;
-        }
-    }
 //     Check if the the age of the last node on the fruiting branch exceeds TimeToNextFruNode.
 //  If so, form the new node:
     if (AgeOfSite[k][l][nnid] < TimeToNextFruNode)
@@ -512,8 +493,8 @@ tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const i
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
 //        AvrgDailyTemp, CottonWeightGreenBolls, 
-//        DayFirstDef, DayInc, Kday, KdayAdjust, LeafAreaIndex, nadj, 
-//        NStressVeg, NumAdjustDays, NumFruitBranches, NStressFruiting, WaterStress, VarPar.
+//        DayFirstDef, DayInc, Kday, LeafAreaIndex,
+//        NStressVeg, NumFruitBranches, NStressFruiting, WaterStress, VarPar.
 //     The following global variable are set here:
 //        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight, 
 //        FirstBloom, FruitingCode, LeafAge, NumFruitSites, 
