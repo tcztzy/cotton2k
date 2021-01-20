@@ -320,6 +320,44 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
     return lyrsol;
 }
 
+void init_root_data(Root root[40][20], uint32_t plant_row_column, double mul) {
+    for (int l = 0; l < 40; l++) {
+        for (int k = 0; k < 20; k++) {
+            root[l][k] = {0, 1, 0, 0, {0, 0, 0}};
+        }
+    }
+    // FIXME: I consider the value is incorrect
+    root[0][plant_row_column - 1].weight[0] = 0.0020 * mul;
+    root[0][plant_row_column].weight[0] = 0.0070 * mul;
+    root[0][plant_row_column + 1].weight[0] = 0.0070 * mul;
+    root[0][plant_row_column + 2].weight[0] = 0.0020 * mul;
+    root[1][plant_row_column - 1].weight[0] = 0.0040 * mul;
+    root[1][plant_row_column].weight[0] = 0.0140 * mul;
+    root[1][plant_row_column + 1].weight[0] = 0.0140 * mul;
+    root[1][plant_row_column + 2].weight[0] = 0.0040 * mul;
+    root[2][plant_row_column - 1].weight[0] = 0.0060 * mul;
+    root[2][plant_row_column].weight[0] = 0.0210 * mul;
+    root[2][plant_row_column + 1].weight[0] = 0.0210 * mul;
+    root[2][plant_row_column + 2].weight[0] = 0.0060 * mul;
+    root[3][plant_row_column].weight[0] = 0.0200 * mul;
+    root[3][plant_row_column + 1].weight[0] = 0.0200 * mul;
+    root[4][plant_row_column].weight[0] = 0.0150 * mul;
+    root[4][plant_row_column + 1].weight[0] = 0.0150 * mul;
+    root[5][plant_row_column].weight[0] = 0.0100 * mul;
+    root[5][plant_row_column + 1].weight[0] = 0.0100 * mul;
+    root[6][plant_row_column].weight[0] = 0.0050 * mul;
+    root[6][plant_row_column + 1].weight[0] = 0.0050 * mul;
+    for (int l = 0; l < 3; l++) {
+        for (int k = plant_row_column - 1; k < plant_row_column + 3; k++) {
+            root[l][k].age = 0.01;
+        }
+    }
+    for (int l = 3; l < 7; l++) {
+        root[l][plant_row_column].age = 0.01;
+        root[l][plant_row_column + 1].age = 0.01;
+    }
+}
+
 //////////////////////////////////////////////////////////
 void InitializeRootData(Simulation & sim)
 //     This function initializes the root submodel parameters and variables. It is called
@@ -420,6 +458,7 @@ void InitializeRootData(Simulation & sim)
     int NumLayersWithRoots = 7;
     TapRootLength = (DepthLastRootLayer - 0.5 * dl[NumLayersWithRoots - 1]);
     LastTaprootLayer = 6;
+    init_root_data(sim.states[0].root, sim.plant_row_column, 0.01 * RowSpace / PerPlantArea);
 }
 
 //////////////////////////////////////////////////////////
