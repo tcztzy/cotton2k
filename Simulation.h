@@ -39,6 +39,5 @@ typedef struct Simulation
                                             // double Rain = daily rainfall, mm.
                                             // double Wind = daily wind run, km.
     State *states;
-    size_t number_of_states;
 } Simulation;
 #endif

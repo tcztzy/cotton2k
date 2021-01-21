@@ -184,7 +184,7 @@ void C2KApp::RunTheModel(const char *profile)
     Simulation sim = ReadInput(profile);
     // Create a modeless dialog with progress control
     pdlg = new CProgCtrlDlg;
-    pdlg->m_uiRangeTo = sim.number_of_states;
+    pdlg->m_uiRangeTo = sim.day_finish - sim.day_start + 1;
     pdlg->m_ProfileName = profile;
     pdlg->m_Running = "Running the Simulation";
     pdlg->Create();
@@ -216,7 +216,7 @@ void C2KApp::DailySimulation(Simulation &sim)
     double WaterStress = 1;        // general water stress index (0 to 1).
     try
     {
-        for (int i = 0; i < sim.number_of_states; i++)
+        for (int i = 0; i < sim.day_finish - sim.day_start + 1; i++)
         {
             pdlg->ProgressStepit();
             Daynum++;
