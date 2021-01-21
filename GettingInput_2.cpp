@@ -409,7 +409,6 @@ void InitializeRootData(Simulation & sim)
             PotGroRoots[l][k] = 0;
             RootGroFactor[l][k] = 1;
             ActualRootGrowth[l][k] = 0;
-            sim.root_age[l][k] = 0;
         }
     }
     init_root_data(sim.states[0].root, sim.plant_row_column, 0.01 * RowSpace / PerPlantArea);
@@ -424,9 +423,6 @@ void InitializeRootData(Simulation & sim)
             for (int i = 0; i < 3; i++) {
                 TotalRootWeight += sim.states[0].root[l][k].weight[i] * 100 / RowSpace * PerPlantArea;
             }
-//     initialize RootAge to a non-zero value for each cell containing roots.
-            if (sim.states[0].root[l][k].weight[0] > 0)
-                sim.root_age[l][k] = 0.01;
         }
     }
 //     Initial value of taproot length, TapRootLength, is computed to the

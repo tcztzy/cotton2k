@@ -23,7 +23,7 @@ extern "C"
 }
 
 //////////////////////////////////////////////////
-tuple<int> RedistRootNewGrowth(Simulation &sim, int l, int k, double addwt, int NumLayersWithRoots, double RootAge[40][20])
+tuple<int> RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt, int NumLayersWithRoots)
 //     This function computes the redistribution of new growth of
 //  roots into adjacent soil cells. It is called from ActualRootGrowth().
 //     Redistribution is affected by the factors rgfdn, rgfsd, rgfup.
@@ -100,17 +100,17 @@ tuple<int> RedistRootNewGrowth(Simulation &sim, int l, int k, double addwt, int 
     ActualRootGrowth[lp1][k] += addwt * efacd / srwp;
     //     If roots are growing into new soil soil cells, initialize
     //  their RootAge to 0.01.
-    if (RootAge[l][km1] == 0)
-        RootAge[l][km1] = 0.01;
-    if (RootAge[l][kp1] == 0)
-        RootAge[l][kp1] = 0.01;
-    if (RootAge[lm1][k] == 0)
-        RootAge[lm1][k] = 0.01;
+    if (sim.states[u].root[l][km1].age == 0)
+        sim.states[u].root[l][km1].age = 0.01;
+    if (sim.states[u].root[l][kp1].age == 0)
+        sim.states[u].root[l][kp1].age = 0.01;
+    if (sim.states[u].root[lm1][k].age == 0)
+        sim.states[u].root[lm1][k].age = 0.01;
     //     If this new compartmment is in a new layer with roots, also
     //  initialize its RootColNumLeft and RootColNumRight values.
-    if (RootAge[lp1][k] == 0 && efacd > 0)
+    if (sim.states[u].root[lp1][k].age == 0 && efacd > 0)
     {
-        RootAge[lp1][k] = 0.01;
+        sim.states[u].root[lp1][k].age = 0.01;
         if (RootColNumLeft[lp1] == 0 || k < RootColNumLeft[lp1])
             RootColNumLeft[lp1] = k;
         if (RootColNumRight[lp1] == 0 || k > RootColNumRight[lp1])
@@ -138,7 +138,7 @@ tuple<int> RedistRootNewGrowth(Simulation &sim, int l, int k, double addwt, int 
 
 //////////////////////////////
 tuple<int>
-TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumLayersWithRoots, double RootAge[40][20])
+TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumLayersWithRoots)
 //     This function computes the elongation of the taproot. It is
 //  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
 //
@@ -198,8 +198,8 @@ TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumL
         RootColNumRight[LastTaprootLayer] < klocp1)
         RootColNumRight[LastTaprootLayer] = klocp1;
     //     RootAge is initialized for these soil cells.
-    RootAge[LastTaprootLayer][sim.plant_row_column] = 0.01;
-    RootAge[LastTaprootLayer][klocp1] = 0.01;
+    sim.states[u].root[LastTaprootLayer][sim.plant_row_column].age = 0.01;
+    sim.states[u].root[LastTaprootLayer][klocp1].age = 0.01;
     //     Some of the mass of class 1 roots is transferred downwards to
     //  the new cells. The transferred mass is proportional to 2 cm of
     //  layer width, but it is not more than half the existing mass in the
@@ -249,7 +249,7 @@ void InitiateLateralRoots()
 }
 
 //////////////////////////////
-void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups, double RootAge[40][20])
+void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups)
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the left. It is called from ActualRootGrowth().
 //     It calls function SoilTemOnRootGrowth().
@@ -307,8 +307,8 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
             }
             //     RootAge is initialized for this soil cell.
             //     RootColNumLeft of this layer is redefined.
-            if (RootAge[l][newktip] == 0)
-                RootAge[l][newktip] = 0.01;
+            if (sim.states[u].root[l][newktip].age == 0)
+                sim.states[u].root[l][newktip].age = 0.01;
             if (newktip < RootColNumLeft[l])
                 RootColNumLeft[l] = newktip;
         }
@@ -316,7 +316,7 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
 }
 
 //////////////////////////////
-void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups, double RootAge[40][20])
+void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups)
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the right. It is called from ActualRootGrowth().
 //     It calls function SoilTemOnRootGrowth().
@@ -375,8 +375,8 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
             }
             //     RootAge is initialized for this soil cell.
             //     RootColNumLeft of this layer is redefined.
-            if (RootAge[l][newktip] == 0)
-                RootAge[l][newktip] = 0.01;
+            if (sim.states[u].root[l][newktip].age == 0)
+                sim.states[u].root[l][newktip].age = 0.01;
             if (newktip > RootColNumRight[l])
                 RootColNumRight[l] = newktip;
         }
@@ -384,7 +384,7 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void RootAging(Root &root, int l, int k, double RootAge[40][20])
+void RootAging(Root &root, int l, int k)
 //     This function is called from ActualRootGrowth(). It updates the variable celage(l,k)
 //  for the age of roots in each soil cell containing roots. When root age reaches a threshold
 //  thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion
@@ -406,11 +406,11 @@ void RootAging(Root &root, int l, int k, double RootAge[40][20])
                                             //
     double stday;                           // daily average soil temperature (c) of soil cell.
     stday = SoilTempDailyAvrg[l][k] - 273.161;
-    RootAge[l][k] += SoilTemOnRootGrowth(stday);
+    root.age += SoilTemOnRootGrowth(stday);
     //
     for (int i = 0; i < 2; i++)
     {
-        if (RootAge[l][k] > thtrn[i])
+        if (root.age > thtrn[i])
         {
             double xtr; // root mass transferred from one class to the next.
             xtr = trn[i] * root.weight[i];
@@ -421,7 +421,7 @@ void RootAging(Root &root, int l, int k, double RootAge[40][20])
 }
 
 //////////////////////////////
-double RootDeath(Root &root, int l, int k, double DailyRootLoss, const double RootAge[40][20])
+double RootDeath(Root &root, int l, int k, double DailyRootLoss)
 {
     //     This function computes the death of root tissue in each soil cell containing roots.
     //  When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i
@@ -448,7 +448,7 @@ double RootDeath(Root &root, int l, int k, double DailyRootLoss, const double Ro
     //
     for (int i = 0; i < 3; i++)
     {
-        if (RootAge[l][k] > thdth[i])
+        if (root.age > thdth[i])
         {
             double dthfac; // the computed proportion of roots dying in each class.
             dthfac = dth[i];

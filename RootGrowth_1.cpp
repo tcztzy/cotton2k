@@ -28,19 +28,19 @@ extern "C"
     double SoilMechanicResistance(double);
 }
 
-tuple<int> RedistRootNewGrowth(Simulation &, int, int, double, int, double[40][20]);
+tuple<int> RedistRootNewGrowth(Simulation &, uint32_t, int, int, double, int);
 
-tuple<int> TapRootGrowth(Simulation &, uint32_t, const int &, int, double[40][20]);
+tuple<int> TapRootGrowth(Simulation &, uint32_t, const int &, int);
 
 void InitiateLateralRoots();
 
-void LateralRootGrowthLeft(Simulation &, uint32_t, int, const int &, double[40][20]);
+void LateralRootGrowthLeft(Simulation &, uint32_t, int, const int &);
 
-void LateralRootGrowthRight(Simulation &, uint32_t, int, const int &, double[40][20]);
+void LateralRootGrowthRight(Simulation &, uint32_t, int, const int &);
 
-void RootAging(Root &, int, int, double[40][20]);
+void RootAging(Root &, int, int);
 
-double RootDeath(Root &, int, int, double, const double[40][20]);
+double RootDeath(Root &, int, int, double);
 
 double RootCultivation(Root[40][20], int, const int &, double);
 
@@ -82,8 +82,7 @@ void RootSummation(Simulation &, uint32_t, const int &, const int &);
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(const int &NumRootAgeGroups, const int &NumLayersWithRoots, const int &ncurve,
-                           Root root[40][20], const double RootAge[40][20])
+double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const int &NumLayersWithRoots, const int &ncurve)
 //     This function calculates the potential root growth rate.  The return value
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(),
@@ -110,7 +109,7 @@ double PotentialRootGrowth(const int &NumRootAgeGroups, const int &NumLayersWith
             //  than 0), and execute the following if this is true.
             //     In each soil cell with roots, the root weight capable of growth rtwtcg is computed as
             //  the sum of RootWeight[l][k][i] * cgind[i] for all root classes.
-            if (RootAge[l][k] > 0)
+            if (root[l][k].age > 0)
             {
                 double rtwtcg = 0; // root weight capable of growth in a soil soil cell.
                 for (int i = 0; i < NumRootAgeGroups; i++)
@@ -254,8 +253,7 @@ void RootImpedance(const int &ncurve)
 
 //////////////////////////
 tuple<int>
-ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const int &DayOfSimulation,
-                        const int &DayEmerge, int NumLayersWithRoots, const int &NumRootAgeGroups, double RootAge[40][20])
+ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const int &DayOfSimulation, int NumLayersWithRoots, const int &NumRootAgeGroups)
 //     This function calculates the actual root growth rate. It is called from function
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(),
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(),
@@ -281,7 +279,7 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     //
     static double pavail; // residual available carbon for root growth from previous day.
                           //     Assign zero to pavail if this is the day of emergence.
-    if (Daynum <= DayEmerge)
+    if (Daynum <= sim.day_emerge)
         pavail = 0;
     double adwr1[maxl][maxk]; // actual growth rate from roots existing in this soil cell.
                               //     Assign zero to the arrays of actual root growth rate.
@@ -310,7 +308,7 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
         for (int k = 0; k < nk; k++)
         {
             //     adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
-            if (RootAge[l][k] > 0)
+            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
                 adwr1[l][k] = PotGroRoots[l][k] * actgf;
         }
     //     If extra carbon is available, it is assumed to be added to the taproot.
@@ -348,14 +346,14 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     //  ActualRootGrowth(l,k) will be equal to adwr1(l,k).
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
-            if (RootAge[l][k] > 0)
+            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
             {
                 double rtconc = 0; // ratio of root weight capable of growth to cell volume.
                 for (int i = 0; i < NumRootAgeGroups; i++)
                     rtconc += sim.states[DayOfSimulation - 1].root[l][k].weight[i] * cgind[i];
                 rtconc = rtconc / (dl[l] * wk[k]);
                 if (rtconc > rtminc)
-                    tie(NumLayersWithRoots) = RedistRootNewGrowth(sim, l, k, adwr1[l][k], NumLayersWithRoots, RootAge);
+                    tie(NumLayersWithRoots) = RedistRootNewGrowth(sim, DayOfSimulation - 1, l, k, adwr1[l][k], NumLayersWithRoots);
                 else
                     ActualRootGrowth[l][k] += adwr1[l][k];
             }
@@ -369,7 +367,7 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
         {
-            if (RootAge[l][k] > 0)
+            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
             {
                 double sumgr = 0; // sum of growth index multiplied by root weight, for all classes in a cell.
                 for (int i = 0; i < NumRootAgeGroups; i++)
@@ -387,15 +385,15 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     //     Call function TapRootGrowth() for taproot elongation, if the taproot
     //  has not already reached the bottom of the slab.
     if (LastTaprootLayer < nl - 1 || TapRootLength < DepthLastRootLayer)
-        tie(NumLayersWithRoots) = TapRootGrowth(sim, DayOfSimulation - 1, NumRootAgeGroups, NumLayersWithRoots, RootAge);
+        tie(NumLayersWithRoots) = TapRootGrowth(sim, DayOfSimulation - 1, NumRootAgeGroups, NumLayersWithRoots);
     //     Call functions for growth of lateral roots
     InitiateLateralRoots();
     for (int l = 0; l < LastTaprootLayer; l++)
     {
         if (LateralRootFlag[l] == 2)
         {
-            LateralRootGrowthLeft(sim, DayOfSimulation - 1, l, NumRootAgeGroups, RootAge);
-            LateralRootGrowthRight(sim, DayOfSimulation - 1, l, NumRootAgeGroups, RootAge);
+            LateralRootGrowthLeft(sim, DayOfSimulation - 1, l, NumRootAgeGroups);
+            LateralRootGrowthRight(sim, DayOfSimulation - 1, l, NumRootAgeGroups);
         }
     }
     //     Initialize DailyRootLoss (weight of sloughed roots) for this day.
@@ -405,10 +403,10 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
         {
             //     Check RootAge to determine if this soil cell contains roots, and then compute root
             //  aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
-            if (RootAge[l][k] > 0)
+            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
             {
-                RootAging(sim.states[DayOfSimulation - 1].root[l][k], l, k, RootAge);
-                DailyRootLoss = RootDeath(sim.states[DayOfSimulation - 1].root[l][k], l, k, DailyRootLoss, RootAge);
+                RootAging(sim.states[DayOfSimulation - 1].root[l][k], l, k);
+                DailyRootLoss = RootDeath(sim.states[DayOfSimulation - 1].root[l][k], l, k, DailyRootLoss);
             }
         }
     //     Check if cultivation is executed in this day and call RootCultivation().
