@@ -68,9 +68,7 @@ tmpisr;           // extraterrestrial radiation, W / m2.
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-tuple<double> DayClim(const string &ProfileName, const string &Date, const int &Daynum, const int &u,
-                      const int &DayStart, const int &DayFinish, const double &Latitude, const double &Longitude,
-                      ClimateStruct Clim[400])
+tuple<double> DayClim(Simulation &sim, uint32_t u)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), GetFromClim(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -84,9 +82,9 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
 {
 //     Compute day length and related variables:
     double DayLength;
-    tie(DayLength) = ComputeDayLength(Daynum, Latitude, Longitude);
+    tie(DayLength) = ComputeDayLength(sim.day_start + u, sim.latitude, sim.longitude);
 //
-    double xlat = Latitude * pi / 180;         // latitude converted to radians.
+    double xlat = sim.latitude * pi / 180;         // latitude converted to radians.
     double cd = cos(xlat) * cos(declination);  // amplitude of the sine of the solar height.
     double sd = sin(xlat) * sin(declination);  // seasonal offset of the sine of the solar height.
 //     The computation of the daily integral of global radiation (from
@@ -102,11 +100,11 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
 //     The daily radiation integral is computed for later use in function Radiation.
 //  Daily radiation intedral is converted from langleys to Watt m-2, and divided by dsbe.
 //      11.630287 = 1000000 / 3600 / 23.884
-        radsum = GetFromClim(Clim, "rad", Daynum) * 11.630287 / dsbe;
+        radsum = GetFromClim(sim.climate, "rad", sim.day_start + u) * 11.630287 / dsbe;
     }
 //     Set 'pollination switch' for rainy days (as in GOSSYM).
     double rainToday; // The amount of rain today, mm
-    rainToday = GetFromClim(Clim, "rain", Daynum);
+    rainToday = GetFromClim(sim.climate, "rain", sim.day_start + u);
     if (rainToday >= 2.5)
         bPollinSwitch = false;
     else
@@ -116,25 +114,24 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
 //  for rainfall only, but it is not activated when irrigation is applied.
     double runoffToday = 0; // amount of runoff today, mm
     if (rainToday >= 2.0) {
-        runoffToday = SimulateRunoff(rainToday, Daynum, DayStart, Clim);
+        runoffToday = SimulateRunoff(rainToday, sim.day_start + u, sim.day_start, sim.climate);
         if (runoffToday < rainToday)
             rainToday -= runoffToday;
         else
             rainToday = 0;
-        int j = Daynum - DayStart;  // days from start of simulation
-        Clim[j].Rain = rainToday;
+        sim.climate[u].Rain = rainToday;
     }
     Scratch21[u].runoff = runoffToday;
 //     Set period for detailed output of weather variables, if requested.
     static int j1 = 0;
     static int j2 = 0;
-    if (OutIndex[15] > 0 && Daynum <= DayStart) {
+    if (OutIndex[15] > 0 && u <= 0) {
         // NOTE: Used to dialog input DayStart DayFinish
-        j1 = DayStart;
-        j2 = DayFinish;
+        j1 = sim.day_start;
+        j2 = sim.day_finish;
     }
     int jtout;  // jtout > 0 if output is required
-    if (OutIndex[15] > 0 && Daynum >= j1 && Daynum <= j2)
+    if (OutIndex[15] > 0 && sim.day_start + u >= j1 && sim.day_start + u <= j2)
         jtout = OutIndex[15];
     else
         jtout = 0;
@@ -152,17 +149,17 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
 //     Compute hourly global radiation, using function dayrad.
         Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
 //     Compute hourly temperature, using function daytmp.
-        AirTemp[ihr] = daytmp(ti, Daynum, DayLength, Clim);
+        AirTemp[ihr] = daytmp(ti, sim.day_start + u, DayLength, sim.climate);
 //     Compute hourly dew point temperature, using function tdewhour.
-        DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr], Daynum, Clim);
+        DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr], sim.day_start + u, sim.climate);
 //     Compute hourly relative humidity, using function dayrh.
         RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
 //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
-        WindSpeed[ihr] = daywnd(ti, GetFromClim(Clim, "wind", Daynum), t1, t2, t3, wnytf);
+        WindSpeed[ihr] = daywnd(ti, GetFromClim(sim.climate, "wind", sim.day_start + u), t1, t2, t3, wnytf);
     }
 //     Write output file if requested.
     if (jtout > 1) {
-        ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::app);
+        ofstream File18(fs::path("output") / (string(sim.profile_name) + ".TM2"), ios::app);
         File18 << endl;
         File18 << " hour     radiation    temperature             RelativeHumidity           wind" << endl;
         for (int ihr = 0; ihr < 24; ihr++)  //  Start hourly loop.
@@ -184,7 +181,7 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
     AverageAirTemperatures();
 //     Write output file if requested.
     if (jtout > 1) {
-        ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::app);
+        ofstream File18(fs::path("output") / (string(sim.profile_name) + ".TM2"), ios::app);
         File18 << endl << " DayTimeTemp, NightTimeTemp, AvrgDailyTemp =   ";
         File18.precision(2);
         File18.width(10);
@@ -195,7 +192,7 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
         File18 << AvrgDailyTemp << endl;
     }
 //     Compute potential evapotranspiration.
-    EvapoTranspiration(jtout, ProfileName, Date, Daynum, Latitude, DayLength);
+    EvapoTranspiration(jtout, sim.profile_name, sim.states[u].date, sim.day_start + u, sim.latitude, DayLength);
     return make_tuple(DayLength);
 }
 

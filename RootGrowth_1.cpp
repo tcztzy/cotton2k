@@ -253,7 +253,7 @@ void RootImpedance(const int &ncurve)
 
 //////////////////////////
 tuple<int>
-ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const int &u, int NumLayersWithRoots, const int &NumRootAgeGroups)
+ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, int NumLayersWithRoots, const int &NumRootAgeGroups)
 //     This function calculates the actual root growth rate. It is called from function
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(),
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(),
@@ -279,7 +279,7 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     //
     static double pavail; // residual available carbon for root growth from previous day.
                           //     Assign zero to pavail if this is the day of emergence.
-    if (Daynum <= sim.day_emerge)
+    if (sim.day_start + u <= sim.day_emerge)
         pavail = 0;
     double adwr1[maxl][maxk]; // actual growth rate from roots existing in this soil cell.
                               //     Assign zero to the arrays of actual root growth rate.
@@ -411,7 +411,7 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
         }
     //     Check if cultivation is executed in this day and call RootCultivation().
     for (int j = 0; j < 5; j++)
-        if (CultivationDate[j] == Daynum)
+        if (CultivationDate[j] == sim.day_start + u)
             DailyRootLoss = RootCultivation(sim.states[u].root, j, NumRootAgeGroups, DailyRootLoss);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / RowSpace;

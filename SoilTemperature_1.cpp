@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void SoilTemperatureInit(int &, int &, const string &, const int &, const int &, const int &, const ClimateStruct[]);
+void SoilTemperatureInit(int &, int &, Simulation &);
 
 // SoilTemperature_2
 void
@@ -106,24 +106,7 @@ void ColumnShading(Simulation & sim, const int &Daynum, const int &DayEmerge, co
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-tuple<int> SoilTemperature(
-        Simulation& sim,
-        const string &ProfileName,
-        const int &Daynum,
-        const int &u,
-        int DayEmerge,
-        const int &DayStart,
-        const int &DayFinish,
-        const int &DayPlant,
-        const int &DayStartMulch,
-        const int &DayEndMulch,
-        const int &MulchIndicator,
-        const double &MulchTranSW,
-        const double &MulchTranLW,
-        const double &PlantHeight,
-        double rracol[20],
-        const ClimateStruct Clim[400]
-)
+void SoilTemperature(Simulation& sim, uint32_t u, const double &PlantHeight, double rracol[20])
 //     This is the main part of the soil temperature sub-model. It is called daily from
 //  SimulateThisDay(). It calls the following functions:
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
@@ -138,16 +121,16 @@ tuple<int> SoilTemperature(
 //       SoilTempDailyAvrg, VolWaterContent, 
 {
     static int jt1, jt2;  //  Julian dates for start and end of output.
-    if (Daynum <= DayStart)
-        SoilTemperatureInit(jt1, jt2, ProfileName, Daynum, DayStart, DayFinish, Clim);
+    if (u == 0)
+        SoilTemperatureInit(jt1, jt2, sim);
 //     Set output flag jtout, indicating if output of soil temperature is required.
     bool jtout = false;  // output flag for soil temperature data
     if (OutIndex[16] > 0)
-        if (Daynum >= jt1 && Daynum <= jt2)
+        if (sim.day_start + u >= jt1 && sim.day_start + u <= jt2)
             jtout = true;
 //     Compute dts, the daily change in deep soil temperature (C), as
 //  a site-dependent function of Daynum.
-    double dts = 2 * pi * SitePar[10] / 365 * cos(2 * pi * (Daynum - SitePar[11]) / 365);
+    double dts = 2 * pi * SitePar[10] / 365 * cos(2 * pi * (sim.day_start + u - SitePar[11]) / 365);
 //     Define iter1 and dlt for hourly time step.
     int iter1 = 24;    // number of iterations per day.
     double dlt = 3600; // time (seconds) of one iteration.
@@ -198,17 +181,17 @@ tuple<int> SoilTemperature(
                 etp1 = etp0 * (1 - rracol[k]) / shadeav;
 //     Check if mulch is on for this date and for this column.
             bool bMulchon; // is true if this column is covered with plastic mulch now, false if not.
-            if (MulchIndicator == 0 || Daynum < DayStartMulch || Daynum > DayEndMulch)
+            if (sim.mulch_indicator == 0 || sim.day_start + u < sim.day_start_mulch || sim.day_start + u > sim.day_end_mulch)
                 bMulchon = false;
             else {
-                if (MulchIndicator == 1)
+                if (sim.mulch_indicator == 1)
                     bMulchon = true;
-                else if (MulchIndicator == 2) {
+                else if (sim.mulch_indicator == 2) {
                     if (k >= sim.plant_row_column && k <= (sim.plant_row_column + 1))
                         bMulchon = false;
                     else
                         bMulchon = true;
-                } else if (MulchIndicator >= 3) {
+                } else if (sim.mulch_indicator >= 3) {
                     if (k >= (sim.plant_row_column - 1) && k <= (sim.plant_row_column + 2))
                         bMulchon = false;
                     else
@@ -234,7 +217,7 @@ tuple<int> SoilTemperature(
                 ess = escol1k / dlt;
             }
 //     Call EnergyBalance to compute soil surface and canopy temperature.
-            EnergyBalance(ihr, k, bMulchon, ess, etp1, Daynum, PlantHeight, MulchTranSW, MulchTranLW, rracol);
+            EnergyBalance(ihr, k, bMulchon, ess, etp1, sim.day_start + u, PlantHeight, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave, rracol);
             if (bMulchon) {
                 tmav += MulchTemp[k] - 273.161;
                 kmulch++;
@@ -298,9 +281,9 @@ tuple<int> SoilTemperature(
             tfc = tfc / shading;
 //     If there is an output flag, write data to file TMS.
         if (jtout) {
-            ofstream File19(fs::path("output") / (ProfileName + ".TMS"), ios::app);
+            ofstream File19(fs::path("output") / (string(sim.profile_name) + ".TMS"), ios::app);
             File19.width(5);
-            File19 << Daynum;
+            File19 << sim.day_start + u;
             File19.width(5);
             File19 << ihr + 1;
             File19.setf(ios::fixed);
@@ -336,8 +319,8 @@ tuple<int> SoilTemperature(
             File19 << endl;
         }
 //     If emergence date is to be simulated, call PredictEmergence().
-        if (isw == 0 && Daynum >= DayPlant)
-            tie(DayEmerge) = PredictEmergence(sim, ihr, ProfileName, Daynum, DayEmerge, DayPlant);
+        if (isw == 0 && sim.day_start + u >= sim.day_plant)
+            tie(sim.day_emerge) = PredictEmergence(sim, ihr, sim.profile_name, sim.day_start + u, sim.day_emerge, sim.day_plant);
     } // end of hourly loop
 //      At the end of the day compute actual daily evaporation and its cumulative sum.
     if (kk == 1) {
@@ -356,7 +339,6 @@ tuple<int> SoilTemperature(
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
             SoilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k] / iter1;
-    return make_tuple(DayEmerge);
 }
 /*
                            References.
@@ -477,8 +459,7 @@ tuple<int> SoilTemperature(
   Soil Sci. Soc. Am. Proc. 33:354-360.
 */
 ////////////////////////////////////////////////////////////////////////
-void SoilTemperatureInit(int &jt1, int &jt2, const string &ProfileName, const int &Daynum, const int &DayStart,
-                         const int &DayFinish, const ClimateStruct Clim[400])
+void SoilTemperatureInit(int &jt1, int &jt2, Simulation &sim)
 //     This function is called from SoilTemperature() at the start of the simulation. It sets 
 //  initial values to soil and canopy temperatures.
 //     The following arguments are set in this function:
@@ -495,10 +476,10 @@ void SoilTemperatureInit(int &jt1, int &jt2, const string &ProfileName, const in
     jt2 = 0;
     if (OutIndex[16] > 0) {
         // NOTE: Used to dialog input DayStart DayFinish
-        jt1 = DayStart;
-        jt2 = DayFinish;
+        jt1 = sim.day_start;
+        jt2 = sim.day_finish;
 //     File *.TMS is used for checking the soil temperature routines. Write header of output:
-        ofstream File19(fs::path("output") / (ProfileName + ".TMS"), ios::out);
+        ofstream File19(fs::path("output") / (string(sim.profile_name) + ".TMS"), ios::out);
         File19 << " Day of Year hour ----------------  TS FOR ALL LAYERS  -------------------" << endl;
         File19 << "                  1      2       3       4       5       6       7       8" << endl;
         File19 << "                  9     10      11      12      13      14      15      16" << endl;
@@ -513,17 +494,15 @@ void SoilTemperatureInit(int &jt1, int &jt2, const string &ProfileName, const in
 //     NOTE: For a good simulation of soil temperature, it is recommended to start simulation at 
 //  least 10 days before planting date. This means that climate data should be available for 
 //  this period. This is especially important if emergence date has to be simulated. 
-    int idd = Daynum - 4 - DayStart;  // number of days minus 4 from start of simulation.
-    if (idd < 0)
-        idd = 0;
+    int idd = 0;  // number of days minus 4 from start of simulation.
     double tsi1 = 0; // Upper boundary (surface layer) initial soil temperature, C.
-    for (int i = idd; i < idd + 5; i++)
-        tsi1 += Clim[i].Tmax + Clim[i].Tmin;
+    for (int i = 0; i < 5; i++)
+        tsi1 += sim.climate[i].Tmax + sim.climate[i].Tmin;
     tsi1 = tsi1 / 10;
 //     The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function
 //  of day of year, with site-specific parameters.                                               
     DeepSoilTemperature = SitePar[9]
-                          + SitePar[10] * sin(2 * pi * (Daynum - SitePar[11]) / 365);
+                          + SitePar[10] * sin(2 * pi * (sim.day_start - SitePar[11]) / 365);
 //     SoilTemp is assigned to all columns, converted to degrees K.
     tsi1 += 273.161;
     DeepSoilTemperature += 273.161;

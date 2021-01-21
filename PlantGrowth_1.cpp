@@ -405,7 +405,7 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
 */
 ////////////////////////////////////////////////////////////////////////////
 tuple<int, double>
-PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &u, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayInc, const double &DayLength, const double &WaterStress)
+PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayInc, const double &DayLength, const double &WaterStress)
 //     This function simulates the potential and actual growth of cotton plants.
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -508,14 +508,14 @@ PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &u
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
     PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
-    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, sim, Daynum, u, NumLayersWithRoots, NumRootAgeGroups);
+    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sim, u, sumpdr, NumLayersWithRoots, NumRootAgeGroups);
     //     Output data to file *.CHB
     if (OutIndex[18] > 0)
     {
         ofstream File36(fs::path("output") / (string(sim.profile_name) + ".CHB"), ios::app);
         File36.unsetf(ios::left);
         File36.width(11);
-        File36 << Date;
+        File36 << sim.states[u].date;
         File36.setf(ios::fixed);
         File36.precision(5);
         File36.width(10);
