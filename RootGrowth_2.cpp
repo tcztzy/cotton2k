@@ -138,7 +138,7 @@ tuple<int> RedistRootNewGrowth(Simulation &sim, int l, int k, double addwt, int 
 
 //////////////////////////////
 tuple<int>
-TapRootGrowth(Simulation &sim, const int &NumRootAgeGroups, int NumLayersWithRoots, double RootWeight[40][20][3], double RootAge[40][20])
+TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumLayersWithRoots, double RootAge[40][20])
 //     This function computes the elongation of the taproot. It is
 //  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
 //
@@ -209,17 +209,17 @@ TapRootGrowth(Simulation &sim, const int &NumRootAgeGroups, int NumLayersWithRoo
         double tran; // root mass transferred to the cell below when the elongating taproot
         // reaches a new soil layer.
         // first column
-        tran = RootWeight[LastTaprootLayer - 1][sim.plant_row_column][i] * 2 / dl[LastTaprootLayer - 1];
-        if (tran > 0.5 * RootWeight[LastTaprootLayer - 1][sim.plant_row_column][i])
-            tran = 0.5 * RootWeight[LastTaprootLayer - 1][sim.plant_row_column][i];
-        RootWeight[LastTaprootLayer][sim.plant_row_column][i] += tran;
-        RootWeight[LastTaprootLayer - 1][sim.plant_row_column][i] -= tran;
+        tran = sim.states[u].root[LastTaprootLayer - 1][sim.plant_row_column].weight[i] * 2 / dl[LastTaprootLayer - 1];
+        if (tran > 0.5 * sim.states[u].root[LastTaprootLayer - 1][sim.plant_row_column].weight[i])
+            tran = 0.5 * sim.states[u].root[LastTaprootLayer - 1][sim.plant_row_column].weight[i];
+        sim.states[u].root[LastTaprootLayer][sim.plant_row_column].weight[i] += tran;
+        sim.states[u].root[LastTaprootLayer - 1][sim.plant_row_column].weight[i] -= tran;
         // second column
-        tran = RootWeight[LastTaprootLayer - 1][klocp1][i] * 2 / dl[LastTaprootLayer - 1];
-        if (tran > 0.5 * RootWeight[LastTaprootLayer - 1][klocp1][i])
-            tran = 0.5 * RootWeight[LastTaprootLayer - 1][klocp1][i];
-        RootWeight[LastTaprootLayer][klocp1][i] += tran;
-        RootWeight[LastTaprootLayer - 1][klocp1][i] -= tran;
+        tran = sim.states[u].root[LastTaprootLayer - 1][klocp1].weight[i] * 2 / dl[LastTaprootLayer - 1];
+        if (tran > 0.5 * sim.states[u].root[LastTaprootLayer - 1][klocp1].weight[i])
+            tran = 0.5 * sim.states[u].root[LastTaprootLayer - 1][klocp1].weight[i];
+        sim.states[u].root[LastTaprootLayer][klocp1].weight[i] += tran;
+        sim.states[u].root[LastTaprootLayer - 1][klocp1].weight[i] -= tran;
     }
     return make_tuple(NumLayersWithRoots);
 }
@@ -249,7 +249,7 @@ void InitiateLateralRoots()
 }
 
 //////////////////////////////
-void LateralRootGrowthLeft(Simulation &sim, int l, const int &NumRootAgeGroups, double RootWeight[40][20][3], double RootAge[40][20])
+void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups, double RootAge[40][20])
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the left. It is called from ActualRootGrowth().
 //     It calls function SoilTemOnRootGrowth().
@@ -301,9 +301,9 @@ void LateralRootGrowthLeft(Simulation &sim, int l, const int &NumRootAgeGroups, 
             newktip = ktip - 1;
             for (int i = 0; i < NumRootAgeGroups; i++)
             {
-                double tran = RootWeight[l][ktip][i] * rtran;
-                RootWeight[l][ktip][i] -= tran;
-                RootWeight[l][newktip][i] += tran;
+                double tran = sim.states[u].root[l][ktip].weight[i] * rtran;
+                sim.states[u].root[l][ktip].weight[i] -= tran;
+                sim.states[u].root[l][newktip].weight[i] += tran;
             }
             //     RootAge is initialized for this soil cell.
             //     RootColNumLeft of this layer is redefined.
@@ -316,7 +316,7 @@ void LateralRootGrowthLeft(Simulation &sim, int l, const int &NumRootAgeGroups, 
 }
 
 //////////////////////////////
-void LateralRootGrowthRight(Simulation &sim, int l, const int &NumRootAgeGroups, double RootWeight[40][20][3], double RootAge[40][20])
+void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups, double RootAge[40][20])
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the right. It is called from ActualRootGrowth().
 //     It calls function SoilTemOnRootGrowth().
@@ -369,9 +369,9 @@ void LateralRootGrowthRight(Simulation &sim, int l, const int &NumRootAgeGroups,
             newktip = ktip + 1; // column into which the tip of the lateral grows to left.
             for (int i = 0; i < NumRootAgeGroups; i++)
             {
-                double tran = RootWeight[l][ktip][i] * rtran;
-                RootWeight[l][ktip][i] -= tran;
-                RootWeight[l][newktip][i] += tran;
+                double tran = sim.states[u].root[l][ktip].weight[i] * rtran;
+                sim.states[u].root[l][ktip].weight[i] -= tran;
+                sim.states[u].root[l][newktip].weight[i] += tran;
             }
             //     RootAge is initialized for this soil cell.
             //     RootColNumLeft of this layer is redefined.
@@ -384,7 +384,7 @@ void LateralRootGrowthRight(Simulation &sim, int l, const int &NumRootAgeGroups,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void RootAging(int l, int k, double RootWeight[40][20][3], double RootAge[40][20])
+void RootAging(Root &root, int l, int k, double RootAge[40][20])
 //     This function is called from ActualRootGrowth(). It updates the variable celage(l,k)
 //  for the age of roots in each soil cell containing roots. When root age reaches a threshold
 //  thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion
@@ -413,15 +413,15 @@ void RootAging(int l, int k, double RootWeight[40][20][3], double RootAge[40][20
         if (RootAge[l][k] > thtrn[i])
         {
             double xtr; // root mass transferred from one class to the next.
-            xtr = trn[i] * RootWeight[l][k][i];
-            RootWeight[l][k][i + 1] += xtr;
-            RootWeight[l][k][i] -= xtr;
+            xtr = trn[i] * root.weight[i];
+            root.weight[i + 1] += xtr;
+            root.weight[i] -= xtr;
         }
     }
 }
 
 //////////////////////////////
-double RootDeath(int l, int k, double DailyRootLoss, double RootWeight[40][20][3], const double RootAge[40][20])
+double RootDeath(Root &root, int l, int k, double DailyRootLoss, const double RootAge[40][20])
 {
     //     This function computes the death of root tissue in each soil cell containing roots.
     //  When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i
@@ -461,15 +461,15 @@ double RootDeath(int l, int k, double DailyRootLoss, double RootWeight[40][20][3
                 if (dthfac > dthmax)
                     dthfac = dthmax;
             }
-            DailyRootLoss += RootWeight[l][k][i] * dthfac;
-            RootWeight[l][k][i] -= RootWeight[l][k][i] * dthfac;
+            DailyRootLoss += root.weight[i] * dthfac;
+            root.weight[i] -= root.weight[i] * dthfac;
         }
     }
     return DailyRootLoss;
 }
 
 //////////////////////////////
-double RootCultivation(int j, const int &NumRootAgeGroups, double DailyRootLoss, double RootWeight[40][20][3])
+double RootCultivation(Root root[40][20], int j, const int &NumRootAgeGroups, double DailyRootLoss)
 //     This function is executed on the day of soil cultivation. It is called from
 //  ActualRootGrowth(). It has been adapted from GOSSYM. It is assumed that the roots in the
 //  upper soil layers, as defined by the depth of cultivation, are destroyed, with the
@@ -505,8 +505,8 @@ double RootCultivation(int j, const int &NumRootAgeGroups, double DailyRootLoss,
             for (int l = 0; l < lcult; l++)
                 for (int i = 0; i < NumRootAgeGroups; i++)
                 {
-                    DailyRootLoss += RootWeight[l][k][i];
-                    RootWeight[l][k][i] = 0;
+                    DailyRootLoss += root[l][k].weight[i];
+                    root[l][k].weight[i] = 0;
                 }
         }
     }
@@ -514,8 +514,7 @@ double RootCultivation(int j, const int &NumRootAgeGroups, double DailyRootLoss,
 }
 
 //////////////////////////////
-void RootSummation(const string &ProfileName, const int &DayOfSimulation, const int &NumRootAgeGroups,
-                   const int &NumLayersWithRoots, double RootWeight[40][20][3])
+void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, const int &NumLayersWithRoots)
 //     This function has been added for compatibility with GOSSYM root routines.
 //  It is called from ActualRootGrowth(). It summarizes root data, in a form ready
 //  for output or plotting. Sums of root weights for cells, for age groups and for
@@ -535,13 +534,13 @@ void RootSummation(const string &ProfileName, const int &DayOfSimulation, const 
         {
             rootsv[l][k] = 0;
             for (int i = 0; i < 3; i++)
-                rootsv[l][k] += RootWeight[l][k][i];
+                rootsv[l][k] += sim.states[u].root[l][k].weight[i];
             roots += rootsv[l][k];
         }
     //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++)
-            Scratch21[DayOfSimulation - 1].rootsv[l][k] = rootsv[l][k];
+            Scratch21[u].rootsv[l][k] = rootsv[l][k];
     //     Convert total root weight from g per slab to g per plant.
     TotalRootWeight = roots * 100 * PerPlantArea / RowSpace;
     //     If output flag is active, this flag also indicates the frequency of
@@ -567,13 +566,13 @@ void RootSummation(const string &ProfileName, const int &DayOfSimulation, const 
                 for (int k = 0; k < nk; k++)
                     for (int i = 0; i < 3; i++)
                     {
-                        rootl[l] += RootWeight[l][k][i];
-                        rootli[l][i] += RootWeight[l][k][i];
-                        rwt[i] += RootWeight[l][k][i];
+                        rootl[l] += sim.states[u].root[l][k].weight[i];
+                        rootli[l][i] += sim.states[u].root[l][k].weight[i];
+                        rwt[i] += sim.states[u].root[l][k].weight[i];
                     }
             }
             //    Write these computed results in file 34.
-            ofstream File34(fs::path("output") / (ProfileName + ".RUT"), ios::app);
+            ofstream File34(fs::path("output") / (string(sim.profile_name) + ".RUT"), ios::app);
             File34 << endl;
             File34.unsetf(ios::left);
             File34 << " ROOT DATA FOR DAY Kday=";

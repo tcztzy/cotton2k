@@ -30,7 +30,6 @@ typedef struct Simulation
     uint32_t first_bloom = 0;               // Date (DOY) of first bloom.
     uint32_t first_square = 0;              // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
     uint32_t plant_row_column;              // column number to the left of plant row location.
-    double root_weight[40][20][3];          // weight of dry matter of root tissue in a soil cell for an age group, in g per cell.
     double root_age[40][20];                // the time (in days) from the first appearance of roots in a soil cell.
     ClimateStruct climate[400];             // structure containing the following daily weather data:
                                             // int nDay =    day of year.

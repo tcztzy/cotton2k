@@ -220,6 +220,9 @@ void C2KApp::DailySimulation(Simulation &sim)
         {
             pdlg->ProgressStepit();
             Daynum++;
+            if (i > 0) {
+                memcpy(&sim.states[i], &sim.states[i - 1], sizeof(State));
+            }
             tie(Date, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
         }
     }

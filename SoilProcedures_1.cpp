@@ -15,7 +15,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-void RootsCapableOfUptake(const int &, const double[40][20][3]);
+void RootsCapableOfUptake(const int &, Root[40][20]);
 
 void ApplyFertilizer(const int &);
 
@@ -96,7 +96,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &DayOfSimulati
 //     The following will be executed only after plant emergence
     if (Daynum >= sim.day_emerge && isw > 0) {
         RootsCapableOfUptake(NumLayersWithRoots,
-                             sim.root_weight);  // function computes roots capable of uptake for each soil cell
+                             sim.states[DayOfSimulation - 1].root);  // function computes roots capable of uptake for each soil cell
         AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
         WaterUptake(DayOfSimulation, NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
@@ -175,7 +175,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &DayOfSimulati
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void RootsCapableOfUptake(const int &NumLayersWithRoots, const double RootWeight[40][20][3])
+void RootsCapableOfUptake(const int &NumLayersWithRoots, Root root[40][20])
 //     This function computes the weight of roots capable of uptake for all soil cells.
 //  It is called from SoilProcedures().
 //
@@ -194,8 +194,8 @@ void RootsCapableOfUptake(const int &NumLayersWithRoots, const double RootWeight
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
             for (int i = 0; i < 3; i++)
-                if (RootWeight[l][k][i] > 1.e-15)
-                    RootWtCapblUptake[l][k] += RootWeight[l][k][i] * cuind[i];
+                if (root[l][k].weight[i] > 1.e-15)
+                    RootWtCapblUptake[l][k] += root[l][k].weight[i] * cuind[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
