@@ -8,7 +8,7 @@
 #include "GeneralFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum, const int &DayOfSimulation,
+void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum, const int &u,
                          const int &FirstBloom, const int &FirstSquare, const int &NumLayersWithRoots,
                          const double &PlantHeight, const double &AbscisedFruitSites, const double &AbscisedLeafWeight,
                          const double &WaterStress, const ClimateStruct Clim[400])
@@ -17,83 +17,83 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
 //
 {
 //     Variables needed for output:
-    Scratch21[DayOfSimulation - 1].kday = Kday;
+    Scratch21[u].kday = Kday;
 //
-    Scratch21[DayOfSimulation - 1].abscisedFruitSites = AbscisedFruitSites;
-    Scratch21[DayOfSimulation - 1].averageSoilPsi = AverageSoilPsi;
-    Scratch21[DayOfSimulation - 1].avrgDailyTemp = AvrgDailyTemp;
-    Scratch21[DayOfSimulation - 1].burrNConc = BurrNConc;
-    Scratch21[DayOfSimulation - 1].burrWeightOpenBolls = BurrWeightOpenBolls;
-    Scratch21[DayOfSimulation - 1].carbonStress = CarbonStress;
-    Scratch21[DayOfSimulation - 1].cottonWeightGreenBolls = CottonWeightGreenBolls;
-    Scratch21[DayOfSimulation - 1].cottonWeightOpenBolls = CottonWeightOpenBolls;
-    Scratch21[DayOfSimulation - 1].cumEvaporation = CumEvaporation;
-    Scratch21[DayOfSimulation - 1].cumFertilizerN = CumFertilizerN;
-    Scratch21[DayOfSimulation - 1].cumNetPhotosynth = CumNetPhotosynth;
-    Scratch21[DayOfSimulation - 1].cumNitrogenUptake = CumNitrogenUptake;
-    Scratch21[DayOfSimulation - 1].cumTranspiration = CumTranspiration;
-    Scratch21[DayOfSimulation - 1].cumWaterAdded = CumWaterAdded;
-    Scratch21[DayOfSimulation - 1].cumWaterDrained = CumWaterDrained;
-    Scratch21[DayOfSimulation - 1].deadwt = AbscisedLeafWeight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
-    Scratch21[DayOfSimulation - 1].date = Date;
-    Scratch21[DayOfSimulation - 1].daynum = Daynum;
-    Scratch21[DayOfSimulation - 1].dayTimeTemp = DayTimeTemp;
-    Scratch21[DayOfSimulation - 1].gbw = CottonWeightGreenBolls + BurrWeightGreenBolls;
+    Scratch21[u].abscisedFruitSites = AbscisedFruitSites;
+    Scratch21[u].averageSoilPsi = AverageSoilPsi;
+    Scratch21[u].avrgDailyTemp = AvrgDailyTemp;
+    Scratch21[u].burrNConc = BurrNConc;
+    Scratch21[u].burrWeightOpenBolls = BurrWeightOpenBolls;
+    Scratch21[u].carbonStress = CarbonStress;
+    Scratch21[u].cottonWeightGreenBolls = CottonWeightGreenBolls;
+    Scratch21[u].cottonWeightOpenBolls = CottonWeightOpenBolls;
+    Scratch21[u].cumEvaporation = CumEvaporation;
+    Scratch21[u].cumFertilizerN = CumFertilizerN;
+    Scratch21[u].cumNetPhotosynth = CumNetPhotosynth;
+    Scratch21[u].cumNitrogenUptake = CumNitrogenUptake;
+    Scratch21[u].cumTranspiration = CumTranspiration;
+    Scratch21[u].cumWaterAdded = CumWaterAdded;
+    Scratch21[u].cumWaterDrained = CumWaterDrained;
+    Scratch21[u].deadwt = AbscisedLeafWeight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
+    Scratch21[u].date = Date;
+    Scratch21[u].daynum = Daynum;
+    Scratch21[u].dayTimeTemp = DayTimeTemp;
+    Scratch21[u].gbw = CottonWeightGreenBolls + BurrWeightGreenBolls;
 //     h2obal is computed as the water balance in mm. It should always be zero.
 //  The "positive" amount is the initial water in the soil slab, plus water
 //  added by rain and irrigation, and also water added from the water-table.
 //  The "negative" is the present total soil water in the soil slab, and cumulative
 //  amounts lost by transpiration, evaporation and drainage.
-    Scratch21[DayOfSimulation - 1].h2obal = InitialTotalSoilWater + CumWaterAdded
+    Scratch21[u].h2obal = InitialTotalSoilWater + CumWaterAdded
                                             + addwtbl - TotalSoilWater - CumTranspiration
                                             - CumEvaporation - CumWaterDrained;
-    Scratch21[DayOfSimulation - 1].leafAreaIndex = LeafAreaIndex;
-    Scratch21[DayOfSimulation - 1].leafNConc = LeafNConc;
-    Scratch21[DayOfSimulation - 1].lightIntercept = LightIntercept;
-    Scratch21[DayOfSimulation - 1].lintYield = LintYield;
-    Scratch21[DayOfSimulation - 1].lwpMin = LwpMin;
-    Scratch21[DayOfSimulation - 1].mainStemNodes = MainStemNodes;
-    Scratch21[DayOfSimulation - 1].mineralizedOrganicN = MineralizedOrganicN;
-    Scratch21[DayOfSimulation - 1].netPhotosynthesis = NetPhotosynthesis;
-    Scratch21[DayOfSimulation - 1].nightTimeTemp = NightTimeTemp;
-    Scratch21[DayOfSimulation - 1].nitrogenStress = NitrogenStress;
-    Scratch21[DayOfSimulation - 1].nStressFruiting = NStressFruiting;
-    Scratch21[DayOfSimulation - 1].nStressVeg = NStressVeg;
-    Scratch21[DayOfSimulation - 1].numGreenBolls = NumGreenBolls;
-    Scratch21[DayOfSimulation - 1].numOpenBolls = NumOpenBolls;
-    Scratch21[DayOfSimulation - 1].numSquares = NumSquares;
-    Scratch21[DayOfSimulation - 1].petioleNConc = PetioleNConc;
-    Scratch21[DayOfSimulation - 1].petioleNO3NConc = PetioleNO3NConc;
-    Scratch21[DayOfSimulation - 1].plantHeight = PlantHeight;
-    Scratch21[DayOfSimulation - 1].plantWeight = PlantWeight;
-    Scratch21[DayOfSimulation - 1].rad = GetFromClim(Clim, "rad", Daynum);
-    Scratch21[DayOfSimulation - 1].rain = GetFromClim(Clim, "rain", Daynum);
-    Scratch21[DayOfSimulation - 1].reserveC = ReserveC;
-    Scratch21[DayOfSimulation - 1].rn = Rn;
-    Scratch21[DayOfSimulation - 1].rootNConc = RootNConc;
-    Scratch21[DayOfSimulation - 1].seedNConc = SeedNConc;
-    Scratch21[DayOfSimulation - 1].soilNitrogenLoss = SoilNitrogenLoss;
-    Scratch21[DayOfSimulation - 1].stemNConc = StemNConc;
-    Scratch21[DayOfSimulation - 1].sumNO3N90 = SumNO3N90;
-    Scratch21[DayOfSimulation - 1].tmax = GetFromClim(Clim, "tmax", Daynum);
-    Scratch21[DayOfSimulation - 1].tmin = GetFromClim(Clim, "tmin", Daynum);
-    Scratch21[DayOfSimulation - 1].totalLeafWeight = TotalLeafWeight;
-    Scratch21[DayOfSimulation - 1].totalPetioleWeight = TotalPetioleWeight;
-    Scratch21[DayOfSimulation - 1].totalRootWeight = TotalRootWeight;
-    Scratch21[DayOfSimulation - 1].totalSquareWeight = TotalSquareWeight;
-    Scratch21[DayOfSimulation - 1].totalSoilWater = TotalSoilWater;
-    Scratch21[DayOfSimulation - 1].totalStemWeight = TotalStemWeight;
-    Scratch21[DayOfSimulation - 1].waterStress = WaterStress;
-    Scratch21[DayOfSimulation - 1].waterStressStem = WaterStressStem;
-    Scratch21[DayOfSimulation - 1].wind = GetFromClim(Clim, "wind", Daynum);
+    Scratch21[u].leafAreaIndex = LeafAreaIndex;
+    Scratch21[u].leafNConc = LeafNConc;
+    Scratch21[u].lightIntercept = LightIntercept;
+    Scratch21[u].lintYield = LintYield;
+    Scratch21[u].lwpMin = LwpMin;
+    Scratch21[u].mainStemNodes = MainStemNodes;
+    Scratch21[u].mineralizedOrganicN = MineralizedOrganicN;
+    Scratch21[u].netPhotosynthesis = NetPhotosynthesis;
+    Scratch21[u].nightTimeTemp = NightTimeTemp;
+    Scratch21[u].nitrogenStress = NitrogenStress;
+    Scratch21[u].nStressFruiting = NStressFruiting;
+    Scratch21[u].nStressVeg = NStressVeg;
+    Scratch21[u].numGreenBolls = NumGreenBolls;
+    Scratch21[u].numOpenBolls = NumOpenBolls;
+    Scratch21[u].numSquares = NumSquares;
+    Scratch21[u].petioleNConc = PetioleNConc;
+    Scratch21[u].petioleNO3NConc = PetioleNO3NConc;
+    Scratch21[u].plantHeight = PlantHeight;
+    Scratch21[u].plantWeight = PlantWeight;
+    Scratch21[u].rad = GetFromClim(Clim, "rad", Daynum);
+    Scratch21[u].rain = GetFromClim(Clim, "rain", Daynum);
+    Scratch21[u].reserveC = ReserveC;
+    Scratch21[u].rn = Rn;
+    Scratch21[u].rootNConc = RootNConc;
+    Scratch21[u].seedNConc = SeedNConc;
+    Scratch21[u].soilNitrogenLoss = SoilNitrogenLoss;
+    Scratch21[u].stemNConc = StemNConc;
+    Scratch21[u].sumNO3N90 = SumNO3N90;
+    Scratch21[u].tmax = GetFromClim(Clim, "tmax", Daynum);
+    Scratch21[u].tmin = GetFromClim(Clim, "tmin", Daynum);
+    Scratch21[u].totalLeafWeight = TotalLeafWeight;
+    Scratch21[u].totalPetioleWeight = TotalPetioleWeight;
+    Scratch21[u].totalRootWeight = TotalRootWeight;
+    Scratch21[u].totalSquareWeight = TotalSquareWeight;
+    Scratch21[u].totalSoilWater = TotalSoilWater;
+    Scratch21[u].totalStemWeight = TotalStemWeight;
+    Scratch21[u].waterStress = WaterStress;
+    Scratch21[u].waterStressStem = WaterStressStem;
+    Scratch21[u].wind = GetFromClim(Clim, "wind", Daynum);
 //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {
-            Scratch21[DayOfSimulation - 1].rootWtCapblUptake[l][k] = RootWtCapblUptake[l][k];
-            Scratch21[DayOfSimulation - 1].soilPsi[l][k] = SoilPsi[l][k];
-            Scratch21[DayOfSimulation - 1].soilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k];
-            Scratch21[DayOfSimulation - 1].volNh4NContent[l][k] = VolNh4NContent[l][k];
-            Scratch21[DayOfSimulation - 1].volNo3NContent[l][k] = VolNo3NContent[l][k];
-            Scratch21[DayOfSimulation - 1].volWaterContent[l][k] = VolWaterContent[l][k];
+            Scratch21[u].rootWtCapblUptake[l][k] = RootWtCapblUptake[l][k];
+            Scratch21[u].soilPsi[l][k] = SoilPsi[l][k];
+            Scratch21[u].soilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k];
+            Scratch21[u].volNh4NContent[l][k] = VolNh4NContent[l][k];
+            Scratch21[u].volNo3NContent[l][k] = VolNo3NContent[l][k];
+            Scratch21[u].volWaterContent[l][k] = VolWaterContent[l][k];
         }
 }

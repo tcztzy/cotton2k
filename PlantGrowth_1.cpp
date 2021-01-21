@@ -405,7 +405,7 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
 */
 ////////////////////////////////////////////////////////////////////////////
 tuple<int, double>
-PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &DayOfSimulation, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayInc, const double &DayLength, const double &WaterStress)
+PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &u, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayInc, const double &DayLength, const double &WaterStress)
 //     This function simulates the potential and actual growth of cotton plants.
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -444,7 +444,7 @@ PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &D
     //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
     double sumpdr; // total potential growth rate of roots in g per slab. this is
     // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-    sumpdr = PotentialRootGrowth(sim.states[DayOfSimulation - 1].root, NumRootAgeGroups, NumLayersWithRoots, sim.num_curve);
+    sumpdr = PotentialRootGrowth(sim.states[u].root, NumRootAgeGroups, NumLayersWithRoots, sim.num_curve);
     //     Total potential growth rate of roots is converted from g per
     //  slab (sumpdr) to g per plant (PotGroAllRoots).
     PotGroAllRoots = sumpdr * 100 * PerPlantArea / RowSpace;
@@ -508,7 +508,7 @@ PlantGrowth(Simulation &sim, const string &Date, const int &Daynum, const int &D
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
     PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
-    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, sim, Daynum, DayOfSimulation, NumLayersWithRoots, NumRootAgeGroups);
+    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sumpdr, sim, Daynum, u, NumLayersWithRoots, NumRootAgeGroups);
     //     Output data to file *.CHB
     if (OutIndex[18] > 0)
     {

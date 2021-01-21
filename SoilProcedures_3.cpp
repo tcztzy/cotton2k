@@ -47,7 +47,7 @@ void GravityFlow(double applywat)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-void WaterUptake(const int &DayOfSimulation, const int &NumLayersWithRoots)
+void WaterUptake(const int &u, const int &NumLayersWithRoots)
 //     This function computes the uptake of water by plant roots from the soil
 //  (i.e., actual transpiration rate). It is called from SoilProcedures(). 
 //     It calls PsiOnTranspiration(), psiq(), PsiOsmotic().
@@ -68,7 +68,7 @@ void WaterUptake(const int &DayOfSimulation, const int &NumLayersWithRoots)
         LightInter1 = 1;
 //     The potential transpiration is the product of the daytime Penman equation and LightInter1.
     double PotentialTranspiration = ReferenceTransp * LightInter1;
-    Scratch21[DayOfSimulation - 1].ep = PotentialTranspiration;
+    Scratch21[u].ep = PotentialTranspiration;
     double upf[40][20];  // uptake factor, computed as a ratio, for each soil cell
     double uptk[40][20]; // actual transpiration from each soil cell, cm3 per day
     for (int l = 0; l < nl; l++)

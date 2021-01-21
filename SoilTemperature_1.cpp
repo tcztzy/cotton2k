@@ -110,7 +110,7 @@ tuple<int> SoilTemperature(
         Simulation& sim,
         const string &ProfileName,
         const int &Daynum,
-        const int &DayOfSimulation,
+        const int &u,
         int DayEmerge,
         const int &DayStart,
         const int &DayFinish,
@@ -349,8 +349,8 @@ tuple<int> SoilTemperature(
     }
     CumEvaporation += ActualSoilEvaporation;
     if (Kday > 0) {
-        Scratch21[DayOfSimulation - 1].es = es;
-        Scratch21[DayOfSimulation - 1].cumEvaporation = CumEvaporation;
+        Scratch21[u].es = es;
+        Scratch21[u].cumEvaporation = CumEvaporation;
     }
 //  compute daily averages.
     for (int l = 0; l < nl; l++)

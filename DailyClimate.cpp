@@ -68,7 +68,7 @@ tmpisr;           // extraterrestrial radiation, W / m2.
 //     The values are extracted from this structure by function GetFromClim(), see 
 //  file "GeneralFunctions.cpp"
 //////////////////////////////////////////////////////////////////////////////
-tuple<double> DayClim(const string &ProfileName, const string &Date, const int &Daynum, const int &DayOfSimulation,
+tuple<double> DayClim(const string &ProfileName, const string &Date, const int &Daynum, const int &u,
                       const int &DayStart, const int &DayFinish, const double &Latitude, const double &Longitude,
                       ClimateStruct Clim[400])
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
@@ -124,7 +124,7 @@ tuple<double> DayClim(const string &ProfileName, const string &Date, const int &
         int j = Daynum - DayStart;  // days from start of simulation
         Clim[j].Rain = rainToday;
     }
-    Scratch21[DayOfSimulation - 1].runoff = runoffToday;
+    Scratch21[u].runoff = runoffToday;
 //     Set period for detailed output of weather variables, if requested.
     static int j1 = 0;
     static int j2 = 0;

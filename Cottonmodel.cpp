@@ -208,7 +208,6 @@ void C2KApp::DailySimulation(Simulation &sim)
 {
     string Date;
 
-    int Daynum = sim.day_start - 1;
     int NumLayersWithRoots = 7; // number of soil layers with roots. Initialized with 7
     double PlantHeight = 4.0;
     double AbscisedFruitSites = 0; // total number of abscised fruit sites, per plant.
@@ -219,11 +218,10 @@ void C2KApp::DailySimulation(Simulation &sim)
         for (int i = 0; i < sim.day_finish - sim.day_start + 1; i++)
         {
             pdlg->ProgressStepit();
-            Daynum++;
             if (i > 0) {
                 memcpy(&sim.states[i], &sim.states[i - 1], sizeof(State));
             }
-            tie(Date, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, Daynum, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
+            tie(Date, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress) = SimulateThisDay(sim, i, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress);
         }
     }
     catch (SimulationEnd)
@@ -234,7 +232,7 @@ void C2KApp::DailySimulation(Simulation &sim)
 //////////////////////////////////////////////////
 tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
     Simulation &sim,
-    const int &Daynum,
+    const int &u,
     int NumLayersWithRoots,
     double PlantHeight,
     double AbscisedFruitSites,
@@ -252,13 +250,13 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
 //  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex, pixday.
 //
 //     The following global variables are set here:
-//  DayInc, DayOfSimulation, isw, Kday.
+//  DayInc, isw, Kday.
 //
 {
     //    Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
+    int Daynum = sim.day_start + u;
     string Date = DoyToDate(Daynum, iyear);
     double DayLength; // day length, hours.
-    int DayOfSimulation = Daynum - sim.day_start + 1;
     double rracol[20]; // the relative radiation received by a soil column, as affected by shading by plant canopy.
                        //    Compute Kday (days from emergence).
     if (sim.day_emerge <= 0)
@@ -269,12 +267,12 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
         Kday = 0;
     //     The following functions are executed each day (also before emergence).
     ColumnShading(sim, Daynum, sim.day_emerge, PlantHeight, rracol); // computes light interception and soil shading.
-    tie(DayLength) = DayClim(sim.profile_name, Date, Daynum, DayOfSimulation, sim.day_start, sim.day_finish, sim.latitude,
+    tie(DayLength) = DayClim(sim.profile_name, Date, Daynum, u, sim.day_start, sim.day_finish, sim.latitude,
                              sim.longitude, sim.climate); // computes climate variables for today.
-    tie(sim.day_emerge) = SoilTemperature(sim, sim.profile_name, Daynum, DayOfSimulation, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant,
+    tie(sim.day_emerge) = SoilTemperature(sim, sim.profile_name, Daynum, u, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant,
                                           sim.day_start_mulch, sim.day_end_mulch, sim.mulch_indicator, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave, PlantHeight,
                                           rracol, sim.climate); // executes all modules of soil and canopy temperature.
-    SoilProcedures(sim, Daynum, DayOfSimulation, NumLayersWithRoots, WaterStress); // executes all other soil processes.
+    SoilProcedures(sim, Daynum, u, NumLayersWithRoots, WaterStress); // executes all other soil processes.
     SoilNitrogen(Daynum, sim.day_start);                                           // computes nitrogen transformations in the soil.
     SoilSum();                                                                     // computes totals of water and N in the soil.
                                                                                    //     The following is executed each day after plant emergence:
@@ -294,7 +292,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
             sim,
             Date,
             Daynum,
-            DayOfSimulation,
+            u,
             3, // the number of root classes defined in the model.
             NumLayersWithRoots,
             PlantHeight,
@@ -314,7 +312,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
         }
     }
     //     Call DailyOutput for reporting some simulation data for this day.
-    DailyOutput(sim.profile_name, Date, Daynum, DayOfSimulation, sim.day_emerge, sim.day_finish, sim.first_bloom, sim.first_square,
+    DailyOutput(sim.profile_name, Date, Daynum, u, sim.day_emerge, sim.day_finish, sim.first_bloom, sim.first_square,
                 NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, sim.climate);
     //     Check if the date to stop simulation has been reached, or if this is the last day
     //  with available weather data. Simulation will also stop when no leaves remain on the plant.

@@ -253,7 +253,7 @@ void RootImpedance(const int &ncurve)
 
 //////////////////////////
 tuple<int>
-ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const int &DayOfSimulation, int NumLayersWithRoots, const int &NumRootAgeGroups)
+ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const int &u, int NumLayersWithRoots, const int &NumRootAgeGroups)
 //     This function calculates the actual root growth rate. It is called from function
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(),
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(),
@@ -308,7 +308,7 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
         for (int k = 0; k < nk; k++)
         {
             //     adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
-            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
+            if (sim.states[u].root[l][k].age > 0)
                 adwr1[l][k] = PotGroRoots[l][k] * actgf;
         }
     //     If extra carbon is available, it is assumed to be added to the taproot.
@@ -336,8 +336,8 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
         //  root class in each soil cell.
         for (int l = 0; l <= LastTaprootLayer; l++)
         {
-            sim.states[DayOfSimulation - 1].root[l][sim.plant_row_column].weight[NumRootAgeGroups - 1] += availt * tpwt[l][0] / sumwt;
-            sim.states[DayOfSimulation - 1].root[l][sim.plant_row_column + 1].weight[NumRootAgeGroups - 1] += availt * tpwt[l][1] / sumwt;
+            sim.states[u].root[l][sim.plant_row_column].weight[NumRootAgeGroups - 1] += availt * tpwt[l][0] / sumwt;
+            sim.states[u].root[l][sim.plant_row_column + 1].weight[NumRootAgeGroups - 1] += availt * tpwt[l][1] / sumwt;
         }
     }
     //     Check each cell if the ratio of root weight capable of growth to cell volume (rtconc)
@@ -346,14 +346,14 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     //  ActualRootGrowth(l,k) will be equal to adwr1(l,k).
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
-            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
+            if (sim.states[u].root[l][k].age > 0)
             {
                 double rtconc = 0; // ratio of root weight capable of growth to cell volume.
                 for (int i = 0; i < NumRootAgeGroups; i++)
-                    rtconc += sim.states[DayOfSimulation - 1].root[l][k].weight[i] * cgind[i];
+                    rtconc += sim.states[u].root[l][k].weight[i] * cgind[i];
                 rtconc = rtconc / (dl[l] * wk[k]);
                 if (rtconc > rtminc)
-                    tie(NumLayersWithRoots) = RedistRootNewGrowth(sim, DayOfSimulation - 1, l, k, adwr1[l][k], NumLayersWithRoots);
+                    tie(NumLayersWithRoots) = RedistRootNewGrowth(sim, u, l, k, adwr1[l][k], NumLayersWithRoots);
                 else
                     ActualRootGrowth[l][k] += adwr1[l][k];
             }
@@ -367,33 +367,33 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
         {
-            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
+            if (sim.states[u].root[l][k].age > 0)
             {
                 double sumgr = 0; // sum of growth index multiplied by root weight, for all classes in a cell.
                 for (int i = 0; i < NumRootAgeGroups; i++)
-                    sumgr += RootGrowthIndex[i] * sim.states[DayOfSimulation - 1].root[l][k].weight[i];
+                    sumgr += RootGrowthIndex[i] * sim.states[u].root[l][k].weight[i];
                 for (int i = 0; i < NumRootAgeGroups; i++)
                 {
                     if (sumgr > 0)
-                        sim.states[DayOfSimulation - 1].root[l][k].weight[i] +=
-                            ActualRootGrowth[l][k] * RootGrowthIndex[i] * sim.states[DayOfSimulation - 1].root[l][k].weight[i] / sumgr;
+                        sim.states[u].root[l][k].weight[i] +=
+                            ActualRootGrowth[l][k] * RootGrowthIndex[i] * sim.states[u].root[l][k].weight[i] / sumgr;
                     else
-                        sim.states[DayOfSimulation - 1].root[l][k].weight[i] += ActualRootGrowth[l][k] * RootGrowthIndex[i] / sumind;
+                        sim.states[u].root[l][k].weight[i] += ActualRootGrowth[l][k] * RootGrowthIndex[i] / sumind;
                 }
             }
         }
     //     Call function TapRootGrowth() for taproot elongation, if the taproot
     //  has not already reached the bottom of the slab.
     if (LastTaprootLayer < nl - 1 || TapRootLength < DepthLastRootLayer)
-        tie(NumLayersWithRoots) = TapRootGrowth(sim, DayOfSimulation - 1, NumRootAgeGroups, NumLayersWithRoots);
+        tie(NumLayersWithRoots) = TapRootGrowth(sim, u, NumRootAgeGroups, NumLayersWithRoots);
     //     Call functions for growth of lateral roots
     InitiateLateralRoots();
     for (int l = 0; l < LastTaprootLayer; l++)
     {
         if (LateralRootFlag[l] == 2)
         {
-            LateralRootGrowthLeft(sim, DayOfSimulation - 1, l, NumRootAgeGroups);
-            LateralRootGrowthRight(sim, DayOfSimulation - 1, l, NumRootAgeGroups);
+            LateralRootGrowthLeft(sim, u, l, NumRootAgeGroups);
+            LateralRootGrowthRight(sim, u, l, NumRootAgeGroups);
         }
     }
     //     Initialize DailyRootLoss (weight of sloughed roots) for this day.
@@ -403,16 +403,16 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
         {
             //     Check RootAge to determine if this soil cell contains roots, and then compute root
             //  aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
-            if (sim.states[DayOfSimulation - 1].root[l][k].age > 0)
+            if (sim.states[u].root[l][k].age > 0)
             {
-                RootAging(sim.states[DayOfSimulation - 1].root[l][k], l, k);
-                DailyRootLoss = RootDeath(sim.states[DayOfSimulation - 1].root[l][k], l, k, DailyRootLoss);
+                RootAging(sim.states[u].root[l][k], l, k);
+                DailyRootLoss = RootDeath(sim.states[u].root[l][k], l, k, DailyRootLoss);
             }
         }
     //     Check if cultivation is executed in this day and call RootCultivation().
     for (int j = 0; j < 5; j++)
         if (CultivationDate[j] == Daynum)
-            DailyRootLoss = RootCultivation(sim.states[DayOfSimulation - 1].root, j, NumRootAgeGroups, DailyRootLoss);
+            DailyRootLoss = RootCultivation(sim.states[u].root, j, NumRootAgeGroups, DailyRootLoss);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / RowSpace;
     RootWeightLoss += DailyRootLoss;
@@ -422,6 +422,6 @@ ComputeActualRootGrowth(double sumpdr, Simulation &sim, const int &Daynum, const
     CumPlantNLoss += DailyRootLoss * RootNConc;
     PixInPlants -= DailyRootLoss * pixcon;
     //     Call function RootSummation().
-    RootSummation(sim, DayOfSimulation - 1, NumRootAgeGroups, NumLayersWithRoots);
+    RootSummation(sim, u, NumRootAgeGroups, NumLayersWithRoots);
     return make_tuple(NumLayersWithRoots);
 }

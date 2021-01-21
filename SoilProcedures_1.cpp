@@ -42,7 +42,7 @@ void WaterUptake(const int &, const int &);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(Simulation &sim, const int &Daynum, const int &DayOfSimulation, const int &NumLayersWithRoots, const double &WaterStress)
+void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int &NumLayersWithRoots, const double &WaterStress)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -92,14 +92,14 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &DayOfSimulati
     }
     CumWaterAdded += WaterToApply + DripWaterAmount;
     if (Kday > 0)
-        Scratch21[DayOfSimulation - 1].amitri = WaterToApply + DripWaterAmount;
+        Scratch21[u].amitri = WaterToApply + DripWaterAmount;
 //     The following will be executed only after plant emergence
     if (Daynum >= sim.day_emerge && isw > 0) {
         RootsCapableOfUptake(NumLayersWithRoots,
-                             sim.states[DayOfSimulation - 1].root);  // function computes roots capable of uptake for each soil cell
+                             sim.states[u].root);  // function computes roots capable of uptake for each soil cell
         AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
-        WaterUptake(DayOfSimulation, NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
+        WaterUptake(u, NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
 //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
         CumTranspiration += ActualTranspiration;
