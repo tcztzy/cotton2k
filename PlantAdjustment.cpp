@@ -11,8 +11,7 @@
 void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum, const int &DayOfSimulation,
                          const int &FirstBloom, const int &FirstSquare, const int &NumLayersWithRoots,
                          const double &PlantHeight, const double &AbscisedFruitSites, const double &AbscisedLeafWeight,
-                         const double &WaterStress, const double RootWeight[40][20][3], const double RootAge[40][20],
-                         const ClimateStruct Clim[400])
+                         const double &WaterStress, const ClimateStruct Clim[400])
 //     This function stores all state or rate variables, needed for output, in the structure Scratch21. It is called from DailySimulation() and DailyOutput().
 //     Each record is an array cell, starting from day of start of simulation. 
 //

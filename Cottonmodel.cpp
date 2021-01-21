@@ -312,8 +312,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
     }
     //     Call DailyOutput for reporting some simulation data for this day.
     DailyOutput(sim.profile_name, Date, Daynum, DayOfSimulation, sim.day_emerge, sim.day_finish, sim.first_bloom, sim.first_square,
-                NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, sim.root_weight,
-                sim.root_age, sim.climate);
+                NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, sim.climate);
     //     Check if the date to stop simulation has been reached, or if this is the last day
     //  with available weather data. Simulation will also stop when no leaves remain on the plant.
     //

@@ -282,8 +282,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
 void DailyOutput(const string &ProfileName, const string &Date, const int &Daynum, const int &DayOfSimulation,
                  const int &DayEmerge, const int &DayFinish, const int &FirstBloom, const int &FirstSquare,
                  const int &NumLayersWithRoots, const double &PlantHeight, const double &AbscisedFruitSites,
-                 const double &AbscisedLeafWeight, const double &WaterStress, const double RootWeight[40][20][3],
-                 const double RootAge[40][20], const ClimateStruct Clim[400])
+                 const double &AbscisedLeafWeight, const double &WaterStress, const ClimateStruct Clim[400])
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -315,7 +314,7 @@ void DailyOutput(const string &ProfileName, const string &Date, const int &Daynu
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
     if (DayOfSimulation > 0)
         WriteStateVariables(false, Date, Daynum, DayOfSimulation, FirstBloom, FirstSquare, NumLayersWithRoots,
-                            PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, RootWeight, RootAge, Clim);
+                            PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, Clim);
 //     4. Call output1() to write output to F01 and S01 files:
     output1(ProfileName, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, PlantHeight, AbscisedFruitSites);
     if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)
