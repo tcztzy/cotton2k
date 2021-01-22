@@ -1,3 +1,5 @@
+use chrono::prelude::*;
+
 /// Function dayrad() computes the hourly values of global radiation, in W m-2,
 /// using the measured daily total global radiation.
 ///
@@ -297,6 +299,88 @@ extern "C" fn clcor(
     } else {
         0f64
     }
+}
+
+#[no_mangle]
+extern "C" fn ComputeDayLength(
+    doy: u32,
+    year: i32,
+    latitude: f64,
+    longitude: f64,
+    declination: &mut f64,
+    tmpisr: &mut f64,
+    solar_noon: &mut f64,
+    day_length: &mut f64,
+    sunr: &mut f64,
+    suns: &mut f64,
+)
+//     Function ComputeDayLength() computes day length, declination, time of
+//  solar noon, and extra-terrestrial radiation for this day. The CIMIS
+//  (California Irrigation Management Information System) algorithms are used.
+//     Global variables referenced here:
+//  iyear, Latitude, Longitude, pi,
+//     Global variables set here:
+//  DayLength, declination
+//
+{
+    //     Convert day of year to corresponding angle in radians (xday).
+    let pi = 3.14159f64;
+    let xday =
+        2f64 * pi * (doy - 1) as f64 / NaiveDate::from_ymd(year + 1, 1, 1).pred().ordinal() as f64;
+    //     Compute declination angle for this day. The equation used here for computing it
+    //  is taken from the CIMIS algorithm.
+    *declination = 0.006918 - 0.399912 * xday.cos() + 0.070257 * xday.sin()
+        - 0.006758 * (2f64 * xday).cos()
+        + 0.000907 * (2f64 * xday).sin()
+        - 0.002697 * (3f64 * xday).cos()
+        + 0.001480 * (3f64 * xday).sin();
+    //     Compute extraterrestrial radiation in W m-2. The 'solar constant' (average
+    //  value = 1367 W m-2) is corrected for this day's distance between earth and the sun. The
+    //  equation used here is from the CIMIS algorithm, which is based on the work of Iqbal (1983).
+    *tmpisr = 1367f64
+        * (1.00011
+            + 0.034221 * xday.cos()
+            + 0.00128 * xday.sin()
+            + 0.000719 * (2f64 * xday).cos()
+            + 0.000077 * (2f64 * xday).sin());
+    //     Time of solar noon (SolarNoon) is computed by the CIMIS algorithm,
+    //  using a correction for longitude (f), and the date correction (exday).
+    //     It is assumed that the time zone is "geographically correct". For
+    //  example, longitude between 22.5 and 37.5 East is in time zone GMT+2,
+    //  and longitude between 112.5 and 127.5 West is in time zone GMT-8.
+    //     All daily times in the model are computed by this method.
+    let exday = (0.000075 + 0.001868 * xday.cos()
+        - 0.032077 * xday.sin()
+        - 0.014615 * (2f64 * xday).cos()
+        - 0.04089 * (2f64 * xday).sin())
+        * 12.
+        / pi;
+    let st = 15f64 * (longitude / 15f64).floor();
+    let mut f = (longitude - st) / 15f64;
+    if longitude > 0f64 {
+        if f > 0.5 {
+            f -= 1f64;
+        }
+    } else
+    // west  of Greenwich
+    {
+        if f < -0.5 {
+            f += 1f64;
+        }
+    }
+    *solar_noon = 12f64 - f - exday;
+    //     Compute day length, by commonly used equations, from latitude and declination of
+    //  this day. Times of sunrise and of sunset are computed from solar noon and day length.
+    let xlat = latitude * pi / 180f64;
+    let mut ht = -xlat.tan() * declination.tan();
+    if ht > 1f64 {
+        ht = 1f64; //  arctic circle
+    } else if ht < -1f64 {
+        ht = -1f64;
+    }
+    *day_length = 2f64 * ht.acos() * 12f64 / pi;
+    *sunr = *solar_noon - *day_length / 2f64;
+    *suns = *sunr + *day_length;
 }
 
 #[no_mangle]

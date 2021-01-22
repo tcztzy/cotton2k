@@ -30,8 +30,6 @@
 #include "GeneralFunctions.h"
 #include "DailyClimate.h"
 
-tuple<double> ComputeDayLength(const int &, const double &, const double &);
-
 extern "C"
 {
     double dayrad(double, double, double, double);
@@ -43,13 +41,12 @@ extern "C"
     double daywnd(double, double, double, double, double, double);
     double clcor(uint8_t, double, double, double, double, double, double);
     void AverageAirTemperatures(const double *, const double *, double &, double &, double &);
+    void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
 }
 
 double daytmp(Simulation &, uint32_t, double, const double &);
 
 double tdewhour(Simulation &, uint32_t, double, double);
-
-
 
 void EvapoTranspiration(Simulation &, uint32_t, int, const double &);
 
@@ -78,7 +75,7 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
 {
     //     Compute day length and related variables:
     double DayLength;
-    tie(DayLength) = ComputeDayLength(sim.day_start + u, sim.latitude, sim.longitude);
+    ComputeDayLength(sim.day_start + u, iyear, sim.latitude, sim.longitude, declination, tmpisr, SolarNoon, DayLength, sunr, suns);
     //
     double xlat = sim.latitude * pi / 180;    // latitude converted to radians.
     double cd = cos(xlat) * cos(declination); // amplitude of the sine of the solar height.
@@ -197,61 +194,6 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
     return make_tuple(DayLength);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-tuple<double> ComputeDayLength(const int &Daynum, const double &Latitude, const double &Longitude)
-//     Function ComputeDayLength() computes day length, declination, time of
-//  solar noon, and extra-terrestrial radiation for this day. The CIMIS
-//  (California Irrigation Management Information System) algorithms are used.
-//     Global variables referenced here:
-//  iyear, Latitude, Longitude, pi,
-//     Global variables set here:
-//  DayLength, declination
-//
-{
-    //     Convert day of year to corresponding angle in radians (xday). It uses function
-    //  LeapYear() (see file GeneralFunctions.cpp)
-    double xday = 2 * pi * (Daynum - 1) / (365 + LeapYear(iyear));
-    //     Compute declination angle for this day. The equation used here for computing it
-    //  is taken from the CIMIS algorithm.
-    declination = .006918 - .399912 * cos(xday) + .070257 * sin(xday) - .006758 * cos(2 * xday) + .000907 * sin(2 * xday) - .002697 * cos(3 * xday) + .001480 * sin(3 * xday);
-    //     Compute extraterrestrial radiation in W m-2. The 'solar constant' (average
-    //  value = 1367 W m-2) is corrected for this day's distance between earth and the sun. The
-    //  equation used here is from the CIMIS algorithm, which is based on the work of Iqbal (1983).
-    tmpisr = 1367 * (1.00011 + .034221 * cos(xday) + .00128 * sin(xday) + .000719 * cos(2 * xday) + .000077 * sin(2 * xday));
-    //     Time of solar noon (SolarNoon) is computed by the CIMIS algorithm,
-    //  using a correction for longitude (f), and the date correction (exday).
-    //     It is assumed that the time zone is "geographically correct". For
-    //  example, longitude between 22.5 and 37.5 East is in time zone GMT+2,
-    //  and longitude between 112.5 and 127.5 West is in time zone GMT-8.
-    //     All daily times in the model are computed by this method.
-    double exday = (.000075 + .001868 * cos(xday) - .032077 * sin(xday) - .014615 * cos(2 * xday) - .04089 * sin(2 * xday)) * 12. / pi;
-    double st = 15 * (int)(Longitude / 15);
-    double f = (Longitude - st) / 15;
-    if (Longitude > 0) // east of Greenwich
-    {
-        if (f > 0.5)
-            f -= 1;
-    }
-    else // west  of Greenwich
-    {
-        if (f < -0.5)
-            f += 1;
-    }
-    SolarNoon = 12 - f - exday;
-    //     Compute day length, by commonly used equations, from latitude and declination of
-    //  this day. Times of sunrise and of sunset are computed from solar noon and day length.
-    double xlat = Latitude * pi / 180;
-    double ht = -tan(xlat) * tan(declination);
-    if (ht > 1)
-        ht = 1; //  arctic circle
-    else if (ht < -1)
-        ht = -1;
-    double DayLength = 2 * acos(ht) * 12 / pi;
-    sunr = SolarNoon - DayLength / 2;
-    suns = sunr + DayLength;
-    return make_tuple(DayLength);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 double daytmp(Simulation &sim, uint32_t u, double ti, const double &DayLength)
 //     Function daytmp() computes and returns the hourly values of air temperature,
@@ -311,7 +253,7 @@ double daytmp(Simulation &sim, uint32_t u, double ti, const double &DayLength)
     //  doubled, in comparison with the situation without buoyancy.
     const double tcoef = 4;               // time coefficient for the exponential part of the equation.
     double hmax = SolarNoon + SitePar[8]; // hour of maximum temperature
-    int im1 = u > 1 ? u - 1 : 0;      // day of year yesterday
+    int im1 = u > 1 ? u - 1 : 0;          // day of year yesterday
     ClimateStruct &yesterday = sim.climate[im1];
     ClimateStruct &today = sim.climate[u];
     int ip1 = u + 1; // day of year tomorrow
@@ -372,7 +314,7 @@ double tdewhour(Simulation &sim, uint32_t u, double ti, double tt)
 //    LastDayWeatherData, SitePar, SolarNoon, sunr, suns.
 //
 {
-    int im1 = u > 1 ? u - 1 : 0;      // day of year yesterday
+    int im1 = u > 1 ? u - 1 : 0; // day of year yesterday
     ClimateStruct &yesterday = sim.climate[im1];
     ClimateStruct &today = sim.climate[u];
     int ip1 = u + 1; // day of year tomorrow
