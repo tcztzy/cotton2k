@@ -279,10 +279,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(const string &ProfileName, const string &Date, const int &Daynum, const int &u,
-                 const int &DayEmerge, const int &DayFinish, const int &FirstBloom, const int &FirstSquare,
-                 const int &NumLayersWithRoots, const double &PlantHeight, const double &AbscisedFruitSites,
-                 const double &AbscisedLeafWeight, const double &WaterStress, const ClimateStruct Clim[400])
+void DailyOutput(Simulation &sim, uint32_t u, const int &NumLayersWithRoots, const double &PlantHeight, const double &AbscisedFruitSites, const double &AbscisedLeafWeight, const double &WaterStress)
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -312,10 +309,10 @@ void DailyOutput(const string &ProfileName, const string &Date, const int &Daynu
 //
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
-    WriteStateVariables(false, Date, Daynum, u, FirstBloom, FirstSquare, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, Clim);
+    WriteStateVariables(false, sim.states[u].date, sim.day_start + u, u, sim.first_bloom, sim.first_square, NumLayersWithRoots, PlantHeight, AbscisedFruitSites, AbscisedLeafWeight, WaterStress, sim.climate);
 //     4. Call output1() to write output to F01 and S01 files:
-    output1(ProfileName, Date, Daynum, DayEmerge, FirstBloom, FirstSquare, PlantHeight, AbscisedFruitSites);
-    if (Daynum >= DayFinish || LeafAreaIndex < 0.0002 || Daynum >= LastDayWeatherData)
+    output1(sim.profile_name, sim.states[u].date, sim.day_start + u, sim.day_emerge, sim.first_bloom, sim.first_square, PlantHeight, AbscisedFruitSites);
+    if (sim.day_start + u >= sim.day_finish || LeafAreaIndex < 0.0002 || sim.day_start + u >= LastDayWeatherData)
         throw SimulationEnd();
 }
 

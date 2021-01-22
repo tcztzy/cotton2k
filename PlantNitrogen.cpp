@@ -14,6 +14,7 @@
 //
 #include <fstream>
 #include "global.h"
+#include "Simulation.h"
 
 using namespace std;
 
@@ -56,7 +57,7 @@ double addnf;  // daily added nitrogen to fruit, g per plant.
 double addnr;  // daily added nitrogen to root, g per plant.
 double addnv;  // daily added nitrogen to vegetative shoot, g per plant.
 //////////////////////////////////////////////////
-void PlantNitrogen(const string &ProfileName, const int &Daynum, const int &DayEmerge)
+void PlantNitrogen(Simulation &sim, uint32_t u)
 //     This function simulates the nitrogen accumulation and distribution in cotton plants,
 //  and computes nitrogen stresses. It is called from SimulateThisDay().
 //
@@ -108,8 +109,8 @@ void PlantNitrogen(const string &ProfileName, const int &Daynum, const int &DayE
     addnr = 0;  // daily added nitrogen to root, g per plant.
     addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
 //   The following subroutines are now called:
-    NitrogenRequirement(ProfileName, Daynum, DayEmerge); //  computes the N requirements for growth.
-    NitrogenSupply(ProfileName);      //  computes the supply of N from uptake and reserves.
+    NitrogenRequirement(sim.profile_name, sim.day_start + u, sim.day_emerge); //  computes the N requirements for growth.
+    NitrogenSupply(sim.profile_name);      //  computes the supply of N from uptake and reserves.
     NitrogenAllocation();  //  computes the allocation of N in the plant.
     if (xtran > 0)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
@@ -118,7 +119,7 @@ void PlantNitrogen(const string &ProfileName, const int &Daynum, const int &DayE
     NitrogenUptakeRequirement(); // computes N requirements for uptake
 //   Optional output of N content to file *.NB2
     if (OutIndex[20] > 0) {
-        ofstream File37(fs::path("output") / (ProfileName + ".NB2"), ios::app);
+        ofstream File37(fs::path("output") / (string(sim.profile_name) + ".NB2"), ios::app);
         File37.width(5);
         File37 << Kday;
         File37.setf(ios::fixed);

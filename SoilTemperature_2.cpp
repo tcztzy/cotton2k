@@ -29,8 +29,7 @@ void MulchSurfaceBalance(int, int, double, double, double, double, double, doubl
                          const int &);
 
 //////////////////////////
-void EnergyBalance(int ihr, int k, bool bMulchon, double ess, double etp1, const int &Daynum, const double &PlantHeight,
-                   const double &MulchTranSW, const double &MulchTranLW, double rracol[20])
+void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, double ess, double etp1, const double &PlantHeight, double rracol[20])
 //     This function solves the energy balance equations at the soil surface, and at the
 //  foliage / atmosphere interface. It computes the resulting temperatures of the soil
 //  surface, plastic mulch (if exists) and the plant canopy.
@@ -84,10 +83,10 @@ void EnergyBalance(int ihr, int k, bool bMulchon, double ess, double etp1, const
     if (bMulchon) {
         tm = MulchTemp[k];
 //     Assume all non transfered radiation is absorbed by mulch
-        rss = rss0 * MulchTranSW * (1 - ag);               // absorbed by soil surface
-        rsm = rss0 * (1 - MulchTranSW)                     // absorbed by mulch
-              + rss0 * MulchTranSW * ag * (1 - MulchTranSW); // reflected up from soil surface and absorbed by mulch
-        rsup = rss0 * MulchTranSW * ag * MulchTranSW;      // reflected up from soil surface through mulch
+        rss = rss0 * sim.mulch_transmissivity_short_wave * (1 - ag);               // absorbed by soil surface
+        rsm = rss0 * (1 - sim.mulch_transmissivity_short_wave)                     // absorbed by mulch
+              + rss0 * sim.mulch_transmissivity_short_wave * ag * (1 - sim.mulch_transmissivity_short_wave); // reflected up from soil surface and absorbed by mulch
+        rsup = rss0 * sim.mulch_transmissivity_short_wave * ag * sim.mulch_transmissivity_short_wave;      // reflected up from soil surface through mulch
     } else {
         tm = 0;
         rss = rss0 * (1 - ag);  // absorbed by soil surface
@@ -147,7 +146,7 @@ void EnergyBalance(int ihr, int k, bool bMulchon, double ess, double etp1, const
         if (bMulchon) {
 //     This section executed for mulched columns: call SoilMulchBalance() for soil / mulch interface.
             tmold = tm;
-            SoilMulchBalance(ihr, k, rlzero, rsm, rss, sf, so, so2, so3, thet, tm, tv, wndcanp, Daynum, MulchTranLW);
+            SoilMulchBalance(ihr, k, rlzero, rsm, rss, sf, so, so2, so3, thet, tm, tv, wndcanp, sim.day_start + u, sim.mulch_transmissivity_long_wave);
         } else {
 //     This section executed for non-mulched columns
 //     Call SensibleHeatTransfer() to compute sensible heat transfer for soil surface to air
@@ -157,14 +156,14 @@ void EnergyBalance(int ihr, int k, bool bMulchon, double ess, double etp1, const
             rocp = 0.08471 / tafk;
             double hsg = rocp * varc; // multiplier for computing sensible heat transfer soil to air.
 //     Call SoilSurfaceBalance() for energy balance in soil surface / air interface.
-            SoilSurfaceBalance(ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, 0, tv, Daynum, MulchTranLW);
+            SoilSurfaceBalance(ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, 0, tv, sim.day_start + u, sim.mulch_transmissivity_long_wave);
         }
 //
         if (sf >= 0.05) {
 //     This section executed for shaded columns only.
             tvold = tv;
 //     Compute canopy energy balance for shaded columns
-            CanopyBalance(ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tm, tv, Daynum, MulchTranLW);
+            CanopyBalance(ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tm, tv, sim.day_start + u, sim.mulch_transmissivity_long_wave);
 //     Increment the number of iterations.
             menit++;
             if (menit > 10) {

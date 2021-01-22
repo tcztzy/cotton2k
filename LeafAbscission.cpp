@@ -10,6 +10,7 @@
 //
 #include <tuple>
 #include "global.h"
+#include "Simulation.h"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ extern "C" {
     void SortArray(size_t, double[], int32_t*, int32_t*, int32_t*);
 }
 //////////////////////////////////////////////////
-tuple<double> LeafAbscission(const int &Daynum, const int &FirstSquare, const double &DayInc, double AbscisedLeafWeight)
+tuple<double> LeafAbscission(Simulation &sim, uint32_t u, const double &DayInc, double AbscisedLeafWeight)
 //     This function simulates leaf abscission. It is called from
 //  CottonPhenology(). It calls the following functions:
 //        FruitNodeLeafAbscission(), MainStemLeafAbscission(), 
@@ -48,18 +49,18 @@ tuple<double> LeafAbscission(const int &Daynum, const int &FirstSquare, const do
     droplf = vdrop1 - vdrop2 * LeafAreaIndex;
 //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
 //  prefruiting node leaves.
-    tie(AbscisedLeafWeight) = PreFruitLeafAbscission(droplf, Daynum, FirstSquare, DayInc, AbscisedLeafWeight);
+    tie(AbscisedLeafWeight) = PreFruitLeafAbscission(droplf, sim.day_start + u, sim.first_square, DayInc, AbscisedLeafWeight);
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
     for (int k = 0; k < NumVegBranches; k++) {
         int nbrch; // number of fruiting branches on a vegetative branch.
         nbrch = NumFruitBranches[k];
         for (int l = 0; l < nbrch; l++)
-            tie(AbscisedLeafWeight) = MainStemLeafAbscission(k, l, droplf, Daynum, AbscisedLeafWeight);
+            tie(AbscisedLeafWeight) = MainStemLeafAbscission(k, l, droplf, sim.day_start + u, AbscisedLeafWeight);
     }
 //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
-    if (DayFirstDef > 0 && Daynum >= DayFirstDef)
-        tie(AbscisedLeafWeight) = DefoliationLeafAbscission(Daynum, AbscisedLeafWeight);
+    if (DayFirstDef > 0 && sim.day_start + u >= DayFirstDef)
+        tie(AbscisedLeafWeight) = DefoliationLeafAbscission(sim.day_start + u, AbscisedLeafWeight);
 //     If the reserves in the leaf are too high, add the lost reserves
 //  to AbscisedLeafWeight and adjust ReserveC.
     if (ReserveC > 0) {

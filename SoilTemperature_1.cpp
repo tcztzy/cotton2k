@@ -14,7 +14,7 @@ void SoilTemperatureInit(int &, int &, Simulation &);
 
 // SoilTemperature_2
 void
-EnergyBalance(int, int, bool, double, double, const int &, const double &, const double &, const double &, double[20]);
+EnergyBalance(Simulation &, uint32_t, int, int, bool, double, double, const double &, double[20]);
 
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int);
@@ -22,7 +22,7 @@ void SoilHeatFlux(double, int, int, int, int);
 tuple<int> PredictEmergence(Simulation &, int, const string &, const int &, const int &, const int &);
 
 //////////////////////////
-void ColumnShading(Simulation & sim, const int &Daynum, const int &DayEmerge, const double &PlantHeight, double rracol[20])
+void ColumnShading(Simulation & sim, uint32_t u, const double &PlantHeight, double rracol[20])
 //     This function computes light interception by crop canopy and shading 
 //  of soil columns by the plants. It is called from SimulateThisDay().
 //
@@ -32,7 +32,7 @@ void ColumnShading(Simulation & sim, const int &Daynum, const int &DayEmerge, co
 {
 //     Before emergence: no light interception and no shading. LightIntercept is
 //  assigned zero, and the rracol array is assigned 1.
-    if (Daynum < DayEmerge || isw <= 0 || DayEmerge <= 0) {
+    if (sim.day_start + u < sim.day_emerge || isw <= 0 || sim.day_emerge <= 0) {
         LightIntercept = 0;
         for (int k = 0; k < nk; k++)
             rracol[k] = 1;
@@ -40,7 +40,7 @@ void ColumnShading(Simulation & sim, const int &Daynum, const int &DayEmerge, co
     }
 //     Compute the maximum leaf area index until this day (lmax).
     static double lmax;     // maximum leaf area index.
-    if (Daynum <= DayEmerge)
+    if (sim.day_start + u <= sim.day_emerge)
         lmax = 0;
     else if (LeafAreaIndex > lmax)
         lmax = LeafAreaIndex;
@@ -217,7 +217,7 @@ void SoilTemperature(Simulation& sim, uint32_t u, const double &PlantHeight, dou
                 ess = escol1k / dlt;
             }
 //     Call EnergyBalance to compute soil surface and canopy temperature.
-            EnergyBalance(ihr, k, bMulchon, ess, etp1, sim.day_start + u, PlantHeight, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave, rracol);
+            EnergyBalance(sim, u, ihr, k, bMulchon, ess, etp1, PlantHeight, rracol);
             if (bMulchon) {
                 tmav += MulchTemp[k] - 273.161;
                 kmulch++;

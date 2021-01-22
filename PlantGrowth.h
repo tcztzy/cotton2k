@@ -23,4 +23,4 @@ extern "C"
     void Pix();
 }
 
-void Defoliate(const string &, const string &, const int &, const int &);
+void Defoliate(Simulation &, uint32_t);

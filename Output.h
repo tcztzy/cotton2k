@@ -3,8 +3,7 @@
 void OpenOutputFiles(const std::string &, const std::string &, const int &);
 
 void
-DailyOutput(const std::string &, const std::string &, const int &, const int &, const int &, const int &, const int &,
-            const int &, const int &, const double &, const double &, const double &, const double &, const ClimateStruct[400]);
+DailyOutput(Simulation &, uint32_t, const int &, const double &, const double &, const double &, const double &);
 
 void
 DataOutput(Simulation &);

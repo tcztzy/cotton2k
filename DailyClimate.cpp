@@ -50,7 +50,7 @@ double tdewhour(Simulation &, uint32_t, double, double);
 
 void AverageAirTemperatures();
 
-void EvapoTranspiration(int, const string &, const string &, const int &, const double &, const double &);
+void EvapoTranspiration(Simulation &, uint32_t, int, const double &);
 
 void sunangle(double, double &, double &, const double &);
 
@@ -192,7 +192,7 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
         File18 << AvrgDailyTemp << endl;
     }
     //     Compute potential evapotranspiration.
-    EvapoTranspiration(jtout, sim.profile_name, sim.states[u].date, sim.day_start + u, sim.latitude, DayLength);
+    EvapoTranspiration(sim, u, jtout, DayLength);
     return make_tuple(DayLength);
 }
 
@@ -447,8 +447,7 @@ void AverageAirTemperatures()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EvapoTranspiration(int jtout, const string &ProfileName, const string &Date, const int &Daynum, const double &Latitude,
-                        const double &DayLength)
+void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout, const double &DayLength)
 //     Function EvapoTranspiration() computes the rate of reference evapotranspiration
 //  and related variables. The following subroutines and functions are called for each
 //  hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(), clearskyemiss(), del(),
@@ -476,7 +475,7 @@ void EvapoTranspiration(int jtout, const string &ProfileName, const string &Date
         double ti = ihr + 0.5; // middle of the hourly interval
                                //      The following subroutines and functions are called for each
                                //  hour: sunangle, cloudcov, clcor, refalbed .
-        sunangle(ti, cosz, suna, Latitude);
+        sunangle(ti, cosz, suna, sim.latitude);
         isr = tmpisr * cosz;
         CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
         //      clcor is called to compute cloud-type correction.
@@ -491,15 +490,15 @@ void EvapoTranspiration(int jtout, const string &ProfileName, const string &Date
         if (jtout > 1)
         {
             // write output to file
-            ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::app);
+            ofstream File18(fs::path("output") / (string(sim.profile_name) + ".TM2"), ios::app);
             if (ihr == 0)
             {
                 File18 << "    ***********" << endl
                        << "  date =";
                 File18.width(12);
-                File18 << Date << " Day of Year =";
+                File18 << sim.states[u].date << " Day of Year =";
                 File18.width(4);
-                File18 << Daynum << endl;
+                File18 << sim.day_start + u << endl;
                 File18 << " hour    cosz       isr   sunangle " << endl;
             }
             File18.width(5);

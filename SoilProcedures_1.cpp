@@ -42,7 +42,7 @@ void WaterUptake(const int &, const int &);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int &NumLayersWithRoots, const double &WaterStress)
+void SoilProcedures(Simulation &sim, uint32_t u, const int &NumLayersWithRoots, const double &WaterStress)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -61,7 +61,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
     const double cpardrip = 0.2;
     const double cparelse = 0.4;
 //     Call function ApplyFertilizer() for nitrogen fertilizer application.
-    ApplyFertilizer(Daynum);
+    ApplyFertilizer(sim.day_start + u);
     double DripWaterAmount = 0; // amount of water applied by drip irrigation
     double WaterToApply;        // amount of water applied by non-drip irrigation or rainfall
 //     Check if there is rain on this day
@@ -69,7 +69,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
 //     If irrigation is to be predicted for this day, call ComputeIrrigation() 
 //  to compute the actual amount of irrigation.
     if (MaxIrrigation > 0)
-        if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) {
+        if (sim.day_start + u >= DayStartPredIrrig && sim.day_start + u < DayStopPredIrrig) {
             ComputeIrrigation(sim, u, WaterStress);
             if (IrrigMethod == 2)
                 DripWaterAmount = AppliedWater;
@@ -80,7 +80,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
 //     When water is added by an irrigation defined in the input: update the amount
 //  of applied water.
     for (int i = 0; i < NumIrrigations; i++) {
-        if (Daynum == Irrig[i].day) {
+        if (sim.day_start + u == Irrig[i].day) {
             if (Irrig[i].method == 2) {
                 DripWaterAmount += Irrig[i].amount;
                 LocationColumnDrip = Irrig[i].LocationColumnDrip;
@@ -94,7 +94,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
     if (Kday > 0)
         Scratch21[u].amitri = WaterToApply + DripWaterAmount;
 //     The following will be executed only after plant emergence
-    if (Daynum >= sim.day_emerge && isw > 0) {
+    if (sim.day_start + u >= sim.day_emerge && isw > 0) {
         RootsCapableOfUptake(NumLayersWithRoots,
                              sim.states[u].root);  // function computes roots capable of uptake for each soil cell
         AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water
@@ -107,7 +107,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
     }
 //     Call function WaterTable() for saturating soil below water table.
     if (NumWaterTableData > 0)
-        WaterTable(Daynum);
+        WaterTable(sim.day_start + u);
     if (WaterToApply > 0) {
 //     For rain or surface irrigation.
 //     The number of iterations is computed from the thickness of the first soil layer. 
@@ -119,7 +119,7 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
 //  drippers, followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++) {
             GravityFlow(applywat);
-            CapillaryFlow(Daynum, sim.day_start);
+            CapillaryFlow(sim.day_start + u, sim.day_start);
         }
     }
     if (DripWaterAmount > 0) {
@@ -133,22 +133,22 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
 // If water is applied, DripFlow() is called followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++) {
             DripFlow(applywat);
-            CapillaryFlow(Daynum, sim.day_start);
+            CapillaryFlow(sim.day_start + u, sim.day_start);
         }
     }
 //     When no water is added, there is only one iteration in this day.
     if (WaterToApply + DripWaterAmount <= 0) {
         noitr = 1;
-        CapillaryFlow(Daynum, sim.day_start);
+        CapillaryFlow(sim.day_start + u, sim.day_start);
     }
 //     If the output flag OutIndex(17) is non-zero, write to output file *.WAT.
 //  This flag is also the interval in days between outputs. This is used for checking only.
     if (OutIndex[17] > 0) {
-        int kkk = Daynum / OutIndex[17];
-        if (kkk * OutIndex[17] == Daynum) {
+        int kkk = sim.day_start + u / OutIndex[17];
+        if (kkk * OutIndex[17] == sim.day_start + u) {
             ofstream File42(fs::path("output") / (string(sim.profile_name) + ".WAT"), ios::app);
             File42 << endl << " Average Values by Layers on Day of Year ";
-            File42 << Daynum << endl;
+            File42 << sim.day_start + u << endl;
             File42 << " Layer          VolWaterContent          SoilPsi " << endl;
             for (int l = 0; l < nl; l++) {
 //     Compute for each layer the average water content and the average matric water potential. 

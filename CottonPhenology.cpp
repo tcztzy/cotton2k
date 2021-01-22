@@ -33,7 +33,7 @@ void FruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &, 
 
 void NewBollFormation(int, int, int);
 
-void BollOpening(int, int, int, double, const int &);
+void BollOpening(Simulation &, uint32_t, int, int, int, double);
 
 //   Declaration of file-scope variables:  
 double FibLength;           // fiber length
@@ -112,7 +112,7 @@ tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double 
         }
 //      if a first square has not been formed, call LeafAbscission() and exit.
         else {
-            tie(AbscisedLeafWeight) = LeafAbscission(sim.day_start + u, sim.first_square, DayInc, AbscisedLeafWeight);
+            tie(AbscisedLeafWeight) = LeafAbscission(sim, u, DayInc, AbscisedLeafWeight);
             return make_tuple(0, AbscisedLeafWeight);
         }
     }
@@ -152,7 +152,7 @@ tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double 
     double AbscisedFruitSites;
     tie(AbscisedFruitSites) = FruitingSitesAbscission(sim, u, DayInc, WaterStress);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-    tie(AbscisedLeafWeight) = LeafAbscission(sim.day_start + u, sim.first_square, DayInc, AbscisedLeafWeight);
+    tie(AbscisedLeafWeight) = LeafAbscission(sim, u, DayInc, AbscisedLeafWeight);
     return make_tuple(AbscisedFruitSites, AbscisedLeafWeight);
 }
 
@@ -604,7 +604,7 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
     }
 //     If this node is an older green boll (FruitingCode = 2):
     if (FruitingCode[k][l][m] == 2)
-        BollOpening(k, l, m, boltmp[k][l][m], sim.day_start + u);
+        BollOpening(sim, u, k, l, m, boltmp[k][l][m]);
 }
 
 /////////////////////////
@@ -666,7 +666,7 @@ void NewBollFormation(int k, int l, int m)
 }
 
 /////////////////////////
-void BollOpening(int k, int l, int m, double tmpboll, const int &Daynum)
+void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpboll)
 //     Function BollOpening() simulates the transition of each fruiting site 
 //  from green to dehissed (open) boll. It is called from FruitingSite().
 //     The following global variables are referenced here:
@@ -699,8 +699,8 @@ void BollOpening(int k, int l, int m, double tmpboll, const int &Daynum)
     if (dehiss > vboldhs[4])
         dehiss = vboldhs[4];
 //     Dehiss is decreased after a defoliation.
-    if (DayFirstDef > 0 && Daynum > DayFirstDef)
-        dehiss = dehiss * pow(vboldhs[5], (Daynum - DayFirstDef));
+    if (DayFirstDef > 0 && sim.day_start + u > DayFirstDef)
+        dehiss = dehiss * pow(vboldhs[5], (sim.day_start + u - DayFirstDef));
 //     If leaf area index is less than dpar1, decrease dehiss.
     if (LeafAreaIndex < ddpar1) {
         double fdhslai; // effect of small lai on dehiss

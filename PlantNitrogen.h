@@ -4,6 +4,6 @@
 
 using namespace std;
 
-void PlantNitrogen(const string &, const int &, const int &);
+void PlantNitrogen(Simulation &, uint32_t);
 
 void PlantNitrogenBal(const string &);

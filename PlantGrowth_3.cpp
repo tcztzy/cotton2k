@@ -10,6 +10,7 @@
 //
 #include <fstream>
 #include "global.h"
+#include "Simulation.h"
 
 using namespace std;
 
@@ -463,7 +464,7 @@ void CheckDryMatterBal(const string &ProfileName, const string &Date, const doub
 }
 
 //////////////////////////
-void Defoliate(const string &ProfileName, const string &Date, const int &Daynum, const int &DayEmerge)
+void Defoliate(Simulation &sim, uint32_t u)
 //     This function simulates the effects of defoliating chemicals
 //  applied on the cotton. It is called from SimulateThisDay().
 //
@@ -488,7 +489,7 @@ void Defoliate(const string &ProfileName, const string &Date, const int &Daynum,
     static double tdfkgh; // total cumulative amount of defoliant
     static int idsw;      // switch indicating if predicted defoliation date was defined.
                           //     If this is first day set initial values of tdfkgh, defkgh and idsw to 0.
-    if (Daynum <= DayEmerge)
+    if (sim.day_start + u <= sim.day_emerge)
     {
         tdfkgh = 0;
         defkgh = 0;
@@ -507,14 +508,14 @@ void Defoliate(const string &ProfileName, const string &Date, const int &Daynum,
                 //     If this is first defoliation - check the percentage of boll opening.
                 //     If it is after the defined date, or the percent boll opening is greater than the
                 //  defined threshold - set defoliation date as this day and set a second prediction.
-                if ((Daynum >= DefoliationDate[i] && DefoliationDate[0] > 0) ||
+                if ((sim.day_start + u >= DefoliationDate[i] && DefoliationDate[0] > 0) ||
                     OpenRatio > DefoliationMethod[i])
                 {
                     idsw = 1;
-                    DefoliationDate[i] = Daynum;
+                    DefoliationDate[i] = sim.day_start + u;
                     DefoliantAppRate[1] = -99.9;
-                    if (Daynum < DayFirstDef || DayFirstDef <= 0)
-                        DayFirstDef = Daynum;
+                    if (sim.day_start + u < DayFirstDef || DayFirstDef <= 0)
+                        DayFirstDef = sim.day_start + u;
                     DefoliationMethod[i] = 0;
                 } // if Daynum
             }     // if i, idsw
@@ -522,9 +523,9 @@ void Defoliate(const string &ProfileName, const string &Date, const int &Daynum,
                   //  leaf area index is still greater than 0.2, set another defoliation.
             if (i >= 1)
             {
-                if (Daynum == (DefoliationDate[i - 1] + 10) && LeafAreaIndex >= 0.2)
+                if (sim.day_start + u == (DefoliationDate[i - 1] + 10) && LeafAreaIndex >= 0.2)
                 {
-                    DefoliationDate[i] = Daynum;
+                    DefoliationDate[i] = sim.day_start + u;
                     if (i < 4)
                         DefoliantAppRate[i + 1] = -99.9;
                     DefoliationMethod[i] = 0;
@@ -532,11 +533,11 @@ void Defoliate(const string &ProfileName, const string &Date, const int &Daynum,
             }     // if i>=1
         }         //  if NumOpenBolls
                   //
-        if (Daynum == DefoliationDate[i])
+        if (sim.day_start + u == DefoliationDate[i])
         {
             //     Report defoliation to output file B01.
-            ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
-            File20 << " ****   defoliant applied on " << Date;
+            ofstream File20(fs::path("output") / (string(sim.profile_name) + ".B01"), ios::app);
+            File20 << " ****   defoliant applied on " << sim.states[u].date;
             File20 << "    ****" << endl;
             //     If it is a predicted defoliation, assign tdfkgh as 2.5 .
             //     Else, compute the amount intercepted by the plants in kg per ha
@@ -557,10 +558,10 @@ void Defoliate(const string &ProfileName, const string &Date, const int &Daynum,
           //  average daily temperature, leaf water potential, days after first
           //  defoliation application, and tdfkgh. The regression equation is
           //  modified from the equation suggested in GOSSYM.
-        if (DefoliationDate[i] > 0 && Daynum > DayFirstDef)
+        if (DefoliationDate[i] > 0 && sim.day_start + u > DayFirstDef)
         {
             double dum = -LwpMin * 10; // value of LwpMin in bars.
-            PercentDefoliation = p1 + p2 * AvrgDailyTemp + p3 * tdfkgh + p4 * (Daynum - DayFirstDef) + p5 * dum - p6 * dum * dum + p7 * AvrgDailyTemp * tdfkgh * (Daynum - DayFirstDef) * dum;
+            PercentDefoliation = p1 + p2 * AvrgDailyTemp + p3 * tdfkgh + p4 * (sim.day_start + u - DayFirstDef) + p5 * dum - p6 * dum * dum + p7 * AvrgDailyTemp * tdfkgh * (sim.day_start + u - DayFirstDef) * dum;
             if (PercentDefoliation < 0)
                 PercentDefoliation = 0;
             double perdmax = 40; // maximum possible percent of defoliation.
