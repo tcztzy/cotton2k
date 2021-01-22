@@ -42,13 +42,14 @@ extern "C"
     double cloudcov(double, double, double);
     double daywnd(double, double, double, double, double, double);
     double clcor(uint8_t, double, double, double, double, double, double);
+    void AverageAirTemperatures(const double *, const double *, double &, double &, double &);
 }
 
 double daytmp(Simulation &, uint32_t, double, const double &);
 
 double tdewhour(Simulation &, uint32_t, double, double);
 
-void AverageAirTemperatures();
+
 
 void EvapoTranspiration(Simulation &, uint32_t, int, const double &);
 
@@ -176,7 +177,7 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
         }
     }
     //     Compute average daily temperature, using function AverageAirTemperatures.
-    AverageAirTemperatures();
+    AverageAirTemperatures(AirTemp, Radiation, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
     //     Write output file if requested.
     if (jtout > 1)
     {
@@ -408,42 +409,6 @@ double tdewhour(Simulation &sim, uint32_t u, double ti, double tt)
         tdewhr = tdmin + tdrange * (tt - tomorrow.Tmin) / (today.Tmax - tomorrow.Tmin);
     }
     return tdewhr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-void AverageAirTemperatures()
-//     Function AverageAirTemperatures() calculates daily average temperatures, daytime
-//  average and night time average.
-//     Global variables referenced:
-//        AirTemp[], Radiation[].
-//     Global variables computed:
-//        AvrgDailyTemp, NightTimeTemp, DayTimeTemp.
-//
-{
-    int nn1 = 0; // counter of night hours
-    int nn2 = 0; // counter of daytime hours
-    AvrgDailyTemp = 0;
-    NightTimeTemp = 0;
-    DayTimeTemp = 0;
-    //
-    for (int ihr = 0; ihr < 24; ihr++) // hourly loop
-    {
-        AvrgDailyTemp += AirTemp[ihr];
-        if (Radiation[ihr] <= 0)
-        {
-            NightTimeTemp += AirTemp[ihr];
-            nn1++;
-        }
-        else
-        {
-            DayTimeTemp += AirTemp[ihr];
-            nn2++;
-        }
-    }
-    //
-    AvrgDailyTemp = AvrgDailyTemp / 24;
-    NightTimeTemp = NightTimeTemp / nn1;
-    DayTimeTemp = DayTimeTemp / nn2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
