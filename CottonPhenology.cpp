@@ -29,7 +29,7 @@ void AddFruitingBranch(int, double, double, const double &);
 
 void AddFruitingNode(int, int, double, double, const double &WaterStress);
 
-tuple<int> FruitingSite(int, int, int, int &, const int &, const double &, const double &, int, const ClimateStruct[]);
+void FruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &, const double &);
 
 void NewBollFormation(int, int, int);
 
@@ -51,7 +51,7 @@ double PhenDelayByNStress;  // phenological delay caused by vegetative nitrogen 
 //      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-tuple<double, double> CottonPhenology(Simulation &sim, const int &Daynum, const double &DayInc,
+tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double &DayInc,
                 const double &WaterStress, double AbscisedLeafWeight)
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
@@ -102,17 +102,17 @@ tuple<double, double> CottonPhenology(Simulation &sim, const int &Daynum, const 
 //  to 1st square, and function PreFruitingNode() is called to simulate the 
 //  formation of prefruiting nodes.
     if (sim.first_square <= 0) {
-        DaysTo1stSqare = DaysToFirstSquare(Daynum, sim.day_emerge, WaterStress);
+        DaysTo1stSqare = DaysToFirstSquare(sim.day_start + u, sim.day_emerge, WaterStress);
         PreFruitingNode(stemNRatio, DayInc);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
         if (Kday >= (int) DaysTo1stSqare) {
-            sim.first_square = Daynum;
+            sim.first_square = sim.day_start + u;
             tie(AbscisedLeafWeight) = CreateFirstSquare(stemNRatio, AbscisedLeafWeight);
         }
 //      if a first square has not been formed, call LeafAbscission() and exit.
         else {
-            tie(AbscisedLeafWeight) = LeafAbscission(Daynum, sim.first_square, DayInc, AbscisedLeafWeight);
+            tie(AbscisedLeafWeight) = LeafAbscission(sim.day_start + u, sim.first_square, DayInc, AbscisedLeafWeight);
             return make_tuple(0, AbscisedLeafWeight);
         }
     }
@@ -145,14 +145,14 @@ tuple<double, double> CottonPhenology(Simulation &sim, const int &Daynum, const 
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-                tie(sim.first_bloom) = FruitingSite(k, l, m, nwfl, Daynum, DayInc, WaterStress, sim.first_bloom, sim.climate);
+                FruitingSite(sim, u, k, l, m, nwfl, DayInc, WaterStress);
         }
     }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
     double AbscisedFruitSites;
-    tie(AbscisedFruitSites) = FruitingSitesAbscission(Daynum, DayInc, WaterStress, sim.climate);
+    tie(AbscisedFruitSites) = FruitingSitesAbscission(sim, u, DayInc, WaterStress);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-    tie(AbscisedLeafWeight) = LeafAbscission(Daynum, sim.first_square, DayInc, AbscisedLeafWeight);
+    tie(AbscisedLeafWeight) = LeafAbscission(sim.day_start + u, sim.first_square, DayInc, AbscisedLeafWeight);
     return make_tuple(AbscisedFruitSites, AbscisedLeafWeight);
 }
 
@@ -487,8 +487,7 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio, 
 }
 
 //////////////////////////////////////////////////
-tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const int &Daynum, const double &DayInc,
-                        const double &WaterStress, int FirstBloom, const ClimateStruct Clim[400])
+void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &DayInc, const double &WaterStress)
 //     Function FruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
@@ -513,7 +512,7 @@ tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const i
     static double boltmp[3][30][5];    // cumulative boll temperature.
     if (FruitingCode[k][l][m] <= 0) {
         boltmp[k][l][m] = 0;
-        return make_tuple(FirstBloom);
+        return;
     }
 //      Assign zero to FibLength and FibStrength before any sites have been formed.
     if (NumFruitSites <= 0) {
@@ -528,16 +527,16 @@ tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const i
     agefac = (1 - WaterStress) * vfrsite[0] + (1 - NStressVeg) * vfrsite[1];
     LeafAge[k][l][m] += DayInc + agefac;
 //  After the application of defoliation, add the effect of defoliation on leaf age.
-    if (DayFirstDef > 0 && Daynum > DayFirstDef)
+    if (DayFirstDef > 0 && sim.day_start + u > DayFirstDef)
         LeafAge[k][l][m] += VarPar[38];
 //     FruitingCode = 3, 4, 5 or 6 indicates that this node has an open boll,
 //  or has been completely abscised. Return in this case.
     if (FruitingCode[k][l][m] >= 3 && FruitingCode[k][l][m] <= 6)
-        return make_tuple(FirstBloom);
+        return;
 //     Age of node is modified for low minimum temperatures and for high
 //  maximum temperatures.
-    double tmin = GetFromClim(Clim, "tmin", Daynum);
-    double tmax = GetFromClim(Clim, "tmax", Daynum);
+    double tmin = sim.climate[u].Tmin;
+    double tmax = sim.climate[u].Tmax;
     double ageinc = DayInc; // daily addition to site age.
 //     Adjust leaf aging for low minimum twmperatures.
     if (tmin < vfrsite[2])
@@ -568,13 +567,13 @@ tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const i
             FruitingCode[k][l][m] = 7;
             NewBollFormation(k, l, m);
 //     If this is the first flower, define FirstBloom.
-            if (CottonWeightGreenBolls > 0 && FirstBloom <= 1)
-                FirstBloom = Daynum;
+            if (CottonWeightGreenBolls > 0 && sim.first_bloom <= 1)
+                sim.first_bloom = sim.day_start + u;
 //     Determine node of most recent white flower.
             if (k == 0 && m == 0)
                 NodeRecentWhiteFlower = max(NodeRecentWhiteFlower, l);
         }
-        return make_tuple(FirstBloom);
+        return;
     }
 //     If there is a boll at this site:
 //     Calculate average boll temperature (boltmp), and boll age
@@ -601,12 +600,11 @@ tuple<int> FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower, const i
     if (FruitingCode[k][l][m] == 7) {
         if (AgeOfBoll[k][l][m] >= vfrsite[9])
             FruitingCode[k][l][m] = 2;
-        return make_tuple(FirstBloom);
+        return;
     }
 //     If this node is an older green boll (FruitingCode = 2):
     if (FruitingCode[k][l][m] == 2)
-        BollOpening(k, l, m, boltmp[k][l][m], Daynum);
-    return make_tuple(FirstBloom);
+        BollOpening(k, l, m, boltmp[k][l][m], sim.day_start + u);
 }
 
 /////////////////////////

@@ -287,10 +287,7 @@ void LeafWaterPotential(const string &ProfileName, const double &PlantHeight, co
 }
 
 ////////////////////////////////
-void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &DayStartCO2, const int &DayEndCO2,
-                          const double &CO2EnrichmentFactor,
-                          const double &DayLength,
-                          const ClimateStruct Clim[400]) // computes net photosynthesis.
+void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) // computes net photosynthesis.
 //     This function simulates the net photosynthesis of cotton  plants. It is called
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
@@ -320,7 +317,7 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
         throw SimulationEnd();
     //     If this is the first time the function is executed, get the ambient CO2 correction.
     static double AmbientCO2Factor; // correction factor for ambient CO2 in air
-    if (Daynum <= DayEmerge)
+    if (sim.day_start + u <= sim.day_emerge)
     {
         int co2indx = iyear - 1960; // count of years from 1960.
         if (co2indx < 0)
@@ -335,8 +332,8 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
     //     CO2EnrichmentFactor is used for CO2 enrichment simulations, between DOY
     //  dates DayStartCO2 and DayEndCO2.
     double pnetcor; // correction factor for gross photosynthesis.
-    if (Daynum >= DayStartCO2 && Daynum <= DayEndCO2 && CO2EnrichmentFactor > 1)
-        pnetcor = AmbientCO2Factor * vpnet[0] * CO2EnrichmentFactor;
+    if (sim.day_start + u >= sim.day_start_co2 && sim.day_start + u <= sim.day_end_co2 && sim.co2_enrichment_factor > 1)
+        pnetcor = AmbientCO2Factor * vpnet[0] * sim.co2_enrichment_factor;
     else
         pnetcor = AmbientCO2Factor * vpnet[0];
     //     Compute ptnfac, the effect of leaf N concentration on
@@ -351,7 +348,7 @@ void GetNetPhotosynthesis(const int &Daynum, const int &DayEmerge, const int &Da
     //     Convert the average daily short wave radiation from langley per
     //  day, to Watts per square meter (wattsm).
     double wattsm; // average daily global radiation, W m-2.
-    wattsm = GetFromClim(Clim, "rad", Daynum) * 697.45 / (DayLength * 60);
+    wattsm = sim.climate[u].Rad * 697.45 / (DayLength * 60);
     //     Compute pstand as an empirical function of wattsm (based on Baker et al., 1972).
     double pstand; // gross photosynthesis for a non-stressed full canopy.
     pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136);

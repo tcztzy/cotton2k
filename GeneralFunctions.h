@@ -1,17 +1,10 @@
 //  General auxiliary functions
-//
 #include <fstream> // Necessary for file I/O
 #include "cotton2k.h"
 
 using namespace std;
 
-//
-//  definition of functions
-//  =======================
 string GetLineData(ifstream &DataFile);
-
-//  soil water functions:
-double GetFromClim(const ClimateStruct Clim[400], const string &item, const int &Doy);
 
 extern "C"
 {

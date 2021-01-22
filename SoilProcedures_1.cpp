@@ -19,11 +19,11 @@ void RootsCapableOfUptake(const int &, Root[40][20]);
 
 void ApplyFertilizer(const int &);
 
-void ComputeIrrigation(const string &, const int &, const int &, const int &, const double &, const ClimateStruct[400]);
+void ComputeIrrigation(Simulation &, uint32_t, const double &);
 
 double GetTargetStress(const int &, const int &, const int &);
 
-void PredictDripIrrigation(double, const int &, const double &, const ClimateStruct[]);
+void PredictDripIrrigation(Simulation &, uint32_t, double, const double &);
 
 void PredictSurfaceIrrigation(double, const int &, const double &);
 
@@ -65,12 +65,12 @@ void SoilProcedures(Simulation &sim, const int &Daynum, const int &u, const int 
     double DripWaterAmount = 0; // amount of water applied by drip irrigation
     double WaterToApply;        // amount of water applied by non-drip irrigation or rainfall
 //     Check if there is rain on this day
-    WaterToApply = GetFromClim(sim.climate, "rain", Daynum);
+    WaterToApply = sim.climate[u].Rain;
 //     If irrigation is to be predicted for this day, call ComputeIrrigation() 
 //  to compute the actual amount of irrigation.
     if (MaxIrrigation > 0)
         if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) {
-            ComputeIrrigation(sim.profile_name, Daynum, sim.first_bloom, sim.first_square, WaterStress, sim.climate);
+            ComputeIrrigation(sim, u, WaterStress);
             if (IrrigMethod == 2)
                 DripWaterAmount = AppliedWater;
             else
@@ -321,8 +321,7 @@ void ApplyFertilizer(const int &Daynum)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ComputeIrrigation(const string &ProfileName, const int &Daynum, const int &FirstBloom, const int &FirstSquare,
-                       const double &WaterStress, const ClimateStruct Clim[400])
+void ComputeIrrigation(Simulation &sim, uint32_t u, const double &WaterStress)
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
@@ -331,19 +330,19 @@ void ComputeIrrigation(const string &ProfileName, const int &Daynum, const int &
 //       AppliedWater, IrrigMethod.
 //     The following global variable is set here:       LastIrrigation. 
 {
-    double TargetStress = GetTargetStress(Daynum, FirstBloom, FirstSquare);
+    double TargetStress = GetTargetStress(sim.day_start + u, sim.first_bloom, sim.first_square);
     if (TargetStress == -9999)
         return;
 //
     if (IrrigMethod == 2)
-        PredictDripIrrigation(TargetStress, Daynum, WaterStress, Clim);
+        PredictDripIrrigation(sim, u, TargetStress, WaterStress);
     else
-        PredictSurfaceIrrigation(TargetStress, Daynum, WaterStress);
+        PredictSurfaceIrrigation(TargetStress, sim.day_start + u, WaterStress);
 //     If the amount of water to be applied (AppliedWater) is non zero update the date of 
 //  last irrigation, and write report in output file *.B01.
     if (AppliedWater > 0.00001) {
-        LastIrrigation = Daynum;
-        OutputPredictedIrrigation(AppliedWater, TargetStress, ProfileName, Daynum, WaterStress);
+        LastIrrigation = sim.day_start + u;
+        OutputPredictedIrrigation(AppliedWater, TargetStress, sim.profile_name, sim.day_start + u, WaterStress);
     }
 }
 
@@ -411,10 +410,10 @@ double GetTargetStress(const int &Daynum, const int &FirstBloom, const int &Firs
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-void PredictDripIrrigation(double TargetStress, const int &Daynum, const double &WaterStress, const ClimateStruct Clim[400])
+void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, const double &WaterStress)
 //     This function computes the amount of water (mm) needed for predicted drip
 //  irrigation, considering the effects of water stress.
-//     It is called from ComputeIrrigation(). It calls the function GetFromClim().
+//     It is called from ComputeIrrigation().
 //     The following global variables are referenced here:
 //       ActualSoilEvaporation, ActualTranspiration, DayStartPredIrrig, Irrig, 
 //       LastIrrigation, MaxIrrigation, MinDaysBetweenIrrig, NumIrrigations, WaterStress.
@@ -423,7 +422,7 @@ void PredictDripIrrigation(double TargetStress, const int &Daynum, const double 
 //  
 {
     static bool irr1st; // switch is set to true after first drip irrigation
-    if (Daynum <= DayStartPredIrrig)
+    if (sim.day_start + u <= DayStartPredIrrig)
         irr1st = false;  // set to false on first day of irrigation prediction
 //
     static double RequiredWater; // the amount of water (mm) required for this or next irrigation
@@ -432,7 +431,7 @@ void PredictDripIrrigation(double TargetStress, const int &Daynum, const double 
 //     Check if there is an irrigation defined by input, or rain, on this day. 
         bool bIsIrr = false;
         for (int j = 0; j < NumIrrigations; j++) {
-            if (Irrig[j].day == Daynum || GetFromClim(Clim, "rain", Daynum) > 1) {
+            if (Irrig[j].day == sim.day_start + u || sim.climate[u].Rain > 1) {
                 bIsIrr = true; // there is an irrigation today
                 break;
             }
@@ -450,10 +449,10 @@ void PredictDripIrrigation(double TargetStress, const int &Daynum, const double 
 //     The following is executed after the first drip irrigation has been applied.
 //     The "Required water" is computed by adding the amount needed to replace the water loss
 //  from the soil by evapotranspiration today.
-    RequiredWater += ActualTranspiration + ActualSoilEvaporation - GetFromClim(Clim, "rain", Daynum);
+    RequiredWater += ActualTranspiration + ActualSoilEvaporation - sim.climate[u].Rain;
     if (RequiredWater < 0)
         RequiredWater = 0;
-    if ((Daynum - MinDaysBetweenIrrig) >= LastIrrigation) {
+    if ((sim.day_start + u - MinDaysBetweenIrrig) >= LastIrrigation) {
 //     If the minimum number of days (MinDaysBetweenIrrig) have passed after the last irrigation,
 //  A drip irrigation may be applied today.
         double facirr; // factor used to modify irrigation amount.

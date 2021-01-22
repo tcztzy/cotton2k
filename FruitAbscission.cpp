@@ -19,7 +19,7 @@ void BollAbscission(int, int, int, double, double);
 tuple<double> ComputeSiteNumbers(int32_t);
 
 //////////////////////////////////////////////////
-tuple<double> FruitingSitesAbscission(const int &Daynum, const double &DayInc, const double &WaterStress, const ClimateStruct Clim[400])
+tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double &DayInc, const double &WaterStress)
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
 //	SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
@@ -65,7 +65,7 @@ tuple<double> FruitingSitesAbscission(const int &Daynum, const double &DayInc, c
 //     Updating age of tags for shedding: Each member of array AbscissionLag is 
 //  incremented by physiological age of today. It is further increased (i.e., shedding 
 //  will occur sooner) when maximum temperatures are high.
-    double tmax = GetFromClim(Clim, "tmax", Daynum);
+    double tmax = sim.climate[u].Tmax;
     for (int lt = 0; lt < NumSheddingTags; lt++) {
         AbscissionLag[lt] += max(DayInc, 0.40);
         if (tmax > vabsfr[2])

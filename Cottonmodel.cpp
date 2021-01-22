@@ -284,8 +284,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
         Defoliate(sim.profile_name, Date, Daynum, sim.day_emerge); // effects of defoliants applied.
         tie(WaterStress) = Stress(sim.profile_name, PlantHeight,
                                   NumLayersWithRoots); // computes water stress factors.
-        GetNetPhotosynthesis(Daynum, sim.day_emerge, sim.day_start_co2, sim.day_end_co2, sim.co2_enrichment_factor,
-                             DayLength, sim.climate); // computes net photosynthesis.
+        GetNetPhotosynthesis(sim, u, DayLength); // computes net photosynthesis.
         tie(NumLayersWithRoots, PlantHeight) = PlantGrowth(
             sim,
             u,
@@ -295,7 +294,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
             DayInc,
             DayLength,
             WaterStress); // executes all modules of plant growth.
-        tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(sim, Daynum, DayInc, WaterStress, AbscisedLeafWeight); // executes all modules of plant phenology.
+        tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(sim, u, DayInc, WaterStress, AbscisedLeafWeight); // executes all modules of plant phenology.
         PlantNitrogen(sim.profile_name, Daynum, sim.day_emerge);                                                                           // computes plant nitrogen allocation.
         CheckDryMatterBal(sim.profile_name, Date, AbscisedLeafWeight);                                                                     // checks plant dry matter balance.
                                                                                                                                            //     If the relevant output flag is not zero, compute soil nitrogen balance and soil

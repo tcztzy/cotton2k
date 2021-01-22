@@ -66,8 +66,8 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[u].petioleNO3NConc = PetioleNO3NConc;
     Scratch21[u].plantHeight = PlantHeight;
     Scratch21[u].plantWeight = PlantWeight;
-    Scratch21[u].rad = GetFromClim(Clim, "rad", Daynum);
-    Scratch21[u].rain = GetFromClim(Clim, "rain", Daynum);
+    Scratch21[u].rad = Clim[u].Rad;
+    Scratch21[u].rain = Clim[u].Rain;
     Scratch21[u].reserveC = ReserveC;
     Scratch21[u].rn = Rn;
     Scratch21[u].rootNConc = RootNConc;
@@ -75,8 +75,8 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[u].soilNitrogenLoss = SoilNitrogenLoss;
     Scratch21[u].stemNConc = StemNConc;
     Scratch21[u].sumNO3N90 = SumNO3N90;
-    Scratch21[u].tmax = GetFromClim(Clim, "tmax", Daynum);
-    Scratch21[u].tmin = GetFromClim(Clim, "tmin", Daynum);
+    Scratch21[u].tmax = Clim[u].Tmax;
+    Scratch21[u].tmin = Clim[u].Tmin;
     Scratch21[u].totalLeafWeight = TotalLeafWeight;
     Scratch21[u].totalPetioleWeight = TotalPetioleWeight;
     Scratch21[u].totalRootWeight = TotalRootWeight;
@@ -85,7 +85,7 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[u].totalStemWeight = TotalStemWeight;
     Scratch21[u].waterStress = WaterStress;
     Scratch21[u].waterStressStem = WaterStressStem;
-    Scratch21[u].wind = GetFromClim(Clim, "wind", Daynum);
+    Scratch21[u].wind = Clim[u].Wind;
 //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {
