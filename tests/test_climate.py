@@ -1,5 +1,3 @@
-from datetime import date, datetime, timedelta
-
 from cotton2k.climate import (
     parse_weather,
     read_climate_data,
