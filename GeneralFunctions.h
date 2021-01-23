@@ -8,7 +8,6 @@ string GetLineData(ifstream &DataFile);
 
 extern "C"
 {
-    uint64_t LeapYear(uint64_t);
     int64_t DateToDoy(const char *, int32_t);
     const char* DoyToDate(int Doy, int m_YearStart);
     double PsiOsmotic(double q, double qsat, double ec);

@@ -5,13 +5,6 @@ use std::os::raw::c_char;
 use std::slice;
 
 #[no_mangle]
-pub extern "C" fn LeapYear(year: u64) -> u64 {
-    let is_divisible = |n| year % n == 0;
-
-    (is_divisible(4) && (!is_divisible(100) || is_divisible(400))) as u64
-}
-
-#[no_mangle]
 pub extern "C" fn DateToDoy(date_str: *const c_char, year_start: i32) -> i64 {
     let date_string = unsafe { CStr::from_ptr(date_str) };
     let date = date_string.to_str().unwrap().trim();

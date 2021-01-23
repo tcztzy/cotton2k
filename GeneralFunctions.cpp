@@ -5,7 +5,6 @@
 //  Date conversions - 
 //      DateToDoy()
 //      DoyToDate()
-//      LeapYear()
 //  Soil functions -
 //      psiq()
 //      qpsi()

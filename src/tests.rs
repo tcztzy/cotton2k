@@ -39,12 +39,3 @@ fn test_date_to_doy() {
     assert_eq!(DateToDoy("01-JAN-2021".as_ptr() as *const i8, 2021), 1);
     assert_eq!(DateToDoy("01-OCT-2020".as_ptr() as *const i8, 2021), 275);
 }
-
-#[test]
-fn test_leap_year() {
-    assert_eq!(LeapYear(1900), 0);
-    assert_eq!(LeapYear(2000), 1);
-    assert_eq!(LeapYear(2019), 0);
-    assert_eq!(LeapYear(2020), 1);
-    assert_eq!(LeapYear(2021), 0);
-}

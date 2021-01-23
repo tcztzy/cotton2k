@@ -1,4 +1,5 @@
 use chrono::prelude::*;
+use serde_json::json;
 
 /// Function dayrad() computes the hourly values of global radiation, in W m-2,
 /// using the measured daily total global radiation.
@@ -381,6 +382,77 @@ extern "C" fn ComputeDayLength(
     *day_length = 2f64 * ht.acos() * 12f64 / pi;
     *sunr = *solar_noon - *day_length / 2f64;
     *suns = *sunr + *day_length;
+}
+
+#[test]
+fn test_comput_day_length() {
+    let results = json!({
+        "sunrise": "2020-10-20T00:52:07+00:00",
+        "sunset": "2020-10-20T11:46:53+00:00",
+        "solar_noon": "2020-10-20T06:19:30+00:00",
+        "day_length": 39286,
+        "civil_twilight_begin": "2020-10-20T00:24:28+00:00",
+        "civil_twilight_end": "2020-10-20T12:14:31+00:00",
+        "nautical_twilight_begin": "2020-10-19T23:52:41+00:00",
+        "nautical_twilight_end": "2020-10-20T12:46:19+00:00",
+        "astronomical_twilight_begin": "2020-10-19T23:21:05+00:00",
+        "astronomical_twilight_end": "2020-10-20T13:17:55+00:00",
+    });
+    let mut declination: f64 = 0.;
+    let mut tmpisr: f64 = 0.;
+    let mut day_length: f64 = 0.;
+    let mut sunrise: f64 = 0.;
+    let mut sunset: f64 = 0.;
+    let mut solar_noon: f64 = 0.;
+    let latitude = 40.54778;
+    let longitude = 81.29;
+    let yo = 294;
+    let year = 2020;
+    ComputeDayLength(
+        yo,
+        year,
+        latitude,
+        longitude,
+        &mut declination,
+        &mut tmpisr,
+        &mut solar_noon,
+        &mut day_length,
+        &mut sunrise,
+        &mut sunset,
+    );
+    let fixed_offset = FixedOffset::east((longitude.div_euclid(15.).floor() as i32) * 3600);
+    let solar_noon = fixed_offset.yo(year, yo).and_hms(
+        solar_noon.floor() as u32,
+        ((solar_noon - solar_noon.floor()) * 60.).floor() as u32,
+        ((solar_noon * 60. - (solar_noon * 60.).floor()) * 60.).floor() as u32,
+    );
+    let sunrise = fixed_offset.yo(year, yo).and_hms(
+        sunrise.floor() as u32,
+        ((sunrise - sunrise.floor()) * 60.).floor() as u32,
+        ((sunrise * 60. - (sunrise * 60.).floor()) * 60.).floor() as u32,
+    );
+    assert!(
+        (solar_noon.with_timezone(&Utc)
+            - results["solar_noon"]
+                .as_str()
+                .unwrap()
+                .parse::<DateTime<Utc>>()
+                .expect("Parse Error"))
+        .num_seconds()
+        .abs()
+            < 10
+    );
+    assert!(
+        (sunrise.with_timezone(&Utc)
+            - results["sunrise"]
+                .as_str()
+                .unwrap()
+                .parse::<DateTime<Utc>>()
+                .expect("Parse Error"))
+        .num_seconds()
+        .abs()
+            < 180
+    );
 }
 
 #[no_mangle]
