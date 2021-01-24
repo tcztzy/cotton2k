@@ -39,12 +39,11 @@ extern "C"
     double gam(double, double);
     double cloudcov(double, double, double);
     double daywnd(double, double, double, double, double, double);
+    double daytmp(Simulation &, uint32_t, double, double, double, double, uint32_t, double, double);
     double clcor(uint8_t, double, double, double, double, double, double);
     void AverageAirTemperatures(const double *, const double *, double &, double &, double &);
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
 }
-
-double daytmp(Simulation &, uint32_t, double, const double &);
 
 double tdewhour(Simulation &, uint32_t, double, double);
 
@@ -144,7 +143,7 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
                                                                  //     Compute hourly global radiation, using function dayrad.
         Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
         //     Compute hourly temperature, using function daytmp.
-        AirTemp[ihr] = daytmp(sim, u, ti, DayLength);
+        AirTemp[ihr] = daytmp(sim, u, ti, DayLength, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
         //     Compute hourly dew point temperature, using function tdewhour.
         DewPointTemp[ihr] = tdewhour(sim, u, ti, AirTemp[ihr]);
         //     Compute hourly relative humidity, using function dayrh.
@@ -192,114 +191,6 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
     //     Compute potential evapotranspiration.
     EvapoTranspiration(sim, u, jtout, DayLength);
     return make_tuple(DayLength);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-double daytmp(Simulation &sim, uint32_t u, double ti, const double &DayLength)
-//     Function daytmp() computes and returns the hourly values of air temperature,
-//  using the measured daily maximum and minimum.
-//     The algorithm is described in Ephrath et al. (1996). It is based on
-//  the following assumptions:
-//     The time of minimum daily temperature is at sunrise.
-//     The time of maximum daily temperature is SitePar[8] hours after solar noon.
-//     Many models assume a sinusoidal curve of the temperature during the day,
-//  but actual data deviate from the sinusoidal curve in the following characteristic
-//  way: a faster increase right after sunrise, a near plateau maximum during several
-//  hours in the middle of the day, and a rather fast decrease by sunset. The physical
-//  reason for this is a more efficient mixing of heated air from ground level into the
-//  atmospheric boundary layer, driven by strong lapse temperature gradients buoyancy.
-//     Note: ** will be used for "power" as in Fortran notation.
-//     A first order approximation is
-//       daytmp = tmin + (tmax-tmin) * st * tkk / (tkk + daytmp - tmin)
-//  where
-//       st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * SitePar[8]))
-//     Since daytmp appears on both sides of the first equation, it
-//  can be solved and written explicitly as:
-//      daytmp = tmin - tkk/2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * st)
-//  where the amplitude of tmin and tmax is calculated as
-//      amp = (tmax - tmin) * (1 + (tmax - tmin) / tkk)
-//     This ensures that temperature still passes through tmin and tmax values.
-//     The value of tkk was determined by calibration as 15.
-//     This algorithm is used for the period from sunrise to the time of maximum temperature,
-//  hmax. A similar algorithm is used for the time from hmax to sunset, but the value of the
-//  minimum temperature of the next day (mint_tomorrow) is used instead of mint_today.
-//     Night air temperature is described by an exponentially declining curve.
-//     For the time from sunset to mid-night:
-//        daytmp = (mint_tomorrow - sst * exp((dayl - 24) / tcoef)
-//               + (sst - mint_tomorrow) * exp((suns - ti) / tcoef))
-//               / (1 - exp((dayl - 24) / tcoef))
-//  where
-//        tcoef is a time coefficient, determined by calibration as 4
-//        sst is the sunset temperature, determined by the daytime equation as:
-//        sst = mint_tomorrow - tkk / 2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * sts)
-//  where
-//        sts  = sin(pi * dayl / (dayl + 2 * SitePar[8]))
-//        amp = (tmax - mint_tomorrow) * (1 + (tmax - mint_tomorrow) / tkk)
-//      For the time from midnight to sunrise, similar equations are used, but the minimum
-//  temperature of this day (mint_today) is used instead of mint_tomorrow, and the maximum
-//  temperature of the previous day (maxt_yesterday) is used instead of maxt_today. Also,
-//  (suns-ti-24) is used for the time variable instead of (suns-ti).
-//      These exponential equations for night-time temperature ensure that the curve will
-//  be continuous with the daytime equation at sunset, and will pass through the minimum
-//  temperature at sunrise.
-//
-//  Input argument:
-//     ti - time of day (hours).
-//  Global variables used:
-//     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
-//
-{
-    const double tkk = 15; // The temperature increase at which the sensible heat flux is
-    //  doubled, in comparison with the situation without buoyancy.
-    const double tcoef = 4;               // time coefficient for the exponential part of the equation.
-    double hmax = SolarNoon + SitePar[8]; // hour of maximum temperature
-    int im1 = u > 1 ? u - 1 : 0;          // day of year yesterday
-    ClimateStruct &yesterday = sim.climate[im1];
-    ClimateStruct &today = sim.climate[u];
-    int ip1 = u + 1; // day of year tomorrow
-    if (ip1 > LastDayWeatherData)
-        ip1 = u;
-    ClimateStruct &tomorrow = sim.climate[ip1];
-    //
-    double amp;               // amplitude of temperatures for a period.
-    double sst;               // the temperature at sunset.
-    double st;                // computed from time of day, used for daytime temperature.
-    double sts;               // intermediate variable for computing sst.
-    double HourlyTemperature; // computed temperature at time ti.
-                              //
-    if (ti <= sunr)           //  from midnight to sunrise
-    {
-        amp = (yesterday.Tmax - today.Tmin) * (1 + (yesterday.Tmax - today.Tmin) / tkk);
-        sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
-        //  compute temperature at sunset:
-        sst = today.Tmin - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
-        HourlyTemperature = (today.Tmin - sst * exp((DayLength - 24) / tcoef) + (sst - today.Tmin) * exp((suns - ti - 24) / tcoef)) / (1 - exp((DayLength - 24) / tcoef));
-    }
-    else if (ti <= hmax) //  from sunrise to hmax
-    {
-        amp = (today.Tmax - today.Tmin) * (1 + (today.Tmax - today.Tmin) / tkk);
-        st = sin(pi * (ti - SolarNoon + DayLength / 2.) / (DayLength + 2 * SitePar[8]));
-        HourlyTemperature = today.Tmin - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
-    }
-    else if (ti <= suns) //  from hmax to sunset
-    {
-        amp = (today.Tmax - tomorrow.Tmin) * (1 + (today.Tmax - tomorrow.Tmin) / tkk);
-        st = sin(pi * (ti - SolarNoon + DayLength / 2) / (DayLength + 2 * SitePar[8]));
-        HourlyTemperature = tomorrow.Tmin - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
-    }
-    else //  from sunset to midnight
-    {
-        amp = (today.Tmax - tomorrow.Tmin) * (1 + (today.Tmax - tomorrow.Tmin) / tkk);
-        sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
-        sst = tomorrow.Tmin - tkk / 2 + 0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
-        HourlyTemperature = (tomorrow.Tmin - sst * exp((DayLength - 24) / tcoef) + (sst - tomorrow.Tmin) * exp((suns - ti) / tcoef)) / (1. - exp((DayLength - 24) / tcoef));
-    }
-    return HourlyTemperature;
-    //     Reference:
-    //     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
-    //  diurnal patterns of air temperature, radiation, wind speed and
-    //  relative humidity by equations from daily characteristics.
-    //  Agricultural Systems 51:377-393.
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

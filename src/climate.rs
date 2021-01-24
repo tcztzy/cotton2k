@@ -1,5 +1,7 @@
 use chrono::prelude::*;
 
+use super::*;
+
 /// Function dayrad() computes the hourly values of global radiation, in W m-2,
 /// using the measured daily total global radiation.
 ///
@@ -474,4 +476,128 @@ extern "C" fn AverageAirTemperatures(
     }
     *average_nighttime_air_temperature /= night_hours as f64;
     *average_daytime_air_temperature /= (24 - night_hours) as f64;
+}
+
+#[no_mangle]
+extern "C" fn daytmp(
+    sim: &mut Simulation,
+    u: u32,
+    ti: f64,
+    DayLength: f64,
+    SolarNoon: f64,
+    site8: f64,
+    LastDayWeatherData: u32,
+    sunr: f64,
+    suns: f64,
+) -> f64
+//     Function daytmp() computes and returns the hourly values of air temperature,
+//  using the measured daily maximum and minimum.
+//     The algorithm is described in Ephrath et al. (1996). It is based on
+//  the following assumptions:
+//     The time of minimum daily temperature is at sunrise.
+//     The time of maximum daily temperature is SitePar[8] hours after solar noon.
+//     Many models assume a sinusoidal curve of the temperature during the day,
+//  but actual data deviate from the sinusoidal curve in the following characteristic
+//  way: a faster increase right after sunrise, a near plateau maximum during several
+//  hours in the middle of the day, and a rather fast decrease by sunset. The physical
+//  reason for this is a more efficient mixing of heated air from ground level into the
+//  atmospheric boundary layer, driven by strong lapse temperature gradients buoyancy.
+//     Note: ** will be used for "power" as in Fortran notation.
+//     A first order approximation is
+//       daytmp = tmin + (tmax-tmin) * st * tkk / (tkk + daytmp - tmin)
+//  where
+//       st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * SitePar[8]))
+//     Since daytmp appears on both sides of the first equation, it
+//  can be solved and written explicitly as:
+//      daytmp = tmin - tkk/2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * st)
+//  where the amplitude of tmin and tmax is calculated as
+//      amp = (tmax - tmin) * (1 + (tmax - tmin) / tkk)
+//     This ensures that temperature still passes through tmin and tmax values.
+//     The value of tkk was determined by calibration as 15.
+//     This algorithm is used for the period from sunrise to the time of maximum temperature,
+//  hmax. A similar algorithm is used for the time from hmax to sunset, but the value of the
+//  minimum temperature of the next day (mint_tomorrow) is used instead of mint_today.
+//     Night air temperature is described by an exponentially declining curve.
+//     For the time from sunset to mid-night:
+//        daytmp = (mint_tomorrow - sst * exp((dayl - 24) / tcoef)
+//               + (sst - mint_tomorrow) * exp((suns - ti) / tcoef))
+//               / (1 - exp((dayl - 24) / tcoef))
+//  where
+//        tcoef is a time coefficient, determined by calibration as 4
+//        sst is the sunset temperature, determined by the daytime equation as:
+//        sst = mint_tomorrow - tkk / 2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * sts)
+//  where
+//        sts  = sin(pi * dayl / (dayl + 2 * SitePar[8]))
+//        amp = (tmax - mint_tomorrow) * (1 + (tmax - mint_tomorrow) / tkk)
+//      For the time from midnight to sunrise, similar equations are used, but the minimum
+//  temperature of this day (mint_today) is used instead of mint_tomorrow, and the maximum
+//  temperature of the previous day (maxt_yesterday) is used instead of maxt_today. Also,
+//  (suns-ti-24) is used for the time variable instead of (suns-ti).
+//      These exponential equations for night-time temperature ensure that the curve will
+//  be continuous with the daytime equation at sunset, and will pass through the minimum
+//  temperature at sunrise.
+//
+//  Input argument:
+//     ti - time of day (hours).
+//  Global variables used:
+//     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
+//
+{
+    let pi = 3.14159f64;
+    let tkk = 15f64; // The temperature increase at which the sensible heat flux is
+                     //  doubled, in comparison with the situation without buoyancy.
+    let tcoef = 4f64; // time coefficient for the exponential part of the equation.
+    let hmax = SolarNoon + site8; // hour of maximum temperature
+    let im1 = if u > 1 { u - 1 } else { 0 }; // day of year yesterday
+    let yesterday = sim.climate[im1 as usize];
+    let today = sim.climate[u as usize];
+    let ip1 = if u + 1 > LastDayWeatherData { u } else { u + 1 };
+    let tomorrow = sim.climate[ip1 as usize];
+    //
+    let amp: f64; // amplitude of temperatures for a period.
+    let sst: f64; // the temperature at sunset.
+    let st: f64; // computed from time of day, used for daytime temperature.
+    let sts: f64; // intermediate variable for computing sst.
+    let HourlyTemperature: f64; // computed temperature at time ti.
+                                //
+    if ti <= sunr
+    //  from midnight to sunrise
+    {
+        amp = (yesterday.Tmax - today.Tmin) * (1f64 + (yesterday.Tmax - today.Tmin) / tkk);
+        sts = (pi * DayLength / (DayLength + 2f64 * site8)).sin();
+        //  compute temperature at sunset:
+        sst = today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * sts).sqrt();
+        HourlyTemperature = (today.Tmin - sst * ((DayLength - 24f64) / tcoef).exp()
+            + (sst - today.Tmin) * ((suns - ti - 24f64) / tcoef).exp())
+            / (1f64 - ((DayLength - 24f64) / tcoef).exp());
+    } else if ti <= hmax
+    //  from sunrise to hmax
+    {
+        amp = (today.Tmax - today.Tmin) * (1f64 + (today.Tmax - today.Tmin) / tkk);
+        st = (pi * (ti - SolarNoon + DayLength / 2.) / (DayLength + 2f64 * site8)).sin();
+        HourlyTemperature =
+            today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
+    } else if ti <= suns
+    //  from hmax to sunset
+    {
+        amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
+        st = (pi * (ti - SolarNoon + DayLength / 2f64) / (DayLength + 2f64 * site8)).sin();
+        HourlyTemperature =
+            tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
+    } else
+    //  from sunset to midnight
+    {
+        amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
+        sts = (pi * DayLength / (DayLength + 2f64 * site8)).sin();
+        sst = tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * sts).sqrt();
+        HourlyTemperature = (tomorrow.Tmin - sst * ((DayLength - 24f64) / tcoef).exp()
+            + (sst - tomorrow.Tmin) * ((suns - ti) / tcoef).exp())
+            / (1. - ((DayLength - 24f64) / tcoef).exp());
+    }
+    return HourlyTemperature;
+    //     Reference:
+    //     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
+    //  diurnal patterns of air temperature, radiation, wind speed and
+    //  relative humidity by equations from daily characteristics.
+    //  Agricultural Systems 51:377-393.
 }
