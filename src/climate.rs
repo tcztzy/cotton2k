@@ -1,5 +1,4 @@
 use chrono::prelude::*;
-use serde_json::json;
 
 /// Function dayrad() computes the hourly values of global radiation, in W m-2,
 /// using the measured daily total global radiation.
@@ -386,7 +385,7 @@ extern "C" fn ComputeDayLength(
 
 #[test]
 fn test_comput_day_length() {
-    let results = json!({
+    /*{
         "sunrise": "2020-10-20T00:52:07+00:00",
         "sunset": "2020-10-20T11:46:53+00:00",
         "solar_noon": "2020-10-20T06:19:30+00:00",
@@ -397,7 +396,7 @@ fn test_comput_day_length() {
         "nautical_twilight_end": "2020-10-20T12:46:19+00:00",
         "astronomical_twilight_begin": "2020-10-19T23:21:05+00:00",
         "astronomical_twilight_end": "2020-10-20T13:17:55+00:00",
-    });
+    }*/
     let mut declination: f64 = 0.;
     let mut tmpisr: f64 = 0.;
     let mut day_length: f64 = 0.;
@@ -433,9 +432,7 @@ fn test_comput_day_length() {
     );
     assert!(
         (solar_noon.with_timezone(&Utc)
-            - results["solar_noon"]
-                .as_str()
-                .unwrap()
+            - "2020-10-20T06:19:30+00:00"
                 .parse::<DateTime<Utc>>()
                 .expect("Parse Error"))
         .num_seconds()
@@ -444,9 +441,7 @@ fn test_comput_day_length() {
     );
     assert!(
         (sunrise.with_timezone(&Utc)
-            - results["sunrise"]
-                .as_str()
-                .unwrap()
+            - "2020-10-20T00:52:07+00:00"
                 .parse::<DateTime<Utc>>()
                 .expect("Parse Error"))
         .num_seconds()
