@@ -1,16 +1,11 @@
 """Climate module"""
 from __future__ import annotations
 
-import datetime
-from calendar import isleap
 from dataclasses import dataclass
 from locale import atof, atoi
-from math import acos, cos, exp, pi, radians, sin, tan
 from pathlib import Path
 from re import findall
 from typing import Any, Union
-
-from cotton2k.utils import date_to_day_of_year
 
 
 def read_climate_data(climate_file: Path) -> Climate:
@@ -57,38 +52,6 @@ def parse_weather(content: str) -> dict:
         clim.append(c)
     result["_climate"] = clim
     return result
-
-
-def tdewest(t: float, site_parameter5: float, site_parameter6: float) -> float:
-    """
-    This function estimates the approximate daily average dewpoint temperature
-    when it is not available.
-
-    It is called by ReadClimateData().
-
-    Global variables referenced: SitePar[5] and SitePar[6]
-
-    Argument used: t = maximum temperature of this day.
-    """
-    if t <= 20:
-        return site_parameter5
-    if t >= 40:
-        return site_parameter6
-    return ((40 - t) * site_parameter5 + (t - 20) * site_parameter6) / 20
-
-
-def vapor_pressure(temperature: float) -> float:
-    """
-    Compute vapor pressure in the air (in KPa units) function of the air at
-    temperature (C).
-
-    Tetens, O. 1930. Uber einige meteorologische Begriffe. Z. Geophys.. 6. 297–309.
-
-    Buck, A. L., 1981: New Equations for Computing Vapor Pressure and
-    Enhancement Factor. J. Appl. Meteor., 20, 1527–1532,
-    https://doi.org/10.1175/1520-0450(1981)020<1527:NEFCVP>2.0.CO;2.
-    """
-    return 0.61078 * exp(17.269 * temperature / (temperature + 237.3))
 
 
 @dataclass
