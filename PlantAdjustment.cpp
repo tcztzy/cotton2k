@@ -35,7 +35,6 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[u].cumWaterAdded = CumWaterAdded;
     Scratch21[u].cumWaterDrained = CumWaterDrained;
     Scratch21[u].deadwt = AbscisedLeafWeight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
-    Scratch21[u].date = Date;
     Scratch21[u].daynum = Daynum;
     Scratch21[u].dayTimeTemp = DayTimeTemp;
     Scratch21[u].gbw = CottonWeightGreenBolls + BurrWeightGreenBolls;

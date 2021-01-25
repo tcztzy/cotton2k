@@ -24,13 +24,13 @@ void WriteLine22(ofstream &, double, double, double, const double &);
 // Out this file
 void outputplt(const string &, const int &);
 
-void output2(const string &);
+void output2(Simulation &);
 
-void output3(const string &);
+void output3(Simulation &);
 
-void output4(const string &);
+void output4(Simulation &);
 
-void output5(const string &);
+void output5(Simulation &);
 
 void output6(const string &);
 
@@ -461,7 +461,7 @@ void DataOutput(Simulation & sim)
     for (int irec = 0; irec < 400; irec++) {
         if (Scratch21[irec].daynum <= 0)
             break;
-        Date = Scratch21[irec].date;
+        Date = sim.states[irec].date;
         i01 = Scratch21[irec].numGreenBolls;
         Kday = Scratch21[irec].kday;
         LeafAreaIndex = Scratch21[irec].leafAreaIndex;
@@ -525,13 +525,13 @@ void DataOutput(Simulation & sim)
 //     Call procedures for printing output
     outputplt(sim.profile_name, sim.day_emerge);
     if (OutIndex[6] > 0)
-        output2(sim.profile_name);
+        output2(sim);
     if (OutIndex[3] > 0)
-        output3(sim.profile_name);
+        output3(sim);
     if (OutIndex[4] > 0)
-        output4(sim.profile_name);
+        output4(sim);
     if (OutIndex[5] > 0)
-        output5(sim.profile_name);
+        output5(sim);
     output6(sim.profile_name);
     if (OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
         output7(sim.profile_name, sim.day_start, sim.day_finish, sim.day_start_soil_maps, sim.day_stop_soil_maps);

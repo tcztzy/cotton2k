@@ -219,13 +219,13 @@ void outputplt(const string &ProfileName, const int &DayEmerge)
 }
 
 ///////////////////////
-void output2(const string &ProfileName)
+void output2(Simulation &sim)
 //     This function is optionally called from DataOutput().  It writes output of stress
 //  factors to file F01, when the output flag OutIndex(6) is non-zero.
 //     The values of the variables to plot are taken from structure Scratch21.
 {
 //     Write header lines.
-    ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
+    ofstream File46(fs::path("output") / (string(sim.profile_name) + ".F01"), ios::app);
     File46.unsetf(ios::left);
     File46 << endl << "                            Stress factors output" << endl;
     File46 << "                %                            Leaf           Veg.    Leaf    Soil" << endl;
@@ -240,7 +240,7 @@ void output2(const string &ProfileName)
 //
         File46.unsetf(ios::left);
         File46.width(12);
-        File46 << Scratch21[irec].date;
+        File46 << sim.states[irec].date;
         File46.setf(ios::fixed);
         File46.precision(1);
         File46.width(6);
@@ -267,14 +267,14 @@ void output2(const string &ProfileName)
 }
 
 ///////////////////////
-void output3(const string &ProfileName)
+void output3(Simulation &sim)
 //     This procedure is optionally called from DataOutput(). It writes output of weights of 
 //  dry matter of plant parts to file F01. Data are extracted from structure Scratch21. 
 //     Global variables referenced:    OutIndex, PlantPopulation
 {
 //  Write header lines.
     double multi;  // multiplier for some data
-    ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
+    ofstream File46(fs::path("output") / (string(sim.profile_name) + ".F01"), ios::app);
     File46.unsetf(ios::left);
     if (OutIndex[2] == 0) {
         multi = 1;
@@ -296,7 +296,7 @@ void output3(const string &ProfileName)
             continue;
         File46.unsetf(ios::left);
         File46.width(12);
-        File46 << Scratch21[irec].date;
+        File46 << sim.states[irec].date;
         File46.setf(ios::fixed);
         if (OutIndex[2] == 0)
             File46.precision(2);
@@ -330,7 +330,7 @@ void output3(const string &ProfileName)
 }
 
 ///////////////////////
-void output4(const string &ProfileName)
+void output4(Simulation &sim)
 //     This procedure is optionally called from DataOutput(). It writes output of water
 //  and evapotranspiration data to file F01, when the output flag OutIndex(4) is non-zero.
 //     Data are extracted from structure Scratch21. 
@@ -338,7 +338,7 @@ void output4(const string &ProfileName)
 {
 //     Write header lines.
     double multi;  // multiplier for some data
-    ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
+    ofstream File46(fs::path("output") / (string(sim.profile_name) + ".F01"), ios::app);
     File46.unsetf(ios::left);
     File46 << endl << "                          Water and ET variables" << endl;
     File46 << "    Date      Potential   Net    ---- Actual Cumulative --  Total      " << endl;
@@ -356,7 +356,7 @@ void output4(const string &ProfileName)
             break;
         File46.unsetf(ios::left);
         File46.width(12);
-        File46 << Scratch21[irec].date;
+        File46 << sim.states[irec].date;
         File46.setf(ios::fixed);
         File46.precision(2);
         File46.width(6);
@@ -390,14 +390,14 @@ void output4(const string &ProfileName)
 }
 
 ///////////////////////
-void output5(const string &ProfileName)
+void output5(Simulation &sim)
 //     This procedure is optionally called from DataOutput() when the output flag
 // OutIndex[5] is non-zero. It writes output of weather variables to file F01.
 //     OutIndex[1] determines if the units are in  metric or English.
 //
 {
 //     Write header lines.
-    ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
+    ofstream File46(fs::path("output") / (string(sim.profile_name) + ".F01"), ios::app);
     File46.unsetf(ios::left);
     if (OutIndex[1] == 0) {
         File46 << endl << "                    Weather variables in metric units" << endl;
@@ -416,7 +416,7 @@ void output5(const string &ProfileName)
             break;
         File46.unsetf(ios::left);
         File46.width(12);
-        File46 << Scratch21[irec].date;
+        File46 << sim.states[irec].date;
         File46.setf(ios::fixed);
         File46.precision(1);
         if (OutIndex[1] == 0) {
