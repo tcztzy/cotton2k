@@ -93,7 +93,6 @@ double
     ActualBollGrowth,             // total actual growth of seedcotton in bolls, g plant-1 day-1.
     ActualBurrGrowth,             // total actual growth of burrs in bolls, g plant-1 day-1.
     ActualSquareGrowth,           // total actual growth of squares, g plant-1 day-1.
-    ActualRootGrowth[maxl][maxk], // actual root growth in cell (g per day).
     ActualSoilEvaporation,        // actual evaporation from soil surface, mm day-1.
     ActualStemGrowth,             // actual growth rate of stems, g plant-1 day-1.
     ActualTranspiration,          // actual transpiration from plants, mm day-1.

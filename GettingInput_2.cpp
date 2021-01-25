@@ -408,7 +408,6 @@ void InitializeRootData(Simulation & sim)
         for (int k = 0; k < nk; k++) {
             PotGroRoots[l][k] = 0;
             RootGroFactor[l][k] = 1;
-            ActualRootGrowth[l][k] = 0;
         }
     }
     init_root_data(sim.states[0].root, sim.plant_row_column, 0.01 * RowSpace / PerPlantArea);

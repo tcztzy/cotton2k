@@ -286,7 +286,7 @@ ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, int N
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
         {
-            ActualRootGrowth[l][k] = 0;
+            sim.states[u].root[l][k].actual_growth = 0;
             adwr1[l][k] = 0;
         }
     //     The amount of carbon allocated for root growth is calculated from
@@ -355,7 +355,7 @@ ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, int N
                 if (rtconc > rtminc)
                     tie(NumLayersWithRoots) = RedistRootNewGrowth(sim, u, l, k, adwr1[l][k], NumLayersWithRoots);
                 else
-                    ActualRootGrowth[l][k] += adwr1[l][k];
+                    sim.states[u].root[l][k].actual_growth += adwr1[l][k];
             }
     //     The new actual growth ActualRootGrowth(l,k) in each cell is partitioned among the root
     //  classes in it in proportion to the parameters RootGrowthIndex(i), and the previous values of
@@ -376,9 +376,9 @@ ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, int N
                 {
                     if (sumgr > 0)
                         sim.states[u].root[l][k].weight[i] +=
-                            ActualRootGrowth[l][k] * RootGrowthIndex[i] * sim.states[u].root[l][k].weight[i] / sumgr;
+                            sim.states[u].root[l][k].actual_growth * RootGrowthIndex[i] * sim.states[u].root[l][k].weight[i] / sumgr;
                     else
-                        sim.states[u].root[l][k].weight[i] += ActualRootGrowth[l][k] * RootGrowthIndex[i] / sumind;
+                        sim.states[u].root[l][k].weight[i] += sim.states[u].root[l][k].actual_growth * RootGrowthIndex[i] / sumind;
                 }
             }
         }

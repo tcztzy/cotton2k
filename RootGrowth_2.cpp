@@ -88,16 +88,16 @@ tuple<int> RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double
     //  same soil soil cell, and execution of this function is ended.
     if (srwp < 1e-10)
     {
-        ActualRootGrowth[l][k] = addwt;
+        sim.states[u].root[l][k].actual_growth = addwt;
         return make_tuple(NumLayersWithRoots);
     }
     //     Allocate the added dry matter to this and the adjoining
     //  soil cells in proportion to the EFAC factors.
-    ActualRootGrowth[l][k] += addwt * efac1 / srwp;
-    ActualRootGrowth[l][km1] += addwt * efacl / srwp;
-    ActualRootGrowth[l][kp1] += addwt * efacr / srwp;
-    ActualRootGrowth[lm1][k] += addwt * efacu / srwp;
-    ActualRootGrowth[lp1][k] += addwt * efacd / srwp;
+    sim.states[u].root[l][k].actual_growth += addwt * efac1 / srwp;
+    sim.states[u].root[l][km1].actual_growth += addwt * efacl / srwp;
+    sim.states[u].root[l][kp1].actual_growth += addwt * efacr / srwp;
+    sim.states[u].root[lm1][k].actual_growth += addwt * efacu / srwp;
+    sim.states[u].root[lp1][k].actual_growth += addwt * efacd / srwp;
     //     If roots are growing into new soil soil cells, initialize
     //  their RootAge to 0.01.
     if (sim.states[u].root[l][km1].age == 0)

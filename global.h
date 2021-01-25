@@ -127,7 +127,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     TotalStemWeight,
     WaterStressStem;
 
-extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk], AgeOfBoll[3][30][5],
+extern double AbscissionLag[20], AgeOfBoll[3][30][5],
     AgeOfPreFruNode[9], AgeOfSite[3][30][5], airdr[9], AirTemp[24], albedo[24],
     alpha[9], AvrgNodeTemper[3][30][5],
     vanGenuchtenBeta[9], BollWeight[3][30][5], BulkDensity[9], BurrWeight[3][30][5],
