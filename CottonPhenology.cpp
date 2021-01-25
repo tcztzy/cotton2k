@@ -51,7 +51,7 @@ double PhenDelayByNStress;  // phenological delay caused by vegetative nitrogen 
 //      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double &WaterStress, double AbscisedLeafWeight)
+void CottonPhenology(Simulation &sim, uint32_t u)
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -101,18 +101,18 @@ tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double 
 //  to 1st square, and function PreFruitingNode() is called to simulate the 
 //  formation of prefruiting nodes.
     if (sim.first_square <= 0) {
-        DaysTo1stSqare = DaysToFirstSquare(sim.day_start + u, sim.day_emerge, WaterStress);
+        DaysTo1stSqare = DaysToFirstSquare(sim.day_start + u, sim.day_emerge, sim.states[u].water_stress);
         PreFruitingNode(stemNRatio, sim.states[u].day_inc);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
         if (Kday >= (int) DaysTo1stSqare) {
             sim.first_square = sim.day_start + u;
-            tie(AbscisedLeafWeight) = CreateFirstSquare(stemNRatio, AbscisedLeafWeight);
+            tie(sim.states[u].abscised_leaf_weight) = CreateFirstSquare(stemNRatio, sim.states[u].abscised_leaf_weight);
         }
 //      if a first square has not been formed, call LeafAbscission() and exit.
         else {
-            tie(AbscisedLeafWeight) = LeafAbscission(sim, u, sim.states[u].day_inc, AbscisedLeafWeight);
-            return make_tuple(0, AbscisedLeafWeight);
+            tie(sim.states[u].abscised_leaf_weight) = LeafAbscission(sim, u, sim.states[u].day_inc, sim.states[u].abscised_leaf_weight);
+            return;
         }
     }
 //     The following is executed after the appearance of the first square.
@@ -135,24 +135,22 @@ tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double 
 //  branch) is to be added on this stem.
     for (int k = 0; k < NumVegBranches; k++) {
         if (NumFruitBranches[k] < 30)
-            AddFruitingBranch(k, delayVegByCStress, stemNRatio, WaterStress);
+            AddFruitingBranch(k, delayVegByCStress, stemNRatio, sim.states[u].water_stress);
 //     Loop over all existing fruiting branches, and call AddFruitingNode() to 
 //  decide if a new node on this fruiting branch is to be added.
         for (int l = 0; l < NumFruitBranches[k]; l++) {
             if (NumNodes[k][l] < nidmax)
-                AddFruitingNode(k, l, delayFrtByCStress, stemNRatio, WaterStress);
+                AddFruitingNode(k, l, delayFrtByCStress, stemNRatio, sim.states[u].water_stress);
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-                FruitingSite(sim, u, k, l, m, nwfl, WaterStress);
+                FruitingSite(sim, u, k, l, m, nwfl, sim.states[u].water_stress);
         }
     }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
-    double AbscisedFruitSites;
-    tie(AbscisedFruitSites) = FruitingSitesAbscission(sim, u, WaterStress);
+    tie(sim.states[u].abscised_fruit_sites) = FruitingSitesAbscission(sim, u, sim.states[u].water_stress);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-    tie(AbscisedLeafWeight) = LeafAbscission(sim, u, sim.states[u].day_inc, AbscisedLeafWeight);
-    return make_tuple(AbscisedFruitSites, AbscisedLeafWeight);
+    tie(sim.states[u].abscised_leaf_weight) = LeafAbscission(sim, u, sim.states[u].day_inc, sim.states[u].abscised_leaf_weight);
 }
 
 //////////////////////////

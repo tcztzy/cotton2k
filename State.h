@@ -4,7 +4,12 @@
 typedef struct State
 {
     char date[12];
-    double day_inc; // physiological days increment for this day. computes physiological age
+    double day_inc;                          // physiological days increment for this day. computes physiological age
+    unsigned int number_of_layers_with_root; //
+    double abscised_fruit_sites;             // total number of abscised fruit sites, per plant.
+    double abscised_leaf_weight;             // weight of abscissed leaves, g per plant.
+    double water_stress;                     // general water stress index (0 to 1).
     Root root[40][20];
+    double plant_height;
 } State;
 #endif

@@ -36,7 +36,7 @@ void ActualLeafGrowth();
 double ptsred; // The effect of moisture stress on the photosynthetic rate
 
 /////////////////////////////////////////////////////////////////////////
-tuple<double> Stress(const string &ProfileName, const double &PlantHeight, const int &NumLayersWithRoots)
+void Stress(Simulation &sim, unsigned int u)
 //     This function computes the water stress variables affecting
 // the cotton plants. It is called by SimulateThisDay() and calls LeafWaterPotential().
 //
@@ -49,7 +49,7 @@ tuple<double> Stress(const string &ProfileName, const double &PlantHeight, const
     //     The following constant parameters are used:
     const double vstrs[9] = {-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05};
     //     Call LeafWaterPotential() to compute leaf water potentials.
-    LeafWaterPotential(ProfileName, PlantHeight, NumLayersWithRoots);
+    LeafWaterPotential(sim.profile_name, sim.states[u].plant_height, sim.states[u].number_of_layers_with_root);
     //     The running averages, for the last three days, are computed:
     //  AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
     AverageLwpMin += (LwpMin - LwpMinX[2]) / 3;
@@ -66,7 +66,7 @@ tuple<double> Stress(const string &ProfileName, const double &PlantHeight, const
     {
         ptsred = 1;
         WaterStressStem = 1;
-        return make_tuple(1);
+        return;
     }
     //     The computation of ptsred, the effect of moisture stress on
     //  the photosynthetic rate, is based on the following work: Ephrath,
@@ -101,7 +101,7 @@ tuple<double> Stress(const string &ProfileName, const double &PlantHeight, const
     WaterStressStem = WaterStress * (1 + vstrs[7] * (2 - WaterStress)) - vstrs[7];
     if (WaterStressStem < vstrs[8])
         WaterStressStem = vstrs[8];
-    return make_tuple(WaterStress);
+    sim.states[u].water_stress = WaterStress;
 }
 
 //////////////////////////
@@ -401,8 +401,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
   assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
 */
 ////////////////////////////////////////////////////////////////////////////
-tuple<int, double>
-PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayLength, const double &WaterStress)
+void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, const double &DayLength)
 //     This function simulates the potential and actual growth of cotton plants.
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -418,11 +417,11 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
 //        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
 {
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
-    PotentialLeafGrowth(WaterStress);
+    PotentialLeafGrowth(sim.states[u].water_stress);
     //     If it is after first square, call PotentialFruitGrowth() to compute potential
     //  growth rate of squares and bolls.
     if (FruitingCode[0][0][0] > 0)
-        PotentialFruitGrowth(DayLength, WaterStress);
+        PotentialFruitGrowth(DayLength, sim.states[u].water_stress);
     //     Active stem tissue (stemnew) is the difference between TotalStemWeight
     //  and the value of StemWeight(kkday).
     int voldstm = 32;           // constant parameter (days for stem tissue to become "old")
@@ -441,7 +440,7 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
     //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
     double sumpdr; // total potential growth rate of roots in g per slab. this is
     // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-    sumpdr = PotentialRootGrowth(sim.states[u].root, NumRootAgeGroups, NumLayersWithRoots, sim.num_curve);
+    sumpdr = PotentialRootGrowth(sim.states[u].root, NumRootAgeGroups, sim.states[u].number_of_layers_with_root, sim.num_curve);
     //     Total potential growth rate of roots is converted from g per
     //  slab (sumpdr) to g per plant (PotGroAllRoots).
     PotGroAllRoots = sumpdr * 100 * PerPlantArea / RowSpace;
@@ -457,7 +456,7 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
     //     cdroot is carbohydrate requirement for root growth, g per plant per day.
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
     double cdstem, cdleaf, cdpet, cdroot;
-    DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, sim.profile_name, WaterStress);
+    DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, sim.profile_name, sim.states[u].water_stress);
     //     If it is after first square, call ActualFruitGrowth() to compute actual
     //  growth rate of squares and bolls.
     if (FruitingCode[0][0][0] > 0)
@@ -485,7 +484,7 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
     //     Plant density affects growth in height of tall plants.
     double htdenf = 55; // minimum plant height for plant density affecting growth in height.
     double z1;          // intermediate variable to compute denf2.
-    z1 = (PlantHeight - htdenf) / htdenf;
+    z1 = (sim.states[u].plant_height - htdenf) / htdenf;
     if (z1 < 0)
         z1 = 0;
     if (z1 > 1)
@@ -503,9 +502,9 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
         l2 = 0;
     double agetop; // average physiological age of top three nodes.
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
-    PlantHeight += AddPlantHeight(denf2, sim.states[u].day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+    sim.states[u].plant_height += AddPlantHeight(denf2, sim.states[u].day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
-    tie(NumLayersWithRoots) = ComputeActualRootGrowth(sim, u, sumpdr, NumLayersWithRoots, NumRootAgeGroups);
+    tie(sim.states[u].number_of_layers_with_root) = ComputeActualRootGrowth(sim, u, sumpdr, sim.states[u].number_of_layers_with_root, NumRootAgeGroups);
     //     Output data to file *.CHB
     if (OutIndex[18] > 0)
     {
@@ -539,5 +538,4 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
         File36 << NStressRoots;
         File36 << endl;
     }
-    return make_tuple(NumLayersWithRoots, PlantHeight);
 }

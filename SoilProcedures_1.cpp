@@ -19,7 +19,7 @@ void RootsCapableOfUptake(const int &, Root[40][20]);
 
 void ApplyFertilizer(const int &);
 
-void ComputeIrrigation(Simulation &, uint32_t, const double &);
+void ComputeIrrigation(Simulation &, uint32_t);
 
 double GetTargetStress(const int &, const int &, const int &);
 
@@ -42,7 +42,7 @@ void WaterUptake(const int &, const int &);       // UPTAKE
 void GravityFlow(double);
 
 //////////////////////////
-void SoilProcedures(Simulation &sim, uint32_t u, const int &NumLayersWithRoots, const double &WaterStress)
+void SoilProcedures(Simulation &sim, uint32_t u)
 //     This function manages all the soil related processes, and is executed once each 
 //  day. It is called from SimulateThisDay() and it calls the following functions:
 //  ApplyFertilizer(), AveragePsi(), CapillaryFlow(), ComputeIrrigation(), DripFlow(), 
@@ -70,7 +70,7 @@ void SoilProcedures(Simulation &sim, uint32_t u, const int &NumLayersWithRoots, 
 //  to compute the actual amount of irrigation.
     if (MaxIrrigation > 0)
         if (sim.day_start + u >= DayStartPredIrrig && sim.day_start + u < DayStopPredIrrig) {
-            ComputeIrrigation(sim, u, WaterStress);
+            ComputeIrrigation(sim, u);
             if (IrrigMethod == 2)
                 DripWaterAmount = AppliedWater;
             else
@@ -95,11 +95,11 @@ void SoilProcedures(Simulation &sim, uint32_t u, const int &NumLayersWithRoots, 
         Scratch21[u].amitri = WaterToApply + DripWaterAmount;
 //     The following will be executed only after plant emergence
     if (sim.day_start + u >= sim.day_emerge && isw > 0) {
-        RootsCapableOfUptake(NumLayersWithRoots,
+        RootsCapableOfUptake(sim.states[u].number_of_layers_with_root,
                              sim.states[u].root);  // function computes roots capable of uptake for each soil cell
-        AverageSoilPsi = AveragePsi(NumLayersWithRoots); // function computes the average matric soil water
+        AverageSoilPsi = AveragePsi(sim.states[u].number_of_layers_with_root); // function computes the average matric soil water
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
-        WaterUptake(u, NumLayersWithRoots); // function  computes water and nitrogen uptake by plants.
+        WaterUptake(u, sim.states[u].number_of_layers_with_root); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
 //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
         CumTranspiration += ActualTranspiration;
@@ -321,7 +321,7 @@ void ApplyFertilizer(const int &Daynum)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ComputeIrrigation(Simulation &sim, uint32_t u, const double &WaterStress)
+void ComputeIrrigation(Simulation &sim, uint32_t u)
 //     This function computes the amount of water (mm) applied by a predicted
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(), 
@@ -335,14 +335,14 @@ void ComputeIrrigation(Simulation &sim, uint32_t u, const double &WaterStress)
         return;
 //
     if (IrrigMethod == 2)
-        PredictDripIrrigation(sim, u, TargetStress, WaterStress);
+        PredictDripIrrigation(sim, u, TargetStress, sim.states[u].water_stress);
     else
-        PredictSurfaceIrrigation(TargetStress, sim.day_start + u, WaterStress);
+        PredictSurfaceIrrigation(TargetStress, sim.day_start + u, sim.states[u].water_stress);
 //     If the amount of water to be applied (AppliedWater) is non zero update the date of 
 //  last irrigation, and write report in output file *.B01.
     if (AppliedWater > 0.00001) {
         LastIrrigation = sim.day_start + u;
-        OutputPredictedIrrigation(AppliedWater, TargetStress, sim.profile_name, sim.day_start + u, WaterStress);
+        OutputPredictedIrrigation(AppliedWater, TargetStress, sim.profile_name, sim.day_start + u, sim.states[u].water_stress);
     }
 }
 

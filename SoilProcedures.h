@@ -2,6 +2,6 @@
 
 #include <string>
 
-void SoilProcedures(Simulation &, uint32_t, const int &, const double &);
+void SoilProcedures(Simulation &, uint32_t);
 
 void SoilSum();

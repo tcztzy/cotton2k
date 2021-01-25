@@ -2,6 +2,6 @@
 
 #include <string>
 
-void ColumnShading(Simulation &, uint32_t, const double &, double[20]);
+void ColumnShading(Simulation &, uint32_t, double[20]);
 
-void SoilTemperature(Simulation &, uint32_t, const double &, double[20]);
+void SoilTemperature(Simulation &, uint32_t, double[20]);
