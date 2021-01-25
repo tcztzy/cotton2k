@@ -164,7 +164,7 @@ extern "C" fn SoilTemperatureEffect(tt: f64) -> f64
     // suggested by Vigil and Kissel (1995):
     //   tfm = 0.010645 * exp(0.12979 * tt)
     // Note: tfm = 0.5 for 29.66 C, tfm = 1 for 35 C, tfm = 2 for 40.34 C.
-    let tfm = tfpar1 * std::f64::consts::E.powf(tfpar2 * tt);
+    let tfm = tfpar1 * (tfpar2 * tt).exp();
     if tfm < 0f64 {
         0f64
     } else if tfm > 2f64 {

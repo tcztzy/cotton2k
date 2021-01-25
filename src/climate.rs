@@ -42,7 +42,7 @@ extern "C" fn dayrad(_ti: f64, radsum: f64, sinb: f64, c11: f64) -> f64
 /// as a function of the air at temperature tt (C). This equation is widely used.
 #[no_mangle]
 extern "C" fn VaporPressure(tt: f64) -> f64 {
-    0.61078 * std::f64::consts::E.powf(17.269 * tt / (tt + 237.3))
+    0.61078 * (17.269 * tt / (tt + 237.3)).exp()
 }
 
 /// Function `dayrh` computes the hourly values of relative humidity, using
@@ -101,7 +101,7 @@ extern "C" fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64
     let p4 = 0.26;
     let rasi = if isrhr > 0. { rad / isrhr } else { 0. }; //   ratio of rad to isrhr
     if coszhr > 0.1736 && rasi >= 0.375 {
-        let refalb = p1 * sunahr + p2 * std::f64::consts::E.powf(-p3 * sunahr); // the reference albedo
+        let refalb = p1 * sunahr + p2 * (-p3 * sunahr).exp(); // the reference albedo
         if refalb > p4 {
             p4
         } else {
@@ -144,7 +144,7 @@ extern "C" fn clearskyemiss(vp: f64, tk: f64) -> f64
 {
     let vp1 = vp * 10f64; // vapor pressure of the air in mbars.
 
-    let ea0 = 0.70 + 5.95e-05 * vp1 * std::f64::consts::E.powf(1500f64 / tk); // Compute clear sky emissivity by the method of Idso (1981)
+    let ea0 = 0.70 + 5.95e-05 * vp1 * (1500f64 / tk).exp(); // Compute clear sky emissivity by the method of Idso (1981)
     if ea0 > 1f64 {
         1f64
     } else {
