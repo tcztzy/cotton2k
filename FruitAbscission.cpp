@@ -19,7 +19,7 @@ void BollAbscission(int, int, int, double, double);
 tuple<double> ComputeSiteNumbers(int32_t);
 
 //////////////////////////////////////////////////
-tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double &DayInc, const double &WaterStress)
+tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double &WaterStress)
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
 //	SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
@@ -67,7 +67,7 @@ tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double 
 //  will occur sooner) when maximum temperatures are high.
     double tmax = sim.climate[u].Tmax;
     for (int lt = 0; lt < NumSheddingTags; lt++) {
-        AbscissionLag[lt] += max(DayInc, 0.40);
+        AbscissionLag[lt] += max(sim.states[u].day_inc, 0.40);
         if (tmax > vabsfr[2])
             AbscissionLag[lt] += (tmax - vabsfr[2]) * vabsfr[3];
     }
@@ -91,7 +91,7 @@ tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double 
                     for (int m = 0; m < nnid; m++) {
                         if (FruitingCode[k][l][m] == 1 || FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7) {
                             double abscissionRatio; // ratio of abscission for a fruiting site.
-                            abscissionRatio = SiteAbscissionRatio(k, l, m, lt, DayInc);
+                            abscissionRatio = SiteAbscissionRatio(k, l, m, lt, sim.states[u].day_inc);
                             if (abscissionRatio > 0) {
                                 if (FruitingCode[k][l][m] == 1)
                                     SquareAbscission(k, l, m, abscissionRatio);

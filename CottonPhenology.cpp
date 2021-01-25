@@ -29,7 +29,7 @@ void AddFruitingBranch(int, double, double, const double &);
 
 void AddFruitingNode(int, int, double, double, const double &WaterStress);
 
-void FruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &, const double &);
+void FruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
 
 void NewBollFormation(int, int, int);
 
@@ -51,8 +51,7 @@ double PhenDelayByNStress;  // phenological delay caused by vegetative nitrogen 
 //      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////////////////////////////
-tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double &DayInc,
-                const double &WaterStress, double AbscisedLeafWeight)
+tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double &WaterStress, double AbscisedLeafWeight)
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
@@ -103,7 +102,7 @@ tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double 
 //  formation of prefruiting nodes.
     if (sim.first_square <= 0) {
         DaysTo1stSqare = DaysToFirstSquare(sim.day_start + u, sim.day_emerge, WaterStress);
-        PreFruitingNode(stemNRatio, DayInc);
+        PreFruitingNode(stemNRatio, sim.states[u].day_inc);
 //      When first square is formed, FirstSquare is assigned the day of year.
 //  Function CreateFirstSquare() is called for formation of first square.
         if (Kday >= (int) DaysTo1stSqare) {
@@ -112,7 +111,7 @@ tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double 
         }
 //      if a first square has not been formed, call LeafAbscission() and exit.
         else {
-            tie(AbscisedLeafWeight) = LeafAbscission(sim, u, DayInc, AbscisedLeafWeight);
+            tie(AbscisedLeafWeight) = LeafAbscission(sim, u, sim.states[u].day_inc, AbscisedLeafWeight);
             return make_tuple(0, AbscisedLeafWeight);
         }
     }
@@ -145,14 +144,14 @@ tuple<double, double> CottonPhenology(Simulation &sim, uint32_t u, const double 
 //     Loop over all existing fruiting nodes, and call FruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-                FruitingSite(sim, u, k, l, m, nwfl, DayInc, WaterStress);
+                FruitingSite(sim, u, k, l, m, nwfl, WaterStress);
         }
     }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
     double AbscisedFruitSites;
-    tie(AbscisedFruitSites) = FruitingSitesAbscission(sim, u, DayInc, WaterStress);
+    tie(AbscisedFruitSites) = FruitingSitesAbscission(sim, u, WaterStress);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-    tie(AbscisedLeafWeight) = LeafAbscission(sim, u, DayInc, AbscisedLeafWeight);
+    tie(AbscisedLeafWeight) = LeafAbscission(sim, u, sim.states[u].day_inc, AbscisedLeafWeight);
     return make_tuple(AbscisedFruitSites, AbscisedLeafWeight);
 }
 
@@ -487,12 +486,12 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio, 
 }
 
 //////////////////////////////////////////////////
-void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &DayInc, const double &WaterStress)
+void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &WaterStress)
 //     Function FruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
 //        AvrgDailyTemp, CottonWeightGreenBolls, 
-//        DayFirstDef, DayInc, Kday, LeafAreaIndex,
+//        DayFirstDef, Kday, LeafAreaIndex,
 //        NStressVeg, NumFruitBranches, NStressFruiting, WaterStress, VarPar.
 //     The following global variable are set here:
 //        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight, 
@@ -525,7 +524,7 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
 //  and nitrogen stresses (agefac).
     double agefac; // effect of water and nitrogen stresses on leaf aging.
     agefac = (1 - WaterStress) * vfrsite[0] + (1 - NStressVeg) * vfrsite[1];
-    LeafAge[k][l][m] += DayInc + agefac;
+    LeafAge[k][l][m] += sim.states[u].day_inc + agefac;
 //  After the application of defoliation, add the effect of defoliation on leaf age.
     if (DayFirstDef > 0 && sim.day_start + u > DayFirstDef)
         LeafAge[k][l][m] += VarPar[38];
@@ -537,7 +536,7 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
 //  maximum temperatures.
     double tmin = sim.climate[u].Tmin;
     double tmax = sim.climate[u].Tmax;
-    double ageinc = DayInc; // daily addition to site age.
+    double ageinc = sim.states[u].day_inc; // daily addition to site age.
 //     Adjust leaf aging for low minimum twmperatures.
     if (tmin < vfrsite[2])
         ageinc += vfrsite[3] * (vfrsite[2] - tmin);
@@ -563,7 +562,7 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
     if (FruitingCode[k][l][m] == 1) {
         if (AgeOfSite[k][l][m] >= vfrsite[8]) {
             boltmp[k][l][m] = AvrgDailyTemp;
-            AgeOfBoll[k][l][m] = DayInc;
+            AgeOfBoll[k][l][m] = sim.states[u].day_inc;
             FruitingCode[k][l][m] = 7;
             NewBollFormation(k, l, m);
 //     If this is the first flower, define FirstBloom.
@@ -589,7 +588,7 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
         else
             dum = 1;
         double dagebol; // added physiological age of boll on this day.
-        dagebol = DayInc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - NStressFruiting);
+        dagebol = sim.states[u].day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - NStressFruiting);
         boltmp[k][l][m] = (boltmp[k][l][m] * AgeOfBoll[k][l][m] + AvrgDailyTemp * dagebol)
                           / (AgeOfBoll[k][l][m] + dagebol);
         AgeOfBoll[k][l][m] += dagebol;

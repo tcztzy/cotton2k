@@ -402,7 +402,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
 */
 ////////////////////////////////////////////////////////////////////////////
 tuple<int, double>
-PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayInc, const double &DayLength, const double &WaterStress)
+PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int NumLayersWithRoots, double PlantHeight, const double &DayLength, const double &WaterStress)
 //     This function simulates the potential and actual growth of cotton plants.
 //  It is called from SimulateThisDay(), and it calls the following functions:
 //    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(), AddPlantHeight(),
@@ -434,7 +434,7 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
                                                           //  The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
                                                           //  Stem growth is also affected by water stress (WaterStressStem) and possible PIX application
                                                           //  (pixdz).   PotGroStem is limited by (maxstmgr * PerPlantArea) g per plant per day.
-    PotGroStem = PotentialStemGrowth(stemnew, Kday, FruitingCode[0][2][0], DensityFactor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * DayInc * WaterStressStem * pixdz;
+    PotGroStem = PotentialStemGrowth(stemnew, Kday, FruitingCode[0][2][0], DensityFactor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * sim.states[u].day_inc * WaterStressStem * pixdz;
     double maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
     if (PotGroStem > maxstmgr * PerPlantArea)
         PotGroStem = maxstmgr * PerPlantArea;
@@ -503,7 +503,7 @@ PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, int
         l2 = 0;
     double agetop; // average physiological age of top three nodes.
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
-    PlantHeight += AddPlantHeight(denf2, DayInc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+    PlantHeight += AddPlantHeight(denf2, sim.states[u].day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     tie(NumLayersWithRoots) = ComputeActualRootGrowth(sim, u, sumpdr, NumLayersWithRoots, NumRootAgeGroups);
     //     Output data to file *.CHB

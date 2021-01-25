@@ -102,7 +102,7 @@ extern "C" fn AddPlantHeight(
         addz *= 1. - vhtpar[5] * (1. - carbon_stress);
         addz *= 1. - vhtpar[6] * (1. - nitrogen_stress_of_vegetative);
     }
-    // The effect of temperature is expressed by DayInc. there are also effects of pix, plant density, and of a variety-specific calibration parameter (VarPar(26)).
+    // The effect of temperature is expressed by physiological_days_increment. there are also effects of pix, plant density, and of a variety-specific calibration parameter (VarPar(26)).
     addz *= var26 * pixdz * physiological_days_increment * density_factor;
     addz
 }

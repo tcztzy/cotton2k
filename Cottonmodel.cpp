@@ -251,7 +251,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
 //  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex, pixday.
 //
 //     The following global variables are set here:
-//  DayInc, isw, Kday.
+//  isw, Kday.
 //
 {
     //    Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
@@ -278,7 +278,7 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
     {
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
-        double DayInc = PhysiologicalAge(AirTemp); // physiological days increment for this day. computes physiological age
+        sim.states[u].day_inc = PhysiologicalAge(AirTemp); // physiological days increment for this day. computes physiological age
         if (pixday[0] > 0)
             Pix();                                                 // effects of pix applied.
         Defoliate(sim, u); // effects of defoliants applied.
@@ -291,10 +291,9 @@ tuple<string, int, double, double, double, double> C2KApp::SimulateThisDay(
             3, // the number of root classes defined in the model.
             NumLayersWithRoots,
             PlantHeight,
-            DayInc,
             DayLength,
             WaterStress); // executes all modules of plant growth.
-        tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(sim, u, DayInc, WaterStress, AbscisedLeafWeight); // executes all modules of plant phenology.
+        tie(AbscisedFruitSites, AbscisedLeafWeight) = CottonPhenology(sim, u, WaterStress, AbscisedLeafWeight); // executes all modules of plant phenology.
         PlantNitrogen(sim, u);                                                                           // computes plant nitrogen allocation.
         CheckDryMatterBal(sim.profile_name, Date, AbscisedLeafWeight);                                                                     // checks plant dry matter balance.
                                                                                                                                            //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
