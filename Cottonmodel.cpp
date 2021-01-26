@@ -205,16 +205,18 @@ void C2KApp::DailySimulation(Simulation &sim)
 //
 //     The following global variable are referenced:   Kday.
 //
-{    
+{
     try
     {
         for (int i = 0; i < sim.day_finish - sim.day_start + 1; i++)
         {
             pdlg->ProgressStepit();
-            if (i > 0) {
+            if (i > 0)
+            {
                 memcpy(&sim.states[i], &sim.states[i - 1], sizeof(State));
             }
-            else {
+            else
+            {
                 State &state0 = sim.states[0];
                 state0.number_of_layers_with_root = 7;
                 state0.plant_height = 4.0;
@@ -248,46 +250,38 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
 //  isw, Kday.
 //
 {
-    //    Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
-    int Daynum = sim.day_start + u;
-    string Date = DoyToDate(Daynum, iyear);
-    double DayLength; // day length, hours.
     double rracol[20]; // the relative radiation received by a soil column, as affected by shading by plant canopy.
-                       //    Compute Kday (days from emergence).
+    // days from emergence
     if (sim.day_emerge <= 0)
         Kday = 0;
     else
-        Kday = Daynum - sim.day_emerge + 1;
+        Kday = sim.day_start - sim.day_emerge + u + 1;
     if (Kday < 0)
         Kday = 0;
     //     The following functions are executed each day (also before emergence).
-    ColumnShading(sim, u, rracol); // computes light interception and soil shading.
-    tie(DayLength) = DayClim(sim, u); // computes climate variables for today.
+    ColumnShading(sim, u, rracol);   // computes light interception and soil shading.
+    DayClim(sim, u);                 // computes climate variables for today.
     SoilTemperature(sim, u, rracol); // executes all modules of soil and canopy temperature.
-    SoilProcedures(sim, u); // executes all other soil processes.
-    SoilNitrogen(Daynum, sim.day_start);                                           // computes nitrogen transformations in the soil.
-    SoilSum();                                                                     // computes totals of water and N in the soil.
-                                                                                   //     The following is executed each day after plant emergence:
-    if (Daynum >= sim.day_emerge && isw > 0)
+    SoilProcedures(sim, u);          // executes all other soil processes.
+    SoilNitrogen(sim, u);            // computes nitrogen transformations in the soil.
+    SoilSum();                       // computes totals of water and N in the soil.
+                                     //     The following is executed each day after plant emergence:
+    if (sim.day_start + u >= sim.day_emerge && isw > 0)
     {
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
         sim.states[u].day_inc = PhysiologicalAge(AirTemp); // physiological days increment for this day. computes physiological age
         if (pixday[0] > 0)
-            Pix();                                                 // effects of pix applied.
-        Defoliate(sim, u); // effects of defoliants applied.
-        Stress(sim, u); // computes water stress factors.
-        GetNetPhotosynthesis(sim, u, DayLength); // computes net photosynthesis.
-        PlantGrowth(
-            sim,
-            u,
-            3, // the number of root classes defined in the model.
-            DayLength); // executes all modules of plant growth.
-        CottonPhenology(sim, u); // executes all modules of plant phenology.
-        PlantNitrogen(sim, u);                                                                           // computes plant nitrogen allocation.
-        CheckDryMatterBal(sim.profile_name, Date, sim.states[u].abscised_leaf_weight);                                                                     // checks plant dry matter balance.
-                                                                                                                                           //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
-                                                                                                                                           //  nitrogen averages by layer, and write this information to files.
+            Pix();                                                                                   // effects of pix applied.
+        Defoliate(sim, u);                                                                           // effects of defoliants applied.
+        Stress(sim, u);                                                                              // computes water stress factors.
+        GetNetPhotosynthesis(sim, u, sim.states[u].day_length);                                      // computes net photosynthesis.
+        PlantGrowth(sim, u, 3, sim.states[u].day_length);                                            // executes all modules of plant growth.
+        CottonPhenology(sim, u);                                                                     // executes all modules of plant phenology.
+        PlantNitrogen(sim, u);                                                                       // computes plant nitrogen allocation.
+        CheckDryMatterBal(sim.profile_name, sim.states[u].date, sim.states[u].abscised_leaf_weight); // checks plant dry matter balance.
+                                                                                                     //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
+                                                                                                     //  nitrogen averages by layer, and write this information to files.
         if (OutIndex[20] > 0)
         {
             PlantNitrogenBal(sim.profile_name);    // checks plant nitrogen balance.
@@ -296,11 +290,11 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
         }
     }
     //     Call DailyOutput for reporting some simulation data for this day.
-    DailyOutput(sim, u, sim.states[u].abscised_leaf_weight, sim.states[u].water_stress);
+    DailyOutput(sim, u);
     //     Check if the date to stop simulation has been reached, or if this is the last day
     //  with available weather data. Simulation will also stop when no leaves remain on the plant.
     //
-    if (Daynum >= sim.day_finish || Daynum >= LastDayWeatherData || (Kday > 10 && LeafAreaIndex < 0.0002))
+    if (sim.day_start + u >= LastDayWeatherData || (Kday > 10 && LeafAreaIndex < 0.0002))
         throw SimulationEnd();
 }
 /////////////////////////////////////////////////////////////////////////////

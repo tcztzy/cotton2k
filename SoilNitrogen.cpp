@@ -13,6 +13,7 @@
 //
 #include <fstream>
 #include "global.h"
+#include "Simulation.h"
 
 using namespace std;
 
@@ -51,7 +52,7 @@ void Denitrification(int, int);
   recovery and modeling of nitrogen mineralized from labeled sorghum
   residues. Soil Sci. Soc. Am. J. 55:1031-1037.
 ************************************************************************/
-void SoilNitrogen(const int &Daynum, const int &DayStart)
+void SoilNitrogen(Simulation &sim, unsigned int u)
 //     This function computes the transformations of the nitrogen
 // compounds in the soil. It is called each day from SimulateThisDay().
 //     It calls UreaHydrolysis(), MineralizeNitrogen{}, Nitrification(),
@@ -63,7 +64,7 @@ void SoilNitrogen(const int &Daynum, const int &DayStart)
 {
     static double depth[maxl]; // depth to the end of each layer.
 //     At start compute depth[l] as the depth to the bottom of each layer, cm.
-    if (Daynum <= DayStart) {
+    if (u <= 0) {
         double sumdl = 0; // sum of layer thicknesses.
         for (int l = 0; l < nl; l++) {
             sumdl += dl[l];
@@ -76,7 +77,7 @@ void SoilNitrogen(const int &Daynum, const int &DayStart)
         for (int k = 0; k < nk; k++) {
             if (VolUreaNContent[l][k] > 0)
                 UreaHydrolysis(l, k);
-            MineralizeNitrogen(l, k, Daynum, DayStart);
+            MineralizeNitrogen(l, k, sim.day_start + u, sim.day_start);
             if (VolNh4NContent[l][k] > 0.00001)
                 Nitrification(l, k, depth[l]);
 //     Denitrification() is called if there are enough water and nitrates in the

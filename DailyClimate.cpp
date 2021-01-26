@@ -60,7 +60,7 @@ double declination, // daily declination angle, in radians.
     suns,           // time of sunset, hours.
     tmpisr;         // extraterrestrial radiation, W / m2.
 //////////////////////////////////////////////////////////////////////////////
-tuple<double> DayClim(Simulation &sim, uint32_t u)
+void DayClim(Simulation &sim, uint32_t u)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
 //  the following functions:
 //     ComputeDayLength(), SimulateRunoff(), AverageAirTemperatures(), dayrad(),
@@ -73,8 +73,7 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
 //
 {
     //     Compute day length and related variables:
-    double DayLength;
-    ComputeDayLength(sim.day_start + u, iyear, sim.latitude, sim.longitude, declination, tmpisr, SolarNoon, DayLength, sunr, suns);
+    ComputeDayLength(sim.day_start + u, iyear, sim.latitude, sim.longitude, declination, tmpisr, SolarNoon, sim.states[u].day_length, sunr, suns);
     //
     double xlat = sim.latitude * pi / 180;    // latitude converted to radians.
     double cd = cos(xlat) * cos(declination); // amplitude of the sine of the solar height.
@@ -143,7 +142,7 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
                                                                  //     Compute hourly global radiation, using function dayrad.
         Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
         //     Compute hourly temperature, using function daytmp.
-        AirTemp[ihr] = daytmp(sim, u, ti, DayLength, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
+        AirTemp[ihr] = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
         //     Compute hourly dew point temperature, using function tdewhour.
         DewPointTemp[ihr] = tdewhour(sim, u, ti, AirTemp[ihr]);
         //     Compute hourly relative humidity, using function dayrh.
@@ -189,8 +188,7 @@ tuple<double> DayClim(Simulation &sim, uint32_t u)
         File18 << AvrgDailyTemp << endl;
     }
     //     Compute potential evapotranspiration.
-    EvapoTranspiration(sim, u, jtout, DayLength);
-    return make_tuple(DayLength);
+    EvapoTranspiration(sim, u, jtout, sim.states[u].day_length);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

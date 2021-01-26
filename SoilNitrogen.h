@@ -1,6 +1,6 @@
 #pragma once
 
-void SoilNitrogen(const int &, const int &);
+void SoilNitrogen(Simulation &, unsigned int);
 
 void SoilNitrogenBal(const string &);
 

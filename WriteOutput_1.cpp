@@ -279,7 +279,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void DailyOutput(Simulation &sim, uint32_t u, const double &AbscisedLeafWeight, const double &WaterStress)
+void DailyOutput(Simulation &sim, uint32_t u)
 //     DailyOutput() writes output at the end of each day. It is called from SimulateThisDay().
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
@@ -309,7 +309,7 @@ void DailyOutput(Simulation &sim, uint32_t u, const double &AbscisedLeafWeight, 
 //
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
-    WriteStateVariables(false, sim.states[u].date, sim.day_start + u, u, sim.first_bloom, sim.first_square, sim.states[u].number_of_layers_with_root, sim.states[u].plant_height, sim.states[u].abscised_fruit_sites, AbscisedLeafWeight, WaterStress, sim.climate);
+    WriteStateVariables(false, sim.states[u].date, sim.day_start + u, u, sim.first_bloom, sim.first_square, sim.states[u].number_of_layers_with_root, sim.states[u].plant_height, sim.states[u].abscised_fruit_sites, sim.states[u].abscised_leaf_weight, sim.states[u].water_stress, sim.climate);
 //     4. Call output1() to write output to F01 and S01 files:
     output1(sim.profile_name, sim.states[u].date, sim.day_start + u, sim.day_emerge, sim.first_bloom, sim.first_square, sim.states[u].plant_height, sim.states[u].abscised_fruit_sites);
     if (sim.day_start + u >= sim.day_finish || LeafAreaIndex < 0.0002 || sim.day_start + u >= LastDayWeatherData)
