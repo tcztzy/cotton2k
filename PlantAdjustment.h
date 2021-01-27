@@ -3,5 +3,4 @@
 #include <string>
 #include <tuple>
 
-void WriteStateVariables(bool, const std::string &, const int &, const int &, const int &, const int &, const int &,
-                         const double &, const double &, const double &, const double &, const ClimateStruct[400]);
+void WriteStateVariables(Simulation &, unsigned int);

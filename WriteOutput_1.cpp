@@ -22,7 +22,7 @@ void output1(const string &, const string &, const int &, const int &, const int
 void WriteLine22(ofstream &, double, double, double, const double &);
 
 // Out this file
-void outputplt(const string &, const int &);
+void outputplt(Simulation &);
 
 void output2(Simulation &);
 
@@ -309,7 +309,7 @@ void DailyOutput(Simulation &sim, uint32_t u)
 //
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
-    WriteStateVariables(false, sim.states[u].date, sim.day_start + u, u, sim.first_bloom, sim.first_square, sim.states[u].number_of_layers_with_root, sim.states[u].plant_height, sim.states[u].abscised_fruit_sites, sim.states[u].abscised_leaf_weight, sim.states[u].water_stress, sim.climate);
+    WriteStateVariables(sim, u);
 //     4. Call output1() to write output to F01 and S01 files:
     output1(sim.profile_name, sim.states[u].date, sim.day_start + u, sim.day_emerge, sim.first_bloom, sim.first_square, sim.states[u].plant_height, sim.states[u].abscised_fruit_sites);
     if (sim.day_start + u >= sim.day_finish || LeafAreaIndex < 0.0002 || sim.day_start + u >= LastDayWeatherData)
@@ -458,9 +458,7 @@ void DataOutput(Simulation & sim)
 //     Read data for each day, and compute the local variables i00,
 //  i01, i02. Convert from per plant to per sq m, or to English units.
     double plant_height;
-    for (int irec = 0; irec < 400; irec++) {
-        if (Scratch21[irec].daynum <= 0)
-            break;
+    for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         Date = sim.states[irec].date;
         i01 = Scratch21[irec].numGreenBolls;
         Kday = Scratch21[irec].kday;
@@ -469,7 +467,7 @@ void DataOutput(Simulation & sim)
         i02 = Scratch21[irec].numOpenBolls;
         i00 = Scratch21[irec].numSquares;
         LintYield = Scratch21[irec].lintYield;
-        plant_height = Scratch21[irec].plantHeight;
+        plant_height = sim.states[irec].plant_height;
 //     Convert height and LintYield to English units if necessary.
         if (OutIndex[1] == 1) {
             plant_height /= 2.54;
@@ -492,12 +490,12 @@ void DataOutput(Simulation & sim)
         }
 //     Report first day of open bolls, date of 60% open bolls, and date
 //  of defoliation.
-        if (!ifg1 && Scratch21[irec].daynum == sim.first_square) {
+        if (!ifg1 && (sim.day_start + irec) == sim.first_square) {
             File22 << " First square    " << Date;
             WriteLine22(File22, i00, i01, i02, plant_height);
             ifg1 = true;
         }
-        if (!ifg2 && Scratch21[irec].daynum == sim.first_bloom) {
+        if (!ifg2 && (sim.day_start + irec) == sim.first_bloom) {
             File22 << " First Bloom     " << Date;
             WriteLine22(File22, i00, i01, i02, plant_height);
             ifg2 = true;
@@ -513,7 +511,7 @@ void DataOutput(Simulation & sim)
             ifg4 = true;
         }
         for (int i = 0; i < 5; i++) {
-            if (Scratch21[irec].daynum == DefoliationDate[i]) {
+            if ((sim.day_start + irec) == DefoliationDate[i]) {
                 File22 << " Defoliation     " << Date;
                 WriteLine22(File22, i00, i01, i02, plant_height);
             }
@@ -523,7 +521,7 @@ void DataOutput(Simulation & sim)
     File22 << " Max yield on    " << Date;
     WriteLine22(File22, i00, i01, i02, plant_height);
 //     Call procedures for printing output
-    outputplt(sim.profile_name, sim.day_emerge);
+    outputplt(sim);
     if (OutIndex[6] > 0)
         output2(sim);
     if (OutIndex[3] > 0)

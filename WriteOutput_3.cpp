@@ -19,7 +19,7 @@ namespace fs = std::filesystem;
 void OutputForSoilMaps(int, int, int, const string &);
 
 /////////////////////////////////////////////////////////////
-void outputplt(const string &ProfileName, const int &DayEmerge)
+void outputplt(Simulation &sim)
 //     This function writes the output file that will be used to plot
 //  plant charts at the end of the simulation. It is called from DataOutput().
 //     The values of the variables to plot are taken from structure Scratch21.
@@ -34,19 +34,19 @@ void outputplt(const string &ProfileName, const int &DayEmerge)
 //  indexPLT = 3 : English (OutIndex(1)=1), weights and numbers per area  (OutIndex(2)=1)
     int indexPLT = OutIndex[1] + 2 * OutIndex[2];
 //
-    ofstream File25(fs::path("output") / (ProfileName + ".PLT"), ios::out);
+    ofstream File25(fs::path("output") / (string(sim.profile_name) + ".PLT"), ios::out);
 //     Write heading (first line) in the '*.PLT' file (File25). This line includes:
 //  Name of simulation (Profile name)in col 7-26; index in col 30, and
 //  date of emergence (day of year) in cols 31-40
     File25 << "      ";
     File25.setf(ios::left);
     File25.width(20);
-    File25 << ProfileName;
+    File25 << sim.profile_name;
     File25.unsetf(ios::left);
     File25.width(4);
     File25 << indexPLT;
     File25.width(10);
-    File25 << DayEmerge << endl << endl;
+    File25 << sim.day_emerge << endl << endl;
 //     Multipliers for output on basis of per area:
     double multi0 = 1; // multiplier for site numbers
     double multi1 = 1; // multiplier for dry weight of plant parts
@@ -64,9 +64,7 @@ void outputplt(const string &ProfileName, const int &DayEmerge)
     }
 //     The structure Scratch21 is extracted for each day of simulation, and
 //  data to be used for plotting are written to file '.PLT' (unit 25).
-    for (int irec = 0; irec < 400; irec++) {
-        if (Scratch21[irec].daynum <= 0)
-            break;
+    for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         File25.unsetf(ios::left);
         File25.setf(ios::fixed);
         File25.width(4);   // I4
@@ -76,10 +74,10 @@ void outputplt(const string &ProfileName, const int &DayEmerge)
         if (OutIndex[1] == 0)   //  metric
         {
             File25.precision(1);
-            File25 << Scratch21[irec].plantHeight; // cm
+            File25 << sim.states[irec].plant_height; // cm
         } else {
             File25.precision(2);
-            File25 << Scratch21[irec].plantHeight / 2.54; // inches
+            File25 << sim.states[irec].plant_height / 2.54; // inches
         }
         File25.width(4);
         File25.precision(0);  // I4
@@ -97,7 +95,7 @@ void outputplt(const string &ProfileName, const int &DayEmerge)
         File25.width(7);
         File25 << multi0 * Scratch21[irec].numOpenBolls;
         File25.width(7);
-        File25 << multi0 * Scratch21[irec].abscisedFruitSites;
+        File25 << multi0 * sim.states[irec].abscised_fruit_sites;
         File25.precision(1);
         File25.width(7);     // F7.1
         if (OutIndex[2] == 1)
@@ -114,7 +112,7 @@ void outputplt(const string &ProfileName, const int &DayEmerge)
         File25.width(7);
         File25 << Scratch21[irec].leafNConc;
         File25.width(7);
-        File25 << Scratch21[irec].waterStress;
+        File25 << sim.states[irec].water_stress;
         File25.width(8);     // F8.3
         File25 << Scratch21[irec].lwpMin;
         File25.precision(2);
@@ -232,9 +230,7 @@ void output2(Simulation &sim)
     File46 << "     Date     Light  C Stres --N-Stress--    N      Water   Water  Water   Water" << endl;
     File46 << "              Interc.         Fruit   Veg.   conc.  stress  stress  -- Pot. MPa --" << endl;
 //     Extract data from Scratch21 and write line for each day.
-    for (int irec = 0; irec < 400; irec++) {
-        if (Scratch21[irec].daynum <= 0)
-            break;
+    for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         if (Scratch21[irec].kday <= 0)
             continue;
 //
@@ -255,7 +251,7 @@ void output2(Simulation &sim)
         File46.width(8);
         File46 << Scratch21[irec].leafNConc;
         File46.width(8);
-        File46 << Scratch21[irec].waterStress;
+        File46 << sim.states[irec].water_stress;
         File46.width(8);
         File46 << Scratch21[irec].waterStressStem;
         File46.width(8);
@@ -289,9 +285,7 @@ void output3(Simulation &sim)
     File46 << "     Date      Photosynth.  Plant  Leaf  Peti. Stem  Root Squares -- Bolls --  Deadwt" << endl;
     File46 << "               net    cumul.                                      Green  Open" << endl << endl;
 //   Write data for each day.
-    for (int irec = 0; irec < 400; irec++) {
-        if (Scratch21[irec].daynum <= 0)
-            break;
+    for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         if (Scratch21[irec].kday <= 0)
             continue;
         File46.unsetf(ios::left);
@@ -351,9 +345,7 @@ void output4(Simulation &sim)
         File46 << "              - inches -   Ly.    -------------- inches ----------------- " << endl << endl;
     }
 //
-    for (int irec = 0; irec < 400; irec++) {
-        if (Scratch21[irec].daynum <= 0)
-            break;
+    for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         File46.unsetf(ios::left);
         File46.width(12);
         File46 << sim.states[irec].date;
@@ -411,9 +403,7 @@ void output5(Simulation &sim)
         File46 << "                          Daily  Day  Night  (Ly)     (in)   (in)    (in)  (miles)" << endl << endl;
     }
 //
-    for (int irec = 0; irec < 400; irec++) {
-        if (Scratch21[irec].daynum <= 0)
-            break;
+    for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         File46.unsetf(ios::left);
         File46.width(12);
         File46 << sim.states[irec].date;
@@ -421,9 +411,9 @@ void output5(Simulation &sim)
         File46.precision(1);
         if (OutIndex[1] == 0) {
             File46.width(6);
-            File46 << Scratch21[irec].tmax;
+            File46 << sim.climate[irec].Tmax;
             File46.width(6);
-            File46 << Scratch21[irec].tmin;
+            File46 << sim.climate[irec].Tmin;
             File46.width(6);
             File46 << Scratch21[irec].avrgDailyTemp;
             File46.width(6);
@@ -432,20 +422,20 @@ void output5(Simulation &sim)
             File46 << Scratch21[irec].nightTimeTemp;
             File46.precision(2);
             File46.width(8);
-            File46 << Scratch21[irec].rad / 23.884;
+            File46 << sim.climate[irec].Rad / 23.884;
             File46.width(8);
-            File46 << Scratch21[irec].rain;
+            File46 << sim.climate[irec].Rain;
             File46.width(8);
             File46 << Scratch21[irec].amitri;
             File46.width(7);
             File46 << Scratch21[irec].runoff;
             File46.width(8);
-            File46 << Scratch21[irec].wind << endl;
+            File46 << sim.climate[irec].Wind << endl;
         } else {
             File46.width(6);
-            File46 << Scratch21[irec].tmax * 1.8 + 32;
+            File46 << sim.climate[irec].Tmax * 1.8 + 32;
             File46.width(6);
-            File46 << Scratch21[irec].tmin * 1.8 + 32;
+            File46 << sim.climate[irec].Tmin * 1.8 + 32;
             File46.width(6);
             File46 << Scratch21[irec].avrgDailyTemp * 1.8 + 32;
             File46.width(6);
@@ -454,15 +444,15 @@ void output5(Simulation &sim)
             File46 << Scratch21[irec].nightTimeTemp * 1.8 + 32;
             File46.precision(2);
             File46.width(8);
-            File46 << Scratch21[irec].rad;
+            File46 << sim.climate[irec].Rad;
             File46.width(8);
-            File46 << Scratch21[irec].rain / 25.4;
+            File46 << sim.climate[irec].Rain / 25.4;
             File46.width(8);
             File46 << Scratch21[irec].amitri / 25.4;
             File46.width(7);
             File46 << Scratch21[irec].runoff / 25.4;
             File46.width(8);
-            File46 << Scratch21[irec].wind / 1.609 << endl;
+            File46 << sim.climate[irec].Wind / 1.609 << endl;
         }
     }
 }

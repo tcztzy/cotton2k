@@ -8,10 +8,7 @@
 #include "GeneralFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum, const int &u,
-                         const int &FirstBloom, const int &FirstSquare, const int &NumLayersWithRoots,
-                         const double &PlantHeight, const double &AbscisedFruitSites, const double &AbscisedLeafWeight,
-                         const double &WaterStress, const ClimateStruct Clim[400])
+void WriteStateVariables(Simulation &sim, unsigned int u)
 //     This function stores all state or rate variables, needed for output, in the structure Scratch21. It is called from DailySimulation() and DailyOutput().
 //     Each record is an array cell, starting from day of start of simulation. 
 //
@@ -19,7 +16,6 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
 //     Variables needed for output:
     Scratch21[u].kday = Kday;
 //
-    Scratch21[u].abscisedFruitSites = AbscisedFruitSites;
     Scratch21[u].averageSoilPsi = AverageSoilPsi;
     Scratch21[u].avrgDailyTemp = AvrgDailyTemp;
     Scratch21[u].burrNConc = BurrNConc;
@@ -34,8 +30,7 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[u].cumTranspiration = CumTranspiration;
     Scratch21[u].cumWaterAdded = CumWaterAdded;
     Scratch21[u].cumWaterDrained = CumWaterDrained;
-    Scratch21[u].deadwt = AbscisedLeafWeight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
-    Scratch21[u].daynum = Daynum;
+    Scratch21[u].deadwt = sim.states[u].abscised_leaf_weight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
     Scratch21[u].dayTimeTemp = DayTimeTemp;
     Scratch21[u].gbw = CottonWeightGreenBolls + BurrWeightGreenBolls;
 //     h2obal is computed as the water balance in mm. It should always be zero.
@@ -63,10 +58,7 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[u].numSquares = NumSquares;
     Scratch21[u].petioleNConc = PetioleNConc;
     Scratch21[u].petioleNO3NConc = PetioleNO3NConc;
-    Scratch21[u].plantHeight = PlantHeight;
     Scratch21[u].plantWeight = PlantWeight;
-    Scratch21[u].rad = Clim[u].Rad;
-    Scratch21[u].rain = Clim[u].Rain;
     Scratch21[u].reserveC = ReserveC;
     Scratch21[u].rn = Rn;
     Scratch21[u].rootNConc = RootNConc;
@@ -74,17 +66,13 @@ void WriteStateVariables(bool bAdjusting, const string &Date, const int &Daynum,
     Scratch21[u].soilNitrogenLoss = SoilNitrogenLoss;
     Scratch21[u].stemNConc = StemNConc;
     Scratch21[u].sumNO3N90 = SumNO3N90;
-    Scratch21[u].tmax = Clim[u].Tmax;
-    Scratch21[u].tmin = Clim[u].Tmin;
     Scratch21[u].totalLeafWeight = TotalLeafWeight;
     Scratch21[u].totalPetioleWeight = TotalPetioleWeight;
     Scratch21[u].totalRootWeight = TotalRootWeight;
     Scratch21[u].totalSquareWeight = TotalSquareWeight;
     Scratch21[u].totalSoilWater = TotalSoilWater;
     Scratch21[u].totalStemWeight = TotalStemWeight;
-    Scratch21[u].waterStress = WaterStress;
     Scratch21[u].waterStressStem = WaterStressStem;
-    Scratch21[u].wind = Clim[u].Wind;
 //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {
