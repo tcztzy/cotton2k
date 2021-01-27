@@ -504,7 +504,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
     sim.states[u].plant_height += AddPlantHeight(denf2, sim.states[u].day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
-    tie(sim.states[u].number_of_layers_with_root) = ComputeActualRootGrowth(sim, u, sumpdr, sim.states[u].number_of_layers_with_root, NumRootAgeGroups);
+    ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
     //     Output data to file *.CHB
     if (OutIndex[18] > 0)
     {

@@ -23,7 +23,7 @@ extern "C"
 }
 
 //////////////////////////////////////////////////
-tuple<int> RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt, int NumLayersWithRoots)
+void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt)
 //     This function computes the redistribution of new growth of
 //  roots into adjacent soil cells. It is called from ActualRootGrowth().
 //     Redistribution is affected by the factors rgfdn, rgfsd, rgfup.
@@ -89,7 +89,7 @@ tuple<int> RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double
     if (srwp < 1e-10)
     {
         sim.states[u].root[l][k].actual_growth = addwt;
-        return make_tuple(NumLayersWithRoots);
+        return;
     }
     //     Allocate the added dry matter to this and the adjoining
     //  soil cells in proportion to the EFAC factors.
@@ -127,18 +127,16 @@ tuple<int> RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double
         }
     //     Update NumLayersWithRoots, if necessary, and the values of RootColNumLeft and RootColNumRight for
     //  this layer.
-    if (NumLayersWithRoots <= l && efacd > 0)
-        NumLayersWithRoots = l + 1;
+    if (sim.states[u].number_of_layers_with_root <= l && efacd > 0)
+        sim.states[u].number_of_layers_with_root = l + 1;
     if (km1 < RootColNumLeft[l])
         RootColNumLeft[l] = km1;
     if (kp1 > RootColNumRight[l])
         RootColNumRight[l] = kp1;
-    return make_tuple(NumLayersWithRoots);
 }
 
 //////////////////////////////
-tuple<int>
-TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumLayersWithRoots)
+void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
 //     This function computes the elongation of the taproot. It is
 //  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
 //
@@ -158,7 +156,7 @@ TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumL
                                            //     Tap root elongation does not occur in water logged soil (water table).
     int klocp1 = sim.plant_row_column + 1; // the second column in which taproot growth occurs.
     if (VolWaterContent[LastTaprootLayer][sim.plant_row_column] >= PoreSpace[LastTaprootLayer] || VolWaterContent[LastTaprootLayer][klocp1] >= PoreSpace[LastTaprootLayer])
-        return make_tuple(NumLayersWithRoots);
+        return;
     //     Average soil resistance (avres) is computed at the root tip.
     // avres = average value of RootGroFactor for the two soil cells at the tip of the taproot.
     double avres = 0.5 * (RootGroFactor[LastTaprootLayer][sim.plant_row_column] + RootGroFactor[LastTaprootLayer][klocp1]);
@@ -181,15 +179,15 @@ TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumL
     //  roots, NumLayersWithRoots is also redefined and two soil cells of the new layer
     //  are defined as containing roots (by initializing RootColNumLeft and RootColNumRight).
     if (LastTaprootLayer > nl - 2 || TapRootLength <= DepthLastRootLayer)
-        return make_tuple(NumLayersWithRoots);
+        return;
     //     The following is executed when the taproot reaches a new soil layer.
     LastTaprootLayer++;
     DepthLastRootLayer += dl[LastTaprootLayer];
-    if (LastTaprootLayer > NumLayersWithRoots - 1)
+    if (LastTaprootLayer > sim.states[u].number_of_layers_with_root - 1)
     {
-        NumLayersWithRoots = LastTaprootLayer + 1;
-        if (NumLayersWithRoots > nl)
-            NumLayersWithRoots = nl;
+        sim.states[u].number_of_layers_with_root = LastTaprootLayer + 1;
+        if (sim.states[u].number_of_layers_with_root > nl)
+            sim.states[u].number_of_layers_with_root = nl;
     }
     if (RootColNumLeft[LastTaprootLayer] == 0 ||
         RootColNumLeft[LastTaprootLayer] > sim.plant_row_column)
@@ -221,7 +219,6 @@ TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, int NumL
         sim.states[u].root[LastTaprootLayer][klocp1].weight[i] += tran;
         sim.states[u].root[LastTaprootLayer - 1][klocp1].weight[i] -= tran;
     }
-    return make_tuple(NumLayersWithRoots);
 }
 
 //////////////////////////////
