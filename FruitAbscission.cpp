@@ -16,10 +16,10 @@ void SquareAbscission(int, int, int, double);
 
 void BollAbscission(int, int, int, double, double);
 
-tuple<double> ComputeSiteNumbers(int32_t);
+void ComputeSiteNumbers(State &, int32_t);
 
 //////////////////////////////////////////////////
-tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double &WaterStress)
+void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //     This function simulates the abscission of squares and bolls.
 //  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
 //	SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
@@ -32,6 +32,7 @@ tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double 
 //  AbscissionLag, NumSheddingTags, ShedByCarbonStress, ShedByNitrogenStress, ShedByWaterStress.
 //
 {
+    State &state = sim.states[u];
 //     The following constant parameters are used:
     const double vabsfr[9] = {21.0, 0.42, 30.0, 0.05, 6.0, 2.25, 0.60, 5.0, 0.20};
 //
@@ -56,8 +57,8 @@ tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double 
         ShedByNitrogenStress[0] = (vabsfr[1] - NitrogenStress) / vabsfr[1];
     else
         ShedByNitrogenStress[0] = 0;
-    if (WaterStress < VarPar[44])
-        ShedByWaterStress[0] = (VarPar[44] - WaterStress) / VarPar[44];
+    if (state.water_stress < VarPar[44])
+        ShedByWaterStress[0] = (VarPar[44] - state.water_stress) / VarPar[44];
     else
         ShedByWaterStress[0] = 0;
 //     Assign 0.01 to the first member of AbscissionLag.
@@ -115,9 +116,7 @@ tuple<double> FruitingSitesAbscission(Simulation &sim, uint32_t u, const double 
     NumSheddingTags = NumSheddingTags - idecr;
 //
 //
-    double AbscisedFruitSites;
-    tie(AbscisedFruitSites) = ComputeSiteNumbers(NumVegBranches);
-    return make_tuple(AbscisedFruitSites);
+    ComputeSiteNumbers(state, NumVegBranches);
 }
 
 /////////////////////////
@@ -291,7 +290,7 @@ void BollAbscission(int k, int l, int m, double abscissionRatio, double gin1)
 }
 
 ////////////////////
-tuple<double> ComputeSiteNumbers(int32_t NumVegBranches)
+void ComputeSiteNumbers(State &state, int32_t NumVegBranches)
 //     This function calculates square, green boll, open boll, and abscised site numbers 
 //  (NumSquares, NumGreenBolls, NumOpenBolls, and AbscisedFruitSites, respectively), as 
 //  the sums of FruitFraction in all sites with appropriate FruitingCode.
@@ -322,6 +321,5 @@ tuple<double> ComputeSiteNumbers(int32_t NumVegBranches)
         }
     }
 //
-    double AbscisedFruitSites = NumFruitSites - NumSquares - NumGreenBolls - NumOpenBolls;
-    return make_tuple(AbscisedFruitSites);
+    state.abscised_fruit_sites = NumFruitSites - NumSquares - NumGreenBolls - NumOpenBolls;
 }

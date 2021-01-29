@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tuple>
-#include "cotton2k.h"
+#include "Simulation.h"
 
-std::tuple<double> FruitingSitesAbscission(Simulation &, uint32_t, const double &);
+void FruitingSitesAbscission(Simulation &, uint32_t);

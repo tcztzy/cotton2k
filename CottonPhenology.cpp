@@ -148,7 +148,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
         }
     }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
-    tie(sim.states[u].abscised_fruit_sites) = FruitingSitesAbscission(sim, u, sim.states[u].water_stress);
+    FruitingSitesAbscission(sim, u);
 //     Call LeafAbscission() to simulate the abscission of leaves.
     tie(sim.states[u].abscised_leaf_weight) = LeafAbscission(sim, u, sim.states[u].day_inc, sim.states[u].abscised_leaf_weight);
 }
