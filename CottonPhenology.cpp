@@ -111,7 +111,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
         }
 //      if a first square has not been formed, call LeafAbscission() and exit.
         else {
-            tie(sim.states[u].abscised_leaf_weight) = LeafAbscission(sim, u, sim.states[u].day_inc, sim.states[u].abscised_leaf_weight);
+            LeafAbscission(sim, u);
             return;
         }
     }
@@ -150,7 +150,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
     FruitingSitesAbscission(sim, u);
 //     Call LeafAbscission() to simulate the abscission of leaves.
-    tie(sim.states[u].abscised_leaf_weight) = LeafAbscission(sim, u, sim.states[u].day_inc, sim.states[u].abscised_leaf_weight);
+    LeafAbscission(sim, u);
 }
 
 //////////////////////////

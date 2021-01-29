@@ -26,7 +26,7 @@ extern "C" {
     void SortArray(size_t, double[], int32_t*, int32_t*, int32_t*);
 }
 //////////////////////////////////////////////////
-tuple<double> LeafAbscission(Simulation &sim, uint32_t u, const double &DayInc, double AbscisedLeafWeight)
+void LeafAbscission(Simulation &sim, uint32_t u)
 //     This function simulates leaf abscission. It is called from
 //  CottonPhenology(). It calls the following functions:
 //        FruitNodeLeafAbscission(), MainStemLeafAbscission(), 
@@ -40,27 +40,28 @@ tuple<double> LeafAbscission(Simulation &sim, uint32_t u, const double &DayInc, 
 //        AbscisedLeafWeight, LeafAreaIndex, ReserveC.
 //
 {
+    State &state = sim.states[u];
 //     If there are almost no leaves, this routine is not executed.
     if (LeafAreaIndex <= 0.0001)
-        return make_tuple(AbscisedLeafWeight);
+        return;
 //     Compute droplf as a function of LeafAreaIndex.
     const double vdrop1 = 140, vdrop2 = 1; // constant parameters to compute droplf.
     double droplf; // leaf age until its abscission.
     droplf = vdrop1 - vdrop2 * LeafAreaIndex;
 //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
 //  prefruiting node leaves.
-    tie(AbscisedLeafWeight) = PreFruitLeafAbscission(droplf, sim.day_start + u, sim.first_square, DayInc, AbscisedLeafWeight);
+    tie(state.abscised_leaf_weight) = PreFruitLeafAbscission(droplf, sim.day_start + u, sim.first_square, state.day_inc, state.abscised_leaf_weight);
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
     for (int k = 0; k < NumVegBranches; k++) {
         int nbrch; // number of fruiting branches on a vegetative branch.
         nbrch = NumFruitBranches[k];
         for (int l = 0; l < nbrch; l++)
-            tie(AbscisedLeafWeight) = MainStemLeafAbscission(k, l, droplf, sim.day_start + u, AbscisedLeafWeight);
+            tie(state.abscised_leaf_weight) = MainStemLeafAbscission(k, l, droplf, sim.day_start + u, state.abscised_leaf_weight);
     }
 //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
     if (DayFirstDef > 0 && sim.day_start + u >= DayFirstDef)
-        tie(AbscisedLeafWeight) = DefoliationLeafAbscission(sim.day_start + u, AbscisedLeafWeight);
+        tie(state.abscised_leaf_weight) = DefoliationLeafAbscission(sim.day_start + u, state.abscised_leaf_weight);
 //     If the reserves in the leaf are too high, add the lost reserves
 //  to AbscisedLeafWeight and adjust ReserveC.
     if (ReserveC > 0) {
@@ -68,7 +69,7 @@ tuple<double> LeafAbscission(Simulation &sim, uint32_t u, const double &DayInc, 
         double resratio = 0.20; // maximum possible ratio of reserve C to leaf dry weight.
         resmax = resratio * TotalLeafWeight;
         if (ReserveC > resmax) {
-            AbscisedLeafWeight += ReserveC - resmax;
+            state.abscised_leaf_weight += ReserveC - resmax;
             ReserveC = resmax;
         }
     }
@@ -76,7 +77,6 @@ tuple<double> LeafAbscission(Simulation &sim, uint32_t u, const double &DayInc, 
     LeafAreaIndex = TotalLeafArea / PerPlantArea;
     if (LeafAreaIndex < 0.0001)
         LeafAreaIndex = 0.0001;
-    return make_tuple(AbscisedLeafWeight);
 }
 
 /////////////////////////
