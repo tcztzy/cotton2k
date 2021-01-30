@@ -156,7 +156,6 @@ double
 // E F G H
 double ElCondSatSoil[20],             // electrical conductivity of saturated soil extract (mmho/cm)
     ElCondSatSoilToday,               // electrical conductivity of saturated extract (mmho/cm) on this day.
-    Elevation,                        // elevation above sea level, m.
     es1hour[24],                      // part of hourly Penman evapotranspiration affected by net radiation, in mm per hour.
     es2hour[24],                      // part of hourly Penman evapotranspiration affected by wind and vapor pressure deficit, in mm per hour.
     ExtraCarbon,                      // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
@@ -166,8 +165,7 @@ double ElCondSatSoil[20],             // electrical conductivity of saturated so
     FreshOrganicNitrogen[maxl][maxk], // N in fresh organic matter in a soil cell, mg cm-3.
     FruitFraction[3][30][5],          // fraction of fruit remaining at each fruiting site (0 to 1).
     FruitGrowthRatio,                 // ratio between actual and potential square and boll growth.
-    gh2oc[10],                        // input gravimetric soil water content, g g-1, in the soil mechanical
-    // impedance table. values have been read from the soil impedance file.
+    gh2oc[10],                        // input gravimetric soil water content, g g-1, in the soil mechanical impedance table. values have been read from the soil impedance file.
     ginp,                           // ginning percentage of an individual boll.
     Gintot,                         // weighted average ginning percentage of all open bolls.
     GreenBollsLost,                 // cumulative loss of green bolls, due to abscission, g per plant.

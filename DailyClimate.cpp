@@ -346,7 +346,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout, const double &Da
         //  CIMIS algorithm using the modified Penman equation:
         //     The weighting ratio (w) is computed from the functions del() (the slope of the saturation
         //  vapor pressure versus air temperature) and gam() (the psychometric constant).
-        double w = del(tk, svp) / (del(tk, svp) + gam(Elevation, AirTemp[ihr])); // coefficient of the Penman equation
+        double w = del(tk, svp) / (del(tk, svp) + gam(sim.elevation, AirTemp[ihr])); // coefficient of the Penman equation
                                                                                  //     The wind function (fu2) is computed using different sets of parameters
                                                                                  //  for day-time and night-time. The parameter values are as suggested by CIMIS.
         double fu2;                                                              // wind function for computing evapotranspiration

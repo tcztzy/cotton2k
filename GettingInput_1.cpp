@@ -22,7 +22,7 @@ void InitializeGrid(Simulation &);
 void WriteInitialInputData(const string &, const string &, const string &, const string &, const string &, const string &,
                            const int &, const int &, const int &, const int &, const int &, const int &,
                            const int &, const int &, const int &, const double &, const double &, const double &,
-                           const double &, const double &);
+                           const double &, const double &, const double &);
 
 // GettingInput_2
 void InitSoil(const string &);
@@ -91,7 +91,7 @@ Simulation ReadInput(const char *ProfileName)
     WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,
                           AgrInputFileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant, sim.day_start_co2,
                           sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch, sim.mulch_indicator, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
-                          sim.co2_enrichment_factor, sim.latitude, sim.longitude);
+                          sim.co2_enrichment_factor, sim.latitude, sim.longitude, sim.elevation);
     InitSoil(SoilInitFileName);
     ReadAgriculturalInput(ProfileName, AgrInputFileName);
     InitializeSoilData(SoilHydFileName);
@@ -263,6 +263,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
             Longitude = -Longitude;
         }
     }
+    double Elevation = 0;
     if (nLength >= 30)
         Elevation = atof(Dummy.substr(20, 10).c_str());
     if (nLength > 30)
@@ -348,7 +349,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     }
     //     Call function OpenOutputFiles() to open the output files.
     OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge);
-    return {ProfileName, strlen(ProfileName), DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude};
+    return {ProfileName, strlen(ProfileName), DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude, Elevation};
 }
 
 //////////////////////////////////////////////////////////
@@ -558,7 +559,8 @@ void WriteInitialInputData(
     const double &MulchTranLW,
     const double &CO2EnrichmentFactor,
     const double &Latitude,
-    const double &Longitude)
+    const double &Longitude,
+    const double &Elevation)
 //     This function writes the input data to File20 (*.B01). It is executed once
 //  at the beginning of the simulation. It is called by ReadInput().
 //
