@@ -363,13 +363,10 @@ extern "C" fn ComputeDayLength(
         if f > 0.5 {
             f -= 1f64;
         }
-    } else
-    // west  of Greenwich
-    {
-        if f < -0.5 {
-            f += 1f64;
-        }
+    } else if f < -0.5 {
+        f += 1f64;
     }
+
     *solar_noon = 12f64 - f - exday;
     //     Compute day length, by commonly used equations, from latitude and declination of
     //  this day. Times of sunrise and of sunset are computed from solar noon and day length.
@@ -560,9 +557,8 @@ extern "C" fn daytmp(
     let sts: f64; // intermediate variable for computing sst.
     let HourlyTemperature: f64; // computed temperature at time ti.
                                 //
-    if ti <= sunr
-    //  from midnight to sunrise
-    {
+    if ti <= sunr {
+        //  from midnight to sunrise
         amp = (yesterday.Tmax - today.Tmin) * (1f64 + (yesterday.Tmax - today.Tmin) / tkk);
         sts = (pi * DayLength / (DayLength + 2f64 * site8)).sin();
         //  compute temperature at sunset:
@@ -570,23 +566,20 @@ extern "C" fn daytmp(
         HourlyTemperature = (today.Tmin - sst * ((DayLength - 24f64) / tcoef).exp()
             + (sst - today.Tmin) * ((suns - ti - 24f64) / tcoef).exp())
             / (1f64 - ((DayLength - 24f64) / tcoef).exp());
-    } else if ti <= hmax
-    //  from sunrise to hmax
-    {
+    } else if ti <= hmax {
+        //  from sunrise to hmax
         amp = (today.Tmax - today.Tmin) * (1f64 + (today.Tmax - today.Tmin) / tkk);
         st = (pi * (ti - SolarNoon + DayLength / 2.) / (DayLength + 2f64 * site8)).sin();
         HourlyTemperature =
             today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
-    } else if ti <= suns
-    //  from hmax to sunset
-    {
+    } else if ti <= suns {
+        //  from hmax to sunset
         amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
         st = (pi * (ti - SolarNoon + DayLength / 2f64) / (DayLength + 2f64 * site8)).sin();
         HourlyTemperature =
             tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
-    } else
-    //  from sunset to midnight
-    {
+    } else {
+        //  from sunset to midnight
         amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
         sts = (pi * DayLength / (DayLength + 2f64 * site8)).sin();
         sst = tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * sts).sqrt();
@@ -594,7 +587,7 @@ extern "C" fn daytmp(
             + (sst - tomorrow.Tmin) * ((suns - ti) / tcoef).exp())
             / (1. - ((DayLength - 24f64) / tcoef).exp());
     }
-    return HourlyTemperature;
+    HourlyTemperature
     //     Reference:
     //     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
     //  diurnal patterns of air temperature, radiation, wind speed and

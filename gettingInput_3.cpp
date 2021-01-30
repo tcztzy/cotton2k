@@ -15,9 +15,10 @@ int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 extern "C"
 {
     double tdewest(double, double, double);
+    int SlabLoc(int, int, const double *, const double *);
 }
 
-int SlabLoc(int, int);
+
 
 ///////////////////////////////////////////////////////////////////////////////
 int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart, ClimateStruct Clim[400])
@@ -206,8 +207,8 @@ void ReadAgriculturalInput(const string &ProfileName, const string &AgrInputFile
 //     If this is a drip irrigation, convert distances to soil
 //  layer and column numbers by calling SlabLoc.
             if (Irrig[NumIrrigations].method == 2) {
-                Irrig[NumIrrigations].LocationColumnDrip = SlabLoc(isdhrz, 1);
-                Irrig[NumIrrigations].LocationLayerDrip = SlabLoc(isddph, 2);
+                Irrig[NumIrrigations].LocationColumnDrip = SlabLoc(isdhrz, 1, wk, dl);
+                Irrig[NumIrrigations].LocationLayerDrip = SlabLoc(isddph, 2, wk, dl);
             }
             NumIrrigations++;
         }
@@ -228,8 +229,8 @@ void ReadAgriculturalInput(const string &ProfileName, const string &AgrInputFile
 //      If this is a side dressing or drip, convert distances to soil
 //  layer and column numbers by calling SlabLoc.
             if (NFertilizer[NumNitApps].mthfrt == 1 || NFertilizer[NumNitApps].mthfrt == 3) {
-                NFertilizer[NumNitApps].ksdr = SlabLoc(isdhrz, 1);
-                NFertilizer[NumNitApps].lsdr = SlabLoc(isddph, 2);
+                NFertilizer[NumNitApps].ksdr = SlabLoc(isdhrz, 1, wk, dl);
+                NFertilizer[NumNitApps].lsdr = SlabLoc(isddph, 2, wk, dl);
             } else {
                 NFertilizer[NumNitApps].ksdr = 0; // column of application
                 NFertilizer[NumNitApps].lsdr = 0; // layer of application
@@ -322,8 +323,8 @@ void ReadAgriculturalInput(const string &ProfileName, const string &AgrInputFile
 //     If this is a drip irrigation, convert distances (input in cm)
 //  to soil layer and column numbers by calling SlabLoc.
             if (IrrigMethod == 2) {
-                LocationColumnDrip = SlabLoc(isdhrz, 1);
-                LocationLayerDrip = SlabLoc(isddph, 2);
+                LocationColumnDrip = SlabLoc(isdhrz, 1, wk, dl);
+                LocationLayerDrip = SlabLoc(isddph, 2, wk, dl);
             }
         }
     }  //  end while DataFile
@@ -536,43 +537,4 @@ void ReadAgriculturalInput(const string &ProfileName, const string &AgrInputFile
         }
         File20 << endl;
     }
-}
-
-/////////////////////////////////////////////////////////////////
-int SlabLoc(int isd, int index)
-//     This function computes the layer (lsdr) or column (ksdr) where the emitter 
-//  of drip irrigation, or the fertilizer side - dressing is located. It is called
-//  from ReadAgriculturalInput().
-//     The following input arguments are used:
-//               isd = horizontal or vertical distance
-//               index = 1 if horizontal or = 2 if vertical 
-//     The following global variables are referenced here:
-//                dl, nk, nl, wk.
-//
-{
-    int result = 0; // the resulting column or layer number.
-    if (index == 1)  // horizontal
-    {
-//     Define the column of this location
-        double sumwk = 0; // sum of soil column widths.
-        for (int k = 0; k < nk; k++) {
-            sumwk += wk[k];
-            if (sumwk >= isd) {
-                result = k;
-                break;
-            }
-        }
-    } else if (index == 2)  // vertical
-    {
-//	    Define the layer of this location
-        double sumdl = 0; // sum of soil layer depths.
-        for (int l = 0; l < nl; l++) {
-            sumdl += dl[l];
-            if (sumdl >= isd) {
-                result = l;
-                break;
-            }
-        }
-    }
-    return result;
 }
