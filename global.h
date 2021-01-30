@@ -36,7 +36,7 @@ typedef struct scratch
             tapRootLength, totalLeafWeight, totalPetioleWeight, totalRequiredN,
             totalRootWeight, totalSoilNh4N, totalSoilNo3N, totalSoilUreaN,
             totalSoilWater, totalSquareWeight, totalStemWeight, waterStressStem;
-        double rootsv[maxl][maxk], rootWtCapblUptake[maxl][maxk], soilPsi[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
+        double rootWtCapblUptake[maxl][maxk], soilPsi[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
             volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk];
 } scratch;
 extern scratch Scratch21[400];

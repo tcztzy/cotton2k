@@ -11,6 +11,7 @@
 // RootCultivation()
 // RootSummation()
 //
+#include <numeric>
 #include <fstream>
 #include "global.h"
 #include "Simulation.h"
@@ -522,22 +523,11 @@ void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, con
 //  OutIndex, RootWeight, RootWtCapblUptake, RowSpace, wk
 //     The following global variable is set here:     TotalRootWeight
 {
-    //     Compute the root weight (of all age classes) for all soil cells as
-    //  rootsv, and the total as roots.
+    //     Compute the total root weight (of all age classes) for all soil cells as
     double roots = 0;          // total weight of roots of all classes, g per slab.
-    double rootsv[maxl][maxk]; // total dry weight of roots in a cell, g per soil cell.
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
-        {
-            rootsv[l][k] = 0;
-            for (int i = 0; i < 3; i++)
-                rootsv[l][k] += sim.states[u].root[l][k].weight[i];
-            roots += rootsv[l][k];
-        }
-    //
-    for (int l = 0; l < maxl; l++)
-        for (int k = 0; k < maxk; k++)
-            Scratch21[u].rootsv[l][k] = rootsv[l][k];
+            roots += accumulate(sim.states[u].root[l][k].weight, sim.states[u].root[l][k].weight+3, double(0));
     //     Convert total root weight from g per slab to g per plant.
     TotalRootWeight = roots * 100 * PerPlantArea / RowSpace;
     //     If output flag is active, this flag also indicates the frequency of

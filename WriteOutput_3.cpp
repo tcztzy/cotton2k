@@ -10,13 +10,14 @@
 // output7()
 // OutputForSoilMaps()
 //
+#include <numeric>
 #include <filesystem>
 #include "global.h"
 #include "GeneralFunctions.h"
 
 namespace fs = std::filesystem;
 
-void OutputForSoilMaps(int, int, int, const string &);
+void OutputForSoilMaps(State &, int, int, int, const string &);
 
 /////////////////////////////////////////////////////////////
 void outputplt(Simulation &sim)
@@ -490,8 +491,7 @@ void output6(const string &ProfileName)
 }
 
 ///////////////////////
-void output7(const string &ProfileName, const int &DayStart, const int &DayFinish, const int &DayStartSoilMaps,
-             const int &DayStopSoilMaps)
+void output7(Simulation &sim)
 //     This function is called by DataOutput(). It writes soil map output by calling
 //  OutputForSoilMaps(). If the day of year is between DayStartSoilMaps and DayStopSoilMaps,
 //  the following will be executed at SoilMapFreq day intervals. It will also be executed 
@@ -500,40 +500,41 @@ void output7(const string &ProfileName, const int &DayStart, const int &DayFinis
 //     The following global variables are referenced:
 //       DayStartSoilMaps, DayStopSoilMaps, SoilMapFreq,
 {
-    for (int nDaynum = DayStartSoilMaps; nDaynum <= DayStopSoilMaps; nDaynum++) {
-        int idum = nDaynum - DayStartSoilMaps;
-        if ((idum % SoilMapFreq) == 0 || nDaynum >= DayFinish) {
-            int irec = nDaynum - DayStart;
+    for (int nDaynum = sim.day_start_soil_maps; nDaynum <= sim.day_stop_soil_maps; nDaynum++) {
+        int idum = nDaynum - sim.day_start_soil_maps;
+        if ((idum % SoilMapFreq) == 0 || nDaynum >= sim.day_finish) {
+            int irec = nDaynum - sim.day_start;
+            State &state = sim.states[irec];
 //     If the output flag (OutIndex(8)) indicates that this output is
 //  requested - produce soil slab maps for VolWaterContent.
             if (OutIndex[8] > 0)
-                OutputForSoilMaps(irec, 2, nDaynum, ProfileName);
+                OutputForSoilMaps(state, irec, 2, nDaynum, sim.profile_name);
 //     If the output flag (OutIndex(9)) indicates that this output is
-//  requested - produce soil slab maps for rootsv and for RootWtCapblUptake.
+//  requested - produce soil slab maps for root weight per cell and for RootWtCapblUptake.
             if (OutIndex[9] > 0) {
-                OutputForSoilMaps(irec, 3, nDaynum, ProfileName);
-                OutputForSoilMaps(irec, 6, nDaynum, ProfileName);
+                OutputForSoilMaps(state, irec, 3, nDaynum, sim.profile_name);
+                OutputForSoilMaps(state, irec, 6, nDaynum, sim.profile_name);
             }
 //     If the output flag (OutIndex(10)) indicates that this output is
 //  requested - produce soil slab maps for VolNo3NContent and for VolNh4NContent.
             if (OutIndex[10] > 0) {
-                OutputForSoilMaps(irec, 1, nDaynum, ProfileName);
-                OutputForSoilMaps(irec, 7, nDaynum, ProfileName);
+                OutputForSoilMaps(state, irec, 1, nDaynum, sim.profile_name);
+                OutputForSoilMaps(state, irec, 7, nDaynum, sim.profile_name);
             }
 //     If the output flag (OutIndex(11)) indicates that this output is
 //  requested - produce soil slab maps for soil water potential.
             if (OutIndex[11] > 0)
-                OutputForSoilMaps(irec, 4, nDaynum, ProfileName);
+                OutputForSoilMaps(state, irec, 4, nDaynum, sim.profile_name);
 //     If the output flag (OutIndex(12)) indicates that this output is
 //  requested - produce soil slab maps for soil temperature.
             if (OutIndex[12] > 0)
-                OutputForSoilMaps(irec, 5, nDaynum, ProfileName);
+                OutputForSoilMaps(state, irec, 5, nDaynum, sim.profile_name);
         }
     }
 }
 
 //////////////////////////////////////////////////////////////
-void OutputForSoilMaps(int irec, int igo, int nday, const string &ProfileName)
+void OutputForSoilMaps(State &state, int irec, int igo, int nday, const string &ProfileName)
 //     This function plots the soil slab and the array variables in each cell. It is called from
 //  function output7().
 //
@@ -617,7 +618,7 @@ void OutputForSoilMaps(int irec, int igo, int nday, const string &ProfileName)
     else if (igo == 3) {
         for (int l = 0; l < maxl; l++)
             for (int k = 0; k < maxk; k++)
-                Array[l][k] = Scratch21[irec].rootsv[l][k];
+                Array[l][k] = accumulate(state.root[l][k].weight, state.root[l][k].weight + 3, double(0));
         tl1 = "ROOT TOT ";
         for (int i = 0; i < 11; i++)
             range[i] = roosca[i];

@@ -34,7 +34,7 @@ void output5(Simulation &);
 
 void output6(const string &);
 
-void output7(const string &, const int &, const int &, const int &, const int &);
+void output7(Simulation &);
 
 /////////////////////////////////////////////////////////////
 void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const int &DayEmerge)
@@ -532,7 +532,7 @@ void DataOutput(Simulation & sim)
         output5(sim);
     output6(sim.profile_name);
     if (OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
-        output7(sim.profile_name, sim.day_start, sim.day_finish, sim.day_start_soil_maps, sim.day_stop_soil_maps);
+        output7(sim);
 }
 
 ////////////////////////
