@@ -447,6 +447,56 @@ fn test_comput_day_length() {
         .abs()
             < 180
     );
+    let rio = (-22.9110137, -43.2093727);
+    let yo = 32;
+    let year = 2021;
+    let mut declination: f64 = 0.;
+    let mut tmpisr: f64 = 0.;
+    let mut day_length: f64 = 0.;
+    let mut sunrise: f64 = 0.;
+    let mut sunset: f64 = 0.;
+    let mut solar_noon: f64 = 0.;
+    ComputeDayLength(
+        yo,
+        year,
+        rio.0,
+        rio.1,
+        &mut declination,
+        &mut tmpisr,
+        &mut solar_noon,
+        &mut day_length,
+        &mut sunrise,
+        &mut sunset,
+    );
+    let fixed_offset = FixedOffset::east((rio.1.div_euclid(15.).floor() as i32) * 3600);
+    let sunrise = fixed_offset.yo(year, yo).and_hms(
+        sunrise.floor() as u32,
+        ((sunrise - sunrise.floor()) * 60.).floor() as u32,
+        ((sunrise * 60. - (sunrise * 60.).floor()) * 60.).floor() as u32,
+    );
+    assert!(
+        (sunrise.with_timezone(&Utc)
+            - "2021-02-01T05:33:24-03:00"
+                .parse::<DateTime<Utc>>()
+                .expect("Parse Error"))
+        .num_seconds()
+        .abs()
+            < 180
+    );
+    let sunset = fixed_offset.yo(year, yo).and_hms(
+        sunset.floor() as u32,
+        ((sunset - sunset.floor()) * 60.).floor() as u32,
+        ((sunset * 60. - (sunset * 60.).floor()) * 60.).floor() as u32,
+    );
+    assert!(
+        (sunset.with_timezone(&Utc)
+            - "2021-02-01T18:39:38-03:00"
+                .parse::<DateTime<Utc>>()
+                .expect("Parse Error"))
+        .num_seconds()
+        .abs()
+            < 200
+    );
 }
 
 #[no_mangle]
