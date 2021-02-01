@@ -42,8 +42,6 @@ void ReadAgriculturalInput(const string &, const string &);
 
 //
 // Definitions of File scope variables:
-bool bLat,                  // true if latitude is south, false if north
-    bLong;                  // true if longitude is west, false if east
 int nSiteNum,               // index number for site.
     LastDayOfActualWeather, // last day of actual weather.
     nVarNum;                // index number for cultivar.
@@ -241,27 +239,15 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     //  above sea level), and the index number for this geographic site.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
-    bLat = false;
-    bLong = false;
     double Latitude = 0;
     if (nLength > 1)
     {
         Latitude = atof(Dummy.substr(0, 10).c_str());
-        if (Latitude < 0)
-        {
-            bLat = true;
-            Latitude = -Latitude;
-        }
     }
     double Longitude = 0;
     if (nLength >= 20)
     {
         Longitude = atof(Dummy.substr(10, 10).c_str());
-        if (Longitude < 0)
-        {
-            bLong = true;
-            Longitude = -Longitude;
-        }
     }
     double Elevation = 0;
     if (nLength >= 30)
@@ -580,7 +566,7 @@ void WriteInitialInputData(
     File20.precision(2);
     File20 << fabs(Latitude);
     File20.width(7);
-    if (bLat)
+    if (Latitude < 0)
         File20 << "  South";
     else
         File20 << "  North";
@@ -589,7 +575,7 @@ void WriteInitialInputData(
     File20.precision(2);
     File20 << fabs(Longitude);
     File20.width(7);
-    if (bLong)
+    if (Longitude < 0)
         File20 << "   West";
     else
         File20 << "   East";
