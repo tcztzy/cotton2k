@@ -8,6 +8,7 @@ mod tests;
 
 mod climate;
 mod fruit;
+mod io;
 mod leaf;
 mod physiology;
 mod root;
@@ -29,7 +30,7 @@ extern "C" fn SlabLoc(isd: i32, index: i32, wk: *const f64, dl: *const f64) -> i
 //                dl, nk, nl, wk.
 //
 {
-    let wk = unsafe { std::slice::from_raw_parts(wk, 20) };    
+    let wk = unsafe { std::slice::from_raw_parts(wk, 20) };
     let dl = unsafe { std::slice::from_raw_parts(dl, 40) };
 
     // horizontal

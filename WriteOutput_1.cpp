@@ -16,6 +16,11 @@
 
 namespace fs = std::filesystem;
 
+extern "C"
+{
+    void b01(const char *, const char *);
+}
+
 void output1(const string &, const string &, const int &, const int &, const int &, const int &, const double &,
              const double &);
 
@@ -139,24 +144,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     File46 << endl;
 //
 // Open the input information file B01, and write its header. 
-    ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::out);
-    File20.unsetf(ios::left);
-    File20.width(50);
-    File20 << "COTTON2K Version 4.0 (2003)" << endl;
-    File20.width(62);
-    File20 << "A simulation model for irrigated cotton in arid regions" << endl;
-    File20.width(50);
-    File20 << "Written by Avishalom Marani" << endl << endl;
-    File20.setf(ios::left);
-    File20 << "Profile Name:    ";
-    File20.width(20);
-    File20 << ProfileName << endl;
-    File20 << "Simulation Date: ";
-    File20.width(30);
-    File20 << Rundate << endl;
-    File20 << "Description:     ";
-    File20.width(55);
-    File20 << m_fileDesc << endl << endl;
+    b01(ProfileName.c_str(), m_fileDesc.c_str());
 //
 // Open the summary output file S01, and write its header. 
     ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::out);
@@ -317,8 +305,7 @@ void DailyOutput(Simulation &sim, uint32_t u)
 }
 
 //////////////////////////
-void
-output1(const string &ProfileName, const string &Date, const int &Daynum, const int &DayEmerge, const int &FirstBloom,
+void output1(const string &ProfileName, const string &Date, const int &Daynum, const int &DayEmerge, const int &FirstBloom,
         const int &FirstSquare, const double &PlantHeight, const double &AbscisedFruitSites)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
