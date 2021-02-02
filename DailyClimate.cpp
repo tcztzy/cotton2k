@@ -72,6 +72,7 @@ void DayClim(Simulation &sim, uint32_t u)
 //    AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
 //
 {
+    State &state = sim.states[u];
     //     Compute day length and related variables:
     ComputeDayLength(sim.day_start + u, iyear, sim.latitude, sim.longitude, declination, tmpisr, SolarNoon, sim.states[u].day_length, sunr, suns);
     //
@@ -113,7 +114,7 @@ void DayClim(Simulation &sim, uint32_t u)
             rainToday = 0;
         sim.climate[u].Rain = rainToday;
     }
-    Scratch21[u].runoff = runoffToday;
+    state.runoff = runoffToday;
     //     Set period for detailed output of weather variables, if requested.
     static int j1 = 0;
     static int j2 = 0;

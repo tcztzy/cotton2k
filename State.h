@@ -12,5 +12,6 @@ typedef struct State
     double day_length;                       // day length, in hours
     Root root[40][20];
     double plant_height;
+    double runoff;
 } State;
 #endif

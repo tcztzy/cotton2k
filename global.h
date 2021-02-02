@@ -30,7 +30,7 @@ typedef struct scratch
             netPhotosynthesis, nightTimeTemp, nitrogenStress, nStressFruiting,
             nStressRoots, nStressVeg, numGreenBolls, numSquares, numOpenBolls,
             petioleNConc, petioleNO3NConc, petioleNitrogen, PixInPlants, plantWeight,
-            reserveC, rn, rootNConc, rootNitrogen, rootWeightLoss, runoff,
+            reserveC, rn, rootNConc, rootNitrogen, rootWeightLoss,
             seedNConc, seedNitrogen, soilNitrogenLoss, squareNConc, squareNitrogen,
             stemNConc, stemNitrogen, sumNO3N90, supplyNH4N, supplyNO3N,
             tapRootLength, totalLeafWeight, totalPetioleWeight, totalRequiredN,

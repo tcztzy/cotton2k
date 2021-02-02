@@ -429,7 +429,7 @@ void output5(Simulation &sim)
             File46.width(8);
             File46 << Scratch21[irec].amitri;
             File46.width(7);
-            File46 << Scratch21[irec].runoff;
+            File46 << sim.states[irec].runoff;
             File46.width(8);
             File46 << sim.climate[irec].Wind << endl;
         } else {
@@ -451,7 +451,7 @@ void output5(Simulation &sim)
             File46.width(8);
             File46 << Scratch21[irec].amitri / 25.4;
             File46.width(7);
-            File46 << Scratch21[irec].runoff / 25.4;
+            File46 << sim.states[irec].runoff / 25.4;
             File46.width(8);
             File46 << sim.climate[irec].Wind / 1.609 << endl;
         }
