@@ -48,9 +48,9 @@ extern "C"
 
 double tdewhour(Simulation &, uint32_t, double, double);
 
-void EvapoTranspiration(Simulation &, uint32_t, int, const double &);
+void EvapoTranspiration(Simulation &, uint32_t, int);
 
-double SimulateRunoff(Simulation &, uint32_t, double);
+double SimulateRunoff(Simulation &, uint32_t);
 
 //     Definition of file scope variables:
 double declination, // daily declination angle, in radians.
@@ -106,7 +106,7 @@ void DayClim(Simulation &sim, uint32_t u)
     double runoffToday = 0; // amount of runoff today, mm
     if (rainToday >= 2.0)
     {
-        runoffToday = SimulateRunoff(sim, u, rainToday);
+        runoffToday = SimulateRunoff(sim, u);
         if (runoffToday < rainToday)
             rainToday -= runoffToday;
         else
@@ -188,7 +188,7 @@ void DayClim(Simulation &sim, uint32_t u)
         File18 << AvrgDailyTemp << endl;
     }
     //     Compute potential evapotranspiration.
-    EvapoTranspiration(sim, u, jtout, sim.states[u].day_length);
+    EvapoTranspiration(sim, u, jtout);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -243,7 +243,7 @@ double tdewhour(Simulation &sim, uint32_t u, double ti, double tt)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout, const double &DayLength)
+void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
 //     Function EvapoTranspiration() computes the rate of reference evapotranspiration
 //  and related variables. The following subroutines and functions are called for each
 //  hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(), clearskyemiss(), del(),
@@ -276,7 +276,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout, const double &Da
         CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
         //      clcor is called to compute cloud-type correction.
         //      iamhr and ipmhr are set.
-        CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, DayLength, Radiation[ihr], SolarNoon);
+        CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, sim.states[u].day_length, Radiation[ihr], SolarNoon);
         if ((cosz >= 0.1736) && (iamhr == 0))
             iamhr = ihr;
         if ((ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0))
@@ -376,7 +376,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout, const double &Da
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-double SimulateRunoff(Simulation &sim, uint32_t u, double rain)
+double SimulateRunoff(Simulation &sim, uint32_t u)
 //     This function is called from DayClim() and is executed on each day with raifall more
 //  than 2 mm. It computes the runoff and the retained portion of the rainfall. Note: This
 //  function is based on the code of GOSSYM. No changes have been made from the original GOSSYM
@@ -475,6 +475,7 @@ double SimulateRunoff(Simulation &sim, uint32_t u, double rain)
     d03 = 25400 / crvnum - 254;
     //
     double runoff; // simulated runoff on this day
+    double rain = sim.climate[u].Rain;
     if (rain <= 0.2 * d03)
         runoff = 0; // no runoff
     else
