@@ -44,9 +44,8 @@ extern "C"
     void AverageAirTemperatures(const double *, const double *, double &, double &, double &);
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
     void sunangle(double, double, double, double, double &, double &);
+    double tdewhour(Simulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double);
 }
-
-double tdewhour(Simulation &, uint32_t, double, double);
 
 void EvapoTranspiration(Simulation &, uint32_t, int);
 
@@ -144,7 +143,7 @@ void DayClim(Simulation &sim, uint32_t u)
         //     Compute hourly temperature, using function daytmp.
         AirTemp[ihr] = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
         //     Compute hourly dew point temperature, using function tdewhour.
-        DewPointTemp[ihr] = tdewhour(sim, u, ti, AirTemp[ihr]);
+        DewPointTemp[ihr] = tdewhour(sim, u, LastDayWeatherData, ti, AirTemp[ihr], sunr, SolarNoon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
         //     Compute hourly relative humidity, using function dayrh.
         RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
         //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
@@ -189,57 +188,6 @@ void DayClim(Simulation &sim, uint32_t u)
     }
     //     Compute potential evapotranspiration.
     EvapoTranspiration(sim, u, jtout);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-double tdewhour(Simulation &sim, uint32_t u, double ti, double tt)
-//     Function tdewhour() computes the hourly values of dew point
-//  temperature from average dew-point and the daily estimated range.
-//  This range is computed as a regression on maximum and minimum temperatures.
-//  Input arguments:
-//     ti - time of day (hours).
-//     tt - air temperature C at this time of day.
-//  Global variables used:
-//    LastDayWeatherData, SitePar, SolarNoon, sunr, suns.
-//
-{
-    int im1 = u > 1 ? u - 1 : 0; // day of year yesterday
-    ClimateStruct &yesterday = sim.climate[im1];
-    ClimateStruct &today = sim.climate[u];
-    int ip1 = u + 1; // day of year tomorrow
-    if (ip1 > LastDayWeatherData)
-        ip1 = u;
-    ClimateStruct &tomorrow = sim.climate[ip1];
-    double tdewhr;                        // the dew point temperature (c) of this hour.
-    double tdmin;                         // minimum of dew point temperature.
-    double tdrange;                       // range of dew point temperature.
-    double hmax = SolarNoon + SitePar[8]; // time of maximum air temperature
-                                          //
-    if (ti <= sunr)                       // from midnight to sunrise
-    {
-        tdrange = SitePar[12] + SitePar[13] * yesterday.Tmax + SitePar[14] * today.Tmin;
-        if (tdrange < 0)
-            tdrange = 0;
-        tdmin = yesterday.Tdew - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - today.Tmin) / (yesterday.Tmax - today.Tmin);
-    }
-    else if (ti <= hmax) // from sunrise to hmax
-    {
-        tdrange = SitePar[12] + SitePar[13] * today.Tmax + SitePar[14] * today.Tmin;
-        if (tdrange < 0)
-            tdrange = 0;
-        tdmin = today.Tdew - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - today.Tmin) / (today.Tmax - today.Tmin);
-    }
-    else //  from hmax to midnight
-    {
-        tdrange = SitePar[12] + SitePar[13] * today.Tmax + SitePar[14] * tomorrow.Tmin;
-        if (tdrange < 0)
-            tdrange = 0;
-        tdmin = tomorrow.Tdew - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - tomorrow.Tmin) / (today.Tmax - tomorrow.Tmin);
-    }
-    return tdewhr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -347,9 +295,9 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         //     The weighting ratio (w) is computed from the functions del() (the slope of the saturation
         //  vapor pressure versus air temperature) and gam() (the psychometric constant).
         double w = del(tk, svp) / (del(tk, svp) + gam(sim.elevation, AirTemp[ihr])); // coefficient of the Penman equation
-                                                                                 //     The wind function (fu2) is computed using different sets of parameters
-                                                                                 //  for day-time and night-time. The parameter values are as suggested by CIMIS.
-        double fu2;                                                              // wind function for computing evapotranspiration
+                                                                                     //     The wind function (fu2) is computed using different sets of parameters
+                                                                                     //  for day-time and night-time. The parameter values are as suggested by CIMIS.
+        double fu2;                                                                  // wind function for computing evapotranspiration
         if (Radiation[ihr] <= 0)
             fu2 = c12 + c13 * WindSpeed[ihr];
         else

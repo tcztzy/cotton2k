@@ -682,3 +682,56 @@ extern "C" fn sunangle(
         *sunahr = (coszhr.acos() * 180f64 / pi - 90f64).abs();
     }
 }
+
+/// Function tdewhour() computes the hourly values of dew point temperature from average dew-point and the daily estimated range. This range is computed as a regression on maximum and minimum temperatures.
+#[no_mangle]
+extern "C" fn tdewhour(
+    sim: &Simulation,
+    u: u32,
+    last_day_has_weather_data: u32,
+    time: f64,
+    temperature: f64,
+    sunrise: f64,
+    solar_noon: f64,
+    site8: f64,
+    site12: f64,
+    site13: f64,
+    site14: f64,
+) -> f64 {
+    let im1 = if u > 1 { u - 1 } else { 0 }; // day of year yesterday
+    let yesterday = sim.climate[im1 as usize];
+    let today = sim.climate[u as usize];
+    let mut ip1 = u + 1; // day of year tomorrow
+    if ip1 > last_day_has_weather_data {
+        ip1 = u;
+    }
+    let tomorrow = sim.climate[ip1 as usize];
+    let tdmin; // minimum of dew point temperature.
+    let mut tdrange; // range of dew point temperature.
+    let hmax = solar_noon + site8; // time of maximum air temperature
+    if time <= sunrise {
+        // from midnight to sunrise
+        tdrange = site12 + site13 * yesterday.Tmax + site14 * today.Tmin;
+        if tdrange < 0f64 {
+            tdrange = 0f64;
+        }
+        tdmin = yesterday.Tdew - tdrange / 2f64;
+        tdmin + tdrange * (temperature - today.Tmin) / (yesterday.Tmax - today.Tmin)
+    } else if time <= hmax {
+        // from sunrise to hmax
+        tdrange = site12 + site13 * today.Tmax + site14 * today.Tmin;
+        if tdrange < 0f64 {
+            tdrange = 0f64;
+        }
+        tdmin = today.Tdew - tdrange / 2f64;
+        tdmin + tdrange * (temperature - today.Tmin) / (today.Tmax - today.Tmin)
+    } else {
+        //  from hmax to midnight
+        tdrange = site12 + site13 * today.Tmax + site14 * tomorrow.Tmin;
+        if tdrange < 0f64 {
+            tdrange = 0f64;
+        }
+        tdmin = tomorrow.Tdew - tdrange / 2f64;
+        tdmin + tdrange * (temperature - tomorrow.Tmin) / (today.Tmax - tomorrow.Tmin)
+    }
+}
