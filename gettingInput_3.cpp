@@ -152,7 +152,7 @@ int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-void ReadAgriculturalInput(const string &ProfileName, const string &AgrInputFileName)
+void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const string &AgrInputFileName)
 //     This function opens the agricultural inputs data file and reads it. 
 //  It is called by ReadInput() once at the beginning of the simulation.
 //
@@ -199,16 +199,16 @@ void ReadAgriculturalInput(const string &ProfileName, const string &AgrInputFile
 //     Structure Irrigation {int day, method, LocationColumnDrip, LocationLayerDrip; 
 //                           double amount; }   Irrig[150];
             cdate = StrTemp.substr(19, 11);
-            Irrig[NumIrrigations].day = DateToDoy(cdate.c_str(), iyear);     // day of year of this irrigation
-            Irrig[NumIrrigations].amount = atof(StrTemp.substr(30, 15).c_str()); // net amount of water applied, mm
-            Irrig[NumIrrigations].method = atoi(StrTemp.substr(45, 5).c_str());  // method of irrigation: 1=  2=drip
+            sim.irrigation[NumIrrigations].day = DateToDoy(cdate.c_str(), iyear);     // day of year of this irrigation
+            sim.irrigation[NumIrrigations].amount = atof(StrTemp.substr(30, 15).c_str()); // net amount of water applied, mm
+            sim.irrigation[NumIrrigations].method = atoi(StrTemp.substr(45, 5).c_str());  // method of irrigation: 1=  2=drip
             isdhrz = atoi(StrTemp.substr(50, 5).c_str());              // horizontal placement cm
             isddph = atoi(StrTemp.substr(55, 5).c_str());              // vertical placement cm
 //     If this is a drip irrigation, convert distances to soil
 //  layer and column numbers by calling SlabLoc.
-            if (Irrig[NumIrrigations].method == 2) {
-                Irrig[NumIrrigations].LocationColumnDrip = SlabLoc(isdhrz, 1, wk, dl);
-                Irrig[NumIrrigations].LocationLayerDrip = SlabLoc(isddph, 2, wk, dl);
+            if (sim.irrigation[NumIrrigations].method == 2) {
+                sim.irrigation[NumIrrigations].LocationColumnDrip = SlabLoc(isdhrz, 1, wk, dl);
+                sim.irrigation[NumIrrigations].LocationLayerDrip = SlabLoc(isddph, 2, wk, dl);
             }
             NumIrrigations++;
         }
@@ -342,29 +342,29 @@ void ReadAgriculturalInput(const string &ProfileName, const string &AgrInputFile
             File20 << "                      inches                      Column       Layer " << endl;
         for (int ii = 0; ii < NumIrrigations; ii++) {
             File20.width(14);
-            File20 << DoyToDate(Irrig[ii].day, iyear);     // date of this irrigation
+            File20 << DoyToDate(sim.irrigation[ii].day, iyear);     // date of this irrigation
             File20.setf(ios::fixed);
             File20.width(14);
             File20.precision(2);
             if (OutIndex[1] == 0)
-                File20 << Irrig[ii].amount; // net amount of water applied, mm
+                File20 << sim.irrigation[ii].amount; // net amount of water applied, mm
             else
-                File20 << Irrig[ii].amount / 25.4; // net amount of water applied, inches
+                File20 << sim.irrigation[ii].amount / 25.4; // net amount of water applied, inches
 //     Methods of irrigation: (0, "SPRINKLER") (1, "FURROW") (2, "DRIP")
             string IrrMethod = "";
-            if (Irrig[ii].method == 0)
+            if (sim.irrigation[ii].method == 0)
                 IrrMethod = "Sprinkler";
-            else if (Irrig[ii].method == 1)
+            else if (sim.irrigation[ii].method == 1)
                 IrrMethod = "Furrow";
-            else if (Irrig[ii].method == 2)
+            else if (sim.irrigation[ii].method == 2)
                 IrrMethod = "Drip";
             File20.width(14);
             File20 << IrrMethod; // net amount of water applied, mm
-            if (Irrig[ii].method == 2) {
+            if (sim.irrigation[ii].method == 2) {
                 File20.width(12);
-                File20 << Irrig[ii].LocationColumnDrip;              // horizontal placement cm
+                File20 << sim.irrigation[ii].LocationColumnDrip;              // horizontal placement cm
                 File20.width(12);
-                File20 << Irrig[ii].LocationLayerDrip;              // vertical placement cm
+                File20 << sim.irrigation[ii].LocationLayerDrip;              // vertical placement cm
             }
             File20 << endl;
         }

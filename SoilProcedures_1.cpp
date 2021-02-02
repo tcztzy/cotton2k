@@ -80,13 +80,13 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     When water is added by an irrigation defined in the input: update the amount
 //  of applied water.
     for (int i = 0; i < NumIrrigations; i++) {
-        if (sim.day_start + u == Irrig[i].day) {
-            if (Irrig[i].method == 2) {
-                DripWaterAmount += Irrig[i].amount;
-                LocationColumnDrip = Irrig[i].LocationColumnDrip;
-                LocationLayerDrip = Irrig[i].LocationLayerDrip;
+        if (sim.day_start + u == sim.irrigation[i].day) {
+            if (sim.irrigation[i].method == 2) {
+                DripWaterAmount += sim.irrigation[i].amount;
+                LocationColumnDrip = sim.irrigation[i].LocationColumnDrip;
+                LocationLayerDrip = sim.irrigation[i].LocationLayerDrip;
             } else
-                WaterToApply += Irrig[i].amount;
+                WaterToApply += sim.irrigation[i].amount;
             break;
         }
     }
@@ -431,7 +431,7 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
 //     Check if there is an irrigation defined by input, or rain, on this day. 
         bool bIsIrr = false;
         for (int j = 0; j < NumIrrigations; j++) {
-            if (Irrig[j].day == sim.day_start + u || sim.climate[u].Rain > 1) {
+            if (sim.irrigation[j].day == sim.day_start + u || sim.climate[u].Rain > 1) {
                 bIsIrr = true; // there is an irrigation today
                 break;
             }

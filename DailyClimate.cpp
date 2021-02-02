@@ -45,11 +45,11 @@ extern "C"
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
     void sunangle(double, double, double, double, double &, double &);
     double tdewhour(Simulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double);
+    double SimulateRunoff(Simulation &, uint32_t, double, double, uint32_t);
 }
 
 void EvapoTranspiration(Simulation &, uint32_t, int);
 
-double SimulateRunoff(Simulation &, uint32_t);
 
 //     Definition of file scope variables:
 double declination, // daily declination angle, in radians.
@@ -105,7 +105,7 @@ void DayClim(Simulation &sim, uint32_t u)
     double runoffToday = 0; // amount of runoff today, mm
     if (rainToday >= 2.0)
     {
-        runoffToday = SimulateRunoff(sim, u);
+        runoffToday = SimulateRunoff(sim, u, SandVolumeFraction[0], ClayVolumeFraction[0], NumIrrigations);
         if (runoffToday < rainToday)
             rainToday -= runoffToday;
         else
@@ -321,112 +321,4 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         else
             es1hour[ihr] = 0;
     } //   end of 2nd hourly loop
-}
-
-///////////////////////////////////////////////////////////////////////////////
-double SimulateRunoff(Simulation &sim, uint32_t u)
-//     This function is called from DayClim() and is executed on each day with raifall more
-//  than 2 mm. It computes the runoff and the retained portion of the rainfall. Note: This
-//  function is based on the code of GOSSYM. No changes have been made from the original GOSSYM
-//  code (except translation to C++). It has not been validated by actual field measurement.
-//     It calculates the portion of rainfall that is lost to runoff, and reduces rainfall to the
-//  amount which is actually infiltrated into the soil. It uses the soil conservation service
-//  method of estimating runoff.
-//     References:
-//  - Brady, Nyle C. 1984. The nature and properties of soils, 9th ed. Macmillan Publishing Co.
-//  - Schwab, Frevert, Edminster, and Barnes. 1981. Soil and water conservation engineering,
-//  3rd ed. John Wiley & Sons, Inc.
-//
-//     The following global variables are referenced here:
-//  ClayVolumeFraction, Irrig (structure), NumIrrigations, SandVolumeFraction.
-//     The argument used here:  rain = today,s rainfall.
-//     The return value:  the amount of water (mm) lost by runoff.
-{
-    static bool bFirst = true; // if this is the first time the function is called.
-    static int iGroup;         // soil group number (by clay and sand in upper soil layer)
-    static double d01;         // Adjustment of curve number for soil groups A,B,C.
-                               //     The following is computed only the first time the function is called.
-                               //     Infiltration rate is estimated from the percent sand and percent clay in the Ap layer.
-                               //  If clay content is greater than 35%, the soil is assumed to have a higher runoff potential,
-                               //  if clay content is less than 15% and sand is greater than 70%, a lower runoff potential is
-                               //  assumed. Other soils (loams) assumed moderate runoff potential. No 'impermeable' (group D)
-                               //  soils are assumed.  References: Schwab, Brady.
-    if (bFirst)
-    {
-        if (SandVolumeFraction[0] > 0.70 && ClayVolumeFraction[0] < 0.15)
-        {
-            //     Soil group A = 1, low runoff potential
-            iGroup = 1;
-            d01 = 1.0;
-        }
-        else if (ClayVolumeFraction[0] > 0.35)
-        {
-            //     Soil group C = 3, high runoff potential
-            iGroup = 3;
-            d01 = 1.14;
-        }
-        else
-        {
-            //     Soil group B = 2, moderate runoff potential
-            iGroup = 2;
-            d01 = 1.09;
-        }
-        bFirst = false;
-    }
-    //     Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability
-    //  to accept new rainfall. This also includes all irrigations.
-    int i01 = u - 5;
-    if (i01 < 0)
-        i01 = 0;
-    double PreviousWetting = 0; // five day total (before this day) of rain and irrigation, mm
-    for (int Dayn = i01; Dayn < u; Dayn++)
-    {
-        double amtirr = 0; // mm water applied on this day by irrigation
-        for (int i = 0; i < NumIrrigations; i++)
-        {
-            if (Dayn == Irrig[i].day)
-                amtirr = Irrig[i].amount;
-        }
-        PreviousWetting += amtirr + sim.climate[Dayn].Rain;
-    }
-    //
-    double d02; // Adjusting curve number for antecedent rainfall conditions.
-    if (PreviousWetting < 36)
-    {
-        //  low moisture, low runoff potential.
-        if (iGroup == 1)
-            d02 = 0.71;
-        else if (iGroup == 2)
-            d02 = 0.78;
-        else if (iGroup == 3)
-            d02 = 0.83;
-    }
-    else if (PreviousWetting > 53)
-    {
-        //  wet conditions, high runoff potential.
-        if (iGroup == 1)
-            d02 = 1.24;
-        else if (iGroup == 2)
-            d02 = 1.15;
-        else if (iGroup == 3)
-            d02 = 1.10;
-    }
-    else
-    {
-        //  moderate conditions
-        d02 = 1.00;
-    }
-    //  Assuming straight rows, and good cropping practice:
-    double crvnum = 78.0;        // Runoff curve number, unadjusted for moisture and soil type.
-    crvnum = crvnum * d01 * d02; // adjusted curve number
-    double d03;                  // maximum potential difference between rainfall and runoff.
-    d03 = 25400 / crvnum - 254;
-    //
-    double runoff; // simulated runoff on this day
-    double rain = sim.climate[u].Rain;
-    if (rain <= 0.2 * d03)
-        runoff = 0; // no runoff
-    else
-        runoff = pow((rain - 0.2 * d03), 2) / (rain + 0.8 * d03);
-    return runoff;
 }

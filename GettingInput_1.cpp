@@ -37,7 +37,7 @@ void InitializeRootData(Simulation &);
 // GettingInput_3
 int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400]);
 
-void ReadAgriculturalInput(const string &, const string &);
+void ReadAgriculturalInput(Simulation &, const string &, const string &);
 
 //
 // Definitions of File scope variables:
@@ -87,7 +87,7 @@ Simulation ReadInput(const char *ProfileName)
     ReadSoilImpedance(sim);
     WriteInitialInputData(sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str());
     InitSoil(SoilInitFileName);
-    ReadAgriculturalInput(ProfileName, AgrInputFileName);
+    ReadAgriculturalInput(sim, ProfileName, AgrInputFileName);
     InitializeSoilData(sim, SoilHydFileName);
     InitializeSoilTemperature();
     InitializeRootData(sim);

@@ -2,6 +2,7 @@
 #define SIMULATION_TYPE
 #include "State.h"
 #include "Climate.h"
+#include "Irrigation.h"
 typedef struct Simulation
 {
     const char *profile_name;               // name of input file with profile data (without the extension ".PRO")
@@ -41,6 +42,7 @@ typedef struct Simulation
                                             // double Tdew = dew point temperature, C.
                                             // double Rain = daily rainfall, mm.
                                             // double Wind = daily wind run, km.
+    Irrigation irrigation[150];
     State *states;
 } Simulation;
 #endif

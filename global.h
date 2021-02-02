@@ -4,6 +4,7 @@
 #include <exception>
 #include <filesystem>
 #include "stdafx.h"
+#include "Irrigation.h"
 
 namespace fs = std::filesystem;
 //
@@ -46,12 +47,6 @@ typedef struct NitrogenFertilizer
         double amtamm, amtnit, amtura;
 } NitrogenFertilizer;
 extern NitrogenFertilizer NFertilizer[150];
-typedef struct Irrigation
-{
-        int day, method, LocationColumnDrip, LocationLayerDrip;
-        double amount;
-} Irrigation;
-extern Irrigation Irrig[150];
 ////    Integers    ////
 extern int DayFirstDef,
     DayStartPredIrrig, DayStopPredIrrig,

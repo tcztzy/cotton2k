@@ -16,12 +16,6 @@ struct NitrogenFertilizer NFertilizer[150]; // nitrogen fertilizer application i
 // double amtamm = ammonium N applied, kg N per ha;
 // double amtnit = nitrate N applied, kg N per ha;
 // double amtura = urea N applied, kg N per ha;
-struct Irrigation Irrig[150]; // irrigation application information for each day.
-// int day = date of application (DOY)
-// int method = index of irrigation method ( 0 = sprinkler; 1 = furrow; 2 = drip)
-// int LocationColumnDrip = horizontal placement of side-dressed fertilizer, cm.
-// int LocationLayerDrip = vertical placement of side-dressed fertilizer, cm.
-// double amount = water applied, mm.
 //
 // Integer variables:
 //
