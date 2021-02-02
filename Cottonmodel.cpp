@@ -164,7 +164,6 @@ std::vector<std::string> C2KApp::GetProfilesList(const fs::path &JobFileName)
         if (DataFile.eof() == 1)
             break;
         std::string m_String = m_TempString;
-        m_String;
         readlength = m_String.length();
         if (readlength > 4)
             ProfileArray.push_back(m_String.substr(0, readlength - 4));
@@ -264,7 +263,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     SoilTemperature(sim, u, rracol); // executes all modules of soil and canopy temperature.
     SoilProcedures(sim, u);          // executes all other soil processes.
     SoilNitrogen(sim, u);            // computes nitrogen transformations in the soil.
-    SoilSum();                       // computes totals of water and N in the soil.
+    SoilSum(sim);                    // computes totals of water and N in the soil.
                                      //     The following is executed each day after plant emergence:
     if (sim.day_start + u >= sim.day_emerge && isw > 0)
     {

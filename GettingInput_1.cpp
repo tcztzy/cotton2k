@@ -19,17 +19,16 @@ void ReadCalibrationData();
 
 void InitializeGrid(Simulation &);
 
-void WriteInitialInputData(const string &, const string &, const string &, const string &, const string &, const string &,
-                           const int &, const int &, const int &, const int &, const int &, const int &,
-                           const int &, const int &, const int &, const double &, const double &, const double &,
-                           const double &, const double &, const double &);
-
+extern "C"
+{
+    void WriteInitialInputData(Simulation &, bool, double, double, double, const char *, int, const char *, const char *, const char *, const char *, const char *, const char *);
+}
 // GettingInput_2
 void InitSoil(const string &);
 
 void ReadSoilImpedance(Simulation &);
 
-void InitializeSoilData(const string &);
+void InitializeSoilData(Simulation &, const string &);
 
 void InitializeSoilTemperature();
 
@@ -86,13 +85,10 @@ Simulation ReadInput(const char *ProfileName)
     LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, sim.day_start, sim.climate);
     InitializeGrid(sim);
     ReadSoilImpedance(sim);
-    WriteInitialInputData(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName,
-                          AgrInputFileName, sim.day_emerge, sim.day_start, sim.day_finish, sim.day_plant, sim.day_start_co2,
-                          sim.day_end_co2, sim.day_start_mulch, sim.day_end_mulch, sim.mulch_indicator, sim.mulch_transmissivity_short_wave, sim.mulch_transmissivity_long_wave,
-                          sim.co2_enrichment_factor, sim.latitude, sim.longitude, sim.elevation);
+    WriteInitialInputData(sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str());
     InitSoil(SoilInitFileName);
     ReadAgriculturalInput(ProfileName, AgrInputFileName);
-    InitializeSoilData(SoilHydFileName);
+    InitializeSoilData(sim, SoilHydFileName);
     InitializeSoilTemperature();
     InitializeRootData(sim);
     //     initialize some variables at the start of simulation.
@@ -259,6 +255,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     //  number for the cultivar.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
+    double RowSpace;
     if (nLength > 1)
         RowSpace = atof(Dummy.substr(0, 10).c_str());
     if (nLength >= 20)
@@ -335,7 +332,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     }
     //     Call function OpenOutputFiles() to open the output files.
     OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge);
-    return {ProfileName, strlen(ProfileName), DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude, Elevation};
+    return {ProfileName, strlen(ProfileName), iyear, DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude, Elevation, RowSpace};
 }
 
 //////////////////////////////////////////////////////////
@@ -474,18 +471,18 @@ void InitializeGrid(Simulation &sim)
 //  PlantsPerM, SkipRowWidth, VarPar, maxk, maxl.
 {
     //     PlantRowLocation is the distance from edge of slab, cm, of the plant row.
-    PlantRowLocation = 0.5 * RowSpace;
+    PlantRowLocation = 0.5 * sim.row_space;
     if (SkipRowWidth > 1)
     {
         //     If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
-        RowSpace = 0.5 * (RowSpace + SkipRowWidth); // actual width of the soil slab (cm)
+        sim.row_space = 0.5 * (sim.row_space + SkipRowWidth); // actual width of the soil slab (cm)
         PlantRowLocation = 0.5 * SkipRowWidth;
     }
     //     Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average
     //  surface area per plant, in dm2, and the empirical plant density factor (DensityFactor).
     //  This factor will be used to express the effect of plant density on some plant
     //  growth rate functions.  Note that DensityFactor = 1 for 5 plants per sq m (or 50000 per ha).
-    PlantPopulation = PlantsPerM / RowSpace * 1000000;
+    PlantPopulation = PlantsPerM / sim.row_space * 1000000;
     PerPlantArea = 1000000 / PlantPopulation;
     DensityFactor = exp(VarPar[1] * (5 - PlantPopulation / 10000));
     //     Define the numbers of rows and columns in the soil slab (nl, nk).
@@ -512,7 +509,7 @@ void InitializeGrid(Simulation &sim)
     sim.plant_row_column = 0;
     for (int k = 0; k < nk; k++)
     {
-        wk[k] = RowSpace / nk;
+        wk[k] = sim.row_space / nk;
         sumwk = sumwk + wk[k];
         if (sim.plant_row_column == 0 && sumwk > PlantRowLocation)
         {
@@ -522,179 +519,4 @@ void InitializeGrid(Simulation &sim)
                 sim.plant_row_column = k;
         }
     }
-}
-
-//////////////////////////////////////////////////////////
-void WriteInitialInputData(
-    const string &ProfileName,
-    const string &ActWthFileName,
-    const string &PrdWthFileName,
-    const string &SoilHydFileName,
-    const string &SoilInitFileName,
-    const string &AgrInputFileName,
-    const int &DayEmerge,
-    const int &DayStart,
-    const int &DayFinish,
-    const int &DayPlant,
-    const int &DayStartCO2,
-    const int &DayEndCO2,
-    const int &DayStartMulch,
-    const int &DayEndMulch,
-    const int &MulchIndicator,
-    const double &MulchTranSW,
-    const double &MulchTranLW,
-    const double &CO2EnrichmentFactor,
-    const double &Latitude,
-    const double &Longitude,
-    const double &Elevation)
-//     This function writes the input data to File20 (*.B01). It is executed once
-//  at the beginning of the simulation. It is called by ReadInput().
-//
-//     The following global or file-scope variables are set here:
-//  DayEndMulch, DayStartMulch, MulchTranLW, MulchTranSW.
-//     The following global or file-scope variables are referenced here:
-//  CO2EnrichmentFactor, DayEndCO2, DayFinish,
-//  DayStart, DayStartCO2, Elevation, iyear, Latitude, Longitude, m_mulchdata,
-//  maxk, MulchIndicator, OutIndex, PerPlantArea, PlantsPerM,
-//  RowSpace, SiteName, SkipRowWidth, SoilHydFileName,
-//  SoilInitFileName, VarName.
-{
-    ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
-    File20 << "    Latitude.. ";
-    File20.setf(ios::fixed);
-    File20.width(8);
-    File20.precision(2);
-    File20 << fabs(Latitude);
-    File20.width(7);
-    if (Latitude < 0)
-        File20 << "  South";
-    else
-        File20 << "  North";
-    File20 << "         Longitude.. ";
-    File20.width(8);
-    File20.precision(2);
-    File20 << fabs(Longitude);
-    File20.width(7);
-    if (Longitude < 0)
-        File20 << "   West";
-    else
-        File20 << "   East";
-    File20 << endl;
-    //
-    if (OutIndex[1] == 0) // write profile data in metric units
-    {
-        File20 << "    Elevation (m).... ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << Elevation;
-    }
-    else
-    {
-        File20 << "    Elevation (ft).... ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << Elevation * 3.28;
-    }
-    File20 << endl;
-    //
-    File20 << "    Start Simulation " << DoyToDate(DayStart, iyear);
-    File20 << "       Stop Simulation.... " << DoyToDate(DayFinish, iyear) << endl;
-    //
-    File20 << "    Planting date...." << DoyToDate(DayPlant, iyear);
-    if (DayEmerge <= 0)
-        File20 << "       Emergence date is simulated   " << endl;
-    else
-        File20 << "       Emergence date...   " << DoyToDate(DayEmerge, iyear) << endl;
-    //
-    if (OutIndex[1] == 0) // write profile data in metric units
-    {
-        File20 << "    Row Spacing (cm) ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << RowSpace;
-        File20 << "          Plants Per Row-m... ";
-        File20.width(8);
-        File20 << PlantsPerM << endl;
-        File20 << "    Skip Width (cm). ";
-        File20.width(8);
-        File20 << SkipRowWidth;
-        File20 << "          Plants Per Ha...... ";
-        File20.width(8);
-        File20.precision(1);
-        File20 << PlantPopulation << endl;
-    }
-    else
-    {
-        File20 << "    Row Spacing (in) ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << RowSpace / 2.54;
-        File20 << "          Plants Per Row-ft.. ";
-        File20.width(8);
-        File20 << PlantsPerM * 0.305 << endl;
-        File20 << "    Skip Width (in). ";
-        File20.width(8);
-        File20 << SkipRowWidth / 2.54;
-        File20 << "          Plants Per Acre.... ";
-        File20.width(8);
-        File20.precision(1);
-        File20 << PlantPopulation * 0.405 << endl;
-    }
-    //
-    if (CO2EnrichmentFactor > 1) //  write CO2 enrichment input data.
-    {
-        File20 << "          CO2 enrichment factor              ...  ";
-        File20.width(8);
-        File20.precision(4);
-        File20 << CO2EnrichmentFactor << endl;
-        File20 << "    from ...... " << DoyToDate(DayStartCO2, iyear);
-        File20 << "    to ...... " << DoyToDate(DayEndCO2, iyear) << endl;
-    }
-    //
-    if (m_mulchdata.length() > 0 && MulchIndicator > 0)
-    {
-        File20 << "   Polyethylene mulch cover. Transmissivity values are: " << endl;
-        File20 << " For short waves:  ";
-        File20.width(8);
-        File20.precision(3);
-        File20 << MulchTranSW;
-        File20 << " For long waves:  ";
-        File20.width(8);
-        File20.precision(3);
-        File20 << MulchTranLW << endl;
-        File20 << " From Day of Year  ";
-        File20.width(4);
-        File20 << DayStartMulch;
-        File20 << " to Day of Year  ";
-        File20.width(4);
-        File20 << DayEndMulch << endl;
-        if (MulchIndicator == 1)
-            File20 << " All soil surface covered by mulch." << endl;
-        else
-        {
-            File20.width(6);
-            File20.precision(2);
-            if (MulchIndicator == 2)
-                File20 << RowSpace / maxk;
-            else if (MulchIndicator == 3)
-                File20 << 2 * RowSpace / maxk;
-            File20 << " cm on each side of planr rows not covered by mulch." << endl;
-        }
-    }
-    //     Write names of the other input files
-    if (ActWthFileName.length() > 0)
-    {
-        File20 << "    Actual Weather Input File:     " << ActWthFileName << endl;
-        File20 << "    Last date read from Actual Weather File: "
-               << DoyToDate(LastDayOfActualWeather, iyear) << endl;
-    }
-    if (PrdWthFileName.length() > 0)
-        File20 << "    Predicted Weather Input File:  " << PrdWthFileName << endl;
-    File20 << "    Cultural Input File:           " << AgrInputFileName << endl;
-    File20 << "    Initial Soil Data Input File:  " << SoilInitFileName << endl;
-    File20 << "    Soil Hydrology Input File:     " << SoilHydFileName << endl;
-    //   Write names of the site and the variety
-    File20 << "    Site...     " << SiteName << endl;
-    File20 << "    Variety...  " << VarName << endl
-           << endl;
 }

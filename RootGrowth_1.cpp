@@ -294,13 +294,13 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     //  growth, this will be stored in pavail. Otherwise, zero is assigned to pavail.
     if (sumpdr <= 0)
     {
-        pavail += CarbonAllocatedForRootGrowth * 0.01 * RowSpace / PerPlantArea;
+        pavail += CarbonAllocatedForRootGrowth * 0.01 * sim.row_space / PerPlantArea;
         return;
     }
     double actgf; // actual growth factor (ratio of available C to potential growth).
                   //     The ratio of available C to potential root growth (actgf) is calculated.
                   //  pavail (if not zero) is used here, and zeroed after being used.
-    actgf = (pavail + CarbonAllocatedForRootGrowth * 0.01 * RowSpace / PerPlantArea) / sumpdr;
+    actgf = (pavail + CarbonAllocatedForRootGrowth * 0.01 * sim.row_space / PerPlantArea) / sumpdr;
     pavail = 0;
     //
     for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++)
@@ -315,7 +315,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     {
         double availt; // available carbon for taproot growth, in g dry matter per slab.
                        //  ExtraCarbon is converted to availt (g dry matter per slab).
-        availt = ExtraCarbon * 0.01 * RowSpace / PerPlantArea;
+        availt = ExtraCarbon * 0.01 * sim.row_space / PerPlantArea;
         double sdl = TapRootLength - DepthLastRootLayer;
         ;                     // distance from the tip of the taproot, cm.
         double tpwt[maxl][2]; // proportionality factors for allocating added dry matter among taproot soil cells.
@@ -413,7 +413,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         if (CultivationDate[j] == sim.day_start + u)
             DailyRootLoss = RootCultivation(sim.states[u].root, j, NumRootAgeGroups, DailyRootLoss);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
-    DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / RowSpace;
+    DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
     RootWeightLoss += DailyRootLoss;
     //     Adjust RootNitrogen (root N content) and PixInPlants (plant Pix content)
     //  for loss by death of roots.

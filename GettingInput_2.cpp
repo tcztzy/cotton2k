@@ -102,7 +102,7 @@ void InitSoil(const string &SoilInitFileName)
 }
 
 //////////////////////////////////////////////////////////
-void InitializeSoilData(const string &SoilHydFileName)
+void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //     This function computes and sets the initial soil data. It is
 //  executed once at the beginning of the simulation, after the soil
 //  hydraulic data file has been read. It is called by ReadInput().
@@ -250,7 +250,7 @@ void InitializeSoilData(const string &SoilHydFileName)
             VolUreaNContent[l][k] = 0;
         }
 //     InitialTotalSoilWater is converted from cm3 per slab to mm.
-    InitialTotalSoilWater = 10 * InitialTotalSoilWater / RowSpace;
+    InitialTotalSoilWater = 10 * InitialTotalSoilWater / sim.row_space;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -364,7 +364,7 @@ void InitializeRootData(Simulation & sim)
 //  by ReadInput(). it is executed once at the beginning of the simulation. 
 //
 //     Global or file scope variables referenced:
-//        dl, PlantRowColumn, nk, nl, PerPlantArea, RowSpace.
+//        dl, PlantRowColumn, nk, nl, PerPlantArea.
 //     Global or file scope variables set:
 //        ActualRootGrowth[maxl][maxk], DepthLastRootLayer,
 //	      LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots, NumRootAgeGroups, 
@@ -410,7 +410,7 @@ void InitializeRootData(Simulation & sim)
             RootGroFactor[l][k] = 1;
         }
     }
-    init_root_data(sim.states[0].root, sim.plant_row_column, 0.01 * RowSpace / PerPlantArea);
+    init_root_data(sim.states[0].root, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);
 //     Start loop for all soil layers containing roots.
     DepthLastRootLayer = 0;
     TotalRootWeight = 0;
@@ -420,7 +420,7 @@ void InitializeRootData(Simulation & sim)
 //  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
             for (int i = 0; i < 3; i++) {
-                TotalRootWeight += sim.states[0].root[l][k].weight[i] * 100 / RowSpace * PerPlantArea;
+                TotalRootWeight += sim.states[0].root[l][k].weight[i] * 100 / sim.row_space * PerPlantArea;
             }
         }
     }

@@ -272,8 +272,7 @@ double
     RootNConc,                     // average nitrogen concentration in roots.
     RootNitrogen,                  // total root nitroge, g per plant.
     RootWeightLoss,                // total cumulative weight of sloughed roots, g per plant.
-    RootWtCapblUptake[maxl][maxk], // root weight capable of uptake, in g per soil cell.
-    RowSpace;                      // average row spacing, cm.
+    RootWtCapblUptake[maxl][maxk]; // root weight capable of uptake, in g per soil cell.
 // S
 double
     SandVolumeFraction[maxl],      // fraction by volume of sand plus silt in the soil.

@@ -26,7 +26,7 @@ void ColumnShading(Simulation &sim, uint32_t u, double rracol[20])
 //  of soil columns by the plants. It is called from SimulateThisDay().
 //
 //     The following global variables are referenced here:
-//       isw, LeafAreaIndex, PlantHeight, PlantRowColumn, nk, RowSpace.
+//       isw, LeafAreaIndex, PlantHeight, PlantRowColumn, nk.
 //     The following global variables are set here:    LightIntercept, rracol.
 {
     //     Before emergence: no light interception and no shading. LightIntercept is
@@ -47,7 +47,7 @@ void ColumnShading(Simulation &sim, uint32_t u, double rracol[20])
     //     Light interception is computed by two methods:
     //     (1) It is assumed to be proportional to the ratio of plant height to row spacing.
     double zint; // light interception computed from plant height.
-    zint = 1.0756 * sim.states[u].plant_height / RowSpace;
+    zint = 1.0756 * sim.states[u].plant_height / sim.row_space;
     //     (2) It is computed as a function of leaf area index. If LeafAreaIndex is not greater
     //  than 0.5 lfint is a linear function of it.
     double lfint; // light interception computed from leaf area index.
@@ -119,7 +119,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
 //     The following global variables are referenced here:
 //       ActualTranspiration, AirTemp, DayEndMulchDaynum, DayStartMulch,
 //       DewPointTemp, dl, FoliageTemp, isw, MulchIndicator, MulchTemp, nk, nl, OutIndex,
-//       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
+//       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity,
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
 //       ActualSoilEvaporation, CumEvaporation, DeepSoilTemperature, es, SoilTemp,
@@ -356,8 +356,8 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
     }
     else
     {
-        es = es / RowSpace;
-        ActualSoilEvaporation = ActualSoilEvaporation / RowSpace;
+        es = es / sim.row_space;
+        ActualSoilEvaporation = ActualSoilEvaporation / sim.row_space;
     }
     CumEvaporation += ActualSoilEvaporation;
     if (Kday > 0)

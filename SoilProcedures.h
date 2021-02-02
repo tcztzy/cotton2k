@@ -4,4 +4,4 @@
 
 void SoilProcedures(Simulation &, uint32_t);
 
-void SoilSum();
+void SoilSum(Simulation &);

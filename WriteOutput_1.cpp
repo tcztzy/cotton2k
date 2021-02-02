@@ -273,7 +273,7 @@ void DailyOutput(Simulation &sim, uint32_t u)
 //
 //     The following global variables are referenced here:
 //       dl, NumFruitBranches, 
-//       NumPreFruNodes, OutIndex, RowSpace, VolNo3NContent, wk,    
+//       NumPreFruNodes, OutIndex, VolNo3NContent, wk,    
 //     The following global variables are set here:      MainStemNodes, SumNO3N90.
 {
 //     1. Compute some variables needed for output:
@@ -293,7 +293,7 @@ void DailyOutput(Simulation &sim, uint32_t u)
         for (int k = 0; k < nk; k++)
             SumNO3N90 += VolNo3NContent[l][k] * dl[l] * wk[k];
     }
-    SumNO3N90 = SumNO3N90 * 100 / RowSpace;
+    SumNO3N90 = SumNO3N90 * 100 / sim.row_space;
 //
 //     2. Call WriteStateVariables() which saves values of all important state variables for
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.

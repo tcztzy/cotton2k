@@ -9,7 +9,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-double Drain();
+double Drain(Simulation &);
 
 double CellDistance(int, int, int, int);
 
@@ -19,7 +19,7 @@ void WaterFlux(double[], double[], double[], double[], double[], double[], int, 
 void NitrogenFlow(int, double[], double[], double[], double[], double[]);
 
 //////////////////////////
-void CapillaryFlow(const int &Daynum, const int &DayStart)
+void CapillaryFlow(Simulation &sim, unsigned int u)
 //     This function computes the capillary water flow between soil cells. It is called by 
 //  SoilProcedures(), noitr times per day.  The number of iterations (noitr) has been computed 
 //  in SoilProcedures() as a function of the amount of water applied. It is executed only once 
@@ -28,14 +28,14 @@ void CapillaryFlow(const int &Daynum, const int &DayStart)
 //
 //     The following global variables are referenced:
 //       alpha, ,vanGenuchtenBeta, DayStart, dl, ElCondSatSoilToday, nk, nl, PoreSpace,
-//       RowSpace, SoilHorizonNum, thad ,thts, WaterTableLayer, wk.
+//       SoilHorizonNum, thad ,thts, WaterTableLayer, wk.
 //     The following global variables are set:
 //       CumWaterDrained, SoilPsi, VolNo3NContent, VolUreaNContent, VolWaterContent.
 {
     static long numiter; // counter used for WaterFlux() calls.
     double wk1[40];      // dummy array for passing values of array wk.
 //     Set initial values in first day.
-    if (Daynum <= DayStart) {
+    if (u <= 0) {
         numiter = 0;
         for (int l = 0; l < nl; l++)
             wk1[l] = 0;
@@ -126,9 +126,9 @@ void CapillaryFlow(const int &Daynum, const int &DayStart)
 //     Call Drain() to move excess water down in the column and compute drainage out
 //  of the column. Update cumulative drainage.
     double WaterDrainedOut = 0;    // water drained out of the slab, mm.
-    WaterDrainedOut += Drain();
+    WaterDrainedOut += Drain(sim);
     if (WaterDrainedOut > 0)
-        CumWaterDrained += 10 * WaterDrainedOut / RowSpace;
+        CumWaterDrained += 10 * WaterDrainedOut / sim.row_space;
 //  Compute the soil water potential for all soil cells.
     for (int l = 0; l < nl; l++) {
         int j = SoilHorizonNum[l];
@@ -140,12 +140,12 @@ void CapillaryFlow(const int &Daynum, const int &DayStart)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-double Drain()
+double Drain(Simulation &sim)
 //     This function computes the gravity flow of water in the slab, and returns the 
 //  drainage of water out of the slab. It is called from GravityFlow() and CapillaryFlow().
 //
 //     The following global variables are referenced:
-//       dl, FieldCapacity, MaxWaterCapacity, nk, nl, NO3FlowFraction, PoreSpace, RowSpace, 
+//       dl, FieldCapacity, MaxWaterCapacity, nk, nl, NO3FlowFraction, PoreSpace,
 //       WaterTableLayer, wk
 //     The following global variables are set:
 //       SoilNitrogenLoss, VolNo3NContent, VolUreaNContent, VolWaterContent, 
@@ -162,7 +162,7 @@ double Drain()
 //  water content in array oldvh2oc.
         double avwl = 0;     // average water content in a soil layer
         for (int k = 0; k < nk; k++) {
-            avwl += VolWaterContent[l][k] * wk[k] / RowSpace;
+            avwl += VolWaterContent[l][k] * wk[k] / sim.row_space;
             oldvh2oc[k] = VolWaterContent[l][k];
         }
 //     Upper limit of water content in free drainage..
@@ -179,7 +179,7 @@ double Drain()
 //  to be added to each cell of the next layer is computed (corrected for non uniform 
 //  column widths). The water content in the next layer is computed.
                 VolWaterContent[l][k] = uplimit;
-                VolWaterContent[l + 1][k] += wmov * wk[k] * nk / RowSpace;
+                VolWaterContent[l + 1][k] += wmov * wk[k] * nk / sim.row_space;
 //     The concentrations of nitrate and urea N in the soil solution are
 //  computed and their amounts in this layer and in the next one are updated.
                 double qvout; // amount of water moving out of a cell.
@@ -259,7 +259,7 @@ double Drain()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void DripFlow(double Drip)
+void DripFlow(Simulation &sim, double Drip)
 //     This function computes the water redistribution in the soil after irrigation 
 //  by a drip system. It also computes the resulting redistribution of nitrate and urea N. 
 //  It is called by SoilProcedures() noitr times per day. It calls function CellDistrib().
@@ -268,7 +268,7 @@ void DripFlow(double Drip)
 //
 //     The following global variables are referenced:
 //       dl, LocationColumnDrip, LocationLayerDrip, MaxWaterCapacity, 
-//       nk, nl, NO3FlowFraction, PoreSpace, RowSpace, wk
+//       nk, nl, NO3FlowFraction, PoreSpace, wk
 //
 //     The following global variables are set:
 //       CumWaterDrained, SoilNitrogenLoss, VolWaterContent, VolNo3NContent, VolUreaNContent
@@ -286,7 +286,7 @@ void DripFlow(double Drip)
         dripu[i] = 0;
     }
 //     Incoming flow of water (Drip, in mm) is converted to dripw(0), in cm3 per slab.
-    dripw[0] = Drip * RowSpace * .10;
+    dripw[0] = Drip * sim.row_space * .10;
 //     Wetting the cell in which the emitter is located.
     double h2odef; // the difference between the maximum water capacity (at a water content
     // of uplimit) of this ring of soil cell, and the actual water content, cm3.
@@ -451,7 +451,7 @@ void DripFlow(double Drip)
 //     If this is the last ring, the outflowing water will be added to the drainage, 
 //  CumWaterDrained, the outflowing nitrogen to SoilNitrogenLoss.
         {
-            CumWaterDrained += 10 * drwout / RowSpace;
+            CumWaterDrained += 10 * drwout / sim.row_space;
             SoilNitrogenLoss += drnout + druout;
             return;
         } // end if kr...

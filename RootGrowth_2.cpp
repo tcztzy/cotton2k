@@ -529,7 +529,7 @@ void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, con
         for (int k = 0; k < nk; k++)
             roots += accumulate(sim.states[u].root[l][k].weight, sim.states[u].root[l][k].weight+3, double(0));
     //     Convert total root weight from g per slab to g per plant.
-    TotalRootWeight = roots * 100 * PerPlantArea / RowSpace;
+    TotalRootWeight = roots * 100 * PerPlantArea / sim.row_space;
     //     If output flag is active, this flag also indicates the frequency of
     //  output. If Kday is divisible by this frequency, compute sums of root
     //  weight by classes (rwt), by layers (rootl), and by classes for each

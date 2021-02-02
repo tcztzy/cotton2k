@@ -6,6 +6,7 @@ typedef struct Simulation
 {
     const char *profile_name;               // name of input file with profile data (without the extension ".PRO")
     size_t profile_name_length;             //
+    int year;                               // Simulation start year
     unsigned int day_emerge;                // Date of emergence (DOY).
     unsigned int day_start;                 // Date (DOY) to start simulation.
     unsigned int day_finish;                // Date (DOY) to finish simulation.
@@ -27,6 +28,7 @@ typedef struct Simulation
     double latitude;                        // degree
     double longitude;                       // degree
     double elevation;                       // meter
+    double row_space;                       // average row spacing, cm.
     unsigned int num_curve;                 // number of input soil-moisture curves in the impedance table.
     unsigned int first_bloom;               // Date (DOY) of first bloom.
     unsigned int first_square;              // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.

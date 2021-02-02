@@ -17,7 +17,7 @@
 
 void RootsCapableOfUptake(const int &, Root[40][20]);
 
-void ApplyFertilizer(const int &);
+void ApplyFertilizer(Simulation &, unsigned int);
 
 void ComputeIrrigation(Simulation &, uint32_t);
 
@@ -25,21 +25,21 @@ double GetTargetStress(const int &, const int &, const int &);
 
 void PredictDripIrrigation(Simulation &, uint32_t, double, const double &);
 
-void PredictSurfaceIrrigation(double, const int &, const double &);
+void PredictSurfaceIrrigation(Simulation &, unsigned int, double);
 
 void OutputPredictedIrrigation(double, double, const string &, const int &, const double &);
 
 double AveragePsi(const int &);
 
-void WaterTable(const int &Daynum);        // WATERTBL
+void WaterTable(Simulation &, unsigned int);        // WATERTBL
 // SoilProcedure_2
-void CapillaryFlow(const int &, const int &);
+void CapillaryFlow(Simulation &, unsigned int);
 
-void DripFlow(double);
+void DripFlow(Simulation &, double);
 
 // SoilProcedures_3
-void WaterUptake(const int &, const int &);       // UPTAKE
-void GravityFlow(double);
+void WaterUptake(Simulation &, unsigned int);       // UPTAKE
+void GravityFlow(Simulation &, double);
 
 //////////////////////////
 void SoilProcedures(Simulation &sim, uint32_t u)
@@ -51,7 +51,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     The following global variables are referenced here:
 //       ActualTranspiration, Clim, DayStartPredIrrig, DayStopPredIrrig, 
 //       dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk, nl, NumIrrigations, 
-//       NumWaterTableData, OutIndex, PerPlantArea, SoilPsi, RowSpace, SupplyNH4N, SupplyNO3N, 
+//       NumWaterTableData, OutIndex, PerPlantArea, SoilPsi, SupplyNH4N, SupplyNO3N, 
 //       VolWaterContent, wk.
 //     The following global variables are set here:
 //       AverageSoilPsi, CumNitrogenUptake, CumTranspiration, CumWaterAdded, LocationColumnDrip, 
@@ -61,7 +61,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
     const double cpardrip = 0.2;
     const double cparelse = 0.4;
 //     Call function ApplyFertilizer() for nitrogen fertilizer application.
-    ApplyFertilizer(sim.day_start + u);
+    ApplyFertilizer(sim, u);
     double DripWaterAmount = 0; // amount of water applied by drip irrigation
     double WaterToApply;        // amount of water applied by non-drip irrigation or rainfall
 //     Check if there is rain on this day
@@ -99,15 +99,15 @@ void SoilProcedures(Simulation &sim, uint32_t u)
                              sim.states[u].root);  // function computes roots capable of uptake for each soil cell
         AverageSoilPsi = AveragePsi(sim.states[u].number_of_layers_with_root); // function computes the average matric soil water
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
-        WaterUptake(u, sim.states[u].number_of_layers_with_root); // function  computes water and nitrogen uptake by plants.
+        WaterUptake(sim, u); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
 //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
         CumTranspiration += ActualTranspiration;
-        CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10 * RowSpace / PerPlantArea;
+        CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10 * sim.row_space / PerPlantArea;
     }
 //     Call function WaterTable() for saturating soil below water table.
     if (NumWaterTableData > 0)
-        WaterTable(sim.day_start + u);
+        WaterTable(sim, u);
     if (WaterToApply > 0) {
 //     For rain or surface irrigation.
 //     The number of iterations is computed from the thickness of the first soil layer. 
@@ -118,8 +118,8 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //  If water is applied, GravityFlow() is called when the method of irrigation is not by 
 //  drippers, followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++) {
-            GravityFlow(applywat);
-            CapillaryFlow(sim.day_start + u, sim.day_start);
+            GravityFlow(sim, applywat);
+            CapillaryFlow(sim, u);
         }
     }
     if (DripWaterAmount > 0) {
@@ -132,14 +132,14 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         applywat = DripWaterAmount / noitr;
 // If water is applied, DripFlow() is called followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++) {
-            DripFlow(applywat);
-            CapillaryFlow(sim.day_start + u, sim.day_start);
+            DripFlow(sim, applywat);
+            CapillaryFlow(sim, u);
         }
     }
 //     When no water is added, there is only one iteration in this day.
     if (WaterToApply + DripWaterAmount <= 0) {
         noitr = 1;
-        CapillaryFlow(sim.day_start + u, sim.day_start);
+        CapillaryFlow(sim, u);
     }
 //     If the output flag OutIndex(17) is non-zero, write to output file *.WAT.
 //  This flag is also the interval in days between outputs. This is used for checking only.
@@ -199,13 +199,13 @@ void RootsCapableOfUptake(const int &NumLayersWithRoots, Root root[40][20])
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void ApplyFertilizer(const int &Daynum)
+void ApplyFertilizer(Simulation &sim, unsigned int u)
 //     This function simulates the application of nitrogen fertilizer on each date
 //  of application. It is called from SoilProcedures().
 //
 //     The following global variables are referenced here:
 //       dl, LightIntercept, LocationColumnDrip, LocationLayerDrip, 
-//       NFertilizer, nk, nl, NumNitApps, RowSpace, wk.
+//       NFertilizer, nk, nl, NumNitApps, wk.
 //     The following global variables are set here:  
 //       CumFertilizerN, LeafNitrogen, VolNh4NContent, VolNo3NContent, VolUreaNContent.
 {
@@ -213,9 +213,9 @@ void ApplyFertilizer(const int &Daynum)
 //     Loop over all fertilizer applications.
     for (int i = 0; i < NumNitApps; i++) {
 //     Check if fertilizer is to be applied on this day.
-        if (Daynum == NFertilizer[i].day) {
+        if (sim.day_start + u == NFertilizer[i].day) {
 //     Compute the sum of mineral N applied as fertilizer (CumFertilizerN, in mg per slab).
-            CumFertilizerN += ferc * RowSpace
+            CumFertilizerN += ferc * sim.row_space
                               * (NFertilizer[i].amtamm + NFertilizer[i].amtnit + NFertilizer[i].amtura);
 //     If this is a BROADCAST fertilizer application:
             if (NFertilizer[i].mthfrt == 0) {
@@ -277,9 +277,9 @@ void ApplyFertilizer(const int &Daynum)
                 double addamm; // amount of ammonium N added to the soil by sidedressing (mg per cell)
                 double addnit; // amount of nitrate N added to the soil by sidedressing (mg per cell)
                 double addnur; // amount of urea N added to the soil by sidedressing (mg per cell)
-                addamm = NFertilizer[i].amtamm * ferc * RowSpace / n00;
-                addnit = NFertilizer[i].amtnit * ferc * RowSpace / n00;
-                addnur = NFertilizer[i].amtura * ferc * RowSpace / n00;
+                addamm = NFertilizer[i].amtamm * ferc * sim.row_space / n00;
+                addnit = NFertilizer[i].amtnit * ferc * sim.row_space / n00;
+                addnur = NFertilizer[i].amtura * ferc * sim.row_space / n00;
 //     Update the nitrogen contents of these soil cells.
                 VolNo3NContent[lsdr][ksdr] += addnit / (dl[lsdr] * wk[ksdr]);
                 VolNh4NContent[lsdr][ksdr] += addamm / (dl[lsdr] * wk[ksdr]);
@@ -310,11 +310,11 @@ void ApplyFertilizer(const int &Daynum)
 //      Convert amounts added to mg cm-3, and update the nitrogen content of the 
 //  soil cell in which the drip outlet is situated.
                 VolNh4NContent[LocationLayerDrip][LocationColumnDrip] +=
-                        NFertilizer[i].amtamm * ferc * RowSpace / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
+                        NFertilizer[i].amtamm * ferc * sim.row_space / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
                 VolNo3NContent[LocationLayerDrip][LocationColumnDrip] +=
-                        NFertilizer[i].amtnit * ferc * RowSpace / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
+                        NFertilizer[i].amtnit * ferc * sim.row_space / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
                 VolUreaNContent[LocationLayerDrip][LocationColumnDrip] +=
-                        NFertilizer[i].amtura * ferc * RowSpace / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
+                        NFertilizer[i].amtura * ferc * sim.row_space / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
             }
         }
     }
@@ -337,7 +337,7 @@ void ComputeIrrigation(Simulation &sim, uint32_t u)
     if (IrrigMethod == 2)
         PredictDripIrrigation(sim, u, TargetStress, sim.states[u].water_stress);
     else
-        PredictSurfaceIrrigation(TargetStress, sim.day_start + u, sim.states[u].water_stress);
+        PredictSurfaceIrrigation(sim, u, TargetStress);
 //     If the amount of water to be applied (AppliedWater) is non zero update the date of 
 //  last irrigation, and write report in output file *.B01.
     if (AppliedWater > 0.00001) {
@@ -483,13 +483,13 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PredictSurfaceIrrigation(double TargetStress, const int &Daynum, const double &WaterStress)
+void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStress)
 //     This function computes the amount of predicted irrigation applied at soil surface,
 //  by sprinkler or furrow. It is called from ComputeIrrigation().
 //
 //     The following global variables are referenced here: 
 //       DayStartPredIrrig, dl, IrrigationDepth, LastIrrigation, MaxWaterCapacity, 
-//       MinDaysBetweenIrrig, nl, RowSpace, VolWaterContent, WaterStress, wk
+//       MinDaysBetweenIrrig, nl, VolWaterContent, WaterStress, wk
 //     The following global variable is set here:       AppliedWater. 
 //     The argument used: TargetStress
 {
@@ -498,7 +498,7 @@ void PredictSurfaceIrrigation(double TargetStress, const int &Daynum, const doub
     static int nDaysBelowTargetStress; // number of days, since the last irrigation,
     // with water stress below the target stress.
     static int nIrrLayers = 0;         // number of soil layers to be irrigated.
-    if (Daynum <= DayStartPredIrrig) {
+    if (sim.day_start + u <= DayStartPredIrrig) {
         nDaysBelowTargetStress = 0;
         double sumdl = 0; // sum of thickness of all soil layers to be irrigated.
         for (int l = 0; l < nl; l++) {
@@ -511,10 +511,10 @@ void PredictSurfaceIrrigation(double TargetStress, const int &Daynum, const doub
     }
 //     If the minimum number of days (MinDaysBetweenIrrig) minus 2 days have passed after
 //  the last irrigation, sum up days with water stress below target stress.
-    if ((Daynum - MinDaysBetweenIrrig) >= (LastIrrigation - 2)) {
+    if ((sim.day_start + u - MinDaysBetweenIrrig) >= (LastIrrigation - 2)) {
 //     Irrigation will be applied when water stress is less than the target stress for 
 //  three days since the last irrigation. 
-        if (Daynum > DayStartPredIrrig && WaterStress < TargetStress) {
+        if (sim.day_start + u > DayStartPredIrrig && sim.states[u].water_stress < TargetStress) {
             nDaysBelowTargetStress++;
             if (nDaysBelowTargetStress >= 3) {
                 double RequiredWater = 0; // the amount of water required for irrigation
@@ -526,7 +526,7 @@ void PredictSurfaceIrrigation(double TargetStress, const int &Daynum, const doub
                         defcit = MaxWaterCapacity[l] - VolWaterContent[l][k]; // water content deficit
                         RequiredWater += dl[l] * wk[k] * defcit;
                     }
-                AppliedWater = RequiredWater * 10 / RowSpace;
+                AppliedWater = RequiredWater * 10 / sim.row_space;
 //     The amount of water to be applied is checked not to exceed MaxIrrigation.
                 if (AppliedWater > MaxIrrigation)
                     AppliedWater = MaxIrrigation;
@@ -627,14 +627,14 @@ double AveragePsi(const int &NumLayersWithRoots)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void WaterTable(const int &Daynum)
+void WaterTable(Simulation &sim, unsigned int u)
 //     This function sets the water saturation of the soil layers below the water 
 //  table, if it has been defined in the input. It is called from  SoilProcedures() 
 //  if water table data have been input.
 //
 //     The following global variables are referenced here:
 //       dl, DayWaterTableInput, ElCondSatSoil, LevelsOfWaterTable, MaxWaterCapacity,
-//       nk, nl, NumWaterTableData, PoreSpace, MaxWaterCapacity, RowSpace, wk.
+//       nk, nl, NumWaterTableData, PoreSpace, MaxWaterCapacity, wk.
 //
 //     The following global variables are set here:
 //       addwtbl, ElCondSatSoilToday, WaterTableLayer, VolWaterContent.
@@ -645,7 +645,7 @@ void WaterTable(const int &Daynum)
 //     Find the depth of water table for this day.
     double lwtable = 201;  // level of water table on this day, cm
     for (int i = 0; i < NumWaterTableData; i++) {
-        if (Daynum >= DayWaterTableInput[i]) {
+        if (sim.day_start + u >= DayWaterTableInput[i]) {
             lwtable = LevelsOfWaterTable[i];
             ElCondSatSoilToday = ElCondSatSoil[i];
         }
@@ -671,7 +671,7 @@ void WaterTable(const int &Daynum)
             for (int k = 0; k < nk; k++) {
                 vh2ocx = VolWaterContent[l][k];
                 VolWaterContent[l][k] = PoreSpace[l];
-                addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / RowSpace;
+                addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / sim.row_space;
             }
         } else {
 //     Make sure that (in case water table was lowered) water content is not
@@ -680,7 +680,7 @@ void WaterTable(const int &Daynum)
                 if (VolWaterContent[l][k] > MaxWaterCapacity[l]) {
                     vh2ocx = VolWaterContent[l][k];
                     VolWaterContent[l][k] = MaxWaterCapacity[l];
-                    addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / RowSpace;
+                    addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / sim.row_space;
                 }
             }
         }

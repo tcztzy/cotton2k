@@ -173,14 +173,14 @@ void outputplt(Simulation &sim)
         double CumUptN; // cumulative uptake of n from soil, kg/ha or lb/ac
         if (OutIndex[1] == 0)   //  metric
         {
-            CumUptN = Scratch21[irec].cumNitrogenUptake * 100 / RowSpace;
+            CumUptN = Scratch21[irec].cumNitrogenUptake * 100 / sim.row_space;
             supn = (Scratch21[irec].cumFertilizerN + Scratch21[irec].mineralizedOrganicN -
-                    Scratch21[irec].soilNitrogenLoss) * 100 / RowSpace;
+                    Scratch21[irec].soilNitrogenLoss) * 100 / sim.row_space;
         } else   // English
         {
-            CumUptN = Scratch21[irec].cumNitrogenUptake * 89.3 / RowSpace;
+            CumUptN = Scratch21[irec].cumNitrogenUptake * 89.3 / sim.row_space;
             supn = (Scratch21[irec].cumFertilizerN + Scratch21[irec].mineralizedOrganicN -
-                    Scratch21[irec].soilNitrogenLoss) * 89.3 / RowSpace;
+                    Scratch21[irec].soilNitrogenLoss) * 89.3 / sim.row_space;
         }
         File25.precision(2);
         File25.width(7);     // 2F7.2

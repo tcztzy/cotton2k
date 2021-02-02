@@ -17,20 +17,20 @@ extern "C"{
     double PsiOnTranspiration(double);
 }
 
-void NitrogenUptake(int, int, double);
+void NitrogenUptake(Simulation &, int, int, double);
 
 void WaterBalance(double[], double[], double[], int);
 
 // SoilProcedures_2
-double Drain();
+double Drain(Simulation &);
 
 ////////////////////////////////////////////////////////////////////////////
-void GravityFlow(double applywat)
+void GravityFlow(Simulation &sim, double applywat)
 //     This function computes the water redistribution in the soil or surface irrigation
 //  (by flooding or sprinklers). It is called by SoilProcedures(). It calls function Drain().
 //     The following argument is used:          ApplyWat = amount of water applied, mm.
 //     The following global variables are referenced:
-//       dl, nk, RowSpace.
+//       dl, nk.
 //     The following global variables are set:
 //       CumWaterDrained, VolWaterContent.
 {
@@ -39,22 +39,22 @@ void GravityFlow(double applywat)
         VolWaterContent[0][k] += 0.10 * applywat / dl[0];
 //     Call function Drain() to compute downflow of water.
     double WaterDrainedOut; // water drained out of the slab, mm.
-    WaterDrainedOut = Drain();
+    WaterDrainedOut = Drain(sim);
 //     If there is drainage out of the slab, transform it to mm,
 //  and update the cumulative drainage (CumWaterDrained)
     if (WaterDrainedOut > 0)
-        CumWaterDrained += 10 * WaterDrainedOut / RowSpace;
+        CumWaterDrained += 10 * WaterDrainedOut / sim.row_space;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-void WaterUptake(const int &u, const int &NumLayersWithRoots)
+void WaterUptake(Simulation &sim, unsigned int u)
 //     This function computes the uptake of water by plant roots from the soil
 //  (i.e., actual transpiration rate). It is called from SoilProcedures(). 
 //     It calls PsiOnTranspiration(), psiq(), PsiOsmotic().
 //
 //     The following global variables are referenced:
 //  dl, LightIntercept, nk, nl, NumLayersWithRoots, ReferenceTransp, RootColNumLeft, 
-//  RootColNumRight, RowSpace, SoilHorizonNum, thetar, TotalRequiredN, wk.
+//  RootColNumRight, SoilHorizonNum, thetar, TotalRequiredN, wk.
 //     The following global variables are set:
 //  ActualTranspiration, SoilPsi, VolWaterContent. 
 {
@@ -79,12 +79,12 @@ void WaterUptake(const int &u, const int &NumLayersWithRoots)
     double sumep = 0; // sum of actual transpiration from all soil soil cells, cm3 per day.
 //     Compute the reduction due to soil moisture supply by function PsiOnTranspiration().  
     double Transp;//	the actual transpiration converted to cm3 per slab units.
-    Transp = .10 * RowSpace * PotentialTranspiration * PsiOnTranspiration(AverageSoilPsi);
+    Transp = .10 * sim.row_space * PotentialTranspiration * PsiOnTranspiration(AverageSoilPsi);
     double difupt = 0; // the cumulative difference between computed transpiration
     // and actual transpiration, in cm3, due to limitation of PWP.
     do {
         double supf = 0; // sum of upf for all soil cells
-        for (int l = 0; l < NumLayersWithRoots; l++) {
+        for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++) {
             int j = SoilHorizonNum[l];
 //     Compute, for each layer, the lower and upper water content limits for the transpiration 
 //  function. These are set from limiting soil water potentials (-15 to -1 bars).
@@ -108,7 +108,7 @@ void WaterUptake(const int &u, const int &NumLayersWithRoots)
         } // end loop l
 //
         difupt = 0;
-        for (int l = 0; l < NumLayersWithRoots; l++)
+        for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++)
             for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
                 if (upf[l][k] > 0 && VolWaterContent[l][k] > thetar[l]) {
 //     The amount of water extracted from each cell is proportional to its 'uptake factor'. 
@@ -140,33 +140,33 @@ void WaterUptake(const int &u, const int &NumLayersWithRoots)
             Transp = difupt;
     } while (difupt > 0);    // end of do; repeat if difupt greater than 0.
 //  recompute SoilPsi for all soil cells with roots by calling function PSIQ, 
-    for (int l = 0; l < NumLayersWithRoots; l++) {
+    for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++) {
         int j = SoilHorizonNum[l];
         for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
             SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
                             - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
     } // end l & k loops
 //      compute ActualTranspiration as actual water transpired, in mm.
-    ActualTranspiration = sumep * 10 / RowSpace;
+    ActualTranspiration = sumep * 10 / sim.row_space;
 //      Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
     SupplyNH4N = 0;
     SupplyNO3N = 0;
 //     Compute the proportional N requirement from each soil cell with roots, 
 //  and call function NitrogenUptake() to compute nitrogen uptake.
     if (sumep > 0 && TotalRequiredN > 0) {
-        for (int l = 0; l < NumLayersWithRoots; l++)
+        for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++)
             for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++) {
                 if (uptk[l][k] > 0) {
                     double reqnc; // proportional allocation of TotalRequiredN to each cell
                     reqnc = TotalRequiredN * uptk[l][k] / sumep;
-                    NitrogenUptake(l, k, reqnc);
+                    NitrogenUptake(sim, l, k, reqnc);
                 } // end if uptk
             } // end loop k & l
     } // end if sumep
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void NitrogenUptake(int l, int k, double reqnc)
+void NitrogenUptake(Simulation &sim, int l, int k, double reqnc)
 //     The function NitrogenUptake() computes the uptake of nitrate and ammonium N
 //  from a soil cell. It is called by WaterUptake().
 //     The arguments of this function are:
@@ -174,7 +174,7 @@ void NitrogenUptake(int l, int k, double reqnc)
 //        reqnc - maximum N uptake (proportional to total N
 //                required for plant growth), g N per plant.
 //     Global variables referenced: 
-//       PerPlantArea, RowSpace, dl, VolWaterContent, wk
+//       PerPlantArea, dl, VolWaterContent, wk
 //     The following global variables are set here:
 //       SupplyNH4N, SupplyNO3N, VolNh4NContent, VolNo3NContent
 {
@@ -185,7 +185,7 @@ void NitrogenUptake(int l, int k, double reqnc)
     const double p1 = 100, p2 = 5; // constant parameters for computing AmmonNDissolved.
 //
     double coeff; // coefficient used to convert g per plant to mg cm-3 units.
-    coeff = 10 * RowSpace / (PerPlantArea * dl[l] * wk[k]);
+    coeff = 10 * sim.row_space / (PerPlantArea * dl[l] * wk[k]);
 //     A Michaelis-Menten procedure is used to compute the rate of nitrate uptake from 
 //  each cell. The maximum possible amount of uptake is reqnc (g N per plant), and
 //  the half of this rate occurs when the nitrate concentration in the soil solution is 
@@ -581,7 +581,7 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void SoilSum()
+void SoilSum(Simulation &sim)
 //     This function computes sums of some soil variables. It is called by SimulateThisDay()
 //     It computes the total amounts per slab of water in mm (TotalSoilWater). The sums of 
 //  nitrogen are in mg N per slab: nitrate (TotalSoilNo3N), ammonium (TotalSoilNh4N), 
@@ -606,5 +606,5 @@ void SoilSum()
         }
 //
     TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
-    TotalSoilWater = TotalSoilWater * 10 / RowSpace;
+    TotalSoilWater = TotalSoilWater * 10 / sim.row_space;
 }
