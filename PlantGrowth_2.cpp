@@ -180,7 +180,7 @@ void PotentialLeafGrowth(State &state)
 }
 
 ////////////////////////////////////////////////////////////////////////
-void PotentialFruitGrowth(const double &DayLength, const double &WaterStress)
+void PotentialFruitGrowth(State &state, const double &DayLength)
 //     This function simulates the potential growth of fruiting sites of cotton plants.
 //  It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
 //
@@ -222,7 +222,7 @@ void PotentialFruitGrowth(const double &DayLength, const double &WaterStress)
 //     ratesqr is the rate of square growth, g per square per day.
 //  The routine for this is derived from GOSSYM, and so are the parameters used.
                     double ratesqr = tfrt * vpotfrt[3]
-                                     * exp(-vpotfrt[2] + vpotfrt[3] * AgeOfSite[k][l][m]);
+                                     * exp(-vpotfrt[2] + vpotfrt[3] * state.site[k][l][m].age);
                     PotGroSquares[k][l][m] = ratesqr * FruitFraction[k][l][m];
                     PotGroAllSquares += PotGroSquares[k][l][m];
                 }
@@ -257,7 +257,7 @@ void PotentialFruitGrowth(const double &DayLength, const double &WaterStress)
 //  temperature (tfrt) and ratebur is also affected by water stress (wfdb).
 //     Compute wfdb for the effect of water stress on burr growth rate.
 //  wfdb is the effect of water stress on rate of burr growth.
-                    double wfdb = vpotfrt[0] + vpotfrt[1] * WaterStress;
+                    double wfdb = vpotfrt[0] + vpotfrt[1] * state.water_stress;
                     if (wfdb < 0)
                         wfdb = 0;
                     if (wfdb > 1)

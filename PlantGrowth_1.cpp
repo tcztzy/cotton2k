@@ -24,7 +24,7 @@ extern "C"
 // PlantGrowth_2
 void PotentialLeafGrowth(State &);
 
-void PotentialFruitGrowth(const double &, const double &);
+void PotentialFruitGrowth(State &, const double &);
 
 // PlantGrowth_3
 void DryMatterBalance(State &, double &, double &, double &, double &, const string &);
@@ -416,12 +416,13 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 //        LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
 //        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
 {
+    State &state = sim.states[u];
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
-    PotentialLeafGrowth(sim.states[u]);
+    PotentialLeafGrowth(state);
     //     If it is after first square, call PotentialFruitGrowth() to compute potential
     //  growth rate of squares and bolls.
     if (FruitingCode[0][0][0] > 0)
-        PotentialFruitGrowth(DayLength, sim.states[u].water_stress);
+        PotentialFruitGrowth(state, DayLength);
     //     Active stem tissue (stemnew) is the difference between TotalStemWeight
     //  and the value of StemWeight(kkday).
     int voldstm = 32;           // constant parameter (days for stem tissue to become "old")
@@ -501,8 +502,8 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     if (l < 2)
         l2 = 0;
     double agetop; // average physiological age of top three nodes.
-    agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
-    sim.states[u].plant_height += AddPlantHeight(denf2, sim.states[u].day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, sim.states[u].carbon_stress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+    agetop = (state.site[0][l][0].age + state.site[0][l1][0].age + state.site[0][l2][0].age) / 3;
+    state.plant_height += AddPlantHeight(denf2, state.day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, state.carbon_stress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
     //     Output data to file *.CHB

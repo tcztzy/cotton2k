@@ -6,6 +6,7 @@ typedef struct LeafStruct
 } Leaf;
 typedef struct FruitingSiteStruct
 {
+    double age; // age of each fruiting site, physiological days from square initiation.
     Leaf leaf;
 } FruitingSite;
 #endif

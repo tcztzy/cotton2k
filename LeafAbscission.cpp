@@ -14,13 +14,13 @@
 
 using namespace std;
 
-tuple<double> PreFruitLeafAbscission(double, const int &, const int &, const double &, double);
+void PreFruitLeafAbscission(State &, double, const int &, const int &, const double &);
 
 void MainStemLeafAbscission(State &, int, int, double, const int &);
 
 void FruitNodeLeafAbscission(State &, int, int, int, double, const int &);
 
-tuple<double> DefoliationLeafAbscission(const int &, double);
+void DefoliationLeafAbscission(State &, const int &);
 
 extern "C" {
     void SortArray(size_t, double[], int32_t*, int32_t*, int32_t*);
@@ -50,7 +50,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
     droplf = vdrop1 - vdrop2 * LeafAreaIndex;
 //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
 //  prefruiting node leaves.
-    tie(state.abscised_leaf_weight) = PreFruitLeafAbscission(droplf, sim.day_start + u, sim.first_square, state.day_inc, state.abscised_leaf_weight);
+    PreFruitLeafAbscission(state, droplf, sim.day_start + u, sim.first_square, state.day_inc);
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
     for (int k = 0; k < NumVegBranches; k++) {
@@ -61,7 +61,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
     }
 //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
     if (DayFirstDef > 0 && sim.day_start + u >= DayFirstDef)
-        tie(state.abscised_leaf_weight) = DefoliationLeafAbscission(sim.day_start + u, state.abscised_leaf_weight);
+        DefoliationLeafAbscission(state, sim.day_start + u);
 //     If the reserves in the leaf are too high, add the lost reserves
 //  to AbscisedLeafWeight and adjust ReserveC.
     if (ReserveC > 0) {
@@ -80,8 +80,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
 }
 
 /////////////////////////
-tuple<double> PreFruitLeafAbscission(double droplf, const int &Daynum, const int &FirstSquare, const double &DayInc,
-                                     double AbscisedLeafWeight)
+void PreFruitLeafAbscission(State &state, double droplf, const int &Daynum, const int &FirstSquare, const double &DayInc)
 //     This function simulates the abscission of prefruiting node
 //  leaves. It is called from function LeafAbscission().
 //
@@ -111,7 +110,7 @@ tuple<double> PreFruitLeafAbscission(double droplf, const int &Daynum, const int
 //     If a defoliation was applied, add 1 to the counter NumAbscisedLeaves.
         if (AgeOfPreFruNode[j] >= droplf && LeafAreaPreFru[j] > 0 && LeafAreaIndex > 0.1) {
             TotalLeafArea -= LeafAreaPreFru[j];
-            AbscisedLeafWeight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
+            state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
             TotalLeafWeight -= LeafWeightPreFru[j];
             TotalPetioleWeight -= PetioleWeightPreFru[j];
             PixInPlants -= LeafWeightPreFru[j] * pixcon;
@@ -125,7 +124,6 @@ tuple<double> PreFruitLeafAbscission(double droplf, const int &Daynum, const int
                 NumAbscisedLeaves++;
         }
     }
-    return make_tuple(AbscisedLeafWeight);
 }
 
 /////////////////////////
@@ -219,7 +217,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
 }
 
 /////////////////////////
-tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWeight)
+void DefoliationLeafAbscission(State &state, const int &Daynum)
 //     This function simulates leaf abscission caused by defoliants.
 //     It is called from function LeafAbscission().
 //
@@ -241,7 +239,7 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
             if (LeafAreaPreFru[j] > 0) {
                 TotalLeafArea -= LeafAreaPreFru[j];
                 LeafAreaPreFru[j] = 0;
-                AbscisedLeafWeight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
+                state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
                 TotalLeafWeight -= LeafWeightPreFru[j];
                 TotalPetioleWeight -= PetioleWeightPreFru[j];
                 PixInPlants -= LeafWeightPreFru[j] * pixcon;
@@ -256,7 +254,7 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
 //     When this is after the first day of defoliation - count the
 //  number of existing leaves (lefcnt) and sort them by age
     if (Daynum <= DayFirstDef)
-        return make_tuple(AbscisedLeafWeight);
+        return;
 //	  
     double SortByAge[450]; // array of site ages to be sorted
     int indexk[450];// index associated with k
@@ -267,7 +265,7 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
         int nbrch = NumFruitBranches[k]; // number of fruiting branches on a vegetative branch.
         for (int l = 0; l < nbrch; l++) {
             if (LeafWeightMainStem[k][l] > 0) {
-                SortByAge[lefcnt] = AgeOfSite[k][l][0];
+                SortByAge[lefcnt] = state.site[k][l][0].age;
                 indexk[lefcnt] = k;
                 indexl[lefcnt] = l;
                 indexm[lefcnt] = 66; // 66 indicates this leaf is at the base of the fruiting branch
@@ -276,7 +274,7 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
             int nnid = NumNodes[k][l]; // total existing node number on this fruiting branch.
             for (int m = 0; m < nnid; m++) {
                 if (LeafWeightNodes[k][l][m] > 0) {
-                    SortByAge[lefcnt] = AgeOfSite[k][l][m];
+                    SortByAge[lefcnt] = state.site[k][l][m].age;
                     indexk[lefcnt] = k;
                     indexl[lefcnt] = l;
                     indexm[lefcnt] = m;
@@ -301,7 +299,7 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
             int m = indexm[i];
             if (m == 66) // main stem leaves
             {
-                AbscisedLeafWeight += LeafWeightMainStem[k][l] + PetioleWeightMainStem[k][l];
+                state.abscised_leaf_weight += LeafWeightMainStem[k][l] + PetioleWeightMainStem[k][l];
                 TotalLeafWeight -= LeafWeightMainStem[k][l];
                 TotalPetioleWeight -= PetioleWeightMainStem[k][l];
                 pixlos = LeafWeightMainStem[k][l] * pixcon;
@@ -314,7 +312,7 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
                 PetioleWeightMainStem[k][l] = 0;
             } else // leaves on fruit nodes
             {
-                AbscisedLeafWeight += LeafWeightNodes[k][l][m] + PetioleWeightNodes[k][l][m];
+                state.abscised_leaf_weight += LeafWeightNodes[k][l][m] + PetioleWeightNodes[k][l][m];
                 TotalLeafWeight -= LeafWeightNodes[k][l][m];
                 TotalPetioleWeight -= PetioleWeightNodes[k][l][m];
                 pixlos = LeafWeightNodes[k][l][m] * pixcon;
@@ -331,5 +329,4 @@ tuple<double> DefoliationLeafAbscission(const int &Daynum, double AbscisedLeafWe
             NumAbscisedLeaves++;
         } // if numLeavesToShed
     } // for i
-    return make_tuple(AbscisedLeafWeight);
 }

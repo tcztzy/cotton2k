@@ -226,6 +226,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 for (int k = 0; k < 3; k++)
                     for (int l = 0; l < 30; l++)
                         for (int m = 0; m < 5; m++) {
+                            state0.site[k][l][m].age = 0;
                             state0.site[k][l][m].leaf.age = 0;
                         }
             }

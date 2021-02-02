@@ -10,7 +10,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-double SiteAbscissionRatio(int, int, int, int, const double &);
+double SiteAbscissionRatio(State &, int, int, int, int);
 
 void SquareAbscission(int, int, int, double);
 
@@ -92,7 +92,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                     for (int m = 0; m < nnid; m++) {
                         if (FruitingCode[k][l][m] == 1 || FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7) {
                             double abscissionRatio; // ratio of abscission for a fruiting site.
-                            abscissionRatio = SiteAbscissionRatio(k, l, m, lt, sim.states[u].day_inc);
+                            abscissionRatio = SiteAbscissionRatio(sim.states[u], k, l, m, lt);
                             if (abscissionRatio > 0) {
                                 if (FruitingCode[k][l][m] == 1)
                                     SquareAbscission(k, l, m, abscissionRatio);
@@ -120,7 +120,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 }
 
 /////////////////////////
-double SiteAbscissionRatio(int k, int l, int m, int lt, const double &DayInc)
+double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
 //     This function computes and returns the probability of abscission of a single 
 //  site (k, l, m). It is called from function FruitingSitesAbscission(). 
 //
@@ -144,11 +144,11 @@ double SiteAbscissionRatio(int k, int l, int m, int lt, const double &DayInc)
     double shedt = 0; // total shedding ratio, caused by various stresses.
 //     (1) Squares (FruitingCode = 1).  
     if (FruitingCode[k][l][m] == 1) {
-        if (AgeOfSite[k][l][m] < vabsc[3])
+        if (state.site[k][l][m].age < vabsc[3])
             pabs = 0; // No abscission of very young squares (AgeOfSite less than vabsc(3))
         else {
             double xsqage; // square age after becoming susceptible to shedding.
-            xsqage = AgeOfSite[k][l][m] - vabsc[3];
+            xsqage = state.site[k][l][m].age - vabsc[3];
             if (xsqage >= vabsc[0])
                 pabs = VarPar[46]; // Old squares have a constant probability of shedding.
             else
@@ -188,7 +188,7 @@ double SiteAbscissionRatio(int k, int l, int m, int lt, const double &DayInc)
         pabs = 0; // no abscission
 //      Actual abscission of tagged sites (abscissionRatio) is a product of pabs,
 //  shedt and DayInc for this day. It can not be greater than 1.
-    double abscissionRatio = pabs * shedt * DayInc;
+    double abscissionRatio = pabs * shedt * state.day_inc;
     if (abscissionRatio > 1)
         abscissionRatio = 1;
     return abscissionRatio;

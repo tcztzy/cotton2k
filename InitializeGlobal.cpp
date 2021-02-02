@@ -114,7 +114,6 @@ void InitializeGlobal()
             PotGroPetioleWeightMainStem[i][j] = 0;
             for (int k = 0; k < 5; k++) {
                 AgeOfBoll[i][j][k] = 0;
-                AgeOfSite[i][j][k] = 0;
                 AvrgNodeTemper[i][j][k] = 0;
                 BollWeight[i][j][k] = 0;
                 BurrWeight[i][j][k] = 0;

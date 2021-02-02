@@ -93,7 +93,6 @@ double
     addwtbl,                      // water added to the slab (in mm) due to high water table.
     AgeOfBoll[3][30][5],          // age of each boll, physiological days from flowering.
     AgeOfPreFruNode[9],           // age of each prefruiting node, physiological days.
-    AgeOfSite[3][30][5],          // age of each fruiting site, physiological days from square initiation.
     airdr[9],                     // volumetric water content of soil at "air-dry" for each soil horizon, cm3 cm-3.
     AirTemp[24],                  // hourly air temperatures, C.
     albedo[24],                   // hourly albedo of a reference crop.
