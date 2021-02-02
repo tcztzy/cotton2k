@@ -644,3 +644,41 @@ extern "C" fn daytmp(
     //  relative humidity by equations from daily characteristics.
     //  Agricultural Systems 51:377-393.
 }
+
+#[no_mangle]
+extern "C" fn sunangle(
+    ti: f64,
+    latitude: f64,
+    declination: f64,
+    solar_noon: f64,
+    coszhr: &mut f64,
+    sunahr: &mut f64,
+)
+// sunangle.cpp : computes sun angle for any time of day.
+// Input argument:
+// ti = time of day, hours.
+// Output arguments:
+// coszhr = cosine of sun angle from zenith for this hour.
+// sunahr = sun angle from horizon, degrees.
+{
+    let pi = 3.14159f64;
+    // The latitude is converted to radians (xlat).
+    let xlat = latitude * pi / 180.;
+    // amplitude of the sine of the solar height, computed as
+    // the product of cosines of latitude and declination angles.
+    let cd = xlat.cos() * declination.cos();
+    // seasonal offset of the sine of the solar height, computed
+    // as the product of sines of latitude and declination angles.
+    let sd = xlat.sin() * declination.sin();
+    let hrangle = 15. * (ti - solar_noon) * pi / 180.; // hourly angle converted to radians
+    *coszhr = sd + cd * hrangle.cos();
+    if *coszhr <= 0f64 {
+        *coszhr = 0f64;
+        *sunahr = 0f64;
+    } else if *coszhr >= 1f64 {
+        *coszhr = 1f64;
+        *sunahr = 90f64;
+    } else {
+        *sunahr = (coszhr.acos() * 180f64 / pi - 90f64).abs();
+    }
+}

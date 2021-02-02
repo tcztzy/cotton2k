@@ -43,13 +43,12 @@ extern "C"
     double clcor(uint8_t, double, double, double, double, double, double);
     void AverageAirTemperatures(const double *, const double *, double &, double &, double &);
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
+    void sunangle(double, double, double, double, double &, double &);
 }
 
 double tdewhour(Simulation &, uint32_t, double, double);
 
 void EvapoTranspiration(Simulation &, uint32_t, int, const double &);
-
-void sunangle(double, double &, double &, const double &);
 
 double SimulateRunoff(Simulation &, uint32_t, double);
 
@@ -272,7 +271,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout, const double &Da
         double ti = ihr + 0.5; // middle of the hourly interval
                                //      The following subroutines and functions are called for each
                                //  hour: sunangle, cloudcov, clcor, refalbed .
-        sunangle(ti, cosz, suna, sim.latitude);
+        sunangle(ti, sim.latitude, declination, SolarNoon, cosz, suna);
         isr = tmpisr * cosz;
         CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
         //      clcor is called to compute cloud-type correction.
@@ -374,39 +373,6 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout, const double &Da
         else
             es1hour[ihr] = 0;
     } //   end of 2nd hourly loop
-}
-
-void sunangle(double ti, double &coszhr, double &sunahr, const double &Latitude)
-//     sunangle.cpp : computes sun angle for any time of day.
-//     Input argument:
-//        ti = time of day, hours.
-//      Output arguments:
-//        coszhr = cosine of sun angle from zenith for this hour.
-//        sunahr = sun angle from horizon, degrees.
-//
-{
-    //      The latitude is converted to radians (xlat).
-    double xlat = Latitude * pi / 180; // latitude in radians.
-    double cd;                         // amplitude of the sine of the solar height, computed as
-    // the product of cosines of latitude and declination angles.
-    cd = cos(xlat) * cos(declination);
-    double sd; // seasonal offset of the sine of the solar height, computed
-    // as the product of sines of latitude and declination angles.
-    sd = sin(xlat) * sin(declination);
-    double hrangle = 15 * (ti - SolarNoon) * pi / 180; // hourly angle converted to radians
-    coszhr = sd + cd * cos(hrangle);
-    if (coszhr <= 0)
-    {
-        coszhr = 0;
-        sunahr = 0;
-    }
-    else if (coszhr >= 1)
-    {
-        coszhr = 1;
-        sunahr = 90;
-    }
-    else
-        sunahr = fabs(acos(coszhr) * 180 / pi - 90);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
