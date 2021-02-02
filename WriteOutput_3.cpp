@@ -105,7 +105,7 @@ void outputplt(Simulation &sim)
             File25 << Scratch21[irec].lintYield * 10000 / PlantPopulation;
         File25.precision(3);
         File25.width(7);     // 5F7.3
-        File25 << Scratch21[irec].carbonStress;
+        File25 << sim.states[irec].carbon_stress;
         File25.width(7);
         File25 << Scratch21[irec].nStressFruiting;
         File25.width(7);
@@ -244,7 +244,7 @@ void output2(Simulation &sim)
         File46 << Scratch21[irec].lightIntercept * 100;
         File46.precision(3);
         File46.width(8);
-        File46 << Scratch21[irec].carbonStress;
+        File46 << sim.states[irec].carbon_stress;
         File46.width(8);
         File46 << Scratch21[irec].nStressFruiting;
         File46.width(8);

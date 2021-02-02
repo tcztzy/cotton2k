@@ -27,7 +27,7 @@ void PotentialLeafGrowth(const double &);
 void PotentialFruitGrowth(const double &, const double &);
 
 // PlantGrowth_3
-void DryMatterBalance(double &, double &, double &, double &, const string &, const double &);
+void DryMatterBalance(State &, double &, double &, double &, double &, const string &);
 
 void ActualFruitGrowth();
 
@@ -456,7 +456,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //     cdroot is carbohydrate requirement for root growth, g per plant per day.
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
     double cdstem, cdleaf, cdpet, cdroot;
-    DryMatterBalance(cdstem, cdleaf, cdpet, cdroot, sim.profile_name, sim.states[u].water_stress);
+    DryMatterBalance(sim.states[u] ,cdstem, cdleaf, cdpet, cdroot, sim.profile_name);
     //     If it is after first square, call ActualFruitGrowth() to compute actual
     //  growth rate of squares and bolls.
     if (FruitingCode[0][0][0] > 0)
@@ -502,7 +502,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
         l2 = 0;
     double agetop; // average physiological age of top three nodes.
     agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3;
-    sim.states[u].plant_height += AddPlantHeight(denf2, sim.states[u].day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, CarbonStress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+    sim.states[u].plant_height += AddPlantHeight(denf2, sim.states[u].day_inc, NumPreFruNodes, FruitingCode[0][1][0], AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, sim.states[u].carbon_stress, NStressVeg, pixdz, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
     //     Output data to file *.CHB
@@ -523,7 +523,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
         File36.width(10);
         File36 << cdroot;
         File36.width(10);
-        File36 << CarbonStress;
+        File36 << sim.states[u].carbon_stress;
         File36.width(10);
         File36 << TotalStemWeight;
         File36.width(10);

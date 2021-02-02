@@ -64,6 +64,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
 //        FirstSquare, NumFruitSites.
 //
 {
+    State &state = sim.states[u];
 //     The following constant parameters are used:
     double vpheno[8] = {0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10};
 //     
@@ -82,14 +83,14 @@ void CottonPhenology(Simulation &sim, uint32_t u)
         PhenDelayByNStress = 0;
 //  
     double delayVegByCStress; // delay in formation of new fruiting branches caused by carbon stress.
-    delayVegByCStress = VarPar[27] + CarbonStress * (vpheno[3] + vpheno[4] * CarbonStress);
+    delayVegByCStress = VarPar[27] + state.carbon_stress * (vpheno[3] + vpheno[4] * state.carbon_stress);
     if (delayVegByCStress > 1)
         delayVegByCStress = 1;
     else if (delayVegByCStress < 0)
         delayVegByCStress = 0;
 //
     double delayFrtByCStress; // delay in formation of new fruiting sites caused by carbon stress.
-    delayFrtByCStress = VarPar[28] + CarbonStress * (vpheno[1] + vpheno[2] * CarbonStress);
+    delayFrtByCStress = VarPar[28] + state.carbon_stress * (vpheno[1] + vpheno[2] * state.carbon_stress);
     if (delayFrtByCStress > VarPar[29])
         delayFrtByCStress = VarPar[29];
     if (delayFrtByCStress < 0)

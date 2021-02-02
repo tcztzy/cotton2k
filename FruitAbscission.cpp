@@ -49,8 +49,8 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
         }
 //     Calculate shedding intensity: The shedding intensity due to stresses of this day is assigned
 //  to the first members of the arrays ShedByCarbonStress, ShedByNitrogenStress, and ShedByWaterStress.
-    if (CarbonStress < VarPar[43])
-        ShedByCarbonStress[0] = (VarPar[43] - CarbonStress) / VarPar[43];
+    if (state.carbon_stress < VarPar[43])
+        ShedByCarbonStress[0] = (VarPar[43] - state.carbon_stress) / VarPar[43];
     else
         ShedByCarbonStress[0] = 0;
     if (NitrogenStress < vabsfr[1])

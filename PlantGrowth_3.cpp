@@ -21,8 +21,7 @@ extern "C"
 
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.
 //////////////////////////////////////////////////
-void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdroot, const string &ProfileName,
-                      const double &WaterStress)
+void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpet, double &cdroot, const string &ProfileName)
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
@@ -60,12 +59,12 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdr
     //     Compute CarbonStress as the ratio of available to required carbohydrates.
     if (cdsum <= 0)
     {
-        CarbonStress = 1;
+        state.carbon_stress = 1;
         return; // Exit function if cdsum is 0.
     }
-    CarbonStress = cpool / cdsum;
-    if (CarbonStress > 1)
-        CarbonStress = 1;
+    state.carbon_stress = cpool / cdsum;
+    if (state.carbon_stress > 1)
+        state.carbon_stress = 1;
     //     If output flag is non zero, write daily carbon balance data to file CHB
     if (OutIndex[18] > 0)
     {
@@ -92,7 +91,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdr
         File36.width(9);
         File36 << cdboll;
         File36.width(9);
-        File36 << CarbonStress;
+        File36 << state.carbon_stress;
         File36 << endl;
     }
     //     When carbohydrate supply is sufficient for growth requirements, CarbonStress will be
@@ -102,7 +101,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdr
     double pdboll;         // amount of carbohydrates allocated to boll growth.
     double pdsq;           // amount of carbohydrates allocated to square growth.
     double xtrac1, xtrac2; // first and second components of ExtraCarbon.
-    if (CarbonStress >= 1)
+    if (state.carbon_stress >= 1)
     {
         TotalActualLeafGrowth = cdleaf;
         TotalActualPetioleGrowth = cdpet;
@@ -127,7 +126,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdr
                         //     The factor ffr is a function of bsratio and WaterStress. It is assumed that water stress
                         //  increases allocation of carbohydrates to bolls. Check that ffr is not less than zero, or
                         //  greater than 1 or than bsratio.
-            ffr = (vchbal[5] + vchbal[6] * (1 - WaterStress)) * bsratio;
+            ffr = (vchbal[5] + vchbal[6] * (1 - state.water_stress)) * bsratio;
             if (ffr < 0)
                 ffr = 0;
             if (ffr > 1)
@@ -182,7 +181,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdr
             //  root growth. This is increased by water stress.
             double rtmax;
             rtmax = ratio / (ratio + 1);
-            rtmax = rtmax * (1 + vchbal[12] * (1 - WaterStress));
+            rtmax = rtmax * (1 + vchbal[12] * (1 - state.water_stress));
             if (rtmax > 1)
                 rtmax = 1;
             //     Compute the factor frt for root growth allocation, as a function of rtmax, and check that

@@ -118,7 +118,6 @@ double
 // C
 double
     CarbonAllocatedForRootGrowth, // available carbon allocated for root growth, g per plant.
-    CarbonStress,                 // carbohydrate stress factor.
     ClayVolumeFraction[maxl],     // fraction by volume of clay in the soil.
     CloudCoverRatio[24],          // cloud cover ratio (0 to 1).
     CloudTypeCorr[24],            // hourly cloud type correction.

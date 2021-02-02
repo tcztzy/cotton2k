@@ -22,7 +22,6 @@ void InitializeGlobal()
     CarbonAllocatedForRootGrowth = 0;
     CottonWeightGreenBolls = 0;
     CottonWeightOpenBolls = 0;
-    CarbonStress = 1;
     CumEvaporation = 0;
     CumFertilizerN = 0;
     CumNetPhotosynth = 0;

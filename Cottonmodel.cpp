@@ -222,6 +222,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.abscised_fruit_sites = 0;
                 state0.abscised_leaf_weight = 0;
                 state0.water_stress = 1;
+                state0.carbon_stress = 1;
             }
             strcpy(sim.states[i].date, DoyToDate(sim.day_start + i, iyear));
             SimulateThisDay(sim, i);

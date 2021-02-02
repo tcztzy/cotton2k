@@ -20,7 +20,7 @@ typedef struct scratch
 {
         int kday, mainStemNodes;
         double amitri, averageSoilPsi, avrgDailyTemp, burrNConc, burrWeightOpenBolls,
-            carbonStress, cottonWeightGreenBolls, cottonWeightOpenBolls,
+            cottonWeightGreenBolls, cottonWeightOpenBolls,
             cumEvaporation, cumFertilizerN, cumNetPhotosynth, cumNitrogenUptake,
             cumPlantNLoss, cumTranspiration, cumWaterAdded, cumWaterDrained,
             dayTimeTemp, deadwt, deepSoilTemperature,
@@ -68,7 +68,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl,
     AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
     BloomWeightLoss, BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
-    CarbonAllocatedForRootGrowth, CarbonStress, conmax,
+    CarbonAllocatedForRootGrowth, conmax,
     CottonWeightGreenBolls, CottonWeightOpenBolls, CumEvaporation, CumFertilizerN,
     CumNetPhotosynth, CumNitrogenUptake, CumPlantNLoss, CumTranspiration,
     CumWaterAdded, CumWaterDrained,

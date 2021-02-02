@@ -20,7 +20,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].avrgDailyTemp = AvrgDailyTemp;
     Scratch21[u].burrNConc = BurrNConc;
     Scratch21[u].burrWeightOpenBolls = BurrWeightOpenBolls;
-    Scratch21[u].carbonStress = CarbonStress;
     Scratch21[u].cottonWeightGreenBolls = CottonWeightGreenBolls;
     Scratch21[u].cottonWeightOpenBolls = CottonWeightOpenBolls;
     Scratch21[u].cumEvaporation = CumEvaporation;
