@@ -1,6 +1,7 @@
 #ifndef STATE_TYPE
 #define STATE_TYPE
 #include "Root.h"
+#include "FruitingSite.h"
 typedef struct State
 {
     char date[12];
@@ -11,8 +12,9 @@ typedef struct State
     double water_stress;                     // general water stress index (0 to 1).
     double carbon_stress;                    // carbohydrate stress factor.
     double day_length;                       // day length, in hours
-    Root root[40][20];
     double plant_height;
     double runoff;
+    Root root[40][20];
+    FruitingSite site[3][30][5];
 } State;
 #endif

@@ -120,7 +120,6 @@ void InitializeGlobal()
                 BurrWeight[i][j][k] = 0;
                 FruitingCode[i][j][k] = 0;
                 FruitFraction[i][j][k] = 0;
-                LeafAge[i][j][k] = 0;
                 LeafAreaNodes[i][j][k] = 0;
                 LeafWeightNodes[i][j][k] = 0;
                 PetioleWeightNodes[i][j][k] = 0;

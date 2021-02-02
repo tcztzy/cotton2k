@@ -22,7 +22,7 @@ extern "C"
 }
 
 // PlantGrowth_2
-void PotentialLeafGrowth(const double &);
+void PotentialLeafGrowth(State &);
 
 void PotentialFruitGrowth(const double &, const double &);
 
@@ -215,7 +215,7 @@ void LeafWaterPotential(State &state, const string &ProfileName)
             for (int m = 0; m < nnid; m++)
             {
                 numl++;
-                sumrl += LeafResistance(LeafAge[k][l][m]);
+                sumrl += LeafResistance(state.site[k][l][m].leaf.age);
             }
         }
     }
@@ -417,7 +417,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 //        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
 {
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
-    PotentialLeafGrowth(sim.states[u].water_stress);
+    PotentialLeafGrowth(sim.states[u]);
     //     If it is after first square, call PotentialFruitGrowth() to compute potential
     //  growth rate of squares and bolls.
     if (FruitingCode[0][0][0] > 0)

@@ -20,15 +20,15 @@ using namespace std;
 
 void NitrogenRequirement(const string &, const int &, const int &);
 
-void NitrogenSupply(const string &);
+void NitrogenSupply(State &, const string &);
 
-double PetioleNitrateN();
+double PetioleNitrateN(State &);
 
 void NitrogenAllocation();
 
 void ExtraNitrogenAllocation();
 
-void PlantNitrogenContent();
+void PlantNitrogenContent(State &);
 
 void GetNitrogenStress();
 
@@ -87,6 +87,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs, 
 //       rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm, stemrs, uptn, xtran.
 {
+    State &state = sim.states[u];
 //     Assign zero to some variables.
     leafrs = 0; // reserve N in leaves, in g per plant.
     petrs = 0;  // reserve N in petioles, in g per plant.
@@ -110,11 +111,11 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
     addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
 //   The following subroutines are now called:
     NitrogenRequirement(sim.profile_name, sim.day_start + u, sim.day_emerge); //  computes the N requirements for growth.
-    NitrogenSupply(sim.profile_name);      //  computes the supply of N from uptake and reserves.
+    NitrogenSupply(state, sim.profile_name);      //  computes the supply of N from uptake and reserves.
     NitrogenAllocation();  //  computes the allocation of N in the plant.
     if (xtran > 0)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
-    PlantNitrogenContent(); // computes the concentrations of N in plant dry matter.
+    PlantNitrogenContent(state); // computes the concentrations of N in plant dry matter.
     GetNitrogenStress();    //  computes nitrogen stress factors.
     NitrogenUptakeRequirement(); // computes N requirements for uptake
 //   Optional output of N content to file *.NB2
@@ -246,7 +247,7 @@ void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int
 }
 
 //////////////////////////
-void NitrogenSupply(const string &ProfileName)
+void NitrogenSupply(State &state, const string &ProfileName)
 //     This function computes the supply of N by uptake from the soil reserves, 
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //
@@ -295,7 +296,7 @@ void NitrogenSupply(const string &ProfileName)
 //  nitrate ratio in the petiole N is computed by calling function PetioleNitrateN().
 //  Note that the nitrate fraction is more available for redistribution.
         double rpetno3; // ratio of NO3 N to total N in petioles.
-        rpetno3 = PetioleNitrateN();
+        rpetno3 = PetioleNitrateN(state);
         double petrs1, petrs2; // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
         petrs1 = (PetioleNitrogen * (1 - rpetno3) - vpetnmin * TotalPetioleWeight)
                  * MobilizNFractionLeaves;
@@ -363,7 +364,7 @@ void NitrogenSupply(const string &ProfileName)
 }
 
 //////////////////////////
-double PetioleNitrateN()
+double PetioleNitrateN(State &state)
 //     This function computes the ratio of NO3 nitrogen to total N in the petioles.
 //  It is called from NitrogenSupply() and PlantNitrogenContent().
 //     The following global variables are referenced here:
@@ -400,7 +401,7 @@ double PetioleNitrateN()
             for (int m = 0; m < nnid; m++)// loop of nodes on a fruiting branch
             {
                 numl++;
-                petno3r = p1 - LeafAge[k][l][m] * p2;
+                petno3r = p1 - state.site[k][l][m].leaf.age * p2;
                 if (petno3r < p3)
                     petno3r = p3;
                 spetno3 += petno3r;
@@ -555,7 +556,7 @@ void ExtraNitrogenAllocation()
 }
 
 //////////////////////////
-void PlantNitrogenContent()
+void PlantNitrogenContent(State &state)
 //     This function computes the concentrations of nitrogen in the dry
 //  matter of the plant parts. It is called from PlantNitrogen(). It calls the
 //  function PetioleNitrateN().
@@ -576,7 +577,7 @@ void PlantNitrogenContent()
         LeafNConc = LeafNitrogen / TotalLeafWeight;
     if (TotalPetioleWeight > 0.00001) {
         PetioleNConc = PetioleNitrogen / TotalPetioleWeight;
-        PetioleNO3NConc = PetioleNConc * PetioleNitrateN();
+        PetioleNO3NConc = PetioleNConc * PetioleNitrateN(state);
     }
     if (TotalStemWeight > 0)
         StemNConc = StemNitrogen / TotalStemWeight;

@@ -8,7 +8,7 @@
 // AddVegetativeBranch()
 // AddFruitingBranch()
 // AddFruitingNode()
-// FruitingSite{}
+// SimulateFruitingSite{}
 // NewBollFormation()
 // BollOpening()
 //
@@ -29,7 +29,7 @@ void AddFruitingBranch(int, double, double, const double &);
 
 void AddFruitingNode(int, int, double, double, const double &WaterStress);
 
-void FruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
+void SimulateFruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
 
 void NewBollFormation(int, int, int);
 
@@ -55,7 +55,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
 //     This is is the main function for simulating events of phenology and abscission
 //  in the cotton plant. It is called each day from DailySimulation().
 //     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
-//  AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), FruitingSite(),
+//  AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(),
 //  LeafAbscission(), FruitingSitesAbscission().
 //     The following global variables are referenced here:
 //        CarbonStress, DensityFactor, Kday, NStressVeg, NumFruitBranches, 
@@ -142,10 +142,10 @@ void CottonPhenology(Simulation &sim, uint32_t u)
         for (int l = 0; l < NumFruitBranches[k]; l++) {
             if (NumNodes[k][l] < nidmax)
                 AddFruitingNode(k, l, delayFrtByCStress, stemNRatio, sim.states[u].water_stress);
-//     Loop over all existing fruiting nodes, and call FruitingSite() to
+//     Loop over all existing fruiting nodes, and call SimulateFruitingSite() to
 //  simulate the condition of each fruiting node.
             for (int m = 0; m < NumNodes[k][l]; m++)
-                FruitingSite(sim, u, k, l, m, nwfl, sim.states[u].water_stress);
+                SimulateFruitingSite(sim, u, k, l, m, nwfl, sim.states[u].water_stress);
         }
     }
 //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
@@ -485,8 +485,8 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio, 
 }
 
 //////////////////////////////////////////////////
-void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &WaterStress)
-//     Function FruitingSite() simulates the development of each fruiting site. 
+void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &WaterStress)
+//     Function SimulateFruitingSite() simulates the development of each fruiting site. 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
 //        AvrgDailyTemp, CottonWeightGreenBolls, 
@@ -502,6 +502,7 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
 //                  function, although it is not used in this version.
 //
 {
+    State &state = sim.states[u];
 //     The following constant parameters are used:
     const double vfrsite[15] = {0.60, 0.40, 12.25, 0.40, 33.0, 0.20, 0.04, 0.45,
                                 26.10, 9.0, 0.10, 3.0, 1.129, 0.043, 0.26};
@@ -523,10 +524,10 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
 //  and nitrogen stresses (agefac).
     double agefac; // effect of water and nitrogen stresses on leaf aging.
     agefac = (1 - WaterStress) * vfrsite[0] + (1 - NStressVeg) * vfrsite[1];
-    LeafAge[k][l][m] += sim.states[u].day_inc + agefac;
+    state.site[k][l][m].leaf.age += sim.states[u].day_inc + agefac;
 //  After the application of defoliation, add the effect of defoliation on leaf age.
     if (DayFirstDef > 0 && sim.day_start + u > DayFirstDef)
-        LeafAge[k][l][m] += VarPar[38];
+        state.site[k][l][m].leaf.age += VarPar[38];
 //     FruitingCode = 3, 4, 5 or 6 indicates that this node has an open boll,
 //  or has been completely abscised. Return in this case.
     if (FruitingCode[k][l][m] >= 3 && FruitingCode[k][l][m] <= 6)
@@ -608,7 +609,7 @@ void FruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRec
 /////////////////////////
 void NewBollFormation(int k, int l, int m)
 //     Function NewBollFormation() simulates the formation of a new boll at a 
-//   fruiting site. It is called from function FruitingSite().
+//   fruiting site. It is called from function SimulateFruitingSite().
 //
 //     The following global variables are referenced here:
 //        bPollinSwitch, SquareNConc
@@ -666,7 +667,7 @@ void NewBollFormation(int k, int l, int m)
 /////////////////////////
 void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpboll)
 //     Function BollOpening() simulates the transition of each fruiting site 
-//  from green to dehissed (open) boll. It is called from FruitingSite().
+//  from green to dehissed (open) boll. It is called from SimulateFruitingSite().
 //     The following global variables are referenced here:
 //        AgeOfBoll, BollWeight, BurrWeight, DayFirstDef, FruitFraction, 
 //        LeafAreaIndex, PlantPopulation, VarPar 

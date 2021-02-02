@@ -171,7 +171,6 @@ double
     impede[10][10],            // input table of soil impedance to root growth
     InitialTotalSoilWater,     // initial total soil water in the profile, mm.
     IrrigationDepth,           // depth of predicted irrigation, cm.
-    LeafAge[3][30][5],         // leaf age at each fruiting site, physiological days.
     LeafAreaIndex,             // leaf area index.
     LeafAreaMainStem[3][30],   // mainstem leaf area at each node, dm2.
     LeafAreaNodes[3][30][5],   // leaf area at each fruiting site, dm2.

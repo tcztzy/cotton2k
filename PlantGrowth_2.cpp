@@ -8,6 +8,7 @@
 // TemperatureOnFruitGrowthRate()
 //
 #include "global.h"
+#include "State.h"
 
 extern "C" {
     double TemperatureOnLeafGrowthRate(double);
@@ -15,7 +16,7 @@ extern "C" {
 }
 
 //////////////////////////
-void PotentialLeafGrowth(const double &WaterStress)
+void PotentialLeafGrowth(State &state)
 //     This function simulates the potential growth of leaves of cotton plants. 
 //  It is called from PlantGrowth(). It calls function TemperatureOnLeafGrowthRate().
 //
@@ -29,7 +30,7 @@ void PotentialLeafGrowth(const double &WaterStress)
 //           r = smax * c * p * exp(-c * pow(t,p)) * pow(t, (p-1)) 
 //
 //     The following global variables are referenced here:
-//        AgeOfPreFruNode, AvrgDailyTemp, DensityFactor, LeafAge, LeafAreaNodes, 
+//        AgeOfPreFruNode, AvrgDailyTemp, DensityFactor, LeafAreaNodes, 
 //        LeafAreaMainStem, LeafAreaPreFru, NumFruitBranches, NumNodes, NumPreFruNodes,
 //        NumVegBranches, pixda, VarPar, WaterStress.
 //     The following global variables are set here:
@@ -44,7 +45,7 @@ void PotentialLeafGrowth(const double &WaterStress)
                                0.00137566, 0.025, 0.00005, 30., 0.02, 0.001, 2.50, 0.18};
 //     Calculate water stress reduction factor for leaf growth rate
 // (wstrlf). This has been empirically calibrated in COTTON2K.
-    double wstrlf = WaterStress * (1 + vpotlf[0] * (2 - WaterStress)) - vpotlf[0];
+    double wstrlf = state.water_stress * (1 + vpotlf[0] * (2 - state.water_stress)) - vpotlf[0];
     if (wstrlf < 0.05)
         wstrlf = 0.05;
 //     Calculate wtfstrs, the effect of leaf water stress onLeafWeightAreaRatio (the ratio
@@ -119,10 +120,10 @@ void PotentialLeafGrowth(const double &WaterStress)
                 if (smax < VarPar[4])
                     smax = VarPar[4];
                 c = vpotlf[10] + lp1 * vpotlf[11];
-                if (LeafAge[k][l][0] > 70)
+                if (state.site[k][l][0].leaf.age > 70)
                     rate = 0;
                 else
-                    rate = smax * c * p * exp(-c * pow(LeafAge[k][l][0], p)) * pow(LeafAge[k][l][0], (p - 1));
+                    rate = smax * c * p * exp(-c * pow(state.site[k][l][0].leaf.age, p)) * pow(state.site[k][l][0].leaf.age, (p - 1));
 //     Add leaf and petiole weight potential growth to SPDWL and SPDWP.
                 if (rate >= 1e-12) {
                     PotGroLeafAreaMainStem[k][l] = rate * wstrlf * pixda
@@ -156,10 +157,10 @@ void PotentialLeafGrowth(const double &WaterStress)
                     smax = smaxx * (1 - VarPar[8] * mp1);
                     c = cc * (1 - VarPar[8] * mp1);
 //     Compute potential growth for the leaves on fruiting branches.
-                    if (LeafAge[k][l][m] > 70)
+                    if (state.site[k][l][m].leaf.age > 70)
                         rate = 0;
                     else
-                        rate = smax * c * p * exp(-c * pow(LeafAge[k][l][m], p)) * pow(LeafAge[k][l][m], (p - 1));
+                        rate = smax * c * p * exp(-c * pow(state.site[k][l][m].leaf.age, p)) * pow(state.site[k][l][m].leaf.age, (p - 1));
                     if (rate >= 1e-12) {
 //     Growth rate is modified by water stress and pix. Potential growth
 //  is computed as a function of average temperature.
