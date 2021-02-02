@@ -648,7 +648,7 @@ void OutputForSoilMaps(State &state, int irec, int igo, int nday, const string &
     else if (igo == 6) {
         for (int l = 0; l < maxl; l++)
             for (int k = 0; k < maxk; k++)
-                Array[l][k] = Scratch21[irec].rootWtCapblUptake[l][k];
+                Array[l][k] = state.root[l][k].weight_capable_uptake;
         tl1 = "ROOT UPT ";
         for (int i = 0; i < 11; i++)
             range[i] = roocup[i];

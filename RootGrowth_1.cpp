@@ -44,7 +44,7 @@ double RootDeath(Root &, int, int, double);
 
 double RootCultivation(Root[40][20], int, const int &, double);
 
-void RootSummation(Simulation &, uint32_t, const int &, const int &);
+void RootSummation(Simulation &, uint32_t, const int &);
 
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
@@ -421,5 +421,5 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     CumPlantNLoss += DailyRootLoss * RootNConc;
     PixInPlants -= DailyRootLoss * pixcon;
     //     Call function RootSummation().
-    RootSummation(sim, u, NumRootAgeGroups, sim.states[u].number_of_layers_with_root);
+    RootSummation(sim, u, NumRootAgeGroups);
 }

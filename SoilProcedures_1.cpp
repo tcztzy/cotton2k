@@ -29,7 +29,7 @@ void PredictSurfaceIrrigation(Simulation &, unsigned int, double);
 
 void OutputPredictedIrrigation(double, double, const string &, const int &, const double &);
 
-double AveragePsi(const int &);
+double AveragePsi(const State &);
 
 void WaterTable(Simulation &, unsigned int);        // WATERTBL
 // SoilProcedure_2
@@ -97,7 +97,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
     if (sim.day_start + u >= sim.day_emerge && isw > 0) {
         RootsCapableOfUptake(sim.states[u].number_of_layers_with_root,
                              sim.states[u].root);  // function computes roots capable of uptake for each soil cell
-        AverageSoilPsi = AveragePsi(sim.states[u].number_of_layers_with_root); // function computes the average matric soil water
+        AverageSoilPsi = AveragePsi(sim.states[u]); // function computes the average matric soil water
 //                      potential in the root zone, weighted by the roots-capable-of-uptake.
         WaterUptake(sim, u); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
@@ -187,7 +187,7 @@ void RootsCapableOfUptake(const int &NumLayersWithRoots, Root root[40][20])
     // (between 0 and 1) of water and nutrients by root age classes.
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
-            RootWtCapblUptake[l][k] = 0;
+            root[l][k].weight_capable_uptake = 0;
 //     Loop for all soil soil cells with roots. compute for each soil cell root-weight capable 
 //  of uptake (RootWtCapblUptake) as the sum of products of root weight and capability of 
 //  uptake index (cuind) for each root class in it.
@@ -195,7 +195,7 @@ void RootsCapableOfUptake(const int &NumLayersWithRoots, Root root[40][20])
         for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
             for (int i = 0; i < 3; i++)
                 if (root[l][k].weight[i] > 1.e-15)
-                    RootWtCapblUptake[l][k] += root[l][k].weight[i] * cuind[i];
+                    root[l][k].weight_capable_uptake += root[l][k].weight[i] * cuind[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -563,7 +563,7 @@ void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const s
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double AveragePsi(const int &NumLayersWithRoots)
+double AveragePsi(const State &state)
 //     This function computes and returns the average soil water potential of the root zone of  
 //  the soil slab. This average is weighted by the amount of active roots (roots capable of 
 //  uptake) in each soil cell. Soil zones without roots are not included. 
@@ -588,18 +588,18 @@ double AveragePsi(const int &NumLayersWithRoots)
         sumdl[j] = 0;
     }
 //     Compute sum of dl as sumdl for each soil horizon.
-    for (int l = 0; l < NumLayersWithRoots; l++) {
+    for (int l = 0; l < state.number_of_layers_with_root; l++) {
         int j = SoilHorizonNum[l];
         sumdl[j] += dl[l];
         for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++) {
 //     Check that RootWtCapblUptake in any cell is more than a minimum value vrcumin.             
-            if (RootWtCapblUptake[l][k] >= vrcumin) {
+            if (state.root[l][k].weight_capable_uptake >= vrcumin) {
 //     Compute sumwat as the weighted sum of the water content, and psinum as the sum of
 //  these weights. Weighting is by root weight capable of uptake, or if it exceeds a maximum
 //  value (vrcumax) this maximum value is used for weighting.
                 sumwat[j] += VolWaterContent[l][k] * dl[l] * wk[k]
-                             * min(RootWtCapblUptake[l][k], vrcumax);
-                psinum[j] += dl[l] * wk[k] * min(RootWtCapblUptake[l][k], vrcumax);
+                             * min(state.root[l][k].weight_capable_uptake, vrcumax);
+                psinum[j] += dl[l] * wk[k] * min(state.root[l][k].weight_capable_uptake, vrcumax);
             }
         }
     }

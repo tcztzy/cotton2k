@@ -76,7 +76,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
 //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {
-            Scratch21[u].rootWtCapblUptake[l][k] = RootWtCapblUptake[l][k];
             Scratch21[u].soilPsi[l][k] = SoilPsi[l][k];
             Scratch21[u].soilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k];
             Scratch21[u].volNh4NContent[l][k] = VolNh4NContent[l][k];

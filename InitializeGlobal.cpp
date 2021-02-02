@@ -171,7 +171,6 @@ void InitializeGlobal()
         rlat1[l] = 0;
         rlat2[l] = 0;
         for (int k = 0; k < maxk; k++) {
-            RootWtCapblUptake[l][k] = 0;
             RootImpede[l][k] = 0;
         }
     }

@@ -323,7 +323,7 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
 void init_root_data(Root root[40][20], uint32_t plant_row_column, double mul) {
     for (int l = 0; l < 40; l++) {
         for (int k = 0; k < 20; k++) {
-            root[l][k] = {0, 1, 0, 0, {0, 0, 0}};
+            root[l][k] = {0, 1, 0, 0, 0, {0, 0, 0}};
         }
     }
     // FIXME: I consider the value is incorrect

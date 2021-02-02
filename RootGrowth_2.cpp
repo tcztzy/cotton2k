@@ -512,7 +512,7 @@ double RootCultivation(Root root[40][20], int j, const int &NumRootAgeGroups, do
 }
 
 //////////////////////////////
-void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, const int &NumLayersWithRoots)
+void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
 //     This function has been added for compatibility with GOSSYM root routines.
 //  It is called from ActualRootGrowth(). It summarizes root data, in a form ready
 //  for output or plotting. Sums of root weights for cells, for age groups and for
@@ -523,6 +523,7 @@ void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, con
 //  OutIndex, RootWeight, RootWtCapblUptake, RowSpace, wk
 //     The following global variable is set here:     TotalRootWeight
 {
+    State &state = sim.states[u];
     //     Compute the total root weight (of all age classes) for all soil cells as
     double roots = 0;          // total weight of roots of all classes, g per slab.
     for (int l = 0; l < nl; l++)
@@ -545,7 +546,7 @@ void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, con
             double rwt[3];          // total weight of roots of class i, g per slab.
             for (int i = 0; i < 3; i++)
                 rwt[i] = 0;
-            for (int l = 0; l < NumLayersWithRoots; l++)
+            for (int l = 0; l < state.number_of_layers_with_root; l++)
             {
                 rootl[l] = 0;
                 for (int i = 0; i < 3; i++)
@@ -570,7 +571,7 @@ void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, con
             File34 << " Layer    Total     Class=     1              2              3";
             File34 << endl;
             //
-            for (int l = 0; l < NumLayersWithRoots; l++)
+            for (int l = 0; l < state.number_of_layers_with_root; l++)
             {
                 File34.width(5);
                 File34 << l + 1 << " ";
@@ -612,7 +613,7 @@ void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, con
             }
             File34 << endl;
 
-            for (int l = 0; l < NumLayersWithRoots; l++)
+            for (int l = 0; l < state.number_of_layers_with_root; l++)
             {
                 File34.width(5);
                 File34 << l + 1 << " ";
@@ -621,7 +622,7 @@ void RootSummation(Simulation &sim, uint32_t u, const int &NumRootAgeGroups, con
                     File34.setf(ios::scientific);
                     File34.precision(2);
                     File34.width(8);
-                    File34 << 1000 * RootWtCapblUptake[l][k] / (dl[l] * wk[k]) << " ";
+                    File34 << 1000 * state.root[l][k].weight_capable_uptake / (dl[l] * wk[k]) << " ";
                 }
                 File34 << endl;
             }

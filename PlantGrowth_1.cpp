@@ -12,7 +12,7 @@
 #include "GeneralFunctions.h"
 #include "RootGrowth.h"
 
-void LeafWaterPotential(const string &, const double &, const int &);
+void LeafWaterPotential(State &, const string &);
 
 extern "C"
 {
@@ -49,7 +49,7 @@ void Stress(Simulation &sim, unsigned int u)
     //     The following constant parameters are used:
     const double vstrs[9] = {-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05};
     //     Call LeafWaterPotential() to compute leaf water potentials.
-    LeafWaterPotential(sim.profile_name, sim.states[u].plant_height, sim.states[u].number_of_layers_with_root);
+    LeafWaterPotential(sim.states[u], sim.profile_name);
     //     The running averages, for the last three days, are computed:
     //  AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
     AverageLwpMin += (LwpMin - LwpMinX[2]) / 3;
@@ -105,7 +105,7 @@ void Stress(Simulation &sim, unsigned int u)
 }
 
 //////////////////////////
-void LeafWaterPotential(const string &ProfileName, const double &PlantHeight, const int &NumLayersWithRoots)
+void LeafWaterPotential(State &state, const string &ProfileName)
 //     This function simulates the leaf water potential of cotton plants. It has been
 //  adapted from the model of Moshe Meron (The relation of cotton leaf water potential to
 //  soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
@@ -138,7 +138,7 @@ void LeafWaterPotential(const string &ProfileName, const double &PlantHeight, co
     }
     //     Compute shoot resistance (rshoot) as a function of plant height.
     double rshoot; // shoot resistance, Mpa hours per cm.
-    rshoot = vpsil[0] * PlantHeight / 100;
+    rshoot = vpsil[0] * state.plant_height / 100;
     //     Assign zero to summation variables
     double psinum = 0;  // sum of RootWtCapblUptake for all soil cells with roots.
     double rootvol = 0; // sum of volume of all soil cells with roots.
@@ -151,20 +151,20 @@ void LeafWaterPotential(const string &ProfileName, const double &PlantHeight, co
                         //     All average values computed for the root zone, are weighted by RootWtCapblUptake
                         // (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
     double rrl;         // root resistance per g of active roots.
-    for (int l = 0; l < NumLayersWithRoots; l++)
+    for (int l = 0; l < state.number_of_layers_with_root; l++)
         for (int k = RootColNumLeft[l]; k < RootColNumRight[l]; k++)
         {
-            if (RootWtCapblUptake[l][k] >= vpsil[10])
+            if (state.root[l][k].weight_capable_uptake >= vpsil[10])
             {
-                psinum += min(RootWtCapblUptake[l][k], vpsil[11]);
-                sumlv += min(RootWtCapblUptake[l][k], vpsil[11]) * cmg;
+                psinum += min(state.root[l][k].weight_capable_uptake, vpsil[11]);
+                sumlv += min(state.root[l][k].weight_capable_uptake, vpsil[11]) * cmg;
                 rootvol += dl[l] * wk[k];
                 if (SoilPsi[l][k] <= vpsil[1])
                     rrl = vpsil[2] / cmg;
                 else
                     rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k])) / cmg;
-                rrlsum += min(RootWtCapblUptake[l][k], vpsil[11]) / rrl;
-                vh2sum += VolWaterContent[l][k] * min(RootWtCapblUptake[l][k], vpsil[11]);
+                rrlsum += min(state.root[l][k].weight_capable_uptake, vpsil[11]) / rrl;
+                vh2sum += VolWaterContent[l][k] * min(state.root[l][k].weight_capable_uptake, vpsil[11]);
             }
         }
     //     Compute average root resistance (rroot) and average soil water content (vh2).

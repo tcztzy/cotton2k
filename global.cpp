@@ -265,8 +265,7 @@ double
     RootImpede[maxl][maxk],        // root mechanical impedance for a soil cell, kg cm-2.
     RootNConc,                     // average nitrogen concentration in roots.
     RootNitrogen,                  // total root nitroge, g per plant.
-    RootWeightLoss,                // total cumulative weight of sloughed roots, g per plant.
-    RootWtCapblUptake[maxl][maxk]; // root weight capable of uptake, in g per soil cell.
+    RootWeightLoss;                // total cumulative weight of sloughed roots, g per plant.
 // S
 double
     SandVolumeFraction[maxl],      // fraction by volume of sand plus silt in the soil.

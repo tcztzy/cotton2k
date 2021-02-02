@@ -37,7 +37,7 @@ typedef struct scratch
             tapRootLength, totalLeafWeight, totalPetioleWeight, totalRequiredN,
             totalRootWeight, totalSoilNh4N, totalSoilNo3N, totalSoilUreaN,
             totalSoilWater, totalSquareWeight, totalStemWeight, waterStressStem;
-        double rootWtCapblUptake[maxl][maxk], soilPsi[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
+        double soilPsi[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
             volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk];
 } scratch;
 extern scratch Scratch21[400];
@@ -125,7 +125,6 @@ extern double AbscissionLag[20], AgeOfBoll[3][30][5],
     PotGroPetioleWeightPreFru[9], PotGroRoots[maxl][maxk], PotGroSquares[3][30][5],
     Radiation[24], ReferenceETP[24], RelativeHumidity[24], rlat1[maxl], rlat2[maxl],
     RootGroFactor[maxl][maxk], RootImpede[maxl][maxk],
-    RootWtCapblUptake[maxl][maxk],
     SandVolumeFraction[maxl], SaturatedHydCond[9], ShedByCarbonStress[20],
     ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk],
     SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], SquareWeight[3][30][5],
