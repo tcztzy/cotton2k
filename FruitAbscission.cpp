@@ -258,15 +258,15 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
 //     Update SeedNitrogen, BurrNitrogen, CumPlantNLoss, PixInPlants, GreenBollsLost, CottonWeightGreenBolls, BurrWeightGreenBolls, 
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and FruitFraction[k][l][m].
     SeedNitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * SeedNConc;
-    BurrNitrogen -= BurrWeight[k][l][m] * abscissionRatio * BurrNConc;
+    BurrNitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
     CumPlantNLoss += site.boll.weight * abscissionRatio * (1. - gin1) * SeedNConc;
-    CumPlantNLoss += BurrWeight[k][l][m] * abscissionRatio * BurrNConc;
-    PixInPlants -= (site.boll.weight + BurrWeight[k][l][m]) * abscissionRatio * pixcon;
-    GreenBollsLost += (site.boll.weight + BurrWeight[k][l][m]) * abscissionRatio;
+    CumPlantNLoss += site.burr.weight * abscissionRatio * BurrNConc;
+    PixInPlants -= (site.boll.weight + site.burr.weight) * abscissionRatio * pixcon;
+    GreenBollsLost += (site.boll.weight + site.burr.weight) * abscissionRatio;
     CottonWeightGreenBolls -= site.boll.weight * abscissionRatio;
-    BurrWeightGreenBolls -= BurrWeight[k][l][m] * abscissionRatio;
+    BurrWeightGreenBolls -= site.burr.weight * abscissionRatio;
     site.boll.weight -= site.boll.weight * abscissionRatio;
-    BurrWeight[k][l][m] -= BurrWeight[k][l][m] * abscissionRatio;
+    site.burr.weight -= site.burr.weight * abscissionRatio;
     FruitFraction[k][l][m] -= FruitFraction[k][l][m] * abscissionRatio;
 //
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, update SeedNitrogen,
@@ -276,16 +276,16 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
     if (FruitFraction[k][l][m] <= 0.001) {
         FruitingCode[k][l][m] = 4;
         SeedNitrogen -= site.boll.weight * (1 - gin1) * SeedNConc;
-        BurrNitrogen -= BurrWeight[k][l][m] * BurrNConc;
+        BurrNitrogen -= site.burr.weight * BurrNConc;
         CumPlantNLoss += site.boll.weight * (1 - gin1) * SeedNConc;
-        CumPlantNLoss += BurrWeight[k][l][m] * BurrNConc;
-        PixInPlants -= (site.boll.weight + BurrWeight[k][l][m]) * pixcon;
+        CumPlantNLoss += site.burr.weight * BurrNConc;
+        PixInPlants -= (site.boll.weight + site.burr.weight) * pixcon;
         FruitFraction[k][l][m] = 0;
         CottonWeightGreenBolls -= site.boll.weight;
-        BurrWeightGreenBolls -= BurrWeight[k][l][m];
-        GreenBollsLost += site.boll.weight + BurrWeight[k][l][m];
+        BurrWeightGreenBolls -= site.burr.weight;
+        GreenBollsLost += site.boll.weight + site.burr.weight;
         site.boll.weight = 0;
-        BurrWeight[k][l][m] = 0;
+        site.burr.weight = 0;
     }
 }
 

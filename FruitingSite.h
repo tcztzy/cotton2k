@@ -10,6 +10,10 @@ typedef struct BollStruct
     double potential_growth; // age of each boll, physiological days from flowering.
     double weight;           // weight of seedcotton for each site, g per plant.
 } Boll;
+typedef struct BurrStruct
+{
+    double weight; // weight of burrs for each site, g per plant.
+} Burr;
 typedef struct PetioleStruct
 {
     double weight; // petiole weight at each fruiting site, g.
@@ -19,6 +23,7 @@ typedef struct FruitingSiteStruct
     double age; // age of each fruiting site, physiological days from square initiation.
     Leaf leaf;
     Boll boll;
+    Burr burr;
     Petiole petiole;
 } FruitingSite;
 #endif

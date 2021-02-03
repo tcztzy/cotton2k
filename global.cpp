@@ -108,7 +108,6 @@ double
     BulkDensity[9],       // bulk density of soil in a horizon, g cm-3.
     BurrNConc,            // average nitrogen concentration in burrs.
     BurrNitrogen,         // nitrogen in burrs, g per plant.
-    BurrWeight[3][30][5], // weight of burrs for each site, g per plant.
     BurrWeightGreenBolls, // total weight of burrs in green bolls, g plant-1.
     BurrWeightOpenBolls;  // total weight of burrs in open bolls, g per plant.
 // C

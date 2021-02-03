@@ -643,7 +643,7 @@ void NewBollFormation(FruitingSite &site, int k, int l, int m)
     double bolinit; // initial weight of boll after flowering.
     bolinit = vnewboll[0] * SquareWeight[k][l][m];
     site.boll.weight = 0.2 * bolinit;
-    BurrWeight[k][l][m] = bolinit - site.boll.weight;
+    site.burr.weight = bolinit - site.boll.weight;
     BloomWeightLoss += SquareWeight[k][l][m] - bolinit;
 //
     double sqr1n; // the nitrogen content of one square before flowering.
@@ -660,7 +660,7 @@ void NewBollFormation(FruitingSite &site, int k, int l, int m)
     BurrNitrogen += sqr1n - seed1n;
 //
     CottonWeightGreenBolls += site.boll.weight;
-    BurrWeightGreenBolls += BurrWeight[k][l][m];
+    BurrWeightGreenBolls += site.burr.weight;
     TotalSquareWeight -= SquareWeight[k][l][m];
     SquareWeight[k][l][m] = 0;
 }
@@ -720,9 +720,9 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //  CottonWeightGreenBolls, BurrWeightGreenBolls.
     FruitingCode[k][l][m] = 3;
     CottonWeightOpenBolls += site.boll.weight;
-    BurrWeightOpenBolls += BurrWeight[k][l][m];
+    BurrWeightOpenBolls += site.burr.weight;
     CottonWeightGreenBolls -= site.boll.weight;
-    BurrWeightGreenBolls -= BurrWeight[k][l][m];
+    BurrWeightGreenBolls -= site.burr.weight;
 //     Compute the ginning percentage as a function of boll temperature.
 //     Compute the average ginning percentage of all the bolls opened
 //  until now (Gintot).
