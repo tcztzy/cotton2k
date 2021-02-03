@@ -562,7 +562,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     if (FruitingCode[k][l][m] == 1) {
         if (state.site[k][l][m].age >= vfrsite[8]) {
             boltmp[k][l][m] = AvrgDailyTemp;
-            AgeOfBoll[k][l][m] = sim.states[u].day_inc;
+            sim.states[u].site[k][l][m].boll.age = sim.states[u].day_inc;
             FruitingCode[k][l][m] = 7;
             NewBollFormation(k, l, m);
 //     If this is the first flower, define FirstBloom.
@@ -589,15 +589,15 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
             dum = 1;
         double dagebol; // added physiological age of boll on this day.
         dagebol = sim.states[u].day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - NStressFruiting);
-        boltmp[k][l][m] = (boltmp[k][l][m] * AgeOfBoll[k][l][m] + AvrgDailyTemp * dagebol)
-                          / (AgeOfBoll[k][l][m] + dagebol);
-        AgeOfBoll[k][l][m] += dagebol;
+        boltmp[k][l][m] = (boltmp[k][l][m] * state.site[k][l][m].boll.age + AvrgDailyTemp * dagebol)
+                          / (state.site[k][l][m].boll.age + dagebol);
+        state.site[k][l][m].boll.age += dagebol;
     }
 //     If this node is a young green boll (FruitingCode = 7):
 //     Check boll age and after a fixed age convert it to an "old"
 //  green boll (FruitingCode = 2).
     if (FruitingCode[k][l][m] == 7) {
-        if (AgeOfBoll[k][l][m] >= vfrsite[9])
+        if (state.site[k][l][m].boll.age >= vfrsite[9])
             FruitingCode[k][l][m] = 2;
         return;
     }
@@ -710,7 +710,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
             fdhslai = 1;
         dehiss = dehiss * fdhslai;
     }
-    if (AgeOfBoll[k][l][m] < dehiss)
+    if (sim.states[u].site[k][l][m].boll.age < dehiss)
         return;
 //     If green boll is old enough (AgeOfBoll greater than dehiss), make
 //  it an open boll, set FruitingCode to 3, and update CottonWeightOpenBolls, BurrWeightOpenBolls,

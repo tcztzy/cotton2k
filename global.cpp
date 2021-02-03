@@ -90,7 +90,6 @@ double
     ActualStemGrowth,             // actual growth rate of stems, g plant-1 day-1.
     ActualTranspiration,          // actual transpiration from plants, mm day-1.
     addwtbl,                      // water added to the slab (in mm) due to high water table.
-    AgeOfBoll[3][30][5],          // age of each boll, physiological days from flowering.
     AgeOfPreFruNode[9],           // age of each prefruiting node, physiological days.
     airdr[9],                     // volumetric water content of soil at "air-dry" for each soil horizon, cm3 cm-3.
     AirTemp[24],                  // hourly air temperatures, C.

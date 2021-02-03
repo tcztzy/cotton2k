@@ -247,7 +247,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
 //            ratebol = 4 * rbmax * pex / (1. + pex)**2
                 else if (FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7) {
 //     pex is an intermediate variable to compute boll growth.
-                    double pex = exp(-4 * rbmax * (AgeOfBoll[k][l][m] - agemax) / wbmax);
+                    double pex = exp(-4 * rbmax * (state.site[k][l][m].boll.age - agemax) / wbmax);
 //  ratebol is the rate of boll (seed and lint) growth, g per boll per day.
                     double ratebol = 4 * rbmax * pex / pow((1 + pex), 2);
                     ratebol = ratebol * tfrt;
@@ -263,7 +263,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
                     if (wfdb > 1)
                         wfdb = 1;
                     double ratebur; // rate of burr growth, g per boll per day.
-                    if (AgeOfBoll[k][l][m] >= 22)
+                    if (state.site[k][l][m].boll.age >= 22)
                         ratebur = 0;
                     else
                         ratebur = vpotfrt[4] * tfrt * wfdb;

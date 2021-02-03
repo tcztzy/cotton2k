@@ -96,8 +96,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     TotalStemWeight,
     WaterStressStem;
 
-extern double AbscissionLag[20], AgeOfBoll[3][30][5],
-    AgeOfPreFruNode[9], airdr[9], AirTemp[24], albedo[24],
+extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9], AirTemp[24], albedo[24],
     alpha[9], AvrgNodeTemper[3][30][5],
     vanGenuchtenBeta[9], BollWeight[3][30][5], BulkDensity[9], BurrWeight[3][30][5],
     ClayVolumeFraction[maxl], CloudCoverRatio[24], CloudTypeCorr[24],

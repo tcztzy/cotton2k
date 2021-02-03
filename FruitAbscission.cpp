@@ -161,7 +161,7 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
         shedt = 1 - (1 - ShedByCarbonStress[lt]) * (1 - ShedByNitrogenStress[lt]);
     }
 //     (2) Very young bolls (FruitingCode = 7, and AgeOfBoll less than VarPar[47]). 
-    else if (FruitingCode[k][l][m] == 7 && AgeOfBoll[k][l][m] <= VarPar[47]) {
+    else if (FruitingCode[k][l][m] == 7 && state.site[k][l][m].boll.age <= VarPar[47]) {
 //     There is a constant probability of shedding (VarPar[48]), and shedt is a product 
 //  of the effects carbohydrate, and nitrogen stresses. Note that nitrogen stress has only a
 //  partial effect in this case, as modified by vabsc[2].
@@ -169,22 +169,22 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
         shedt = 1 - (1 - ShedByCarbonStress[lt]) * (1 - vabsc[2] * ShedByNitrogenStress[lt]);
     }
 //     (3) Medium age bolls (AgeOfBoll between VarPar[47] and VarPar[47] + VarPar[49]). 
-    else if (AgeOfBoll[k][l][m] > VarPar[47] && AgeOfBoll[k][l][m] <= (VarPar[47] + VarPar[49])) {
+    else if (state.site[k][l][m].boll.age > VarPar[47] && state.site[k][l][m].boll.age <= (VarPar[47] + VarPar[49])) {
 //     pabs is linearly decreasing with age, and shedt is a product of the effects 
 //  carbohydrate, nitrogen and water stresses.  Note that nitrogen stress has only 
 //  a partial effect in this case, as modified by vabsc[4].
-        pabs = VarPar[48] - (VarPar[48] - VarPar[50]) * (AgeOfBoll[k][l][m] - VarPar[47]) / VarPar[49];
+        pabs = VarPar[48] - (VarPar[48] - VarPar[50]) * (state.site[k][l][m].boll.age - VarPar[47]) / VarPar[49];
         shedt = 1 -
                 (1 - ShedByCarbonStress[lt]) * (1 - vabsc[4] * ShedByNitrogenStress[lt]) * (1 - ShedByWaterStress[lt]);
     }
 //     (4) Older bolls (AgeOfBoll between VarPar[47] + VarPar[49] and VarPar[47] + 2*VarPar[49]). 
-    else if (AgeOfBoll[k][l][m] > (VarPar[47] + VarPar[49]) && AgeOfBoll[k][l][m] <= (VarPar[47] + 2 * VarPar[49])) {
+    else if (state.site[k][l][m].boll.age > (VarPar[47] + VarPar[49]) && state.site[k][l][m].boll.age <= (VarPar[47] + 2 * VarPar[49])) {
 //     pabs is linearly decreasing with age, and shedt is affected only by water stress.
-        pabs = VarPar[50] / VarPar[49] * (VarPar[47] + 2 * VarPar[49] - AgeOfBoll[k][l][m]);
+        pabs = VarPar[50] / VarPar[49] * (VarPar[47] + 2 * VarPar[49] - state.site[k][l][m].boll.age);
         shedt = ShedByWaterStress[lt];
     }
 //     (5) bolls older than VarPar[47] + 2*VarPar[49]
-    else if (AgeOfBoll[k][l][m] > (VarPar[47] + 2 * VarPar[49]))
+    else if (state.site[k][l][m].boll.age > (VarPar[47] + 2 * VarPar[49]))
         pabs = 0; // no abscission
 //      Actual abscission of tagged sites (abscissionRatio) is a product of pabs,
 //  shedt and DayInc for this day. It can not be greater than 1.
