@@ -105,7 +105,6 @@ double
 double
     vanGenuchtenBeta[9],  // parameter of the Van Genuchten equation.
     BloomWeightLoss,      // cumulative weight lost due to petals shed after blooming, g per plant.
-    BollWeight[3][30][5], // weight of seedcotton for each site, g per plant.
     BulkDensity[9],       // bulk density of soil in a horizon, g cm-3.
     BurrNConc,            // average nitrogen concentration in burrs.
     BurrNitrogen,         // nitrogen in burrs, g per plant.

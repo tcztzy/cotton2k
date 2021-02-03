@@ -230,6 +230,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                             state0.site[k][l][m].leaf.age = 0;
                             state0.site[k][l][m].boll.age = 0;
                             state0.site[k][l][m].boll.potential_growth = 0;
+                            state0.site[k][l][m].boll.weight = 0;
                             state0.site[k][l][m].petiole.weight = 0;
                         }
             }

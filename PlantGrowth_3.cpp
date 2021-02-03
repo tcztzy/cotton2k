@@ -291,6 +291,7 @@ void ActualFruitGrowth(State &state)
             int nnid = NumNodes[k][l];     // number of fruiting nodes on a fruiting branch.
             for (int m = 0; m < nnid; m++) // loop of nodes on a fruiting branch
             {
+                FruitingSite &site = state.site[k][l][m];
                 //     If this site is a square, the actual dry weight added to it
                 //  (dwsq) is proportional to its potential growth.
                 //     Update the weight of this square (SquareWeight), sum of today's added dry
@@ -308,10 +309,10 @@ void ActualFruitGrowth(State &state)
                 if (FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7)
                 {
                     double dwboll; // dry weight added to seedcotton in a boll.
-                    dwboll = state.site[k][l][m].boll.potential_growth * FruitGrowthRatio;
-                    BollWeight[k][l][m] += dwboll;
+                    dwboll = site.boll.potential_growth * FruitGrowthRatio;
+                    site.boll.weight += dwboll;
                     ActualBollGrowth += dwboll;
-                    CottonWeightGreenBolls += BollWeight[k][l][m];
+                    CottonWeightGreenBolls += site.boll.weight;
                     double dwburr; // dry weight added to the burrs in a boll.
                     dwburr = PotGroBurrs[k][l][m] * FruitGrowthRatio;
                     BurrWeight[k][l][m] += dwburr;

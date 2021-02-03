@@ -31,7 +31,7 @@ void AddFruitingNode(State &, int, int, double, double);
 
 void SimulateFruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
 
-void NewBollFormation(int, int, int);
+void NewBollFormation(FruitingSite &, int, int, int);
 
 void BollOpening(Simulation &, uint32_t, int, int, int, double);
 
@@ -503,6 +503,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //
 {
     State &state = sim.states[u];
+    FruitingSite &site = state.site[k][l][m];
 //     The following constant parameters are used:
     const double vfrsite[15] = {0.60, 0.40, 12.25, 0.40, 33.0, 0.20, 0.04, 0.45,
                                 26.10, 9.0, 0.10, 3.0, 1.129, 0.043, 0.26};
@@ -524,10 +525,10 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //  and nitrogen stresses (agefac).
     double agefac; // effect of water and nitrogen stresses on leaf aging.
     agefac = (1 - WaterStress) * vfrsite[0] + (1 - NStressVeg) * vfrsite[1];
-    state.site[k][l][m].leaf.age += sim.states[u].day_inc + agefac;
+    site.leaf.age += state.day_inc + agefac;
 //  After the application of defoliation, add the effect of defoliation on leaf age.
     if (DayFirstDef > 0 && sim.day_start + u > DayFirstDef)
-        state.site[k][l][m].leaf.age += VarPar[38];
+        site.leaf.age += VarPar[38];
 //     FruitingCode = 3, 4, 5 or 6 indicates that this node has an open boll,
 //  or has been completely abscised. Return in this case.
     if (FruitingCode[k][l][m] >= 3 && FruitingCode[k][l][m] <= 6)
@@ -536,7 +537,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //  maximum temperatures.
     double tmin = sim.climate[u].Tmin;
     double tmax = sim.climate[u].Tmax;
-    double ageinc = sim.states[u].day_inc; // daily addition to site age.
+    double ageinc = state.day_inc; // daily addition to site age.
 //     Adjust leaf aging for low minimum twmperatures.
     if (tmin < vfrsite[2])
         ageinc += vfrsite[3] * (vfrsite[2] - tmin);
@@ -551,20 +552,20 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     if (ageinc < vfrsite[7])
         ageinc = vfrsite[7];
 //     Compute average temperature of this site since formation.
-    AvrgNodeTemper[k][l][m] = (AvrgNodeTemper[k][l][m] * state.site[k][l][m].age + AvrgDailyTemp * ageinc)
-                              / (state.site[k][l][m].age + ageinc);
+    AvrgNodeTemper[k][l][m] = (AvrgNodeTemper[k][l][m] * site.age + AvrgDailyTemp * ageinc)
+                              / (site.age + ageinc);
 //     Update the age of this node, AgeOfSite(k,l,m), by adding ageinc.
-    state.site[k][l][m].age += ageinc;
+    site.age += ageinc;
 //     The following is executed if this node is a square (FruitingCode =  1):
 //     If square is old enough, make it a green boll: initialize the
 //  computations of average boll temperature (boltmp) and boll age
 //  (AgeOfBoll). FruitingCode will now be 7.
     if (FruitingCode[k][l][m] == 1) {
-        if (state.site[k][l][m].age >= vfrsite[8]) {
+        if (site.age >= vfrsite[8]) {
             boltmp[k][l][m] = AvrgDailyTemp;
-            sim.states[u].site[k][l][m].boll.age = sim.states[u].day_inc;
+            site.boll.age = state.day_inc;
             FruitingCode[k][l][m] = 7;
-            NewBollFormation(k, l, m);
+            NewBollFormation(site, k, l, m);
 //     If this is the first flower, define FirstBloom.
             if (CottonWeightGreenBolls > 0 && sim.first_bloom <= 1)
                 sim.first_bloom = sim.day_start + u;
@@ -581,23 +582,23 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //  variable. It is used to increase boll temperature and to accelerate
 //  boll aging when leaf cover is decreased. Boll age is also modified
 //  by nitrogen stress (NStressFruiting).
-    if (BollWeight[k][l][m] > 0) {
+    if (site.boll.weight > 0) {
         double dum; // effect of leaf area index on boll temperature and age.
         if (LeafAreaIndex <= vfrsite[11] && Kday > 100)
             dum = vfrsite[12] - vfrsite[13] * LeafAreaIndex;
         else
             dum = 1;
         double dagebol; // added physiological age of boll on this day.
-        dagebol = sim.states[u].day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - NStressFruiting);
-        boltmp[k][l][m] = (boltmp[k][l][m] * state.site[k][l][m].boll.age + AvrgDailyTemp * dagebol)
-                          / (state.site[k][l][m].boll.age + dagebol);
-        state.site[k][l][m].boll.age += dagebol;
+        dagebol = state.day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - NStressFruiting);
+        boltmp[k][l][m] = (boltmp[k][l][m] * site.boll.age + AvrgDailyTemp * dagebol)
+                          / (site.boll.age + dagebol);
+        site.boll.age += dagebol;
     }
 //     If this node is a young green boll (FruitingCode = 7):
 //     Check boll age and after a fixed age convert it to an "old"
 //  green boll (FruitingCode = 2).
     if (FruitingCode[k][l][m] == 7) {
-        if (state.site[k][l][m].boll.age >= vfrsite[9])
+        if (site.boll.age >= vfrsite[9])
             FruitingCode[k][l][m] = 2;
         return;
     }
@@ -607,7 +608,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 }
 
 /////////////////////////
-void NewBollFormation(int k, int l, int m)
+void NewBollFormation(FruitingSite &site, int k, int l, int m)
 //     Function NewBollFormation() simulates the formation of a new boll at a 
 //   fruiting site. It is called from function SimulateFruitingSite().
 //
@@ -641,8 +642,8 @@ void NewBollFormation(int k, int l, int m)
 //  BurrWeightGreenBolls and TotalSquareWeight. assign zero to SquareWeight at this site.
     double bolinit; // initial weight of boll after flowering.
     bolinit = vnewboll[0] * SquareWeight[k][l][m];
-    BollWeight[k][l][m] = 0.2 * bolinit;
-    BurrWeight[k][l][m] = bolinit - BollWeight[k][l][m];
+    site.boll.weight = 0.2 * bolinit;
+    BurrWeight[k][l][m] = bolinit - site.boll.weight;
     BloomWeightLoss += SquareWeight[k][l][m] - bolinit;
 //
     double sqr1n; // the nitrogen content of one square before flowering.
@@ -652,13 +653,13 @@ void NewBollFormation(int k, int l, int m)
     sqr1n = sqr1n * vnewboll[0];
 //
     double seed1n; // the nitrogen content of seeds in a new boll on flowering.
-    seed1n = BollWeight[k][l][m] * seedratio * vnewboll[1];
+    seed1n = site.boll.weight * seedratio * vnewboll[1];
     if (seed1n > sqr1n)
         seed1n = sqr1n;
     SeedNitrogen += seed1n;
     BurrNitrogen += sqr1n - seed1n;
 //
-    CottonWeightGreenBolls += BollWeight[k][l][m];
+    CottonWeightGreenBolls += site.boll.weight;
     BurrWeightGreenBolls += BurrWeight[k][l][m];
     TotalSquareWeight -= SquareWeight[k][l][m];
     SquareWeight[k][l][m] = 0;
@@ -680,6 +681,8 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //        tmpboll - average temperature of this boll.
 //
 {
+    State &state = sim.states[u];
+    FruitingSite &site = state.site[k][l][m];
 //     The following constant parameters are used:
     double ddpar1 = 1;
     double ddpar2 = 0.8; // constant parameters for computing fdhslai.
@@ -710,15 +713,15 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
             fdhslai = 1;
         dehiss = dehiss * fdhslai;
     }
-    if (sim.states[u].site[k][l][m].boll.age < dehiss)
+    if (site.boll.age < dehiss)
         return;
 //     If green boll is old enough (AgeOfBoll greater than dehiss), make
 //  it an open boll, set FruitingCode to 3, and update CottonWeightOpenBolls, BurrWeightOpenBolls,
 //  CottonWeightGreenBolls, BurrWeightGreenBolls.
     FruitingCode[k][l][m] = 3;
-    CottonWeightOpenBolls += BollWeight[k][l][m];
+    CottonWeightOpenBolls += site.boll.weight;
     BurrWeightOpenBolls += BurrWeight[k][l][m];
-    CottonWeightGreenBolls -= BollWeight[k][l][m];
+    CottonWeightGreenBolls -= site.boll.weight;
     BurrWeightGreenBolls -= BurrWeight[k][l][m];
 //     Compute the ginning percentage as a function of boll temperature.
 //     Compute the average ginning percentage of all the bolls opened
@@ -727,7 +730,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     Gintot = (Gintot * NumOpenBolls + ginp * FruitFraction[k][l][m]) /
              (NumOpenBolls + FruitFraction[k][l][m]);
 //     Cumulative lint yield (LintYield) is computed in kg per ha.
-    LintYield += ginp * BollWeight[k][l][m] * PlantPopulation * .001;
+    LintYield += ginp * site.boll.weight * PlantPopulation * .001;
 //     Note: computation of fiber properties is as in GOSSYM, it is
 //  not used in COTTON2K, and it has not been tested. It is included here
 //  for compatibility, and it may be developed in future versions.

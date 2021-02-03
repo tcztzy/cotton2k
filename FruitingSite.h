@@ -8,6 +8,7 @@ typedef struct BollStruct
 {
     double age;              // age of each boll, physiological days from flowering.
     double potential_growth; // age of each boll, physiological days from flowering.
+    double weight;           // weight of seedcotton for each site, g per plant.
 } Boll;
 typedef struct PetioleStruct
 {
