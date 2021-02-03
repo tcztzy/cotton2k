@@ -1,9 +1,10 @@
+use super::{Stage, Stage_NotYetFormed};
 /// This function computes and returns the potential stem growth of cotton plants.
 #[no_mangle]
 extern "C" fn PotentialStemGrowth(
     stem_dry_weight: f64,
     days_since_emergence: i32,
-    third_fruiting_branch_code: u32,
+    third_fruiting_branch_stage: Stage,
     density_factor: f64,
     var12: f64,
     var13: f64,
@@ -16,7 +17,7 @@ extern "C" fn PotentialStemGrowth(
     // There are two periods for computation of potential stem growth:
     // (1) Before the appearance of a square on the third fruiting branch.
     // Potential stem growth is a function of plant age (days from emergence).
-    if third_fruiting_branch_code == 0 {
+    if third_fruiting_branch_stage == Stage_NotYetFormed {
         var12 * (var13 + var14 * days_since_emergence as f64)
     }
     // (2) After the appearance of a square on the third fruiting branch.
@@ -39,7 +40,7 @@ extern "C" fn AddPlantHeight(
     density_factor: f64,
     physiological_days_increment: f64,
     number_of_pre_fruiting_nodes: u32,
-    second_fruiting_branch_code: u32,
+    second_fruiting_branch_stage: Stage,
     age_of_last_pre_fruiting_node: f64,
     age_of_penultimate_pre_fruiting_node: f64,
     average_physiological_age_of_top_three_nodes: f64,
@@ -61,7 +62,7 @@ extern "C" fn AddPlantHeight(
     let mut addz; // daily plant height growth increment, cm.
                   //     Calculate vertical growth of main stem before the square on the second fruiting branch
                   //  has appeared. Added stem height (addz) is a function of the age of the last prefruiting node.
-    if second_fruiting_branch_code == 0 {
+    if second_fruiting_branch_stage == Stage_NotYetFormed {
         addz = vhtpar[0] - vhtpar[1] * age_of_last_pre_fruiting_node;
         if addz > vhtpar[2] {
             addz = vhtpar[2];

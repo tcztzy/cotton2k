@@ -58,8 +58,7 @@ extern int DayFirstDef,
     NumIrrigations, NumNitApps, NumPreFruNodes,
     NumSheddingTags, NumVegBranches, NumWaterTableData, SoilMapFreq, WaterTableLayer;
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
-    FruitingCode[3][30][5], LateralRootFlag[maxl],
-    NumFruitBranches[3], NumNodes[3][30], OutIndex[24], pixday[10], pixmth[10],
+    LateralRootFlag[maxl], NumFruitBranches[3], NumNodes[3][30], OutIndex[24], pixday[10], pixmth[10],
     RootColNumLeft[maxl], RootColNumRight[maxl], SoilHorizonNum[maxl];
 ////    Boolean    ////
 extern bool bPollinSwitch;

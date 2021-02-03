@@ -12,7 +12,7 @@
 
 double SiteAbscissionRatio(State &, int, int, int, int);
 
-void SquareAbscission(int, int, int, double);
+void SquareAbscission(FruitingSite &, int, int, int, double);
 
 void BollAbscission(FruitingSite &, int, int, int, double, double);
 
@@ -90,14 +90,15 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                 for (int l = 0; l < nbrch; l++) {
                     int nnid = NumNodes[k][l]; // node number on fruiting branch.
                     for (int m = 0; m < nnid; m++) {
-                        if (FruitingCode[k][l][m] == 1 || FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7) {
+                        FruitingSite &site = state.site[k][l][m];
+                        if (site.stage == Stage::Square || site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll) {
                             double abscissionRatio; // ratio of abscission for a fruiting site.
                             abscissionRatio = SiteAbscissionRatio(state, k, l, m, lt);
                             if (abscissionRatio > 0) {
-                                if (FruitingCode[k][l][m] == 1)
-                                    SquareAbscission(k, l, m, abscissionRatio);
+                                if (site.stage == Stage::Square)
+                                    SquareAbscission(site, k, l, m, abscissionRatio);
                                 else
-                                    BollAbscission(state.site[k][l][m], k, l, m, abscissionRatio, gin1);
+                                    BollAbscission(site, k, l, m, abscissionRatio, gin1);
                             }
                         }
                     }  // for m
@@ -133,6 +134,7 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
 //        lt - lag index for this node.
 //
 {
+    FruitingSite &site = state.site[k][l][m];
 //     The following constant parameters are used:
     const double vabsc[5] = {21.0, 2.25, 0.60, 5.0, 0.20};
 //
@@ -143,12 +145,12 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
     double pabs = 0;  // probability of abscission of a fruiting site.
     double shedt = 0; // total shedding ratio, caused by various stresses.
 //     (1) Squares (FruitingCode = 1).  
-    if (FruitingCode[k][l][m] == 1) {
-        if (state.site[k][l][m].age < vabsc[3])
+    if (site.stage == Stage::Square) {
+        if (site.age < vabsc[3])
             pabs = 0; // No abscission of very young squares (AgeOfSite less than vabsc(3))
         else {
             double xsqage; // square age after becoming susceptible to shedding.
-            xsqage = state.site[k][l][m].age - vabsc[3];
+            xsqage = site.age - vabsc[3];
             if (xsqage >= vabsc[0])
                 pabs = VarPar[46]; // Old squares have a constant probability of shedding.
             else
@@ -161,7 +163,7 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
         shedt = 1 - (1 - ShedByCarbonStress[lt]) * (1 - ShedByNitrogenStress[lt]);
     }
 //     (2) Very young bolls (FruitingCode = 7, and AgeOfBoll less than VarPar[47]). 
-    else if (FruitingCode[k][l][m] == 7 && state.site[k][l][m].boll.age <= VarPar[47]) {
+    else if (site.stage == Stage::YoungGreenBoll && site.boll.age <= VarPar[47]) {
 //     There is a constant probability of shedding (VarPar[48]), and shedt is a product 
 //  of the effects carbohydrate, and nitrogen stresses. Note that nitrogen stress has only a
 //  partial effect in this case, as modified by vabsc[2].
@@ -169,22 +171,22 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
         shedt = 1 - (1 - ShedByCarbonStress[lt]) * (1 - vabsc[2] * ShedByNitrogenStress[lt]);
     }
 //     (3) Medium age bolls (AgeOfBoll between VarPar[47] and VarPar[47] + VarPar[49]). 
-    else if (state.site[k][l][m].boll.age > VarPar[47] && state.site[k][l][m].boll.age <= (VarPar[47] + VarPar[49])) {
+    else if (site.boll.age > VarPar[47] && site.boll.age <= (VarPar[47] + VarPar[49])) {
 //     pabs is linearly decreasing with age, and shedt is a product of the effects 
 //  carbohydrate, nitrogen and water stresses.  Note that nitrogen stress has only 
 //  a partial effect in this case, as modified by vabsc[4].
-        pabs = VarPar[48] - (VarPar[48] - VarPar[50]) * (state.site[k][l][m].boll.age - VarPar[47]) / VarPar[49];
+        pabs = VarPar[48] - (VarPar[48] - VarPar[50]) * (site.boll.age - VarPar[47]) / VarPar[49];
         shedt = 1 -
                 (1 - ShedByCarbonStress[lt]) * (1 - vabsc[4] * ShedByNitrogenStress[lt]) * (1 - ShedByWaterStress[lt]);
     }
 //     (4) Older bolls (AgeOfBoll between VarPar[47] + VarPar[49] and VarPar[47] + 2*VarPar[49]). 
-    else if (state.site[k][l][m].boll.age > (VarPar[47] + VarPar[49]) && state.site[k][l][m].boll.age <= (VarPar[47] + 2 * VarPar[49])) {
+    else if (site.boll.age > (VarPar[47] + VarPar[49]) && site.boll.age <= (VarPar[47] + 2 * VarPar[49])) {
 //     pabs is linearly decreasing with age, and shedt is affected only by water stress.
-        pabs = VarPar[50] / VarPar[49] * (VarPar[47] + 2 * VarPar[49] - state.site[k][l][m].boll.age);
+        pabs = VarPar[50] / VarPar[49] * (VarPar[47] + 2 * VarPar[49] - site.boll.age);
         shedt = ShedByWaterStress[lt];
     }
 //     (5) bolls older than VarPar[47] + 2*VarPar[49]
-    else if (state.site[k][l][m].boll.age > (VarPar[47] + 2 * VarPar[49]))
+    else if (site.boll.age > (VarPar[47] + 2 * VarPar[49]))
         pabs = 0; // no abscission
 //      Actual abscission of tagged sites (abscissionRatio) is a product of pabs,
 //  shedt and DayInc for this day. It can not be greater than 1.
@@ -195,7 +197,7 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
 }
 
 //////////////////////////////////////////////////////////////////
-void SquareAbscission(int k, int l, int m, double abscissionRatio)
+void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscissionRatio)
 //     This function simulates the abscission of a single square
 //  at site (k, l, m). It is called from function FruitingSitesAbscission() 
 //  if this site is a square. 
@@ -231,7 +233,7 @@ void SquareAbscission(int k, int l, int m, double abscissionRatio)
         BloomWeightLoss += SquareWeight[k][l][m];
         TotalSquareWeight -= SquareWeight[k][l][m];
         SquareWeight[k][l][m] = 0;
-        FruitingCode[k][l][m] = 5;
+        site.stage = Stage::AbscisedAsSquare;
     }
 }
 
@@ -274,7 +276,7 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and assign 4 to FruitingCode.
 //
     if (FruitFraction[k][l][m] <= 0.001) {
-        FruitingCode[k][l][m] = 4;
+        site.stage = Stage::AbscisedAsBoll;
         SeedNitrogen -= site.boll.weight * (1 - gin1) * SeedNConc;
         BurrNitrogen -= site.burr.weight * BurrNConc;
         CumPlantNLoss += site.boll.weight * (1 - gin1) * SeedNConc;
@@ -311,11 +313,12 @@ void ComputeSiteNumbers(State &state, int32_t NumVegBranches)
         for (int l = 0; l < nbrch; l++) {
             int nnid = NumNodes[k][l];
             for (int m = 0; m < nnid; m++) {
-                if (FruitingCode[k][l][m] == 1)
+                FruitingSite &site = state.site[k][l][m];
+                if (site.stage == Stage::Square)
                     NumSquares += FruitFraction[k][l][m];
-                else if (FruitingCode[k][l][m] == 7 || FruitingCode[k][l][m] == 2)
+                else if (site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll)
                     NumGreenBolls += FruitFraction[k][l][m];
-                else if (FruitingCode[k][l][m] == 3)
+                else if (site.stage == Stage::MatureBoll)
                     NumOpenBolls += FruitFraction[k][l][m];
             }
         }

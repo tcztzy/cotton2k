@@ -1,5 +1,17 @@
 #ifndef FRUITING_SITE_TYPE
 #define FRUITING_SITE_TYPE
+// code indicating the developmental state of each fruiting site
+enum Stage
+{
+    NotYetFormed,
+    Square,
+    GreenBoll, // not susceptible to shedding
+    MatureBoll,
+    AbscisedAsBoll,
+    AbscisedAsSquare,
+    AbscisedAsFlower,
+    YoungGreenBoll, // susceptible to shedding
+};
 typedef struct LeafStruct
 {
     double age; // leaf age at each fruiting site, physiological days.
@@ -21,6 +33,7 @@ typedef struct PetioleStruct
 typedef struct FruitingSiteStruct
 {
     double age; // age of each fruiting site, physiological days from square initiation.
+    enum Stage stage;
     Leaf leaf;
     Boll boll;
     Burr burr;

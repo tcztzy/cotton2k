@@ -28,11 +28,7 @@ int CultivationDate[5],     // Dates (DOY) of cultivatrion.
     DefoliationMethod[5];   // code number of method of application of defoliants:
 // 0 = 'banded'; 1 = 'sprinkler'; 2 = 'broaddcast'.
 
-int FruitingCode[3][30][5], // code indicating the developmental state of each fruiting site:
-    // 0 = not yet formed; 1 = square; 2 = set green boll (not susceptible to shedding);
-    // 3 = mature boll; 7 = young green boll (susceptible to shedding). For completely abscised
-    // sites: 4 = abscised as bolls; 5 = abscised as squares. 6 = abscised as flowers.
-    inrim,       // number of input bulk-density data points for the impedance curve
+int inrim,       // number of input bulk-density data points for the impedance curve
     IrrigMethod, // method of predicted irrigation.
     isw,         // switch affecting the method of computing soil temperature.
     // 0 = one dimensional (no horizontal flux) - used to predict emergence when emergence date is not known;

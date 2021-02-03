@@ -216,9 +216,10 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
             int nnid = NumNodes[k][l]; // number of nodes on a fruiting branch.
             for (int m = 0; m < nnid; m++) // loop for nodes on a fruiting branch
             {
+                FruitingSite &site = state.site[k][l][m];
 //     Calculate potential square growth for node (k,l,m).
 //     Sum potential growth rates of squares as PotGroAllSquares.
-                if (FruitingCode[k][l][m] == 1) {
+                if (site.stage == Stage::Square) {
 //     ratesqr is the rate of square growth, g per square per day.
 //  The routine for this is derived from GOSSYM, and so are the parameters used.
                     double ratesqr = tfrt * vpotfrt[3]
@@ -245,7 +246,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
 //  and the potential boll growth rate at this age will be the
 //  derivative of this function:
 //            ratebol = 4 * rbmax * pex / (1. + pex)**2
-                else if (FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7) {
+                else if (site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll) {
 //     pex is an intermediate variable to compute boll growth.
                     double pex = exp(-4 * rbmax * (state.site[k][l][m].boll.age - agemax) / wbmax);
 //  ratebol is the rate of boll (seed and lint) growth, g per boll per day.
@@ -263,23 +264,23 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
                     if (wfdb > 1)
                         wfdb = 1;
                     double ratebur; // rate of burr growth, g per boll per day.
-                    if (state.site[k][l][m].boll.age >= 22)
+                    if (site.boll.age >= 22)
                         ratebur = 0;
                     else
                         ratebur = vpotfrt[4] * tfrt * wfdb;
 //     Potential boll (seeds and lint) growth rate (ratebol) and
 //  potential burr growth rate (ratebur) are multiplied by FruitFraction to
 //  compute PotGroBolls and PotGroBurrs for node (k,l,m).
-                    state.site[k][l][m].boll.potential_growth = ratebol * FruitFraction[k][l][m];
+                    site.boll.potential_growth = ratebol * FruitFraction[k][l][m];
                     PotGroBurrs[k][l][m] = ratebur * FruitFraction[k][l][m];
 //     Sum potential growth rates of bolls and burrs as PotGroAllBolls and
 //  PotGroAllBurrs, respectively.
-                    PotGroAllBolls += state.site[k][l][m].boll.potential_growth;
+                    PotGroAllBolls += site.boll.potential_growth;
                     PotGroAllBurrs += PotGroBurrs[k][l][m];
                 }
 //     If these are not green bolls, their potential growth is 0. End loop.
                 else {
-                    state.site[k][l][m].boll.potential_growth = 0;
+                    site.boll.potential_growth = 0;
                     PotGroBurrs[k][l][m] = 0;
                 } // if FruitingCode
             } // for m
