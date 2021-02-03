@@ -163,7 +163,6 @@ double
     IrrigationDepth,           // depth of predicted irrigation, cm.
     LeafAreaIndex,             // leaf area index.
     LeafAreaMainStem[3][30],   // mainstem leaf area at each node, dm2.
-    LeafAreaNodes[3][30][5],   // leaf area at each fruiting site, dm2.
     LeafAreaPreFru[9],         // area of prefruiting node leaves, dm2.
     LeafNConc,                 // average nitrogen concentration in leaves.
     LeafNitrogen,              // total leaf nitrogen, g per plant.

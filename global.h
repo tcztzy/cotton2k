@@ -106,7 +106,7 @@ extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9], AirTemp[24], albe
     FreshOrganicNitrogen[maxl][maxk], gh2oc[10],
     HeatCapacitySoilSolid[maxl], HeatCondDrySoil[maxl], HumusNitrogen[maxl][maxk],
     HumusOrganicMatter[maxl][maxk],
-    impede[10][10], LeafAreaMainStem[3][30], LeafAreaNodes[3][30][5], LeafAreaPreFru[9],
+    impede[10][10], LeafAreaMainStem[3][30], LeafAreaPreFru[9],
     LeafWeightMainStem[3][30], LeafWeightNodes[3][30][5], LeafWeightPreFru[9],
     LevelsOfWaterTable[20], LwpMinX[3], LwpX[3],
     MarginalWaterContent[maxl], MaxWaterCapacity[maxl], MulchTemp[maxk],

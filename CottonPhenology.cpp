@@ -271,7 +271,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     //     Initialize a new leaf at this position. define its initial weight and area.
     //  VarPar[34] is the initial area of a new leaf. The mass and nitrogen of the new leaf
     //  are substacted from the stem.
-    LeafAreaNodes[0][0][0] = VarPar[34];
+    state.site[0][0][0].leaf.area = VarPar[34];
     LeafWeightNodes[0][0][0] = VarPar[34] * LeafWeightAreaRatio;
     TotalStemWeight -= LeafWeightNodes[0][0][0];
     TotalLeafWeight += LeafWeightNodes[0][0][0];
@@ -332,7 +332,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     state.site[NumVegBranches - 1][0][0].fraction = 1;
     state.site[NumVegBranches - 1][0][0].stage = Stage::Square;
     //      Add a new leaf to the first site of this branch.
-    LeafAreaNodes[NumVegBranches - 1][0][0] = VarPar[34];
+    state.site[NumVegBranches - 1][0][0].leaf.area = VarPar[34];
     LeafWeightNodes[NumVegBranches - 1][0][0] = VarPar[34] * LeafWeightAreaRatio;
     //      Add a new mainstem leaf to the first node of this branch.
     LeafAreaMainStem[NumVegBranches - 1][0] = VarPar[34];
@@ -409,7 +409,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     //     Initiate new leaves at the first node of the new fruiting branch, and at the
     //  corresponding main stem node. The mass and nitrogen in the new leaves is substacted
     //  from the stem.
-    LeafAreaNodes[k][newbr][0] = VarPar[34];
+    state.site[k][newbr][0].leaf.area = VarPar[34];
     LeafWeightNodes[k][newbr][0] = VarPar[34] * LeafWeightAreaRatio;
     LeafAreaMainStem[k][newbr] = VarPar[34];
     LeafWeightMainStem[k][newbr] = LeafAreaMainStem[k][newbr] * LeafWeightAreaRatio;
@@ -476,7 +476,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     state.site[k][l][newnod].stage = Stage::Square;
     //     Initiate a new leaf at the new node. The mass and nitrogen in
     //  the new leaf is substacted from the stem.
-    LeafAreaNodes[k][l][newnod] = VarPar[34];
+    state.site[k][l][newnod].leaf.area = VarPar[34];
     LeafWeightNodes[k][l][newnod] = VarPar[34] * LeafWeightAreaRatio;
     TotalStemWeight -= LeafWeightNodes[k][l][newnod];
     TotalLeafWeight += LeafWeightNodes[k][l][newnod];

@@ -200,7 +200,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
 //     Assign zero to LeafAreaNodes, PetioleWeightNodes and LeafWeightNodes of this leaf.
 //     If this is after defoliation, add 1 to the NumAbscisedLeaves.
     FruitingSite &site = state.site[k][l][m];
-    if (site.leaf.age >= droplf && LeafAreaNodes[k][l][m] > 0 && LeafAreaIndex > 0.1) {
+    if (site.leaf.age >= droplf && site.leaf.area > 0 && LeafAreaIndex > 0.1) {
         state.abscised_leaf_weight += LeafWeightNodes[k][l][m] + site.petiole.weight;
         TotalLeafWeight -= LeafWeightNodes[k][l][m];
         TotalPetioleWeight -= site.petiole.weight;
@@ -208,8 +208,8 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
         LeafNitrogen -= LeafWeightNodes[k][l][m] * LeafNConc;
         PetioleNitrogen -= site.petiole.weight * PetioleNConc;
         CumPlantNLoss += LeafWeightNodes[k][l][m] * LeafNConc + site.petiole.weight * PetioleNConc;
-        TotalLeafArea -= LeafAreaNodes[k][l][m];
-        LeafAreaNodes[k][l][m] = 0;
+        TotalLeafArea -= site.leaf.area;
+        site.leaf.area = 0;
         LeafWeightNodes[k][l][m] = 0;
         site.petiole.weight = 0;
         if (DayFirstDef > 0 && Daynum > DayFirstDef) // if defoliation has been applied
@@ -321,8 +321,8 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
                 LeafNitrogen -= LeafWeightNodes[k][l][m] * LeafNConc;
                 PetioleNitrogen -= site.petiole.weight * PetioleNConc;
                 CumPlantNLoss += LeafWeightNodes[k][l][m] * LeafNConc + site.petiole.weight * PetioleNConc;
-                TotalLeafArea -= LeafAreaNodes[k][l][m];
-                LeafAreaNodes[k][l][m] = 0;
+                TotalLeafArea -= site.leaf.area;
+                site.leaf.area = 0;
                 LeafWeightNodes[k][l][m] = 0;
                 site.petiole.weight = 0;
             } // if m

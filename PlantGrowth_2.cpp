@@ -143,7 +143,8 @@ void PotentialLeafGrowth(State &state)
             nnid = NumNodes[k][l];
             for (int m = 0; m < nnid; m++)// loop of nodes on a fruiting branch
             {
-                if (LeafAreaNodes[k][l][m] <= 0) {
+                FruitingSite &site = state.site[k][l][m];
+                if (site.leaf.area <= 0) {
                     PotGroLeafAreaNodes[k][l][m] = 0;
                     PotGroLeafWeightNodes[k][l][m] = 0;
                     PotGroPetioleWeightNodes[k][l][m] = 0;

@@ -392,8 +392,8 @@ void ActualLeafGrowth(State &state)
                 TotalLeafWeight += LeafWeightNodes[k][l][m];
                 site.petiole.weight += PotGroPetioleWeightNodes[k][l][m] * vratio;
                 TotalPetioleWeight += site.petiole.weight;
-                LeafAreaNodes[k][l][m] += PotGroLeafAreaNodes[k][l][m] * vratio;
-                TotalLeafArea += LeafAreaNodes[k][l][m];
+                site.leaf.area += PotGroLeafAreaNodes[k][l][m] * vratio;
+                TotalLeafArea += site.leaf.area;
             } // loop m
         }     // loopl
     }         // loop k
