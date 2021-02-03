@@ -114,7 +114,6 @@ void InitializeGlobal()
             PotGroPetioleWeightMainStem[i][j] = 0;
             for (int k = 0; k < 5; k++) {
                 AvrgNodeTemper[i][j][k] = 0;
-                LeafWeightNodes[i][j][k] = 0;
                 PotGroBurrs[i][j][k] = 0;
                 PotGroLeafAreaNodes[i][j][k] = 0;
                 PotGroLeafWeightNodes[i][j][k] = 0;

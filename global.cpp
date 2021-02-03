@@ -168,7 +168,6 @@ double
     LeafNitrogen,              // total leaf nitrogen, g per plant.
     LeafWeightAreaRatio,       // temperature dependent factor for converting leaf area to leaf weight during the day, g dm-1.
     LeafWeightMainStem[3][30], // mainstem leaf weight at each node, g.
-    LeafWeightNodes[3][30][5], // leaf weight at each fruiting site, g.
     LeafWeightPreFru[9],       // weight of prefruiting node leaves, g.
     LevelsOfWaterTable[20],    // water table level input data (cm below soil surface).
     LightIntercept,            // ratio of light interception by plant canopy.

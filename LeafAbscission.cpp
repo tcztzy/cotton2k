@@ -201,16 +201,16 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
 //     If this is after defoliation, add 1 to the NumAbscisedLeaves.
     FruitingSite &site = state.site[k][l][m];
     if (site.leaf.age >= droplf && site.leaf.area > 0 && LeafAreaIndex > 0.1) {
-        state.abscised_leaf_weight += LeafWeightNodes[k][l][m] + site.petiole.weight;
-        TotalLeafWeight -= LeafWeightNodes[k][l][m];
+        state.abscised_leaf_weight += site.leaf.weight + site.petiole.weight;
+        TotalLeafWeight -= site.leaf.weight;
         TotalPetioleWeight -= site.petiole.weight;
-        PixInPlants -= LeafWeightNodes[k][l][m] * pixcon;
-        LeafNitrogen -= LeafWeightNodes[k][l][m] * LeafNConc;
+        PixInPlants -= site.leaf.weight * pixcon;
+        LeafNitrogen -= site.leaf.weight * LeafNConc;
         PetioleNitrogen -= site.petiole.weight * PetioleNConc;
-        CumPlantNLoss += LeafWeightNodes[k][l][m] * LeafNConc + site.petiole.weight * PetioleNConc;
+        CumPlantNLoss += site.leaf.weight * LeafNConc + site.petiole.weight * PetioleNConc;
         TotalLeafArea -= site.leaf.area;
         site.leaf.area = 0;
-        LeafWeightNodes[k][l][m] = 0;
+        site.leaf.weight = 0;
         site.petiole.weight = 0;
         if (DayFirstDef > 0 && Daynum > DayFirstDef) // if defoliation has been applied
             NumAbscisedLeaves++;
@@ -274,7 +274,7 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
             }
             int nnid = NumNodes[k][l]; // total existing node number on this fruiting branch.
             for (int m = 0; m < nnid; m++) {
-                if (LeafWeightNodes[k][l][m] > 0) {
+                if (state.site[k][l][m].leaf.weight > 0) {
                     SortByAge[lefcnt] = state.site[k][l][m].age;
                     indexk[lefcnt] = k;
                     indexl[lefcnt] = l;
@@ -314,16 +314,16 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
                 PetioleWeightMainStem[k][l] = 0;
             } else // leaves on fruit nodes
             {
-                state.abscised_leaf_weight += LeafWeightNodes[k][l][m] + site.petiole.weight;
-                TotalLeafWeight -= LeafWeightNodes[k][l][m];
+                state.abscised_leaf_weight += site.leaf.weight + site.petiole.weight;
+                TotalLeafWeight -= site.leaf.weight;
                 TotalPetioleWeight -= site.petiole.weight;
-                pixlos = LeafWeightNodes[k][l][m] * pixcon;
-                LeafNitrogen -= LeafWeightNodes[k][l][m] * LeafNConc;
+                pixlos = site.leaf.weight * pixcon;
+                LeafNitrogen -= site.leaf.weight * LeafNConc;
                 PetioleNitrogen -= site.petiole.weight * PetioleNConc;
-                CumPlantNLoss += LeafWeightNodes[k][l][m] * LeafNConc + site.petiole.weight * PetioleNConc;
+                CumPlantNLoss += site.leaf.weight * LeafNConc + site.petiole.weight * PetioleNConc;
                 TotalLeafArea -= site.leaf.area;
                 site.leaf.area = 0;
-                LeafWeightNodes[k][l][m] = 0;
+                site.leaf.weight = 0;
                 site.petiole.weight = 0;
             } // if m
             PixInPlants -= pixlos;
