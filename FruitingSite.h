@@ -6,7 +6,8 @@ typedef struct LeafStruct
 } Leaf;
 typedef struct BollStruct
 {
-    double age; // age of each boll, physiological days from flowering.
+    double age;              // age of each boll, physiological days from flowering.
+    double potential_growth; // age of each boll, physiological days from flowering.
 } Boll;
 typedef struct FruitingSiteStruct
 {

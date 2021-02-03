@@ -29,7 +29,7 @@ void PotentialFruitGrowth(State &, const double &);
 // PlantGrowth_3
 void DryMatterBalance(State &, double &, double &, double &, double &, const string &);
 
-void ActualFruitGrowth();
+void ActualFruitGrowth(State &);
 
 void ActualLeafGrowth();
 
@@ -457,11 +457,11 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //     cdroot is carbohydrate requirement for root growth, g per plant per day.
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
     double cdstem, cdleaf, cdpet, cdroot;
-    DryMatterBalance(sim.states[u] ,cdstem, cdleaf, cdpet, cdroot, sim.profile_name);
+    DryMatterBalance(state ,cdstem, cdleaf, cdpet, cdroot, sim.profile_name);
     //     If it is after first square, call ActualFruitGrowth() to compute actual
     //  growth rate of squares and bolls.
     if (FruitingCode[0][0][0] > 0)
-        ActualFruitGrowth();
+        ActualFruitGrowth(state);
     //     Initialize TotalLeafWeight. It is assumed that cotyledons fall off
     //  at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
     if (sim.first_square > 0)

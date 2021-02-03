@@ -115,7 +115,7 @@ extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9], AirTemp[24], albe
     MarginalWaterContent[maxl], MaxWaterCapacity[maxl], MulchTemp[maxk],
     NO3FlowFraction[maxl],
     PetioleWeightMainStem[3][30], PetioleWeightNodes[3][30][5], PetioleWeightPreFru[9],
-    pixppa[10], PoreSpace[maxl], PotGroBolls[3][30][5], PotGroBurrs[3][30][5],
+    pixppa[10], PoreSpace[maxl], PotGroBurrs[3][30][5],
     PotGroLeafAreaMainStem[3][30], PotGroLeafAreaNodes[3][30][5],
     PotGroLeafAreaPreFru[9], PotGroLeafWeightMainStem[3][30],
     PotGroLeafWeightNodes[3][30][5], PotGroLeafWeightPreFru[9],

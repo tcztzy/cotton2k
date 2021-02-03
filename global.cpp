@@ -231,7 +231,6 @@ double
     PotGroAllPetioles,                  // sum of potential growth rates of all petioles, g plant-1 day-1.
     PotGroAllRoots,                     // potential growth rate of roots, g plant-1 day-1
     PotGroAllSquares,                   // sum of potential growth rates of all squares, g plant-1 day-1.
-    PotGroBolls[3][30][5],              // potential growth rate of seedcotton in an individual boll, g day-1.
     PotGroBurrs[3][30][5],              // potential growth rate of burrs in an individual boll, g day-1.
     PotGroLeafAreaMainStem[3][30],      // potential growth in area of an individual main stem node leaf, dm2 day-1.
     PotGroLeafAreaNodes[3][30][5],      // potential growth in area of an individual fruiting node leaf, dm2 day-1.

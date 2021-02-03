@@ -262,7 +262,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void ActualFruitGrowth()
+void ActualFruitGrowth(State &state)
 //     This function simulates the actual growth of squares and
 //  bolls of cotton plants. It is called from PlantGrowth().
 //
@@ -308,7 +308,7 @@ void ActualFruitGrowth()
                 if (FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7)
                 {
                     double dwboll; // dry weight added to seedcotton in a boll.
-                    dwboll = PotGroBolls[k][l][m] * FruitGrowthRatio;
+                    dwboll = state.site[k][l][m].boll.potential_growth * FruitGrowthRatio;
                     BollWeight[k][l][m] += dwboll;
                     ActualBollGrowth += dwboll;
                     CottonWeightGreenBolls += BollWeight[k][l][m];

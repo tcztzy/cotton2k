@@ -229,6 +229,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                             state0.site[k][l][m].age = 0;
                             state0.site[k][l][m].leaf.age = 0;
                             state0.site[k][l][m].boll.age = 0;
+                            state0.site[k][l][m].boll.potential_growth = 0;
                         }
             }
             strcpy(sim.states[i].date, DoyToDate(sim.day_start + i, sim.year));

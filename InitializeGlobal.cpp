@@ -121,7 +121,6 @@ void InitializeGlobal()
                 LeafAreaNodes[i][j][k] = 0;
                 LeafWeightNodes[i][j][k] = 0;
                 PetioleWeightNodes[i][j][k] = 0;
-                PotGroBolls[i][j][k] = 0;
                 PotGroBurrs[i][j][k] = 0;
                 PotGroLeafAreaNodes[i][j][k] = 0;
                 PotGroLeafWeightNodes[i][j][k] = 0;
