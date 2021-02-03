@@ -324,7 +324,7 @@ void ActualFruitGrowth(State &state)
 }
 
 //////////////////////////
-void ActualLeafGrowth()
+void ActualLeafGrowth(State &state)
 //     This function simulates the actual growth of leaves of
 //  cotton plants. It is called from PlantGrowth().
 //
@@ -386,10 +386,11 @@ void ActualLeafGrowth()
             int nnid = NumNodes[k][l];
             for (int m = 0; m < nnid; m++) // loop of nodes on a fruiting branch
             {
+                FruitingSite &site = state.site[k][l][m];
                 LeafWeightNodes[k][l][m] += PotGroLeafWeightNodes[k][l][m] * vratio;
                 TotalLeafWeight += LeafWeightNodes[k][l][m];
-                PetioleWeightNodes[k][l][m] += PotGroPetioleWeightNodes[k][l][m] * vratio;
-                TotalPetioleWeight += PetioleWeightNodes[k][l][m];
+                site.petiole.weight += PotGroPetioleWeightNodes[k][l][m] * vratio;
+                TotalPetioleWeight += site.petiole.weight;
                 LeafAreaNodes[k][l][m] += PotGroLeafAreaNodes[k][l][m] * vratio;
                 TotalLeafArea += LeafAreaNodes[k][l][m];
             } // loop m

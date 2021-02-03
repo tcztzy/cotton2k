@@ -212,7 +212,6 @@ double
     PetioleNitrogen,                    // total petiole nitrogen, g per plant.
     PetioleNO3NConc,                    // average nitrate nitrogen concentration in petioles.
     PetioleWeightMainStem[3][30],       // weight of mainstem leaf petiole at each node, g.
-    PetioleWeightNodes[3][30][5],       // petiole weight at each fruiting site, g.
     PetioleWeightPreFru[9],             // weight of prefruiting node petioles, g.
     pixcon,                             // PIX concentration.
     pixda,                              // effect of PIX application on the growth rate of leaves.

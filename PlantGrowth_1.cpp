@@ -31,7 +31,7 @@ void DryMatterBalance(State &, double &, double &, double &, double &, const str
 
 void ActualFruitGrowth(State &);
 
-void ActualLeafGrowth();
+void ActualLeafGrowth(State &);
 
 double ptsred; // The effect of moisture stress on the photosynthetic rate
 
@@ -477,7 +477,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     }
     TotalPetioleWeight = 0;
     //     Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
-    ActualLeafGrowth();
+    ActualLeafGrowth(state);
     LeafAreaIndex = TotalLeafArea / PerPlantArea;
     //     Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
     TotalStemWeight += ActualStemGrowth;
