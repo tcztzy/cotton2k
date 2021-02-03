@@ -298,11 +298,11 @@ void ActualFruitGrowth(State &state)
                 //  weight to squares (ActualSquareGrowth), and total weight of squares (TotalSquareWeight).
                 if (site.stage == Stage::Square)
                 {
-                    double dwsq = PotGroSquares[k][l][m] * FruitGrowthRatio; // dry weight added to square.
+                    double dwsq = site.square.potential_growth * FruitGrowthRatio; // dry weight added to square.
 
-                    SquareWeight[k][l][m] += dwsq;
+                    site.square.weight += dwsq;
                     ActualSquareGrowth += dwsq;
-                    TotalSquareWeight += SquareWeight[k][l][m];
+                    TotalSquareWeight += site.square.weight;
                 }
                 //     If this site is a green boll, the actual dry weight added to seedcotton and burrs
                 //  is proportional to their respective potential growth.

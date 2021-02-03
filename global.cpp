@@ -231,7 +231,6 @@ double
     PotGroPetioleWeightMainStem[3][30], // potential growth in weight of an individual main stem node petiole, g day-1.
     PotGroPetioleWeightPreFru[9],       // potentially added weight of a prefruiting node petiole, g day-1.
     PotGroRoots[maxl][maxk],            // potential root growth in a soil cell (g per day).
-    PotGroSquares[3][30][5],            // potential growth rate of an individual square, g day-1.
     PotGroStem;                         // potential growth rate of stems, g plant-1 day-1.
 // R
 double
@@ -266,7 +265,6 @@ double
     SoilTempDailyAvrg[maxl][maxk], // daily average soil temperature, oK.
     SquareNConc,                   // average concentration of nitrogen in the squares.
     SquareNitrogen,                // total nitrogen in the squares, g per plant
-    SquareWeight[3][30][5],        // weight of each square,g
     StemNConc,                     // ratio of stem nitrogen to dry matter.
     StemNitrogen,                  // total stem nitrogen, g per plant
     StemWeight[365],               // stem weight added at each day, g per plant.

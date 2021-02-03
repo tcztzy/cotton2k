@@ -225,8 +225,8 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
 //  The routine for this is derived from GOSSYM, and so are the parameters used.
                     double ratesqr = tfrt * vpotfrt[3]
                                      * exp(-vpotfrt[2] + vpotfrt[3] * state.site[k][l][m].age);
-                    PotGroSquares[k][l][m] = ratesqr * site.fraction;
-                    PotGroAllSquares += PotGroSquares[k][l][m];
+                    site.square.potential_growth = ratesqr * site.fraction;
+                    PotGroAllSquares += site.square.potential_growth;
                 }
 //     Growth of seedcotton is simulated separately from the growth of burrs.
 //  The logistic function is used to simulate growth of seedcotton. The constants

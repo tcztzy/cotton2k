@@ -117,8 +117,6 @@ void InitializeGlobal()
                 PotGroBurrs[i][j][k] = 0;
                 PotGroLeafAreaNodes[i][j][k] = 0;
                 PotGroLeafWeightNodes[i][j][k] = 0;
-                PotGroSquares[i][j][k] = 0;
-                SquareWeight[i][j][k] = 0;
             }
         }
     }

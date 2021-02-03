@@ -216,10 +216,10 @@ void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscission
 //     Compute the square weight lost by shedding (wtlos) as a proportion of SquareWeight
 //  of this site. Update SquareNitrogen, CumPlantNLoss, SquareWeight[k][l][m], BloomWeightLoss, 
 //  TotalSquareWeight, and FruitFraction[k][l][m]. 
-    double wtlos = SquareWeight[k][l][m] * abscissionRatio; // weight lost by shedding at this site.
+    double wtlos = site.square.weight * abscissionRatio; // weight lost by shedding at this site.
     SquareNitrogen -= wtlos * SquareNConc;
     CumPlantNLoss += wtlos * SquareNConc;
-    SquareWeight[k][l][m] -= wtlos;
+    site.square.weight -= wtlos;
     BloomWeightLoss += wtlos;
     TotalSquareWeight -= wtlos;
     site.fraction *= (1 - abscissionRatio);
@@ -228,11 +228,11 @@ void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscission
 //  and assign 5 to FruitingCode.
     if (site.fraction <= 0.001) {
         site.fraction = 0;
-        SquareNitrogen -= SquareWeight[k][l][m] * SquareNConc;
-        CumPlantNLoss += SquareWeight[k][l][m] * SquareNConc;
-        BloomWeightLoss += SquareWeight[k][l][m];
-        TotalSquareWeight -= SquareWeight[k][l][m];
-        SquareWeight[k][l][m] = 0;
+        SquareNitrogen -= site.square.weight * SquareNConc;
+        CumPlantNLoss += site.square.weight * SquareNConc;
+        BloomWeightLoss += site.square.weight;
+        TotalSquareWeight -= site.square.weight;
+        site.square.weight = 0;
         site.stage = Stage::AbscisedAsSquare;
     }
 }

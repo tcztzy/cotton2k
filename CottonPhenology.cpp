@@ -640,8 +640,8 @@ void NewBollFormation(FruitingSite &site, int k, int l, int m)
     {
         site.stage = Stage::AbscisedAsFlower;
         site.fraction = 0;
-        BloomWeightLoss += SquareWeight[k][l][m];
-        SquareWeight[k][l][m] = 0;
+        BloomWeightLoss += site.square.weight;
+        site.square.weight = 0;
         return;
     }
     //     The initial weight of the new boll (BollWeight) and new burr (BurrWeight)
@@ -651,13 +651,13 @@ void NewBollFormation(FruitingSite &site, int k, int l, int m)
     //  that was in the square is transferred to the burrs. Update CottonWeightGreenBolls,
     //  BurrWeightGreenBolls and TotalSquareWeight. assign zero to SquareWeight at this site.
     double bolinit; // initial weight of boll after flowering.
-    bolinit = vnewboll[0] * SquareWeight[k][l][m];
+    bolinit = vnewboll[0] * site.square.weight;
     site.boll.weight = 0.2 * bolinit;
     site.burr.weight = bolinit - site.boll.weight;
-    BloomWeightLoss += SquareWeight[k][l][m] - bolinit;
+    BloomWeightLoss += site.square.weight - bolinit;
     //
     double sqr1n; // the nitrogen content of one square before flowering.
-    sqr1n = SquareNConc * SquareWeight[k][l][m];
+    sqr1n = SquareNConc * site.square.weight;
     SquareNitrogen -= sqr1n;
     CumPlantNLoss += sqr1n * (1 - vnewboll[0]);
     sqr1n = sqr1n * vnewboll[0];
@@ -671,8 +671,8 @@ void NewBollFormation(FruitingSite &site, int k, int l, int m)
     //
     CottonWeightGreenBolls += site.boll.weight;
     BurrWeightGreenBolls += site.burr.weight;
-    TotalSquareWeight -= SquareWeight[k][l][m];
-    SquareWeight[k][l][m] = 0;
+    TotalSquareWeight -= site.square.weight;
+    site.square.weight = 0;
 }
 
 /////////////////////////
