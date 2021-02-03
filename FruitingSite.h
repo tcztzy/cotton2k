@@ -14,9 +14,10 @@ enum Stage
 };
 typedef struct LeafStruct
 {
-    double age;    // leaf age at each fruiting site, physiological days.
-    double area;   // leaf area at each fruiting site, dm2.
-    double weight; // leaf weight at each fruiting site, g.
+    double age;              // leaf age at each fruiting site, physiological days.
+    double potential_growth; // potential growth in area of an individual fruiting node leaf, dm2 day-1.
+    double area;             // leaf area at each fruiting site, dm2.
+    double weight;           // leaf weight at each fruiting site, g.
 } Leaf;
 struct SquareStruct
 {

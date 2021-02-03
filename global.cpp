@@ -222,10 +222,8 @@ double
     PotGroAllRoots,                     // potential growth rate of roots, g plant-1 day-1
     PotGroAllSquares,                   // sum of potential growth rates of all squares, g plant-1 day-1.
     PotGroLeafAreaMainStem[3][30],      // potential growth in area of an individual main stem node leaf, dm2 day-1.
-    PotGroLeafAreaNodes[3][30][5],      // potential growth in area of an individual fruiting node leaf, dm2 day-1.
     PotGroLeafAreaPreFru[9],            // potentially added area of a prefruiting node leaf, dm2 day-1.
     PotGroLeafWeightMainStem[3][30],    // potential growth in weight of an individual main stem node leaf, g day-1.
-    PotGroLeafWeightNodes[3][30][5],    // potential growth in weight of an individual fruiting node leaf, g day-1.
     PotGroLeafWeightPreFru[9],          // potentially added weight of a prefruiting node leaf, g day-1.
     PotGroPetioleWeightMainStem[3][30], // potential growth in weight of an individual main stem node petiole, g day-1.
     PotGroPetioleWeightPreFru[9],       // potentially added weight of a prefruiting node petiole, g day-1.

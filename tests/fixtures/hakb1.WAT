@@ -7397,7 +7397,7 @@
 
  Average Values by Layers on Day of Year 264
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -3274.745
+     1          0.288      -3274.744
      2          0.311        -58.391
      3          0.338        -13.789
      4          0.354         -8.767
@@ -7440,7 +7440,7 @@
 
  Average Values by Layers on Day of Year 265
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -3759.237
+     1          0.288      -3759.236
      2          0.310        -63.578
      3          0.336        -14.731
      4          0.353         -9.014
@@ -7462,7 +7462,7 @@
     20          0.362         -5.828
     21          0.367         -5.149
     22          0.373         -4.033
-    23          0.382         -2.630
+    23          0.382         -2.629
     24          0.395         -1.445
     25          0.409         -0.780
     26          0.418         -0.453
@@ -7483,7 +7483,7 @@
 
  Average Values by Layers on Day of Year 266
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -3856.267
+     1          0.288      -3856.266
      2          0.309        -69.002
      3          0.335        -15.616
      4          0.352         -9.267
@@ -7526,7 +7526,7 @@
 
  Average Values by Layers on Day of Year 267
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -4394.026
+     1          0.288      -4394.025
      2          0.308        -74.452
      3          0.334        -16.545
      4          0.351         -9.537
@@ -7569,7 +7569,7 @@
 
  Average Values by Layers on Day of Year 268
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -4454.650
+     1          0.288      -4454.648
      2          0.308        -80.021
      3          0.332        -17.421
      4          0.350         -9.811
@@ -7612,7 +7612,7 @@
 
  Average Values by Layers on Day of Year 269
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -5041.859
+     1          0.288      -5041.857
      2          0.307        -85.627
      3          0.331        -18.345
      4          0.349        -10.098
@@ -7655,7 +7655,7 @@
 
  Average Values by Layers on Day of Year 270
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -5056.793
+     1          0.288      -5056.791
      2          0.306        -91.300
      3          0.330        -19.208
      4          0.348        -10.387
@@ -7698,7 +7698,7 @@
 
  Average Values by Layers on Day of Year 271
  Layer          VolWaterContent          SoilPsi 
-     1          0.287      -5701.374
+     1          0.287      -5701.372
      2          0.306        -96.987
      3          0.330        -20.129
      4          0.347        -10.687
@@ -7741,7 +7741,7 @@
 
  Average Values by Layers on Day of Year 272
  Layer          VolWaterContent          SoilPsi 
-     1          0.288      -5667.480
+     1          0.288      -5667.478
      2          0.305       -102.680
      3          0.329        -20.987
      4          0.346        -10.986

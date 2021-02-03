@@ -145,8 +145,7 @@ void PotentialLeafGrowth(State &state)
             {
                 FruitingSite &site = state.site[k][l][m];
                 if (site.leaf.area <= 0) {
-                    PotGroLeafAreaNodes[k][l][m] = 0;
-                    PotGroLeafWeightNodes[k][l][m] = 0;
+                    site.leaf.potential_growth = 0;
                     site.petiole.potential_growth = 0;
                 }
 //     Compute potential growth of leaf area and leaf weight for leaf
@@ -165,13 +164,9 @@ void PotentialLeafGrowth(State &state)
                     if (rate >= 1e-12) {
 //     Growth rate is modified by water stress and pix. Potential growth
 //  is computed as a function of average temperature.
-                        PotGroLeafAreaNodes[k][l][m] = rate * wstrlf * pixda
-                                                       * TemperatureOnLeafGrowthRate(AvrgDailyTemp);
-                        PotGroLeafWeightNodes[k][l][m] = PotGroLeafAreaNodes[k][l][m]
-                                                         * LeafWeightAreaRatio;
-                        site.petiole.potential_growth = PotGroLeafAreaNodes[k][l][m]
-                                                            * LeafWeightAreaRatio * vpotlf[13];
-                        PotGroAllLeaves += PotGroLeafWeightNodes[k][l][m];
+                        site.leaf.potential_growth = rate * wstrlf * pixda * TemperatureOnLeafGrowthRate(AvrgDailyTemp);
+                        site.petiole.potential_growth = site.leaf.potential_growth * LeafWeightAreaRatio * vpotlf[13];
+                        PotGroAllLeaves += site.leaf.potential_growth * LeafWeightAreaRatio;
                         PotGroAllPetioles += site.petiole.potential_growth;
                     } //if rate
                 } // if LeafAreaNodes
