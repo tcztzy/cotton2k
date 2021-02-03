@@ -17,7 +17,7 @@
 
 namespace fs = std::filesystem;
 
-void OutputForSoilMaps(State &, int, int, int, const string &);
+void OutputForSoilMaps(State &, int, int, int, int, const string &);
 
 /////////////////////////////////////////////////////////////
 void outputplt(Simulation &sim)
@@ -508,33 +508,33 @@ void output7(Simulation &sim)
 //     If the output flag (OutIndex(8)) indicates that this output is
 //  requested - produce soil slab maps for VolWaterContent.
             if (OutIndex[8] > 0)
-                OutputForSoilMaps(state, irec, 2, nDaynum, sim.profile_name);
+                OutputForSoilMaps(state, irec, 2, nDaynum, sim.year, sim.profile_name);
 //     If the output flag (OutIndex(9)) indicates that this output is
 //  requested - produce soil slab maps for root weight per cell and for RootWtCapblUptake.
             if (OutIndex[9] > 0) {
-                OutputForSoilMaps(state, irec, 3, nDaynum, sim.profile_name);
-                OutputForSoilMaps(state, irec, 6, nDaynum, sim.profile_name);
+                OutputForSoilMaps(state, irec, 3, nDaynum, sim.year, sim.profile_name);
+                OutputForSoilMaps(state, irec, 6, nDaynum, sim.year, sim.profile_name);
             }
 //     If the output flag (OutIndex(10)) indicates that this output is
 //  requested - produce soil slab maps for VolNo3NContent and for VolNh4NContent.
             if (OutIndex[10] > 0) {
-                OutputForSoilMaps(state, irec, 1, nDaynum, sim.profile_name);
-                OutputForSoilMaps(state, irec, 7, nDaynum, sim.profile_name);
+                OutputForSoilMaps(state, irec, 1, nDaynum, sim.year, sim.profile_name);
+                OutputForSoilMaps(state, irec, 7, nDaynum, sim.year, sim.profile_name);
             }
 //     If the output flag (OutIndex(11)) indicates that this output is
 //  requested - produce soil slab maps for soil water potential.
             if (OutIndex[11] > 0)
-                OutputForSoilMaps(state, irec, 4, nDaynum, sim.profile_name);
+                OutputForSoilMaps(state, irec, 4, nDaynum, sim.year, sim.profile_name);
 //     If the output flag (OutIndex(12)) indicates that this output is
 //  requested - produce soil slab maps for soil temperature.
             if (OutIndex[12] > 0)
-                OutputForSoilMaps(state, irec, 5, nDaynum, sim.profile_name);
+                OutputForSoilMaps(state, irec, 5, nDaynum, sim.year, sim.profile_name);
         }
     }
 }
 
 //////////////////////////////////////////////////////////////
-void OutputForSoilMaps(State &state, int irec, int igo, int nday, const string &ProfileName)
+void OutputForSoilMaps(State &state, int irec, int igo, int nday, int year, const string &ProfileName)
 //     This function plots the soil slab and the array variables in each cell. It is called from
 //  function output7().
 //
@@ -691,7 +691,7 @@ void OutputForSoilMaps(State &state, int irec, int igo, int nday, const string &
 //  (keyword) and date.
     ofstream File23(fs::path("output") / (ProfileName + ".SMP"), ios::app);
     File23.width(9);
-    File23 << endl << tl1 << "           " << DoyToDate(nday, iyear) << endl << endl;
+    File23 << endl << tl1 << "           " << DoyToDate(nday, year) << endl << endl;
 //     Next line includes range data.
     File23.setf(ios::fixed);
     for (int i = 0; i < 11; i++) {

@@ -153,6 +153,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     }
     else
         DatePlant = "";
+    int year = atoi(DateSimStart.substr(7, 4).c_str());
     //     For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates
     //	for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
     double CO2EnrichmentFactor = 0;
@@ -204,7 +205,7 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
             DayStartMulch = atoi(m_mulchdata.substr(30, 5).c_str());
             DayEndMulch = atoi(m_mulchdata.substr(35, 5).c_str());
             if (DayEndMulch <= 0)
-                DayEndMulch = DateToDoy(DateSimEnd.c_str(), iyear);
+                DayEndMulch = DateToDoy(DateSimEnd.c_str(), year);
         }
     }
     else
@@ -298,13 +299,12 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
-    iyear = atoi(DateSimStart.substr(7, 4).c_str());
-    uint32_t DayStart = DateToDoy(DateSimStart.c_str(), iyear);
-    uint32_t DayEmerge = DateToDoy(DateEmerge.c_str(), iyear);
-    uint32_t DayFinish = DateToDoy(DateSimEnd.c_str(), iyear);
-    uint32_t DayPlant = DateToDoy(DatePlant.c_str(), iyear);
-    uint32_t DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), iyear);
-    uint32_t DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), iyear);
+    uint32_t DayStart = DateToDoy(DateSimStart.c_str(), year);
+    uint32_t DayEmerge = DateToDoy(DateEmerge.c_str(), year);
+    uint32_t DayFinish = DateToDoy(DateSimEnd.c_str(), year);
+    uint32_t DayPlant = DateToDoy(DatePlant.c_str(), year);
+    uint32_t DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), year);
+    uint32_t DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), year);
     //     If the output frequency indicators are zero, they are set to 999.
     if (SoilMapFreq <= 0)
         SoilMapFreq = 999;
@@ -331,8 +331,8 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
         Kday = 1;
     }
     //     Call function OpenOutputFiles() to open the output files.
-    OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge);
-    return {ProfileName, strlen(ProfileName), iyear, DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude, Elevation, RowSpace};
+    OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge, year);
+    return {ProfileName, strlen(ProfileName), year, DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude, Elevation, RowSpace};
 }
 
 //////////////////////////////////////////////////////////

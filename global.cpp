@@ -38,7 +38,6 @@ int FruitingCode[3][30][5], // code indicating the developmental state of each f
     // 0 = one dimensional (no horizontal flux) - used to predict emergence when emergence date is not known;
     // 1 = one dimensional - used before emergence when emergence date is given;
     // 2 = two dimensional - used after emergence.
-    iyear,                 // year of start of simulation (stored as 4-digit number).
     Kday,                  // number of days since emergence.
     LastDayWeatherData,    // last date (DOY) with weather data.
     LastIrrigation,        // date (Doy) of last irrigation (for prediction).

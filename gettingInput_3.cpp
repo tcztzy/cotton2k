@@ -199,7 +199,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
 //     Structure Irrigation {int day, method, LocationColumnDrip, LocationLayerDrip; 
 //                           double amount; }   Irrig[150];
             cdate = StrTemp.substr(19, 11);
-            sim.irrigation[NumIrrigations].day = DateToDoy(cdate.c_str(), iyear);     // day of year of this irrigation
+            sim.irrigation[NumIrrigations].day = DateToDoy(cdate.c_str(), sim.year);     // day of year of this irrigation
             sim.irrigation[NumIrrigations].amount = atof(StrTemp.substr(30, 15).c_str()); // net amount of water applied, mm
             sim.irrigation[NumIrrigations].method = atoi(StrTemp.substr(45, 5).c_str());  // method of irrigation: 1=  2=drip
             isdhrz = atoi(StrTemp.substr(50, 5).c_str());              // horizontal placement cm
@@ -217,7 +217,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
 //     Structure NFertilizer {int day; double amtamm, amtnit, amtura,
 //		                      int mthfrt, ksdr, lsdr; }    NFertilizer[150];
             cdate = StrTemp.substr(19, 11);
-            NFertilizer[NumNitApps].day = DateToDoy(cdate.c_str(), iyear);             // day of year
+            NFertilizer[NumNitApps].day = DateToDoy(cdate.c_str(), sim.year);             // day of year
             NFertilizer[NumNitApps].amtamm = (float) atof(StrTemp.substr(30, 10).c_str()); //ammonium N (kg/ha)
             NFertilizer[NumNitApps].amtnit = (float) atof(StrTemp.substr(40, 10).c_str()); //nitrate N (kg/ha)
             NFertilizer[NumNitApps].amtura = (float) atof(StrTemp.substr(50, 10).c_str()); //urea N (kg/ha)
@@ -240,7 +240,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
 //
         else if (StrTemp.substr(0, 5) == "CULTI") {
             cdate = StrTemp.substr(19, 11);
-            CultivationDate[icult] = DateToDoy(cdate.c_str(), iyear);
+            CultivationDate[icult] = DateToDoy(cdate.c_str(), sim.year);
             CultivationDepth[icult] = (float) atof(StrTemp.substr(30, 5).c_str());
             icult++;
         }
@@ -248,7 +248,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
         else if (StrTemp.substr(0, 3) == "DEF") {
             cdate = StrTemp.substr(19, 11);
             int pgrmth = atoi(StrTemp.substr(30, 5).c_str()); // code number for method of application.
-            DefoliationDate[idef] = DateToDoy(cdate.c_str(), iyear);
+            DefoliationDate[idef] = DateToDoy(cdate.c_str(), sim.year);
 //     If this is input for defoliation prediction, define the rate as -99.9,
 //  and pgrmth in this case is the percentage of boll opening for which defoliation
 //  will be activated, and cdate is the latest date for defoliation application.
@@ -285,7 +285,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
             double rtepgr = (float) atof(StrTemp.substr(40, 10).c_str()); // rate of application.
             int pgunit = atoi(StrTemp.substr(50, 5).c_str()) - 1;         // code number for rate units used.
             if (rtepgr > 0.01) {
-                pixday[ipx] = DateToDoy(cdate.c_str(), iyear);
+                pixday[ipx] = DateToDoy(cdate.c_str(), sim.year);
                 if (pgunit == 1)
                     rtepgr = rtepgr * 8;
                 if (pgunit == 2)
@@ -303,7 +303,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
             cdate = StrTemp.substr(19, 11);
             LevelsOfWaterTable[NumWaterTableData] = (float) atof(StrTemp.substr(30, 5).c_str());
             ElCondSatSoil[NumWaterTableData] = (float) atof(StrTemp.substr(35, 10).c_str());
-            DayWaterTableInput[NumWaterTableData] = DateToDoy(cdate.c_str(), iyear);
+            DayWaterTableInput[NumWaterTableData] = DateToDoy(cdate.c_str(), sim.year);
             NumWaterTableData++;
         }
 //
@@ -312,10 +312,10 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
             IrrigMethod = atoi(StrTemp.substr(28, 2).c_str());
             string datstrir = StrTemp.substr(30, 15);
             datstrir.erase(remove(datstrir.begin(), datstrir.end(), ' '), datstrir.end());
-            DayStartPredIrrig = DateToDoy(datstrir.c_str(), iyear); // date to start the predicted irrigation.
+            DayStartPredIrrig = DateToDoy(datstrir.c_str(), sim.year); // date to start the predicted irrigation.
             string datstpir = StrTemp.substr(45, 15);
             datstpir.erase(remove(datstpir.begin(), datstpir.end(), ' '), datstpir.end());
-            DayStopPredIrrig = DateToDoy(datstpir.c_str(), iyear); // date to stop the predicted irrigation.
+            DayStopPredIrrig = DateToDoy(datstpir.c_str(), sim.year); // date to stop the predicted irrigation.
             MinDaysBetweenIrrig = atoi(StrTemp.substr(60, 5).c_str());
             isdhrz = atoi(StrTemp.substr(65, 5).c_str());
             isddph = atoi(StrTemp.substr(70, 5).c_str());
@@ -342,7 +342,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
             File20 << "                      inches                      Column       Layer " << endl;
         for (int ii = 0; ii < NumIrrigations; ii++) {
             File20.width(14);
-            File20 << DoyToDate(sim.irrigation[ii].day, iyear);     // date of this irrigation
+            File20 << DoyToDate(sim.irrigation[ii].day, sim.year);     // date of this irrigation
             File20.setf(ios::fixed);
             File20.width(14);
             File20.precision(2);
@@ -382,7 +382,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
                    << endl;
         for (int ii = 0; ii < NumIrrigations; ii++) {
             File20.width(14);
-            File20 << DoyToDate(NFertilizer[ii].day, iyear);     // date of this irrigation
+            File20 << DoyToDate(NFertilizer[ii].day, sim.year);     // date of this irrigation
             File20.setf(ios::fixed);
             File20.width(13);
             File20.precision(2);
@@ -430,7 +430,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
             File20 << "       Date         Depth, inches " << endl;
         for (int ii = 0; ii < icult; ii++) {
             File20.width(14);
-            File20 << DoyToDate(CultivationDate[ii], iyear);     // date of this irrigation
+            File20 << DoyToDate(CultivationDate[ii], sim.year);     // date of this irrigation
             File20.setf(ios::fixed);
             File20.width(14);
             File20.precision(2);
@@ -448,7 +448,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
         File20 << "       Date           Method          Rate" << endl;
         for (int ii = 0; ii < ipx; ii++) {
             File20.width(14);
-            File20 << DoyToDate(pixday[ii], iyear);     // date of this application
+            File20 << DoyToDate(pixday[ii], sim.year);     // date of this application
             File20.setf(ios::fixed);
             File20.width(14);
             File20 << pixmth[ii]; //  method code
@@ -467,7 +467,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
             if (DefoliantAppRate[ii] == -99.9)
                 continue;
             File20.width(14);
-            File20 << DoyToDate(DefoliationDate[ii], iyear);  // date of this application
+            File20 << DoyToDate(DefoliationDate[ii], sim.year);  // date of this application
             File20.setf(ios::fixed);
             File20.width(14);
             File20 << DefoliationMethod[ii]; //  method code
@@ -483,7 +483,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
                 File20.width(10);
                 File20 << DefoliationMethod[ii] << endl;  // boll opening percentage
                 File20 << "         Last date of defoliation prediction:  ";
-                File20 << DoyToDate(DefoliationDate[ii], iyear) << endl;  // last date of prediction
+                File20 << DoyToDate(DefoliationDate[ii], sim.year) << endl;  // last date of prediction
             }
         }
     }
@@ -494,7 +494,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
         File20 << "       Date       Water Table, cm   Electr-Conductivity" << endl;
         for (int ii = 0; ii < NumWaterTableData; ii++) {
             File20.width(14);
-            File20 << DoyToDate(DayWaterTableInput[ii], iyear);  // date of this application
+            File20 << DoyToDate(DayWaterTableInput[ii], sim.year);  // date of this application
             File20.setf(ios::fixed);
             File20.width(14);
             File20 << LevelsOfWaterTable[ii]; //  Water table level
@@ -517,8 +517,8 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
         File20 << endl << "    Setting Prediction of Irrigation. Method: ";
         File20.width(14);
         File20 << IrrMethod << endl;
-        File20 << " Starting Date " << DoyToDate(DayStartPredIrrig, iyear);
-        File20 << " Stopping Date " << DoyToDate(DayStopPredIrrig, iyear) << endl;
+        File20 << " Starting Date " << DoyToDate(DayStartPredIrrig, sim.year);
+        File20 << " Stopping Date " << DoyToDate(DayStopPredIrrig, sim.year) << endl;
         File20 << " Minimum days between irrigations = ";
         File20.width(14);
         File20 << MinDaysBetweenIrrig << endl;

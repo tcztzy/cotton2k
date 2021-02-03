@@ -50,7 +50,7 @@ extern NitrogenFertilizer NFertilizer[150];
 ////    Integers    ////
 extern int DayFirstDef,
     DayStartPredIrrig, DayStopPredIrrig,
-    inrim, IrrigMethod, isw, iyear, Kday,
+    inrim, IrrigMethod, isw, Kday,
     LastDayWeatherData, LastIrrigation, LastTaprootLayer,
     LocationColumnDrip, LocationLayerDrip,
     MainStemNodes, MinDaysBetweenIrrig,

@@ -27,7 +27,7 @@ void PredictDripIrrigation(Simulation &, uint32_t, double, const double &);
 
 void PredictSurfaceIrrigation(Simulation &, unsigned int, double);
 
-void OutputPredictedIrrigation(double, double, const string &, const int &, const double &);
+void OutputPredictedIrrigation(double, double, const string &, const int &, const int &, const double &);
 
 double AveragePsi(const State &);
 
@@ -342,7 +342,7 @@ void ComputeIrrigation(Simulation &sim, uint32_t u)
 //  last irrigation, and write report in output file *.B01.
     if (AppliedWater > 0.00001) {
         LastIrrigation = sim.day_start + u;
-        OutputPredictedIrrigation(AppliedWater, TargetStress, sim.profile_name, sim.day_start + u, sim.states[u].water_stress);
+        OutputPredictedIrrigation(AppliedWater, TargetStress, sim.profile_name, sim.day_start + u, sim.year, sim.states[u].water_stress);
     }
 }
 
@@ -537,8 +537,7 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string &ProfileName, const int &Daynum,
-                               const double &WaterStress)
+void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string &ProfileName, const int &Daynum, const int &year, const double &WaterStress)
 //      This function is called from ComputeIrrigation().
 //      It writes output ofapplication of predicted irrigation to file *.B01
 //      Function DoyToDate() is used.
@@ -546,7 +545,7 @@ void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const s
 //      Global variables referenced: iyear, WaterStress.
 {
     ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
-    File20 << " Predicted irrigation on " << DoyToDate(Daynum, iyear) << " - ";
+    File20 << " Predicted irrigation on " << DoyToDate(Daynum, year) << " - ";
     if (OutIndex[1] == 0)
         File20 << AppliedWater << " mm. ";
     else

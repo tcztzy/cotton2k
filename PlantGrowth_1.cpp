@@ -319,7 +319,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     static double AmbientCO2Factor; // correction factor for ambient CO2 in air
     if (sim.day_start + u <= sim.day_emerge)
     {
-        int co2indx = iyear - 1960; // count of years from 1960.
+        int co2indx = sim.year - 1960; // count of years from 1960.
         if (co2indx < 0)
             AmbientCO2Factor = 1;
         else if (co2indx < 45) // for years 1960 to 2004

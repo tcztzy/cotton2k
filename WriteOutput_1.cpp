@@ -42,7 +42,7 @@ void output6(const string &);
 void output7(Simulation &);
 
 /////////////////////////////////////////////////////////////
-void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const int &DayEmerge)
+void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const int &DayEmerge, const int &year)
 //     This function opens the output files that will be used by
 //  this simulation. It is called from function ReadProfileFile().
 //
@@ -106,7 +106,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     File46.width(55);
     File46 << m_fileDesc << endl << endl;
     if (DayEmerge > 0)
-        File46 << " Defined Germination on " << DoyToDate(DayEmerge, iyear) <<
+        File46 << " Defined Germination on " << DoyToDate(DayEmerge, year) <<
                " (Day of Year = " << DayEmerge << " )" << endl << endl;
 //     The following lines in the header depend on whether metric or 
 //  English units are used, or if results are per plant or per unit area.
@@ -160,7 +160,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     File22.width(55);
     File22 << m_fileDesc << endl << endl;
     if (DayEmerge > 0)
-        File22 << " Defined Germination on " << DoyToDate(DayEmerge, iyear) <<
+        File22 << " Defined Germination on " << DoyToDate(DayEmerge, year) <<
                " (Day of Year = " << DayEmerge << " )" << endl << endl;
     File22 << "                                   PLANT                   GREEN  OPEN" << endl;
     File22 << "     EVENT         DATE       DAE  HEIGHT NODES  LAI  SQARS BOLLS  BOLLS YIELD" << endl;
