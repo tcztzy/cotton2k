@@ -32,7 +32,8 @@ typedef struct PetioleStruct
 } Petiole;
 typedef struct FruitingSiteStruct
 {
-    double age; // age of each fruiting site, physiological days from square initiation.
+    double age;      // age of each fruiting site, physiological days from square initiation.
+    double fraction; // fraction of fruit remaining at each fruiting site (0 to 1).
     enum Stage stage;
     Leaf leaf;
     Boll boll;

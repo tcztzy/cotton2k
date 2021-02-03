@@ -267,7 +267,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
 {
     //     FruitFraction and FruitingCode are assigned 1 for the first fruiting site.
     state.site[0][0][0].stage = Stage::Square;
-    FruitFraction[0][0][0] = 1;
+    state.site[0][0][0].fraction = 1;
     //     Initialize a new leaf at this position. define its initial weight and area.
     //  VarPar[34] is the initial area of a new leaf. The mass and nitrogen of the new leaf
     //  are substacted from the stem.
@@ -329,7 +329,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
         return;
     }
     //      Assign 1 to FruitFraction and FruitingCode of the first site of this branch.
-    FruitFraction[NumVegBranches - 1][0][0] = 1;
+    state.site[NumVegBranches - 1][0][0].fraction = 1;
     state.site[NumVegBranches - 1][0][0].stage = Stage::Square;
     //      Add a new leaf to the first site of this branch.
     LeafAreaNodes[NumVegBranches - 1][0][0] = VarPar[34];
@@ -404,7 +404,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     int newbr; // the index number of the new fruiting branch on this vegetative branch, after a new branch has been added.
     newbr = NumFruitBranches[k] - 1;
     NumNodes[k][newbr] = 1;
-    FruitFraction[k][newbr][0] = 1;
+    state.site[k][newbr][0].fraction = 1;
     state.site[k][newbr][0].stage = Stage::Square;
     //     Initiate new leaves at the first node of the new fruiting branch, and at the
     //  corresponding main stem node. The mass and nitrogen in the new leaves is substacted
@@ -472,7 +472,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
         return;
     }
     int newnod = nnid + 1; // the number of the new node on this fruiting branche.
-    FruitFraction[k][l][newnod] = 1;
+    state.site[k][l][newnod].fraction = 1;
     state.site[k][l][newnod].stage = Stage::Square;
     //     Initiate a new leaf at the new node. The mass and nitrogen in
     //  the new leaf is substacted from the stem.
@@ -638,7 +638,7 @@ void NewBollFormation(FruitingSite &site, int k, int l, int m)
     if (!bPollinSwitch)
     {
         site.stage = Stage::AbscisedAsFlower;
-        FruitFraction[k][l][m] = 0;
+        site.fraction = 0;
         BloomWeightLoss += SquareWeight[k][l][m];
         SquareWeight[k][l][m] = 0;
         return;
@@ -737,8 +737,8 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     //     Compute the average ginning percentage of all the bolls opened
     //  until now (Gintot).
     ginp = (VarPar[41] - VarPar[42] * atn) / 100;
-    Gintot = (Gintot * NumOpenBolls + ginp * FruitFraction[k][l][m]) /
-             (NumOpenBolls + FruitFraction[k][l][m]);
+    Gintot = (Gintot * NumOpenBolls + ginp * site.fraction) /
+             (NumOpenBolls + site.fraction);
     //     Cumulative lint yield (LintYield) is computed in kg per ha.
     LintYield += ginp * site.boll.weight * PlantPopulation * .001;
     //     Note: computation of fiber properties is as in GOSSYM, it is
@@ -752,8 +752,8 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     double fsx; // fiber strength (g / tex at 1/8 inch) of this boll.
     fsx = vboldhs[6] + atn * (vboldhs[7] + vboldhs[8] * atn);
     flx = vboldhs[9] - vboldhs[10] * atn;
-    FibStrength = (FibStrength * NumOpenBolls + fsx * FruitFraction[k][l][m]) / (NumOpenBolls + FruitFraction[k][l][m]);
-    FibLength = (FibLength * NumOpenBolls + flx * FruitFraction[k][l][m]) / (NumOpenBolls + FruitFraction[k][l][m]);
+    FibStrength = (FibStrength * NumOpenBolls + fsx * site.fraction) / (NumOpenBolls + site.fraction);
+    FibLength = (FibLength * NumOpenBolls + flx * site.fraction) / (NumOpenBolls + site.fraction);
     //     Update the number of open bolls per plant (nopen).
-    NumOpenBolls += FruitFraction[k][l][m];
+    NumOpenBolls += site.fraction;
 }

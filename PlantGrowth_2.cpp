@@ -224,7 +224,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
 //  The routine for this is derived from GOSSYM, and so are the parameters used.
                     double ratesqr = tfrt * vpotfrt[3]
                                      * exp(-vpotfrt[2] + vpotfrt[3] * state.site[k][l][m].age);
-                    PotGroSquares[k][l][m] = ratesqr * FruitFraction[k][l][m];
+                    PotGroSquares[k][l][m] = ratesqr * site.fraction;
                     PotGroAllSquares += PotGroSquares[k][l][m];
                 }
 //     Growth of seedcotton is simulated separately from the growth of burrs.
@@ -271,8 +271,8 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
 //     Potential boll (seeds and lint) growth rate (ratebol) and
 //  potential burr growth rate (ratebur) are multiplied by FruitFraction to
 //  compute PotGroBolls and PotGroBurrs for node (k,l,m).
-                    site.boll.potential_growth = ratebol * FruitFraction[k][l][m];
-                    PotGroBurrs[k][l][m] = ratebur * FruitFraction[k][l][m];
+                    site.boll.potential_growth = ratebol * site.fraction;
+                    PotGroBurrs[k][l][m] = ratebur * site.fraction;
 //     Sum potential growth rates of bolls and burrs as PotGroAllBolls and
 //  PotGroAllBurrs, respectively.
                     PotGroAllBolls += site.boll.potential_growth;

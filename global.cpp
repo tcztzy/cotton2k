@@ -147,7 +147,6 @@ double ElCondSatSoil[20],             // electrical conductivity of saturated so
     FoliageTemp[maxk],                // average foliage temperature (oK).
     FreshOrganicMatter[maxl][maxk],   // fresh organic matter in the soil, mg / cm3.
     FreshOrganicNitrogen[maxl][maxk], // N in fresh organic matter in a soil cell, mg cm-3.
-    FruitFraction[3][30][5],          // fraction of fruit remaining at each fruiting site (0 to 1).
     FruitGrowthRatio,                 // ratio between actual and potential square and boll growth.
     gh2oc[10],                        // input gravimetric soil water content, g g-1, in the soil mechanical impedance table. values have been read from the soil impedance file.
     ginp,                           // ginning percentage of an individual boll.

@@ -222,12 +222,12 @@ void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscission
     SquareWeight[k][l][m] -= wtlos;
     BloomWeightLoss += wtlos;
     TotalSquareWeight -= wtlos;
-    FruitFraction[k][l][m] = FruitFraction[k][l][m] * (1 - abscissionRatio);
+    site.fraction *= (1 - abscissionRatio);
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, and update
 //  SquareNitrogen, CumPlantNLoss, BloomWeightLoss, TotalSquareWeight, SquareWeight[k][l][m], 
 //  and assign 5 to FruitingCode.
-    if (FruitFraction[k][l][m] <= 0.001) {
-        FruitFraction[k][l][m] = 0;
+    if (site.fraction <= 0.001) {
+        site.fraction = 0;
         SquareNitrogen -= SquareWeight[k][l][m] * SquareNConc;
         CumPlantNLoss += SquareWeight[k][l][m] * SquareNConc;
         BloomWeightLoss += SquareWeight[k][l][m];
@@ -269,20 +269,20 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
     BurrWeightGreenBolls -= site.burr.weight * abscissionRatio;
     site.boll.weight -= site.boll.weight * abscissionRatio;
     site.burr.weight -= site.burr.weight * abscissionRatio;
-    FruitFraction[k][l][m] -= FruitFraction[k][l][m] * abscissionRatio;
+    site.fraction -= site.fraction * abscissionRatio;
 //
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, update SeedNitrogen,
 //  BurrNitrogen, CumPlantNLoss, PixInPlants, CottonWeightGreenBolls, BurrWeightGreenBolls, GreenBollsLost,
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and assign 4 to FruitingCode.
 //
-    if (FruitFraction[k][l][m] <= 0.001) {
+    if (site.fraction <= 0.001) {
         site.stage = Stage::AbscisedAsBoll;
         SeedNitrogen -= site.boll.weight * (1 - gin1) * SeedNConc;
         BurrNitrogen -= site.burr.weight * BurrNConc;
         CumPlantNLoss += site.boll.weight * (1 - gin1) * SeedNConc;
         CumPlantNLoss += site.burr.weight * BurrNConc;
         PixInPlants -= (site.boll.weight + site.burr.weight) * pixcon;
-        FruitFraction[k][l][m] = 0;
+        site.fraction = 0;
         CottonWeightGreenBolls -= site.boll.weight;
         BurrWeightGreenBolls -= site.burr.weight;
         GreenBollsLost += site.boll.weight + site.burr.weight;
@@ -315,11 +315,11 @@ void ComputeSiteNumbers(State &state, int32_t NumVegBranches)
             for (int m = 0; m < nnid; m++) {
                 FruitingSite &site = state.site[k][l][m];
                 if (site.stage == Stage::Square)
-                    NumSquares += FruitFraction[k][l][m];
+                    NumSquares += site.fraction;
                 else if (site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll)
-                    NumGreenBolls += FruitFraction[k][l][m];
+                    NumGreenBolls += site.fraction;
                 else if (site.stage == Stage::MatureBoll)
-                    NumOpenBolls += FruitFraction[k][l][m];
+                    NumOpenBolls += site.fraction;
             }
         }
     }
