@@ -30,7 +30,8 @@ typedef struct BurrStruct
 } Burr;
 typedef struct PetioleStruct
 {
-    double weight; // petiole weight at each fruiting site, g.
+    double potential_growth; // potential growth in weight of an individual fruiting node petiole, g day-1.
+    double weight;           // petiole weight at each fruiting site, g.
 } Petiole;
 typedef struct FruitingSiteStruct
 {

@@ -390,7 +390,7 @@ void ActualLeafGrowth(State &state)
                 FruitingSite &site = state.site[k][l][m];
                 site.leaf.weight += PotGroLeafWeightNodes[k][l][m] * vratio;
                 TotalLeafWeight += site.leaf.weight;
-                site.petiole.weight += PotGroPetioleWeightNodes[k][l][m] * vratio;
+                site.petiole.weight += site.petiole.potential_growth * vratio;
                 TotalPetioleWeight += site.petiole.weight;
                 site.leaf.area += PotGroLeafAreaNodes[k][l][m] * vratio;
                 TotalLeafArea += site.leaf.area;

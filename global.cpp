@@ -229,7 +229,6 @@ double
     PotGroLeafWeightNodes[3][30][5],    // potential growth in weight of an individual fruiting node leaf, g day-1.
     PotGroLeafWeightPreFru[9],          // potentially added weight of a prefruiting node leaf, g day-1.
     PotGroPetioleWeightMainStem[3][30], // potential growth in weight of an individual main stem node petiole, g day-1.
-    PotGroPetioleWeightNodes[3][30][5], // potential growth in weight of an individual fruiting node petiole, g day-1.
     PotGroPetioleWeightPreFru[9],       // potentially added weight of a prefruiting node petiole, g day-1.
     PotGroRoots[maxl][maxk],            // potential root growth in a soil cell (g per day).
     PotGroSquares[3][30][5],            // potential growth rate of an individual square, g day-1.

@@ -147,7 +147,7 @@ void PotentialLeafGrowth(State &state)
                 if (site.leaf.area <= 0) {
                     PotGroLeafAreaNodes[k][l][m] = 0;
                     PotGroLeafWeightNodes[k][l][m] = 0;
-                    PotGroPetioleWeightNodes[k][l][m] = 0;
+                    site.petiole.potential_growth = 0;
                 }
 //     Compute potential growth of leaf area and leaf weight for leaf
 //  on fruiting branch node (k,l,m).
@@ -158,10 +158,10 @@ void PotentialLeafGrowth(State &state)
                     smax = smaxx * (1 - VarPar[8] * mp1);
                     c = cc * (1 - VarPar[8] * mp1);
 //     Compute potential growth for the leaves on fruiting branches.
-                    if (state.site[k][l][m].leaf.age > 70)
+                    if (site.leaf.age > 70)
                         rate = 0;
                     else
-                        rate = smax * c * p * exp(-c * pow(state.site[k][l][m].leaf.age, p)) * pow(state.site[k][l][m].leaf.age, (p - 1));
+                        rate = smax * c * p * exp(-c * pow(site.leaf.age, p)) * pow(site.leaf.age, (p - 1));
                     if (rate >= 1e-12) {
 //     Growth rate is modified by water stress and pix. Potential growth
 //  is computed as a function of average temperature.
@@ -169,10 +169,10 @@ void PotentialLeafGrowth(State &state)
                                                        * TemperatureOnLeafGrowthRate(AvrgDailyTemp);
                         PotGroLeafWeightNodes[k][l][m] = PotGroLeafAreaNodes[k][l][m]
                                                          * LeafWeightAreaRatio;
-                        PotGroPetioleWeightNodes[k][l][m] = PotGroLeafAreaNodes[k][l][m]
+                        site.petiole.potential_growth = PotGroLeafAreaNodes[k][l][m]
                                                             * LeafWeightAreaRatio * vpotlf[13];
                         PotGroAllLeaves += PotGroLeafWeightNodes[k][l][m];
-                        PotGroAllPetioles += PotGroPetioleWeightNodes[k][l][m];
+                        PotGroAllPetioles += site.petiole.potential_growth;
                     } //if rate
                 } // if LeafAreaNodes
             } //loop nnid

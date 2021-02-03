@@ -116,7 +116,7 @@ extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9], AirTemp[24], albe
     PotGroLeafAreaMainStem[3][30], PotGroLeafAreaNodes[3][30][5],
     PotGroLeafAreaPreFru[9], PotGroLeafWeightMainStem[3][30],
     PotGroLeafWeightNodes[3][30][5], PotGroLeafWeightPreFru[9],
-    PotGroPetioleWeightMainStem[3][30], PotGroPetioleWeightNodes[3][30][5],
+    PotGroPetioleWeightMainStem[3][30],
     PotGroPetioleWeightPreFru[9], PotGroRoots[maxl][maxk], PotGroSquares[3][30][5],
     Radiation[24], ReferenceETP[24], RelativeHumidity[24], rlat1[maxl], rlat2[maxl],
     RootGroFactor[maxl][maxk], RootImpede[maxl][maxk],
