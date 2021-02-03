@@ -31,7 +31,8 @@ typedef struct BollStruct
 } Boll;
 typedef struct BurrStruct
 {
-    double weight; // weight of burrs for each site, g per plant.
+    double potential_growth; // potential growth rate of burrs in an individual boll, g day-1.
+    double weight;           // weight of burrs for each site, g per plant.
 } Burr;
 typedef struct PetioleStruct
 {

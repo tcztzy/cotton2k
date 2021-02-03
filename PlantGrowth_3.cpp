@@ -314,7 +314,7 @@ void ActualFruitGrowth(State &state)
                     ActualBollGrowth += dwboll;
                     CottonWeightGreenBolls += site.boll.weight;
                     double dwburr; // dry weight added to the burrs in a boll.
-                    dwburr = PotGroBurrs[k][l][m] * FruitGrowthRatio;
+                    dwburr = site.burr.potential_growth * FruitGrowthRatio;
                     site.burr.weight += dwburr;
                     ActualBurrGrowth += dwburr;
                     BurrWeightGreenBolls += site.burr.weight;
