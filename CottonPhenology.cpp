@@ -282,7 +282,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     NumFruitBranches[0] = 1;
     NumNodes[0][0] = 1;
     FruitGrowthRatio = 1;
-    AvrgNodeTemper[0][0][0] = AvrgDailyTemp;
+    site.average_temperature = AvrgDailyTemp;
     //     It is assumed that the cotyledons are dropped at time of first square. compute changes
     //  in AbscisedLeafWeight, TotalLeafWeight, LeafNitrogen, CumPlantNLoss, and PixInPlants caused
     //  by the abscission of the cotyledons.
@@ -314,8 +314,9 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     const double vpvegb[3] = {13.39, -0.696, 0.012};
     //      TimeToNextVegBranch is computed as a function of this average temperature.
     double TimeToNextVegBranch; // time, in physiological days, for the next vegetative branch to be formed.
-    TimeToNextVegBranch = vpvegb[0] + AvrgNodeTemper[NumVegBranches - 1][0][0] * (vpvegb[1] + AvrgNodeTemper[NumVegBranches -
-                                                                                                             1][0][0] *
+    TimeToNextVegBranch = vpvegb[0] + state.site[NumVegBranches - 1][0][0].average_temperature * (vpvegb[1] + state.site[NumVegBranches -
+                                                                                                         1][0][0]
+                                                                                                      .average_temperature *
                                                                                                   vpvegb[2]);
     //      Compare the age of the first fruiting site of the last formed
     //  vegetative branch with TimeToNextVegBranch plus DaysTo1stSqare and the delays caused by
@@ -348,7 +349,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     StemNitrogen -= addlfn;
     //      Assign the initial value of the average temperature of the first site.
     //      Define initial NumFruitBranches and NumNodes for the new vegetative branch.
-    AvrgNodeTemper[NumVegBranches - 1][0][0] = AvrgDailyTemp;
+    state.site[NumVegBranches - 1][0][0].average_temperature = AvrgDailyTemp;
     NumFruitBranches[NumVegBranches - 1] = 1;
     NumNodes[NumVegBranches - 1][0] = 1;
 }
@@ -383,8 +384,8 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     //  Reddy, CSRU, adjusted for age expressed in physiological days.  It
     //  is different for the main stem (k = 0) than for the other vegetative
     //  branches. TimeToNextFruNode is modified for plant density. Add DelayNewFruBranch to TimeToNextFruNode.
-    int nbrch = NumFruitBranches[k] - 1;      // index of new fruiting branch on this vegetative branch.
-    double tav = AvrgNodeTemper[k][nbrch][0]; // modified average daily temperature.
+    int nbrch = NumFruitBranches[k] - 1;                      // index of new fruiting branch on this vegetative branch.
+    double tav = state.site[k][nbrch][0].average_temperature; // modified average daily temperature.
     if (tav > vfrtbr[2])
         tav = vfrtbr[2];
     //     TimeToNextFruBranch is the time, in physiological days, for the next fruiting branch to be formed.
@@ -421,7 +422,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     LeafNitrogen += addlfn;
     StemNitrogen -= addlfn;
     //      Begin computing AvrgNodeTemper of the new node and assign zero to DelayNewFruBranch.
-    AvrgNodeTemper[k][newbr][0] = AvrgDailyTemp;
+    state.site[k][newbr][0].average_temperature = AvrgDailyTemp;
     DelayNewFruBranch[k] = 0;
 }
 
@@ -450,8 +451,8 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     DelayNewNode[k][l] += vfrtnod[1] * (1 - state.water_stress);
     //     Define nnid, and compute the average temperature of the last
     //  node of this fruiting branch, from the time it was formed.
-    int nnid = NumNodes[k][l] - 1;           // the number of the last node on this fruiting branche.
-    double tav = AvrgNodeTemper[k][l][nnid]; // modified daily average temperature.
+    int nnid = NumNodes[k][l] - 1;                           // the number of the last node on this fruiting branche.
+    double tav = state.site[k][l][nnid].average_temperature; // modified daily average temperature.
     if (tav > vfrtnod[2])
         tav = vfrtnod[2];
     //     Compute TimeToNextFruNode, the time (in physiological days) needed for the
@@ -484,7 +485,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     LeafNitrogen += state.site[k][l][newnod].leaf.weight * stemNRatio;
     StemNitrogen -= state.site[k][l][newnod].leaf.weight * stemNRatio;
     //     Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.
-    AvrgNodeTemper[k][l][newnod] = AvrgDailyTemp;
+    state.site[k][l][newnod].average_temperature = AvrgDailyTemp;
     DelayNewNode[k][l] = 0;
 }
 
@@ -559,7 +560,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     if (ageinc < vfrsite[7])
         ageinc = vfrsite[7];
     //     Compute average temperature of this site since formation.
-    AvrgNodeTemper[k][l][m] = (AvrgNodeTemper[k][l][m] * site.age + AvrgDailyTemp * ageinc) / (site.age + ageinc);
+    site.average_temperature = (site.average_temperature * site.age + AvrgDailyTemp * ageinc) / (site.age + ageinc);
     //     Update the age of this node, AgeOfSite(k,l,m), by adding ageinc.
     site.age += ageinc;
     //     The following is executed if this node is a square (FruitingCode =  1):

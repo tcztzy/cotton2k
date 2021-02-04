@@ -95,8 +95,7 @@ double
     AverageLwp,                   // running average of LwpMin + LwpMax for the last 3 days.
     AverageLwpMin,                // running average of LwpMin for the last 3 days.
     AverageSoilPsi,               // average soil matric water potential, bars, computed as the weighted average of the root zone.
-    AvrgDailyTemp,                // average daily temperature, C, for 24 hours.
-    AvrgNodeTemper[3][30][5];     // running average temperature of each node.
+    AvrgDailyTemp;                // average daily temperature, C, for 24 hours.
 // B
 double
     vanGenuchtenBeta[9],  // parameter of the Van Genuchten equation.
