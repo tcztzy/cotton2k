@@ -1,6 +1,6 @@
-use chrono::prelude::*;
-
 use super::*;
+use chrono::prelude::*;
+use std::f64::consts::PI;
 
 /// Function dayrad() computes the hourly values of global radiation, in W m-2,
 /// using the measured daily total global radiation.
@@ -219,17 +219,16 @@ extern "C" fn daywnd(ti: f64, wind: f64, t1: f64, t2: f64, t3: f64, wnytf: f64) 
 // wind = the daily total wind run (km per day).
 // wnytf = Factor for estimating night-time wind (from time t3 to time t1 next day).
 {
-    let pi = 3.14159f64;
     //   constants related to t1, t2, t3 :
     let sf1 = 4f64 * (t2 - t1);
     let sf2 = 4f64 * (t3 - t2);
     let wmin = wind * wnytf; //  the constant minimum wind speed during the night (m/sec).
     let wtday = wind - wmin * 3.6 * 24f64; //  integral of wind run from t1 to t3, minus wmin (km).
-    let wmax = wtday * 2f64 * pi / 3.6 / (sf1 + sf2); //  the maximum wind speed (m per sec), above wmin.
+    let wmax = wtday * 2f64 * PI / 3.6 / (sf1 + sf2); //  the maximum wind speed (m per sec), above wmin.
     if ti >= t1 && ti < t2 {
-        wmin + wmax * (2f64 * pi * (ti - t1) / sf1).sin()
+        wmin + wmax * (2f64 * PI * (ti - t1) / sf1).sin()
     } else if ti >= t2 && ti < t3 {
-        wmin + wmax * (2f64 * pi * (ti - (2f64 * t2 - t3)) / sf2).sin()
+        wmin + wmax * (2f64 * PI * (ti - (2f64 * t2 - t3)) / sf2).sin()
     } else {
         wmin
     }
@@ -289,15 +288,14 @@ extern "C" fn clcor(
 // 58-79.
 {
     //  ratio of Radiation to isrhr.
-    let pi = 3.14159f64;
     let rasi = if isrhr > 0f64 {
         radiation / isrhr
     } else {
         0f64
     };
     if coszhr >= 0.1736 && rasi >= 0.375 {
-        let angle = pi * ((ihr as f64) - solar_noon + 0.5) / day_length; // hour angle (from solar noon) in radians.
-        ck * pi / 2f64 * angle.cos()
+        let angle = PI * ((ihr as f64) - solar_noon + 0.5) / day_length; // hour angle (from solar noon) in radians.
+        ck * PI / 2f64 * angle.cos()
     } else {
         0f64
     }
@@ -326,9 +324,8 @@ extern "C" fn ComputeDayLength(
 //
 {
     //     Convert day of year to corresponding angle in radians (xday).
-    let pi = 3.14159f64;
     let xday =
-        2f64 * pi * (doy - 1) as f64 / NaiveDate::from_ymd(year + 1, 1, 1).pred().ordinal() as f64;
+        2f64 * PI * (doy - 1) as f64 / NaiveDate::from_ymd(year + 1, 1, 1).pred().ordinal() as f64;
     //     Compute declination angle for this day. The equation used here for computing it
     //  is taken from the CIMIS algorithm.
     *declination = 0.006918 - 0.399912 * xday.cos() + 0.070257 * xday.sin()
@@ -356,7 +353,7 @@ extern "C" fn ComputeDayLength(
         - 0.014615 * (2f64 * xday).cos()
         - 0.04089 * (2f64 * xday).sin())
         * 12.
-        / pi;
+        / PI;
     let st = 15f64 * (longitude / 15f64).floor();
     let mut f = (longitude - st) / 15f64;
     if longitude > 0f64 {
@@ -370,14 +367,14 @@ extern "C" fn ComputeDayLength(
     *solar_noon = 12f64 - f - exday;
     //     Compute day length, by commonly used equations, from latitude and declination of
     //  this day. Times of sunrise and of sunset are computed from solar noon and day length.
-    let xlat = latitude * pi / 180f64;
+    let xlat = latitude * PI / 180f64;
     let mut ht = -xlat.tan() * declination.tan();
     if ht > 1f64 {
         ht = 1f64; //  arctic circle
     } else if ht < -1f64 {
         ht = -1f64;
     }
-    *day_length = 2f64 * ht.acos() * 12f64 / pi;
+    *day_length = 2f64 * ht.acos() * 12f64 / PI;
     *sunr = *solar_noon - *day_length / 2f64;
     *suns = *sunr + *day_length;
 }
@@ -429,23 +426,23 @@ fn test_comput_day_length() {
         ((sunrise - sunrise.floor()) * 60.).floor() as u32,
         ((sunrise * 60. - (sunrise * 60.).floor()) * 60.).floor() as u32,
     );
-    assert!(
+    assert_eq!(
         (solar_noon.with_timezone(&Utc)
             - "2020-10-20T06:19:30+00:00"
                 .parse::<DateTime<Utc>>()
                 .expect("Parse Error"))
         .num_seconds()
-        .abs()
-            < 10
+        .abs(),
+        4
     );
-    assert!(
+    assert_eq!(
         (sunrise.with_timezone(&Utc)
             - "2020-10-20T00:52:07+00:00"
                 .parse::<DateTime<Utc>>()
                 .expect("Parse Error"))
         .num_seconds()
-        .abs()
-            < 180
+        .abs(),
+        149
     );
     let rio = (-22.9110137, -43.2093727);
     let yo = 32;
@@ -474,28 +471,28 @@ fn test_comput_day_length() {
         ((sunrise - sunrise.floor()) * 60.).floor() as u32,
         ((sunrise * 60. - (sunrise * 60.).floor()) * 60.).floor() as u32,
     );
-    assert!(
+    assert_eq!(
         (sunrise.with_timezone(&Utc)
             - "2021-02-01T05:33:24-03:00"
                 .parse::<DateTime<Utc>>()
                 .expect("Parse Error"))
         .num_seconds()
-        .abs()
-            < 180
+        .abs(),
+        137
     );
     let sunset = fixed_offset.yo(year, yo).and_hms(
         sunset.floor() as u32,
         ((sunset - sunset.floor()) * 60.).floor() as u32,
         ((sunset * 60. - (sunset * 60.).floor()) * 60.).floor() as u32,
     );
-    assert!(
+    assert_eq!(
         (sunset.with_timezone(&Utc)
             - "2021-02-01T18:39:38-03:00"
                 .parse::<DateTime<Utc>>()
                 .expect("Parse Error"))
         .num_seconds()
-        .abs()
-            < 200
+        .abs(),
+        198
     );
 }
 
@@ -590,7 +587,6 @@ extern "C" fn daytmp(
 //     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
 //
 {
-    let pi = 3.14159f64;
     let tkk = 15f64; // The temperature increase at which the sensible heat flux is
                      //  doubled, in comparison with the situation without buoyancy.
     let tcoef = 4f64; // time coefficient for the exponential part of the equation.
@@ -610,7 +606,7 @@ extern "C" fn daytmp(
     if ti <= sunr {
         //  from midnight to sunrise
         amp = (yesterday.Tmax - today.Tmin) * (1f64 + (yesterday.Tmax - today.Tmin) / tkk);
-        sts = (pi * DayLength / (DayLength + 2f64 * site8)).sin();
+        sts = (PI * DayLength / (DayLength + 2f64 * site8)).sin();
         //  compute temperature at sunset:
         sst = today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * sts).sqrt();
         HourlyTemperature = (today.Tmin - sst * ((DayLength - 24f64) / tcoef).exp()
@@ -619,19 +615,19 @@ extern "C" fn daytmp(
     } else if ti <= hmax {
         //  from sunrise to hmax
         amp = (today.Tmax - today.Tmin) * (1f64 + (today.Tmax - today.Tmin) / tkk);
-        st = (pi * (ti - SolarNoon + DayLength / 2.) / (DayLength + 2f64 * site8)).sin();
+        st = (PI * (ti - SolarNoon + DayLength / 2.) / (DayLength + 2f64 * site8)).sin();
         HourlyTemperature =
             today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
     } else if ti <= suns {
         //  from hmax to sunset
         amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
-        st = (pi * (ti - SolarNoon + DayLength / 2f64) / (DayLength + 2f64 * site8)).sin();
+        st = (PI * (ti - SolarNoon + DayLength / 2f64) / (DayLength + 2f64 * site8)).sin();
         HourlyTemperature =
             tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
     } else {
         //  from sunset to midnight
         amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
-        sts = (pi * DayLength / (DayLength + 2f64 * site8)).sin();
+        sts = (PI * DayLength / (DayLength + 2f64 * site8)).sin();
         sst = tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * sts).sqrt();
         HourlyTemperature = (tomorrow.Tmin - sst * ((DayLength - 24f64) / tcoef).exp()
             + (sst - tomorrow.Tmin) * ((suns - ti) / tcoef).exp())
@@ -661,16 +657,15 @@ extern "C" fn sunangle(
 // coszhr = cosine of sun angle from zenith for this hour.
 // sunahr = sun angle from horizon, degrees.
 {
-    let pi = 3.14159f64;
     // The latitude is converted to radians (xlat).
-    let xlat = latitude * pi / 180.;
+    let xlat = latitude * PI / 180.;
     // amplitude of the sine of the solar height, computed as
     // the product of cosines of latitude and declination angles.
     let cd = xlat.cos() * declination.cos();
     // seasonal offset of the sine of the solar height, computed
     // as the product of sines of latitude and declination angles.
     let sd = xlat.sin() * declination.sin();
-    let hrangle = 15. * (ti - solar_noon) * pi / 180.; // hourly angle converted to radians
+    let hrangle = 15. * (ti - solar_noon) * PI / 180.; // hourly angle converted to radians
     *coszhr = sd + cd * hrangle.cos();
     if *coszhr <= 0f64 {
         *coszhr = 0f64;
@@ -679,7 +674,7 @@ extern "C" fn sunangle(
         *coszhr = 1f64;
         *sunahr = 90f64;
     } else {
-        *sunahr = (coszhr.acos() * 180f64 / pi - 90f64).abs();
+        *sunahr = (coszhr.acos() * 180f64 / PI - 90f64).abs();
     }
 }
 

@@ -102,7 +102,7 @@ extern "C" fn WriteInitialInputData(
             .unwrap()
     })
     .unwrap();
-    if sim.day_emerge <= 0 {
+    if sim.day_emerge == 0 {
         writeln!(file, "       Emergence date is simulated   ").unwrap();
     } else {
         writeln!(file, "       Emergence date...   {}", unsafe {
@@ -198,7 +198,7 @@ extern "C" fn WriteInitialInputData(
     }*/
     let actual_weather_file_name =
         unsafe { CStr::from_ptr(actual_weather_file_name).to_str().unwrap() };
-    if actual_weather_file_name.len() > 0 {
+    if !actual_weather_file_name.is_empty() {
         writeln!(
             file,
             "    Actual Weather Input File:     {}",
@@ -221,7 +221,7 @@ extern "C" fn WriteInitialInputData(
             .to_str()
             .unwrap()
     };
-    if predicted_weather_file_name.len() > 0 {
+    if !predicted_weather_file_name.is_empty() {
         writeln!(
             file,
             "    Predicted Weather Input File:  {}",
