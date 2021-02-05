@@ -118,7 +118,7 @@ extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9], AirTemp[24], albe
     PotGroLeafWeightPreFru[9],
     PotGroPetioleWeightMainStem[3][30],
     PotGroPetioleWeightPreFru[9], PotGroRoots[maxl][maxk],
-    Radiation[24], ReferenceETP[24], RelativeHumidity[24], rlat1[maxl], rlat2[maxl],
+    ReferenceETP[24], RelativeHumidity[24], rlat1[maxl], rlat2[maxl],
     RootGroFactor[maxl][maxk], RootImpede[maxl][maxk],
     SandVolumeFraction[maxl], SaturatedHydCond[9], ShedByCarbonStress[20],
     ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk],

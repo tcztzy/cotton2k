@@ -74,7 +74,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
 //     Division by 41880 (= 698 * 60) converts from Joules per sq m to
 // langley (= calories per sq cm) Or: from Watt per sq m to langley per sec.
 //     Modify incoming short wave radiation to mulched soil surface.
-    double rzero = Radiation[ihr] / 41880;      //short wave (global) radiation (ly / sec).
+    double rzero = sim.states[u].hours[ihr].radiation / 41880;      //short wave (global) radiation (ly / sec).
     double rss0 = rzero * (1 - sf * cswint);  //global radiation after passing through canopy
     double tm;       // temperature of mulch (K)
     double rsup;     // global radiation reflected up to the vegetation

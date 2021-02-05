@@ -2,6 +2,11 @@
 #define STATE_TYPE
 #include "Root.h"
 #include "FruitingSite.h"
+
+typedef struct HourStruct
+{
+    double radiation; // hourly global radiation, W / m2.
+} Hour;
 typedef struct State
 {
     char date[12];
@@ -14,6 +19,7 @@ typedef struct State
     double day_length;                       // day length, in hours
     double plant_height;
     double runoff;
+    Hour hours[24];
     Root root[40][20];
     FruitingSite site[3][30][5];
 } State;

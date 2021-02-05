@@ -41,7 +41,7 @@ extern "C"
     double daywnd(double, double, double, double, double, double);
     double daytmp(Simulation &, uint32_t, double, double, double, double, uint32_t, double, double);
     double clcor(uint8_t, double, double, double, double, double, double);
-    void AverageAirTemperatures(const double *, const double *, double &, double &, double &);
+    void AverageAirTemperatures(State &, const double *, double &, double &, double &);
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
     void sunangle(double, double, double, double, double &, double &);
     double tdewhour(Simulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double);
@@ -139,7 +139,7 @@ void DayClim(Simulation &sim, uint32_t u)
         double ti = ihr + 0.5;                                   // time in the middle of each hourly interval.
         double sinb = sd + cd * cos(pi * (ti - SolarNoon) / 12); // sine of the solar elevation.
                                                                  //     Compute hourly global radiation, using function dayrad.
-        Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
+        state.hours[ihr].radiation = dayrad(ti, radsum, sinb, c11);
         //     Compute hourly temperature, using function daytmp.
         AirTemp[ihr] = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
         //     Compute hourly dew point temperature, using function tdewhour.
@@ -161,7 +161,7 @@ void DayClim(Simulation &sim, uint32_t u)
             File18 << ihr;
             File18.precision(5);
             File18.width(15);
-            File18 << Radiation[ihr];
+            File18 << state.hours[ihr].radiation;
             File18.width(15);
             File18 << AirTemp[ihr];
             File18.width(15);
@@ -171,7 +171,7 @@ void DayClim(Simulation &sim, uint32_t u)
         }
     }
     //     Compute average daily temperature, using function AverageAirTemperatures.
-    AverageAirTemperatures(AirTemp, Radiation, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
+    AverageAirTemperatures(state, AirTemp, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
     //     Write output file if requested.
     if (jtout > 1)
     {
@@ -203,6 +203,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
 //        es1hour, es2hour, ReferenceTransp.
 //     argument: jtout - index indicating if output is required.
 {
+    State &state = sim.states[u];
     const double stefb = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
     const double c12 = 0.125;         // c12 ... c15 are constant parameters.
     const double c13 = 0.0439;
@@ -221,16 +222,16 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                //  hour: sunangle, cloudcov, clcor, refalbed .
         sunangle(ti, sim.latitude, declination, SolarNoon, cosz, suna);
         isr = tmpisr * cosz;
-        CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
+        CloudCoverRatio[ihr] = cloudcov(state.hours[ihr].radiation, isr, cosz);
         //      clcor is called to compute cloud-type correction.
         //      iamhr and ipmhr are set.
-        CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, sim.states[u].day_length, Radiation[ihr], SolarNoon);
+        CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, state.day_length, state.hours[ihr].radiation, SolarNoon);
         if ((cosz >= 0.1736) && (iamhr == 0))
             iamhr = ihr;
         if ((ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0))
             ipmhr = ihr - 1;
         //      refalbed is called to compute the reference albedo for each hour.
-        albedo[ihr] = refalbed(isr, Radiation[ihr], cosz, suna);
+        albedo[ihr] = refalbed(isr, state.hours[ihr].radiation, cosz, suna);
         if (jtout > 1)
         {
             // write output to file
@@ -288,7 +289,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         double ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
                                             //     Compute incoming long wave radiation:
         double rlonin = (ea0 * (1 - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefb * pow(tk, 4) - CloudTypeCorr[ihr];
-        rnet[ihr] = (1 - albedo[ihr]) * Radiation[ihr] + rlonin - stefb * pow(tk, 4);
+        rnet[ihr] = (1 - albedo[ihr]) * state.hours[ihr].radiation + rlonin - stefb * pow(tk, 4);
         Rn += rnet[ihr];
         //     The hourly reference evapotranspiration ReferenceETP is computed by the
         //  CIMIS algorithm using the modified Penman equation:
@@ -298,7 +299,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                                                      //     The wind function (fu2) is computed using different sets of parameters
                                                                                      //  for day-time and night-time. The parameter values are as suggested by CIMIS.
         double fu2;                                                                  // wind function for computing evapotranspiration
-        if (Radiation[ihr] <= 0)
+        if (state.hours[ihr].radiation <= 0)
             fu2 = c12 + c13 * WindSpeed[ihr];
         else
             fu2 = c14 + c15 * WindSpeed[ihr];

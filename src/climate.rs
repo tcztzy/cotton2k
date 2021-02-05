@@ -498,20 +498,19 @@ fn test_comput_day_length() {
 
 #[no_mangle]
 extern "C" fn AverageAirTemperatures(
+    state: &State,
     air_temperature: *const f64,
-    radiation: *const f64,
     average_air_temperature: &mut f64,
     average_daytime_air_temperature: &mut f64,
     average_nighttime_air_temperature: &mut f64,
 ) {
     let air_temperature = unsafe { std::slice::from_raw_parts(air_temperature, 24) };
-    let radiation = unsafe { std::slice::from_raw_parts(radiation, 24) };
     *average_air_temperature = air_temperature.iter().sum::<f64>() / 24f64;
     *average_daytime_air_temperature = 0f64;
     *average_nighttime_air_temperature = 0f64;
     let mut night_hours = 0u8;
-    for zipped in radiation.iter().zip(air_temperature) {
-        if *zipped.0 <= 0f64 {
+    for zipped in state.hours.iter().zip(air_temperature) {
+        if zipped.0.radiation <= 0f64 {
             night_hours += 1;
             *average_nighttime_air_temperature += *zipped.1
         } else {

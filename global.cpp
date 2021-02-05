@@ -230,7 +230,6 @@ double
     PotGroStem;                         // potential growth rate of stems, g plant-1 day-1.
 // R
 double
-    Radiation[24],                 // hourly global radiation, W / m2.
     RatioImplicit,                 // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
     ReferenceETP[24],              // reference evapotranspiration, mm per hour.
     ReferenceTransp,               // daily sum of hourly reference evapotranspiration, mm per day.
