@@ -222,7 +222,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                //  hour: sunangle, cloudcov, clcor, refalbed .
         sunangle(ti, sim.latitude, declination, SolarNoon, cosz, suna);
         isr = tmpisr * cosz;
-        CloudCoverRatio[ihr] = cloudcov(state.hours[ihr].radiation, isr, cosz);
+        state.hours[ihr].cloud_cov = cloudcov(state.hours[ihr].radiation, isr, cosz);
         //      clcor is called to compute cloud-type correction.
         //      iamhr and ipmhr are set.
         CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, state.day_length, state.hours[ihr].radiation, SolarNoon);
@@ -277,7 +277,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                         //   Get cloud cover and cloud correction for night hours
         if (ihr < iamhr || ihr > ipmhr)
         {
-            CloudCoverRatio[ihr] = 0;
+            state.hours[ihr].cloud_cov = 0;
             CloudTypeCorr[ihr] = 0;
         }
         //     The hourly net radiation is computed using the CIMIS algorithm (Dong et al., 1988):
@@ -288,7 +288,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         double tk = AirTemp[ihr] + 273.161; // hourly air temperature in Kelvin.
         double ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
                                             //     Compute incoming long wave radiation:
-        double rlonin = (ea0 * (1 - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefb * pow(tk, 4) - CloudTypeCorr[ihr];
+        double rlonin = (ea0 * (1 - state.hours[ihr].cloud_cov) + state.hours[ihr].cloud_cov) * stefb * pow(tk, 4) - CloudTypeCorr[ihr];
         rnet[ihr] = (1 - albedo[ihr]) * state.hours[ihr].radiation + rlonin - stefb * pow(tk, 4);
         Rn += rnet[ihr];
         //     The hourly reference evapotranspiration ReferenceETP is computed by the

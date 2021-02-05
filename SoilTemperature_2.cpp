@@ -96,7 +96,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
     double vp = 0.01 * RelativeHumidity[ihr] * VaporPressure(AirTemp[ihr]); //air vapor pressure, KPa.
     double ea0 = clearskyemiss(vp, thet);          //sky emissivity from clear portions of the sky.
     double rlzero;  // incoming long wave radiation (ly / sec).
-    rlzero = (ea0 * (1 - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefa1 * pow(thet, 4)
+    rlzero = (ea0 * (1 - sim.states[u].hours[ihr].cloud_cov) + sim.states[u].hours[ihr].cloud_cov) * stefa1 * pow(thet, 4)
              - CloudTypeCorr[ihr] / 41880; // CloudTypeCorr converted from W m-2 to ly sec-1.
 //
 //     Set initial values of canopy temperature and air temperature in canopy. 
