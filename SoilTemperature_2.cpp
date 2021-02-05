@@ -50,6 +50,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
 //    The following global variables are set here:
 //       SoilTemp, FoliageTemp, MulchTemp.
 {
+    Hour &hour = sim.states[u].hours[ihr];
 //     Constants used:
     const double stefa1 = 1.38e-12;  // Stefan-Boltsman constant.
     const double wndfac = 0.60;      // Ratio of wind speed under partial canopy cover.
@@ -57,7 +58,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
     // shaded soil surface)intercepted by the canopy.
 //     Set initial values
     double sf = 1 - rracol[k];             // fraction of shaded soil area
-    double thet = AirTemp[ihr] + 273.161; // air temperature, K
+    double thet = hour.temperature + 273.161; // air temperature, K
     double so = SoilTemp[0][k];          // soil surface temperature, K
     double so2 = SoilTemp[1][k];          // 2nd soil layer temperature, K
     double so3 = SoilTemp[2][k];          // 3rd soil layer temperature, K
@@ -74,7 +75,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
 //     Division by 41880 (= 698 * 60) converts from Joules per sq m to
 // langley (= calories per sq cm) Or: from Watt per sq m to langley per sec.
 //     Modify incoming short wave radiation to mulched soil surface.
-    double rzero = sim.states[u].hours[ihr].radiation / 41880;      //short wave (global) radiation (ly / sec).
+    double rzero = hour.radiation / 41880;      //short wave (global) radiation (ly / sec).
     double rss0 = rzero * (1 - sf * cswint);  //global radiation after passing through canopy
     double tm;       // temperature of mulch (K)
     double rsup;     // global radiation reflected up to the vegetation
@@ -93,11 +94,11 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
         rsup = rss0 * ag;       // reflected up from soil surface
     }
 //   ****   LONG WAVE RADIATION EMITTED FROM SKY    ****
-    double vp = 0.01 * RelativeHumidity[ihr] * VaporPressure(AirTemp[ihr]); //air vapor pressure, KPa.
+    double vp = 0.01 * RelativeHumidity[ihr] * VaporPressure(hour.temperature); //air vapor pressure, KPa.
     double ea0 = clearskyemiss(vp, thet);          //sky emissivity from clear portions of the sky.
     double rlzero;  // incoming long wave radiation (ly / sec).
-    rlzero = (ea0 * (1 - sim.states[u].hours[ihr].cloud_cov) + sim.states[u].hours[ihr].cloud_cov) * stefa1 * pow(thet, 4)
-             - sim.states[u].hours[ihr].cloud_cor / 41880; // CloudTypeCorr converted from W m-2 to ly sec-1.
+    rlzero = (ea0 * (1 - hour.cloud_cov) + hour.cloud_cov) * stefa1 * pow(thet, 4)
+             - hour.cloud_cor / 41880; // CloudTypeCorr converted from W m-2 to ly sec-1.
 //
 //     Set initial values of canopy temperature and air temperature in canopy. 
     double tv; // temperature of plant foliage (K)

@@ -41,7 +41,7 @@ extern "C"
     double daywnd(double, double, double, double, double, double);
     double daytmp(Simulation &, uint32_t, double, double, double, double, uint32_t, double, double);
     double clcor(uint8_t, double, double, double, double, double, double);
-    void AverageAirTemperatures(State &, const double *, double &, double &, double &);
+    void AverageAirTemperatures(Hour[24], double &, double &, double &);
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
     void sunangle(double, double, double, double, double &, double &);
     double tdewhour(Simulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double);
@@ -140,11 +140,11 @@ void DayClim(Simulation &sim, uint32_t u)
                                                                  //     Compute hourly global radiation, using function dayrad.
         state.hours[ihr].radiation = dayrad(ti, radsum, sinb, c11);
         //     Compute hourly temperature, using function daytmp.
-        AirTemp[ihr] = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
+        state.hours[ihr].temperature = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
         //     Compute hourly dew point temperature, using function tdewhour.
-        DewPointTemp[ihr] = tdewhour(sim, u, LastDayWeatherData, ti, AirTemp[ihr], sunr, SolarNoon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
+        DewPointTemp[ihr] = tdewhour(sim, u, LastDayWeatherData, ti, state.hours[ihr].temperature, sunr, SolarNoon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
         //     Compute hourly relative humidity, using function dayrh.
-        RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
+        RelativeHumidity[ihr] = dayrh(state.hours[ihr].temperature, DewPointTemp[ihr]);
         //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
         WindSpeed[ihr] = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
     }
@@ -162,7 +162,7 @@ void DayClim(Simulation &sim, uint32_t u)
             File18.width(15);
             File18 << state.hours[ihr].radiation;
             File18.width(15);
-            File18 << AirTemp[ihr];
+            File18 << state.hours[ihr].temperature;
             File18.width(15);
             File18 << RelativeHumidity[ihr];
             File18.width(15);
@@ -170,7 +170,7 @@ void DayClim(Simulation &sim, uint32_t u)
         }
     }
     //     Compute average daily temperature, using function AverageAirTemperatures.
-    AverageAirTemperatures(state, AirTemp, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
+    AverageAirTemperatures(state.hours, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
     //     Write output file if requested.
     if (jtout > 1)
     {
@@ -265,12 +265,13 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                     //
     for (int ihr = 0; ihr < 24; ihr++)              //  2nd hourly loop
     {
+        Hour &hour = state.hours[ihr];
         double ti = ihr + 0.5;                          // middle of the hourly interval
                                                         //      Compute saturated vapor pressure (svp), using function VaporPressure().
                                                         //      The actual vapor pressure (vp) is computed from svp and the
                                                         //  relative humidity. Compute vapor pressure deficit (vpd). This
                                                         //  procedure is based on the CIMIS algorithm.
-        double svp = VaporPressure(AirTemp[ihr]);       // saturated vapor pressure, mb
+        double svp = VaporPressure(hour.temperature);       // saturated vapor pressure, mb
         double vp = 0.01 * RelativeHumidity[ihr] * svp; // vapor pressure, mb
         double vpd = svp - vp;                          // vapor pressure deficit, mb.
                                                         //   Get cloud cover and cloud correction for night hours
@@ -284,7 +285,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         //  (CloudCoverRatio), air temperature (tk),  stefb, and cloud type correction (CloudTypeCorr).
         //     rnet, the hourly net radiation, W m-2, is computed from the global radiation, the albedo,
         //  the incoming long wave radiation, and the outgoing longwave radiation.
-        double tk = AirTemp[ihr] + 273.161; // hourly air temperature in Kelvin.
+        double tk = hour.temperature + 273.161; // hourly air temperature in Kelvin.
         double ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
                                             //     Compute incoming long wave radiation:
         double rlonin = (ea0 * (1 - state.hours[ihr].cloud_cov) + state.hours[ihr].cloud_cov) * stefb * pow(tk, 4) - state.hours[ihr].cloud_cor;
@@ -294,7 +295,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         //  CIMIS algorithm using the modified Penman equation:
         //     The weighting ratio (w) is computed from the functions del() (the slope of the saturation
         //  vapor pressure versus air temperature) and gam() (the psychometric constant).
-        double w = del(tk, svp) / (del(tk, svp) + gam(sim.elevation, AirTemp[ihr])); // coefficient of the Penman equation
+        double w = del(tk, svp) / (del(tk, svp) + gam(sim.elevation, hour.temperature)); // coefficient of the Penman equation
                                                                                      //     The wind function (fu2) is computed using different sets of parameters
                                                                                      //  for day-time and night-time. The parameter values are as suggested by CIMIS.
         double fu2;                                                                  // wind function for computing evapotranspiration
@@ -304,7 +305,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
             fu2 = c14 + c15 * WindSpeed[ihr];
         //     hlathr, the latent heat for evaporation of water (W m-2 per mm at this hour) is
         //  computed as a function of temperature.
-        double hlathr = 878.61 - 0.66915 * (AirTemp[ihr] + 273.161);
+        double hlathr = 878.61 - 0.66915 * (hour.temperature + 273.161);
         //     ReferenceETP, the hourly reference evapotranspiration, is now computed by the
         //  modified Penman equation.
         ReferenceETP[ihr] = w * rnet[ihr] / hlathr + (1 - w) * vpd * fu2;

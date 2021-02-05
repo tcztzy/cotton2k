@@ -333,7 +333,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
             File19.setf(ios::fixed);
             File19.precision(3);
             File19.width(8);
-            File19 << AirTemp[ihr];
+            File19 << sim.states[u].hours[ihr].temperature;
             File19.width(8);
             File19 << tfc;
             File19.width(8);

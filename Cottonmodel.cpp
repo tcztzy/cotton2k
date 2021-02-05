@@ -274,7 +274,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     {
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
-        sim.states[u].day_inc = PhysiologicalAge(AirTemp); // physiological days increment for this day. computes physiological age
+        sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours); // physiological days increment for this day. computes physiological age
         if (pixday[0] > 0)
             Pix();                                                                                   // effects of pix applied.
         Defoliate(sim, u);                                                                           // effects of defoliants applied.
