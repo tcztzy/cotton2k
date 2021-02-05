@@ -50,7 +50,6 @@ extern "C"
 
 void EvapoTranspiration(Simulation &, uint32_t, int);
 
-
 //     Definition of file scope variables:
 double declination, // daily declination angle, in radians.
     SolarNoon,      // time of solar noon, hours.
@@ -225,7 +224,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         state.hours[ihr].cloud_cov = cloudcov(state.hours[ihr].radiation, isr, cosz);
         //      clcor is called to compute cloud-type correction.
         //      iamhr and ipmhr are set.
-        CloudTypeCorr[ihr] = clcor(ihr, SitePar[7], isr, cosz, state.day_length, state.hours[ihr].radiation, SolarNoon);
+        state.hours[ihr].cloud_cor = clcor(ihr, SitePar[7], isr, cosz, state.day_length, state.hours[ihr].radiation, SolarNoon);
         if ((cosz >= 0.1736) && (iamhr == 0))
             iamhr = ihr;
         if ((ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0))
@@ -259,12 +258,12 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
     } //   End of 1st hourly loop
       //     Zero some variables that will later be used for summation.
     ReferenceTransp = 0;
-    Rn = 0;                                 // daily net radiation
-    double rnet[24];                        // hourly net radiation
-    double cltcoram = CloudTypeCorr[iamhr]; //  cloud type correction during early morning
-    double cltcorpm = CloudTypeCorr[ipmhr]; //  cloud type correction during late afternoon
-                                            //
-    for (int ihr = 0; ihr < 24; ihr++)      //  2nd hourly loop
+    Rn = 0;                                         // daily net radiation
+    double rnet[24];                                // hourly net radiation
+    double cltcoram = state.hours[iamhr].cloud_cor; //  cloud type correction during early morning
+    double cltcorpm = state.hours[ipmhr].cloud_cor; //  cloud type correction during late afternoon
+                                                    //
+    for (int ihr = 0; ihr < 24; ihr++)              //  2nd hourly loop
     {
         double ti = ihr + 0.5;                          // middle of the hourly interval
                                                         //      Compute saturated vapor pressure (svp), using function VaporPressure().
@@ -278,7 +277,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         if (ihr < iamhr || ihr > ipmhr)
         {
             state.hours[ihr].cloud_cov = 0;
-            CloudTypeCorr[ihr] = 0;
+            state.hours[ihr].cloud_cor = 0;
         }
         //     The hourly net radiation is computed using the CIMIS algorithm (Dong et al., 1988):
         //     rlonin, the hourly incoming long wave radiation, is computed from ea0, cloud cover
@@ -288,7 +287,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         double tk = AirTemp[ihr] + 273.161; // hourly air temperature in Kelvin.
         double ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
                                             //     Compute incoming long wave radiation:
-        double rlonin = (ea0 * (1 - state.hours[ihr].cloud_cov) + state.hours[ihr].cloud_cov) * stefb * pow(tk, 4) - CloudTypeCorr[ihr];
+        double rlonin = (ea0 * (1 - state.hours[ihr].cloud_cov) + state.hours[ihr].cloud_cov) * stefb * pow(tk, 4) - state.hours[ihr].cloud_cor;
         rnet[ihr] = (1 - albedo[ihr]) * state.hours[ihr].radiation + rlonin - stefb * pow(tk, 4);
         Rn += rnet[ihr];
         //     The hourly reference evapotranspiration ReferenceETP is computed by the

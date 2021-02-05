@@ -7,6 +7,7 @@ typedef struct HourStruct
 {
     double radiation; // hourly global radiation, W / m2.
     double cloud_cov; // cloud cover ratio (0 to 1).
+    double cloud_cor; // hourly cloud type correction.
 } Hour;
 typedef struct State
 {
