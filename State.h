@@ -29,6 +29,7 @@ typedef struct State
     double day_length;                       // day length, in hours
     double plant_height;
     double runoff;
+    double solar_noon;
     Hour hours[24];
     Root root[40][20];
     FruitingSite site[3][30][5];

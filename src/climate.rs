@@ -526,8 +526,6 @@ extern "C" fn daytmp(
     sim: &mut Simulation,
     u: u32,
     ti: f64,
-    DayLength: f64,
-    SolarNoon: f64,
     site8: f64,
     LastDayWeatherData: u32,
     sunr: f64,
@@ -586,10 +584,12 @@ extern "C" fn daytmp(
 //     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
 //
 {
+    let states = unsafe {std::slice::from_raw_parts_mut(sim.states, (sim.day_finish - sim.day_start + 1) as usize)};
+    let state = &mut states[u as usize];
     let tkk = 15f64; // The temperature increase at which the sensible heat flux is
                      //  doubled, in comparison with the situation without buoyancy.
     let tcoef = 4f64; // time coefficient for the exponential part of the equation.
-    let hmax = SolarNoon + site8; // hour of maximum temperature
+    let hmax = state.solar_noon + site8; // hour of maximum temperature
     let im1 = if u > 1 { u - 1 } else { 0 }; // day of year yesterday
     let yesterday = sim.climate[im1 as usize];
     let today = sim.climate[u as usize];
@@ -605,32 +605,32 @@ extern "C" fn daytmp(
     if ti <= sunr {
         //  from midnight to sunrise
         amp = (yesterday.Tmax - today.Tmin) * (1f64 + (yesterday.Tmax - today.Tmin) / tkk);
-        sts = (PI * DayLength / (DayLength + 2f64 * site8)).sin();
+        sts = (PI * state.day_length / (state.day_length + 2f64 * site8)).sin();
         //  compute temperature at sunset:
         sst = today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * sts).sqrt();
-        HourlyTemperature = (today.Tmin - sst * ((DayLength - 24f64) / tcoef).exp()
+        HourlyTemperature = (today.Tmin - sst * ((state.day_length - 24f64) / tcoef).exp()
             + (sst - today.Tmin) * ((suns - ti - 24f64) / tcoef).exp())
-            / (1f64 - ((DayLength - 24f64) / tcoef).exp());
+            / (1f64 - ((state.day_length - 24f64) / tcoef).exp());
     } else if ti <= hmax {
         //  from sunrise to hmax
         amp = (today.Tmax - today.Tmin) * (1f64 + (today.Tmax - today.Tmin) / tkk);
-        st = (PI * (ti - SolarNoon + DayLength / 2.) / (DayLength + 2f64 * site8)).sin();
+        st = (PI * (ti - state.solar_noon + state.day_length / 2.) / (state.day_length + 2f64 * site8)).sin();
         HourlyTemperature =
             today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
     } else if ti <= suns {
         //  from hmax to sunset
         amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
-        st = (PI * (ti - SolarNoon + DayLength / 2f64) / (DayLength + 2f64 * site8)).sin();
+        st = (PI * (ti - state.solar_noon + state.day_length / 2f64) / (state.day_length + 2f64 * site8)).sin();
         HourlyTemperature =
             tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
     } else {
         //  from sunset to midnight
         amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
-        sts = (PI * DayLength / (DayLength + 2f64 * site8)).sin();
+        sts = (PI * state.day_length / (state.day_length + 2f64 * site8)).sin();
         sst = tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * sts).sqrt();
-        HourlyTemperature = (tomorrow.Tmin - sst * ((DayLength - 24f64) / tcoef).exp()
+        HourlyTemperature = (tomorrow.Tmin - sst * ((state.day_length - 24f64) / tcoef).exp()
             + (sst - tomorrow.Tmin) * ((suns - ti) / tcoef).exp())
-            / (1. - ((DayLength - 24f64) / tcoef).exp());
+            / (1. - ((state.day_length - 24f64) / tcoef).exp());
     }
     HourlyTemperature
     //     Reference:

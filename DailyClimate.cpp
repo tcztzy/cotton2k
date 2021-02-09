@@ -39,7 +39,7 @@ extern "C"
     double gam(double, double);
     double cloudcov(double, double, double);
     double daywnd(double, double, double, double, double, double);
-    double daytmp(Simulation &, uint32_t, double, double, double, double, uint32_t, double, double);
+    double daytmp(Simulation &, uint32_t, double, double, uint32_t, double, double);
     double clcor(uint8_t, double, double, double, double, double, double);
     void AverageAirTemperatures(Hour[24], double &, double &, double &);
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
@@ -52,7 +52,6 @@ void EvapoTranspiration(Simulation &, uint32_t, int);
 
 //     Definition of file scope variables:
 double declination, // daily declination angle, in radians.
-    SolarNoon,      // time of solar noon, hours.
     sunr,           // time of sunrise, hours.
     suns,           // time of sunset, hours.
     tmpisr;         // extraterrestrial radiation, W / m2.
@@ -71,7 +70,7 @@ void DayClim(Simulation &sim, uint32_t u)
 {
     State &state = sim.states[u];
     //     Compute day length and related variables:
-    ComputeDayLength(sim.day_start + u, sim.year, sim.latitude, sim.longitude, declination, tmpisr, SolarNoon, sim.states[u].day_length, sunr, suns);
+    ComputeDayLength(sim.day_start + u, sim.year, sim.latitude, sim.longitude, declination, tmpisr, state.solar_noon, state.day_length, sunr, suns);
     //
     double xlat = sim.latitude * pi / 180;    // latitude converted to radians.
     double cd = cos(xlat) * cos(declination); // amplitude of the sine of the solar height.
@@ -128,22 +127,22 @@ void DayClim(Simulation &sim, uint32_t u)
         jtout = 0;
     //     Parameters for the daily wind function are now computed:
     //     Note:  SitePar[] are site specific parameters.
-    double t1 = sunr + SitePar[1];      // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
-    double t2 = SolarNoon + SitePar[2]; // the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
-    double t3 = suns + SitePar[3];      // the hour at which wind stops to blow (SitePar(3) hours after sunset).
-    double wnytf = SitePar[4];          // used for estimating night time wind (from time t3 to time t1 next day).
-                                        //
-    for (int ihr = 0; ihr < 24; ihr++)  //  Start hourly loop.
+    double t1 = sunr + SitePar[1];             // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
+    double t2 = state.solar_noon + SitePar[2]; // the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
+    double t3 = suns + SitePar[3];             // the hour at which wind stops to blow (SitePar(3) hours after sunset).
+    double wnytf = SitePar[4];                 // used for estimating night time wind (from time t3 to time t1 next day).
+                                               //
+    for (int ihr = 0; ihr < 24; ihr++)         //  Start hourly loop.
     {
         Hour &hour = state.hours[ihr];
-        double ti = ihr + 0.5;                                   // time in the middle of each hourly interval.
-        double sinb = sd + cd * cos(pi * (ti - SolarNoon) / 12); // sine of the solar elevation.
-                                                                 //     Compute hourly global radiation, using function dayrad.
+        double ti = ihr + 0.5;                                          // time in the middle of each hourly interval.
+        double sinb = sd + cd * cos(pi * (ti - state.solar_noon) / 12); // sine of the solar elevation.
+                                                                        //     Compute hourly global radiation, using function dayrad.
         hour.radiation = dayrad(ti, radsum, sinb, c11);
         //     Compute hourly temperature, using function daytmp.
-        hour.temperature = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
+        hour.temperature = daytmp(sim, u, ti, SitePar[8], LastDayWeatherData, sunr, suns);
         //     Compute hourly dew point temperature, using function tdewhour.
-        hour.dew_point = tdewhour(sim, u, LastDayWeatherData, ti, hour.temperature, sunr, SolarNoon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
+        hour.dew_point = tdewhour(sim, u, LastDayWeatherData, ti, hour.temperature, sunr, state.solar_noon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
         //     Compute hourly relative humidity, using function dayrh.
         hour.humidity = dayrh(state.hours[ihr].temperature, hour.dew_point);
         //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
@@ -221,12 +220,12 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         double ti = ihr + 0.5; // middle of the hourly interval
                                //      The following subroutines and functions are called for each
                                //  hour: sunangle, cloudcov, clcor, refalbed .
-        sunangle(ti, sim.latitude, declination, SolarNoon, cosz, suna);
+        sunangle(ti, sim.latitude, declination, state.solar_noon, cosz, suna);
         isr = tmpisr * cosz;
         state.hours[ihr].cloud_cov = cloudcov(state.hours[ihr].radiation, isr, cosz);
         //      clcor is called to compute cloud-type correction.
         //      iamhr and ipmhr are set.
-        state.hours[ihr].cloud_cor = clcor(ihr, SitePar[7], isr, cosz, state.day_length, state.hours[ihr].radiation, SolarNoon);
+        state.hours[ihr].cloud_cor = clcor(ihr, SitePar[7], isr, cosz, state.day_length, state.hours[ihr].radiation, state.solar_noon);
         if ((cosz >= 0.1736) && (iamhr == 0))
             iamhr = ihr;
         if ((ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0))
@@ -268,15 +267,15 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
     for (int ihr = 0; ihr < 24; ihr++)              //  2nd hourly loop
     {
         Hour &hour = state.hours[ihr];
-        double ti = ihr + 0.5;                          // middle of the hourly interval
-                                                        //      Compute saturated vapor pressure (svp), using function VaporPressure().
-                                                        //      The actual vapor pressure (vp) is computed from svp and the
-                                                        //  relative humidity. Compute vapor pressure deficit (vpd). This
-                                                        //  procedure is based on the CIMIS algorithm.
-        double svp = VaporPressure(hour.temperature);       // saturated vapor pressure, mb
-        double vp = 0.01 * hour.humidity * svp; // vapor pressure, mb
-        double vpd = svp - vp;                          // vapor pressure deficit, mb.
-                                                        //   Get cloud cover and cloud correction for night hours
+        double ti = ihr + 0.5;                        // middle of the hourly interval
+                                                      //      Compute saturated vapor pressure (svp), using function VaporPressure().
+                                                      //      The actual vapor pressure (vp) is computed from svp and the
+                                                      //  relative humidity. Compute vapor pressure deficit (vpd). This
+                                                      //  procedure is based on the CIMIS algorithm.
+        double svp = VaporPressure(hour.temperature); // saturated vapor pressure, mb
+        double vp = 0.01 * hour.humidity * svp;       // vapor pressure, mb
+        double vpd = svp - vp;                        // vapor pressure deficit, mb.
+                                                      //   Get cloud cover and cloud correction for night hours
         if (ihr < iamhr || ihr > ipmhr)
         {
             hour.cloud_cov = 0;
@@ -288,8 +287,8 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         //     rnet, the hourly net radiation, W m-2, is computed from the global radiation, the albedo,
         //  the incoming long wave radiation, and the outgoing longwave radiation.
         double tk = hour.temperature + 273.161; // hourly air temperature in Kelvin.
-        double ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
-                                            //     Compute incoming long wave radiation:
+        double ea0 = clearskyemiss(vp, tk);     // clear sky emissivity for long wave radiation
+                                                //     Compute incoming long wave radiation:
         double rlonin = (ea0 * (1 - hour.cloud_cov) + hour.cloud_cov) * stefb * pow(tk, 4) - hour.cloud_cor;
         rnet[ihr] = (1 - hour.albedo) * hour.radiation + rlonin - stefb * pow(tk, 4);
         Rn += rnet[ihr];
@@ -298,9 +297,9 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         //     The weighting ratio (w) is computed from the functions del() (the slope of the saturation
         //  vapor pressure versus air temperature) and gam() (the psychometric constant).
         double w = del(tk, svp) / (del(tk, svp) + gam(sim.elevation, hour.temperature)); // coefficient of the Penman equation
-                                                                                     //     The wind function (fu2) is computed using different sets of parameters
-                                                                                     //  for day-time and night-time. The parameter values are as suggested by CIMIS.
-        double fu2;                                                                  // wind function for computing evapotranspiration
+                                                                                         //     The wind function (fu2) is computed using different sets of parameters
+                                                                                         //  for day-time and night-time. The parameter values are as suggested by CIMIS.
+        double fu2;                                                                      // wind function for computing evapotranspiration
         if (hour.radiation <= 0)
             fu2 = c12 + c13 * hour.wind_speed;
         else
