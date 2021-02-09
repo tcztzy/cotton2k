@@ -94,7 +94,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
         rsup = rss0 * ag;       // reflected up from soil surface
     }
 //   ****   LONG WAVE RADIATION EMITTED FROM SKY    ****
-    double vp = 0.01 * RelativeHumidity[ihr] * VaporPressure(hour.temperature); //air vapor pressure, KPa.
+    double vp = 0.01 * hour.humidity * VaporPressure(hour.temperature); //air vapor pressure, KPa.
     double ea0 = clearskyemiss(vp, thet);          //sky emissivity from clear portions of the sky.
     double rlzero;  // incoming long wave radiation (ly / sec).
     rlzero = (ea0 * (1 - hour.cloud_cov) + hour.cloud_cov) * stefa1 * pow(thet, 4)

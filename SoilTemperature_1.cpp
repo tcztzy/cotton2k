@@ -175,7 +175,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         DeepSoilTemperature += dts * dlt / 86400;
         double etp0 = 0; // actual transpiration (mm s-1) for this hour
         if (ReferenceTransp > 0.000001)
-            etp0 = ActualTranspiration * ReferenceETP[ihr] / ReferenceTransp / dlt;
+            etp0 = ActualTranspiration * hour.ref_et / ReferenceTransp / dlt;
         double tmav = 0; // average mulch temperature.
         int kmulch = 0;  // number of soil columns covered with mulch.
                          //
@@ -340,7 +340,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
             File19.width(8);
             File19 << hour.dew_point;
             File19.width(8);
-            File19 << RelativeHumidity[ihr];
+            File19 << hour.humidity;
             File19.width(8);
             File19 << tmav;
             File19 << endl;

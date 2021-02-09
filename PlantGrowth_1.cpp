@@ -235,8 +235,8 @@ void LeafWaterPotential(State &state, const string &ProfileName)
     double etmax = 0;                  // the maximum hourly rate of evapotranspiration for this day.
     for (int ihr = 0; ihr < 24; ihr++) //  hourly loop
     {
-        if (ReferenceETP[ihr] > etmax)
-            etmax = ReferenceETP[ihr];
+        if (state.hours[ihr].ref_et > etmax)
+            etmax = state.hours[ihr].ref_et;
     }
     LwpMin = LwpMax - 0.1 * max(etmax, vpsil[12]) * rtotal;
     //     Check for minimum and maximum values.

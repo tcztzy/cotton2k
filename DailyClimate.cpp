@@ -145,7 +145,7 @@ void DayClim(Simulation &sim, uint32_t u)
         //     Compute hourly dew point temperature, using function tdewhour.
         hour.dew_point = tdewhour(sim, u, LastDayWeatherData, ti, hour.temperature, sunr, SolarNoon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
         //     Compute hourly relative humidity, using function dayrh.
-        RelativeHumidity[ihr] = dayrh(state.hours[ihr].temperature, hour.dew_point);
+        hour.humidity = dayrh(state.hours[ihr].temperature, hour.dew_point);
         //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
         hour.wind_speed = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
     }
@@ -165,7 +165,7 @@ void DayClim(Simulation &sim, uint32_t u)
             File18.width(15);
             File18 << state.hours[ihr].temperature;
             File18.width(15);
-            File18 << RelativeHumidity[ihr];
+            File18 << state.hours[ihr].humidity;
             File18.width(15);
             File18 << state.hours[ihr].wind_speed << endl;
         }
@@ -273,7 +273,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                         //  relative humidity. Compute vapor pressure deficit (vpd). This
                                                         //  procedure is based on the CIMIS algorithm.
         double svp = VaporPressure(hour.temperature);       // saturated vapor pressure, mb
-        double vp = 0.01 * RelativeHumidity[ihr] * svp; // vapor pressure, mb
+        double vp = 0.01 * hour.humidity * svp; // vapor pressure, mb
         double vpd = svp - vp;                          // vapor pressure deficit, mb.
                                                         //   Get cloud cover and cloud correction for night hours
         if (ihr < iamhr || ihr > ipmhr)
@@ -309,11 +309,11 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         double hlathr = 878.61 - 0.66915 * (hour.temperature + 273.161);
         //     ReferenceETP, the hourly reference evapotranspiration, is now computed by the
         //  modified Penman equation.
-        ReferenceETP[ihr] = w * rnet[ihr] / hlathr + (1 - w) * vpd * fu2;
-        if (ReferenceETP[ihr] < 0)
-            ReferenceETP[ihr] = 0;
+        hour.ref_et = w * rnet[ihr] / hlathr + (1 - w) * vpd * fu2;
+        if (hour.ref_et < 0)
+            hour.ref_et = 0;
         //     ReferenceTransp is the sum of ReferenceETP
-        ReferenceTransp += ReferenceETP[ihr];
+        ReferenceTransp += hour.ref_et;
         //     es1hour and es2hour are computed as the hourly potential evapotranspiration due to
         //  radiative and aerodynamic factors, respectively.
         //     es1hour and ReferenceTransp are not computed for periods of negative net radiation.
