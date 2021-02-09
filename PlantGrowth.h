@@ -7,7 +7,6 @@ using namespace std;
 extern "C"
 {
     double PhysiologicalAge(Hour[24]);
-    void Pix();
 }
 
 void Stress(Simulation &, unsigned int);

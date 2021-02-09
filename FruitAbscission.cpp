@@ -244,12 +244,11 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
 //  is a green boll. 
 //
 //     The following global variables are referenced here:
-//   BurrNConc, pixcon, SeedNConc
+//   BurrNConc, SeedNConc
 //
 //     The following global variable are set here:
 //   BollWeight, BurrNitrogen, BurrWeight, BurrWeightGreenBolls, CottonWeightGreenBolls,
-//   CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost, 
-//   PixInPlants, SeedNitrogen, 
+//   CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost, SeedNitrogen, 
 //
 //     The following arguments are used in this function:
 //        abscissionRatio - ratio of abscission of a fruiting site.
@@ -257,13 +256,12 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
 //        k, l, m - location of this site on the plant
 //
 {
-//     Update SeedNitrogen, BurrNitrogen, CumPlantNLoss, PixInPlants, GreenBollsLost, CottonWeightGreenBolls, BurrWeightGreenBolls, 
+//     Update SeedNitrogen, BurrNitrogen, CumPlantNLoss, GreenBollsLost, CottonWeightGreenBolls, BurrWeightGreenBolls, 
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and FruitFraction[k][l][m].
     SeedNitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * SeedNConc;
     BurrNitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
     CumPlantNLoss += site.boll.weight * abscissionRatio * (1. - gin1) * SeedNConc;
     CumPlantNLoss += site.burr.weight * abscissionRatio * BurrNConc;
-    PixInPlants -= (site.boll.weight + site.burr.weight) * abscissionRatio * pixcon;
     GreenBollsLost += (site.boll.weight + site.burr.weight) * abscissionRatio;
     CottonWeightGreenBolls -= site.boll.weight * abscissionRatio;
     BurrWeightGreenBolls -= site.burr.weight * abscissionRatio;
@@ -272,7 +270,7 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
     site.fraction -= site.fraction * abscissionRatio;
 //
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, update SeedNitrogen,
-//  BurrNitrogen, CumPlantNLoss, PixInPlants, CottonWeightGreenBolls, BurrWeightGreenBolls, GreenBollsLost,
+//  BurrNitrogen, CumPlantNLoss, CottonWeightGreenBolls, BurrWeightGreenBolls, GreenBollsLost,
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and assign 4 to FruitingCode.
 //
     if (site.fraction <= 0.001) {
@@ -281,7 +279,6 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
         BurrNitrogen -= site.burr.weight * BurrNConc;
         CumPlantNLoss += site.boll.weight * (1 - gin1) * SeedNConc;
         CumPlantNLoss += site.burr.weight * BurrNConc;
-        PixInPlants -= (site.boll.weight + site.burr.weight) * pixcon;
         site.fraction = 0;
         CottonWeightGreenBolls -= site.boll.weight;
         BurrWeightGreenBolls -= site.burr.weight;

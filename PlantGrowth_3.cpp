@@ -5,7 +5,6 @@
 // ActualFruitGrowth()
 // ActualLeafGrowth()
 // CheckDryMatterBal()
-// *** Pix() *** to be added
 // Defoliate()
 //
 #include <fstream>

@@ -261,10 +261,10 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
 //     The following global variables are referenced here:
 //       CarbonAllocatedForRootGrowth, cgind, CultivationDate, Daynum, DepthLastRootLayer,
 //       dl, ExtraCarbon, LateralRootFlag, LastTaprootLayer, nk, nl, NumLayersWithRoots,
-//       NumRootAgeGroups, PerPlantArea, pixcon, PlantRowColumn, PotGroRoots, RootAge,
+//       NumRootAgeGroups, PerPlantArea, PlantRowColumn, PotGroRoots, RootAge,
 //       RootNConc, RowSpace, TapRootLength, wk.
 //     The following global variables are set here:
-//       ActualRootGrowth, CumPlantNLoss, DailyRootLoss, PixInPlants,
+//       ActualRootGrowth, CumPlantNLoss, DailyRootLoss,
 //       RootNitrogen, RootWeight, RootWeightLoss.
 //     The following argument is used:
 //       sumpdr - Sum of potential root growth rate for the whole slab.
@@ -415,11 +415,9 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
     RootWeightLoss += DailyRootLoss;
-    //     Adjust RootNitrogen (root N content) and PixInPlants (plant Pix content)
-    //  for loss by death of roots.
+    // Adjust RootNitrogen (root N content) for loss by death of roots.
     RootNitrogen -= DailyRootLoss * RootNConc;
     CumPlantNLoss += DailyRootLoss * RootNConc;
-    PixInPlants -= DailyRootLoss * pixcon;
-    //     Call function RootSummation().
+    // Call function RootSummation().
     RootSummation(sim, u, NumRootAgeGroups);
 }

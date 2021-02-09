@@ -62,11 +62,6 @@ void InitializeGlobal()
     PetioleNConc = 0;
     PetioleNitrogen = 0;
     PetioleNO3NConc = 0;
-    pixcon = 0;
-    pixda = 1;
-    pixdn = 1;
-    pixdz = 1;
-    PixInPlants = 0;
     PlantWeight = 0;
     PotGroStem = 0;
 

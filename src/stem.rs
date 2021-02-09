@@ -47,7 +47,6 @@ extern "C" fn AddPlantHeight(
     water_stress_of_stem: f64,
     carbon_stress: f64,
     nitrogen_stress_of_vegetative: f64,
-    pixdz: f64,
     var19: f64,
     var20: f64,
     var21: f64,
@@ -103,7 +102,7 @@ extern "C" fn AddPlantHeight(
         addz *= 1. - vhtpar[5] * (1. - carbon_stress);
         addz *= 1. - vhtpar[6] * (1. - nitrogen_stress_of_vegetative);
     }
-    // The effect of temperature is expressed by physiological_days_increment. there are also effects of pix, plant density, and of a variety-specific calibration parameter (VarPar(26)).
-    addz *= var26 * pixdz * physiological_days_increment * density_factor;
+    // The effect of temperature is expressed by physiological_days_increment. there are also effects of plant density, and of a variety-specific calibration parameter (VarPar(26)).
+    addz *= var26 * physiological_days_increment * density_factor;
     addz
 }

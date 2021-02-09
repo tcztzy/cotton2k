@@ -47,7 +47,7 @@ The following input files are used in COTTON2K:
 
 6. Agricultural Inputs Files.
 
-   These files contain farm management information on irrigation, nitrogen fertilization, cultivation, defoliation, and Pix application, water table depth and salinity data, as well as data needed for predicting optimal irrigation and defoliation dates.
+   These files contain farm management information on irrigation, nitrogen fertilization, cultivation, defoliation, water table depth and salinity data, as well as data needed for predicting optimal irrigation and defoliation dates.
    Their file extension is ``*.AGI`` and they are stored in sub-folder ``..\AGINPUT``.
    For more information: Agricultural Input files
 

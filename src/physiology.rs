@@ -30,7 +30,3 @@ extern "C" fn PhysiologicalAge(hours: &[Hour; 24usize]) -> f64 {
     }
     dayfd / 24.
 }
-
-/// TODO: effects of pix applied.
-#[no_mangle]
-extern "C" fn Pix() {}

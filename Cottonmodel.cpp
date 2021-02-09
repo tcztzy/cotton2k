@@ -242,13 +242,13 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation().   It calls the following functions:
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
-//     SoilNitrogen(), SoilSum(), PhysiologicalAge(), Pix(), Defoliate(), Stress(),
+//     SoilNitrogen(), SoilSum(), PhysiologicalAge(), Defoliate(), Stress(),
 //     GetNetPhotosynthesis(), PlantGrowth(), CottonPhenology(), PlantNitrogen(),
 //     CheckDryMatterBal(), PlantNitrogenBal(), SoilNitrogenBal(), SoilNitrogenAverage(),
 //     DailyOutput();
 //
 //     The following global variables are referenced here:
-//  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex, pixday.
+//  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex.
 //
 //     The following global variables are set here:
 //  isw, Kday.
@@ -275,8 +275,6 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
         sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours); // physiological days increment for this day. computes physiological age
-        if (pixday[0] > 0)
-            Pix();                                                                                   // effects of pix applied.
         Defoliate(sim, u);                                                                           // effects of defoliants applied.
         Stress(sim, u);                                                                              // computes water stress factors.
         GetNetPhotosynthesis(sim, u, sim.states[u].day_length);                                      // computes net photosynthesis.

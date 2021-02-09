@@ -256,11 +256,11 @@ double DaysToFirstSquare(const int &Daynum, const int &DayEmerge, const double &
 void CreateFirstSquare(State &state, double stemNRatio)
 //     This function initiates the first square. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//        AvrgDailyTemp, Kday, LeafWeightAreaRatio, pixcon, VarPar.
+//        AvrgDailyTemp, Kday, LeafWeightAreaRatio, VarPar.
 //     The following global variable are set here:
 //        AbscisedLeafWeight, AvrgNodeTemper, CumPlantNLoss, FirstSquare, FruitFraction,
 //        FruitGrowthRatio, FruitingCode, LeafAreaNodes, LeafNitrogen, LeafWeightNodes,
-//        NumFruitBranches, NumNodes, PixInPlants, StemNitrogen, TotalLeafWeight, TotalStemWeight.
+//        NumFruitBranches, NumNodes, StemNitrogen, TotalLeafWeight, TotalStemWeight.
 //     Argument used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
 //
@@ -284,14 +284,13 @@ void CreateFirstSquare(State &state, double stemNRatio)
     FruitGrowthRatio = 1;
     site.average_temperature = AvrgDailyTemp;
     //     It is assumed that the cotyledons are dropped at time of first square. compute changes
-    //  in AbscisedLeafWeight, TotalLeafWeight, LeafNitrogen, CumPlantNLoss, and PixInPlants caused
+    //  in AbscisedLeafWeight, TotalLeafWeight, LeafNitrogen and CumPlantNLoss caused
     //  by the abscission of the cotyledons.
     double cotylwt = 0.20; // cotylwt is the leaf weight of the cotyledons.
     state.abscised_leaf_weight += cotylwt;
     TotalLeafWeight -= cotylwt;
     CumPlantNLoss += cotylwt * LeafNitrogen / TotalLeafWeight;
     LeafNitrogen -= cotylwt * LeafNitrogen / TotalLeafWeight;
-    PixInPlants -= cotylwt * pixcon;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -432,7 +431,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
 //  and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
 //  AdjAddSitesRate, AgeOfSite, AvrgDailyTemp, DensityFactor, LeafWeightAreaRatio,
-//  pixdn, VarPar, WaterStress,
+//  VarPar, WaterStress,
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewNode, FruitFraction, FruitingCode, LeafAreaNodes, LeafWeightNodes,
 //        NumNodes, LeafNitrogen, StemNitrogen, TotalLeafWeight, TotalStemWeight.
@@ -447,7 +446,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     //      Compute the cumulative delay for the appearance of the next
     //  node on the fruiting branch, caused by carbohydrate, nitrogen, and
     //  water stresses.
-    DelayNewNode[k][l] += (delayFrtByCStress + vfrtnod[0] * PhenDelayByNStress) / pixdn;
+    DelayNewNode[k][l] += (delayFrtByCStress + vfrtnod[0] * PhenDelayByNStress);
     DelayNewNode[k][l] += vfrtnod[1] * (1 - state.water_stress);
     //     Define nnid, and compute the average temperature of the last
     //  node of this fruiting branch, from the time it was formed.

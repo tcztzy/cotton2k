@@ -163,8 +163,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
 //  DayWaterTableInput, DefoliationDate, DefoliationMethod, DefoliantAppRate, 
 //  ElCondSatSoil, Irrig (structure), IrrigationDepth, IrrigMethod, LevelsOfWaterTable, 
 //  LocationColumnDrip, LocationLayerDrip, MaxIrrigation, MinDaysBetweenIrrig, 
-//  NFertilizer (structure), NumIrrigations, NumNitApps, NumWaterTableData, 
-//  pixday, pixmth, pixppa.
+//  NFertilizer (structure), NumIrrigations, NumNitApps, NumWaterTableData.
 //
 {
 //     Open the input file
@@ -186,7 +185,6 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
     NumWaterTableData = 0;
     int icult = 0;     // number of cultivation.
     int idef = 0;      // count of this defoliant application.
-    int ipx = 0;       // count of this PIX application.
 //     The next lines are read
     while (DataFile.eof() == 0) {
         int isddph; // vertical placement of DRIP, cm from soil surface.
@@ -277,26 +275,6 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
             DayFirstDef = DefoliationDate[0];
             DefoliationMethod[idef] = pgrmth;
             idef++;
-        }
-//
-        else if (StrTemp.substr(0, 5) == "PIX  ") {
-            cdate = StrTemp.substr(19, 11);
-            pixmth[ipx] = atoi(StrTemp.substr(30, 5).c_str());
-            double rtepgr = (float) atof(StrTemp.substr(40, 10).c_str()); // rate of application.
-            int pgunit = atoi(StrTemp.substr(50, 5).c_str()) - 1;         // code number for rate units used.
-            if (rtepgr > 0.01) {
-                pixday[ipx] = DateToDoy(cdate.c_str(), sim.year);
-                if (pgunit == 1)
-                    rtepgr = rtepgr * 8;
-                if (pgunit == 2)
-                    rtepgr = rtepgr / 16;
-                if (pgunit == 4)
-                    rtepgr = 1 / rtepgr;
-                if (pgunit == 5)
-                    rtepgr = 8 / rtepgr;
-                pixppa[ipx] = rtepgr;
-            }
-            ipx++;
         }
 //
         else if (StrTemp.substr(0, 5) == "WATER") {
@@ -438,23 +416,6 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
                 File20 << CultivationDepth[ii]; // cm
             else
                 File20 << CultivationDepth[ii] / 25.4; //  inches
-            File20 << endl;
-        }
-    }
-    if (ipx > 0)
-//     Write pix applications set by input:
-    {
-        File20 << endl << "    Pix applications set by input file: " << endl;
-        File20 << "       Date           Method          Rate" << endl;
-        for (int ii = 0; ii < ipx; ii++) {
-            File20.width(14);
-            File20 << DoyToDate(pixday[ii], sim.year);     // date of this application
-            File20.setf(ios::fixed);
-            File20.width(14);
-            File20 << pixmth[ii]; //  method code
-            File20.width(14);
-            File20.precision(2);
-            File20 << pixppa[ii]; //  rate of app
             File20 << endl;
         }
     }

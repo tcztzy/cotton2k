@@ -62,8 +62,6 @@ int MainStemNodes,       // number of main stem nodes.
     NumWaterTableData; // number of water table level input data.
 
 int OutIndex[24],          // output flags.
-    pixday[10],            // Date (DOY) of PIX application.
-    pixmth[10],            // code number for method of application of PIX: 0 = 'BANDED'; 1 = 'SPKLER'; 2 = 'BDCAST'.
     RootColNumLeft[maxl],  // first column with roots in a soil layer.
     RootColNumRight[maxl], // last column with roots in a soil layer.
     SoilHorizonNum[maxl],  // the soil horizon number associated with each soil layer in the slab.
@@ -196,12 +194,6 @@ double
     PetioleNO3NConc,                    // average nitrate nitrogen concentration in petioles.
     PetioleWeightMainStem[3][30],       // weight of mainstem leaf petiole at each node, g.
     PetioleWeightPreFru[9],             // weight of prefruiting node petioles, g.
-    pixcon,                             // PIX concentration.
-    pixda,                              // effect of PIX application on the growth rate of leaves.
-    pixdn,                              // effect of PIX application on delaying the appearance of new fruiting nodes.
-    pixdz,                              // effect of PIX application on the growth rate of stem weight and of height.
-    PixInPlants,                        // total amount of PIX in the plant, g per plant.
-    pixppa[10],                         // rate of PIX application, pints per acre.
     PlantPopulation,                    // plant population, plants per hectar.
     PlantRowLocation,                   // distance of plant row from slab edge, cm.
     PlantWeight,                        // total plant weight, g.
