@@ -174,8 +174,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
                     tm = 0.5 * (tm + tmold);
                 tv = 0.5 * (tv + tvold);
             }
-            if (menit > 30)
-//     If more than 30 iterations are needed - stop simulation.
+            if (menit > 30) // If more than 30 iterations are needed - stop simulation.
                 throw SimulationEnd();
         }  // end if sf
     } while (fabs(tv - tvold) > 0.05 || fabs(so - soold) > 0.05 || fabs(tm - tmold) > 0.05);

@@ -12,6 +12,7 @@ typedef struct HourStruct
     double et1;         // part of hourly Penman evapotranspiration affected by net radiation, in mm per hour.
     double et2;         // part of hourly Penman evapotranspiration affected by wind and vapor pressure deficit, in mm per hour.
     double wind_speed;  // Hourly wind velocity, m per second.
+    double dew_point;   // hourly dew point temperatures, C.
 } Hour;
 typedef struct State
 {

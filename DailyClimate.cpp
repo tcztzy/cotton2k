@@ -135,18 +135,19 @@ void DayClim(Simulation &sim, uint32_t u)
                                         //
     for (int ihr = 0; ihr < 24; ihr++)  //  Start hourly loop.
     {
+        Hour &hour = state.hours[ihr];
         double ti = ihr + 0.5;                                   // time in the middle of each hourly interval.
         double sinb = sd + cd * cos(pi * (ti - SolarNoon) / 12); // sine of the solar elevation.
                                                                  //     Compute hourly global radiation, using function dayrad.
-        state.hours[ihr].radiation = dayrad(ti, radsum, sinb, c11);
+        hour.radiation = dayrad(ti, radsum, sinb, c11);
         //     Compute hourly temperature, using function daytmp.
-        state.hours[ihr].temperature = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
+        hour.temperature = daytmp(sim, u, ti, sim.states[u].day_length, SolarNoon, SitePar[8], LastDayWeatherData, sunr, suns);
         //     Compute hourly dew point temperature, using function tdewhour.
-        DewPointTemp[ihr] = tdewhour(sim, u, LastDayWeatherData, ti, state.hours[ihr].temperature, sunr, SolarNoon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
+        hour.dew_point = tdewhour(sim, u, LastDayWeatherData, ti, hour.temperature, sunr, SolarNoon, SitePar[8], SitePar[12], SitePar[13], SitePar[14]);
         //     Compute hourly relative humidity, using function dayrh.
-        RelativeHumidity[ihr] = dayrh(state.hours[ihr].temperature, DewPointTemp[ihr]);
+        RelativeHumidity[ihr] = dayrh(state.hours[ihr].temperature, hour.dew_point);
         //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
-        state.hours[ihr].wind_speed = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
+        hour.wind_speed = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
     }
     //     Write output file if requested.
     if (jtout > 1)

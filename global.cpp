@@ -130,7 +130,6 @@ double
     DelayNewNode[3][30],  // cumulative effect of stresses on delaying the formation of a new node on a fruiting branch.
     DensityFactor,        // empirical plant density factor.
     DepthLastRootLayer,   // the depth to the end of the last layer with roots (cm).
-    DewPointTemp[24],     // hourly dew point temperatures, C.
     dl[maxl],             // the vertical width of a soil layer (cm).
     dsand;                // aggregation factor for sand in water.
 // E F G H
