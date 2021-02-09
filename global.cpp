@@ -88,7 +88,6 @@ double
     addwtbl,                      // water added to the slab (in mm) due to high water table.
     AgeOfPreFruNode[9],           // age of each prefruiting node, physiological days.
     airdr[9],                     // volumetric water content of soil at "air-dry" for each soil horizon, cm3 cm-3.
-    albedo[24],                   // hourly albedo of a reference crop.
     alpha[9],                     // parameter of the Van Genuchten equation.
     AppliedWater,                 // the amount of water to apply (mm), computed for a predicted irrigation.
     AverageLwp,                   // running average of LwpMin + LwpMax for the last 3 days.

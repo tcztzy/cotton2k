@@ -15,6 +15,7 @@ typedef struct HourStruct
     double wind_speed;  // Hourly wind velocity, m per second.
     double dew_point;   // hourly dew point temperatures, C.
     double humidity;    // hourly values of relative humidity (%).
+    double albedo;      // hourly albedo of a reference crop.
 } Hour;
 typedef struct State
 {

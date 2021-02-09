@@ -119,8 +119,8 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
     {
         tv = FoliageTemp[k];  // vegetation temperature
 //     Short wave radiation intercepted by the canopy:
-        rsv = rzero * (1 - albedo[ihr]) * sf * cswint   //  from above
-              + rsup * (1 - albedo[ihr]) * sf * cswint;  //  reflected from soil surface
+        rsv = rzero * (1 - hour.albedo) * sf * cswint   //  from above
+              + rsup * (1 - hour.albedo) * sf * cswint;  //  reflected from soil surface
 //     Air temperature inside canopy is the average of soil, air, and plant temperatures, 
 //  weighted by 0.1, 0.3, and 0.6, respectively. In case of mulch, mulch temperature replaces 
 //  soil temperature.

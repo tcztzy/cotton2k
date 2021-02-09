@@ -217,6 +217,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                    //      Start hourly loop
     for (int ihr = 0; ihr < 24; ihr++)
     {
+        Hour &hour = state.hours[ihr];
         double ti = ihr + 0.5; // middle of the hourly interval
                                //      The following subroutines and functions are called for each
                                //  hour: sunangle, cloudcov, clcor, refalbed .
@@ -231,7 +232,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         if ((ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0))
             ipmhr = ihr - 1;
         //      refalbed is called to compute the reference albedo for each hour.
-        albedo[ihr] = refalbed(isr, state.hours[ihr].radiation, cosz, suna);
+        hour.albedo = refalbed(isr, state.hours[ihr].radiation, cosz, suna);
         if (jtout > 1)
         {
             // write output to file
@@ -278,8 +279,8 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                         //   Get cloud cover and cloud correction for night hours
         if (ihr < iamhr || ihr > ipmhr)
         {
-            state.hours[ihr].cloud_cov = 0;
-            state.hours[ihr].cloud_cor = 0;
+            hour.cloud_cov = 0;
+            hour.cloud_cor = 0;
         }
         //     The hourly net radiation is computed using the CIMIS algorithm (Dong et al., 1988):
         //     rlonin, the hourly incoming long wave radiation, is computed from ea0, cloud cover
@@ -289,8 +290,8 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         double tk = hour.temperature + 273.161; // hourly air temperature in Kelvin.
         double ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
                                             //     Compute incoming long wave radiation:
-        double rlonin = (ea0 * (1 - state.hours[ihr].cloud_cov) + state.hours[ihr].cloud_cov) * stefb * pow(tk, 4) - state.hours[ihr].cloud_cor;
-        rnet[ihr] = (1 - albedo[ihr]) * state.hours[ihr].radiation + rlonin - stefb * pow(tk, 4);
+        double rlonin = (ea0 * (1 - hour.cloud_cov) + hour.cloud_cov) * stefb * pow(tk, 4) - hour.cloud_cor;
+        rnet[ihr] = (1 - hour.albedo) * hour.radiation + rlonin - stefb * pow(tk, 4);
         Rn += rnet[ihr];
         //     The hourly reference evapotranspiration ReferenceETP is computed by the
         //  CIMIS algorithm using the modified Penman equation:
@@ -300,7 +301,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                                                      //     The wind function (fu2) is computed using different sets of parameters
                                                                                      //  for day-time and night-time. The parameter values are as suggested by CIMIS.
         double fu2;                                                                  // wind function for computing evapotranspiration
-        if (state.hours[ihr].radiation <= 0)
+        if (hour.radiation <= 0)
             fu2 = c12 + c13 * hour.wind_speed;
         else
             fu2 = c14 + c15 * hour.wind_speed;
