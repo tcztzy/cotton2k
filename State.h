@@ -9,6 +9,8 @@ typedef struct HourStruct
     double radiation;   // hourly global radiation, W / m2.
     double cloud_cov;   // cloud cover ratio (0 to 1).
     double cloud_cor;   // hourly cloud type correction.
+    double et1;         // part of hourly Penman evapotranspiration affected by net radiation, in mm per hour.
+    double et2;         // part of hourly Penman evapotranspiration affected by wind and vapor pressure deficit, in mm per hour.
 } Hour;
 typedef struct State
 {

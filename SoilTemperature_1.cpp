@@ -170,6 +170,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
     //     Start hourly loop of iterations.
     for (int ihr = 0; ihr < iter1; ihr++)
     {
+        Hour &hour = sim.states[u].hours[ihr];
         //     Update the temperature of the last soil layer (lower boundary conditions).
         DeepSoilTemperature += dts * dlt / 86400;
         double etp0 = 0; // actual transpiration (mm s-1) for this hour
@@ -218,7 +219,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
                 //  component of the Penman equation(es1hour), multiplied by the relative radiation reaching
                 //  this column, and the wind and vapor deficit component of the Penman equation (es2hour).
                 double escol1k; // potential evaporation fron soil surface of a column, mm per hour.
-                escol1k = es1hour[ihr] * rracol[k] + es2hour[ihr];
+                escol1k = hour.et1 * rracol[k] + hour.et2;
                 es += escol1k * wk[k];
                 //     Compute actual evaporation from soil surface. update VolWaterContent of
                 //  the soil soil cell, and add to daily sum of actual evaporation.

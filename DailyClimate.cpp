@@ -316,10 +316,10 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
         //     es1hour and es2hour are computed as the hourly potential evapotranspiration due to
         //  radiative and aerodynamic factors, respectively.
         //     es1hour and ReferenceTransp are not computed for periods of negative net radiation.
-        es2hour[ihr] = (1 - w) * vpd * fu2;
+        hour.et2 = (1 - w) * vpd * fu2;
         if (rnet[ihr] > 0)
-            es1hour[ihr] = w * rnet[ihr] / hlathr;
+            hour.et1 = w * rnet[ihr] / hlathr;
         else
-            es1hour[ihr] = 0;
+            hour.et1 = 0;
     } //   end of 2nd hourly loop
 }

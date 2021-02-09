@@ -88,7 +88,6 @@ double
     addwtbl,                      // water added to the slab (in mm) due to high water table.
     AgeOfPreFruNode[9],           // age of each prefruiting node, physiological days.
     airdr[9],                     // volumetric water content of soil at "air-dry" for each soil horizon, cm3 cm-3.
-    AirTemp[24],                  // hourly air temperatures, C.
     albedo[24],                   // hourly albedo of a reference crop.
     alpha[9],                     // parameter of the Van Genuchten equation.
     AppliedWater,                 // the amount of water to apply (mm), computed for a predicted irrigation.
@@ -137,8 +136,6 @@ double
 // E F G H
 double ElCondSatSoil[20],             // electrical conductivity of saturated soil extract (mmho/cm)
     ElCondSatSoilToday,               // electrical conductivity of saturated extract (mmho/cm) on this day.
-    es1hour[24],                      // part of hourly Penman evapotranspiration affected by net radiation, in mm per hour.
-    es2hour[24],                      // part of hourly Penman evapotranspiration affected by wind and vapor pressure deficit, in mm per hour.
     ExtraCarbon,                      // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
     FieldCapacity[maxl],              // volumetric water content of soil at field capacity for each soil layer, cm3 cm-3.
     FoliageTemp[maxk],                // average foliage temperature (oK).
