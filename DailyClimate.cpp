@@ -146,7 +146,7 @@ void DayClim(Simulation &sim, uint32_t u)
         //     Compute hourly relative humidity, using function dayrh.
         RelativeHumidity[ihr] = dayrh(state.hours[ihr].temperature, DewPointTemp[ihr]);
         //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
-        WindSpeed[ihr] = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
+        state.hours[ihr].wind_speed = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
     }
     //     Write output file if requested.
     if (jtout > 1)
@@ -166,7 +166,7 @@ void DayClim(Simulation &sim, uint32_t u)
             File18.width(15);
             File18 << RelativeHumidity[ihr];
             File18.width(15);
-            File18 << WindSpeed[ihr] << endl;
+            File18 << state.hours[ihr].wind_speed << endl;
         }
     }
     //     Compute average daily temperature, using function AverageAirTemperatures.
@@ -300,9 +300,9 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                                                      //  for day-time and night-time. The parameter values are as suggested by CIMIS.
         double fu2;                                                                  // wind function for computing evapotranspiration
         if (state.hours[ihr].radiation <= 0)
-            fu2 = c12 + c13 * WindSpeed[ihr];
+            fu2 = c12 + c13 * hour.wind_speed;
         else
-            fu2 = c14 + c15 * WindSpeed[ihr];
+            fu2 = c14 + c15 * hour.wind_speed;
         //     hlathr, the latent heat for evaporation of water (W m-2 per mm at this hour) is
         //  computed as a function of temperature.
         double hlathr = 878.61 - 0.66915 * (hour.temperature + 273.161);

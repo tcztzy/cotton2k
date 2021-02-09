@@ -291,5 +291,4 @@ double
     VolUreaNContent[maxl][maxk], // volumetric urea nitrogen content of a soil cell, mg N cm-3.
     VolWaterContent[maxl][maxk], // volumetric water content of a soil cell, cm3 cm-3.
     WaterStressStem,             // water stress index for stem growth (0 to 1).
-    WindSpeed[24],               // Hourly wind velocity, m per second.
     wk[maxk];                    // horizontal width of a soil column (cm).

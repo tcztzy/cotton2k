@@ -124,7 +124,6 @@ extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9], albedo[24],
     StemWeight[365],
     thad[maxl], thetar[maxl], thetas[9], thts[maxl], tstbd[10][10],
     VarPar[61], VolNh4NContent[maxl][maxk], VolNo3NContent[maxl][maxk], VolUreaNContent[maxl][maxk],
-    VolWaterContent[maxl][maxk],
-    WindSpeed[24], wk[maxk];
+    VolWaterContent[maxl][maxk], wk[maxk];
 
 void InitializeGlobal();

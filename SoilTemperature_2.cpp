@@ -110,7 +110,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
     }
 //     Wind velocity in canopy is converted to cm / s.
     double wndhr;     // wind speed in cm /sec
-    wndhr = WindSpeed[ihr] * 100;
+    wndhr = hour.wind_speed * 100;
     double rocp; // air density * specific heat at constant pressure = 0.24 * 2 * 1013 / 5740
     // divided by tafk.
     double c2;   // multiplier for sensible heat transfer (at plant surface).
