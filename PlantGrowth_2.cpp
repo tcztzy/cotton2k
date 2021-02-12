@@ -102,7 +102,7 @@ void PotentialLeafGrowth(State &state)
     int nbrch;                               // number of fruiting branches on a vegetative stem.
     int nnid;                                // number of nodes on a fruiting branch.
                                              //    Loop for all vegetative stems.
-    for (int k = 0; k < NumVegBranches; k++) // loop of vegetative branches
+    for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
         nbrch = NumFruitBranches[k];
         for (int l = 0; l < nbrch; l++) // loop of fruiting branches
@@ -207,7 +207,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
     double rbmax = VarPar[10];               // maximum rate of boll (seed and lint) growth, g per boll per physiological day.
     double wbmax = VarPar[11];               // maximum possible boll (seed and lint) weight, g per boll.
                                              //     Loop for all vegetative stems.
-    for (int k = 0; k < NumVegBranches; k++) // loop of vegetative stems
+    for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative stems
     {
         int nbrch = NumFruitBranches[k]; // number of fruiting branches on a vegetative stem.
                                          //     Loop for all fruiting branches on this vegetative stem.

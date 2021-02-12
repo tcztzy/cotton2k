@@ -223,6 +223,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.abscised_leaf_weight = 0;
                 state0.water_stress = 1;
                 state0.carbon_stress = 1;
+                state0.number_of_vegetative_branches = 1;
                 for (int k = 0; k < 3; k++)
                     for (int l = 0; l < 30; l++)
                         for (int m = 0; m < 5; m++)

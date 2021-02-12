@@ -58,7 +58,6 @@ int MainStemNodes,       // number of main stem nodes.
     NumPreFruNodes,      // number of prefruiting nodes, per plant.
     NumSheddingTags,     // number of 'box-car' units used for moving values in arrays defining fruit shedding
     // (AbscissionLag, ShedByCarbonStress, ShedByNitrogenStress and ShedByWaterStress).
-    NumVegBranches,    // number of vegetative branches (including the main branch), per plant.
     NumWaterTableData; // number of water table level input data.
 
 int OutIndex[24],          // output flags.

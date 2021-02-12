@@ -56,7 +56,7 @@ extern int DayFirstDef,
     MainStemNodes, MinDaysBetweenIrrig,
     nk, nl, noitr, NumAbscisedLeaves, NumFruitSites,
     NumIrrigations, NumNitApps, NumPreFruNodes,
-    NumSheddingTags, NumVegBranches, NumWaterTableData, SoilMapFreq, WaterTableLayer;
+    NumSheddingTags, NumWaterTableData, SoilMapFreq, WaterTableLayer;
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
     LateralRootFlag[maxl], NumFruitBranches[3], NumNodes[3][30], OutIndex[24],
     RootColNumLeft[maxl], RootColNumRight[maxl], SoilHorizonNum[maxl];

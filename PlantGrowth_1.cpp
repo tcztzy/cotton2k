@@ -206,7 +206,7 @@ void LeafWaterPotential(State &state, const string &ProfileName)
     //
     int nbrch;                               // number of fruiting branches on a vegetative branch.
     int nnid;                                // number of nodes on a fruiting branch.
-    for (int k = 0; k < NumVegBranches; k++) // loop for all other nodes
+    for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop for all other nodes
     {
         nbrch = NumFruitBranches[k];
         for (int l = 0; l < nbrch; l++)

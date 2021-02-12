@@ -52,7 +52,6 @@ void InitializeGlobal()
     NumOpenBolls = 0;
     NumPreFruNodes = 1;
     NumSheddingTags = 0;
-    NumVegBranches = 1;
     NumWaterTableData = 0;
     NStressFruiting = 1;
     NStressRoots = 1;

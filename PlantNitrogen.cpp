@@ -392,7 +392,7 @@ double PetioleNitrateN(State &state)
 //     Loop of all the other leaves, with the same computations.
     int nbrch; // number of fruiting branches on a vegetative stem.
     int nnid; // number of fruiting nodes on a fruiting branch.
-    for (int k = 0; k < NumVegBranches; k++) // loop of vegetative branches
+    for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
         nbrch = NumFruitBranches[k];
         for (int l = 0; l < nbrch; l++) // loop of fruiting branches

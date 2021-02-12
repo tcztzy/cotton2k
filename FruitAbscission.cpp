@@ -16,7 +16,7 @@ void SquareAbscission(FruitingSite &, int, int, int, double);
 
 void BollAbscission(FruitingSite &, int, int, int, double, double);
 
-void ComputeSiteNumbers(State &, int32_t);
+void ComputeSiteNumbers(State &);
 
 //////////////////////////////////////////////////
 void FruitingSitesAbscission(Simulation &sim, uint32_t u)
@@ -85,7 +85,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                 gin1 = ginp;
 //      Start loop over all possible fruiting sites. The abscission functions
 //  will be called for sites that are squares or green bolls.
-            for (int k = 0; k < NumVegBranches; k++) {
+            for (int k = 0; k < state.number_of_vegetative_branches; k++) {
                 int nbrch = NumFruitBranches[k]; // fruiting branch number.
                 for (int l = 0; l < nbrch; l++) {
                     int nnid = NumNodes[k][l]; // node number on fruiting branch.
@@ -117,7 +117,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
     NumSheddingTags = NumSheddingTags - idecr;
 //
 //
-    ComputeSiteNumbers(state, NumVegBranches);
+    ComputeSiteNumbers(state);
 }
 
 /////////////////////////
@@ -289,7 +289,7 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
 }
 
 ////////////////////
-void ComputeSiteNumbers(State &state, int32_t NumVegBranches)
+void ComputeSiteNumbers(State &state)
 //     This function calculates square, green boll, open boll, and abscised site numbers 
 //  (NumSquares, NumGreenBolls, NumOpenBolls, and AbscisedFruitSites, respectively), as 
 //  the sums of FruitFraction in all sites with appropriate FruitingCode.
@@ -305,7 +305,7 @@ void ComputeSiteNumbers(State &state, int32_t NumVegBranches)
     NumSquares = 0;
     NumGreenBolls = 0;
     NumOpenBolls = 0;
-    for (int k = 0; k < NumVegBranches; k++) {
+    for (int k = 0; k < state.number_of_vegetative_branches; k++) {
         int nbrch = NumFruitBranches[k];
         for (int l = 0; l < nbrch; l++) {
             int nnid = NumNodes[k][l];
