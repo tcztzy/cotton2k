@@ -284,8 +284,7 @@ void ActualFruitGrowth(State &state)
     //     Begin loops over all fruiting sites.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
-        int nbrch = NumFruitBranches[k]; // number of fruiting branches on a vegetative branch.
-        for (int l = 0; l < nbrch; l++)  // loop of fruiting branches
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)  // loop of fruiting branches
         {
             int nnid = NumNodes[k][l];     // number of fruiting nodes on a fruiting branch.
             for (int m = 0; m < nnid; m++) // loop of nodes on a fruiting branch
@@ -365,8 +364,7 @@ void ActualLeafGrowth(State &state)
     //  petiole weight (TotalPetioleWeight) and total area (TotalLeafArea).
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
-        int nbrch = NumFruitBranches[k];
-        for (int l = 0; l < nbrch; l++) // loop of fruiting branches
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) // loop of fruiting branches
         {
             LeafWeightMainStem[k][l] += PotGroLeafWeightMainStem[k][l] * vratio;
             TotalLeafWeight += LeafWeightMainStem[k][l];

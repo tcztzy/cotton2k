@@ -50,7 +50,6 @@ int MainStemNodes,       // number of main stem nodes.
     nl,                  // number of horizontal layers of soil cells in the slab.
     noitr,               // number of iterations per day, for calling some soil water related functions.
     NumAbscisedLeaves,   // number of leaves, per plant, lost by abscission.
-    NumFruitBranches[3], // number of fruiting branches at each vegetative branch.
     NumFruitSites,       // total number of fruiting sites per plant.
     NumIrrigations,      // number of irrigations.
     NumNitApps,          // number of applications of nitrogen fertilizer.

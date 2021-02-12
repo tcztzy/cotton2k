@@ -30,8 +30,8 @@ typedef struct State
     double plant_height;
     double runoff;
     double solar_noon;
-    unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.
-    unsigned int number_of_fruiting_branches[3];
+    unsigned int number_of_vegetative_branches;  // number of vegetative branches (including the main branch), per plant.
+    unsigned int number_of_fruiting_branches[3]; // number of fruiting branches at each vegetative branch.
     unsigned int number_of_fruiting_sites[3][30];
     Hour hours[24];
     Root root[40][20];

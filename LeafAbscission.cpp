@@ -54,9 +54,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
 //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
 //  for each fruiting branch to simulate the physiological abscission of the other leaves.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) {
-        int nbrch; // number of fruiting branches on a vegetative branch.
-        nbrch = NumFruitBranches[k];
-        for (int l = 0; l < nbrch; l++)
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
             MainStemLeafAbscission(state, k, l, droplf, sim.day_start + u);
     }
 //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
@@ -259,8 +257,7 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
     int indexm[450];// index associated with m
     int lefcnt = 0; // counter of existing leaves
     for (int k = 0; k < state.number_of_vegetative_branches; k++) {
-        int nbrch = NumFruitBranches[k]; // number of fruiting branches on a vegetative branch.
-        for (int l = 0; l < nbrch; l++) {
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) {
             if (LeafWeightMainStem[k][l] > 0) {
                 SortByAge[lefcnt] = state.site[k][l][0].age;
                 indexk[lefcnt] = k;

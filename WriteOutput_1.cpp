@@ -279,10 +279,11 @@ void DailyOutput(Simulation &sim, uint32_t u)
 //     1. Compute some variables needed for output:
 //     Main stem node count (MainStemNodes) starts from the cotyledonary node ( # = 0 ).
 //  After first square, last prefruiting node becomes first fruiting branch node.
-    if (NumFruitBranches[0] <= 0)
+    State &state = sim.states[u];
+    if (state.number_of_fruiting_branches[0] <= 0)
         MainStemNodes = NumPreFruNodes - 1;
     else
-        MainStemNodes = NumPreFruNodes + NumFruitBranches[0] - 2;
+        MainStemNodes = NumPreFruNodes + state.number_of_fruiting_branches[0] - 2;
 //     Compute SumNO3N90 as the total nitrate N, up to a depth of 90 cm of soil, in kg / ha
     SumNO3N90 = 0;
     double sumdl = 0; // depth to the end of a layer

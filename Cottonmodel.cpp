@@ -225,9 +225,12 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.carbon_stress = 1;
                 state0.number_of_vegetative_branches = 1;
                 for (int k = 0; k < 3; k++)
+                {
+                    state0.number_of_fruiting_branches[k] = 0;
                     for (int l = 0; l < 30; l++)
                         for (int m = 0; m < 5; m++)
                             state0.site[k][l][m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
+                }
             }
             strcpy(sim.states[i].date, DoyToDate(sim.day_start + i, sim.year));
             SimulateThisDay(sim, i);

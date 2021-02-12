@@ -204,15 +204,11 @@ void LeafWaterPotential(State &state, const string &ProfileName)
         sumrl += LeafResistance(AgeOfPreFruNode[j]);
     }
     //
-    int nbrch;                               // number of fruiting branches on a vegetative branch.
-    int nnid;                                // number of nodes on a fruiting branch.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop for all other nodes
     {
-        nbrch = NumFruitBranches[k];
-        for (int l = 0; l < nbrch; l++)
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
         {
-            nnid = NumNodes[k][l];
-            for (int m = 0; m < nnid; m++)
+            for (int m = 0; m < NumNodes[k][l]; m++)
             {
                 numl++;
                 sumrl += LeafResistance(state.site[k][l][m].leaf.age);
@@ -484,7 +480,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //     Plant density affects growth in height of tall plants.
     double htdenf = 55; // minimum plant height for plant density affecting growth in height.
     double z1;          // intermediate variable to compute denf2.
-    z1 = (sim.states[u].plant_height - htdenf) / htdenf;
+    z1 = (state.plant_height - htdenf) / htdenf;
     if (z1 < 0)
         z1 = 0;
     if (z1 > 1)
@@ -493,7 +489,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     denf2 = 1 + z1 * (DensityFactor - 1);
     //     Call AddPlantHeight to compute PlantHeight.
     int l, l1, l2; // node numbers of top three nodes.
-    l = NumFruitBranches[0] - 1;
+    l = state.number_of_fruiting_branches[0] - 1;
     l1 = l - 1;
     if (l < 1)
         l1 = 0;

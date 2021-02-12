@@ -86,8 +86,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //      Start loop over all possible fruiting sites. The abscission functions
 //  will be called for sites that are squares or green bolls.
             for (int k = 0; k < state.number_of_vegetative_branches; k++) {
-                int nbrch = NumFruitBranches[k]; // fruiting branch number.
-                for (int l = 0; l < nbrch; l++) {
+                for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) {
                     int nnid = NumNodes[k][l]; // node number on fruiting branch.
                     for (int m = 0; m < nnid; m++) {
                         FruitingSite &site = state.site[k][l][m];
@@ -306,8 +305,7 @@ void ComputeSiteNumbers(State &state)
     NumGreenBolls = 0;
     NumOpenBolls = 0;
     for (int k = 0; k < state.number_of_vegetative_branches; k++) {
-        int nbrch = NumFruitBranches[k];
-        for (int l = 0; l < nbrch; l++) {
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) {
             int nnid = NumNodes[k][l];
             for (int m = 0; m < nnid; m++) {
                 FruitingSite &site = state.site[k][l][m];

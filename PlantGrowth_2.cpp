@@ -104,8 +104,7 @@ void PotentialLeafGrowth(State &state)
                                              //    Loop for all vegetative stems.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
-        nbrch = NumFruitBranches[k];
-        for (int l = 0; l < nbrch; l++) // loop of fruiting branches
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) // loop of fruiting branches
         {
             //     smax and c are  functions of fruiting branch number.
             //     smax is modified by plant density, using the density factor denfac.
@@ -209,9 +208,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
                                              //     Loop for all vegetative stems.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative stems
     {
-        int nbrch = NumFruitBranches[k]; // number of fruiting branches on a vegetative stem.
-                                         //     Loop for all fruiting branches on this vegetative stem.
-        for (int l = 0; l < nbrch; l++)  // loop of fruiting branches
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)  // loop of fruiting branches
         {
             int nnid = NumNodes[k][l];     // number of nodes on a fruiting branch.
             for (int m = 0; m < nnid; m++) // loop for nodes on a fruiting branch

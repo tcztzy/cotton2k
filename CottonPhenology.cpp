@@ -139,11 +139,11 @@ void CottonPhenology(Simulation &sim, uint32_t u)
     //  branch) is to be added on this stem.
     for (int k = 0; k < state.number_of_vegetative_branches; k++)
     {
-        if (NumFruitBranches[k] < 30)
+        if (state.number_of_fruiting_branches[k] < 30)
             AddFruitingBranch(state, k, delayVegByCStress, stemNRatio);
         //     Loop over all existing fruiting branches, and call AddFruitingNode() to
         //  decide if a new node on this fruiting branch is to be added.
-        for (int l = 0; l < NumFruitBranches[k]; l++)
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
         {
             if (NumNodes[k][l] < nidmax)
                 AddFruitingNode(state, k, l, delayFrtByCStress, stemNRatio);
@@ -279,7 +279,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     LeafNitrogen += site.leaf.weight * stemNRatio;
     StemNitrogen -= site.leaf.weight * stemNRatio;
     //      Define the initial values of NumFruitBranches, NumNodes, FruitGrowthRatio, and AvrgNodeTemper.
-    NumFruitBranches[0] = 1;
+    state.number_of_fruiting_branches[0] = 1;
     NumNodes[0][0] = 1;
     FruitGrowthRatio = 1;
     site.average_temperature = AvrgDailyTemp;
@@ -348,7 +348,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     //      Assign the initial value of the average temperature of the first site.
     //      Define initial NumFruitBranches and NumNodes for the new vegetative branch.
     site.average_temperature = AvrgDailyTemp;
-    NumFruitBranches[state.number_of_vegetative_branches - 1] = 1;
+    state.number_of_fruiting_branches[state.number_of_vegetative_branches - 1] = 1;
     NumNodes[state.number_of_vegetative_branches - 1][0] = 1;
 }
 
@@ -382,7 +382,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     //  Reddy, CSRU, adjusted for age expressed in physiological days.  It
     //  is different for the main stem (k = 0) than for the other vegetative
     //  branches. TimeToNextFruNode is modified for plant density. Add DelayNewFruBranch to TimeToNextFruNode.
-    int nbrch = NumFruitBranches[k] - 1;                      // index of new fruiting branch on this vegetative branch.
+    int nbrch = state.number_of_fruiting_branches[k] - 1;                      // index of new fruiting branch on this vegetative branch.
     double tav = state.site[k][nbrch][0].average_temperature; // modified average daily temperature.
     if (tav > vfrtbr[2])
         tav = vfrtbr[2];
@@ -395,14 +395,14 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     if (state.site[k][nbrch][0].age < TimeToNextFruBranch)
         return;
     //     Increment NumFruitBranches, define newbr, and assign 1 to NumNodes, FruitFraction and FruitingCode.
-    NumFruitBranches[k]++;
-    if (NumFruitBranches[k] > 30)
+    state.number_of_fruiting_branches[k]++;
+    if (state.number_of_fruiting_branches[k] > 30)
     {
-        NumFruitBranches[k] = 30;
+        state.number_of_fruiting_branches[k] = 30;
         return;
     }
     int newbr; // the index number of the new fruiting branch on this vegetative branch, after a new branch has been added.
-    newbr = NumFruitBranches[k] - 1;
+    newbr = state.number_of_fruiting_branches[k] - 1;
     NumNodes[k][newbr] = 1;
     state.site[k][newbr][0].fraction = 1;
     state.site[k][newbr][0].stage = Stage::Square;
