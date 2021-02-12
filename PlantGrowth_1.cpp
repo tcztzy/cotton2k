@@ -205,16 +205,12 @@ void LeafWaterPotential(State &state, const string &ProfileName)
     }
     //
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop for all other nodes
-    {
         for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
-        {
-            for (int m = 0; m < NumNodes[k][l]; m++)
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++)
             {
                 numl++;
                 sumrl += LeafResistance(state.site[k][l][m].leaf.age);
             }
-        }
-    }
     double rleaf = sumrl / numl; // leaf resistance, Mpa hours per cm.
 
     double rtotal = rsoil + rroot + rshoot + rleaf; // The total resistance to transpiration, MPa hours per cm, (rtotal) is computed.

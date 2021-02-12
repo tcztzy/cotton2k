@@ -100,7 +100,6 @@ void InitializeGlobal()
             DelayNewNode[i][j] = 0;
             LeafAreaMainStem[i][j] = 0;
             LeafWeightMainStem[i][j] = 0;
-            NumNodes[i][j] = 0;
             PetioleWeightMainStem[i][j] = 0;
             PotGroLeafAreaMainStem[i][j] = 0;
             PotGroLeafWeightMainStem[i][j] = 0;

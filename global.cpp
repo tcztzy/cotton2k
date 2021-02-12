@@ -53,7 +53,6 @@ int MainStemNodes,       // number of main stem nodes.
     NumFruitSites,       // total number of fruiting sites per plant.
     NumIrrigations,      // number of irrigations.
     NumNitApps,          // number of applications of nitrogen fertilizer.
-    NumNodes[3][30],     // number of nodes on each fruiting branch.
     NumPreFruNodes,      // number of prefruiting nodes, per plant.
     NumSheddingTags,     // number of 'box-car' units used for moving values in arrays defining fruit shedding
     // (AbscissionLag, ShedByCarbonStress, ShedByNitrogenStress and ShedByWaterStress).

@@ -283,11 +283,8 @@ void ActualFruitGrowth(State &state)
     ActualBurrGrowth = 0;
     //     Begin loops over all fruiting sites.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
-    {
         for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)  // loop of fruiting branches
-        {
-            int nnid = NumNodes[k][l];     // number of fruiting nodes on a fruiting branch.
-            for (int m = 0; m < nnid; m++) // loop of nodes on a fruiting branch
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) // loop of nodes on a fruiting branch
             {
                 FruitingSite &site = state.site[k][l][m];
                 //     If this site is a square, the actual dry weight added to it
@@ -317,9 +314,7 @@ void ActualFruitGrowth(State &state)
                     ActualBurrGrowth += dwburr;
                     BurrWeightGreenBolls += site.burr.weight;
                 }
-            } // loop m
-        }     // loop l
-    }         // loop k
+            }
 }
 
 //////////////////////////
@@ -363,7 +358,6 @@ void ActualLeafGrowth(State &state)
     //     Update the total leaf weight (TotalLeafWeight), total
     //  petiole weight (TotalPetioleWeight) and total area (TotalLeafArea).
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
-    {
         for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) // loop of fruiting branches
         {
             LeafWeightMainStem[k][l] += PotGroLeafWeightMainStem[k][l] * vratio;
@@ -381,8 +375,7 @@ void ActualLeafGrowth(State &state)
             //  (LeafAreaNodes) for each fruiting node leaf.
             //     Compute total leaf weight (TotalLeafWeight), total petiole weight
             //  (PetioleWeightNodes) and total area (TotalLeafArea).
-            int nnid = NumNodes[k][l];
-            for (int m = 0; m < nnid; m++) // loop of nodes on a fruiting branch
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) // loop of nodes on a fruiting branch
             {
                 FruitingSite &site = state.site[k][l][m];
                 site.leaf.weight += site.leaf.potential_growth * LeafWeightAreaRatio * vratio;
@@ -393,7 +386,6 @@ void ActualLeafGrowth(State &state)
                 TotalLeafArea += site.leaf.area;
             } // loop m
         }     // loopl
-    }         // loop k
 }
 
 //////////////////////////

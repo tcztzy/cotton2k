@@ -228,8 +228,11 @@ void C2KApp::DailySimulation(Simulation &sim)
                 {
                     state0.number_of_fruiting_branches[k] = 0;
                     for (int l = 0; l < 30; l++)
+                    {
+                        state0.number_of_fruiting_sites[k][l] = 0;
                         for (int m = 0; m < 5; m++)
                             state0.site[k][l][m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
+                    }
                 }
             }
             strcpy(sim.states[i].date, DoyToDate(sim.day_start + i, sim.year));

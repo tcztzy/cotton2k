@@ -145,11 +145,11 @@ void CottonPhenology(Simulation &sim, uint32_t u)
         //  decide if a new node on this fruiting branch is to be added.
         for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
         {
-            if (NumNodes[k][l] < nidmax)
+            if (state.number_of_fruiting_sites[k][l] < nidmax)
                 AddFruitingNode(state, k, l, delayFrtByCStress, stemNRatio);
             //     Loop over all existing fruiting nodes, and call SimulateFruitingSite() to
             //  simulate the condition of each fruiting node.
-            for (int m = 0; m < NumNodes[k][l]; m++)
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++)
                 SimulateFruitingSite(sim, u, k, l, m, nwfl, state.water_stress);
         }
     }
@@ -280,7 +280,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     StemNitrogen -= site.leaf.weight * stemNRatio;
     //      Define the initial values of NumFruitBranches, NumNodes, FruitGrowthRatio, and AvrgNodeTemper.
     state.number_of_fruiting_branches[0] = 1;
-    NumNodes[0][0] = 1;
+    state.number_of_fruiting_sites[0][0] = 1;
     FruitGrowthRatio = 1;
     site.average_temperature = AvrgDailyTemp;
     //     It is assumed that the cotyledons are dropped at time of first square. compute changes
@@ -349,7 +349,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     //      Define initial NumFruitBranches and NumNodes for the new vegetative branch.
     site.average_temperature = AvrgDailyTemp;
     state.number_of_fruiting_branches[state.number_of_vegetative_branches - 1] = 1;
-    NumNodes[state.number_of_vegetative_branches - 1][0] = 1;
+    state.number_of_fruiting_sites[state.number_of_vegetative_branches - 1][0] = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -403,7 +403,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     }
     int newbr; // the index number of the new fruiting branch on this vegetative branch, after a new branch has been added.
     newbr = state.number_of_fruiting_branches[k] - 1;
-    NumNodes[k][newbr] = 1;
+    state.number_of_fruiting_sites[k][newbr] = 1;
     state.site[k][newbr][0].fraction = 1;
     state.site[k][newbr][0].stage = Stage::Square;
     //     Initiate new leaves at the first node of the new fruiting branch, and at the
@@ -449,7 +449,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     DelayNewNode[k][l] += vfrtnod[1] * (1 - state.water_stress);
     //     Define nnid, and compute the average temperature of the last
     //  node of this fruiting branch, from the time it was formed.
-    int nnid = NumNodes[k][l] - 1;                           // the number of the last node on this fruiting branche.
+    int nnid = state.number_of_fruiting_sites[k][l] - 1;     // the number of the last node on this fruiting branche.
     double tav = state.site[k][l][nnid].average_temperature; // modified daily average temperature.
     if (tav > vfrtnod[2])
         tav = vfrtnod[2];
@@ -465,10 +465,10 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     if (state.site[k][l][nnid].age < TimeToNextFruNode)
         return;
     //     Increment NumNodes, define newnod, and assign 1 to FruitFraction and FruitingCode.
-    NumNodes[k][l]++;
-    if (NumNodes[k][l] > 5)
+    state.number_of_fruiting_sites[k][l]++;
+    if (state.number_of_fruiting_sites[k][l] > 5)
     {
-        NumNodes[k][l] = 5;
+        state.number_of_fruiting_sites[k][l] = 5;
         return;
     }
     int newnod = nnid + 1; // the number of the new node on this fruiting branche.

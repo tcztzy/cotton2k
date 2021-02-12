@@ -99,9 +99,6 @@ void PotentialLeafGrowth(State &state)
     }         // NumPreFruNodes
               //     denfac is the effect of plant density on leaf growth rate.
     double denfac = 1 - vpotlf[12] * (1 - DensityFactor);
-    int nbrch;                               // number of fruiting branches on a vegetative stem.
-    int nnid;                                // number of nodes on a fruiting branch.
-                                             //    Loop for all vegetative stems.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
         for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) // loop of fruiting branches
@@ -142,8 +139,7 @@ void PotentialLeafGrowth(State &state)
                                  //     Loop over the nodes of this fruiting branch.
             double smaxx = smax; // value of smax for the corresponding main stem leaf.
             double cc = c;       // value of c for the corresponding main stem leaf.
-            nnid = NumNodes[k][l];
-            for (int m = 0; m < nnid; m++) // loop of nodes on a fruiting branch
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) // loop of nodes on a fruiting branch
             {
                 FruitingSite &site = state.site[k][l][m];
                 if (site.leaf.area <= 0)
@@ -210,8 +206,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
     {
         for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)  // loop of fruiting branches
         {
-            int nnid = NumNodes[k][l];     // number of nodes on a fruiting branch.
-            for (int m = 0; m < nnid; m++) // loop for nodes on a fruiting branch
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) // loop for nodes on a fruiting branch
             {
                 FruitingSite &site = state.site[k][l][m];
                 //     Calculate potential square growth for node (k,l,m).

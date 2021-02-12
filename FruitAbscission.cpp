@@ -85,10 +85,9 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                 gin1 = ginp;
 //      Start loop over all possible fruiting sites. The abscission functions
 //  will be called for sites that are squares or green bolls.
-            for (int k = 0; k < state.number_of_vegetative_branches; k++) {
-                for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) {
-                    int nnid = NumNodes[k][l]; // node number on fruiting branch.
-                    for (int m = 0; m < nnid; m++) {
+            for (int k = 0; k < state.number_of_vegetative_branches; k++)
+                for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
+                    for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) {
                         FruitingSite &site = state.site[k][l][m];
                         if (site.stage == Stage::Square || site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll) {
                             double abscissionRatio; // ratio of abscission for a fruiting site.
@@ -100,9 +99,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                                     BollAbscission(site, k, l, m, abscissionRatio, gin1);
                             }
                         }
-                    }  // for m
-                }  // for l
-            }  // for k
+                    }
 //      Assign zero to the array members for this day.
             ShedByCarbonStress[lt] = 0;
             ShedByNitrogenStress[lt] = 0;
@@ -304,10 +301,9 @@ void ComputeSiteNumbers(State &state)
     NumSquares = 0;
     NumGreenBolls = 0;
     NumOpenBolls = 0;
-    for (int k = 0; k < state.number_of_vegetative_branches; k++) {
-        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) {
-            int nnid = NumNodes[k][l];
-            for (int m = 0; m < nnid; m++) {
+    for (int k = 0; k < state.number_of_vegetative_branches; k++)
+        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) {
                 FruitingSite &site = state.site[k][l][m];
                 if (site.stage == Stage::Square)
                     NumSquares += site.fraction;
@@ -316,8 +312,5 @@ void ComputeSiteNumbers(State &state)
                 else if (site.stage == Stage::MatureBoll)
                     NumOpenBolls += site.fraction;
             }
-        }
-    }
-//
     state.abscised_fruit_sites = NumFruitSites - NumSquares - NumGreenBolls - NumOpenBolls;
 }

@@ -164,8 +164,7 @@ void MainStemLeafAbscission(State &state, int k, int l, double droplf, const int
             NumAbscisedLeaves++;
     }
 //     Loop over all nodes on this fruiting branch and call FruitNodeLeafAbscission().
-    int nnid = NumNodes[k][l]; // node number on this fruiting branch.
-    for (int m = 0; m < nnid; m++)
+    for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++)
         FruitNodeLeafAbscission(state, k, l, m, droplf, Daynum);
 }
 
@@ -265,8 +264,7 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
                 indexm[lefcnt] = 66; // 66 indicates this leaf is at the base of the fruiting branch
                 lefcnt++;
             }
-            int nnid = NumNodes[k][l]; // total existing node number on this fruiting branch.
-            for (int m = 0; m < nnid; m++) {
+            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) {
                 if (state.site[k][l][m].leaf.weight > 0) {
                     SortByAge[lefcnt] = state.site[k][l][m].age;
                     indexk[lefcnt] = k;
