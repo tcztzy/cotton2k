@@ -121,7 +121,6 @@ double
     DeepSoilTemperature,  // boundary soil temperature of deepest layer (K)
     DefoliantAppRate[5],  // rate of defoliant application in pints per acre.
     DelayNewFruBranch[3], // cumulative effect of stresses on delaying the formation of a new fruiting branch.
-    DelayNewNode[3][30],  // cumulative effect of stresses on delaying the formation of a new node on a fruiting branch.
     DensityFactor,        // empirical plant density factor.
     DepthLastRootLayer,   // the depth to the end of the last layer with roots (cm).
     dl[maxl],             // the vertical width of a soil layer (cm).

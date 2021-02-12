@@ -230,6 +230,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                     for (int l = 0; l < 30; l++)
                     {
                         state0.number_of_fruiting_sites[k][l] = 0;
+                        state0.delay_for_new_node[k][l] = 0;
                         for (int m = 0; m < 5; m++)
                             state0.site[k][l][m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
                     }

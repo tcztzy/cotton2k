@@ -445,8 +445,8 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     //      Compute the cumulative delay for the appearance of the next
     //  node on the fruiting branch, caused by carbohydrate, nitrogen, and
     //  water stresses.
-    DelayNewNode[k][l] += (delayFrtByCStress + vfrtnod[0] * PhenDelayByNStress);
-    DelayNewNode[k][l] += vfrtnod[1] * (1 - state.water_stress);
+    state.delay_for_new_node[k][l] += delayFrtByCStress + vfrtnod[0] * PhenDelayByNStress;
+    state.delay_for_new_node[k][l] += vfrtnod[1] * (1 - state.water_stress);
     //     Define nnid, and compute the average temperature of the last
     //  node of this fruiting branch, from the time it was formed.
     int nnid = state.number_of_fruiting_sites[k][l] - 1;     // the number of the last node on this fruiting branche.
@@ -459,7 +459,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     //  adjusted for age in physiological days. It is modified for plant density.
     double TimeToNextFruNode; // time, in physiological days, for the next node on the fruiting branch to be formed
     TimeToNextFruNode = VarPar[36] + tav * (vfrtnod[3] + tav * (vfrtnod[4] + tav * vfrtnod[5]));
-    TimeToNextFruNode = TimeToNextFruNode * (1 + VarPar[37] * (1 - DensityFactor)) + DelayNewNode[k][l];
+    TimeToNextFruNode = TimeToNextFruNode * (1 + VarPar[37] * (1 - DensityFactor)) + state.delay_for_new_node[k][l];
     //     Check if the the age of the last node on the fruiting branch exceeds TimeToNextFruNode.
     //  If so, form the new node:
     if (state.site[k][l][nnid].age < TimeToNextFruNode)
@@ -484,7 +484,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     StemNitrogen -= state.site[k][l][newnod].leaf.weight * stemNRatio;
     //     Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.
     state.site[k][l][newnod].average_temperature = AvrgDailyTemp;
-    DelayNewNode[k][l] = 0;
+    state.delay_for_new_node[k][l] = 0;
 }
 
 //////////////////////////////////////////////////

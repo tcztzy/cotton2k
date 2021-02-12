@@ -97,7 +97,6 @@ void InitializeGlobal()
         LwpMinX[i] = 0;
         LwpX[i] = 0;
         for (int j = 0; j < 30; j++) {
-            DelayNewNode[i][j] = 0;
             LeafAreaMainStem[i][j] = 0;
             LeafWeightMainStem[i][j] = 0;
             PetioleWeightMainStem[i][j] = 0;

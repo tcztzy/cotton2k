@@ -33,6 +33,7 @@ typedef struct State
     unsigned int number_of_vegetative_branches;   // number of vegetative branches (including the main branch), per plant.
     unsigned int number_of_fruiting_branches[3];  // number of fruiting branches at each vegetative branch.
     unsigned int number_of_fruiting_sites[3][30]; // number of nodes on each fruiting branch.
+    double delay_for_new_node[3][30];             // cumulative effect of stresses on delaying the formation of a new node on a fruiting branch.
     Hour hours[24];
     Root root[40][20];
     FruitingSite site[3][30][5];
