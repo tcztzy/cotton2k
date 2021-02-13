@@ -335,14 +335,15 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     site.leaf.area = VarPar[34];
     site.leaf.weight = VarPar[34] * LeafWeightAreaRatio;
     //      Add a new mainstem leaf to the first node of this branch.
-    LeafAreaMainStem[state.number_of_vegetative_branches - 1][0] = VarPar[34];
-    LeafWeightMainStem[state.number_of_vegetative_branches - 1][0] = LeafAreaMainStem[state.number_of_vegetative_branches - 1][0] * LeafWeightAreaRatio;
+    MainStemLeaf &main_stem_leaf = state.main_stem_leaves[state.number_of_vegetative_branches - 1][0];
+    main_stem_leaf.leaf_area = VarPar[34];
+    main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * LeafWeightAreaRatio;
     //      The initial mass and nitrogen in the new leaves are
     //  substracted from the stem.
-    TotalStemWeight -= (site.leaf.weight + LeafWeightMainStem[state.number_of_vegetative_branches - 1][0]);
-    TotalLeafWeight += site.leaf.weight + LeafWeightMainStem[state.number_of_vegetative_branches - 1][0];
+    TotalStemWeight -= site.leaf.weight + main_stem_leaf.leaf_weight;
+    TotalLeafWeight += site.leaf.weight + main_stem_leaf.leaf_weight;
     double addlfn; // nitrogen moved to new leaves from stem.
-    addlfn = (site.leaf.weight + LeafWeightMainStem[state.number_of_vegetative_branches - 1][0]) * stemNRatio;
+    addlfn = (site.leaf.weight + main_stem_leaf.leaf_weight) * stemNRatio;
     LeafNitrogen += addlfn;
     StemNitrogen -= addlfn;
     //      Assign the initial value of the average temperature of the first site.
@@ -411,12 +412,12 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     //  from the stem.
     state.site[k][newbr][0].leaf.area = VarPar[34];
     state.site[k][newbr][0].leaf.weight = VarPar[34] * LeafWeightAreaRatio;
-    LeafAreaMainStem[k][newbr] = VarPar[34];
-    LeafWeightMainStem[k][newbr] = LeafAreaMainStem[k][newbr] * LeafWeightAreaRatio;
-    TotalStemWeight -= (LeafWeightMainStem[k][newbr] + state.site[k][newbr][0].leaf.weight);
-    TotalLeafWeight += LeafWeightMainStem[k][newbr] + state.site[k][newbr][0].leaf.weight;
+    state.main_stem_leaves[k][newbr].leaf_area = VarPar[34];
+    state.main_stem_leaves[k][newbr].leaf_weight = state.main_stem_leaves[k][newbr].leaf_area * LeafWeightAreaRatio;
+    TotalStemWeight -= (state.main_stem_leaves[k][newbr].leaf_weight + state.site[k][newbr][0].leaf.weight);
+    TotalLeafWeight += state.main_stem_leaves[k][newbr].leaf_weight + state.site[k][newbr][0].leaf.weight;
     // addlfn is the nitrogen added to new leaves from stem.
-    double addlfn = (LeafWeightMainStem[k][newbr] + state.site[k][newbr][0].leaf.weight) * stemNRatio;
+    double addlfn = (state.main_stem_leaves[k][newbr].leaf_weight + state.site[k][newbr][0].leaf.weight) * stemNRatio;
     LeafNitrogen += addlfn;
     StemNitrogen -= addlfn;
     //      Begin computing AvrgNodeTemper of the new node and assign zero to DelayNewFruBranch.

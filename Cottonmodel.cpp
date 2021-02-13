@@ -231,6 +231,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                     {
                         state0.number_of_fruiting_sites[k][l] = 0;
                         state0.delay_for_new_node[k][l] = 0;
+                        state0.main_stem_leaves[k][l] = {0, 0, 0, 0, 0, 0};
                         for (int m = 0; m < 5; m++)
                             state0.site[k][l][m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
                     }

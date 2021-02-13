@@ -107,11 +107,11 @@ void PotentialLeafGrowth(State &state)
             //     smax is modified by plant density, using the density factor denfac.
             //     Compute potential main stem leaf growth, assuming that the main
             //  stem leaf is initiated at the same time as leaf (k,l,0).
-            if (LeafAreaMainStem[k][l] <= 0)
+            if (state.main_stem_leaves[k][l].leaf_area <= 0)
             {
-                PotGroLeafAreaMainStem[k][l] = 0;
-                PotGroLeafWeightMainStem[k][l] = 0;
-                PotGroPetioleWeightMainStem[k][l] = 0;
+                state.main_stem_leaves[k][l].potential_growth_for_leaf_area = 0;
+                state.main_stem_leaves[k][l].potential_growth_for_leaf_weight = 0;
+                state.main_stem_leaves[k][l].potential_growth_for_petiole_weight = 0;
             }
             else
             {
@@ -128,11 +128,11 @@ void PotentialLeafGrowth(State &state)
                 //     Add leaf and petiole weight potential growth to SPDWL and SPDWP.
                 if (rate >= 1e-12)
                 {
-                    PotGroLeafAreaMainStem[k][l] = rate * wstrlf * TemperatureOnLeafGrowthRate(AvrgDailyTemp);
-                    PotGroLeafWeightMainStem[k][l] = PotGroLeafAreaMainStem[k][l] * LeafWeightAreaRatio;
-                    PotGroPetioleWeightMainStem[k][l] = PotGroLeafAreaMainStem[k][l] * LeafWeightAreaRatio * vpotlf[13];
-                    PotGroAllLeaves += PotGroLeafWeightMainStem[k][l];
-                    PotGroAllPetioles += PotGroPetioleWeightMainStem[k][l];
+                    state.main_stem_leaves[k][l].potential_growth_for_leaf_area = rate * wstrlf * TemperatureOnLeafGrowthRate(AvrgDailyTemp);
+                    state.main_stem_leaves[k][l].potential_growth_for_leaf_weight = state.main_stem_leaves[k][l].potential_growth_for_leaf_area * LeafWeightAreaRatio;
+                    state.main_stem_leaves[k][l].potential_growth_for_petiole_weight = state.main_stem_leaves[k][l].potential_growth_for_leaf_area * LeafWeightAreaRatio * vpotlf[13];
+                    PotGroAllLeaves += state.main_stem_leaves[k][l].potential_growth_for_leaf_weight;
+                    PotGroAllPetioles += state.main_stem_leaves[k][l].potential_growth_for_petiole_weight;
                 }                // rate
             }                    // LeafAreaMainStem
                                  //     Assign smax value of this main stem leaf to smaxx, c to cc.

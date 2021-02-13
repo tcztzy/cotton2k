@@ -148,12 +148,10 @@ double
     InitialTotalSoilWater,     // initial total soil water in the profile, mm.
     IrrigationDepth,           // depth of predicted irrigation, cm.
     LeafAreaIndex,             // leaf area index.
-    LeafAreaMainStem[3][30],   // mainstem leaf area at each node, dm2.
     LeafAreaPreFru[9],         // area of prefruiting node leaves, dm2.
     LeafNConc,                 // average nitrogen concentration in leaves.
     LeafNitrogen,              // total leaf nitrogen, g per plant.
     LeafWeightAreaRatio,       // temperature dependent factor for converting leaf area to leaf weight during the day, g dm-1.
-    LeafWeightMainStem[3][30], // mainstem leaf weight at each node, g.
     LeafWeightPreFru[9],       // weight of prefruiting node leaves, g.
     LevelsOfWaterTable[20],    // water table level input data (cm below soil surface).
     LightIntercept,            // ratio of light interception by plant canopy.
@@ -188,7 +186,6 @@ double
     PetioleNConc,                       // average nitrogen concentration in petioles.
     PetioleNitrogen,                    // total petiole nitrogen, g per plant.
     PetioleNO3NConc,                    // average nitrate nitrogen concentration in petioles.
-    PetioleWeightMainStem[3][30],       // weight of mainstem leaf petiole at each node, g.
     PetioleWeightPreFru[9],             // weight of prefruiting node petioles, g.
     PlantPopulation,                    // plant population, plants per hectar.
     PlantRowLocation,                   // distance of plant row from slab edge, cm.
@@ -201,11 +198,8 @@ double
     PotGroAllPetioles,                  // sum of potential growth rates of all petioles, g plant-1 day-1.
     PotGroAllRoots,                     // potential growth rate of roots, g plant-1 day-1
     PotGroAllSquares,                   // sum of potential growth rates of all squares, g plant-1 day-1.
-    PotGroLeafAreaMainStem[3][30],      // potential growth in area of an individual main stem node leaf, dm2 day-1.
     PotGroLeafAreaPreFru[9],            // potentially added area of a prefruiting node leaf, dm2 day-1.
-    PotGroLeafWeightMainStem[3][30],    // potential growth in weight of an individual main stem node leaf, g day-1.
     PotGroLeafWeightPreFru[9],          // potentially added weight of a prefruiting node leaf, g day-1.
-    PotGroPetioleWeightMainStem[3][30], // potential growth in weight of an individual main stem node petiole, g day-1.
     PotGroPetioleWeightPreFru[9],       // potentially added weight of a prefruiting node petiole, g day-1.
     PotGroRoots[maxl][maxk],            // potential root growth in a soil cell (g per day).
     PotGroStem;                         // potential growth rate of stems, g plant-1 day-1.

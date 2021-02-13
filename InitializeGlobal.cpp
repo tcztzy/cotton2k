@@ -96,14 +96,6 @@ void InitializeGlobal()
         DelayNewFruBranch[i] = 0;
         LwpMinX[i] = 0;
         LwpX[i] = 0;
-        for (int j = 0; j < 30; j++) {
-            LeafAreaMainStem[i][j] = 0;
-            LeafWeightMainStem[i][j] = 0;
-            PetioleWeightMainStem[i][j] = 0;
-            PotGroLeafAreaMainStem[i][j] = 0;
-            PotGroLeafWeightMainStem[i][j] = 0;
-            PotGroPetioleWeightMainStem[i][j] = 0;
-        }
     }
 //
     for (int i = 0; i < 5; i++) {
