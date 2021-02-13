@@ -360,10 +360,10 @@ void output4(Simulation &sim)
         File46.width(7);
         File46.precision(1);
         if (OutIndex[1] == 0) {
-            File46 << Scratch21[irec].rn * 0.0036;
+            File46 << sim.states[irec].net_radiation * 0.0036;
             File46.precision(1);
         } else {
-            File46 << Scratch21[irec].rn * 0.0036 * 23.884;
+            File46 << sim.states[irec].net_radiation * 0.0036 * 23.884;
             File46.precision(3);
         }
         File46.width(6);

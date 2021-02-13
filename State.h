@@ -39,6 +39,7 @@ typedef struct State
     double plant_height;
     double runoff;
     double solar_noon;
+    double net_radiation;                         // daily total net radiation, W m-2.
     unsigned int number_of_vegetative_branches;   // number of vegetative branches (including the main branch), per plant.
     unsigned int number_of_fruiting_branches[3];  // number of fruiting branches at each vegetative branch.
     unsigned int number_of_fruiting_sites[3][30]; // number of nodes on each fruiting branch.

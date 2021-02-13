@@ -259,7 +259,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
     } //   End of 1st hourly loop
       //     Zero some variables that will later be used for summation.
     ReferenceTransp = 0;
-    Rn = 0;                                         // daily net radiation
+    state.net_radiation = 0;                                         // daily net radiation
     double rnet[24];                                // hourly net radiation
     double cltcoram = state.hours[iamhr].cloud_cor; //  cloud type correction during early morning
     double cltcorpm = state.hours[ipmhr].cloud_cor; //  cloud type correction during late afternoon
@@ -291,7 +291,7 @@ void EvapoTranspiration(Simulation &sim, uint32_t u, int jtout)
                                                 //     Compute incoming long wave radiation:
         double rlonin = (ea0 * (1 - hour.cloud_cov) + hour.cloud_cov) * stefb * pow(tk, 4) - hour.cloud_cor;
         rnet[ihr] = (1 - hour.albedo) * hour.radiation + rlonin - stefb * pow(tk, 4);
-        Rn += rnet[ihr];
+        state.net_radiation += rnet[ihr];
         //     The hourly reference evapotranspiration ReferenceETP is computed by the
         //  CIMIS algorithm using the modified Penman equation:
         //     The weighting ratio (w) is computed from the functions del() (the slope of the saturation
