@@ -205,8 +205,8 @@ void LeafWaterPotential(State &state, const string &ProfileName)
     }
     //
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop for all other nodes
-        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)
-            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++)
+        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
+            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)
             {
                 numl++;
                 sumrl += LeafResistance(state.site[k][l][m].leaf.age);
@@ -485,7 +485,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     denf2 = 1 + z1 * (DensityFactor - 1);
     //     Call AddPlantHeight to compute PlantHeight.
     int l, l1, l2; // node numbers of top three nodes.
-    l = state.number_of_fruiting_branches[0] - 1;
+    l = state.vegetative_branches[0].number_of_fruiting_branches - 1;
     l1 = l - 1;
     if (l < 1)
         l1 = 0;

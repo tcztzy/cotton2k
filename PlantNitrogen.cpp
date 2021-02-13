@@ -393,8 +393,8 @@ double PetioleNitrateN(State &state)
     int nbrch; // number of fruiting branches on a vegetative stem.
     int nnid; // number of fruiting nodes on a fruiting branch.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
-        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) // loop of fruiting branches
-            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++)// loop of nodes on a fruiting branch
+        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++) // loop of fruiting branches
+            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)// loop of nodes on a fruiting branch
             {
                 numl++;
                 petno3r = p1 - state.site[k][l][m].leaf.age * p2;

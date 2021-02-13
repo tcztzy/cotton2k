@@ -26,6 +26,18 @@ typedef struct MainStemLeafStruct
     double potential_growth_for_leaf_weight;    // potential growth in weight of an individual main stem node leaf, g day-1.
     double potential_growth_for_petiole_weight; // potential growth in weight of an individual main stem node petiole, g day-1.
 } MainStemLeaf;
+typedef struct FruitingBranchStruct
+{
+    unsigned int number_of_fruiting_nodes; // number of nodes on each fruiting branch.
+    double delay_for_new_node;             // cumulative effect of stresses on delaying the formation of a new node on a fruiting branch.
+    MainStemLeaf main_stem_leaf;
+    FruitingSite nodes[5];
+} FruitingBranch;
+typedef struct VegetativeBranchStruct
+{
+    unsigned int number_of_fruiting_branches; // number of fruiting branches at each vegetative branch.
+    FruitingBranch fruiting_branches[30];
+} VegetativeBranch;
 typedef struct State
 {
     char date[12];
@@ -39,14 +51,11 @@ typedef struct State
     double plant_height;
     double runoff;
     double solar_noon;
-    double net_radiation;                         // daily total net radiation, W m-2.
-    unsigned int number_of_vegetative_branches;   // number of vegetative branches (including the main branch), per plant.
-    unsigned int number_of_fruiting_branches[3];  // number of fruiting branches at each vegetative branch.
-    unsigned int number_of_fruiting_sites[3][30]; // number of nodes on each fruiting branch.
+    double net_radiation;                       // daily total net radiation, W m-2.
+    unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.
+    VegetativeBranch vegetative_branches[3];
     Hour hours[24];
     Root root[40][20];
-    double delay_for_new_node[3][30]; // cumulative effect of stresses on delaying the formation of a new node on a fruiting branch.
-    MainStemLeaf main_stem_leaves[3][30];
     FruitingSite site[3][30][5];
 } State;
 #endif

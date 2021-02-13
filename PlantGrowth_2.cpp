@@ -101,17 +101,18 @@ void PotentialLeafGrowth(State &state)
     double denfac = 1 - vpotlf[12] * (1 - DensityFactor);
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
-        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++) // loop of fruiting branches
+        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++) // loop of fruiting branches
         {
             //     smax and c are  functions of fruiting branch number.
             //     smax is modified by plant density, using the density factor denfac.
             //     Compute potential main stem leaf growth, assuming that the main
             //  stem leaf is initiated at the same time as leaf (k,l,0).
-            if (state.main_stem_leaves[k][l].leaf_area <= 0)
+            MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[l].main_stem_leaf;
+            if (main_stem_leaf.leaf_area <= 0)
             {
-                state.main_stem_leaves[k][l].potential_growth_for_leaf_area = 0;
-                state.main_stem_leaves[k][l].potential_growth_for_leaf_weight = 0;
-                state.main_stem_leaves[k][l].potential_growth_for_petiole_weight = 0;
+                main_stem_leaf.potential_growth_for_leaf_area = 0;
+                main_stem_leaf.potential_growth_for_leaf_weight = 0;
+                main_stem_leaf.potential_growth_for_petiole_weight = 0;
             }
             else
             {
@@ -128,18 +129,18 @@ void PotentialLeafGrowth(State &state)
                 //     Add leaf and petiole weight potential growth to SPDWL and SPDWP.
                 if (rate >= 1e-12)
                 {
-                    state.main_stem_leaves[k][l].potential_growth_for_leaf_area = rate * wstrlf * TemperatureOnLeafGrowthRate(AvrgDailyTemp);
-                    state.main_stem_leaves[k][l].potential_growth_for_leaf_weight = state.main_stem_leaves[k][l].potential_growth_for_leaf_area * LeafWeightAreaRatio;
-                    state.main_stem_leaves[k][l].potential_growth_for_petiole_weight = state.main_stem_leaves[k][l].potential_growth_for_leaf_area * LeafWeightAreaRatio * vpotlf[13];
-                    PotGroAllLeaves += state.main_stem_leaves[k][l].potential_growth_for_leaf_weight;
-                    PotGroAllPetioles += state.main_stem_leaves[k][l].potential_growth_for_petiole_weight;
-                }                // rate
-            }                    // LeafAreaMainStem
-                                 //     Assign smax value of this main stem leaf to smaxx, c to cc.
-                                 //     Loop over the nodes of this fruiting branch.
-            double smaxx = smax; // value of smax for the corresponding main stem leaf.
-            double cc = c;       // value of c for the corresponding main stem leaf.
-            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) // loop of nodes on a fruiting branch
+                    main_stem_leaf.potential_growth_for_leaf_area = rate * wstrlf * TemperatureOnLeafGrowthRate(AvrgDailyTemp);
+                    main_stem_leaf.potential_growth_for_leaf_weight = main_stem_leaf.potential_growth_for_leaf_area * LeafWeightAreaRatio;
+                    main_stem_leaf.potential_growth_for_petiole_weight = main_stem_leaf.potential_growth_for_leaf_area * LeafWeightAreaRatio * vpotlf[13];
+                    PotGroAllLeaves += main_stem_leaf.potential_growth_for_leaf_weight;
+                    PotGroAllPetioles += main_stem_leaf.potential_growth_for_petiole_weight;
+                }
+            }
+            //     Assign smax value of this main stem leaf to smaxx, c to cc.
+            //     Loop over the nodes of this fruiting branch.
+            double smaxx = smax;                                                                                 // value of smax for the corresponding main stem leaf.
+            double cc = c;                                                                                       // value of c for the corresponding main stem leaf.
+            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
             {
                 FruitingSite &site = state.site[k][l][m];
                 if (site.leaf.area <= 0)
@@ -198,15 +199,15 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
     PotGroAllBolls = 0;
     PotGroAllBurrs = 0;
     //     Assign values for the boll growth equation parameters. These are cultivar - specific.
-    double agemax = VarPar[9];               // maximum boll growth period (physiological days).
-    double rbmax = VarPar[10];               // maximum rate of boll (seed and lint) growth, g per boll per physiological day.
-    double wbmax = VarPar[11];               // maximum possible boll (seed and lint) weight, g per boll.
-                                             //     Loop for all vegetative stems.
+    double agemax = VarPar[9];                                    // maximum boll growth period (physiological days).
+    double rbmax = VarPar[10];                                    // maximum rate of boll (seed and lint) growth, g per boll per physiological day.
+    double wbmax = VarPar[11];                                    // maximum possible boll (seed and lint) weight, g per boll.
+                                                                  //     Loop for all vegetative stems.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative stems
     {
-        for (int l = 0; l < state.number_of_fruiting_branches[k]; l++)  // loop of fruiting branches
+        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++) // loop of fruiting branches
         {
-            for (int m = 0; m < state.number_of_fruiting_sites[k][l]; m++) // loop for nodes on a fruiting branch
+            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop for nodes on a fruiting branch
             {
                 FruitingSite &site = state.site[k][l][m];
                 //     Calculate potential square growth for node (k,l,m).

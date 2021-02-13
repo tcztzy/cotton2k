@@ -226,12 +226,12 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.number_of_vegetative_branches = 1;
                 for (int k = 0; k < 3; k++)
                 {
-                    state0.number_of_fruiting_branches[k] = 0;
+                    state0.vegetative_branches[k].number_of_fruiting_branches = 0;
                     for (int l = 0; l < 30; l++)
                     {
-                        state0.number_of_fruiting_sites[k][l] = 0;
-                        state0.delay_for_new_node[k][l] = 0;
-                        state0.main_stem_leaves[k][l] = {0, 0, 0, 0, 0, 0};
+                        state0.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 0;
+                        state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0;
+                        state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = {0, 0, 0, 0, 0, 0};
                         for (int m = 0; m < 5; m++)
                             state0.site[k][l][m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
                     }
