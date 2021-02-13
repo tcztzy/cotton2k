@@ -52,6 +52,7 @@ typedef struct State
     double runoff;
     double solar_noon;
     double net_radiation;                       // daily total net radiation, W m-2.
+    double evapotranspiration;                  // daily sum of hourly reference evapotranspiration, mm per day.
     unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];

@@ -206,7 +206,6 @@ double
 // R
 double
     RatioImplicit,                 // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
-    ReferenceTransp,               // daily sum of hourly reference evapotranspiration, mm per day.
     ReserveC,                      // reserve carbohydrates in leaves, g per plant.
     rlat1[maxl],                   // lateral root length (cm) to the left of the tap root
     rlat2[maxl],                   // lateral root length (cm) to the right of the tap root

@@ -584,7 +584,9 @@ extern "C" fn daytmp(
 //     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
 //
 {
-    let states = unsafe {std::slice::from_raw_parts_mut(sim.states, (sim.day_finish - sim.day_start + 1) as usize)};
+    let states = unsafe {
+        std::slice::from_raw_parts_mut(sim.states, (sim.day_finish - sim.day_start + 1) as usize)
+    };
     let state = &mut states[u as usize];
     let tkk = 15f64; // The temperature increase at which the sensible heat flux is
                      //  doubled, in comparison with the situation without buoyancy.
@@ -614,13 +616,17 @@ extern "C" fn daytmp(
     } else if ti <= hmax {
         //  from sunrise to hmax
         amp = (today.Tmax - today.Tmin) * (1f64 + (today.Tmax - today.Tmin) / tkk);
-        st = (PI * (ti - state.solar_noon + state.day_length / 2.) / (state.day_length + 2f64 * site8)).sin();
+        st = (PI * (ti - state.solar_noon + state.day_length / 2.)
+            / (state.day_length + 2f64 * site8))
+            .sin();
         HourlyTemperature =
             today.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
     } else if ti <= suns {
         //  from hmax to sunset
         amp = (today.Tmax - tomorrow.Tmin) * (1f64 + (today.Tmax - tomorrow.Tmin) / tkk);
-        st = (PI * (ti - state.solar_noon + state.day_length / 2f64) / (state.day_length + 2f64 * site8)).sin();
+        st = (PI * (ti - state.solar_noon + state.day_length / 2f64)
+            / (state.day_length + 2f64 * site8))
+            .sin();
         HourlyTemperature =
             tomorrow.Tmin - tkk / 2f64 + 0.5 * (tkk * tkk + 4f64 * amp * tkk * st).sqrt();
     } else {
@@ -829,5 +835,116 @@ extern "C" fn SimulateRunoff(
         0f64
     } else {
         (rain - 0.2 * d03).powi(2) / (rain + 0.8 * d03)
+    }
+}
+/// Function EvapoTranspiration() computes the rate of reference evapotranspiration and related variables.
+#[no_mangle]
+extern "C" fn EvapoTranspiration(
+    state: &mut State,
+    latitude: f64,
+    elevation: f64,
+    declination: f64,
+    tmpisr: f64,
+    site7: f64,
+) {
+    const stefb: f64 = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
+    const c12: f64 = 0.125; // c12 ... c15 are constant parameters.
+    const c13: f64 = 0.0439;
+    const c14: f64 = 0.030;
+    const c15: f64 = 0.0576;
+    let mut iamhr = 0; // earliest time in day for computing cloud cover
+    let mut ipmhr = 0; // latest time in day for computing cloud cover
+    let mut cosz: f64 = 0f64; // cosine of sun angle from zenith for this hour
+    let mut suna: f64 = 0f64; // sun angle from horizon, degrees at this hour
+                              //      Start hourly loop
+    for (ihr, hour) in state.hours.iter_mut().enumerate() {
+        let ti = ihr as f64 + 0.5; // middle of the hourly interval
+                                   //      The following subroutines and functions are called for each
+                                   //  hour: sunangle, cloudcov, clcor, refalbed .
+        sunangle(
+            ti,
+            latitude,
+            declination,
+            state.solar_noon,
+            &mut cosz,
+            &mut suna,
+        );
+        let isr = tmpisr * cosz; // hourly extraterrestrial radiation in W / m**2
+        hour.cloud_cov = cloudcov(hour.radiation, isr, cosz);
+        // clcor is called to compute cloud-type correction.
+        // iamhr and ipmhr are set.
+        hour.cloud_cor = clcor(
+            ihr as u8,
+            site7,
+            isr,
+            cosz,
+            state.day_length,
+            hour.radiation,
+            state.solar_noon,
+        );
+        if (cosz >= 0.1736) && (iamhr == 0) {
+            iamhr = ihr;
+        }
+        if (ihr >= 12) && (cosz <= 0.1736) && (ipmhr == 0) {
+            ipmhr = ihr - 1;
+        }
+        // refalbed is called to compute the reference albedo for each hour.
+        hour.albedo = refalbed(isr, hour.radiation, cosz, suna);
+    }
+    // Zero some variables that will later be used for summation.
+    state.evapotranspiration = 0f64;
+    state.net_radiation = 0f64; // daily net radiation
+    for (ihr, hour) in &mut state.hours.iter_mut().enumerate() {
+        //      Compute saturated vapor pressure (svp), using function VaporPressure().
+        //      The actual vapor pressure (vp) is computed from svp and the
+        //  relative humidity. Compute vapor pressure deficit (vpd). This
+        //  procedure is based on the CIMIS algorithm.
+        let svp = VaporPressure(hour.temperature); // saturated vapor pressure, mb
+        let vp = 0.01 * hour.humidity * svp; // vapor pressure, mb
+        let vpd = svp - vp; // vapor pressure deficit, mb.
+                            //   Get cloud cover and cloud correction for night hours
+        if ihr < iamhr || ihr > ipmhr {
+            hour.cloud_cov = 0f64;
+            hour.cloud_cor = 0f64;
+        }
+        //     The hourly net radiation is computed using the CIMIS algorithm (Dong et al., 1988):
+        //     rlonin, the hourly incoming long wave radiation, is computed from ea0, cloud cover
+        //  (CloudCoverRatio), air temperature (tk),  stefb, and cloud type correction (CloudTypeCorr).
+        //     rnet, the hourly net radiation, W m-2, is computed from the global radiation, the albedo,
+        //  the incoming long wave radiation, and the outgoing longwave radiation.
+        let tk = hour.temperature + 273.161; // hourly air temperature in Kelvin.
+        let ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
+                                         //     Compute incoming long wave radiation:
+        let rlonin =
+            (ea0 * (1f64 - hour.cloud_cov) + hour.cloud_cov) * stefb * tk.powi(4) - hour.cloud_cor;
+        let rnet = (1f64 - hour.albedo) * hour.radiation + rlonin - stefb * tk.powi(4);
+        state.net_radiation += rnet;
+        //     The hourly reference evapotranspiration ReferenceETP is computed by the
+        //  CIMIS algorithm using the modified Penman equation:
+        //     The weighting ratio (w) is computed from the functions del() (the slope of the saturation
+        //  vapor pressure versus air temperature) and gam() (the psychometric constant).
+        let w = del(tk, svp) / (del(tk, svp) + gam(elevation, hour.temperature)); // coefficient of the Penman equation
+
+        //     The wind function (fu2) is computed using different sets of parameters
+        //  for day-time and night-time. The parameter values are as suggested by CIMIS.
+        let fu2 = if hour.radiation <= 0f64 {
+            c12 + c13 * hour.wind_speed
+        } else {
+            c14 + c15 * hour.wind_speed
+        }; // wind function for computing evapotranspiration
+
+        // hlathr, the latent heat for evaporation of water (W m-2 per mm at this hour) is computed as a function of temperature.
+        let hlathr = 878.61 - 0.66915 * (hour.temperature + 273.161);
+        // ReferenceETP, the hourly reference evapotranspiration, is now computed by the modified Penman equation.
+        hour.ref_et = w * rnet / hlathr + (1f64 - w) * vpd * fu2;
+        if hour.ref_et < 0f64 {
+            hour.ref_et = 0f64;
+        }
+        // ReferenceTransp is the sum of ReferenceETP
+        state.evapotranspiration += hour.ref_et;
+        // es1hour and es2hour are computed as the hourly potential evapotranspiration due to radiative and aerodynamic factors, respectively.
+        // es1hour and ReferenceTransp are not computed for periods of negative net radiation.
+        hour.et2 = (1f64 - w) * vpd * fu2;
+        hour.et1 = if rnet > 0f64 { w * rnet / hlathr } else { 0f64 };
     }
 }
