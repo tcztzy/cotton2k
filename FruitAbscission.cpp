@@ -300,7 +300,7 @@ void ComputeSiteNumbers(State &state)
 {
     state.number_of_squares = 0;
     state.number_of_green_bolls = 0;
-    NumOpenBolls = 0;
+    state.number_of_open_bolls = 0;
     for (int k = 0; k < state.number_of_vegetative_branches; k++)
         for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) {
@@ -310,7 +310,7 @@ void ComputeSiteNumbers(State &state)
                 else if (site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll)
                     state.number_of_green_bolls += site.fraction;
                 else if (site.stage == Stage::MatureBoll)
-                    NumOpenBolls += site.fraction;
+                    state.number_of_open_bolls += site.fraction;
             }
-    state.abscised_fruit_sites = state.number_of_fruiting_sites - state.number_of_squares - state.number_of_green_bolls - NumOpenBolls;
+    state.abscised_fruit_sites = state.number_of_fruiting_sites - state.number_of_squares - state.number_of_green_bolls - state.number_of_open_bolls;
 }

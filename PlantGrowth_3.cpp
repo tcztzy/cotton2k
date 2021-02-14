@@ -496,10 +496,10 @@ void Defoliate(Simulation &sim, uint32_t u)
     for (int i = 0; i < 5; i++)
     {
         //     If there are open bolls and defoliation prediction has been set, execute the following.
-        if (NumOpenBolls > 0 && DefoliantAppRate[i] <= -99.9)
+        if (state.number_of_open_bolls > 0 && DefoliantAppRate[i] <= -99.9)
         {
             int OpenRatio; // percentage of open bolls in total boll number
-            OpenRatio = (int)(100 * NumOpenBolls / (NumOpenBolls + state.number_of_green_bolls));
+            OpenRatio = (int)(100 * state.number_of_open_bolls / (state.number_of_open_bolls + state.number_of_green_bolls));
             if (i == 0 && idsw == 0)
             {
                 //     If this is first defoliation - check the percentage of boll opening.

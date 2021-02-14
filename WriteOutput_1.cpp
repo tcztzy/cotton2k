@@ -364,7 +364,7 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
         File46.width(7);
         File46 << state.number_of_green_bolls * conversion;
         File46.width(7);
-        File46 << NumOpenBolls * conversion;
+        File46 << state.number_of_open_bolls * conversion;
         File46.width(7);
         File46 << AbscisedFruitSites * conversion;
         File46.width(6);
@@ -406,7 +406,7 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
             File22.width(6);
             File22 << state.number_of_green_bolls * conversion;
             File22.width(6);
-            File22 << NumOpenBolls * conversion;
+            File22 << state.number_of_open_bolls * conversion;
             File22.width(7);
             File22.precision(0);
             if (OutIndex[1] == 0)
@@ -439,7 +439,7 @@ void DataOutput(Simulation & sim)
     double i00; // number of squares, per unit area
     double i01; // number of green bolls, per unit area.
     double i02; // number of open bolls, per unitn area.
-    double sixpct = NumOpenBolls * 0.6; // 60 percent of the final number of open bolls.
+    double sixpct = sim.states[sim.day_finish - sim.day_start].number_of_open_bolls * 0.6; // 60 percent of the final number of open bolls.
     string Date;
     ofstream File22(fs::path("output") / (string(sim.profile_name) + ".S01"), ios::app);
 //     Start reading data from struct Scratch21.
@@ -452,7 +452,7 @@ void DataOutput(Simulation & sim)
         Kday = Scratch21[irec].kday;
         LeafAreaIndex = Scratch21[irec].leafAreaIndex;
         MainStemNodes = Scratch21[irec].mainStemNodes;
-        i02 = Scratch21[irec].numOpenBolls;
+        i02 = sim.states[irec].number_of_open_bolls;
         i00 = sim.states[irec].number_of_squares;
         LintYield = Scratch21[irec].lintYield;
         plant_height = sim.states[irec].plant_height;

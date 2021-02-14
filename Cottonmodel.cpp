@@ -226,6 +226,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.number_of_vegetative_branches = 1;
                 state0.number_of_squares = 0;
                 state0.number_of_green_bolls = 0;
+                state0.number_of_open_bolls = 0;
                 for (int k = 0; k < 3; k++)
                 {
                     state0.vegetative_branches[k].number_of_fruiting_branches = 0;

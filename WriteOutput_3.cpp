@@ -94,7 +94,7 @@ void outputplt(Simulation &sim)
         File25.width(7);
         File25 << multi0 * sim.states[irec].number_of_green_bolls;
         File25.width(7);
-        File25 << multi0 * Scratch21[irec].numOpenBolls;
+        File25 << multi0 * sim.states[irec].number_of_open_bolls;
         File25.width(7);
         File25 << multi0 * sim.states[irec].abscised_fruit_sites;
         File25.precision(1);

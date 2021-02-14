@@ -739,8 +739,8 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     //     Compute the average ginning percentage of all the bolls opened
     //  until now (Gintot).
     ginp = (VarPar[41] - VarPar[42] * atn) / 100;
-    Gintot = (Gintot * NumOpenBolls + ginp * site.fraction) /
-             (NumOpenBolls + site.fraction);
+    Gintot = (Gintot * state.number_of_open_bolls + ginp * site.fraction) /
+             (state.number_of_open_bolls + site.fraction);
     //     Cumulative lint yield (LintYield) is computed in kg per ha.
     LintYield += ginp * site.boll.weight * PlantPopulation * .001;
     //     Note: computation of fiber properties is as in GOSSYM, it is
@@ -754,8 +754,8 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     double fsx; // fiber strength (g / tex at 1/8 inch) of this boll.
     fsx = vboldhs[6] + atn * (vboldhs[7] + vboldhs[8] * atn);
     flx = vboldhs[9] - vboldhs[10] * atn;
-    FibStrength = (FibStrength * NumOpenBolls + fsx * site.fraction) / (NumOpenBolls + site.fraction);
-    FibLength = (FibLength * NumOpenBolls + flx * site.fraction) / (NumOpenBolls + site.fraction);
+    FibStrength = (FibStrength * state.number_of_open_bolls + fsx * site.fraction) / (state.number_of_open_bolls + site.fraction);
+    FibLength = (FibLength * state.number_of_open_bolls + flx * site.fraction) / (state.number_of_open_bolls + site.fraction);
     //     Update the number of open bolls per plant (nopen).
-    NumOpenBolls += site.fraction;
+    state.number_of_open_bolls += site.fraction;
 }

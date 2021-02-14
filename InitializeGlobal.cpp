@@ -49,7 +49,6 @@ void InitializeGlobal()
 
     NitrogenStress = 1;
     NumAbscisedLeaves = 0;
-    NumOpenBolls = 0;
     NumPreFruNodes = 1;
     NumSheddingTags = 0;
     NumWaterTableData = 0;
