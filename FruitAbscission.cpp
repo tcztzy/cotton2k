@@ -16,7 +16,10 @@ void SquareAbscission(FruitingSite &, int, int, int, double);
 
 void BollAbscission(FruitingSite &, int, int, int, double, double);
 
-void ComputeSiteNumbers(State &);
+extern "C"
+{
+    void ComputeSiteNumbers(State &);
+}
 
 //////////////////////////////////////////////////
 void FruitingSitesAbscission(Simulation &sim, uint32_t u)
@@ -282,35 +285,4 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
         site.boll.weight = 0;
         site.burr.weight = 0;
     }
-}
-
-////////////////////
-void ComputeSiteNumbers(State &state)
-//     This function calculates square, green boll, open boll, and abscised site numbers 
-//  (NumSquares, NumGreenBolls, NumOpenBolls, and AbscisedFruitSites, respectively), as 
-//  the sums of FruitFraction in all sites with appropriate FruitingCode.
-//  It is called from function FruitingSitesAbscission(). 
-//
-//     The following global variables are referenced here:
-//   FruitFraction, FruitingCode, NumFruitBranches, NumFruitSites, NumNodes, NumVegBranches.
-//
-//     The following global variable are set here:
-//   AbscisedFruitSites,  GreenBollsLost, NumGreenBolls, NumOpenBolls, NumSquares, .
-//
-{
-    state.number_of_squares = 0;
-    state.number_of_green_bolls = 0;
-    state.number_of_open_bolls = 0;
-    for (int k = 0; k < state.number_of_vegetative_branches; k++)
-        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
-            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) {
-                FruitingSite &site = state.site[k][l][m];
-                if (site.stage == Stage::Square)
-                    state.number_of_squares += site.fraction;
-                else if (site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll)
-                    state.number_of_green_bolls += site.fraction;
-                else if (site.stage == Stage::MatureBoll)
-                    state.number_of_open_bolls += site.fraction;
-            }
-    state.abscised_fruit_sites = state.number_of_fruiting_sites - state.number_of_squares - state.number_of_green_bolls - state.number_of_open_bolls;
 }

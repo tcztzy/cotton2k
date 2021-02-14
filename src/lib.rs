@@ -11,6 +11,7 @@ mod fruit;
 mod io;
 mod leaf;
 mod physiology;
+mod abscission;
 mod root;
 mod soil;
 mod stem;
