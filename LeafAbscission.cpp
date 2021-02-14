@@ -118,8 +118,8 @@ void PreFruitLeafAbscission(State &state, double droplf, const int &Daynum, cons
             TotalLeafWeight -= LeafWeightPreFru[j];
             TotalPetioleWeight -= PetioleWeightPreFru[j];
             LeafNitrogen -= LeafWeightPreFru[j] * LeafNConc;
-            PetioleNitrogen -= PetioleWeightPreFru[j] * PetioleNConc;
-            state.cumulative_nitrogen_loss += LeafWeightPreFru[j] * LeafNConc + PetioleWeightPreFru[j] * PetioleNConc;
+            PetioleNitrogen -= PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
+            state.cumulative_nitrogen_loss += LeafWeightPreFru[j] * LeafNConc + PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
             LeafAreaPreFru[j] = 0;
             LeafWeightPreFru[j] = 0;
             PetioleWeightPreFru[j] = 0;
@@ -162,8 +162,8 @@ void MainStemLeafAbscission(State &state, int k, int l, double droplf, const int
         TotalLeafWeight -= main_stem_leaf.leaf_weight;
         TotalPetioleWeight -= main_stem_leaf.petiole_weight;
         LeafNitrogen -= main_stem_leaf.leaf_weight * LeafNConc;
-        PetioleNitrogen -= main_stem_leaf.petiole_weight * PetioleNConc;
-        state.cumulative_nitrogen_loss += main_stem_leaf.leaf_weight * LeafNConc + main_stem_leaf.petiole_weight * PetioleNConc;
+        PetioleNitrogen -= main_stem_leaf.petiole_weight * state.petiole_nitrogen_concentration;
+        state.cumulative_nitrogen_loss += main_stem_leaf.leaf_weight * LeafNConc + main_stem_leaf.petiole_weight * state.petiole_nitrogen_concentration;
         TotalLeafArea -= main_stem_leaf.leaf_area;
         main_stem_leaf.leaf_area = 0;
         main_stem_leaf.leaf_weight = 0;
@@ -209,8 +209,8 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
         TotalLeafWeight -= site.leaf.weight;
         TotalPetioleWeight -= site.petiole.weight;
         LeafNitrogen -= site.leaf.weight * LeafNConc;
-        PetioleNitrogen -= site.petiole.weight * PetioleNConc;
-        state.cumulative_nitrogen_loss += site.leaf.weight * LeafNConc + site.petiole.weight * PetioleNConc;
+        PetioleNitrogen -= site.petiole.weight * state.petiole_nitrogen_concentration;
+        state.cumulative_nitrogen_loss += site.leaf.weight * LeafNConc + site.petiole.weight * state.petiole_nitrogen_concentration;
         TotalLeafArea -= site.leaf.area;
         site.leaf.area = 0;
         site.leaf.weight = 0;
@@ -250,8 +250,8 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
                 TotalLeafWeight -= LeafWeightPreFru[j];
                 TotalPetioleWeight -= PetioleWeightPreFru[j];
                 LeafNitrogen -= LeafWeightPreFru[j] * LeafNConc;
-                PetioleNitrogen -= PetioleWeightPreFru[j] * PetioleNConc;
-                state.cumulative_nitrogen_loss += LeafWeightPreFru[j] * LeafNConc + PetioleWeightPreFru[j] * PetioleNConc;
+                PetioleNitrogen -= PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
+                state.cumulative_nitrogen_loss += LeafWeightPreFru[j] * LeafNConc + PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
                 LeafWeightPreFru[j] = 0;
                 PetioleWeightPreFru[j] = 0;
             } //  if LeafAreaPreFru
@@ -315,8 +315,8 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
                 TotalLeafWeight -= main_stem_leaf.leaf_weight;
                 TotalPetioleWeight -= main_stem_leaf.petiole_weight;
                 LeafNitrogen -= main_stem_leaf.leaf_weight * LeafNConc;
-                PetioleNitrogen -= main_stem_leaf.petiole_weight * PetioleNConc;
-                state.cumulative_nitrogen_loss += main_stem_leaf.leaf_weight * LeafNConc + main_stem_leaf.petiole_weight * PetioleNConc;
+                PetioleNitrogen -= main_stem_leaf.petiole_weight * state.petiole_nitrogen_concentration;
+                state.cumulative_nitrogen_loss += main_stem_leaf.leaf_weight * LeafNConc + main_stem_leaf.petiole_weight * state.petiole_nitrogen_concentration;
                 TotalLeafArea -= main_stem_leaf.leaf_area;
                 main_stem_leaf.leaf_area = 0;
                 main_stem_leaf.leaf_weight = 0;
@@ -328,8 +328,8 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
                 TotalLeafWeight -= site.leaf.weight;
                 TotalPetioleWeight -= site.petiole.weight;
                 LeafNitrogen -= site.leaf.weight * LeafNConc;
-                PetioleNitrogen -= site.petiole.weight * PetioleNConc;
-                state.cumulative_nitrogen_loss += site.leaf.weight * LeafNConc + site.petiole.weight * PetioleNConc;
+                PetioleNitrogen -= site.petiole.weight * state.petiole_nitrogen_concentration;
+                state.cumulative_nitrogen_loss += site.leaf.weight * LeafNConc + site.petiole.weight * state.petiole_nitrogen_concentration;
                 TotalLeafArea -= site.leaf.area;
                 site.leaf.area = 0;
                 site.leaf.weight = 0;

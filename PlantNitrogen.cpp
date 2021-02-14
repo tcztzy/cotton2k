@@ -17,7 +17,7 @@
 
 using namespace std;
 
-void NitrogenRequirement(const string &, const int &, const int &, double);
+void NitrogenRequirement(State &, const string &, const int &, const int &, double);
 
 void NitrogenSupply(State &, const string &);
 
@@ -31,7 +31,7 @@ void PlantNitrogenContent(State &);
 
 void GetNitrogenStress();
 
-void NitrogenUptakeRequirement();
+void NitrogenUptakeRequirement(double);
 
 //  File scope variables
 double burres; // reserve N in burrs, in g per plant.
@@ -88,39 +88,40 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 {
     State &state = sim.states[u];
     //     Assign zero to some variables.
-    leafrs = 0;                                                                                           // reserve N in leaves, in g per plant.
-    petrs = 0;                                                                                            // reserve N in petioles, in g per plant.
-    stemrs = 0;                                                                                           // reserve N in stems, in g per plant.
-    rootrs = 0;                                                                                           // reserve N in roots, in g per plant.
-    reqf = 0;                                                                                             // nitrogen requirement for fruit growth.
-    reqtot = 0;                                                                                           // total nitrogen requirement for plant growth.
-    reqv = 0;                                                                                             // nitrogen requirement for vegetative shoot growth.
-    rqnbur = 0;                                                                                           // nitrogen requirement for burr growth.
-    rqnlef = 0;                                                                                           // nitrogen requirement for leaf growth.
-    rqnpet = 0;                                                                                           // nitrogen requirement for petiole growth.
-    rqnrut = 0;                                                                                           // nitrogen requirement for root growth.
-    rqnsed = 0;                                                                                           // nitrogen requirement for seed growth.
-    rqnsqr = 0;                                                                                           // nitrogen requirement for square growth.
-    rqnstm = 0;                                                                                           // nitrogen requirement for stem growth.
-    npool = 0;                                                                                            // total nitrogen available for growth.
-    uptn = 0;                                                                                             // nitrogen uptake from the soil, g per plant.
-    xtran = 0;                                                                                            // amount of nitrogen not used for growth of plant parts.
-    addnf = 0;                                                                                            // daily added nitrogen to fruit, g per plant.
-    addnr = 0;                                                                                            // daily added nitrogen to root, g per plant.
-    addnv = 0;                                                                                            // daily added nitrogen to vegetative shoot, g per plant.
-                                                                                                          //   The following subroutines are now called:
-    NitrogenRequirement(sim.profile_name, sim.day_start + u, sim.day_emerge, sim.states[u].extra_carbon); //  computes the N requirements for growth.
-    NitrogenSupply(state, sim.profile_name);                                                              //  computes the supply of N from uptake and reserves.
-    NitrogenAllocation();                                                                                 //  computes the allocation of N in the plant.
+    leafrs = 0; // reserve N in leaves, in g per plant.
+    petrs = 0;  // reserve N in petioles, in g per plant.
+    stemrs = 0; // reserve N in stems, in g per plant.
+    rootrs = 0; // reserve N in roots, in g per plant.
+    reqf = 0;   // nitrogen requirement for fruit growth.
+    reqtot = 0; // total nitrogen requirement for plant growth.
+    reqv = 0;   // nitrogen requirement for vegetative shoot growth.
+    rqnbur = 0; // nitrogen requirement for burr growth.
+    rqnlef = 0; // nitrogen requirement for leaf growth.
+    rqnpet = 0; // nitrogen requirement for petiole growth.
+    rqnrut = 0; // nitrogen requirement for root growth.
+    rqnsed = 0; // nitrogen requirement for seed growth.
+    rqnsqr = 0; // nitrogen requirement for square growth.
+    rqnstm = 0; // nitrogen requirement for stem growth.
+    npool = 0;  // total nitrogen available for growth.
+    uptn = 0;   // nitrogen uptake from the soil, g per plant.
+    xtran = 0;  // amount of nitrogen not used for growth of plant parts.
+    addnf = 0;  // daily added nitrogen to fruit, g per plant.
+    addnr = 0;  // daily added nitrogen to root, g per plant.
+    addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
+
+    //   The following subroutines are now called:
+    NitrogenRequirement(state, sim.profile_name, sim.day_start + u, sim.day_emerge, state.extra_carbon); //  computes the N requirements for growth.
+    NitrogenSupply(state, sim.profile_name);                                                      //  computes the supply of N from uptake and reserves.
+    NitrogenAllocation();                                                                         //  computes the allocation of N in the plant.
     if (xtran > 0)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
     PlantNitrogenContent(state);   // computes the concentrations of N in plant dry matter.
     GetNitrogenStress();           //  computes nitrogen stress factors.
-    NitrogenUptakeRequirement();   // computes N requirements for uptake
+    NitrogenUptakeRequirement(state.petiole_nitrogen_concentration);   // computes N requirements for uptake
 }
 
 //////////////////////////
-void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int &DayEmerge, double ExtraCarbon)
+void NitrogenRequirement(State &state, const string &ProfileName, const int &Daynum, const int &DayEmerge, double ExtraCarbon)
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
@@ -145,7 +146,7 @@ void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int
                                   //     On emergence, assign initial values to petiole N concentrations.
     if (Daynum <= DayEmerge)
     {
-        PetioleNConc = petcn0;
+        state.petiole_nitrogen_concentration = petcn0;
         PetioleNO3NConc = petcn0;
     }
     //     Compute the nitrogen requirements for growth, by multiplying
@@ -493,8 +494,8 @@ void PlantNitrogenContent(State &state)
         LeafNConc = LeafNitrogen / TotalLeafWeight;
     if (TotalPetioleWeight > 0.00001)
     {
-        PetioleNConc = PetioleNitrogen / TotalPetioleWeight;
-        PetioleNO3NConc = PetioleNConc * PetioleNitrateN(state);
+        state.petiole_nitrogen_concentration = PetioleNitrogen / TotalPetioleWeight;
+        PetioleNO3NConc = state.petiole_nitrogen_concentration * PetioleNitrateN(state);
     }
     if (TotalStemWeight > 0)
         StemNConc = StemNitrogen / TotalStemWeight;
@@ -566,7 +567,7 @@ void GetNitrogenStress()
 }
 
 //////////////////////////
-void NitrogenUptakeRequirement()
+void NitrogenUptakeRequirement(double PetioleNConc)
 //     This function computes TotalRequiredN, the nitrogen requirements of the plant -
 //  to be used for simulating the N uptake from the soil (in function NitrogenUptake() )
 //  in the next day. It is called from PlantNitrogen().

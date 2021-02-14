@@ -202,7 +202,7 @@ void outputplt(Simulation &sim)
         File25 << multi1 * Scratch21[irec].cottonWeightOpenBolls;
         File25.precision(3);
         File25.width(7);     // 6F7.3
-        File25 << Scratch21[irec].petioleNConc;
+        File25 << sim.states[irec].petiole_nitrogen_concentration;
         File25.width(7);
         File25 << Scratch21[irec].petioleNO3NConc;
         File25.width(7);

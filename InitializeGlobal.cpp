@@ -55,7 +55,6 @@ void InitializeGlobal()
     NStressVeg = 1;
 
     PercentDefoliation = 0;
-    PetioleNConc = 0;
     PetioleNitrogen = 0;
     PetioleNO3NConc = 0;
     PlantWeight = 0;

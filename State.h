@@ -61,6 +61,7 @@ typedef struct State
     double number_of_squares;                   // number of squares per plant.
     double number_of_green_bolls;               // average number of retained green bolls, per plant.
     double number_of_open_bolls;                // number of open bolls, per plant.
+    double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];
     Root root[40][20];
