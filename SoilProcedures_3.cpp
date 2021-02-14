@@ -58,15 +58,16 @@ void WaterUptake(Simulation &sim, unsigned int u)
 //     The following global variables are set:
 //  ActualTranspiration, SoilPsi, VolWaterContent. 
 {
-//     Compute the modified light interception factor (LightInter1) for use in computing 
-//  transpiration rate. 
+    State &state = sim.states[u];
+    // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate. 
     double LightInter1; // modified light interception factor by canopy
     LightInter1 = LightIntercept * 1.55 - 0.32;
     if (LightInter1 < LightIntercept)
         LightInter1 = LightIntercept;
     if (LightInter1 > 1)
         LightInter1 = 1;
-//     The potential transpiration is the product of the daytime Penman equation and LightInter1.
+
+    // The potential transpiration is the product of the daytime Penman equation and LightInter1.
     double PotentialTranspiration = sim.states[u].evapotranspiration * LightInter1;
     Scratch21[u].ep = PotentialTranspiration;
     double upf[40][20];  // uptake factor, computed as a ratio, for each soil cell
@@ -77,19 +78,18 @@ void WaterUptake(Simulation &sim, unsigned int u)
             uptk[l][k] = 0;
         }
     double sumep = 0; // sum of actual transpiration from all soil soil cells, cm3 per day.
-//     Compute the reduction due to soil moisture supply by function PsiOnTranspiration().  
-    double Transp;//	the actual transpiration converted to cm3 per slab units.
+
+    // Compute the reduction due to soil moisture supply by function PsiOnTranspiration().  
+    double Transp; // the actual transpiration converted to cm3 per slab units.
     Transp = .10 * sim.row_space * PotentialTranspiration * PsiOnTranspiration(AverageSoilPsi);
-    double difupt = 0; // the cumulative difference between computed transpiration
-    // and actual transpiration, in cm3, due to limitation of PWP.
+    double difupt = 0; // the cumulative difference between computed transpiration and actual transpiration, in cm3, due to limitation of PWP.
     do {
         double supf = 0; // sum of upf for all soil cells
         for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++) {
             int j = SoilHorizonNum[l];
-//     Compute, for each layer, the lower and upper water content limits for the transpiration 
-//  function. These are set from limiting soil water potentials (-15 to -1 bars).
-            double vh2lo; //  lower limit of water content for the transpiration function
-            double vh2hi; //  upper limit of water content for the transpiration function
+            // Compute, for each layer, the lower and upper water content limits for the transpiration function. These are set from limiting soil water potentials (-15 to -1 bars).
+            double vh2lo; // lower limit of water content for the transpiration function
+            double vh2hi; // upper limit of water content for the transpiration function
             vh2lo = qpsi(-15, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j]);
             vh2hi = qpsi(-1, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j]);
             for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++) {
@@ -100,65 +100,68 @@ void WaterUptake(Simulation &sim, unsigned int u)
                     redfac = 0;
                 if (redfac > 1)
                     redfac = 1;
-//     The computed 'uptake factor' (upf) for each soil cell is the
-//  product of 'root weight capable of uptake' and redfac. 
+                // The computed 'uptake factor' (upf) for each soil cell is the product of 'root weight capable of uptake' and redfac. 
                 upf[l][k] = sim.states[u].root[l][k].weight_capable_uptake * redfac;
                 supf += upf[l][k];
-            } // end loop k
-        } // end loop l
-//
+            }
+        }
+
         difupt = 0;
         for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++)
             for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
                 if (upf[l][k] > 0 && VolWaterContent[l][k] > thetar[l]) {
-//     The amount of water extracted from each cell is proportional to its 'uptake factor'. 
+                    // The amount of water extracted from each cell is proportional to its 'uptake factor'. 
                     double upth2o;  // transpiration from a soil cell, cm3 per day
                     upth2o = Transp * upf[l][k] / supf;
-//     Update VolWaterContent cell, storing its previous value as vh2ocx.
+                    // Update VolWaterContent cell, storing its previous value as vh2ocx.
                     double vh2ocx; // previous value of VolWaterContent of this cell
                     vh2ocx = VolWaterContent[l][k];
                     VolWaterContent[l][k] -= upth2o / (dl[l] * wk[k]);
-//     If the new value of VolWaterContent is less than the permanent wilting point, modify the 
-//  value of upth2o so that VolWaterContent will be equal to it.
+                    // If the new value of VolWaterContent is less than the permanent wilting point, modify the value of upth2o so that VolWaterContent will be equal to it.
                     if (VolWaterContent[l][k] < thetar[l]) {
                         VolWaterContent[l][k] = thetar[l];
                         double xupt;  // intermediate computation of upth2o
-//     Compute the difference due to this correction and add it to difupt.
+
+                        // Compute the difference due to this correction and add it to difupt.
                         xupt = (vh2ocx - thetar[l]) * dl[l] * wk[k];
                         difupt += upth2o - xupt;
                         upth2o = xupt;
                     }
                     if (upth2o < 0)
                         upth2o = 0;
-//     Compute sumep as the sum of the actual amount of water extracted from all 
-//  soil cells. Recalculate uptk of this soil cell as cumulative upth2o.
+                    
+                    // Compute sumep as the sum of the actual amount of water extracted from all soil cells. Recalculate uptk of this soil cell as cumulative upth2o.
                     sumep += upth2o;
                     uptk[l][k] += upth2o;
-                } // end of loops l & k, and if upf
-//     If difupt is greater than zero, redefine the variable Transp as difuptfor use in next loop.
+                }
+        
+        // If difupt is greater than zero, redefine the variable Transp as difuptfor use in next loop.
         if (difupt > 0)
             Transp = difupt;
-    } while (difupt > 0);    // end of do; repeat if difupt greater than 0.
-//  recompute SoilPsi for all soil cells with roots by calling function PSIQ, 
+    } while (difupt > 0);
+    
+    // recompute SoilPsi for all soil cells with roots by calling function PSIQ, 
     for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++) {
         int j = SoilHorizonNum[l];
         for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
             SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
                             - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
     } // end l & k loops
-//      compute ActualTranspiration as actual water transpired, in mm.
+
+    // compute ActualTranspiration as actual water transpired, in mm.
     ActualTranspiration = sumep * 10 / sim.row_space;
-//      Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
+    
+    // Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
     SupplyNH4N = 0;
     SupplyNO3N = 0;
-//     Compute the proportional N requirement from each soil cell with roots, 
-//  and call function NitrogenUptake() to compute nitrogen uptake.
-    if (sumep > 0 && TotalRequiredN > 0) {
+    
+    // Compute the proportional N requirement from each soil cell with roots, and call function NitrogenUptake() to compute nitrogen uptake.
+    if (sumep > 0 && state.total_required_nitrogen > 0) {
         for (int l = 0; l < sim.states[u].number_of_layers_with_root; l++)
             for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++) {
                 if (uptk[l][k] > 0) {
                     double reqnc; // proportional allocation of TotalRequiredN to each cell
-                    reqnc = TotalRequiredN * uptk[l][k] / sumep;
+                    reqnc = state.total_required_nitrogen * uptk[l][k] / sumep;
                     NitrogenUptake(sim, l, k, reqnc);
                 } // end if uptk
             } // end loop k & l

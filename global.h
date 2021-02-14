@@ -81,7 +81,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     SeedNConc, SeedNitrogen, SoilNitrogenAtStart, SoilNitrogenLoss, SquareNConc,
     SquareNitrogen, StemNConc, StemNitrogen, SumNO3N90, SupplyNH4N, SupplyNO3N,
     TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafArea,
-    TotalLeafWeight, TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSoilNh4N,
+    TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalSoilNh4N,
     TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight, TotalStemWeight;
 
 extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9],

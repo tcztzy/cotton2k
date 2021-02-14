@@ -31,7 +31,7 @@ void PlantNitrogenContent(State &);
 
 void GetNitrogenStress();
 
-void NitrogenUptakeRequirement(double);
+void NitrogenUptakeRequirement(State &);
 
 //  File scope variables
 double burres; // reserve N in burrs, in g per plant.
@@ -117,7 +117,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
     PlantNitrogenContent(state);   // computes the concentrations of N in plant dry matter.
     GetNitrogenStress();           //  computes nitrogen stress factors.
-    NitrogenUptakeRequirement(state.petiole_nitrogen_concentration);   // computes N requirements for uptake
+    NitrogenUptakeRequirement(state);   // computes N requirements for uptake
 }
 
 //////////////////////////
@@ -567,7 +567,7 @@ void GetNitrogenStress()
 }
 
 //////////////////////////
-void NitrogenUptakeRequirement(double PetioleNConc)
+void NitrogenUptakeRequirement(State &state)
 //     This function computes TotalRequiredN, the nitrogen requirements of the plant -
 //  to be used for simulating the N uptake from the soil (in function NitrogenUptake() )
 //  in the next day. It is called from PlantNitrogen().
@@ -590,14 +590,14 @@ void NitrogenUptakeRequirement(double PetioleNConc)
     const double vnreqbur = .012;  //  coefficient for computing N uptake requirements of burrs
     const int voldstm = 32;        // active stem tissue growth period, calendar days.
                                    //
-    TotalRequiredN = reqtot;
+    state.total_required_nitrogen = reqtot;
     //     After the requirements of today's growth are supplied, N is also
     //  required for supplying necessary functions in other active plant tissues.
     //    Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
     if (LeafNConc < vnreqlef)
-        TotalRequiredN += TotalLeafWeight * (vnreqlef - LeafNConc);
-    if (PetioleNConc < vnreqpet)
-        TotalRequiredN += TotalPetioleWeight * (vnreqpet - PetioleNConc);
+        state.total_required_nitrogen += TotalLeafWeight * (vnreqlef - LeafNConc);
+    if (state.petiole_nitrogen_concentration < vnreqpet)
+        state.total_required_nitrogen += TotalPetioleWeight * (vnreqpet - state.petiole_nitrogen_concentration);
     //    The active stem tissue is the stem formed during the last voldstm
     //  days (32 calendar days). add stem requirement to TotalRequiredN.
     double grstmwt; // weight of actively growing stems.
@@ -608,15 +608,15 @@ void NitrogenUptakeRequirement(double PetioleNConc)
     else
         grstmwt = TotalStemWeight - StemWeight[kkday];
     if (StemNConc < vnreqstm)
-        TotalRequiredN += grstmwt * (vnreqstm - StemNConc);
+        state.total_required_nitrogen += grstmwt * (vnreqstm - StemNConc);
     //     Compute nitrogen uptake requirement for existing tissues of roots,
     //  squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
     if (RootNConc < vnreqrt)
-        TotalRequiredN += TotalRootWeight * (vnreqrt - RootNConc);
+        state.total_required_nitrogen += TotalRootWeight * (vnreqrt - RootNConc);
     if (SquareNConc < vnreqsqr)
-        TotalRequiredN += TotalSquareWeight * (vnreqsqr - SquareNConc);
+        state.total_required_nitrogen += TotalSquareWeight * (vnreqsqr - SquareNConc);
     if (SeedNConc < seedcn1)
-        TotalRequiredN += CottonWeightGreenBolls * seedratio * (seedcn1 - SeedNConc);
+        state.total_required_nitrogen += CottonWeightGreenBolls * seedratio * (seedcn1 - SeedNConc);
     if (BurrNConc < vnreqbur)
-        TotalRequiredN += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
+        state.total_required_nitrogen += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
 }

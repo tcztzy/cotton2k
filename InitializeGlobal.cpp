@@ -81,7 +81,6 @@ void InitializeGlobal()
     TotalLeafArea = 0;
     TotalLeafWeight = 0.20;
     TotalPetioleWeight = 0;
-    TotalRequiredN = 0;
     TotalSquareWeight = 0;
     TotalStemWeight = 0.2;
 

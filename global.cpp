@@ -207,7 +207,6 @@ double
     TotalLeafArea,                    // total leaf area, dm2 per plant.
     TotalLeafWeight,                  // total leaf weight, g per plant.
     TotalPetioleWeight,               // total petiole weight, g per plant.
-    TotalRequiredN,                   // total nitrogen required for plant growth, g per plant.
     TotalRootWeight,                  // total dry weight of the roots, g per plant.
     TotalSoilNh4N,                    // total ammonium in profile, mg N per slab.
     TotalSoilNitrogen,                // total soil nitrogen, mg N per slab.
