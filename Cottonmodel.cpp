@@ -221,6 +221,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.plant_height = 4.0;
                 state0.abscised_fruit_sites = 0;
                 state0.abscised_leaf_weight = 0;
+                state0.cumulative_nitrogen_loss = 0;
                 state0.water_stress = 1;
                 state0.carbon_stress = 1;
                 state0.number_of_vegetative_branches = 1;
@@ -256,8 +257,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
 //     SoilNitrogen(), SoilSum(), PhysiologicalAge(), Defoliate(), Stress(),
 //     GetNetPhotosynthesis(), PlantGrowth(), CottonPhenology(), PlantNitrogen(),
-//     CheckDryMatterBal(), PlantNitrogenBal(), SoilNitrogenBal(), SoilNitrogenAverage(),
-//     DailyOutput();
+//     CheckDryMatterBal(), DailyOutput();
 //
 //     The following global variables are referenced here:
 //  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex.
@@ -296,12 +296,6 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
         CheckDryMatterBal(sim.profile_name, sim.states[u].date, sim.states[u].abscised_leaf_weight); // checks plant dry matter balance.
                                                                                                      //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
                                                                                                      //  nitrogen averages by layer, and write this information to files.
-        if (OutIndex[20] > 0)
-        {
-            PlantNitrogenBal(sim.profile_name);    // checks plant nitrogen balance.
-            SoilNitrogenBal(sim.profile_name);     // checks soil nitrogen balance.
-            SoilNitrogenAverage(sim.profile_name); // computes average soil nitrogen by layers.
-        }
     }
     //     Call DailyOutput for reporting some simulation data for this day.
     DailyOutput(sim, u);

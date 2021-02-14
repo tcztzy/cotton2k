@@ -12,9 +12,9 @@
 
 double SiteAbscissionRatio(State &, int, int, int, int);
 
-void SquareAbscission(FruitingSite &, int, int, int, double);
+void SquareAbscission(State &, FruitingSite &, double);
 
-void BollAbscission(FruitingSite &, int, int, int, double, double);
+void BollAbscission(State &, FruitingSite &, double, double);
 
 extern "C"
 {
@@ -97,9 +97,9 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                             abscissionRatio = SiteAbscissionRatio(state, k, l, m, lt);
                             if (abscissionRatio > 0) {
                                 if (site.stage == Stage::Square)
-                                    SquareAbscission(site, k, l, m, abscissionRatio);
+                                    SquareAbscission(state, site, abscissionRatio);
                                 else
-                                    BollAbscission(site, k, l, m, abscissionRatio, gin1);
+                                    BollAbscission(state, site, abscissionRatio, gin1);
                             }
                         }
                     }
@@ -196,7 +196,7 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
 }
 
 //////////////////////////////////////////////////////////////////
-void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscissionRatio)
+void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 //     This function simulates the abscission of a single square
 //  at site (k, l, m). It is called from function FruitingSitesAbscission() 
 //  if this site is a square. 
@@ -217,7 +217,7 @@ void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscission
 //  TotalSquareWeight, and FruitFraction[k][l][m]. 
     double wtlos = site.square.weight * abscissionRatio; // weight lost by shedding at this site.
     SquareNitrogen -= wtlos * SquareNConc;
-    CumPlantNLoss += wtlos * SquareNConc;
+    state.cumulative_nitrogen_loss += wtlos * SquareNConc;
     site.square.weight -= wtlos;
     BloomWeightLoss += wtlos;
     TotalSquareWeight -= wtlos;
@@ -228,7 +228,7 @@ void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscission
     if (site.fraction <= 0.001) {
         site.fraction = 0;
         SquareNitrogen -= site.square.weight * SquareNConc;
-        CumPlantNLoss += site.square.weight * SquareNConc;
+        state.cumulative_nitrogen_loss += site.square.weight * SquareNConc;
         BloomWeightLoss += site.square.weight;
         TotalSquareWeight -= site.square.weight;
         site.square.weight = 0;
@@ -237,7 +237,7 @@ void SquareAbscission(FruitingSite &site, int k, int l, int m, double abscission
 }
 
 ////////////////////////
-void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRatio, double gin1)
+void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, double gin1)
 //     This function simulates the abscission of a single green boll
 //  at site (k, l, m). It is called from function FruitingSitesAbscission() if this site
 //  is a green boll. 
@@ -259,8 +259,8 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and FruitFraction[k][l][m].
     SeedNitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * SeedNConc;
     BurrNitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
-    CumPlantNLoss += site.boll.weight * abscissionRatio * (1. - gin1) * SeedNConc;
-    CumPlantNLoss += site.burr.weight * abscissionRatio * BurrNConc;
+    state.cumulative_nitrogen_loss += site.boll.weight * abscissionRatio * (1. - gin1) * SeedNConc;
+    state.cumulative_nitrogen_loss += site.burr.weight * abscissionRatio * BurrNConc;
     GreenBollsLost += (site.boll.weight + site.burr.weight) * abscissionRatio;
     CottonWeightGreenBolls -= site.boll.weight * abscissionRatio;
     BurrWeightGreenBolls -= site.burr.weight * abscissionRatio;
@@ -276,8 +276,8 @@ void BollAbscission(FruitingSite &site, int k, int l, int m, double abscissionRa
         site.stage = Stage::AbscisedAsBoll;
         SeedNitrogen -= site.boll.weight * (1 - gin1) * SeedNConc;
         BurrNitrogen -= site.burr.weight * BurrNConc;
-        CumPlantNLoss += site.boll.weight * (1 - gin1) * SeedNConc;
-        CumPlantNLoss += site.burr.weight * BurrNConc;
+        state.cumulative_nitrogen_loss += site.boll.weight * (1 - gin1) * SeedNConc;
+        state.cumulative_nitrogen_loss += site.burr.weight * BurrNConc;
         site.fraction = 0;
         CottonWeightGreenBolls -= site.boll.weight;
         BurrWeightGreenBolls -= site.burr.weight;

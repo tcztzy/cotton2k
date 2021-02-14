@@ -10,7 +10,6 @@
 // PlantNitrogenContent()
 // GetNitrogenStress()
 // NitrogenUptakeRequirement()
-// PlantNitrogenBal()
 //
 #include <fstream>
 #include "global.h"
@@ -691,43 +690,4 @@ void NitrogenUptakeRequirement()
         TotalRequiredN += CottonWeightGreenBolls * seedratio * (seedcn1 - SeedNConc);
     if (BurrNConc < vnreqbur)
         TotalRequiredN += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void PlantNitrogenBal(const string &ProfileName)
-//     This function calculates the nitrogen balance in the cotton
-//  plant, for diagnostic purposes. It is called from SimulateThisDay().
-//     Units are g per plant.
-//
-//     The following global variables are referenced here:
-//       BurrNitrogen, CumPlantNLoss, Kday, LeafNitrogen, PetioleNitrogen, RootNitrogen, 
-//       SeedNitrogen, SquareNitrogen, StemNitrogen, SupplyNH4N, SupplyNO3N.
-//
-{
-//     addn is the cumulative supply of nitrogen from the soil,
-//  including N content of the seedling at emergence.
-    static double addn;
-    if (Kday == 1)
-        addn = RootNitrogen + StemNitrogen + LeafNitrogen;
-    addn += SupplyNO3N + SupplyNH4N;
-    double plantn; // total nitrogen in plant.
-    plantn = RootNitrogen + StemNitrogen + LeafNitrogen + PetioleNitrogen + SeedNitrogen
-             + BurrNitrogen + SquareNitrogen;
-// CumPlantNLoss is the amount lost in abscised fruit and leaves and dead roots.
-    double balpn; // the plant nitrogen balance, which should be zero.
-    balpn = addn - plantn - CumPlantNLoss;
-//
-    ofstream File47(fs::path("output") / (ProfileName + ".NB1"), ios::app);
-    File47.width(4);
-    File47 << Kday;
-    File47.setf(ios::fixed);
-    File47.precision(4);
-    File47.width(63);
-    File47 << balpn;
-    File47.width(9);
-    File47 << addn;
-    File47.width(9);
-    File47 << plantn;
-    File47.width(9);
-    File47 << CumPlantNLoss << endl;
 }

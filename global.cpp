@@ -109,7 +109,6 @@ double
     CumFertilizerN,               // cumulative amount of inorganic nitrogen applied in fertilizer, mg N per slab.
     CumNetPhotosynth,             // cumulative sum of photosynthate produced to date, g per plant.
     CumNitrogenUptake,            // cumulative total uptake of nitrogen by plants, mg N per slab.
-    CumPlantNLoss,                // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.
     CumTranspiration,             // cumulative transpiration, mm.
     CumWaterAdded,                // cumulative water added to the slab by rainfall or irrigation, mm.
     CumWaterDrained;              // cumulative water drained out from the slab, mm.

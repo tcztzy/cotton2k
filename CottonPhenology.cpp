@@ -31,7 +31,7 @@ void AddFruitingNode(State &, int, int, double, double);
 
 void SimulateFruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
 
-void NewBollFormation(FruitingSite &, int, int, int);
+void NewBollFormation(State &, FruitingSite &);
 
 void BollOpening(Simulation &, uint32_t, int, int, int, double);
 
@@ -289,7 +289,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     double cotylwt = 0.20; // cotylwt is the leaf weight of the cotyledons.
     state.abscised_leaf_weight += cotylwt;
     TotalLeafWeight -= cotylwt;
-    CumPlantNLoss += cotylwt * LeafNitrogen / TotalLeafWeight;
+    state.cumulative_nitrogen_loss += cotylwt * LeafNitrogen / TotalLeafWeight;
     LeafNitrogen -= cotylwt * LeafNitrogen / TotalLeafWeight;
 }
 
@@ -574,7 +574,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
             boltmp[k][l][m] = AvrgDailyTemp;
             site.boll.age = state.day_inc;
             site.stage = Stage::YoungGreenBoll;
-            NewBollFormation(site, k, l, m);
+            NewBollFormation(state, state.site[k][l][m]);
             //     If this is the first flower, define FirstBloom.
             if (CottonWeightGreenBolls > 0 && sim.first_bloom <= 1)
                 sim.first_bloom = sim.day_start + u;
@@ -618,7 +618,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 }
 
 /////////////////////////
-void NewBollFormation(FruitingSite &site, int k, int l, int m)
+void NewBollFormation(State &state, FruitingSite &site)
 //     Function NewBollFormation() simulates the formation of a new boll at a
 //   fruiting site. It is called from function SimulateFruitingSite().
 //
@@ -660,7 +660,7 @@ void NewBollFormation(FruitingSite &site, int k, int l, int m)
     double sqr1n; // the nitrogen content of one square before flowering.
     sqr1n = SquareNConc * site.square.weight;
     SquareNitrogen -= sqr1n;
-    CumPlantNLoss += sqr1n * (1 - vnewboll[0]);
+    state.cumulative_nitrogen_loss += sqr1n * (1 - vnewboll[0]);
     sqr1n = sqr1n * vnewboll[0];
     //
     double seed1n; // the nitrogen content of seeds in a new boll on flowering.

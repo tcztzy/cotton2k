@@ -45,6 +45,7 @@ typedef struct State
     unsigned int number_of_layers_with_root; //
     double abscised_fruit_sites;             // total number of abscised fruit sites, per plant.
     double abscised_leaf_weight;             // weight of abscissed leaves, g per plant.
+    double cumulative_nitrogen_loss;         // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.
     double water_stress;                     // general water stress index (0 to 1).
     double carbon_stress;                    // carbohydrate stress factor.
     double day_length;                       // day length, in hours
