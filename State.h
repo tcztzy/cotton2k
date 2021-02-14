@@ -66,6 +66,7 @@ typedef struct State
     double leaf_nitrogen_concentration;         // average nitrogen concentration in leaves.
     double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
     double seed_nitrogen_concentration;         // average nitrogen concentration in seeds.
+    double root_nitrogen_concentration;         // average nitrogen concentration in roots.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];

@@ -60,7 +60,6 @@ void InitializeGlobal()
     PotGroStem = 0;
 
     ReserveC = 0.06;
-    RootNConc = 0.026;
     RootNitrogen = 0.0052;
     RootWeightLoss = 0;
 

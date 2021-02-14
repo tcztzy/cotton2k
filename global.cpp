@@ -172,7 +172,6 @@ double
     rlat2[maxl],                      // lateral root length (cm) to the right of the tap root
     RootGroFactor[maxl][maxk],        // root growth correction factor in a soil cell (0 to 1).
     RootImpede[maxl][maxk],           // root mechanical impedance for a soil cell, kg cm-2.
-    RootNConc,                        // average nitrogen concentration in roots.
     RootNitrogen,                     // total root nitrogen, g per plant.
     RootWeightLoss,                   // total cumulative weight of sloughed roots, g per plant.
     SandVolumeFraction[maxl],         // fraction by volume of sand plus silt in the soil.

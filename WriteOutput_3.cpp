@@ -207,7 +207,7 @@ void outputplt(Simulation &sim)
         File25.width(7);
         File25 << Scratch21[irec].petioleNO3NConc;
         File25.width(7);
-        File25 << Scratch21[irec].rootNConc;
+        File25 << state.root_nitrogen_concentration;
         File25.width(7);
         File25 << Scratch21[irec].stemNConc;
         File25.width(7);

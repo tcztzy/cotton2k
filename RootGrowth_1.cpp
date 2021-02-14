@@ -417,8 +417,8 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
     RootWeightLoss += DailyRootLoss;
     // Adjust RootNitrogen (root N content) for loss by death of roots.
-    RootNitrogen -= DailyRootLoss * RootNConc;
-    state.cumulative_nitrogen_loss += DailyRootLoss * RootNConc;
+    RootNitrogen -= DailyRootLoss * state.root_nitrogen_concentration;
+    state.cumulative_nitrogen_loss += DailyRootLoss * state.root_nitrogen_concentration;
     // Call function RootSummation().
     RootSummation(sim, u, NumRootAgeGroups);
 }

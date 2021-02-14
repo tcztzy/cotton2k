@@ -500,7 +500,7 @@ void PlantNitrogenContent(State &state)
     if (TotalStemWeight > 0)
         StemNConc = StemNitrogen / TotalStemWeight;
     if (TotalRootWeight > 0)
-        RootNConc = RootNitrogen / TotalRootWeight;
+        state.root_nitrogen_concentration = RootNitrogen / TotalRootWeight;
     if (TotalSquareWeight > 0)
         SquareNConc = SquareNitrogen / TotalSquareWeight;
     double xxseed; // weight of seeds in green and mature bolls.
@@ -611,8 +611,8 @@ void NitrogenUptakeRequirement(State &state)
         state.total_required_nitrogen += grstmwt * (vnreqstm - StemNConc);
     //     Compute nitrogen uptake requirement for existing tissues of roots,
     //  squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
-    if (RootNConc < vnreqrt)
-        state.total_required_nitrogen += TotalRootWeight * (vnreqrt - RootNConc);
+    if (state.root_nitrogen_concentration < vnreqrt)
+        state.total_required_nitrogen += TotalRootWeight * (vnreqrt - state.root_nitrogen_concentration);
     if (SquareNConc < vnreqsqr)
         state.total_required_nitrogen += TotalSquareWeight * (vnreqsqr - SquareNConc);
     if (state.seed_nitrogen_concentration < seedcn1)
