@@ -65,6 +65,7 @@ typedef struct State
     double total_required_nitrogen;             // total nitrogen required for plant growth, g per plant.
     double leaf_nitrogen_concentration;         // average nitrogen concentration in leaves.
     double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
+    double seed_nitrogen_concentration;         // average nitrogen concentration in seeds.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];

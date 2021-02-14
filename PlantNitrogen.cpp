@@ -506,7 +506,7 @@ void PlantNitrogenContent(State &state)
     double xxseed; // weight of seeds in green and mature bolls.
     xxseed = CottonWeightOpenBolls * (1 - Gintot) + CottonWeightGreenBolls * seedratio;
     if (xxseed > 0)
-        SeedNConc = SeedNitrogen / xxseed;
+        state.seed_nitrogen_concentration = SeedNitrogen / xxseed;
     double xxbur; // weight of burrs in green and mature bolls.
     xxbur = BurrWeightOpenBolls + BurrWeightGreenBolls;
     if (xxbur > 0)
@@ -615,8 +615,8 @@ void NitrogenUptakeRequirement(State &state)
         state.total_required_nitrogen += TotalRootWeight * (vnreqrt - RootNConc);
     if (SquareNConc < vnreqsqr)
         state.total_required_nitrogen += TotalSquareWeight * (vnreqsqr - SquareNConc);
-    if (SeedNConc < seedcn1)
-        state.total_required_nitrogen += CottonWeightGreenBolls * seedratio * (seedcn1 - SeedNConc);
+    if (state.seed_nitrogen_concentration < seedcn1)
+        state.total_required_nitrogen += CottonWeightGreenBolls * seedratio * (seedcn1 - state.seed_nitrogen_concentration);
     if (BurrNConc < vnreqbur)
         state.total_required_nitrogen += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
 }

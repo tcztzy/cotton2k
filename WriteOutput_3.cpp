@@ -213,7 +213,7 @@ void outputplt(Simulation &sim)
         File25.width(7);
         File25 << Scratch21[irec].burrNConc;
         File25.width(7);
-        File25 << Scratch21[irec].seedNConc;
+        File25 << state.seed_nitrogen_concentration;
         File25 << endl;
     }
 }
