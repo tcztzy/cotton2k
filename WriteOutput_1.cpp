@@ -360,7 +360,7 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
             File46.precision(1);
         File46 << state.number_of_fruiting_sites * conversion;
         File46.width(8);
-        File46 << NumSquares * conversion;
+        File46 << state.number_of_squares * conversion;
         File46.width(7);
         File46 << NumGreenBolls * conversion;
         File46.width(7);
@@ -402,7 +402,7 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
                 File22.precision(1);
             else
                 File22.precision(0);
-            File22 << NumSquares * conversion;
+            File22 << state.number_of_squares * conversion;
             File22.width(6);
             File22 << NumGreenBolls * conversion;
             File22.width(6);
@@ -453,7 +453,7 @@ void DataOutput(Simulation & sim)
         LeafAreaIndex = Scratch21[irec].leafAreaIndex;
         MainStemNodes = Scratch21[irec].mainStemNodes;
         i02 = Scratch21[irec].numOpenBolls;
-        i00 = Scratch21[irec].numSquares;
+        i00 = sim.states[irec].number_of_squares;
         LintYield = Scratch21[irec].lintYield;
         plant_height = sim.states[irec].plant_height;
 //     Convert height and LintYield to English units if necessary.

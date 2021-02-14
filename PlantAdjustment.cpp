@@ -54,7 +54,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].nStressVeg = NStressVeg;
     Scratch21[u].numGreenBolls = NumGreenBolls;
     Scratch21[u].numOpenBolls = NumOpenBolls;
-    Scratch21[u].numSquares = NumSquares;
     Scratch21[u].petioleNConc = PetioleNConc;
     Scratch21[u].petioleNO3NConc = PetioleNO3NConc;
     Scratch21[u].plantWeight = PlantWeight;

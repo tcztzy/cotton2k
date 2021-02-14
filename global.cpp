@@ -177,9 +177,7 @@ double
     NStressVeg,            // nitrogen stress limiting vegetative development.
     NumGreenBolls,         // average number of retained green bolls, per plant.
     NumOpenBolls,          // number of open bolls, per plant.
-    NumSquares;            // number of squares per plant.
 // P
-double
     PercentDefoliation,                 // percentage of leaves abscised as a result of defoliant application.
     PerPlantArea,                       // average soil surface area per plant, dm2.
     PetioleNConc,                       // average nitrogen concentration in petioles.

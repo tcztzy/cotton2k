@@ -90,7 +90,7 @@ void outputplt(Simulation &sim)
             File25.precision(2);
         File25 << Scratch21[irec].leafAreaIndex;
         File25.width(7);     // 4F7.2 or 4F7.1
-        File25 << multi0 * Scratch21[irec].numSquares;
+        File25 << multi0 * sim.states[irec].number_of_squares;
         File25.width(7);
         File25 << multi0 * Scratch21[irec].numGreenBolls;
         File25.width(7);
