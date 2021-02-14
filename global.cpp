@@ -175,7 +175,6 @@ double
     NStressFruiting,       // nitrogen stress limiting fruit development.
     NStressRoots,          // nitrogen stress limiting root development.
     NStressVeg,            // nitrogen stress limiting vegetative development.
-    NumGreenBolls,         // average number of retained green bolls, per plant.
     NumOpenBolls,          // number of open bolls, per plant.
 // P
     PercentDefoliation,                 // percentage of leaves abscised as a result of defoliant application.

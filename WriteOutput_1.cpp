@@ -362,7 +362,7 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
         File46.width(8);
         File46 << state.number_of_squares * conversion;
         File46.width(7);
-        File46 << NumGreenBolls * conversion;
+        File46 << state.number_of_green_bolls * conversion;
         File46.width(7);
         File46 << NumOpenBolls * conversion;
         File46.width(7);
@@ -404,7 +404,7 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
                 File22.precision(0);
             File22 << state.number_of_squares * conversion;
             File22.width(6);
-            File22 << NumGreenBolls * conversion;
+            File22 << state.number_of_green_bolls * conversion;
             File22.width(6);
             File22 << NumOpenBolls * conversion;
             File22.width(7);
@@ -448,7 +448,7 @@ void DataOutput(Simulation & sim)
     double plant_height;
     for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         Date = sim.states[irec].date;
-        i01 = Scratch21[irec].numGreenBolls;
+        i01 = sim.states[irec].number_of_green_bolls;
         Kday = Scratch21[irec].kday;
         LeafAreaIndex = Scratch21[irec].leafAreaIndex;
         MainStemNodes = Scratch21[irec].mainStemNodes;

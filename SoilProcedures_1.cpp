@@ -21,7 +21,7 @@ void ApplyFertilizer(Simulation &, unsigned int);
 
 void ComputeIrrigation(Simulation &, uint32_t);
 
-double GetTargetStress(const int &, const int &, const int &);
+double GetTargetStress(const int &, const int &, const int &, double);
 
 void PredictDripIrrigation(Simulation &, uint32_t, double, const double &);
 
@@ -330,7 +330,7 @@ void ComputeIrrigation(Simulation &sim, uint32_t u)
 //       AppliedWater, IrrigMethod.
 //     The following global variable is set here:       LastIrrigation. 
 {
-    double TargetStress = GetTargetStress(sim.day_start + u, sim.first_bloom, sim.first_square);
+    double TargetStress = GetTargetStress(sim.day_start + u, sim.first_bloom, sim.first_square, sim.states[u].number_of_green_bolls);
     if (TargetStress == -9999)
         return;
 //
@@ -347,7 +347,7 @@ void ComputeIrrigation(Simulation &sim, uint32_t u)
 }
 
 ///////////////////////////////////////////////////////////////////////
-double GetTargetStress(const int &Daynum, const int &FirstBloom, const int &FirstSquare)
+double GetTargetStress(const int &Daynum, const int &FirstBloom, const int &FirstSquare, double NumGreenBolls)
 //     This function computes and returns the target water stress factor.
 //     A target water stress factor is defined for each growth stage.
 //  The following growth stages are used: before first square; before

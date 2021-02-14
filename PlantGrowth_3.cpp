@@ -472,6 +472,7 @@ void Defoliate(Simulation &sim, uint32_t u)
 //       DayFirstDef, DefoliantAppRate, DefoliationDate, DefoliationMethod, PercentDefoliation.
 //
 {
+    State &state = sim.states[u];
     //        constant parameters:
     const double p1 = -50.0;
     const double p2 = 0.525;
@@ -498,7 +499,7 @@ void Defoliate(Simulation &sim, uint32_t u)
         if (NumOpenBolls > 0 && DefoliantAppRate[i] <= -99.9)
         {
             int OpenRatio; // percentage of open bolls in total boll number
-            OpenRatio = (int)(100 * NumOpenBolls / (NumOpenBolls + NumGreenBolls));
+            OpenRatio = (int)(100 * NumOpenBolls / (NumOpenBolls + state.number_of_green_bolls));
             if (i == 0 && idsw == 0)
             {
                 //     If this is first defoliation - check the percentage of boll opening.
