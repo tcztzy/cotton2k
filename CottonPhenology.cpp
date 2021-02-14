@@ -19,7 +19,10 @@
 
 void PreFruitingNode(double, const double &);
 
-double DaysToFirstSquare(const int &, const int &, const double &);
+extern "C"
+{
+    double DaysToFirstSquare(int, int, double, double, double, double);
+}
 
 void CreateFirstSquare(State &, double);
 
@@ -103,7 +106,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
                                   //  formation of prefruiting nodes.
     if (sim.first_square <= 0)
     {
-        DaysTo1stSqare = DaysToFirstSquare(sim.day_start + u, sim.day_emerge, state.water_stress);
+        DaysTo1stSqare = DaysToFirstSquare(sim.day_start + u, sim.day_emerge, AvrgDailyTemp, state.water_stress, NStressVeg, VarPar[30]);
         PreFruitingNode(stemNRatio, state.day_inc);
         //      When first square is formed, FirstSquare is assigned the day of year.
         //  Function CreateFirstSquare() is called for formation of first square.
@@ -208,48 +211,6 @@ void PreFruitingNode(double stemNRatio, const double &DayInc)
         LeafNitrogen += LeafWeightPreFru[NumPreFruNodes - 1] * stemNRatio;
         StemNitrogen -= LeafWeightPreFru[NumPreFruNodes - 1] * stemNRatio;
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-double DaysToFirstSquare(const int &Daynum, const int &DayEmerge, const double &WaterStress)
-//     This function computes and returns tsq1, the number of days from emergence to first
-//  square. It is called from CottonPhenology().
-//     The following global variables are referenced here:
-//        AvrgDailyTemp, Kday, NStressVeg, VarPar, WaterStress.
-//
-{
-    //     The following constant parameters are used:
-    double p1 = 34;
-    double p2 = 132.2;
-    double p3 = -7;
-    double p4 = 0.125;
-    double p5 = 0.08;
-    double p6 = 0.30;
-    //     On day of emergence assign initial values to some local variables.
-    static double avtemp;  // average temperature from day of emergence.
-    static double sumstrs; // cumulative effect of water and N stresses on date of first square.
-    if (Daynum <= DayEmerge)
-    {
-        avtemp = AvrgDailyTemp;
-        sumstrs = 0;
-    }
-    //      Compute the average temperature from the day of emergence to
-    //  now. Compute the number of days from emergence to first
-    //  square, as a function of this average temperature. This
-    //  relationships is derived from data of K. R. Reddy et al.
-    //  (unpublished), CSRU, for Delta cultivars.
-    avtemp = ((Kday - 1) * avtemp + AvrgDailyTemp) / Kday;
-    if (avtemp > p1)
-        avtemp = p1;
-    double tsq1 = p2 + avtemp * (p3 + avtemp * p4);
-    tsq1 = tsq1 * VarPar[30];
-    //      The cumulative effect of water stress and vegetative N stress
-    //  is computed. This effect is substacted from TSQ, assuming that the
-    //  first square appears earlier under water or N stressed conditions.
-    sumstrs += p5 * (1 - WaterStress) + p6 * (1 - NStressVeg);
-    tsq1 -= sumstrs;
-    //
-    return tsq1;
 }
 
 //////////////////////////////////////////////////////////////////////////////

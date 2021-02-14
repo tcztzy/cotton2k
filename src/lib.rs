@@ -10,6 +10,7 @@ mod climate;
 mod fruit;
 mod io;
 mod leaf;
+mod phenology;
 mod physiology;
 mod abscission;
 mod root;
