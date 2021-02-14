@@ -105,20 +105,6 @@ void DayClim(Simulation &sim, uint32_t u)
         sim.climate[u].Rain = rainToday;
     }
     state.runoff = runoffToday;
-    //     Set period for detailed output of weather variables, if requested.
-    static int j1 = 0;
-    static int j2 = 0;
-    if (OutIndex[15] > 0 && u <= 0)
-    {
-        // NOTE: Used to dialog input DayStart DayFinish
-        j1 = sim.day_start;
-        j2 = sim.day_finish;
-    }
-    int jtout; // jtout > 0 if output is required
-    if (OutIndex[15] > 0 && sim.day_start + u >= j1 && sim.day_start + u <= j2)
-        jtout = OutIndex[15];
-    else
-        jtout = 0;
     //     Parameters for the daily wind function are now computed:
     //     Note:  SitePar[] are site specific parameters.
     double t1 = sunr + SitePar[1];             // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
