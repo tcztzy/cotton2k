@@ -67,7 +67,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].totalSquareWeight = TotalSquareWeight;
     Scratch21[u].totalSoilWater = TotalSoilWater;
     Scratch21[u].totalStemWeight = TotalStemWeight;
-    Scratch21[u].waterStressStem = WaterStressStem;
 //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {

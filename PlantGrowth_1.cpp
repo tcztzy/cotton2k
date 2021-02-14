@@ -46,6 +46,7 @@ void Stress(Simulation &sim, unsigned int u)
 //        AverageLwp, AverageLwpMin, LwpMinX, LwpX, ptsred, WaterStress, WaterStressStem.
 //
 {
+    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double vstrs[9] = {-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05};
     //     Call LeafWaterPotential() to compute leaf water potentials.
@@ -65,7 +66,7 @@ void Stress(Simulation &sim, unsigned int u)
     if (Kday < 5)
     {
         ptsred = 1;
-        WaterStressStem = 1;
+        state.water_stress_stem = 1;
         return;
     }
     //     The computation of ptsred, the effect of moisture stress on
@@ -98,10 +99,10 @@ void Stress(Simulation &sim, unsigned int u)
     }
     //     Water stress affecting plant height and stem growth (WaterStressStem) is assumed
     //  to be more severe than WaterStress, especially at low WaterStress values.
-    WaterStressStem = WaterStress * (1 + vstrs[7] * (2 - WaterStress)) - vstrs[7];
-    if (WaterStressStem < vstrs[8])
-        WaterStressStem = vstrs[8];
-    sim.states[u].water_stress = WaterStress;
+    state.water_stress_stem = WaterStress * (1 + vstrs[7] * (2 - WaterStress)) - vstrs[7];
+    if (state.water_stress_stem < vstrs[8])
+        state.water_stress_stem = vstrs[8];
+    state.water_stress = WaterStress;
 }
 
 //////////////////////////
@@ -385,7 +386,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
                                                           //     Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
                                                           //  The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
                                                           //  Stem growth is also affected by water stress (WaterStressStem). PotGroStem is limited by (maxstmgr * PerPlantArea) g per plant per day.
-    PotGroStem = PotentialStemGrowth(stemnew, Kday, state.site[0][2][0].stage, DensityFactor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * sim.states[u].day_inc * WaterStressStem;
+    PotGroStem = PotentialStemGrowth(stemnew, Kday, state.site[0][2][0].stage, DensityFactor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * state.day_inc * state.water_stress_stem;
     double maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
     if (PotGroStem > maxstmgr * PerPlantArea)
         PotGroStem = maxstmgr * PerPlantArea;
@@ -454,7 +455,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
         l2 = 0;
     double agetop; // average physiological age of top three nodes.
     agetop = (state.site[0][l][0].age + state.site[0][l1][0].age + state.site[0][l2][0].age) / 3;
-    state.plant_height += AddPlantHeight(denf2, state.day_inc, NumPreFruNodes, state.site[0][1][0].stage, AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, WaterStressStem, state.carbon_stress, NStressVeg, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+    state.plant_height += AddPlantHeight(denf2, state.day_inc, NumPreFruNodes, state.site[0][1][0].stage, AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, state.water_stress_stem, state.carbon_stress, NStressVeg, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
     //     Output data to file *.CHB

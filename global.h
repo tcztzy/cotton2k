@@ -36,7 +36,7 @@ typedef struct scratch
             stemNConc, stemNitrogen, sumNO3N90, supplyNH4N, supplyNO3N,
             tapRootLength, totalLeafWeight, totalPetioleWeight, totalRequiredN,
             totalRootWeight, totalSoilNh4N, totalSoilNo3N, totalSoilUreaN,
-            totalSoilWater, totalSquareWeight, totalStemWeight, waterStressStem;
+            totalSoilWater, totalSquareWeight, totalStemWeight;
         double soilPsi[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
             volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk];
 } scratch;
@@ -85,9 +85,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     SquareNitrogen, StemNConc, StemNitrogen, SumNO3N90, SupplyNH4N, SupplyNO3N,
     TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafArea,
     TotalLeafWeight, TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSoilNh4N,
-    TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight,
-    TotalStemWeight,
-    WaterStressStem;
+    TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight, TotalStemWeight;
 
 extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9],
     alpha[9], vanGenuchtenBeta[9], BulkDensity[9],

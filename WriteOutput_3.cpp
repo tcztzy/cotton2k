@@ -254,7 +254,7 @@ void output2(Simulation &sim)
         File46.width(8);
         File46 << sim.states[irec].water_stress;
         File46.width(8);
-        File46 << Scratch21[irec].waterStressStem;
+        File46 << sim.states[irec].water_stress_stem;
         File46.width(8);
         File46 << Scratch21[irec].lwpMin;
         File46.width(8);

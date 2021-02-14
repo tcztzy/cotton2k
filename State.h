@@ -41,20 +41,21 @@ typedef struct VegetativeBranchStruct
 typedef struct State
 {
     char date[12];
-    double day_inc;                          // physiological days increment for this day. computes physiological age
-    unsigned int number_of_layers_with_root; //
-    double abscised_fruit_sites;             // total number of abscised fruit sites, per plant.
-    double abscised_leaf_weight;             // weight of abscissed leaves, g per plant.
-    double cumulative_nitrogen_loss;         // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.
-    double water_stress;                     // general water stress index (0 to 1).
-    double carbon_stress;                    // carbohydrate stress factor.
-    double extra_carbon;                     // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
-    double day_length;                       // day length, in hours
+    double day_inc;                  // physiological days increment for this day. computes physiological age
+    double abscised_fruit_sites;     // total number of abscised fruit sites, per plant.
+    double abscised_leaf_weight;     // weight of abscissed leaves, g per plant.
+    double cumulative_nitrogen_loss; // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.
+    double water_stress;             // general water stress index (0 to 1).
+    double water_stress_stem;        // water stress index for stem growth (0 to 1).
+    double carbon_stress;            // carbohydrate stress factor.
+    double extra_carbon;             // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
+    double day_length;               // day length, in hours
     double plant_height;
     double runoff;
     double solar_noon;
     double net_radiation;                       // daily total net radiation, W m-2.
     double evapotranspiration;                  // daily sum of hourly reference evapotranspiration, mm per day.
+    unsigned int number_of_layers_with_root;    //
     unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.
     unsigned int number_of_fruiting_sites;      // total number of fruiting sites per plant.
     double number_of_squares;                   // number of squares per plant.

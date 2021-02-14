@@ -88,30 +88,30 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 {
     State &state = sim.states[u];
     //     Assign zero to some variables.
-    leafrs = 0;                                                               // reserve N in leaves, in g per plant.
-    petrs = 0;                                                                // reserve N in petioles, in g per plant.
-    stemrs = 0;                                                               // reserve N in stems, in g per plant.
-    rootrs = 0;                                                               // reserve N in roots, in g per plant.
-    reqf = 0;                                                                 // nitrogen requirement for fruit growth.
-    reqtot = 0;                                                               // total nitrogen requirement for plant growth.
-    reqv = 0;                                                                 // nitrogen requirement for vegetative shoot growth.
-    rqnbur = 0;                                                               // nitrogen requirement for burr growth.
-    rqnlef = 0;                                                               // nitrogen requirement for leaf growth.
-    rqnpet = 0;                                                               // nitrogen requirement for petiole growth.
-    rqnrut = 0;                                                               // nitrogen requirement for root growth.
-    rqnsed = 0;                                                               // nitrogen requirement for seed growth.
-    rqnsqr = 0;                                                               // nitrogen requirement for square growth.
-    rqnstm = 0;                                                               // nitrogen requirement for stem growth.
-    npool = 0;                                                                // total nitrogen available for growth.
-    uptn = 0;                                                                 // nitrogen uptake from the soil, g per plant.
-    xtran = 0;                                                                // amount of nitrogen not used for growth of plant parts.
-    addnf = 0;                                                                // daily added nitrogen to fruit, g per plant.
-    addnr = 0;                                                                // daily added nitrogen to root, g per plant.
-    addnv = 0;                                                                // daily added nitrogen to vegetative shoot, g per plant.
-                                                                              //   The following subroutines are now called:
+    leafrs = 0;                                                                                           // reserve N in leaves, in g per plant.
+    petrs = 0;                                                                                            // reserve N in petioles, in g per plant.
+    stemrs = 0;                                                                                           // reserve N in stems, in g per plant.
+    rootrs = 0;                                                                                           // reserve N in roots, in g per plant.
+    reqf = 0;                                                                                             // nitrogen requirement for fruit growth.
+    reqtot = 0;                                                                                           // total nitrogen requirement for plant growth.
+    reqv = 0;                                                                                             // nitrogen requirement for vegetative shoot growth.
+    rqnbur = 0;                                                                                           // nitrogen requirement for burr growth.
+    rqnlef = 0;                                                                                           // nitrogen requirement for leaf growth.
+    rqnpet = 0;                                                                                           // nitrogen requirement for petiole growth.
+    rqnrut = 0;                                                                                           // nitrogen requirement for root growth.
+    rqnsed = 0;                                                                                           // nitrogen requirement for seed growth.
+    rqnsqr = 0;                                                                                           // nitrogen requirement for square growth.
+    rqnstm = 0;                                                                                           // nitrogen requirement for stem growth.
+    npool = 0;                                                                                            // total nitrogen available for growth.
+    uptn = 0;                                                                                             // nitrogen uptake from the soil, g per plant.
+    xtran = 0;                                                                                            // amount of nitrogen not used for growth of plant parts.
+    addnf = 0;                                                                                            // daily added nitrogen to fruit, g per plant.
+    addnr = 0;                                                                                            // daily added nitrogen to root, g per plant.
+    addnv = 0;                                                                                            // daily added nitrogen to vegetative shoot, g per plant.
+                                                                                                          //   The following subroutines are now called:
     NitrogenRequirement(sim.profile_name, sim.day_start + u, sim.day_emerge, sim.states[u].extra_carbon); //  computes the N requirements for growth.
-    NitrogenSupply(state, sim.profile_name);                                  //  computes the supply of N from uptake and reserves.
-    NitrogenAllocation();                                                     //  computes the allocation of N in the plant.
+    NitrogenSupply(state, sim.profile_name);                                                              //  computes the supply of N from uptake and reserves.
+    NitrogenAllocation();                                                                                 //  computes the allocation of N in the plant.
     if (xtran > 0)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
     PlantNitrogenContent(state);   // computes the concentrations of N in plant dry matter.
@@ -288,31 +288,32 @@ double PetioleNitrateN(State &state)
                              //     The ratio of NO3 to total N in each individual petiole is computed
                              //  as a linear function of leaf age. It is assumed that this ratio is
                              //  maximum for young leaves and is declining with leaf age.
-    int numl = 0;            // number of petioles computed.
     double spetno3 = 0;      // sum of petno3r.
     double petno3r;          // ratio of NO3 to total N in an individual petiole.
                              //     Loop of prefruiting node leaves.
     for (int j = 0; j < NumPreFruNodes; j++)
     {
-        numl++;
         petno3r = p1 - AgeOfPreFruNode[j] * p2;
         if (petno3r < p3)
             petno3r = p3;
         spetno3 += petno3r;
     }
     //     Loop of all the other leaves, with the same computations.
-    int nbrch;                                                                                                   // number of fruiting branches on a vegetative stem.
-    int nnid;                                                                                                    // number of fruiting nodes on a fruiting branch.
-    for (int k = 0; k < state.number_of_vegetative_branches; k++)                                                // loop of vegetative branches
-        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)                       // loop of fruiting branches
-            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
+    int numl = NumPreFruNodes; // number of petioles computed.
+    int nbrch;                 // number of fruiting branches on a vegetative stem.
+    int nnid;                  // number of fruiting nodes on a fruiting branch.
+    for (int k = 0; k < state.number_of_vegetative_branches; k++)
+        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
+        {
+            numl += state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes;
+            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)
             {
-                numl++;
                 petno3r = p1 - state.site[k][l][m].leaf.age * p2;
                 if (petno3r < p3)
                     petno3r = p3;
                 spetno3 += petno3r;
             }
+        }
     //     The return value of the function is the average ratio of NO3 to
     //  total N for all the petioles in the plant.
     double AvrgNO3Ratio = spetno3 / numl;

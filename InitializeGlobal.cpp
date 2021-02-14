@@ -86,7 +86,6 @@ void InitializeGlobal()
     TotalSquareWeight = 0;
     TotalStemWeight = 0.2;
 
-    WaterStressStem = 1;
     WaterTableLayer = 1000;
 //
     for (int i = 0; i < 3; i++) {
