@@ -21,7 +21,7 @@ extern "C"
     void b01(const char *, const char *);
 }
 
-void output1(const string &, const string &, const int &, const int &, const int &, const int &, const double &,
+void output1(State &, const string &, const string &, const int &, const int &, const int &, const int &, const double &,
              const double &);
 
 void WriteLine22(ofstream &, double, double, double, const double &);
@@ -300,13 +300,13 @@ void DailyOutput(Simulation &sim, uint32_t u)
 //  this day in structure Scratch21, which will be used for output at the end of the simulation.
     WriteStateVariables(sim, u);
 //     4. Call output1() to write output to F01 and S01 files:
-    output1(sim.profile_name, sim.states[u].date, sim.day_start + u, sim.day_emerge, sim.first_bloom, sim.first_square, sim.states[u].plant_height, sim.states[u].abscised_fruit_sites);
+    output1(sim.states[u], sim.profile_name, sim.states[u].date, sim.day_start + u, sim.day_emerge, sim.first_bloom, sim.first_square, sim.states[u].plant_height, sim.states[u].abscised_fruit_sites);
     if (sim.day_start + u >= sim.day_finish || LeafAreaIndex < 0.0002 || sim.day_start + u >= LastDayWeatherData)
         throw SimulationEnd();
 }
 
 //////////////////////////
-void output1(const string &ProfileName, const string &Date, const int &Daynum, const int &DayEmerge, const int &FirstBloom,
+void output1(State &state, const string &ProfileName, const string &Date, const int &Daynum, const int &DayEmerge, const int &FirstBloom,
         const int &FirstSquare, const double &PlantHeight, const double &AbscisedFruitSites)
 //     This function is a collection of write statements for output of model results. 
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
@@ -358,7 +358,7 @@ void output1(const string &ProfileName, const string &Date, const int &Daynum, c
             File46.precision(2);
         else
             File46.precision(1);
-        File46 << NumFruitSites * conversion;
+        File46 << state.number_of_fruiting_sites * conversion;
         File46.width(8);
         File46 << NumSquares * conversion;
         File46.width(7);

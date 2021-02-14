@@ -312,5 +312,5 @@ void ComputeSiteNumbers(State &state)
                 else if (site.stage == Stage::MatureBoll)
                     NumOpenBolls += site.fraction;
             }
-    state.abscised_fruit_sites = NumFruitSites - NumSquares - NumGreenBolls - NumOpenBolls;
+    state.abscised_fruit_sites = state.number_of_fruiting_sites - NumSquares - NumGreenBolls - NumOpenBolls;
 }

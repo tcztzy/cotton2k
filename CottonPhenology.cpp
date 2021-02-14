@@ -70,7 +70,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
     //
     static int nwfl = 0; // the node of the most recent white flower. Note: this variable
                          //  is not used. It is kept for compatibility with previous versions, and may be use in future versions.
-    NumFruitSites = 0;
+    state.number_of_fruiting_sites = 0;
     double stemNRatio; // the ratio of N to dry matter in the stems.
     stemNRatio = StemNitrogen / TotalStemWeight;
     //     Compute the phenological delays:
@@ -521,12 +521,12 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
         return;
     }
     //      Assign zero to FibLength and FibStrength before any sites have been formed.
-    if (NumFruitSites <= 0)
+    if (state.number_of_fruiting_sites <= 0)
     {
         FibLength = 0;
         FibStrength = 0;
     }
-    NumFruitSites++; //      Increment site number.
+    state.number_of_fruiting_sites++; //      Increment site number.
                      //     LeafAge(k,l,m) is the age of the leaf at this site. it is updated
                      //  by adding the physiological age of this day, the effect of water
                      //  and nitrogen stresses (agefac).
