@@ -302,49 +302,6 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         }
         if (shading >= 0.01)
             tfc = tfc / shading;
-        //     If there is an output flag, write data to file TMS.
-        if (jtout)
-        {
-            ofstream File19(fs::path("output") / (string(sim.profile_name) + ".TMS"), ios::app);
-            File19.width(5);
-            File19 << sim.day_start + u;
-            File19.width(5);
-            File19 << ihr + 1;
-            File19.setf(ios::fixed);
-            File19.precision(3);
-            for (int l = 0; l < 8; l++)
-            {
-                File19.width(8);
-                File19 << tsolav[l];
-            }
-            File19 << endl;
-            for (int n = 0; n < 4; n++)
-            {
-                File19 << "          ";
-                for (int l = 8 * (n + 1); l < 8 * (n + 2); l++)
-                {
-                    File19.width(8);
-                    File19 << tsolav[l];
-                }
-                File19 << endl;
-            }
-            File19 << " ihr  AirTemp  tfc  DewPointTemp  RelativeHumidity% tmav = ";
-            File19.width(3);
-            File19 << ihr + 1;
-            File19.setf(ios::fixed);
-            File19.precision(3);
-            File19.width(8);
-            File19 << hour.temperature;
-            File19.width(8);
-            File19 << tfc;
-            File19.width(8);
-            File19 << hour.dew_point;
-            File19.width(8);
-            File19 << hour.humidity;
-            File19.width(8);
-            File19 << tmav;
-            File19 << endl;
-        }
         //     If emergence date is to be simulated, call PredictEmergence().
         if (isw == 0 && sim.day_start + u >= sim.day_plant)
             tie(sim.day_emerge) = PredictEmergence(sim, ihr, sim.profile_name, sim.day_start + u, sim.day_emerge, sim.day_plant);
@@ -505,21 +462,6 @@ void SoilTemperatureInit(int &jt1, int &jt2, Simulation &sim)
     //  the start and stop dates for this output.
     jt1 = 0;
     jt2 = 0;
-    if (OutIndex[16] > 0)
-    {
-        // NOTE: Used to dialog input DayStart DayFinish
-        jt1 = sim.day_start;
-        jt2 = sim.day_finish;
-        //     File *.TMS is used for checking the soil temperature routines. Write header of output:
-        ofstream File19(fs::path("output") / (string(sim.profile_name) + ".TMS"), ios::out);
-        File19 << " Day of Year hour ----------------  TS FOR ALL LAYERS  -------------------" << endl;
-        File19 << "                  1      2       3       4       5       6       7       8" << endl;
-        File19 << "                  9     10      11      12      13      14      15      16" << endl;
-        File19 << "                 17     18      19      20      21      22      23      24" << endl;
-        File19 << "                 25     26      27      28      29      30      31      32" << endl;
-        File19 << "                 33     34      35      36      37      38      39      40" << endl;
-        File19 << endl;
-    }
     //     Compute initial values of soil temperature: It is assumed that at the start of simulation
     //  the temperature of the first soil layer (upper boundary) is equal to the average air temperature
     //  of the previous five days (if climate data not available - start from first climate data).

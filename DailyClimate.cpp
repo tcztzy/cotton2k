@@ -142,43 +142,8 @@ void DayClim(Simulation &sim, uint32_t u)
         //     Compute hourly wind speed, using function daywnd, and daily sum of wind.
         hour.wind_speed = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
     }
-    //     Write output file if requested.
-    if (jtout > 1)
-    {
-        ofstream File18(fs::path("output") / (string(sim.profile_name) + ".TM2"), ios::app);
-        File18 << endl;
-        File18 << " hour     radiation    temperature             RelativeHumidity           wind" << endl;
-        for (int ihr = 0; ihr < 24; ihr++) //  Start hourly loop.
-        {
-            File18.width(5);
-            File18 << ihr;
-            File18.precision(5);
-            File18.width(15);
-            File18 << state.hours[ihr].radiation;
-            File18.width(15);
-            File18 << state.hours[ihr].temperature;
-            File18.width(15);
-            File18 << state.hours[ihr].humidity;
-            File18.width(15);
-            File18 << state.hours[ihr].wind_speed << endl;
-        }
-    }
     //     Compute average daily temperature, using function AverageAirTemperatures.
     AverageAirTemperatures(state.hours, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
-    //     Write output file if requested.
-    if (jtout > 1)
-    {
-        ofstream File18(fs::path("output") / (string(sim.profile_name) + ".TM2"), ios::app);
-        File18 << endl
-               << " DayTimeTemp, NightTimeTemp, AvrgDailyTemp =   ";
-        File18.precision(2);
-        File18.width(10);
-        File18 << DayTimeTemp;
-        File18.width(10);
-        File18 << NightTimeTemp;
-        File18.width(10);
-        File18 << AvrgDailyTemp << endl;
-    }
     //     Compute potential evapotranspiration.
     EvapoTranspiration(sim.states[u], sim.latitude, sim.elevation, declination, tmpisr, SitePar[7]);
 }

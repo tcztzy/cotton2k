@@ -117,44 +117,6 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
     PlantNitrogenContent(state);   // computes the concentrations of N in plant dry matter.
     GetNitrogenStress();           //  computes nitrogen stress factors.
     NitrogenUptakeRequirement();   // computes N requirements for uptake
-                                   //   Optional output of N content to file *.NB2
-    if (OutIndex[20] > 0)
-    {
-        ofstream File37(fs::path("output") / (string(sim.profile_name) + ".NB2"), ios::app);
-        File37.width(5);
-        File37 << Kday;
-        File37.setf(ios::fixed);
-        File37.precision(3);
-        File37.width(7);
-        File37 << LeafNitrogen;
-        File37.width(7);
-        File37 << PetioleNitrogen;
-        File37.width(7);
-        File37 << StemNitrogen;
-        File37.width(7);
-        File37 << RootNitrogen;
-        File37.width(7);
-        File37 << BurrNitrogen;
-        File37.width(7);
-        File37 << SeedNitrogen;
-        File37.width(7);
-        File37 << SquareNitrogen;
-        File37.precision(4);
-        File37.width(7);
-        File37 << LeafNConc;
-        File37.width(7);
-        File37 << PetioleNConc;
-        File37.width(7);
-        File37 << StemNConc;
-        File37.width(7);
-        File37 << RootNConc;
-        File37.width(7);
-        File37 << BurrNConc;
-        File37.width(7);
-        File37 << SeedNConc;
-        File37.width(7);
-        File37 << PetioleNO3NConc << endl;
-    }
 }
 
 //////////////////////////
@@ -219,35 +181,6 @@ void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int
     reqf = rqnsqr + rqnsed + rqnbur;    //    total for fruit
     reqv = rqnlef + rqnpet + rqnstm;    //    total for shoot
     reqtot = rqnrut + reqv + reqf;      //     total N requirement
-                                        //     Optional output of N requirement data to file *.NB3
-    if (OutIndex[20] > 0)
-    {
-        ofstream File38(fs::path("output") / (ProfileName + ".NB3"), ios::app);
-        File38.width(5);
-        File38 << Kday;
-        File38.setf(ios::fixed);
-        File38.precision(3);
-        File38.width(7);
-        File38 << rqnlef;
-        File38.width(7);
-        File38 << rqnpet;
-        File38.width(7);
-        File38 << rqnstm;
-        File38.width(7);
-        File38 << rqnrut;
-        File38.width(7);
-        File38 << reqv;
-        File38.width(7);
-        File38 << rqnsqr;
-        File38.width(7);
-        File38 << rqnsed;
-        File38.width(7);
-        File38 << rqnbur;
-        File38.width(7);
-        File38 << reqf;
-        File38.width(7);
-        File38 << reqtot << endl;
-    }
 }
 
 //////////////////////////
@@ -337,37 +270,6 @@ void NitrogenSupply(State &state, const string &ProfileName)
         //  npool. Note that N of seeds or squares is not available for redistribution in the plant.
         resn = leafrs + petrs + stemrs + rootrs + burres;
         npool = uptn + resn;
-    }
-    //   Optional output of N supply and reserve data to file *.NB4
-    if (OutIndex[20] > 0)
-    {
-        ofstream File39(fs::path("output") / (ProfileName + ".NB4"), ios::app);
-        File39.width(5);
-        File39 << Kday;
-        File39.setf(ios::fixed);
-        File39.precision(3);
-        File39.width(7);
-        File39 << SupplyNO3N;
-        File39.width(7);
-        File39 << SupplyNH4N;
-        File39.width(7);
-        File39 << uptn;
-        File39.width(7);
-        File39 << leafrs;
-        File39.width(7);
-        File39 << petrs;
-        File39.width(7);
-        File39 << stemrs;
-        File39.width(7);
-        File39 << rootrs;
-        File39.width(7);
-        File39 << burres;
-        File39.width(7);
-        File39 << resn;
-        File39.width(7);
-        File39 << PetioleNitrogen;
-        File39.width(7);
-        File39 << npool << endl;
     }
 }
 

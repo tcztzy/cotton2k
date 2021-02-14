@@ -236,46 +236,6 @@ void LeafWaterPotential(State &state, const string &ProfileName)
         LwpMin = vpsil[9];
     if (LwpMin > psild0)
         LwpMin = psild0;
-    //     If the output flag is non-zero, write daily values to file 44 (*.LWP)
-    if (OutIndex[19] > 0)
-    {
-        ofstream File44(fs::path("output") / (ProfileName + ".LWP"), ios::app);
-        File44.unsetf(ios::left);
-        File44.width(5);
-        File44 << Kday;
-        File44 << "   ";
-        File44.setf(ios::fixed);
-        File44.precision(2);
-        File44.width(9);
-        File44 << AverageSoilPsi;
-        File44 << " ";
-        File44.width(9);
-        File44.precision(3);
-        File44.setf(ios::scientific);
-        File44 << cond;
-        File44.setf(ios::fixed);
-        File44 << " ";
-        File44.precision(2);
-        File44.width(9);
-        File44 << rsoil;
-        File44 << " ";
-        File44.width(9);
-        File44 << rroot;
-        File44 << " ";
-        File44.precision(3);
-        File44.width(9);
-        File44 << rshoot;
-        File44 << " ";
-        File44.width(9);
-        File44 << rleaf;
-        File44 << " ";
-        File44.width(9);
-        File44 << LwpMax;
-        File44 << " ";
-        File44.width(9);
-        File44 << LwpMin;
-        File44 << endl;
-    }
 }
 
 ////////////////////////////////

@@ -199,25 +199,6 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
         File56 << endl;
     }
 //
-//      For the root data output,  the extension is '.RUT'. The file
-//  is opened when the flag OutIndex[22] is non-zero.
-    if (OutIndex[22] > 0)
-        ofstream File34(fs::path("output") / (ProfileName + ".RUT"), ios::out);
-//
-//      When the output flag 15 is non-zero: file '.TM1' which is used for output
-//  of computed 24-hour weather data for plotting is opened, and its header line is written.
-//      When the output flag 15 is greater than 1, file '.TM2' which is used for detailed output 
-//  of computed 24-hour weather data (for checking) is also opened.
-//      When the output flag 16 is non-zero, file '.TMS', which
-//  outputs simulated soil temperatue data, is opened as unit 19.
-    if (OutIndex[15] > 0) {
-        ofstream File17(fs::path("output") / (ProfileName + ".TM1"), ios::out);
-        File17 << "     TIME         RAD         TMP          RH      WND        ETREF";
-        File17 << endl;
-    }
-    if (OutIndex[15] > 1)
-        ofstream File18(fs::path("output") / (ProfileName + ".TM2"), ios::out);
-//
 //      When the output flag 18 is non-zero, file '.CHB', which outputs plant carbon balance data, 
 //  is opened, and the heading for this file is written.
     if (OutIndex[18] > 0) {
@@ -225,44 +206,6 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
         File36
                 << "    DATE       CDSTEM   CDLEAF     CDPET    CDROOT    CSTRES    STEMWT    LEAFWT     PETWT    ROOTWT    SUMPDR      NR";
         File36 << endl;
-    }
-//
-//      When the output flag 19 is non-zero, file '.LWP', which outputs simulated leaf water
-//  potential and related data, is opened, and the heading for this file is written.
-    if (OutIndex[19] > 0) {
-        ofstream File44(fs::path("output") / (ProfileName + ".LWP"), ios::out);
-        File44 << " KDAY  PSISOIL   COND      RSOIL     RROOT     RSHOOT    RLEAF     PSILN     PSILD ";
-        File44 << endl;
-    }
-//
-//      When the output flag 20 is non-zero, files '.NB0' to 'NB4', which output nitrogen data, 
-//  are opened and the headings for these files are written.
-    if (OutIndex[20] > 0) {
-        ofstream File35(fs::path("output") / (ProfileName + ".NB0"), ios::out);
-        File35 << " KDAY  VNO3C                              VNH4C";
-        File35 << endl;
-        File35 << "       0 - 30  30 - 60  60 - 90 90 - 120  0 - 30  30 - 60  60 - 90 90 - 120";
-        File35 << endl;
-        File35 << "                   in parts per million (per volume)" << endl;
-        ofstream File47(fs::path("output") / (ProfileName + ".NB1"), ios::out);
-        File47 << " KDAY  BALSN    FERN     ORGN   UPTAKEN    SOILN   SNLOSS    BALPN    ADDN   PLANTN    NLOSS";
-        File47 << endl;
-        ofstream File37(fs::path("output") / (ProfileName + ".NB2"), ios::out);
-        File37 << "    CHECKING  NITROGEN IN PLANT PARTS  ";
-        File37 << endl;
-        File37
-                << " KDAY SLEAFN   PETN  STEMN  ROOTN  BURRN  SEEDN SQRN   LEAFCN  PETCN STEMCN ROOTCN  BURCN SEEDCN PETCNO3";
-        File37 << endl;
-        ofstream File38(fs::path("output") / (ProfileName + ".NB3"), ios::out);
-        File38 << "    CHECKING  NITROGEN REQUIREMENTS";
-        File38 << endl;
-        File38 << " KDAY RQNLEF RQNPET RQNSTM RQNRUT   REQV RQNSQR RQNSED RQNBUR   REQF   REQTOT";
-        File38 << endl;
-        ofstream File39(fs::path("output") / (ProfileName + ".NB4"), ios::out);
-        File39 << "    CHECKING  NITROGEN SUPPLY POOLS";
-        File39 << endl;
-        File39 << " KDAY SUPNO3 SUPNH4   UPTN LEAFRS PETRS  STEMRS ROOTRS BURRES   RESN   PETN  NPOOL";
-        File39 << endl;
     }
 }
 
