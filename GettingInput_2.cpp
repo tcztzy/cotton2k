@@ -404,10 +404,6 @@ void InitializeRootData(Simulation & sim)
             RootColNumLeft[l] = 0;
             RootColNumRight[l] = 0;
         }
-//
-        for (int k = 0; k < nk; k++) {
-            RootGroFactor[l][k] = 1;
-        }
     }
     init_root_data(sim.states[0].root, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);
 //     Start loop for all soil layers containing roots.

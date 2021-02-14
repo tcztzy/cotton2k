@@ -42,6 +42,7 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
 //       ActualRootGrowth, DepthLastRootLayer, LastTaprootLayer,
 //       RootAge, RootColNumLeft, RootColNumRight, TapRootLength.
 {
+    State &state = sim.states[u];
     //     The following constant parameters are used. These are relative factors for root growth
     // to adjoining cells, downwards, sideways, and upwards, respectively. These factors are
     // relative to the volume of the soil cell from which growth originates.
@@ -79,11 +80,11 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
     double efacr; // as efac1 for the cell to the right of this cell.
     double efacu; // as efac1 for the cell above this cell.
     double srwp;  // sum of all efac values.
-    efac1 = dl[l] * wk[k] * RootGroFactor[l][k];
-    efacl = rgfsd * RootGroFactor[l][km1];
-    efacr = rgfsd * RootGroFactor[l][kp1];
-    efacu = rgfup * RootGroFactor[lm1][k];
-    efacd = rgfdn * RootGroFactor[lp1][k];
+    efac1 = dl[l] * wk[k] * state.root[l][k].growth_factor;
+    efacl = rgfsd * state.root[l][km1].growth_factor;
+    efacr = rgfsd * state.root[l][kp1].growth_factor;
+    efacu = rgfup * state.root[lm1][k].growth_factor;
+    efacd = rgfdn * state.root[lp1][k].growth_factor;
     srwp = efac1 + efacl + efacr + efacu + efacd;
     //     If srwp is very small, all the added weight will be in the
     //  same soil soil cell, and execution of this function is ended.
@@ -148,6 +149,7 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
 //       DepthLastRootLayer, LastTaprootLayer, NumLayersWithRoots, RootAge,
 //       RootColNumLeft, RootColNumRight, RootWeight, TapRootLength.
 {
+    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double p1 = 0.10;                // constant parameter.
     const double rtapr = 4;                // potential growth rate of the taproot, cm/day.
@@ -160,7 +162,7 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
         return;
     //     Average soil resistance (avres) is computed at the root tip.
     // avres = average value of RootGroFactor for the two soil cells at the tip of the taproot.
-    double avres = 0.5 * (RootGroFactor[LastTaprootLayer][sim.plant_row_column] + RootGroFactor[LastTaprootLayer][klocp1]);
+    double avres = 0.5 * (state.root[LastTaprootLayer][sim.plant_row_column].growth_factor + state.root[LastTaprootLayer][klocp1].growth_factor);
     //     It is assumed that a linear empirical function of avres controls the rate of
     //  taproot elongation. The potential elongation rate of the taproot is also modified by
     //  soil temperature (SoilTemOnRootGrowth function), soil resistance, and soil
@@ -259,6 +261,7 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
 //       RootAge, RootColNumLeft, RootWeight.
 //     The argument used:     l - layer number in the soil slab.
 {
+    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double p1 = 0.10;   // constant parameter.
     const double rlatr = 3.6; // potential growth rate of lateral roots, cm/day.
@@ -290,7 +293,7 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
     //     Lateral root elongation does not occur in water logged soil.
     if (VolWaterContent[l][ktip] < PoreSpace[l])
     {
-        rlat1[l] += rlatr * temprg * (1 - p1 + RootGroFactor[l][ktip] * p1);
+        rlat1[l] += rlatr * temprg * (1 - p1 + state.root[l][ktip].growth_factor * p1);
         //     If the lateral reaches a new soil soil cell: a proportion (tran) of
         //	mass of roots is transferred to the new soil cell.
         if (rlat1[l] > sumwk && ktip > 0)
@@ -326,6 +329,7 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
 //  RootAge, RootColNumRight, RootWeight.
 //     The argument used:      l - layer number in the soil slab.
 {
+    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double p1 = 0.10;   // constant parameter.
     const double rlatr = 3.6; // potential growth rate of lateral roots, cm/day.
@@ -358,7 +362,7 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
     //     Lateral root elongation does not occur in water logged soil.
     if (VolWaterContent[l][ktip] < PoreSpace[l])
     {
-        rlat2[l] += rlatr * temprg * (1 - p1 + RootGroFactor[l][ktip] * p1);
+        rlat2[l] += rlatr * temprg * (1 - p1 + state.root[l][ktip].growth_factor * p1);
         //     If the lateral reaches a new soil soil cell: a proportion (tran) of
         //	mass of roots is transferred to the new soil cell.
         if (rlat2[l] > sumwk && ktip < nk - 1)

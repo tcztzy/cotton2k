@@ -174,8 +174,8 @@ double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const
                 if (rtrdn < minres)
                     minres = rtrdn;
                 double rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k]);
-                RootGroFactor[l][k] = rtpsi * minres;
-                root[l][k].potential_growth = rtwtcg * rgfac * temprg * RootGroFactor[l][k] * PerPlantArea / 19.6;
+                root[l][k].growth_factor = rtpsi * minres;
+                root[l][k].potential_growth = rtwtcg * rgfac * temprg * root[l][k].growth_factor * PerPlantArea / 19.6;
                 sumpdr += root[l][k].potential_growth;
             } // if RootAge
         }     // end loop l & k
