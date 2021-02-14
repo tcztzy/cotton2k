@@ -126,7 +126,6 @@ double
 // E F G H
 double ElCondSatSoil[20],             // electrical conductivity of saturated soil extract (mmho/cm)
     ElCondSatSoilToday,               // electrical conductivity of saturated extract (mmho/cm) on this day.
-    ExtraCarbon,                      // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
     FieldCapacity[maxl],              // volumetric water content of soil at field capacity for each soil layer, cm3 cm-3.
     FoliageTemp[maxk],                // average foliage temperature (oK).
     FreshOrganicMatter[maxl][maxk],   // fresh organic matter in the soil, mg / cm3.

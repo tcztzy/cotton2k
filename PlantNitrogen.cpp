@@ -17,7 +17,7 @@
 
 using namespace std;
 
-void NitrogenRequirement(const string &, const int &, const int &);
+void NitrogenRequirement(const string &, const int &, const int &, double);
 
 void NitrogenSupply(State &, const string &);
 
@@ -60,8 +60,8 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //     This function simulates the nitrogen accumulation and distribution in cotton plants,
 //  and computes nitrogen stresses. It is called from SimulateThisDay().
 //
-//     The maximum and minimum N concentrations for the various organs are modified from 
-//  those reported by: Jones et. al. (1974): Development of a nitrogen balance for cotton 
+//     The maximum and minimum N concentrations for the various organs are modified from
+//  those reported by: Jones et. al. (1974): Development of a nitrogen balance for cotton
 //  growth models: a first approximation. Crop Sci. 14:541-546.
 //
 //     The following parameters are used in all plant N routines:
@@ -75,50 +75,51 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //  squares     sqrcn0    = .024    vnreqsqr  = .024
 //
 //     PlantNitrogen() calls the following functions:
-//       NitrogenSupply(), NitrogenRequirement(), NitrogenAllocation(), 
+//       NitrogenSupply(), NitrogenRequirement(), NitrogenAllocation(),
 //       ExtraNitrogenAllocation(), PlantNitrogenContent(), GetNitrogenStress(),
 //       NitrogenUptakeRequirement().
 //     The following global variables are referenced here:
-//       BurrNConc, BurrNitrogen, Kday, LeafNConc, LeafNitrogen, OutIndex, 
-//       PetioleNConc, PetioleNConc, PetioleNO3NConc, PetioleNitrogen, RootNConc, 
+//       BurrNConc, BurrNitrogen, Kday, LeafNConc, LeafNitrogen, OutIndex,
+//       PetioleNConc, PetioleNConc, PetioleNO3NConc, PetioleNitrogen, RootNConc,
 //       RootNitrogen, SeedNConc, SeedNitrogen, SquareNitrogen, StemNConc, StemNitrogen.
 //     The following global and file scope variables are set here:
-//       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs, 
+//       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs,
 //       rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm, stemrs, uptn, xtran.
 {
     State &state = sim.states[u];
-//     Assign zero to some variables.
-    leafrs = 0; // reserve N in leaves, in g per plant.
-    petrs = 0;  // reserve N in petioles, in g per plant.
-    stemrs = 0; // reserve N in stems, in g per plant.
-    rootrs = 0; // reserve N in roots, in g per plant.
-    reqf = 0;   // nitrogen requirement for fruit growth.
-    reqtot = 0; // total nitrogen requirement for plant growth.
-    reqv = 0;   // nitrogen requirement for vegetative shoot growth.
-    rqnbur = 0; // nitrogen requirement for burr growth.
-    rqnlef = 0; // nitrogen requirement for leaf growth.
-    rqnpet = 0; // nitrogen requirement for petiole growth.
-    rqnrut = 0; // nitrogen requirement for root growth.
-    rqnsed = 0; // nitrogen requirement for seed growth.
-    rqnsqr = 0; // nitrogen requirement for square growth.
-    rqnstm = 0; // nitrogen requirement for stem growth.
-    npool = 0;  // total nitrogen available for growth.
-    uptn = 0;   // nitrogen uptake from the soil, g per plant.
-    xtran = 0;  // amount of nitrogen not used for growth of plant parts.
-    addnf = 0;  // daily added nitrogen to fruit, g per plant.
-    addnr = 0;  // daily added nitrogen to root, g per plant.
-    addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
-//   The following subroutines are now called:
-    NitrogenRequirement(sim.profile_name, sim.day_start + u, sim.day_emerge); //  computes the N requirements for growth.
-    NitrogenSupply(state, sim.profile_name);      //  computes the supply of N from uptake and reserves.
-    NitrogenAllocation();  //  computes the allocation of N in the plant.
+    //     Assign zero to some variables.
+    leafrs = 0;                                                               // reserve N in leaves, in g per plant.
+    petrs = 0;                                                                // reserve N in petioles, in g per plant.
+    stemrs = 0;                                                               // reserve N in stems, in g per plant.
+    rootrs = 0;                                                               // reserve N in roots, in g per plant.
+    reqf = 0;                                                                 // nitrogen requirement for fruit growth.
+    reqtot = 0;                                                               // total nitrogen requirement for plant growth.
+    reqv = 0;                                                                 // nitrogen requirement for vegetative shoot growth.
+    rqnbur = 0;                                                               // nitrogen requirement for burr growth.
+    rqnlef = 0;                                                               // nitrogen requirement for leaf growth.
+    rqnpet = 0;                                                               // nitrogen requirement for petiole growth.
+    rqnrut = 0;                                                               // nitrogen requirement for root growth.
+    rqnsed = 0;                                                               // nitrogen requirement for seed growth.
+    rqnsqr = 0;                                                               // nitrogen requirement for square growth.
+    rqnstm = 0;                                                               // nitrogen requirement for stem growth.
+    npool = 0;                                                                // total nitrogen available for growth.
+    uptn = 0;                                                                 // nitrogen uptake from the soil, g per plant.
+    xtran = 0;                                                                // amount of nitrogen not used for growth of plant parts.
+    addnf = 0;                                                                // daily added nitrogen to fruit, g per plant.
+    addnr = 0;                                                                // daily added nitrogen to root, g per plant.
+    addnv = 0;                                                                // daily added nitrogen to vegetative shoot, g per plant.
+                                                                              //   The following subroutines are now called:
+    NitrogenRequirement(sim.profile_name, sim.day_start + u, sim.day_emerge, sim.states[u].extra_carbon); //  computes the N requirements for growth.
+    NitrogenSupply(state, sim.profile_name);                                  //  computes the supply of N from uptake and reserves.
+    NitrogenAllocation();                                                     //  computes the allocation of N in the plant.
     if (xtran > 0)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
-    PlantNitrogenContent(state); // computes the concentrations of N in plant dry matter.
-    GetNitrogenStress();    //  computes nitrogen stress factors.
-    NitrogenUptakeRequirement(); // computes N requirements for uptake
-//   Optional output of N content to file *.NB2
-    if (OutIndex[20] > 0) {
+    PlantNitrogenContent(state);   // computes the concentrations of N in plant dry matter.
+    GetNitrogenStress();           //  computes nitrogen stress factors.
+    NitrogenUptakeRequirement();   // computes N requirements for uptake
+                                   //   Optional output of N content to file *.NB2
+    if (OutIndex[20] > 0)
+    {
         ofstream File37(fs::path("output") / (string(sim.profile_name) + ".NB2"), ios::app);
         File37.width(5);
         File37 << Kday;
@@ -157,19 +158,19 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 }
 
 //////////////////////////
-void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int &DayEmerge)
+void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int &DayEmerge, double ExtraCarbon)
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
-//       ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth, 
-//       CarbonAllocatedForRootGrowth, CottonWeightGreenBolls, 
-//       ExtraCarbon, OutIndex, Kday, 
+//       ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth,
+//       CarbonAllocatedForRootGrowth, CottonWeightGreenBolls,
+//       ExtraCarbon, OutIndex, Kday,
 //       SeedNitrogen, TotalActualLeafGrowth, TotalActualPetioleGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, PetioleNO3NConc, reqf, reqtot, reqv, rqnbur,
 //       rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm.
 {
-//     The following constant parameters are used:
+    //     The following constant parameters are used:
     const double burcn0 = .026;   //  maximum N content for burrs
     const double lefcn0 = .064;   //  maximum N content for leaves
     const double petcn0 = .032;   //  maximum N content for petioles
@@ -179,44 +180,48 @@ void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int
     const double seedratio = .64; //  ratio of seeds to seedcotton in green bolls.
     const double sqrcn0 = .024;   //  maximum N content for squares
     const double stmcn0 = .036;   //  maximum N content for stems
-//     On emergence, assign initial values to petiole N concentrations.
-    if (Daynum <= DayEmerge) {
+                                  //     On emergence, assign initial values to petiole N concentrations.
+    if (Daynum <= DayEmerge)
+    {
         PetioleNConc = petcn0;
         PetioleNO3NConc = petcn0;
     }
-//     Compute the nitrogen requirements for growth, by multiplying
-//  the daily added dry weight by the maximum N content of each organ.
-//  Nitrogen requirements are based on actual growth rates.
-//     These N requirements will be used to compute the allocation
-//  of N to plant parts and the nitrogen stress factors.
-//     All nitrogen requirement variables are in g N per plant.
-    rqnlef = lefcn0 * TotalActualLeafGrowth;    //      for leaf blade
-    rqnpet = petcn0 * TotalActualPetioleGrowth; //      for petiole
-    rqnstm = stmcn0 * ActualStemGrowth;         //      for stem
-//     Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of 
-//  carbohydrates for root growth.
+    //     Compute the nitrogen requirements for growth, by multiplying
+    //  the daily added dry weight by the maximum N content of each organ.
+    //  Nitrogen requirements are based on actual growth rates.
+    //     These N requirements will be used to compute the allocation
+    //  of N to plant parts and the nitrogen stress factors.
+    //     All nitrogen requirement variables are in g N per plant.
+    rqnlef = lefcn0 * TotalActualLeafGrowth;                         //      for leaf blade
+    rqnpet = petcn0 * TotalActualPetioleGrowth;                      //      for petiole
+    rqnstm = stmcn0 * ActualStemGrowth;                              //      for stem
+                                                                     //     Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of
+                                                                     //  carbohydrates for root growth.
     rqnrut = rootcn0 * (CarbonAllocatedForRootGrowth + ExtraCarbon); // for root
-    rqnsqr = ActualSquareGrowth * sqrcn0;       //      for squares
-    double rqnsed1, rqnsed2; // components of seed N requirements.
-    rqnsed1 = ActualBollGrowth * seedratio * seedcn0; //   for seed growth
-//     The N required for replenishing the N content of existing seed
-//  tissue (rqnsed2) is added to seed growth requirement.
-    if (CottonWeightGreenBolls > ActualBollGrowth) {
+    rqnsqr = ActualSquareGrowth * sqrcn0;                            //      for squares
+    double rqnsed1, rqnsed2;                                         // components of seed N requirements.
+    rqnsed1 = ActualBollGrowth * seedratio * seedcn0;                //   for seed growth
+                                                                     //     The N required for replenishing the N content of existing seed
+                                                                     //  tissue (rqnsed2) is added to seed growth requirement.
+    if (CottonWeightGreenBolls > ActualBollGrowth)
+    {
         double rseedn; // existing ratio of N to dry matter in the seeds.
         rseedn = SeedNitrogen / ((CottonWeightGreenBolls - ActualBollGrowth) * seedratio);
         rqnsed2 = (CottonWeightGreenBolls - ActualBollGrowth) * seedratio * (seedcn1 - rseedn);
         if (rqnsed2 < 0)
             rqnsed2 = 0;
-    } else
+    }
+    else
         rqnsed2 = 0;
-//
-    rqnsed = rqnsed1 + rqnsed2; //   total requirement for seeds
-    rqnbur = ActualBurrGrowth * burcn0;   //   for burrs
-    reqf = rqnsqr + rqnsed + rqnbur; //    total for fruit
-    reqv = rqnlef + rqnpet + rqnstm; //    total for shoot
-    reqtot = rqnrut + reqv + reqf; //     total N requirement
-//     Optional output of N requirement data to file *.NB3
-    if (OutIndex[20] > 0) {
+    //
+    rqnsed = rqnsed1 + rqnsed2;         //   total requirement for seeds
+    rqnbur = ActualBurrGrowth * burcn0; //   for burrs
+    reqf = rqnsqr + rqnsed + rqnbur;    //    total for fruit
+    reqv = rqnlef + rqnpet + rqnstm;    //    total for shoot
+    reqtot = rqnrut + reqv + reqf;      //     total N requirement
+                                        //     Optional output of N requirement data to file *.NB3
+    if (OutIndex[20] > 0)
+    {
         ofstream File38(fs::path("output") / (ProfileName + ".NB3"), ios::app);
         File38.width(5);
         File38 << Kday;
@@ -247,32 +252,33 @@ void NitrogenRequirement(const string &ProfileName, const int &Daynum, const int
 
 //////////////////////////
 void NitrogenSupply(State &state, const string &ProfileName)
-//     This function computes the supply of N by uptake from the soil reserves, 
+//     This function computes the supply of N by uptake from the soil reserves,
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       BurrWeightGreenBolls, Kday, OutIndex, reqtot, SupplyNH4N, SupplyNO3N, 
+//       BurrWeightGreenBolls, Kday, OutIndex, reqtot, SupplyNH4N, SupplyNO3N,
 //       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalStemWeight.
 //     The following global and file scope variables are set here:
-//       burres, BurrNitrogen, LeafNitrogen, leafrs, npool, PetioleNitrogen, petrs,  
+//       burres, BurrNitrogen, LeafNitrogen, leafrs, npool, PetioleNitrogen, petrs,
 //       RootNitrogen, rootrs, StemNitrogen, stemrs, uptn, xtran.
 {
-//     The following constant parameters are used:
+    //     The following constant parameters are used:
     const double MobilizNFractionBurrs = 0.08;    //  fraction of N mobilizable for burrs
     const double MobilizNFractionLeaves = 0.09;   //  fraction of N mobilizable for leaves and petioles
     const double MobilizNFractionStemRoot = 0.40; //  fraction of N mobilizable for stems and roots
-    const double vburnmin = .006; //  minimum N contents of burrs
-    const double vlfnmin = .018;  //  minimum N contents of leaves
-    const double vpetnmin = .005; //  minimum N contents of petioles, non-nitrate fraction.
-    const double vpno3min = .002; //  minimum N contents of petioles, nitrate fraction.
-    const double vrtnmin = .010;  //  minimum N contents of roots
-    const double vstmnmin = .006; //  minimum N contents of stems
-//     uptn is the total supply of nitrogen to the plant by uptake of nitrate and ammonium.
+    const double vburnmin = .006;                 //  minimum N contents of burrs
+    const double vlfnmin = .018;                  //  minimum N contents of leaves
+    const double vpetnmin = .005;                 //  minimum N contents of petioles, non-nitrate fraction.
+    const double vpno3min = .002;                 //  minimum N contents of petioles, nitrate fraction.
+    const double vrtnmin = .010;                  //  minimum N contents of roots
+    const double vstmnmin = .006;                 //  minimum N contents of stems
+                                                  //     uptn is the total supply of nitrogen to the plant by uptake of nitrate and ammonium.
     uptn = SupplyNO3N + SupplyNH4N;
     double resn; // total reserve N, in g per plant.
-//     If total N requirement is less than the supply, define npool as the supply and
-//  assign zero to the N reserves in all organs.
-    if (reqtot <= uptn) {
+                 //     If total N requirement is less than the supply, define npool as the supply and
+                 //  assign zero to the N reserves in all organs.
+    if (reqtot <= uptn)
+    {
         npool = uptn;
         leafrs = 0;
         petrs = 0;
@@ -281,57 +287,60 @@ void NitrogenSupply(State &state, const string &ProfileName)
         burres = 0;
         xtran = 0;
         resn = 0;
-    } else {
-//     If total N requirement exceeds the supply, compute the nitrogen
-//  reserves in the plant. The reserve N in an organ is defined as a fraction
-//  of the nitrogen content exceeding a minimum N content in it.
-//     The N reserves in leaves, petioles, stems, roots and burrs of
-//  green bolls are computed, and their N content updated.
+    }
+    else
+    {
+        //     If total N requirement exceeds the supply, compute the nitrogen
+        //  reserves in the plant. The reserve N in an organ is defined as a fraction
+        //  of the nitrogen content exceeding a minimum N content in it.
+        //     The N reserves in leaves, petioles, stems, roots and burrs of
+        //  green bolls are computed, and their N content updated.
         leafrs = (LeafNitrogen - vlfnmin * TotalLeafWeight) * MobilizNFractionLeaves;
         if (leafrs < 0)
             leafrs = 0;
         LeafNitrogen -= leafrs;
-//     The petiole N content is subdivided to nitrate and non-nitrate. The
-//  nitrate ratio in the petiole N is computed by calling function PetioleNitrateN().
-//  Note that the nitrate fraction is more available for redistribution.
+        //     The petiole N content is subdivided to nitrate and non-nitrate. The
+        //  nitrate ratio in the petiole N is computed by calling function PetioleNitrateN().
+        //  Note that the nitrate fraction is more available for redistribution.
         double rpetno3; // ratio of NO3 N to total N in petioles.
         rpetno3 = PetioleNitrateN(state);
         double petrs1, petrs2; // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
-        petrs1 = (PetioleNitrogen * (1 - rpetno3) - vpetnmin * TotalPetioleWeight)
-                 * MobilizNFractionLeaves;
+        petrs1 = (PetioleNitrogen * (1 - rpetno3) - vpetnmin * TotalPetioleWeight) * MobilizNFractionLeaves;
         if (petrs1 < 0)
             petrs1 = 0;
-        petrs2 = (PetioleNitrogen * rpetno3 - vpno3min * TotalPetioleWeight)
-                 * MobilizNFractionLeaves;
+        petrs2 = (PetioleNitrogen * rpetno3 - vpno3min * TotalPetioleWeight) * MobilizNFractionLeaves;
         if (petrs2 < 0)
             petrs2 = 0;
         petrs = petrs1 + petrs2;
         PetioleNitrogen -= petrs;
-//  Stem N reserves.
+        //  Stem N reserves.
         stemrs = (StemNitrogen - vstmnmin * TotalStemWeight) * MobilizNFractionStemRoot;
         if (stemrs < 0)
             stemrs = 0;
         StemNitrogen -= stemrs;
-//  Root N reserves
+        //  Root N reserves
         rootrs = (RootNitrogen - vrtnmin * TotalRootWeight) * MobilizNFractionStemRoot;
         if (rootrs < 0)
             rootrs = 0;
         RootNitrogen -= rootrs;
-//  Burr N reserves
-        if (BurrWeightGreenBolls > 0) {
+        //  Burr N reserves
+        if (BurrWeightGreenBolls > 0)
+        {
             burres = (BurrNitrogen - vburnmin * BurrWeightGreenBolls) * MobilizNFractionBurrs;
             if (burres < 0)
                 burres = 0;
             BurrNitrogen -= burres;
-        } else
+        }
+        else
             burres = 0;
-//     The total reserves, resn, are added to the amount taken up from the soil, for computing  
-//  npool. Note that N of seeds or squares is not available for redistribution in the plant.
+        //     The total reserves, resn, are added to the amount taken up from the soil, for computing
+        //  npool. Note that N of seeds or squares is not available for redistribution in the plant.
         resn = leafrs + petrs + stemrs + rootrs + burres;
         npool = uptn + resn;
     }
-//   Optional output of N supply and reserve data to file *.NB4
-    if (OutIndex[20] > 0) {
+    //   Optional output of N supply and reserve data to file *.NB4
+    if (OutIndex[20] > 0)
+    {
         ofstream File39(fs::path("output") / (ProfileName + ".NB4"), ios::app);
         File39.width(5);
         File39 << Kday;
@@ -367,33 +376,34 @@ double PetioleNitrateN(State &state)
 //     This function computes the ratio of NO3 nitrogen to total N in the petioles.
 //  It is called from NitrogenSupply() and PlantNitrogenContent().
 //     The following global variables are referenced here:
-//       AgeOfPreFruNode, LeafAge, NumFruitBranches, NumNodes, 
+//       AgeOfPreFruNode, LeafAge, NumFruitBranches, NumNodes,
 //       NumPreFruNodes, NumVegBranches.
 {
-//     The following constant parameters are used:
+    //     The following constant parameters are used:
     const double p1 = 0.96;  //  the maximum ratio (of NO3 to total N in petioles).
     const double p2 = 0.015; //  the rate of decline of this ratio with age.
     const double p3 = 0.02;  //  the minimum ratio
-//     The ratio of NO3 to total N in each individual petiole is computed
-//  as a linear function of leaf age. It is assumed that this ratio is
-//  maximum for young leaves and is declining with leaf age.
-    int numl = 0;       // number of petioles computed.
-    double spetno3 = 0; // sum of petno3r.
-    double petno3r;     // ratio of NO3 to total N in an individual petiole.
-//     Loop of prefruiting node leaves.
-    for (int j = 0; j < NumPreFruNodes; j++) {
+                             //     The ratio of NO3 to total N in each individual petiole is computed
+                             //  as a linear function of leaf age. It is assumed that this ratio is
+                             //  maximum for young leaves and is declining with leaf age.
+    int numl = 0;            // number of petioles computed.
+    double spetno3 = 0;      // sum of petno3r.
+    double petno3r;          // ratio of NO3 to total N in an individual petiole.
+                             //     Loop of prefruiting node leaves.
+    for (int j = 0; j < NumPreFruNodes; j++)
+    {
         numl++;
         petno3r = p1 - AgeOfPreFruNode[j] * p2;
         if (petno3r < p3)
             petno3r = p3;
         spetno3 += petno3r;
     }
-//     Loop of all the other leaves, with the same computations.
-    int nbrch; // number of fruiting branches on a vegetative stem.
-    int nnid; // number of fruiting nodes on a fruiting branch.
-    for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
-        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++) // loop of fruiting branches
-            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)// loop of nodes on a fruiting branch
+    //     Loop of all the other leaves, with the same computations.
+    int nbrch;                                                                                                   // number of fruiting branches on a vegetative stem.
+    int nnid;                                                                                                    // number of fruiting nodes on a fruiting branch.
+    for (int k = 0; k < state.number_of_vegetative_branches; k++)                                                // loop of vegetative branches
+        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)                       // loop of fruiting branches
+            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
             {
                 numl++;
                 petno3r = p1 - state.site[k][l][m].leaf.age * p2;
@@ -401,8 +411,8 @@ double PetioleNitrateN(State &state)
                     petno3r = p3;
                 spetno3 += petno3r;
             }
-//     The return value of the function is the average ratio of NO3 to
-//  total N for all the petioles in the plant.
+    //     The return value of the function is the average ratio of NO3 to
+    //  total N for all the petioles in the plant.
     double AvrgNO3Ratio = spetno3 / numl;
     return AvrgNO3Ratio;
 }
@@ -413,22 +423,23 @@ void NitrogenAllocation()
 //  the plant parts. It is called from PlantNitrogen().
 //
 //     The following global and file scope variables are set here:
-//       addnf, addnr, addnv, BurrNitrogen, LeafNitrogen, npool, PetioleNitrogen, 
+//       addnf, addnr, addnv, BurrNitrogen, LeafNitrogen, npool, PetioleNitrogen,
 //       RootNitrogen, SeedNitrogen, SquareNitrogen, StemNitrogen, xtran.
 //     The following global and file scope variables are referenced in this function:
 //       reqtot, rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm
 {
-//     The following constant parameters are used:
+    //     The following constant parameters are used:
     const double vseednmax = 0.70; // maximum proportion of N pool that can be added to seeds
-    const double vsqrnmax = 0.65; // maximum proportion of N pool that can be added to squares
-    const double vburnmax = 0.65; // maximum proportion of N pool that can be added to burrs
-    const double vlfnmax = 0.90; // maximum proportion of N pool that can be added to leaves
-    const double vstmnmax = 0.70; // maximum proportion of N pool that can be added to stems
-    const double vpetnmax = 0.75; // maximum proportion of N pool that can be added to petioles
-//     If total N requirement is less than npool, add N required for growth to the N in 
-//  each organ, compute added N to vegetative parts, fruiting parts and roots, and compute 
-//  xtran as the difference between npool and the total N requirements.
-    if (reqtot <= npool) {
+    const double vsqrnmax = 0.65;  // maximum proportion of N pool that can be added to squares
+    const double vburnmax = 0.65;  // maximum proportion of N pool that can be added to burrs
+    const double vlfnmax = 0.90;   // maximum proportion of N pool that can be added to leaves
+    const double vstmnmax = 0.70;  // maximum proportion of N pool that can be added to stems
+    const double vpetnmax = 0.75;  // maximum proportion of N pool that can be added to petioles
+                                   //     If total N requirement is less than npool, add N required for growth to the N in
+                                   //  each organ, compute added N to vegetative parts, fruiting parts and roots, and compute
+                                   //  xtran as the difference between npool and the total N requirements.
+    if (reqtot <= npool)
+    {
         LeafNitrogen += rqnlef;
         PetioleNitrogen += rqnpet;
         StemNitrogen += rqnstm;
@@ -442,56 +453,63 @@ void NitrogenAllocation()
         xtran = npool - reqtot;
         return;
     }
-//     If N requirement is greater than npool, execute the following:
-//     First priority is nitrogen supply to the growing seeds. It is assumed that up to 
-//  vseednmax = 0.70 of the supplied N can be used by the seeds. Update seed N and
-//  addnf by the amount of nitrogen used for seed growth, and decrease npool by this amount. 
-//  The same procedure is used for each organ, consecutively.
+    //     If N requirement is greater than npool, execute the following:
+    //     First priority is nitrogen supply to the growing seeds. It is assumed that up to
+    //  vseednmax = 0.70 of the supplied N can be used by the seeds. Update seed N and
+    //  addnf by the amount of nitrogen used for seed growth, and decrease npool by this amount.
+    //  The same procedure is used for each organ, consecutively.
     double useofn; // amount of nitrogen used in growth of a plant organ.
-    if (rqnsed > 0) {
+    if (rqnsed > 0)
+    {
         useofn = min(vseednmax * npool, rqnsed);
         SeedNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
     }
-//     Next priority is for burrs, which can use N up to vburnmax = 0.65 of the 
-//  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
-    if (rqnbur > 0) {
+    //     Next priority is for burrs, which can use N up to vburnmax = 0.65 of the
+    //  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
+    if (rqnbur > 0)
+    {
         useofn = min(vburnmax * npool, rqnbur);
         BurrNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
     }
-    if (rqnsqr > 0) {
+    if (rqnsqr > 0)
+    {
         useofn = min(vsqrnmax * npool, rqnsqr);
         SquareNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
     }
-//     Next priority is for leaves, which can use N up to vlfnmax = 0.90
-//  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for
-//  petioles, up to vpetnmax = 0.75
-    if (rqnlef > 0) {
+    //     Next priority is for leaves, which can use N up to vlfnmax = 0.90
+    //  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for
+    //  petioles, up to vpetnmax = 0.75
+    if (rqnlef > 0)
+    {
         useofn = min(vlfnmax * npool, rqnlef);
         LeafNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
-    if (rqnstm > 0) {
+    if (rqnstm > 0)
+    {
         useofn = min(vstmnmax * npool, rqnstm);
         StemNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
-    if (rqnpet > 0) {
+    if (rqnpet > 0)
+    {
         useofn = min(vpetnmax * npool, rqnpet);
         PetioleNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
-//     The remaining npool goes to root growth. If any npool remains
-//  it is defined as xtran.
-    if (rqnrut > 0) {
+    //     The remaining npool goes to root growth. If any npool remains
+    //  it is defined as xtran.
+    if (rqnrut > 0)
+    {
         useofn = min(npool, rqnrut);
         RootNitrogen += useofn;
         addnr += useofn;
@@ -506,13 +524,13 @@ void ExtraNitrogenAllocation()
 //  parts. It is called from PlantNitrogen() if there is a non-zero xtran.
 //
 //     The following global and file scope variables are referenced here:
-//       burres, BurrWeightGreenBolls, leafrs, petrs, rootrs, stemrs, 
+//       burres, BurrWeightGreenBolls, leafrs, petrs, rootrs, stemrs,
 //       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalStemWeight, xtran.
 //     The following global variables are set here:
 //       BurrNitrogen, PetioleNitrogen, RootNitrogen, LeafNitrogen, StemNitrogen.
 {
-//     If there are any N reserves in the plant, allocate remaining xtran in proportion to
-//  the N reserves in each of these organs. Note: all reserves are in g per plant units.
+    //     If there are any N reserves in the plant, allocate remaining xtran in proportion to
+    //  the N reserves in each of these organs. Note: all reserves are in g per plant units.
     double addbur;  // reserve N to be added to the burrs.
     double addlfn;  // reserve N to be added to the leaves.
     double addpetn; // reserve N to be added to the petioles.
@@ -520,27 +538,29 @@ void ExtraNitrogenAllocation()
     double addstm;  // reserve N to be added to the stem.
     double rsum;    // sum of existing reserve N in plant parts.
     rsum = leafrs + petrs + stemrs + rootrs + burres;
-    if (rsum > 0) {
+    if (rsum > 0)
+    {
         addlfn = xtran * leafrs / rsum;
         addpetn = xtran * petrs / rsum;
         addstm = xtran * stemrs / rsum;
         addrt = xtran * rootrs / rsum;
         addbur = xtran * burres / rsum;
-    } else {
-//     If there are no reserves, allocate xtran in proportion to the dry
-//  weights in each of these organs.
+    }
+    else
+    {
+        //     If there are no reserves, allocate xtran in proportion to the dry
+        //  weights in each of these organs.
         double vegwt; // weight of vegetative plant parts, plus burrs.
-        vegwt = TotalLeafWeight + TotalPetioleWeight + TotalStemWeight
-                + TotalRootWeight + BurrWeightGreenBolls;
+        vegwt = TotalLeafWeight + TotalPetioleWeight + TotalStemWeight + TotalRootWeight + BurrWeightGreenBolls;
         addlfn = xtran * TotalLeafWeight / vegwt;
         addpetn = xtran * TotalPetioleWeight / vegwt;
         addstm = xtran * TotalStemWeight / vegwt;
         addrt = xtran * TotalRootWeight / vegwt;
         addbur = xtran * BurrWeightGreenBolls / vegwt;
     }
-//     Update N content in these plant parts. Note that at this stage of
-//  nitrogen allocation, only vegetative parts and burrs are updated (not
-//  seeds or squares).
+    //     Update N content in these plant parts. Note that at this stage of
+    //  nitrogen allocation, only vegetative parts and burrs are updated (not
+    //  seeds or squares).
     LeafNitrogen += addlfn;
     PetioleNitrogen += addpetn;
     StemNitrogen += addstm;
@@ -556,19 +576,20 @@ void PlantNitrogenContent(State &state)
 //
 //     The following global variables are referenced here:
 //       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls,
-//       CottonWeightOpenBolls, Gintot, LeafNitrogen, PetioleNitrogen, RootNitrogen, 
-//       SeedNitrogen, SquareNitrogen, StemNitrogen, TotalLeafWeight, TotalPetioleWeight, 
+//       CottonWeightOpenBolls, Gintot, LeafNitrogen, PetioleNitrogen, RootNitrogen,
+//       SeedNitrogen, SquareNitrogen, StemNitrogen, TotalLeafWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
 //     The following global variables are set here:
-//       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc, 
+//       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
 //       SeedNConc, SquareNConc, StemNConc.
 {
-//     The following constant parameter is used:
+    //     The following constant parameter is used:
     const double seedratio = 0.64;
-//     Compute N concentration in plant organs as the ratio of N content to weight of dry matter.
+    //     Compute N concentration in plant organs as the ratio of N content to weight of dry matter.
     if (TotalLeafWeight > 0.00001)
         LeafNConc = LeafNitrogen / TotalLeafWeight;
-    if (TotalPetioleWeight > 0.00001) {
+    if (TotalPetioleWeight > 0.00001)
+    {
         PetioleNConc = PetioleNitrogen / TotalPetioleWeight;
         PetioleNO3NConc = PetioleNConc * PetioleNitrateN(state);
     }
@@ -578,7 +599,7 @@ void PlantNitrogenContent(State &state)
         RootNConc = RootNitrogen / TotalRootWeight;
     if (TotalSquareWeight > 0)
         SquareNConc = SquareNitrogen / TotalSquareWeight;
-    double xxseed;  // weight of seeds in green and mature bolls.
+    double xxseed; // weight of seeds in green and mature bolls.
     xxseed = CottonWeightOpenBolls * (1 - Gintot) + CottonWeightGreenBolls * seedratio;
     if (xxseed > 0)
         SeedNConc = SeedNitrogen / xxseed;
@@ -595,40 +616,44 @@ void GetNitrogenStress()
 //     The following global variables are set here:
 //       NStressFruiting, NStressRoots, NStressVeg, NitrogenStress.
 //     The following file scope variables are referenced in this function:
-//       addnf, addnr, addnv, reqf, reqv, rqnrut 
+//       addnf, addnr, addnv, reqf, reqv, rqnrut
 {
-//     Set the default values for the nitrogen stress coefficients to 1.
+    //     Set the default values for the nitrogen stress coefficients to 1.
     NStressVeg = 1;
     NStressRoots = 1;
     NStressFruiting = 1;
     NitrogenStress = 1;
-//     Compute the nitrogen stress coefficients. NStressFruiting is the ratio of
-//  N added actually to the fruits, to their N requirements. NStressVeg is the
-//  same for vegetative shoot growth, and NStressRoots for roots. Also, an average
-//  stress coefficient for vegetative and reproductive organs is computed as NitrogenStress.
-//     Each stress coefficient has a value between 0 and 1.
-    if (reqf > 0) {
+    //     Compute the nitrogen stress coefficients. NStressFruiting is the ratio of
+    //  N added actually to the fruits, to their N requirements. NStressVeg is the
+    //  same for vegetative shoot growth, and NStressRoots for roots. Also, an average
+    //  stress coefficient for vegetative and reproductive organs is computed as NitrogenStress.
+    //     Each stress coefficient has a value between 0 and 1.
+    if (reqf > 0)
+    {
         NStressFruiting = addnf / reqf;
         if (NStressFruiting > 1)
             NStressFruiting = 1;
         if (NStressFruiting < 0)
             NStressFruiting = 0;
     }
-    if (reqv > 0) {
+    if (reqv > 0)
+    {
         NStressVeg = addnv / reqv;
         if (NStressVeg > 1)
             NStressVeg = 1;
         if (NStressVeg < 0)
             NStressVeg = 0;
     }
-    if (rqnrut > 0) {
+    if (rqnrut > 0)
+    {
         NStressRoots = addnr / rqnrut;
         if (NStressRoots > 1)
             NStressRoots = 1;
         if (NStressRoots < 0)
             NStressRoots = 0;
     }
-    if ((reqf + reqv) > 0) {
+    if ((reqf + reqv) > 0)
+    {
         NitrogenStress = (addnf + addnv) / (reqf + reqv);
         if (NitrogenStress > 1)
             NitrogenStress = 1;
@@ -645,12 +670,12 @@ void NitrogenUptakeRequirement()
 //
 //     The following global variables is set here:      TotalRequiredN
 //     The following global variables are referenced here:
-//       BurrNConc, BurrWeightGreenBolls, CottonWeightGreenBolls, Kday, 
-//       LeafNConc, PetioleNConc, reqtot, RootNConc, SeedNConc, SquareNConc,  
-//       StemNConc, StemWeight, TotalLeafWeight, TotalPetioleWeight, 
+//       BurrNConc, BurrWeightGreenBolls, CottonWeightGreenBolls, Kday,
+//       LeafNConc, PetioleNConc, reqtot, RootNConc, SeedNConc, SquareNConc,
+//       StemNConc, StemWeight, TotalLeafWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
 {
-//     The following constant parameters are used:
+    //     The following constant parameters are used:
     const double seedcn1 = .045;   //   further requirement for existing seed tissue.
     const double seedratio = 0.64; // the ratio of seeds to seedcotton in green bolls.
     const double vnreqlef = .042;  //  coefficient for computing N uptake requirements of leaves
@@ -660,19 +685,19 @@ void NitrogenUptakeRequirement()
     const double vnreqsqr = .024;  //  coefficient for computing N uptake requirements of squares
     const double vnreqbur = .012;  //  coefficient for computing N uptake requirements of burrs
     const int voldstm = 32;        // active stem tissue growth period, calendar days.
-//
+                                   //
     TotalRequiredN = reqtot;
-//     After the requirements of today's growth are supplied, N is also
-//  required for supplying necessary functions in other active plant tissues.
-//    Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
+    //     After the requirements of today's growth are supplied, N is also
+    //  required for supplying necessary functions in other active plant tissues.
+    //    Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
     if (LeafNConc < vnreqlef)
         TotalRequiredN += TotalLeafWeight * (vnreqlef - LeafNConc);
     if (PetioleNConc < vnreqpet)
         TotalRequiredN += TotalPetioleWeight * (vnreqpet - PetioleNConc);
-//    The active stem tissue is the stem formed during the last voldstm
-//  days (32 calendar days). add stem requirement to TotalRequiredN.
+    //    The active stem tissue is the stem formed during the last voldstm
+    //  days (32 calendar days). add stem requirement to TotalRequiredN.
     double grstmwt; // weight of actively growing stems.
-    int kkday; // day (from emergence) of oldest actively growing stem tissue.
+    int kkday;      // day (from emergence) of oldest actively growing stem tissue.
     kkday = Kday - voldstm;
     if (kkday < 1)
         grstmwt = TotalStemWeight;
@@ -680,8 +705,8 @@ void NitrogenUptakeRequirement()
         grstmwt = TotalStemWeight - StemWeight[kkday];
     if (StemNConc < vnreqstm)
         TotalRequiredN += grstmwt * (vnreqstm - StemNConc);
-//     Compute nitrogen uptake requirement for existing tissues of roots,
-//  squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
+    //     Compute nitrogen uptake requirement for existing tissues of roots,
+    //  squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
     if (RootNConc < vnreqrt)
         TotalRequiredN += TotalRootWeight * (vnreqrt - RootNConc);
     if (SquareNConc < vnreqsqr)

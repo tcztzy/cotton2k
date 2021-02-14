@@ -312,11 +312,11 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
                 adwr1[l][k] = PotGroRoots[l][k] * actgf;
         }
     //     If extra carbon is available, it is assumed to be added to the taproot.
-    if (ExtraCarbon > 0)
+    if (state.extra_carbon > 0)
     {
         double availt; // available carbon for taproot growth, in g dry matter per slab.
                        //  ExtraCarbon is converted to availt (g dry matter per slab).
-        availt = ExtraCarbon * 0.01 * sim.row_space / PerPlantArea;
+        availt = state.extra_carbon * 0.01 * sim.row_space / PerPlantArea;
         double sdl = TapRootLength - DepthLastRootLayer;
         ;                     // distance from the tip of the taproot, cm.
         double tpwt[maxl][2]; // proportionality factors for allocating added dry matter among taproot soil cells.

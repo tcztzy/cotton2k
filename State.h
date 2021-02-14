@@ -48,6 +48,7 @@ typedef struct State
     double cumulative_nitrogen_loss;         // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.
     double water_stress;                     // general water stress index (0 to 1).
     double carbon_stress;                    // carbohydrate stress factor.
+    double extra_carbon;                     // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
     double day_length;                       // day length, in hours
     double plant_height;
     double runoff;

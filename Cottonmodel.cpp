@@ -224,6 +224,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.cumulative_nitrogen_loss = 0;
                 state0.water_stress = 1;
                 state0.carbon_stress = 1;
+                state0.extra_carbon = 0;
                 state0.number_of_vegetative_branches = 1;
                 state0.number_of_squares = 0;
                 state0.number_of_green_bolls = 0;

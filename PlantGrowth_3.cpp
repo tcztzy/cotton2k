@@ -245,7 +245,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
     else
         xtrac2 = 0;
     //     ExtraCarbon is computed as total excessive carbohydrates.
-    ExtraCarbon = xtrac1 + xtrac2;
+    state.extra_carbon = xtrac1 + xtrac2;
     //     Compute FruitGrowthRatio as the ratio of carbohydrates supplied to
     //  square and boll growth to their carbohydrate requirements.
     if ((PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs) > 0)
