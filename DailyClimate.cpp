@@ -34,16 +34,10 @@ extern "C"
 {
     double dayrad(double, double, double, double);
     double dayrh(double, double);
-    double refalbed(double, double, double, double);
-    double del(double, double);
-    double gam(double, double);
-    double cloudcov(double, double, double);
     double daywnd(double, double, double, double, double, double);
     double daytmp(Simulation &, uint32_t, double, double, uint32_t, double, double);
-    double clcor(uint8_t, double, double, double, double, double, double);
     void AverageAirTemperatures(Hour[24], double &, double &, double &);
     void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &);
-    void sunangle(double, double, double, double, double &, double &);
     double tdewhour(Simulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double);
     double SimulateRunoff(Simulation &, uint32_t, double, double, uint32_t);
     void EvapoTranspiration(State &, double, double, double, double, double);

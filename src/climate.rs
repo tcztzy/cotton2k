@@ -87,8 +87,7 @@ extern "C" fn dayrh(tt: f64, tdew: f64) -> f64
 ///
 ///  Reference:
 /// Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
-#[no_mangle]
-extern "C" fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64
+fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64
 // Input arguments:
 //   isrhr = hourly extraterrestrial radiation in W m-2 .
 //   rad = hourly global radiation in W / m-2 .
@@ -114,8 +113,7 @@ extern "C" fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64
 
 /// Function del() computes the slope of the saturation vapor pressure (svp, in mb) versus air temperature (tk, in K).
 /// This algorithm is the same as used by CIMIS.
-#[no_mangle]
-extern "C" fn del(tk: f64, svp: f64) -> f64 {
+fn del(tk: f64, svp: f64) -> f64 {
     let a = 10f64.powf(-0.0304 * tk);
     let b = tk.powi(2);
     let c = 10f64.powf(-1302.88 / tk);
@@ -125,8 +123,7 @@ extern "C" fn del(tk: f64, svp: f64) -> f64 {
 /// Function gam() computes the psychometric constant at elevation (elev), m above sea level, and air temperature, C (tt).
 ///
 /// This algorithm is the same as used by CIMIS.
-#[no_mangle]
-extern "C" fn gam(elev: f64, tt: f64) -> f64 {
+fn gam(elev: f64, tt: f64) -> f64 {
     let bp = 101.3 - 0.01152 * elev + 5.44e-07 * elev.powi(2); //  barometric pressure, KPa, at this elevation.
     0.000646 * bp * (1f64 + 0.000946 * tt)
 }
@@ -161,8 +158,7 @@ extern "C" fn clearskyemiss(vp: f64, tk: f64) -> f64
 /// Reference:
 ///
 /// Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
-#[no_mangle]
-extern "C" fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64
+fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64
 // Input arguments:
 //   radihr = hourly global radiation in W m-2 .
 //   isr = hourly extraterrestrial radiation in W m-2 . 
@@ -251,8 +247,8 @@ extern "C" fn tdewest(maxt: f64, site5: f64, site6: f64) -> f64
     }
 }
 
-#[no_mangle]
-extern "C" fn clcor(
+/// computes cloud type correction, using the CIMIS algorithm.
+fn clcor(
     ihr: u8,
     ck: f64,
     isrhr: f64,
@@ -261,7 +257,6 @@ extern "C" fn clcor(
     radiation: f64,
     solar_noon: f64,
 ) -> f64
-//     Function clcor() computes cloud type correction, using the CIMIS algorithm.
 //     Input arguments:
 //            ck = cloud type correction factor (data for this location).
 //            coszhr = cosine of sun angle from zenith.
@@ -523,7 +518,7 @@ extern "C" fn AverageAirTemperatures(
 
 #[no_mangle]
 extern "C" fn daytmp(
-    sim: &mut Simulation,
+    sim: &Simulation,
     u: u32,
     ti: f64,
     site8: f64,
@@ -646,8 +641,8 @@ extern "C" fn daytmp(
     //  Agricultural Systems 51:377-393.
 }
 
-#[no_mangle]
-extern "C" fn sunangle(
+/// computes sun angle for any time of day.
+fn sunangle(
     ti: f64,
     latitude: f64,
     declination: f64,
@@ -655,7 +650,6 @@ extern "C" fn sunangle(
     coszhr: &mut f64,
     sunahr: &mut f64,
 )
-// sunangle.cpp : computes sun angle for any time of day.
 // Input argument:
 // ti = time of day, hours.
 // Output arguments:
