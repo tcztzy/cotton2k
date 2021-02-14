@@ -251,6 +251,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
 //     The following global variables are set here:
 //       CumNetPhotosynth, NetPhotosynthesis.
 {
+    State &state = sim.states[u];
     //  constants:
     const double gsubr = 0.375;  // the growth resiration factor.
     const double rsubo = 0.0032; // maintenance respiration factor.
@@ -292,7 +293,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     //     Compute ptnfac, the effect of leaf N concentration on
     //  photosynthesis, using an empirical relationship.
     double ptnfac; // correction factor for low nitrogen content in leaves.
-    ptnfac = vpnet[3] + (LeafNConc - vpnet[2]) *
+    ptnfac = vpnet[3] + (state.leaf_nitrogen_concentration - vpnet[2]) *
                             (1 - vpnet[3]) / (vpnet[1] - vpnet[2]);
     if (ptnfac > 1)
         ptnfac = 1;

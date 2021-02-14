@@ -38,7 +38,6 @@ void InitializeGlobal()
 
     LastIrrigation = 0;
     LeafAreaIndex = 0.001;
-    LeafNConc = .056;
     LeafNitrogen = 0.0112;
     LintYield = 0;
 

@@ -491,7 +491,7 @@ void PlantNitrogenContent(State &state)
     const double seedratio = 0.64;
     //     Compute N concentration in plant organs as the ratio of N content to weight of dry matter.
     if (TotalLeafWeight > 0.00001)
-        LeafNConc = LeafNitrogen / TotalLeafWeight;
+        state.leaf_nitrogen_concentration = LeafNitrogen / TotalLeafWeight;
     if (TotalPetioleWeight > 0.00001)
     {
         state.petiole_nitrogen_concentration = PetioleNitrogen / TotalPetioleWeight;
@@ -594,8 +594,8 @@ void NitrogenUptakeRequirement(State &state)
     //     After the requirements of today's growth are supplied, N is also
     //  required for supplying necessary functions in other active plant tissues.
     //    Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
-    if (LeafNConc < vnreqlef)
-        state.total_required_nitrogen += TotalLeafWeight * (vnreqlef - LeafNConc);
+    if (state.leaf_nitrogen_concentration < vnreqlef)
+        state.total_required_nitrogen += TotalLeafWeight * (vnreqlef - state.leaf_nitrogen_concentration);
     if (state.petiole_nitrogen_concentration < vnreqpet)
         state.total_required_nitrogen += TotalPetioleWeight * (vnreqpet - state.petiole_nitrogen_concentration);
     //    The active stem tissue is the stem formed during the last voldstm

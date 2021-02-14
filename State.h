@@ -63,6 +63,7 @@ typedef struct State
     double number_of_green_bolls;               // average number of retained green bolls, per plant.
     double number_of_open_bolls;                // number of open bolls, per plant.
     double total_required_nitrogen;             // total nitrogen required for plant growth, g per plant.
+    double leaf_nitrogen_concentration;         // average nitrogen concentration in leaves.
     double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];

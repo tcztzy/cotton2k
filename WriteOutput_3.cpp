@@ -66,6 +66,7 @@ void outputplt(Simulation &sim)
 //     The structure Scratch21 is extracted for each day of simulation, and
 //  data to be used for plotting are written to file '.PLT' (unit 25).
     for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
+        State &state = sim.states[irec];
         File25.unsetf(ios::left);
         File25.setf(ios::fixed);
         File25.width(4);   // I4
@@ -75,10 +76,10 @@ void outputplt(Simulation &sim)
         if (OutIndex[1] == 0)   //  metric
         {
             File25.precision(1);
-            File25 << sim.states[irec].plant_height; // cm
+            File25 << state.plant_height; // cm
         } else {
             File25.precision(2);
-            File25 << sim.states[irec].plant_height / 2.54; // inches
+            File25 << state.plant_height / 2.54; // inches
         }
         File25.width(4);
         File25.precision(0);  // I4
@@ -90,13 +91,13 @@ void outputplt(Simulation &sim)
             File25.precision(2);
         File25 << Scratch21[irec].leafAreaIndex;
         File25.width(7);     // 4F7.2 or 4F7.1
-        File25 << multi0 * sim.states[irec].number_of_squares;
+        File25 << multi0 * state.number_of_squares;
         File25.width(7);
-        File25 << multi0 * sim.states[irec].number_of_green_bolls;
+        File25 << multi0 * state.number_of_green_bolls;
         File25.width(7);
-        File25 << multi0 * sim.states[irec].number_of_open_bolls;
+        File25 << multi0 * state.number_of_open_bolls;
         File25.width(7);
-        File25 << multi0 * sim.states[irec].abscised_fruit_sites;
+        File25 << multi0 * state.abscised_fruit_sites;
         File25.precision(1);
         File25.width(7);     // F7.1
         if (OutIndex[2] == 1)
@@ -105,15 +106,15 @@ void outputplt(Simulation &sim)
             File25 << Scratch21[irec].lintYield * 10000 / PlantPopulation;
         File25.precision(3);
         File25.width(7);     // 5F7.3
-        File25 << sim.states[irec].carbon_stress;
+        File25 << state.carbon_stress;
         File25.width(7);
         File25 << Scratch21[irec].nStressFruiting;
         File25.width(7);
         File25 << Scratch21[irec].nStressVeg;
         File25.width(7);
-        File25 << Scratch21[irec].leafNConc;
+        File25 << state.leaf_nitrogen_concentration;
         File25.width(7);
-        File25 << sim.states[irec].water_stress;
+        File25 << state.water_stress;
         File25.width(8);     // F8.3
         File25 << Scratch21[irec].lwpMin;
         File25.precision(2);
@@ -202,7 +203,7 @@ void outputplt(Simulation &sim)
         File25 << multi1 * Scratch21[irec].cottonWeightOpenBolls;
         File25.precision(3);
         File25.width(7);     // 6F7.3
-        File25 << sim.states[irec].petiole_nitrogen_concentration;
+        File25 << state.petiole_nitrogen_concentration;
         File25.width(7);
         File25 << Scratch21[irec].petioleNO3NConc;
         File25.width(7);
@@ -250,7 +251,7 @@ void output2(Simulation &sim)
         File46.width(8);
         File46 << Scratch21[irec].nStressVeg;
         File46.width(8);
-        File46 << Scratch21[irec].leafNConc;
+        File46 << sim.states[irec].leaf_nitrogen_concentration;
         File46.width(8);
         File46 << sim.states[irec].water_stress;
         File46.width(8);

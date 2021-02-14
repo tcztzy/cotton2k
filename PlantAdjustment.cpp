@@ -41,7 +41,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
                                             + addwtbl - TotalSoilWater - CumTranspiration
                                             - CumEvaporation - CumWaterDrained;
     Scratch21[u].leafAreaIndex = LeafAreaIndex;
-    Scratch21[u].leafNConc = LeafNConc;
     Scratch21[u].lightIntercept = LightIntercept;
     Scratch21[u].lintYield = LintYield;
     Scratch21[u].lwpMin = LwpMin;
