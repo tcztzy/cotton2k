@@ -516,6 +516,83 @@ extern "C" fn AverageAirTemperatures(
     *average_daytime_air_temperature /= (24 - night_hours) as f64;
 }
 
+/// computes and returns the hourly values of air temperature, using the
+/// measured daily maximum and minimum.
+///
+/// The algorithm is described in Ephrath et al. (1996). It is based on the
+/// following assumptions:
+///
+/// 1. The time of minimum daily temperature is at sunrise.
+/// 2. The time of maximum daily temperature is SitePar[8] hours after solar
+///    noon.
+///  
+/// Many models assume a sinusoidal curve of the temperature during the day,
+/// but actual data deviate from the sinusoidal curve in the following
+/// characteristic way: a faster increase right after sunrise, a near plateau
+/// maximum during several hours in the middle of the day, and a rather fast
+/// decrease by sunset. The physical reason for this is a more efficient mixing
+/// of heated air from ground level into the atmospheric boundary layer, driven
+/// by strong lapse temperature gradients buoyancy.
+///
+/// NOTE: **will be used for "power" as in Fortran notation**.
+///
+/// A first order approximation is
+///
+///     daytmp = tmin + (tmax-tmin) * st * tkk / (tkk + daytmp - tmin)
+///
+/// where
+///
+///     st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * SitePar[8]))
+///
+/// Since daytmp appears on both sides of the first equation, it can be solved
+/// and written explicitly as:
+///
+///     daytmp = tmin - tkk/2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * st)
+///
+/// where the amplitude of tmin and tmax is calculated as
+///
+///     amp = (tmax - tmin) * (1 + (tmax - tmin) / tkk)
+///
+/// This ensures that temperature still passes through tmin and tmax values.
+///
+/// The value of tkk was determined by calibration as 15.
+///
+/// This algorithm is used for the period from sunrise to the time of maximum
+/// temperature, hmax. A similar algorithm is used for the time from hmax to
+/// sunset, but the value of the minimum temperature of the next day
+/// (mint_tomorrow) is used instead of mint_today.
+///
+/// Night air temperature is described by an exponentially declining curve.
+///
+/// For the time from sunset to mid-night:
+///
+///     daytmp = (mint_tomorrow - sst * exp((dayl - 24) / tcoef)
+///              + (sst - mint_tomorrow) * exp((suns - ti) / tcoef))
+///              / (1 - exp((dayl - 24) / tcoef))
+///
+/// where tcoef is a time coefficient, determined by calibration as 4, sst is
+/// the sunset temperature, determined by the daytime equation as:
+///
+///     sst = mint_tomorrow - tkk / 2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * sts)
+///
+/// where
+///
+///     sts  = sin(pi * dayl / (dayl + 2 * SitePar[8]))
+///     amp = (tmax - mint_tomorrow) * (1 + (tmax - mint_tomorrow) / tkk)
+///
+/// For the time from midnight to sunrise, similar equations are used, but the
+/// minimum temperature of this day (mint_today) is used instead of
+/// mint_tomorrow, and the maximum temperature of the previous day
+/// (maxt_yesterday) is used instead of maxt_today. Also, (suns-ti-24) is used
+/// for the time variable instead of (suns-ti).
+///
+/// These exponential equations for night-time temperature ensure that the
+/// curve will be continuous with the daytime equation at sunset, and will pass
+/// through the minimum temperature at sunrise.
+///
+/// Reference:
+///
+/// Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling diurnal patterns of air temperature, radiation, wind speed and relative humidity by equations from daily characteristics. Agricultural Systems 51:377-393.
 #[no_mangle]
 extern "C" fn daytmp(
     sim: &Simulation,
@@ -526,58 +603,10 @@ extern "C" fn daytmp(
     sunr: f64,
     suns: f64,
 ) -> f64
-//     Function daytmp() computes and returns the hourly values of air temperature,
-//  using the measured daily maximum and minimum.
-//     The algorithm is described in Ephrath et al. (1996). It is based on
-//  the following assumptions:
-//     The time of minimum daily temperature is at sunrise.
-//     The time of maximum daily temperature is SitePar[8] hours after solar noon.
-//     Many models assume a sinusoidal curve of the temperature during the day,
-//  but actual data deviate from the sinusoidal curve in the following characteristic
-//  way: a faster increase right after sunrise, a near plateau maximum during several
-//  hours in the middle of the day, and a rather fast decrease by sunset. The physical
-//  reason for this is a more efficient mixing of heated air from ground level into the
-//  atmospheric boundary layer, driven by strong lapse temperature gradients buoyancy.
-//     Note: ** will be used for "power" as in Fortran notation.
-//     A first order approximation is
-//       daytmp = tmin + (tmax-tmin) * st * tkk / (tkk + daytmp - tmin)
-//  where
-//       st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * SitePar[8]))
-//     Since daytmp appears on both sides of the first equation, it
-//  can be solved and written explicitly as:
-//      daytmp = tmin - tkk/2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * st)
-//  where the amplitude of tmin and tmax is calculated as
-//      amp = (tmax - tmin) * (1 + (tmax - tmin) / tkk)
-//     This ensures that temperature still passes through tmin and tmax values.
-//     The value of tkk was determined by calibration as 15.
-//     This algorithm is used for the period from sunrise to the time of maximum temperature,
-//  hmax. A similar algorithm is used for the time from hmax to sunset, but the value of the
-//  minimum temperature of the next day (mint_tomorrow) is used instead of mint_today.
-//     Night air temperature is described by an exponentially declining curve.
-//     For the time from sunset to mid-night:
-//        daytmp = (mint_tomorrow - sst * exp((dayl - 24) / tcoef)
-//               + (sst - mint_tomorrow) * exp((suns - ti) / tcoef))
-//               / (1 - exp((dayl - 24) / tcoef))
-//  where
-//        tcoef is a time coefficient, determined by calibration as 4
-//        sst is the sunset temperature, determined by the daytime equation as:
-//        sst = mint_tomorrow - tkk / 2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * sts)
-//  where
-//        sts  = sin(pi * dayl / (dayl + 2 * SitePar[8]))
-//        amp = (tmax - mint_tomorrow) * (1 + (tmax - mint_tomorrow) / tkk)
-//      For the time from midnight to sunrise, similar equations are used, but the minimum
-//  temperature of this day (mint_today) is used instead of mint_tomorrow, and the maximum
-//  temperature of the previous day (maxt_yesterday) is used instead of maxt_today. Also,
-//  (suns-ti-24) is used for the time variable instead of (suns-ti).
-//      These exponential equations for night-time temperature ensure that the curve will
-//  be continuous with the daytime equation at sunset, and will pass through the minimum
-//  temperature at sunrise.
-//
 //  Input argument:
 //     ti - time of day (hours).
 //  Global variables used:
 //     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
-//
 {
     let states = unsafe {
         std::slice::from_raw_parts_mut(sim.states, (sim.day_finish - sim.day_start + 1) as usize)
@@ -634,11 +663,6 @@ extern "C" fn daytmp(
             / (1. - ((state.day_length - 24f64) / tcoef).exp());
     }
     HourlyTemperature
-    //     Reference:
-    //     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
-    //  diurnal patterns of air temperature, radiation, wind speed and
-    //  relative humidity by equations from daily characteristics.
-    //  Agricultural Systems 51:377-393.
 }
 
 /// computes sun angle for any time of day.
@@ -763,28 +787,28 @@ extern "C" fn SimulateRunoff(
 {
     let iGroup: SoilRunoff;
     let d01: f64; // Adjustment of curve number for soil groups A,B,C.
-                  //     The following is computed only the first time the function is called.
-                  //     Infiltration rate is estimated from the percent sand and percent clay in the Ap layer.
-                  //  If clay content is greater than 35%, the soil is assumed to have a higher runoff potential,
-                  //  if clay content is less than 15% and sand is greater than 70%, a lower runoff potential is
-                  //  assumed. Other soils (loams) assumed moderate runoff potential. No 'impermeable' (group D)
-                  //  soils are assumed.  References: Schwab, Brady.
+
+    // Infiltration rate is estimated from the percent sand and percent clay in the Ap layer.
+    // If clay content is greater than 35%, the soil is assumed to have a higher runoff potential,
+    // if clay content is less than 15% and sand is greater than 70%, a lower runoff potential is
+    // assumed. Other soils (loams) assumed moderate runoff potential. No 'impermeable' (group D)
+    // soils are assumed.  References: Schwab, Brady.
 
     if SandVolumeFraction > 0.70 && ClayVolumeFraction < 0.15 {
-        //     Soil group A = 1, low runoff potential
+        // Soil group A = 1, low runoff potential
         iGroup = SoilRunoff::Low;
         d01 = 1.0;
     } else if ClayVolumeFraction > 0.35 {
-        //     Soil group C = 3, high runoff potential
+        // Soil group C = 3, high runoff potential
         iGroup = SoilRunoff::High;
         d01 = 1.14;
     } else {
-        //     Soil group B = 2, moderate runoff potential
+        // Soil group B = 2, moderate runoff potential
         iGroup = SoilRunoff::Moderate;
         d01 = 1.09;
     }
-    //     Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability
-    //  to accept new rainfall. This also includes all irrigations.
+    // Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability
+    // to accept new rainfall. This also includes all irrigations.
     let mut i01 = u as i32 - 5;
     if i01 < 0 {
         i01 = 0;
