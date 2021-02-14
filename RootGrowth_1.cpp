@@ -99,7 +99,7 @@ double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const
                                //     Initialize to zero the PotGroRoots array.
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
-            PotGroRoots[l][k] = 0;
+            root[l][k].potential_growth = 0;
     RootImpedance(ncurve);
     double sumpdr = 0; // sum of potential root growth rate for the whole slab
     for (int l = 0; l < NumLayersWithRoots; l++)
@@ -175,8 +175,8 @@ double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const
                     minres = rtrdn;
                 double rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k]);
                 RootGroFactor[l][k] = rtpsi * minres;
-                PotGroRoots[l][k] = rtwtcg * rgfac * temprg * RootGroFactor[l][k] * PerPlantArea / 19.6;
-                sumpdr += PotGroRoots[l][k];
+                root[l][k].potential_growth = rtwtcg * rgfac * temprg * RootGroFactor[l][k] * PerPlantArea / 19.6;
+                sumpdr += root[l][k].potential_growth;
             } // if RootAge
         }     // end loop l & k
     return sumpdr;
@@ -309,7 +309,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         {
             //     adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
             if (state.root[l][k].age > 0)
-                adwr1[l][k] = PotGroRoots[l][k] * actgf;
+                adwr1[l][k] = state.root[l][k].potential_growth * actgf;
         }
     //     If extra carbon is available, it is assumed to be added to the taproot.
     if (state.extra_carbon > 0)

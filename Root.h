@@ -2,7 +2,7 @@
 #define ROOT_TYPE
 typedef struct RootStruct
 {
-    double potential_growth;
+    double potential_growth; // potential root growth in a soil cell (g per day).
     double growth_factor;
     double actual_growth;
     double age;

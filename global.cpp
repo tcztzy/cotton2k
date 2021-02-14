@@ -164,7 +164,6 @@ double
     PotGroLeafAreaPreFru[9],          // potentially added area of a prefruiting node leaf, dm2 day-1.
     PotGroLeafWeightPreFru[9],        // potentially added weight of a prefruiting node leaf, g day-1.
     PotGroPetioleWeightPreFru[9],     // potentially added weight of a prefruiting node petiole, g day-1.
-    PotGroRoots[maxl][maxk],          // potential root growth in a soil cell (g per day).
     PotGroStem,                       // potential growth rate of stems, g plant-1 day-1.
     RatioImplicit,                    // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
     ReserveC,                         // reserve carbohydrates in leaves, g per plant.

@@ -406,7 +406,6 @@ void InitializeRootData(Simulation & sim)
         }
 //
         for (int k = 0; k < nk; k++) {
-            PotGroRoots[l][k] = 0;
             RootGroFactor[l][k] = 1;
         }
     }
