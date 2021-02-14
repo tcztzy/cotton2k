@@ -598,7 +598,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     const double vnewboll[2] = {0.31, 0.02};
     //     If bPollinSwitch is false accumulate number of blooms to be dropped,
     //  and define FruitingCode as 6.
-    if (!bPollinSwitch)
+    if (!state.pollination_switch)
     {
         site.stage = Stage::AbscisedAsFlower;
         site.fraction = 0;

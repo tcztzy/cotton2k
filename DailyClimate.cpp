@@ -87,10 +87,7 @@ void DayClim(Simulation &sim, uint32_t u)
     //     Set 'pollination switch' for rainy days (as in GOSSYM).
     double rainToday; // The amount of rain today, mm
     rainToday = sim.climate[u].Rain;
-    if (rainToday >= 2.5)
-        bPollinSwitch = false;
-    else
-        bPollinSwitch = true;
+    state.pollination_switch = rainToday < 2.5;
     //     Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
     //     Note: this is modified from the original GOSSYM - RRUNOFF routine. It is called here
     //  for rainfall only, but it is not activated when irrigation is applied.

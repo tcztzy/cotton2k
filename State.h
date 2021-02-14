@@ -1,5 +1,6 @@
 #ifndef STATE_TYPE
 #define STATE_TYPE
+#include "stdbool.h"
 #include "Root.h"
 #include "FruitingSite.h"
 
@@ -62,6 +63,7 @@ typedef struct State
     double number_of_green_bolls;               // average number of retained green bolls, per plant.
     double number_of_open_bolls;                // number of open bolls, per plant.
     double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
+    bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];
     Root root[40][20];

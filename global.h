@@ -59,8 +59,6 @@ extern int DayFirstDef,
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
     LateralRootFlag[maxl], OutIndex[24],
     RootColNumLeft[maxl], RootColNumRight[maxl], SoilHorizonNum[maxl];
-////    Boolean    ////
-extern bool bPollinSwitch;
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth,
     ActualSquareGrowth, ActualSoilEvaporation, ActualStemGrowth, ActualTranspiration, addwtbl,

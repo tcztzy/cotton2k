@@ -57,8 +57,6 @@ int OutIndex[24],          // output flags.
     SoilMapFreq,           // frequency of output of soil slab maps
     WaterTableLayer;       // number of uppermost soil layer below water table.
 
-bool bPollinSwitch; // pollination switch: false = no pollination, true = yes.
-
 double
     AbscissionLag[20],                // the time (in physiological days) from tagging fruiting sites for shedding.
     ActualBollGrowth,                 // total actual growth of seedcotton in bolls, g plant-1 day-1.
