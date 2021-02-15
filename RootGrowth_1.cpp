@@ -279,7 +279,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     //
     static double pavail; // residual available carbon for root growth from previous day.
                           //     Assign zero to pavail if this is the day of emergence.
-    if (sim.day_start + u <= sim.day_emerge)
+    if (state.daynum <= sim.day_emerge)
         pavail = 0;
     double adwr1[maxl][maxk]; // actual growth rate from roots existing in this soil cell.
                               //     Assign zero to the arrays of actual root growth rate.
@@ -411,7 +411,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         }
     //     Check if cultivation is executed in this day and call RootCultivation().
     for (int j = 0; j < 5; j++)
-        if (CultivationDate[j] == sim.day_start + u)
+        if (CultivationDate[j] == state.daynum)
             DailyRootLoss = RootCultivation(state.root, j, NumRootAgeGroups, DailyRootLoss);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;

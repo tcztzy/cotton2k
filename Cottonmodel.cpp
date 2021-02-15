@@ -213,10 +213,12 @@ void C2KApp::DailySimulation(Simulation &sim)
             if (i > 0)
             {
                 memcpy(&sim.states[i], &sim.states[i - 1], sizeof(State));
+                sim.states[i].daynum++;
             }
             else
             {
                 State &state0 = sim.states[0];
+                state0.daynum = sim.day_start;
                 state0.lint_yield = 0;
                 state0.number_of_layers_with_root = 7;
                 state0.plant_height = 4.0;
@@ -280,6 +282,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
 //  isw, Kday.
 //
 {
+    State &state = sim.states[u];
     double rracol[20]; // the relative radiation received by a soil column, as affected by shading by plant canopy.
     // days from emergence
     if (sim.day_emerge <= 0)
@@ -296,7 +299,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     SoilNitrogen(sim, u);            // computes nitrogen transformations in the soil.
     SoilSum(sim);                    // computes totals of water and N in the soil.
                                      //     The following is executed each day after plant emergence:
-    if (sim.day_start + u >= sim.day_emerge && isw > 0)
+    if (state.daynum >= sim.day_emerge && isw > 0)
     {
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
@@ -316,7 +319,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     //     Check if the date to stop simulation has been reached, or if this is the last day
     //  with available weather data. Simulation will also stop when no leaves remain on the plant.
     //
-    if (sim.day_start + u >= LastDayWeatherData || (Kday > 10 && LeafAreaIndex < 0.0002))
+    if (state.daynum >= LastDayWeatherData || (Kday > 10 && LeafAreaIndex < 0.0002))
         throw SimulationEnd();
 }
 /////////////////////////////////////////////////////////////////////////////

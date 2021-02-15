@@ -271,7 +271,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
         throw SimulationEnd();
     //     If this is the first time the function is executed, get the ambient CO2 correction.
     static double AmbientCO2Factor; // correction factor for ambient CO2 in air
-    if (sim.day_start + u <= sim.day_emerge)
+    if (state.daynum <= sim.day_emerge)
     {
         int co2indx = sim.year - 1960; // count of years from 1960.
         if (co2indx < 0)
@@ -286,7 +286,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     //     CO2EnrichmentFactor is used for CO2 enrichment simulations, between DOY
     //  dates DayStartCO2 and DayEndCO2.
     double pnetcor; // correction factor for gross photosynthesis.
-    if (sim.day_start + u >= sim.day_start_co2 && sim.day_start + u <= sim.day_end_co2 && sim.co2_enrichment_factor > 1)
+    if (state.daynum >= sim.day_start_co2 && state.daynum <= sim.day_end_co2 && sim.co2_enrichment_factor > 1)
         pnetcor = AmbientCO2Factor * vpnet[0] * sim.co2_enrichment_factor;
     else
         pnetcor = AmbientCO2Factor * vpnet[0];

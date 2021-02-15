@@ -110,7 +110,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
     addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
 
     //   The following subroutines are now called:
-    NitrogenRequirement(state, sim.profile_name, sim.day_start + u, sim.day_emerge, state.extra_carbon); //  computes the N requirements for growth.
+    NitrogenRequirement(state, sim.profile_name, state.daynum, sim.day_emerge, state.extra_carbon); //  computes the N requirements for growth.
     NitrogenSupply(state, sim.profile_name);                                                      //  computes the supply of N from uptake and reserves.
     NitrogenAllocation();                                                                         //  computes the allocation of N in the plant.
     if (xtran > 0)

@@ -70,7 +70,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     If irrigation is to be predicted for this day, call ComputeIrrigation() 
 //  to compute the actual amount of irrigation.
     if (MaxIrrigation > 0)
-        if (sim.day_start + u >= DayStartPredIrrig && sim.day_start + u < DayStopPredIrrig) {
+        if (state.daynum >= DayStartPredIrrig && state.daynum < DayStopPredIrrig) {
             ComputeIrrigation(sim, u);
             if (IrrigMethod == 2)
                 DripWaterAmount = state.applied_water;
@@ -81,7 +81,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     When water is added by an irrigation defined in the input: update the amount
 //  of applied water.
     for (int i = 0; i < NumIrrigations; i++) {
-        if (sim.day_start + u == sim.irrigation[i].day) {
+        if (state.daynum == sim.irrigation[i].day) {
             if (sim.irrigation[i].method == 2) {
                 DripWaterAmount += sim.irrigation[i].amount;
                 LocationColumnDrip = sim.irrigation[i].LocationColumnDrip;
@@ -95,7 +95,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
     if (Kday > 0)
         Scratch21[u].amitri = WaterToApply + DripWaterAmount;
 //     The following will be executed only after plant emergence
-    if (sim.day_start + u >= sim.day_emerge && isw > 0) {
+    if (state.daynum >= sim.day_emerge && isw > 0) {
         RootsCapableOfUptake(sim.states[u].number_of_layers_with_root,
                              sim.states[u].root);  // function computes roots capable of uptake for each soil cell
         AverageSoilPsi = AveragePsi(sim.states[u]); // function computes the average matric soil water
@@ -145,11 +145,11 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     If the output flag OutIndex(17) is non-zero, write to output file *.WAT.
 //  This flag is also the interval in days between outputs. This is used for checking only.
     if (OutIndex[17] > 0) {
-        int kkk = sim.day_start + u / OutIndex[17];
-        if (kkk * OutIndex[17] == sim.day_start + u) {
+        int kkk = state.daynum / OutIndex[17];
+        if (kkk * OutIndex[17] == state.daynum) {
             ofstream File42(fs::path("output") / (string(sim.profile_name) + ".WAT"), ios::app);
             File42 << endl << " Average Values by Layers on Day of Year ";
-            File42 << sim.day_start + u << endl;
+            File42 << state.daynum << endl;
             File42 << " Layer          VolWaterContent          SoilPsi " << endl;
             for (int l = 0; l < nl; l++) {
 //     Compute for each layer the average water content and the average matric water potential. 

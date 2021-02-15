@@ -42,6 +42,7 @@ typedef struct VegetativeBranchStruct
 typedef struct State
 {
     char date[12];
+    unsigned int daynum;
     double day_inc;                  // physiological days increment for this day. computes physiological age
     double lint_yield;               // yield of lint, kgs per hectare.
     double bloom_weight_loss;        // cumulative weight lost due to petals shed after blooming, g per plant.

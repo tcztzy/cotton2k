@@ -20,7 +20,7 @@ void MainStemLeafAbscission(State &, int, int, double, const int &);
 
 void FruitNodeLeafAbscission(State &, int, int, int, double, const int &);
 
-void DefoliationLeafAbscission(State &, const int &);
+void DefoliationLeafAbscission(State &);
 
 extern "C"
 {
@@ -51,17 +51,17 @@ void LeafAbscission(Simulation &sim, uint32_t u)
     droplf = vdrop1 - vdrop2 * LeafAreaIndex;
     //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
     //  prefruiting node leaves.
-    PreFruitLeafAbscission(state, droplf, sim.day_start + u, sim.first_square, state.day_inc);
+    PreFruitLeafAbscission(state, droplf, state.daynum, sim.first_square, state.day_inc);
     //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
     //  for each fruiting branch to simulate the physiological abscission of the other leaves.
     for (int k = 0; k < state.number_of_vegetative_branches; k++)
     {
         for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
-            MainStemLeafAbscission(state, k, l, droplf, sim.day_start + u);
+            MainStemLeafAbscission(state, k, l, droplf, state.daynum);
     }
     //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
-    if (DayFirstDef > 0 && sim.day_start + u >= DayFirstDef)
-        DefoliationLeafAbscission(state, sim.day_start + u);
+    if (DayFirstDef > 0 && state.daynum >= DayFirstDef)
+        DefoliationLeafAbscission(state);
     //     If the reserves in the leaf are too high, add the lost reserves
     //  to AbscisedLeafWeight and adjust ReserveC.
     if (ReserveC > 0)
@@ -221,7 +221,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
 }
 
 /////////////////////////
-void DefoliationLeafAbscission(State &state, const int &Daynum)
+void DefoliationLeafAbscission(State &state)
 //     This function simulates leaf abscission caused by defoliants.
 //     It is called from function LeafAbscission().
 //
@@ -238,7 +238,7 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
 {
     //     When this is the first day of defoliation - if there are any leaves left on the
     //  prefruiting nodes, they will be shed at this stage.
-    if (Daynum == DayFirstDef)
+    if (state.daynum == DayFirstDef)
     {
         for (int j = 0; j < NumPreFruNodes; j++)
         {
@@ -259,7 +259,7 @@ void DefoliationLeafAbscission(State &state, const int &Daynum)
     }         //  if Daynum
               //     When this is after the first day of defoliation - count the
               //  number of existing leaves (lefcnt) and sort them by age
-    if (Daynum <= DayFirstDef)
+    if (state.daynum <= DayFirstDef)
         return;
     //
     double SortByAge[450]; // array of site ages to be sorted

@@ -106,13 +106,13 @@ void CottonPhenology(Simulation &sim, uint32_t u)
                                   //  formation of prefruiting nodes.
     if (sim.first_square <= 0)
     {
-        DaysTo1stSqare = DaysToFirstSquare(sim.day_start + u, sim.day_emerge, AvrgDailyTemp, state.water_stress, NStressVeg, VarPar[30]);
+        DaysTo1stSqare = DaysToFirstSquare(state.daynum, sim.day_emerge, AvrgDailyTemp, state.water_stress, NStressVeg, VarPar[30]);
         PreFruitingNode(stemNRatio, state.day_inc);
         //      When first square is formed, FirstSquare is assigned the day of year.
         //  Function CreateFirstSquare() is called for formation of first square.
         if (Kday >= (int)DaysTo1stSqare)
         {
-            sim.first_square = sim.day_start + u;
+            sim.first_square = state.daynum;
             CreateFirstSquare(state, stemNRatio);
         }
         //      if a first square has not been formed, call LeafAbscission() and exit.
@@ -495,7 +495,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     agefac = (1 - WaterStress) * vfrsite[0] + (1 - NStressVeg) * vfrsite[1];
     site.leaf.age += state.day_inc + agefac;
     //  After the application of defoliation, add the effect of defoliation on leaf age.
-    if (DayFirstDef > 0 && sim.day_start + u > DayFirstDef)
+    if (DayFirstDef > 0 && state.daynum > DayFirstDef)
         site.leaf.age += VarPar[38];
     //     FruitingCode = 3, 4, 5 or 6 indicates that this node has an open boll,
     //  or has been completely abscised. Return in this case.
@@ -538,7 +538,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
             NewBollFormation(state, state.site[k][l][m]);
             //     If this is the first flower, define FirstBloom.
             if (CottonWeightGreenBolls > 0 && sim.first_bloom <= 1)
-                sim.first_bloom = sim.day_start + u;
+                sim.first_bloom = state.daynum;
             //     Determine node of most recent white flower.
             if (k == 0 && m == 0)
                 NodeRecentWhiteFlower = max(NodeRecentWhiteFlower, l);
@@ -673,8 +673,8 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     if (dehiss > vboldhs[4])
         dehiss = vboldhs[4];
     //     Dehiss is decreased after a defoliation.
-    if (DayFirstDef > 0 && sim.day_start + u > DayFirstDef)
-        dehiss = dehiss * pow(vboldhs[5], (sim.day_start + u - DayFirstDef));
+    if (DayFirstDef > 0 && state.daynum > DayFirstDef)
+        dehiss = dehiss * pow(vboldhs[5], (state.daynum - DayFirstDef));
     //     If leaf area index is less than dpar1, decrease dehiss.
     if (LeafAreaIndex < ddpar1)
     {

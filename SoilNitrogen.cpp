@@ -75,7 +75,7 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
         for (int k = 0; k < nk; k++) {
             if (VolUreaNContent[l][k] > 0)
                 UreaHydrolysis(l, k);
-            MineralizeNitrogen(l, k, sim.day_start + u, sim.day_start);
+            MineralizeNitrogen(l, k, sim.states[u].daynum, sim.day_start);
             if (VolNh4NContent[l][k] > 0.00001)
                 Nitrification(l, k, depth[l]);
 //     Denitrification() is called if there are enough water and nitrates in the

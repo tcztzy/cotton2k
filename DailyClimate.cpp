@@ -64,7 +64,7 @@ void DayClim(Simulation &sim, uint32_t u)
 {
     State &state = sim.states[u];
     //     Compute day length and related variables:
-    ComputeDayLength(sim.day_start + u, sim.year, sim.latitude, sim.longitude, declination, tmpisr, state.solar_noon, state.day_length, sunr, suns);
+    ComputeDayLength(state.daynum, sim.year, sim.latitude, sim.longitude, declination, tmpisr, state.solar_noon, state.day_length, sunr, suns);
     //
     double xlat = sim.latitude * pi / 180;    // latitude converted to radians.
     double cd = cos(xlat) * cos(declination); // amplitude of the sine of the solar height.

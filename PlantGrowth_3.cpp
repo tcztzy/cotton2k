@@ -486,7 +486,7 @@ void Defoliate(Simulation &sim, uint32_t u)
     static double tdfkgh; // total cumulative amount of defoliant
     static int idsw;      // switch indicating if predicted defoliation date was defined.
                           //     If this is first day set initial values of tdfkgh, defkgh and idsw to 0.
-    if (sim.day_start + u <= sim.day_emerge)
+    if (state.daynum <= sim.day_emerge)
     {
         tdfkgh = 0;
         defkgh = 0;
@@ -505,14 +505,14 @@ void Defoliate(Simulation &sim, uint32_t u)
                 //     If this is first defoliation - check the percentage of boll opening.
                 //     If it is after the defined date, or the percent boll opening is greater than the
                 //  defined threshold - set defoliation date as this day and set a second prediction.
-                if ((sim.day_start + u >= DefoliationDate[i] && DefoliationDate[0] > 0) ||
+                if ((state.daynum >= DefoliationDate[i] && DefoliationDate[0] > 0) ||
                     OpenRatio > DefoliationMethod[i])
                 {
                     idsw = 1;
-                    DefoliationDate[i] = sim.day_start + u;
+                    DefoliationDate[i] = state.daynum;
                     DefoliantAppRate[1] = -99.9;
-                    if (sim.day_start + u < DayFirstDef || DayFirstDef <= 0)
-                        DayFirstDef = sim.day_start + u;
+                    if (state.daynum < DayFirstDef || DayFirstDef <= 0)
+                        DayFirstDef = state.daynum;
                     DefoliationMethod[i] = 0;
                 } // if Daynum
             }     // if i, idsw
@@ -520,9 +520,9 @@ void Defoliate(Simulation &sim, uint32_t u)
                   //  leaf area index is still greater than 0.2, set another defoliation.
             if (i >= 1)
             {
-                if (sim.day_start + u == (DefoliationDate[i - 1] + 10) && LeafAreaIndex >= 0.2)
+                if (state.daynum == (DefoliationDate[i - 1] + 10) && LeafAreaIndex >= 0.2)
                 {
-                    DefoliationDate[i] = sim.day_start + u;
+                    DefoliationDate[i] = state.daynum;
                     if (i < 4)
                         DefoliantAppRate[i + 1] = -99.9;
                     DefoliationMethod[i] = 0;
@@ -530,7 +530,7 @@ void Defoliate(Simulation &sim, uint32_t u)
             }     // if i>=1
         }         //  if NumOpenBolls
                   //
-        if (sim.day_start + u == DefoliationDate[i])
+        if (state.daynum == DefoliationDate[i])
         {
             //     Report defoliation to output file B01.
             b01_append_defoliant(sim.profile_name, sim.states[u].date);
@@ -553,10 +553,10 @@ void Defoliate(Simulation &sim, uint32_t u)
           //  average daily temperature, leaf water potential, days after first
           //  defoliation application, and tdfkgh. The regression equation is
           //  modified from the equation suggested in GOSSYM.
-        if (DefoliationDate[i] > 0 && sim.day_start + u > DayFirstDef)
+        if (DefoliationDate[i] > 0 && state.daynum > DayFirstDef)
         {
             double dum = -LwpMin * 10; // value of LwpMin in bars.
-            PercentDefoliation = p1 + p2 * AvrgDailyTemp + p3 * tdfkgh + p4 * (sim.day_start + u - DayFirstDef) + p5 * dum - p6 * dum * dum + p7 * AvrgDailyTemp * tdfkgh * (sim.day_start + u - DayFirstDef) * dum;
+            PercentDefoliation = p1 + p2 * AvrgDailyTemp + p3 * tdfkgh + p4 * (state.daynum - DayFirstDef) + p5 * dum - p6 * dum * dum + p7 * AvrgDailyTemp * tdfkgh * (state.daynum - DayFirstDef) * dum;
             if (PercentDefoliation < 0)
                 PercentDefoliation = 0;
             double perdmax = 40; // maximum possible percent of defoliation.
