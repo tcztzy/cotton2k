@@ -190,7 +190,7 @@ void outputplt(Simulation &sim)
         File25 << supn;
         File25.precision(3);
         File25.width(7);     // F7.3
-        File25 << Scratch21[irec].nitrogenStress;
+        File25 << state.nitrogen_stress;
         File25.precision(2);
         File25.width(9);     // 3F9.2
         if (OutIndex[1] == 0)   //  metric

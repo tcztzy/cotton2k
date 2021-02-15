@@ -29,7 +29,7 @@ void ExtraNitrogenAllocation();
 
 void PlantNitrogenContent(State &);
 
-void GetNitrogenStress();
+void GetNitrogenStress(State &);
 
 void NitrogenUptakeRequirement(State &);
 
@@ -116,7 +116,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
     if (xtran > 0)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
     PlantNitrogenContent(state);   // computes the concentrations of N in plant dry matter.
-    GetNitrogenStress();           //  computes nitrogen stress factors.
+    GetNitrogenStress(state);           //  computes nitrogen stress factors.
     NitrogenUptakeRequirement(state);   // computes N requirements for uptake
 }
 
@@ -514,7 +514,7 @@ void PlantNitrogenContent(State &state)
 }
 
 //////////////////////////
-void GetNitrogenStress()
+void GetNitrogenStress(State &state)
 //     This function computes the nitrogen stress factors. It is called from PlantNitrogen().
 //
 //     The following global variables are set here:
@@ -526,7 +526,7 @@ void GetNitrogenStress()
     NStressVeg = 1;
     NStressRoots = 1;
     NStressFruiting = 1;
-    NitrogenStress = 1;
+    state.nitrogen_stress = 1;
     //     Compute the nitrogen stress coefficients. NStressFruiting is the ratio of
     //  N added actually to the fruits, to their N requirements. NStressVeg is the
     //  same for vegetative shoot growth, and NStressRoots for roots. Also, an average
@@ -558,11 +558,11 @@ void GetNitrogenStress()
     }
     if ((reqf + reqv) > 0)
     {
-        NitrogenStress = (addnf + addnv) / (reqf + reqv);
-        if (NitrogenStress > 1)
-            NitrogenStress = 1;
-        if (NitrogenStress < 0)
-            NitrogenStress = 0;
+        state.nitrogen_stress = (addnf + addnv) / (reqf + reqv);
+        if (state.nitrogen_stress > 1)
+            state.nitrogen_stress = 1;
+        if (state.nitrogen_stress < 0)
+            state.nitrogen_stress = 0;
     }
 }
 

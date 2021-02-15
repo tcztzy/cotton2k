@@ -44,7 +44,6 @@ void InitializeGlobal()
     MaxIrrigation = 0;
     MineralizedOrganicN = 0;
 
-    NitrogenStress = 1;
     NumAbscisedLeaves = 0;
     NumPreFruNodes = 1;
     NumSheddingTags = 0;

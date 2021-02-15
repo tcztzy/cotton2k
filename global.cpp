@@ -140,7 +140,6 @@ double
     MulchTemp[maxk],                  // polyethylene mulch temperature at a column(oK).
     NetPhotosynthesis,                // net photosynthetic rate, g per plant per day.
     NightTimeTemp,                    // average night-time temperature, C.
-    NitrogenStress,                   // the average nitrogen stress coefficient for vegetative and reproductive organs
     NO3FlowFraction[maxl],            // fraction of nitrate that can move to the next layer.
     NStressFruiting,                  // nitrogen stress limiting fruit development.
     NStressRoots,                     // nitrogen stress limiting root development.

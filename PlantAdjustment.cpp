@@ -48,7 +48,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].mineralizedOrganicN = MineralizedOrganicN;
     Scratch21[u].netPhotosynthesis = NetPhotosynthesis;
     Scratch21[u].nightTimeTemp = NightTimeTemp;
-    Scratch21[u].nitrogenStress = NitrogenStress;
     Scratch21[u].nStressFruiting = NStressFruiting;
     Scratch21[u].nStressVeg = NStressVeg;
     Scratch21[u].petioleNO3NConc = PetioleNO3NConc;

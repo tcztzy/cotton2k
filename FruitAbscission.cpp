@@ -56,8 +56,8 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
         ShedByCarbonStress[0] = (VarPar[43] - state.carbon_stress) / VarPar[43];
     else
         ShedByCarbonStress[0] = 0;
-    if (NitrogenStress < vabsfr[1])
-        ShedByNitrogenStress[0] = (vabsfr[1] - NitrogenStress) / vabsfr[1];
+    if (state.nitrogen_stress < vabsfr[1])
+        ShedByNitrogenStress[0] = (vabsfr[1] - state.nitrogen_stress) / vabsfr[1];
     else
         ShedByNitrogenStress[0] = 0;
     if (state.water_stress < VarPar[44])
