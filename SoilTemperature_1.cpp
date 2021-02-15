@@ -175,7 +175,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         DeepSoilTemperature += dts * dlt / 86400;
         double etp0 = 0; // actual transpiration (mm s-1) for this hour
         if (sim.states[u].evapotranspiration > 0.000001)
-            etp0 = ActualTranspiration * hour.ref_et / sim.states[u].evapotranspiration / dlt;
+            etp0 = sim.states[u].actual_transpiration * hour.ref_et / sim.states[u].evapotranspiration / dlt;
         double tmav = 0; // average mulch temperature.
         int kmulch = 0;  // number of soil columns covered with mulch.
                          //

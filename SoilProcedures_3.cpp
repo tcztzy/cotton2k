@@ -149,7 +149,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
     } // end l & k loops
 
     // compute ActualTranspiration as actual water transpired, in mm.
-    ActualTranspiration = sumep * 10 / sim.row_space;
+    state.actual_transpiration = sumep * 10 / sim.row_space;
     
     // Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
     SupplyNH4N = 0;

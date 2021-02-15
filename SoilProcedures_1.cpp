@@ -103,7 +103,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         WaterUptake(sim, u); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
 //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
-        state.cumulative_transpiration += ActualTranspiration;
+        state.cumulative_transpiration += state.actual_transpiration;
         CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10 * sim.row_space / PerPlantArea;
     }
 //     Call function WaterTable() for saturating soil below water table.
@@ -450,7 +450,7 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
 //     The following is executed after the first drip irrigation has been applied.
 //     The "Required water" is computed by adding the amount needed to replace the water loss
 //  from the soil by evapotranspiration today.
-    RequiredWater += ActualTranspiration + ActualSoilEvaporation - sim.climate[u].Rain;
+    RequiredWater += sim.states[u].actual_transpiration + ActualSoilEvaporation - sim.climate[u].Rain;
     if (RequiredWater < 0)
         RequiredWater = 0;
     if ((sim.day_start + u - MinDaysBetweenIrrig) >= LastIrrigation) {
