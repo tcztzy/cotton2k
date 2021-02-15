@@ -124,7 +124,6 @@ double
     LeafWeightPreFru[9],              // weight of prefruiting node leaves, g.
     LevelsOfWaterTable[20],           // water table level input data (cm below soil surface).
     LightIntercept,                   // ratio of light interception by plant canopy.
-    LintYield,                        // yield of lint, kgs per hectare.
     LwpMax,                           // maximum (dawn) leaf water potential, MPa.
     LwpMin,                           // minimum (noon) leaf water potential, MPa.
     LwpMinX[3],                       // array of values of LwpMin for the last 3 days.

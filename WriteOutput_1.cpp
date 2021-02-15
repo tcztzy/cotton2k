@@ -24,7 +24,7 @@ extern "C"
 void output1(State &, const string &, const string &, const int &, const int &, const int &, const int &, const double &,
              const double &);
 
-void WriteLine22(ofstream &, double, double, double, const double &);
+void WriteLine22(ofstream &, double, double, double, const double &, double);
 
 // Out this file
 void outputplt(Simulation &);
@@ -37,7 +37,7 @@ void output4(Simulation &);
 
 void output5(Simulation &);
 
-void output6(const string &);
+void output6(State &, const string &);
 
 void output7(Simulation &);
 
@@ -313,9 +313,9 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
         File46.width(6);
         File46.precision(0);
         if (OutIndex[1] == 0)
-            File46 << LintYield;
+            File46 << state.lint_yield;
         else
-            File46 << LintYield * 0.893;
+            File46 << state.lint_yield * 0.893;
         File46 << endl;
 //
 //    Also, write information to the 'summary file' (S01) if this is
@@ -353,9 +353,9 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
             File22.width(7);
             File22.precision(0);
             if (OutIndex[1] == 0)
-                File22 << LintYield;
+                File22 << state.lint_yield;
             else
-                File22 << LintYield * 0.893;
+                File22 << state.lint_yield * 0.893;
             File22 << endl;
         }
     }
@@ -389,6 +389,7 @@ void DataOutput(Simulation & sim)
 //     Read data for each day, and compute the local variables i00,
 //  i01, i02. Convert from per plant to per sq m, or to English units.
     double plant_height;
+    double lint_yield;
     for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
         Date = sim.states[irec].date;
         i01 = sim.states[irec].number_of_green_bolls;
@@ -397,12 +398,11 @@ void DataOutput(Simulation & sim)
         MainStemNodes = Scratch21[irec].mainStemNodes;
         i02 = sim.states[irec].number_of_open_bolls;
         i00 = sim.states[irec].number_of_squares;
-        LintYield = Scratch21[irec].lintYield;
+        lint_yield = sim.states[irec].lint_yield;
         plant_height = sim.states[irec].plant_height;
 //     Convert height and LintYield to English units if necessary.
         if (OutIndex[1] == 1) {
             plant_height /= 2.54;
-            LintYield = LintYield * 0.893;
         }
         if (OutIndex[2] == 1)
 //     Convert to per area basis, metric or English units.
@@ -423,34 +423,34 @@ void DataOutput(Simulation & sim)
 //  of defoliation.
         if (!ifg1 && (sim.day_start + irec) == sim.first_square) {
             File22 << " First square    " << Date;
-            WriteLine22(File22, i00, i01, i02, plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height, lint_yield);
             ifg1 = true;
         }
         if (!ifg2 && (sim.day_start + irec) == sim.first_bloom) {
             File22 << " First Bloom     " << Date;
-            WriteLine22(File22, i00, i01, i02, plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height, lint_yield);
             ifg2 = true;
         }
         if (!ifg3 && i02 > 0.1) {
             File22 << " 1st open boll   " << Date;
-            WriteLine22(File22, i00, i01, i02, plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height, lint_yield);
             ifg3 = true;
         }
         if (!ifg4 && sixpct <= i02 && i02 > 0.) {
             File22 << " 60% open bolls  " << Date;
-            WriteLine22(File22, i00, i01, i02, plant_height);
+            WriteLine22(File22, i00, i01, i02, plant_height, lint_yield);
             ifg4 = true;
         }
         for (int i = 0; i < 5; i++) {
             if ((sim.day_start + irec) == DefoliationDate[i]) {
                 File22 << " Defoliation     " << Date;
-                WriteLine22(File22, i00, i01, i02, plant_height);
+                WriteLine22(File22, i00, i01, i02, plant_height, lint_yield);
             }
         }
     }
 //     When end of file is reached report final LintYield in file 22.
     File22 << " Max yield on    " << Date;
-    WriteLine22(File22, i00, i01, i02, plant_height);
+    WriteLine22(File22, i00, i01, i02, plant_height, sim.states[sim.day_finish - sim.day_start].lint_yield);
 //     Call procedures for printing output
     outputplt(sim);
     if (OutIndex[6] > 0)
@@ -461,13 +461,13 @@ void DataOutput(Simulation & sim)
         output4(sim);
     if (OutIndex[5] > 0)
         output5(sim);
-    output6(sim.profile_name);
+    output6(sim.states[sim.day_finish - sim.day_start], sim.profile_name);
     if (OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12] > 0)
         output7(sim);
 }
 
 ////////////////////////
-void WriteLine22(ofstream &File22, double i00, double i01, double i02, const double &PlantHeight)
+void WriteLine22(ofstream &File22, double i00, double i01, double i02, const double &PlantHeight, double LintYield)
 //     This function writes a formatted line in file *.S01. It is called from DataOutput().
 //     Global variables referenced: 
 //       Kday, LeafAreaIndex, LintYield, MainStemNodes, PlantHeight. 
@@ -495,5 +495,10 @@ void WriteLine22(ofstream &File22, double i00, double i01, double i02, const dou
     File22 << i02;
     File22.precision(0);
     File22.width(6);
-    File22 << LintYield << endl;
+    if (OutIndex[1] == 0) {
+        File22 << LintYield << endl;
+    }
+    else {
+        File22 << LintYield * 0.893 << endl;
+    }
 }

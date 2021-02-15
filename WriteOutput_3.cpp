@@ -101,9 +101,9 @@ void outputplt(Simulation &sim)
         File25.precision(1);
         File25.width(7);     // F7.1
         if (OutIndex[2] == 1)
-            File25 << Scratch21[irec].lintYield;
+            File25 << state.lint_yield;
         else
-            File25 << Scratch21[irec].lintYield * 10000 / PlantPopulation;
+            File25 << state.lint_yield * 10000 / PlantPopulation;
         File25.precision(3);
         File25.width(7);     // 5F7.3
         File25 << state.carbon_stress;
@@ -461,7 +461,7 @@ void output5(Simulation &sim)
 }
 
 ///////////////////////
-void output6(const string &ProfileName)
+void output6(State &state, const string &ProfileName)
 //     This procedure is always called from DataOutput().
 //     It writes output of final yields to file F01 and file S01.
 {
@@ -471,12 +471,12 @@ void output6(const string &ProfileName)
     File46.setf(ios::fixed);
     File46.precision(1);
     File46.width(26);
-    File46 << LintYield;
+    File46 << state.lint_yield;
     File46.width(12);
-    File46 << LintYield * 0.893;
+    File46 << state.lint_yield * 0.893;
     File46.precision(2);
     File46.width(13);
-    File46 << LintYield * 0.893 / 500 << endl;
+    File46 << state.lint_yield * 0.893 / 500 << endl;
 //
     ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);
     File22 << endl << "      Lint Yield:  kgs / ha  lbs / acre   bales / acre" << endl;
@@ -484,12 +484,12 @@ void output6(const string &ProfileName)
     File22.setf(ios::fixed);
     File22.precision(1);
     File22.width(26);
-    File22 << LintYield;
+    File22 << state.lint_yield;
     File22.width(12);
-    File22 << LintYield * 0.893;
+    File22 << state.lint_yield * 0.893;
     File22.precision(2);
     File22.width(13);
-    File22 << LintYield * 0.893 / 500 << endl;
+    File22 << state.lint_yield * 0.893 / 500 << endl;
 }
 
 ///////////////////////

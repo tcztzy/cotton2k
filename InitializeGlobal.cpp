@@ -37,7 +37,6 @@ void InitializeGlobal()
     LastIrrigation = 0;
     LeafAreaIndex = 0.001;
     LeafNitrogen = 0.0112;
-    LintYield = 0;
 
     MaxIrrigation = 0;
     MineralizedOrganicN = 0;

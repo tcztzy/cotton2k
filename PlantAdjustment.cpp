@@ -41,7 +41,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
                                             - state.cumulative_evaporation - CumWaterDrained;
     Scratch21[u].leafAreaIndex = LeafAreaIndex;
     Scratch21[u].lightIntercept = LightIntercept;
-    Scratch21[u].lintYield = LintYield;
     Scratch21[u].lwpMin = LwpMin;
     Scratch21[u].mainStemNodes = MainStemNodes;
     Scratch21[u].mineralizedOrganicN = MineralizedOrganicN;

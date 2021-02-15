@@ -217,6 +217,7 @@ void C2KApp::DailySimulation(Simulation &sim)
             else
             {
                 State &state0 = sim.states[0];
+                state0.lint_yield = 0;
                 state0.number_of_layers_with_root = 7;
                 state0.plant_height = 4.0;
                 state0.plant_weight = 0;
