@@ -224,6 +224,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.abscised_leaf_weight = 0;
                 state0.cumulative_nitrogen_loss = 0;
                 state0.cumulative_transpiration = 0;
+                state0.cumulative_evaporation = 0;
                 state0.water_stress = 1;
                 state0.water_stress_stem = 1;
                 state0.carbon_stress = 1;

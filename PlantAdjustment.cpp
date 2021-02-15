@@ -13,6 +13,7 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
 //     Each record is an array cell, starting from day of start of simulation. 
 //
 {
+    State &state = sim.states[u];
 //     Variables needed for output:
     Scratch21[u].kday = Kday;
 //
@@ -22,7 +23,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].burrWeightOpenBolls = BurrWeightOpenBolls;
     Scratch21[u].cottonWeightGreenBolls = CottonWeightGreenBolls;
     Scratch21[u].cottonWeightOpenBolls = CottonWeightOpenBolls;
-    Scratch21[u].cumEvaporation = CumEvaporation;
     Scratch21[u].cumFertilizerN = CumFertilizerN;
     Scratch21[u].cumNetPhotosynth = CumNetPhotosynth;
     Scratch21[u].cumNitrogenUptake = CumNitrogenUptake;
@@ -37,8 +37,8 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
 //  The "negative" is the present total soil water in the soil slab, and cumulative
 //  amounts lost by transpiration, evaporation and drainage.
     Scratch21[u].h2obal = InitialTotalSoilWater + CumWaterAdded
-                                            + addwtbl - TotalSoilWater - sim.states[u].cumulative_transpiration
-                                            - CumEvaporation - CumWaterDrained;
+                                            + addwtbl - TotalSoilWater - state.cumulative_transpiration
+                                            - state.cumulative_evaporation - CumWaterDrained;
     Scratch21[u].leafAreaIndex = LeafAreaIndex;
     Scratch21[u].lightIntercept = LightIntercept;
     Scratch21[u].lintYield = LintYield;

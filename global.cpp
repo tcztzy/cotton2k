@@ -86,7 +86,6 @@ double
     CottonWeightGreenBolls,           // total weight of seedcotton in green bolls, g plant-1.
     CottonWeightOpenBolls,            // total weight of seedcotton in open bolls, g per plant.
     CultivationDepth[5],              // depth of cultivation, in cm.
-    CumEvaporation,                   // cumulative evaporation from soil surface, mm.
     CumFertilizerN,                   // cumulative amount of inorganic nitrogen applied in fertilizer, mg N per slab.
     CumNetPhotosynth,                 // cumulative sum of photosynthate produced to date, g per plant.
     CumNitrogenUptake,                // cumulative total uptake of nitrogen by plants, mg N per slab.

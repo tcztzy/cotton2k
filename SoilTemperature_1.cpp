@@ -317,11 +317,10 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         es = es / sim.row_space;
         ActualSoilEvaporation = ActualSoilEvaporation / sim.row_space;
     }
-    CumEvaporation += ActualSoilEvaporation;
+    sim.states[u].cumulative_evaporation += ActualSoilEvaporation;
     if (Kday > 0)
     {
         Scratch21[u].es = es;
-        Scratch21[u].cumEvaporation = CumEvaporation;
     }
     //  compute daily averages.
     for (int l = 0; l < nl; l++)

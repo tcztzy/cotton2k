@@ -148,7 +148,7 @@ void outputplt(Simulation &sim)
         if (OutIndex[1] == 0)   //  metric
         {
             File25.precision(1); // 3F7.1
-            File25 << Scratch21[irec].cumEvaporation;  // mm
+            File25 << state.cumulative_evaporation;  // mm
             File25.width(7);
             File25 << state.cumulative_transpiration;
             File25.width(7);
@@ -156,7 +156,7 @@ void outputplt(Simulation &sim)
         } else // English
         {
             File25.precision(3); // 3F7.3
-            File25 << Scratch21[irec].cumEvaporation / 25.4;  // inches
+            File25 << state.cumulative_evaporation / 25.4;  // inches
             File25.width(7);
             File25 << state.cumulative_transpiration / 25.4;
             File25.width(7);
@@ -369,7 +369,7 @@ void output4(Simulation &sim)
             File46.precision(3);
         }
         File46.width(6);
-        File46 << Scratch21[irec].cumEvaporation * multi;
+        File46 << sim.states[irec].cumulative_evaporation * multi;
         File46.width(7);
         File46 << sim.states[irec].cumulative_transpiration * multi;
         File46.width(7);
