@@ -288,11 +288,12 @@ void output3(Simulation &sim)
     File46 << "               net    cumul.                                      Green  Open" << endl << endl;
 //   Write data for each day.
     for (int irec = 0; irec < sim.day_finish - sim.day_start + 1; irec++) {
+        State &state = sim.states[irec];
         if (Scratch21[irec].kday <= 0)
             continue;
         File46.unsetf(ios::left);
         File46.width(12);
-        File46 << sim.states[irec].date;
+        File46 << state.date;
         File46.setf(ios::fixed);
         if (OutIndex[2] == 0)
             File46.precision(2);
@@ -303,7 +304,7 @@ void output3(Simulation &sim)
         File46.width(7);
         File46 << multi * Scratch21[irec].cumNetPhotosynth;
         File46.width(7);
-        File46 << multi * Scratch21[irec].plantWeight;
+        File46 << multi * state.plant_weight;
         File46.width(6);
         File46 << multi * Scratch21[irec].totalLeafWeight + Scratch21[irec].reserveC;
         File46.width(6);

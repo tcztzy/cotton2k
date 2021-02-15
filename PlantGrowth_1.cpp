@@ -329,7 +329,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     else
         oldstmwt = StemWeight[kkday];
     double bmain; // maintenance respiration, g per plant per day.
-    bmain = (PlantWeight - CottonWeightOpenBolls - BurrWeightOpenBolls - oldstmwt) * rsubo;
+    bmain = (state.plant_weight - CottonWeightOpenBolls - BurrWeightOpenBolls - oldstmwt) * rsubo;
     //     Net photosynthesis is computed by substracting photo-respiration and maintenance
     //  respiration from the gross rate of photosynthesis. To avoid computational problems,
     //  make sure that pts is positive and non-zero.

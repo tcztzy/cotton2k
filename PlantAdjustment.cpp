@@ -52,7 +52,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].nStressFruiting = NStressFruiting;
     Scratch21[u].nStressVeg = NStressVeg;
     Scratch21[u].petioleNO3NConc = PetioleNO3NConc;
-    Scratch21[u].plantWeight = PlantWeight;
     Scratch21[u].reserveC = ReserveC;
     Scratch21[u].soilNitrogenLoss = SoilNitrogenLoss;
     Scratch21[u].stemNConc = StemNConc;

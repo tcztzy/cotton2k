@@ -219,6 +219,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 State &state0 = sim.states[0];
                 state0.number_of_layers_with_root = 7;
                 state0.plant_height = 4.0;
+                state0.plant_weight = 0;
                 state0.abscised_fruit_sites = 0;
                 state0.abscised_leaf_weight = 0;
                 state0.cumulative_nitrogen_loss = 0;
@@ -294,15 +295,15 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
         sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours); // physiological days increment for this day. computes physiological age
-        Defoliate(sim, u);                                                                           // effects of defoliants applied.
-        Stress(sim, u);                                                                              // computes water stress factors.
-        GetNetPhotosynthesis(sim, u, sim.states[u].day_length);                                      // computes net photosynthesis.
-        PlantGrowth(sim, u, 3, sim.states[u].day_length);                                            // executes all modules of plant growth.
-        CottonPhenology(sim, u);                                                                     // executes all modules of plant phenology.
-        PlantNitrogen(sim, u);                                                                       // computes plant nitrogen allocation.
-        CheckDryMatterBal(sim.profile_name, sim.states[u].date, sim.states[u].abscised_leaf_weight); // checks plant dry matter balance.
-                                                                                                     //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
-                                                                                                     //  nitrogen averages by layer, and write this information to files.
+        Defoliate(sim, u);                                             // effects of defoliants applied.
+        Stress(sim, u);                                                // computes water stress factors.
+        GetNetPhotosynthesis(sim, u, sim.states[u].day_length);        // computes net photosynthesis.
+        PlantGrowth(sim, u, 3, sim.states[u].day_length);              // executes all modules of plant growth.
+        CottonPhenology(sim, u);                                       // executes all modules of plant phenology.
+        PlantNitrogen(sim, u);                                         // computes plant nitrogen allocation.
+        CheckDryMatterBal(sim.states[u], sim.profile_name);            // checks plant dry matter balance.
+                                                                       //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
+                                                                       //  nitrogen averages by layer, and write this information to files.
     }
     //     Call DailyOutput for reporting some simulation data for this day.
     DailyOutput(sim, u);

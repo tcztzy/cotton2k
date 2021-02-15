@@ -390,7 +390,7 @@ void ActualLeafGrowth(State &state)
 }
 
 //////////////////////////
-void CheckDryMatterBal(const string &ProfileName, const string &Date, const double &AbscisedLeafWeight)
+void CheckDryMatterBal(State &state, const string &ProfileName)
 //     This function checks the dry matter balances in the cotton model, for diagnostic
 //  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
 //     The following global variables are referenced here:
@@ -404,11 +404,11 @@ void CheckDryMatterBal(const string &ProfileName, const string &Date, const doub
     double avail; // supply part of a material balance.
     avail = PlantWeightAtStart + CumNetPhotosynth;
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    PlantWeight = TotalRootWeight + TotalStemWeight + CottonWeightGreenBolls + BurrWeightGreenBolls + TotalLeafWeight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
+    state.plant_weight = TotalRootWeight + TotalStemWeight + CottonWeightGreenBolls + BurrWeightGreenBolls + TotalLeafWeight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
     //     Compute the "used" side as PlantWeight plus dry matter abscised as bolls,
     //  squares, leaves and dry matter of roots that died.
     double used; // demand part of a material balance.
-    used = PlantWeight + GreenBollsLost + AbscisedLeafWeight + BloomWeightLoss + RootWeightLoss;
+    used = state.plant_weight + GreenBollsLost + state.abscised_leaf_weight + BloomWeightLoss + RootWeightLoss;
     //     chobal is whole plant C balance. It should be zero.
     double chobal = avail - used;
     //  Report results to file *.CHB
@@ -423,7 +423,7 @@ void CheckDryMatterBal(const string &ProfileName, const string &Date, const doub
         File36.setf(ios::fixed);
         File36.precision(2);
         File36.width(9);
-        File36 << PlantWeight;
+        File36 << state.plant_weight;
         File36.width(9);
         File36 << avail;
         File36.width(9);
@@ -436,7 +436,7 @@ void CheckDryMatterBal(const string &ProfileName, const string &Date, const doub
         ccx = CottonWeightOpenBolls + BurrWeightOpenBolls;
         double gbb; // seed cotton plus burr weight in green bolls.
         gbb = CottonWeightGreenBolls + BurrWeightGreenBolls;
-        File36 << Date;
+        File36 << state.date;
         File36 << " lfwt, ptwt, stwt, RootWeight, TotalSquareWeight, gbb, ccx, ReserveC=";
         File36.precision(4);
         File36.width(9);

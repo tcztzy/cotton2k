@@ -52,6 +52,7 @@ typedef struct State
     double extra_carbon;             // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
     double day_length;               // day length, in hours
     double plant_height;
+    double plant_weight;
     double runoff;
     double solar_noon;
     double net_radiation;                       // daily total net radiation, W m-2.
