@@ -26,7 +26,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].cumFertilizerN = CumFertilizerN;
     Scratch21[u].cumNetPhotosynth = CumNetPhotosynth;
     Scratch21[u].cumNitrogenUptake = CumNitrogenUptake;
-    Scratch21[u].cumTranspiration = CumTranspiration;
     Scratch21[u].cumWaterAdded = CumWaterAdded;
     Scratch21[u].cumWaterDrained = CumWaterDrained;
     Scratch21[u].deadwt = sim.states[u].abscised_leaf_weight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
@@ -38,7 +37,7 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
 //  The "negative" is the present total soil water in the soil slab, and cumulative
 //  amounts lost by transpiration, evaporation and drainage.
     Scratch21[u].h2obal = InitialTotalSoilWater + CumWaterAdded
-                                            + addwtbl - TotalSoilWater - CumTranspiration
+                                            + addwtbl - TotalSoilWater - sim.states[u].cumulative_transpiration
                                             - CumEvaporation - CumWaterDrained;
     Scratch21[u].leafAreaIndex = LeafAreaIndex;
     Scratch21[u].lightIntercept = LightIntercept;

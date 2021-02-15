@@ -150,7 +150,7 @@ void outputplt(Simulation &sim)
             File25.precision(1); // 3F7.1
             File25 << Scratch21[irec].cumEvaporation;  // mm
             File25.width(7);
-            File25 << Scratch21[irec].cumTranspiration;
+            File25 << state.cumulative_transpiration;
             File25.width(7);
             File25 << Scratch21[irec].cumWaterAdded;
         } else // English
@@ -158,7 +158,7 @@ void outputplt(Simulation &sim)
             File25.precision(3); // 3F7.3
             File25 << Scratch21[irec].cumEvaporation / 25.4;  // inches
             File25.width(7);
-            File25 << Scratch21[irec].cumTranspiration / 25.4;
+            File25 << state.cumulative_transpiration / 25.4;
             File25.width(7);
             File25 << Scratch21[irec].cumWaterAdded / 25.4;
         }
@@ -371,7 +371,7 @@ void output4(Simulation &sim)
         File46.width(6);
         File46 << Scratch21[irec].cumEvaporation * multi;
         File46.width(7);
-        File46 << Scratch21[irec].cumTranspiration * multi;
+        File46 << sim.states[irec].cumulative_transpiration * multi;
         File46.width(7);
         File46 << Scratch21[irec].cumWaterDrained * multi;
         File46.width(7);

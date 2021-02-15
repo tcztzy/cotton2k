@@ -57,6 +57,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //       AverageSoilPsi, CumNitrogenUptake, CumTranspiration, CumWaterAdded, LocationColumnDrip, 
 //       LocationLayerDrip, noitr.
 {
+    State &state = sim.states[u];
 //     The following constant parameters are used:
     const double cpardrip = 0.2;
     const double cparelse = 0.4;
@@ -102,7 +103,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         WaterUptake(sim, u); // function  computes water and nitrogen uptake by plants.
 //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
 //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
-        CumTranspiration += ActualTranspiration;
+        state.cumulative_transpiration += ActualTranspiration;
         CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10 * sim.row_space / PerPlantArea;
     }
 //     Call function WaterTable() for saturating soil below water table.
