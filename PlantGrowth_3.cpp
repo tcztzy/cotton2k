@@ -408,7 +408,7 @@ void CheckDryMatterBal(State &state, const string &ProfileName)
     //     Compute the "used" side as PlantWeight plus dry matter abscised as bolls,
     //  squares, leaves and dry matter of roots that died.
     double used; // demand part of a material balance.
-    used = state.plant_weight + GreenBollsLost + state.abscised_leaf_weight + BloomWeightLoss + RootWeightLoss;
+    used = state.plant_weight + GreenBollsLost + state.abscised_leaf_weight + state.bloom_weight_loss + RootWeightLoss;
     //     chobal is whole plant C balance. It should be zero.
     double chobal = avail - used;
     //  Report results to file *.CHB

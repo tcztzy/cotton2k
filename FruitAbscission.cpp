@@ -219,7 +219,7 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
     SquareNitrogen -= wtlos * SquareNConc;
     state.cumulative_nitrogen_loss += wtlos * SquareNConc;
     site.square.weight -= wtlos;
-    BloomWeightLoss += wtlos;
+    state.bloom_weight_loss += wtlos;
     TotalSquareWeight -= wtlos;
     site.fraction *= (1 - abscissionRatio);
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, and update
@@ -229,7 +229,7 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
         site.fraction = 0;
         SquareNitrogen -= site.square.weight * SquareNConc;
         state.cumulative_nitrogen_loss += site.square.weight * SquareNConc;
-        BloomWeightLoss += site.square.weight;
+        state.bloom_weight_loss += site.square.weight;
         TotalSquareWeight -= site.square.weight;
         site.square.weight = 0;
         site.stage = Stage::AbscisedAsSquare;

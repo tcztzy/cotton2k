@@ -13,7 +13,6 @@ void InitializeGlobal()
     AverageLwp = 0;
     AverageLwpMin = 0;
 
-    BloomWeightLoss = 0;
     BurrNConc = 0;
     BurrNitrogen = 0;
     BurrWeightGreenBolls = 0;

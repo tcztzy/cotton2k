@@ -221,6 +221,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.number_of_layers_with_root = 7;
                 state0.plant_height = 4.0;
                 state0.plant_weight = 0;
+                state0.bloom_weight_loss = 0;
                 state0.abscised_fruit_sites = 0;
                 state0.abscised_leaf_weight = 0;
                 state0.cumulative_nitrogen_loss = 0;

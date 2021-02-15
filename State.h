@@ -44,6 +44,7 @@ typedef struct State
     char date[12];
     double day_inc;                  // physiological days increment for this day. computes physiological age
     double lint_yield;               // yield of lint, kgs per hectare.
+    double bloom_weight_loss;        // cumulative weight lost due to petals shed after blooming, g per plant.
     double abscised_fruit_sites;     // total number of abscised fruit sites, per plant.
     double abscised_leaf_weight;     // weight of abscissed leaves, g per plant.
     double cumulative_nitrogen_loss; // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.

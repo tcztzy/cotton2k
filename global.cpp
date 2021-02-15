@@ -73,7 +73,6 @@ double
     AverageSoilPsi,                   // average soil matric water potential, bars, computed as the weighted average of the root zone.
     AvrgDailyTemp,                    // average daily temperature, C, for 24 hours.
     vanGenuchtenBeta[9],              // parameter of the Van Genuchten equation.
-    BloomWeightLoss,                  // cumulative weight lost due to petals shed after blooming, g per plant.
     BulkDensity[9],                   // bulk density of soil in a horizon, g cm-3.
     BurrNConc,                        // average nitrogen concentration in burrs.
     BurrNitrogen,                     // nitrogen in burrs, g per plant.

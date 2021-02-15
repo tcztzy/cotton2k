@@ -602,7 +602,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     {
         site.stage = Stage::AbscisedAsFlower;
         site.fraction = 0;
-        BloomWeightLoss += site.square.weight;
+        state.bloom_weight_loss += site.square.weight;
         site.square.weight = 0;
         return;
     }
@@ -616,7 +616,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     bolinit = vnewboll[0] * site.square.weight;
     site.boll.weight = 0.2 * bolinit;
     site.burr.weight = bolinit - site.boll.weight;
-    BloomWeightLoss += site.square.weight - bolinit;
+    state.bloom_weight_loss += site.square.weight - bolinit;
     //
     double sqr1n; // the nitrogen content of one square before flowering.
     sqr1n = SquareNConc * site.square.weight;

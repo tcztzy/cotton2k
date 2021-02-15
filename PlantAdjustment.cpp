@@ -28,7 +28,7 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].cumNitrogenUptake = CumNitrogenUptake;
     Scratch21[u].cumWaterAdded = CumWaterAdded;
     Scratch21[u].cumWaterDrained = CumWaterDrained;
-    Scratch21[u].deadwt = sim.states[u].abscised_leaf_weight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
+    Scratch21[u].deadwt = sim.states[u].abscised_leaf_weight + state.bloom_weight_loss + GreenBollsLost + RootWeightLoss;
     Scratch21[u].dayTimeTemp = DayTimeTemp;
     Scratch21[u].gbw = CottonWeightGreenBolls + BurrWeightGreenBolls;
 //     h2obal is computed as the water balance in mm. It should always be zero.
