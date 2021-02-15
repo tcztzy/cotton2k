@@ -125,6 +125,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
 //       ActualSoilEvaporation, CumEvaporation, DeepSoilTemperature, es, SoilTemp,
 //       SoilTempDailyAvrg, VolWaterContent,
 {
+    State &state = sim.states[u];
     static int jt1, jt2; //  Julian dates for start and end of output.
     if (u == 0)
         SoilTemperatureInit(jt1, jt2, sim);
@@ -166,16 +167,16 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
     //     es and ActualSoilEvaporation are computed as the average for the whole soil
     //  slab, weighted by column widths.
     double es = 0; // potential evaporation rate, mm day-1
-    ActualSoilEvaporation = 0;
+    state.actual_soil_evaporation = 0;
     //     Start hourly loop of iterations.
     for (int ihr = 0; ihr < iter1; ihr++)
     {
-        Hour &hour = sim.states[u].hours[ihr];
+        Hour &hour = state.hours[ihr];
         //     Update the temperature of the last soil layer (lower boundary conditions).
         DeepSoilTemperature += dts * dlt / 86400;
         double etp0 = 0; // actual transpiration (mm s-1) for this hour
-        if (sim.states[u].evapotranspiration > 0.000001)
-            etp0 = sim.states[u].actual_transpiration * hour.ref_et / sim.states[u].evapotranspiration / dlt;
+        if (state.evapotranspiration > 0.000001)
+            etp0 = state.actual_transpiration * hour.ref_et / state.evapotranspiration / dlt;
         double tmav = 0; // average mulch temperature.
         int kmulch = 0;  // number of soil columns covered with mulch.
                          //
@@ -228,11 +229,11 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
                 if (escol1k > evapmax)
                     escol1k = evapmax;
                 VolWaterContent[0][k] -= 0.1 * escol1k / dl[0];
-                ActualSoilEvaporation += escol1k * wk[k];
+                state.actual_soil_evaporation += escol1k * wk[k];
                 ess = escol1k / dlt;
             }
             //     Call EnergyBalance to compute soil surface and canopy temperature.
-            EnergyBalance(sim, u, ihr, k, bMulchon, ess, etp1, sim.states[u].plant_height, rracol);
+            EnergyBalance(sim, u, ihr, k, bMulchon, ess, etp1, state.plant_height, rracol);
             if (bMulchon)
             {
                 tmav += MulchTemp[k] - 273.161;
@@ -310,14 +311,14 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
     if (kk == 1)
     {
         es = es / wk[1];
-        ActualSoilEvaporation = ActualSoilEvaporation / wk[1];
+        state.actual_soil_evaporation /= wk[1];
     }
     else
     {
         es = es / sim.row_space;
-        ActualSoilEvaporation = ActualSoilEvaporation / sim.row_space;
+        state.actual_soil_evaporation /= sim.row_space;
     }
-    sim.states[u].cumulative_evaporation += ActualSoilEvaporation;
+    sim.states[u].cumulative_evaporation += state.actual_soil_evaporation;
     if (Kday > 0)
     {
         Scratch21[u].es = es;

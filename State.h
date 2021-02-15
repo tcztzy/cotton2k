@@ -59,6 +59,7 @@ typedef struct State
     double evapotranspiration;                  // daily sum of hourly reference evapotranspiration, mm per day.
     double actual_transpiration;                // actual transpiration from plants, mm day-1.
     double cumulative_transpiration;            // cumulative transpiration, mm.
+    double actual_soil_evaporation;             // actual evaporation from soil surface, mm day-1.
     double cumulative_evaporation;              // cumulative evaporation from soil surface, mm.
     unsigned int number_of_layers_with_root;    //
     unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.

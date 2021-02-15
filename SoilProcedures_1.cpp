@@ -450,7 +450,7 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
 //     The following is executed after the first drip irrigation has been applied.
 //     The "Required water" is computed by adding the amount needed to replace the water loss
 //  from the soil by evapotranspiration today.
-    RequiredWater += sim.states[u].actual_transpiration + ActualSoilEvaporation - sim.climate[u].Rain;
+    RequiredWater += sim.states[u].actual_transpiration + sim.states[u].actual_soil_evaporation - sim.climate[u].Rain;
     if (RequiredWater < 0)
         RequiredWater = 0;
     if ((sim.day_start + u - MinDaysBetweenIrrig) >= LastIrrigation) {
