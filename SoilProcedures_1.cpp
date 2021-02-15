@@ -73,10 +73,10 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         if (sim.day_start + u >= DayStartPredIrrig && sim.day_start + u < DayStopPredIrrig) {
             ComputeIrrigation(sim, u);
             if (IrrigMethod == 2)
-                DripWaterAmount = AppliedWater;
+                DripWaterAmount = state.applied_water;
             else
-                WaterToApply += AppliedWater;
-            AppliedWater = 0;
+                WaterToApply += state.applied_water;
+            state.applied_water = 0;
         }
 //     When water is added by an irrigation defined in the input: update the amount
 //  of applied water.
@@ -341,9 +341,9 @@ void ComputeIrrigation(Simulation &sim, uint32_t u)
         PredictSurfaceIrrigation(sim, u, TargetStress);
 //     If the amount of water to be applied (AppliedWater) is non zero update the date of 
 //  last irrigation, and write report in output file *.B01.
-    if (AppliedWater > 0.00001) {
+    if (sim.states[u].applied_water > 0.00001) {
         LastIrrigation = sim.day_start + u;
-        OutputPredictedIrrigation(AppliedWater, TargetStress, sim.profile_name, sim.day_start + u, sim.year, sim.states[u].water_stress);
+        OutputPredictedIrrigation(sim.states[u].applied_water, TargetStress, sim.profile_name, sim.day_start + u, sim.year, sim.states[u].water_stress);
     }
 }
 
@@ -422,6 +422,7 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
 //     The argument used is TargetStress.
 //  
 {
+    State &state = sim.states[u];
     static bool irr1st; // switch is set to true after first drip irrigation
     if (sim.day_start + u <= DayStartPredIrrig)
         irr1st = false;  // set to false on first day of irrigation prediction
@@ -441,7 +442,7 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
 //  or rain today, and water stress is not higher than 0.99
         if (!bIsIrr && WaterStress <= 0.99) {
 //     The first predicted drip irrigation is applied
-            AppliedWater = min(30., MaxIrrigation);
+            state.applied_water = min(30., MaxIrrigation);
             irr1st = true;
             RequiredWater = 0;
         }
@@ -450,7 +451,7 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
 //     The following is executed after the first drip irrigation has been applied.
 //     The "Required water" is computed by adding the amount needed to replace the water loss
 //  from the soil by evapotranspiration today.
-    RequiredWater += sim.states[u].actual_transpiration + sim.states[u].actual_soil_evaporation - sim.climate[u].Rain;
+    RequiredWater += state.actual_transpiration + state.actual_soil_evaporation - sim.climate[u].Rain;
     if (RequiredWater < 0)
         RequiredWater = 0;
     if ((sim.day_start + u - MinDaysBetweenIrrig) >= LastIrrigation) {
@@ -473,11 +474,11 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
         if ((RequiredWater * facirr) > MaxIrrigation) {
 //     It is checked if it is greater than MaxIrrigation. in this case only the maximum possible 
 //  amount is applied, and the difference will be added in the next irrigation.
-            AppliedWater = MaxIrrigation;
+            state.applied_water = MaxIrrigation;
             RequiredWater -= MaxIrrigation;
         } else {
 //     All the required water, modified by facirr, is applied. "Required Water" is set to zero.
-            AppliedWater = RequiredWater * facirr;
+            state.applied_water = RequiredWater * facirr;
             RequiredWater = 0;
         }
     }
@@ -494,6 +495,7 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
 //     The following global variable is set here:       AppliedWater. 
 //     The argument used: TargetStress
 {
+    State &state = sim.states[u];
 //     Prediction of surface irrigation: loop over soil layers and check
 //  if you have reached the target depth of irrigation (IrrigationDepth).
     static int nDaysBelowTargetStress; // number of days, since the last irrigation,
@@ -515,7 +517,7 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
     if ((sim.day_start + u - MinDaysBetweenIrrig) >= (LastIrrigation - 2)) {
 //     Irrigation will be applied when water stress is less than the target stress for 
 //  three days since the last irrigation. 
-        if (sim.day_start + u > DayStartPredIrrig && sim.states[u].water_stress < TargetStress) {
+        if (sim.day_start + u > DayStartPredIrrig && state.water_stress < TargetStress) {
             nDaysBelowTargetStress++;
             if (nDaysBelowTargetStress >= 3) {
                 double RequiredWater = 0; // the amount of water required for irrigation
@@ -527,10 +529,10 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
                         defcit = MaxWaterCapacity[l] - VolWaterContent[l][k]; // water content deficit
                         RequiredWater += dl[l] * wk[k] * defcit;
                     }
-                AppliedWater = RequiredWater * 10 / sim.row_space;
+                state.applied_water = RequiredWater * 10 / sim.row_space;
 //     The amount of water to be applied is checked not to exceed MaxIrrigation.
-                if (AppliedWater > MaxIrrigation)
-                    AppliedWater = MaxIrrigation;
+                if (state.applied_water > MaxIrrigation)
+                    state.applied_water = MaxIrrigation;
                 nDaysBelowTargetStress = 0;
             }
         }

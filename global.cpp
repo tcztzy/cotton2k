@@ -67,7 +67,6 @@ double
     AgeOfPreFruNode[9],               // age of each prefruiting node, physiological days.
     airdr[9],                         // volumetric water content of soil at "air-dry" for each soil horizon, cm3 cm-3.
     alpha[9],                         // parameter of the Van Genuchten equation.
-    AppliedWater,                     // the amount of water to apply (mm), computed for a predicted irrigation.
     AverageLwp,                       // running average of LwpMin + LwpMax for the last 3 days.
     AverageLwpMin,                    // running average of LwpMin for the last 3 days.
     AverageSoilPsi,                   // average soil matric water potential, bars, computed as the weighted average of the root zone.

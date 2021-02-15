@@ -48,6 +48,7 @@ typedef struct State
     double abscised_fruit_sites;     // total number of abscised fruit sites, per plant.
     double abscised_leaf_weight;     // weight of abscissed leaves, g per plant.
     double cumulative_nitrogen_loss; // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.
+    double applied_water;            // the amount of water to apply (mm), computed for a predicted irrigation.
     double water_stress;             // general water stress index (0 to 1).
     double water_stress_stem;        // water stress index for stem growth (0 to 1).
     double carbon_stress;            // carbohydrate stress factor.

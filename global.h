@@ -62,7 +62,7 @@ extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], Defol
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth,
     ActualSquareGrowth, ActualStemGrowth, addwtbl,
-    AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
+    AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
     BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
     CarbonAllocatedForRootGrowth, conmax,
     CottonWeightGreenBolls, CottonWeightOpenBolls, CumFertilizerN,
