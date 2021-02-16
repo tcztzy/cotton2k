@@ -471,7 +471,7 @@ double RootDeath(SoilCell &soil_cell, int l, int k, double DailyRootLoss)
 }
 
 //////////////////////////////
-double RootCultivation(SoilCell soil_cells[40][20], int j, const int &NumRootAgeGroups, double DailyRootLoss)
+double RootCultivation(SoilCell soil_cells[40][20], int NumRootAgeGroups, double cultivation_depth, double DailyRootLoss)
 //     This function is executed on the day of soil cultivation. It is called from
 //  ActualRootGrowth(). It has been adapted from GOSSYM. It is assumed that the roots in the
 //  upper soil layers, as defined by the depth of cultivation, are destroyed, with the
@@ -491,7 +491,7 @@ double RootCultivation(SoilCell soil_cells[40][20], int j, const int &NumRootAge
     for (int l = 0; l < nl; l++)
     {
         sdpth += dl[l];
-        if (sdpth >= CultivationDepth[j])
+        if (sdpth >= cultivation_depth)
         {
             lcult = l;
             break;

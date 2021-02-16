@@ -42,7 +42,7 @@ void RootAging(SoilCell &, int, int);
 
 double RootDeath(SoilCell &, int, int, double);
 
-double RootCultivation(SoilCell[40][20], int, const int &, double);
+double RootCultivation(SoilCell[40][20], int, double, double);
 
 void RootSummation(State &, const int &, double);
 
@@ -412,7 +412,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     //     Check if cultivation is executed in this day and call RootCultivation().
     for (int j = 0; j < 5; j++)
         if (CultivationDate[j] == state.daynum)
-            DailyRootLoss = RootCultivation(state.soil.cells, j, NumRootAgeGroups, DailyRootLoss);
+            DailyRootLoss = RootCultivation(state.soil.cells, NumRootAgeGroups, CultivationDepth[j], DailyRootLoss);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
     RootWeightLoss += DailyRootLoss;
