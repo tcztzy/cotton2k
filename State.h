@@ -39,6 +39,11 @@ typedef struct VegetativeBranchStruct
     unsigned int number_of_fruiting_branches; // number of fruiting branches at each vegetative branch.
     FruitingBranch fruiting_branches[30];
 } VegetativeBranch;
+typedef struct SoilLayerStruct
+{
+    unsigned int number_of_left_columns_with_root; // first column with roots in a soil layer.
+    unsigned int number_of_right_columns_with_root;
+} SoilLayer;
 typedef struct State
 {
     char date[12];
@@ -81,6 +86,7 @@ typedef struct State
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];
     SoilCell soil_cells[40][20];
+    SoilLayer soil_layers[40];
     FruitingSite site[3][30][5];
 } State;
 #endif

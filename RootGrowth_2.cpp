@@ -95,26 +95,26 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
     }
     //     Allocate the added dry matter to this and the adjoining
     //  soil cells in proportion to the EFAC factors.
-    sim.states[u].soil_cells[l][k].root.actual_growth += addwt * efac1 / srwp;
-    sim.states[u].soil_cells[l][km1].root.actual_growth += addwt * efacl / srwp;
-    sim.states[u].soil_cells[l][kp1].root.actual_growth += addwt * efacr / srwp;
-    sim.states[u].soil_cells[lm1][k].root.actual_growth += addwt * efacu / srwp;
-    sim.states[u].soil_cells[lp1][k].root.actual_growth += addwt * efacd / srwp;
+    state.soil_cells[l][k].root.actual_growth += addwt * efac1 / srwp;
+    state.soil_cells[l][km1].root.actual_growth += addwt * efacl / srwp;
+    state.soil_cells[l][kp1].root.actual_growth += addwt * efacr / srwp;
+    state.soil_cells[lm1][k].root.actual_growth += addwt * efacu / srwp;
+    state.soil_cells[lp1][k].root.actual_growth += addwt * efacd / srwp;
     //     If roots are growing into new soil soil cells, initialize
     //  their RootAge to 0.01.
-    if (sim.states[u].soil_cells[l][km1].root.age == 0)
-        sim.states[u].soil_cells[l][km1].root.age = 0.01;
-    if (sim.states[u].soil_cells[l][kp1].root.age == 0)
-        sim.states[u].soil_cells[l][kp1].root.age = 0.01;
-    if (sim.states[u].soil_cells[lm1][k].root.age == 0)
-        sim.states[u].soil_cells[lm1][k].root.age = 0.01;
+    if (state.soil_cells[l][km1].root.age == 0)
+        state.soil_cells[l][km1].root.age = 0.01;
+    if (state.soil_cells[l][kp1].root.age == 0)
+        state.soil_cells[l][kp1].root.age = 0.01;
+    if (state.soil_cells[lm1][k].root.age == 0)
+        state.soil_cells[lm1][k].root.age = 0.01;
     //     If this new compartmment is in a new layer with roots, also
     //  initialize its RootColNumLeft and RootColNumRight values.
-    if (sim.states[u].soil_cells[lp1][k].root.age == 0 && efacd > 0)
+    if (state.soil_cells[lp1][k].root.age == 0 && efacd > 0)
     {
-        sim.states[u].soil_cells[lp1][k].root.age = 0.01;
-        if (RootColNumLeft[lp1] == 0 || k < RootColNumLeft[lp1])
-            RootColNumLeft[lp1] = k;
+        state.soil_cells[lp1][k].root.age = 0.01;
+        if (state.soil_layers[lp1].number_of_left_columns_with_root == 0 || k < state.soil_layers[lp1].number_of_left_columns_with_root)
+            state.soil_layers[lp1].number_of_left_columns_with_root = k;
         if (RootColNumRight[lp1] == 0 || k > RootColNumRight[lp1])
             RootColNumRight[lp1] = k;
     }
@@ -129,10 +129,10 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
         }
     //     Update NumLayersWithRoots, if necessary, and the values of RootColNumLeft and RootColNumRight for
     //  this layer.
-    if (sim.states[u].number_of_layers_with_root <= l && efacd > 0)
-        sim.states[u].number_of_layers_with_root = l + 1;
-    if (km1 < RootColNumLeft[l])
-        RootColNumLeft[l] = km1;
+    if (state.number_of_layers_with_root <= l && efacd > 0)
+        state.number_of_layers_with_root = l + 1;
+    if (km1 < state.soil_layers[l].number_of_left_columns_with_root)
+        state.soil_layers[l].number_of_left_columns_with_root = km1;
     if (kp1 > RootColNumRight[l])
         RootColNumRight[l] = kp1;
 }
@@ -186,21 +186,21 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
     //     The following is executed when the taproot reaches a new soil layer.
     LastTaprootLayer++;
     DepthLastRootLayer += dl[LastTaprootLayer];
-    if (LastTaprootLayer > sim.states[u].number_of_layers_with_root - 1)
+    if (LastTaprootLayer > state.number_of_layers_with_root - 1)
     {
-        sim.states[u].number_of_layers_with_root = LastTaprootLayer + 1;
-        if (sim.states[u].number_of_layers_with_root > nl)
-            sim.states[u].number_of_layers_with_root = nl;
+        state.number_of_layers_with_root = LastTaprootLayer + 1;
+        if (state.number_of_layers_with_root > nl)
+            state.number_of_layers_with_root = nl;
     }
-    if (RootColNumLeft[LastTaprootLayer] == 0 ||
-        RootColNumLeft[LastTaprootLayer] > sim.plant_row_column)
-        RootColNumLeft[LastTaprootLayer] = sim.plant_row_column;
+    if (state.soil_layers[LastTaprootLayer].number_of_left_columns_with_root == 0 ||
+        state.soil_layers[LastTaprootLayer].number_of_left_columns_with_root > sim.plant_row_column)
+        state.soil_layers[LastTaprootLayer].number_of_left_columns_with_root = sim.plant_row_column;
     if (RootColNumRight[LastTaprootLayer] == 0 ||
         RootColNumRight[LastTaprootLayer] < klocp1)
         RootColNumRight[LastTaprootLayer] = klocp1;
     //     RootAge is initialized for these soil cells.
-    sim.states[u].soil_cells[LastTaprootLayer][sim.plant_row_column].root.age = 0.01;
-    sim.states[u].soil_cells[LastTaprootLayer][klocp1].root.age = 0.01;
+    state.soil_cells[LastTaprootLayer][sim.plant_row_column].root.age = 0.01;
+    state.soil_cells[LastTaprootLayer][klocp1].root.age = 0.01;
     //     Some of the mass of class 1 roots is transferred downwards to
     //  the new cells. The transferred mass is proportional to 2 cm of
     //  layer width, but it is not more than half the existing mass in the
@@ -210,17 +210,17 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
         double tran; // root mass transferred to the cell below when the elongating taproot
         // reaches a new soil layer.
         // first column
-        tran = sim.states[u].soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] * 2 / dl[LastTaprootLayer - 1];
-        if (tran > 0.5 * sim.states[u].soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i])
-            tran = 0.5 * sim.states[u].soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i];
-        sim.states[u].soil_cells[LastTaprootLayer][sim.plant_row_column].root.weight[i] += tran;
-        sim.states[u].soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] -= tran;
+        tran = state.soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] * 2 / dl[LastTaprootLayer - 1];
+        if (tran > 0.5 * state.soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i])
+            tran = 0.5 * state.soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i];
+        state.soil_cells[LastTaprootLayer][sim.plant_row_column].root.weight[i] += tran;
+        state.soil_cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] -= tran;
         // second column
-        tran = sim.states[u].soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i] * 2 / dl[LastTaprootLayer - 1];
-        if (tran > 0.5 * sim.states[u].soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i])
-            tran = 0.5 * sim.states[u].soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i];
-        sim.states[u].soil_cells[LastTaprootLayer][klocp1].root.weight[i] += tran;
-        sim.states[u].soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i] -= tran;
+        tran = state.soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i] * 2 / dl[LastTaprootLayer - 1];
+        if (tran > 0.5 * state.soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i])
+            tran = 0.5 * state.soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i];
+        state.soil_cells[LastTaprootLayer][klocp1].root.weight[i] += tran;
+        state.soil_cells[LastTaprootLayer - 1][klocp1].root.weight[i] -= tran;
     }
 }
 
@@ -302,16 +302,16 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
             newktip = ktip - 1;
             for (int i = 0; i < NumRootAgeGroups; i++)
             {
-                double tran = sim.states[u].soil_cells[l][ktip].root.weight[i] * rtran;
-                sim.states[u].soil_cells[l][ktip].root.weight[i] -= tran;
-                sim.states[u].soil_cells[l][newktip].root.weight[i] += tran;
+                double tran = state.soil_cells[l][ktip].root.weight[i] * rtran;
+                state.soil_cells[l][ktip].root.weight[i] -= tran;
+                state.soil_cells[l][newktip].root.weight[i] += tran;
             }
             //     RootAge is initialized for this soil cell.
-            //     RootColNumLeft of this layer is redefined.
-            if (sim.states[u].soil_cells[l][newktip].root.age == 0)
-                sim.states[u].soil_cells[l][newktip].root.age = 0.01;
-            if (newktip < RootColNumLeft[l])
-                RootColNumLeft[l] = newktip;
+            //     RootColNumLeft of this layer idefi
+            if (state.soil_cells[l][newktip].root.age == 0)
+                state.soil_cells[l][newktip].root.age = 0.01;
+            if (newktip < state.soil_layers[l].number_of_left_columns_with_root)
+                state.soil_layers[l].number_of_left_columns_with_root = newktip;
         }
     }
 }
@@ -371,14 +371,14 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
             newktip = ktip + 1; // column into which the tip of the lateral grows to left.
             for (int i = 0; i < NumRootAgeGroups; i++)
             {
-                double tran = sim.states[u].soil_cells[l][ktip].root.weight[i] * rtran;
-                sim.states[u].soil_cells[l][ktip].root.weight[i] -= tran;
-                sim.states[u].soil_cells[l][newktip].root.weight[i] += tran;
+                double tran = state.soil_cells[l][ktip].root.weight[i] * rtran;
+                state.soil_cells[l][ktip].root.weight[i] -= tran;
+                state.soil_cells[l][newktip].root.weight[i] += tran;
             }
             //     RootAge is initialized for this soil cell.
             //     RootColNumLeft of this layer is redefined.
-            if (sim.states[u].soil_cells[l][newktip].root.age == 0)
-                sim.states[u].soil_cells[l][newktip].root.age = 0.01;
+            if (state.soil_cells[l][newktip].root.age == 0)
+                state.soil_cells[l][newktip].root.age = 0.01;
             if (newktip > RootColNumRight[l])
                 RootColNumRight[l] = newktip;
         }

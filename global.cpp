@@ -51,7 +51,6 @@ int inrim,       // number of input bulk-density data points for the impedance c
     NumWaterTableData; // number of water table level input data.
 
 int OutIndex[24],          // output flags.
-    RootColNumLeft[maxl],  // first column with roots in a soil layer.
     RootColNumRight[maxl], // last column with roots in a soil layer.
     SoilHorizonNum[maxl],  // the soil horizon number associated with each soil layer in the slab.
     SoilMapFreq,           // frequency of output of soil slab maps

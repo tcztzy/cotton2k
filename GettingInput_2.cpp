@@ -395,13 +395,13 @@ void InitializeRootData(Simulation & sim)
 //     All the state variables of the root system are initialized to zero.
     for (int l = 0; l < nl; l++) {
         if (l < 3) {
-            RootColNumLeft[l] = sim.plant_row_column - 1;
+            sim.states[0].soil_layers[l].number_of_left_columns_with_root = sim.plant_row_column - 1;
             RootColNumRight[l] = sim.plant_row_column + 2;
         } else if (l < 7) {
-            RootColNumLeft[l] = sim.plant_row_column;
+            sim.states[0].soil_layers[l].number_of_left_columns_with_root = sim.plant_row_column;
             RootColNumRight[l] = sim.plant_row_column + 1;
         } else {
-            RootColNumLeft[l] = 0;
+            sim.states[0].soil_layers[l].number_of_left_columns_with_root = 0;
             RootColNumRight[l] = 0;
         }
     }
