@@ -320,41 +320,41 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
     return lyrsol;
 }
 
-void init_root_data(Root root[40][20], uint32_t plant_row_column, double mul) {
+void init_root_data(SoilCell soil_cells[40][20], uint32_t plant_row_column, double mul) {
     for (int l = 0; l < 40; l++) {
         for (int k = 0; k < 20; k++) {
-            root[l][k] = {0, 1, 0, 0, 0, {0, 0, 0}};
+            soil_cells[l][k] = {{0, 1, 0, 0, 0, {0, 0, 0}}};
         }
     }
     // FIXME: I consider the value is incorrect
-    root[0][plant_row_column - 1].weight[0] = 0.0020 * mul;
-    root[0][plant_row_column].weight[0] = 0.0070 * mul;
-    root[0][plant_row_column + 1].weight[0] = 0.0070 * mul;
-    root[0][plant_row_column + 2].weight[0] = 0.0020 * mul;
-    root[1][plant_row_column - 1].weight[0] = 0.0040 * mul;
-    root[1][plant_row_column].weight[0] = 0.0140 * mul;
-    root[1][plant_row_column + 1].weight[0] = 0.0140 * mul;
-    root[1][plant_row_column + 2].weight[0] = 0.0040 * mul;
-    root[2][plant_row_column - 1].weight[0] = 0.0060 * mul;
-    root[2][plant_row_column].weight[0] = 0.0210 * mul;
-    root[2][plant_row_column + 1].weight[0] = 0.0210 * mul;
-    root[2][plant_row_column + 2].weight[0] = 0.0060 * mul;
-    root[3][plant_row_column].weight[0] = 0.0200 * mul;
-    root[3][plant_row_column + 1].weight[0] = 0.0200 * mul;
-    root[4][plant_row_column].weight[0] = 0.0150 * mul;
-    root[4][plant_row_column + 1].weight[0] = 0.0150 * mul;
-    root[5][plant_row_column].weight[0] = 0.0100 * mul;
-    root[5][plant_row_column + 1].weight[0] = 0.0100 * mul;
-    root[6][plant_row_column].weight[0] = 0.0050 * mul;
-    root[6][plant_row_column + 1].weight[0] = 0.0050 * mul;
+    soil_cells[0][plant_row_column - 1].root.weight[0] = 0.0020 * mul;
+    soil_cells[0][plant_row_column].root.weight[0] = 0.0070 * mul;
+    soil_cells[0][plant_row_column + 1].root.weight[0] = 0.0070 * mul;
+    soil_cells[0][plant_row_column + 2].root.weight[0] = 0.0020 * mul;
+    soil_cells[1][plant_row_column - 1].root.weight[0] = 0.0040 * mul;
+    soil_cells[1][plant_row_column].root.weight[0] = 0.0140 * mul;
+    soil_cells[1][plant_row_column + 1].root.weight[0] = 0.0140 * mul;
+    soil_cells[1][plant_row_column + 2].root.weight[0] = 0.0040 * mul;
+    soil_cells[2][plant_row_column - 1].root.weight[0] = 0.0060 * mul;
+    soil_cells[2][plant_row_column].root.weight[0] = 0.0210 * mul;
+    soil_cells[2][plant_row_column + 1].root.weight[0] = 0.0210 * mul;
+    soil_cells[2][plant_row_column + 2].root.weight[0] = 0.0060 * mul;
+    soil_cells[3][plant_row_column].root.weight[0] = 0.0200 * mul;
+    soil_cells[3][plant_row_column + 1].root.weight[0] = 0.0200 * mul;
+    soil_cells[4][plant_row_column].root.weight[0] = 0.0150 * mul;
+    soil_cells[4][plant_row_column + 1].root.weight[0] = 0.0150 * mul;
+    soil_cells[5][plant_row_column].root.weight[0] = 0.0100 * mul;
+    soil_cells[5][plant_row_column + 1].root.weight[0] = 0.0100 * mul;
+    soil_cells[6][plant_row_column].root.weight[0] = 0.0050 * mul;
+    soil_cells[6][plant_row_column + 1].root.weight[0] = 0.0050 * mul;
     for (int l = 0; l < 3; l++) {
         for (int k = plant_row_column - 1; k < plant_row_column + 3; k++) {
-            root[l][k].age = 0.01;
+            soil_cells[l][k].root.age = 0.01;
         }
     }
     for (int l = 3; l < 7; l++) {
-        root[l][plant_row_column].age = 0.01;
-        root[l][plant_row_column + 1].age = 0.01;
+        soil_cells[l][plant_row_column].root.age = 0.01;
+        soil_cells[l][plant_row_column + 1].root.age = 0.01;
     }
 }
 
@@ -405,7 +405,7 @@ void InitializeRootData(Simulation & sim)
             RootColNumRight[l] = 0;
         }
     }
-    init_root_data(sim.states[0].root, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);
+    init_root_data(sim.states[0].soil_cells, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);
 //     Start loop for all soil layers containing roots.
     DepthLastRootLayer = 0;
     TotalRootWeight = 0;
@@ -415,7 +415,7 @@ void InitializeRootData(Simulation & sim)
 //  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
             for (int i = 0; i < 3; i++) {
-                TotalRootWeight += sim.states[0].root[l][k].weight[i] * 100 / sim.row_space * PerPlantArea;
+                TotalRootWeight += sim.states[0].soil_cells[l][k].root.weight[i] * 100 / sim.row_space * PerPlantArea;
             }
         }
     }

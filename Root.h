@@ -1,5 +1,5 @@
-#ifndef ROOT_TYPE
-#define ROOT_TYPE
+#ifndef SOIL_CELL_TYPE
+#define SOIL_CELL_TYPE
 typedef struct RootStruct
 {
     double potential_growth; // potential root growth in a soil cell (g per day).
@@ -9,4 +9,9 @@ typedef struct RootStruct
     double weight_capable_uptake; // root weight capable of uptake, in g per soil cell.
     double weight[3];
 } Root;
+
+typedef struct SoilCellStruct
+{
+    Root root;
+} SoilCell;
 #endif

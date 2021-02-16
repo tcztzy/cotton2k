@@ -38,13 +38,13 @@ void LateralRootGrowthLeft(Simulation &, uint32_t, int, const int &);
 
 void LateralRootGrowthRight(Simulation &, uint32_t, int, const int &);
 
-void RootAging(Root &, int, int);
+void RootAging(SoilCell &, int, int);
 
-double RootDeath(Root &, int, int, double);
+double RootDeath(SoilCell &, int, int, double);
 
-double RootCultivation(Root[40][20], int, const int &, double);
+double RootCultivation(SoilCell[40][20], int, const int &, double);
 
-void RootSummation(Simulation &, uint32_t, const int &);
+void RootSummation(State &, const int &, double);
 
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
@@ -82,7 +82,7 @@ void RootSummation(Simulation &, uint32_t, const int &);
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const int &NumLayersWithRoots, const int &ncurve)
+double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGroups, const int &NumLayersWithRoots, const int &ncurve)
 //     This function calculates the potential root growth rate.  The return value
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(),
@@ -99,7 +99,7 @@ double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const
                                //     Initialize to zero the PotGroRoots array.
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
-            root[l][k].potential_growth = 0;
+            soil_cells[l][k].root.potential_growth = 0;
     RootImpedance(ncurve);
     double sumpdr = 0; // sum of potential root growth rate for the whole slab
     for (int l = 0; l < NumLayersWithRoots; l++)
@@ -109,11 +109,11 @@ double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const
             //  than 0), and execute the following if this is true.
             //     In each soil cell with roots, the root weight capable of growth rtwtcg is computed as
             //  the sum of RootWeight[l][k][i] * cgind[i] for all root classes.
-            if (root[l][k].age > 0)
+            if (soil_cells[l][k].root.age > 0)
             {
                 double rtwtcg = 0; // root weight capable of growth in a soil soil cell.
                 for (int i = 0; i < NumRootAgeGroups; i++)
-                    rtwtcg += root[l][k].weight[i] * cgind[i];
+                    rtwtcg += soil_cells[l][k].root.weight[i] * cgind[i];
                 //     Compute the temperature factor for root growth by calling function
                 //  SoilTemOnRootGrowth() for this layer.
                 double stday; // soil temperature, C, this day's average for this cell.
@@ -174,9 +174,9 @@ double PotentialRootGrowth(Root root[40][20], const int &NumRootAgeGroups, const
                 if (rtrdn < minres)
                     minres = rtrdn;
                 double rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k]);
-                root[l][k].growth_factor = rtpsi * minres;
-                root[l][k].potential_growth = rtwtcg * rgfac * temprg * root[l][k].growth_factor * PerPlantArea / 19.6;
-                sumpdr += root[l][k].potential_growth;
+                soil_cells[l][k].root.growth_factor = rtpsi * minres;
+                soil_cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * soil_cells[l][k].root.growth_factor * PerPlantArea / 19.6;
+                sumpdr += soil_cells[l][k].root.potential_growth;
             } // if RootAge
         }     // end loop l & k
     return sumpdr;
@@ -286,7 +286,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
         {
-            state.root[l][k].actual_growth = 0;
+            state.soil_cells[l][k].root.actual_growth = 0;
             adwr1[l][k] = 0;
         }
     //     The amount of carbon allocated for root growth is calculated from
@@ -308,8 +308,8 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         for (int k = 0; k < nk; k++)
         {
             //     adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
-            if (state.root[l][k].age > 0)
-                adwr1[l][k] = state.root[l][k].potential_growth * actgf;
+            if (state.soil_cells[l][k].root.age > 0)
+                adwr1[l][k] = state.soil_cells[l][k].root.potential_growth * actgf;
         }
     //     If extra carbon is available, it is assumed to be added to the taproot.
     if (state.extra_carbon > 0)
@@ -336,8 +336,8 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         //  root class in each soil cell.
         for (int l = 0; l <= LastTaprootLayer; l++)
         {
-            state.root[l][sim.plant_row_column].weight[NumRootAgeGroups - 1] += availt * tpwt[l][0] / sumwt;
-            state.root[l][sim.plant_row_column + 1].weight[NumRootAgeGroups - 1] += availt * tpwt[l][1] / sumwt;
+            state.soil_cells[l][sim.plant_row_column].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][0] / sumwt;
+            state.soil_cells[l][sim.plant_row_column + 1].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][1] / sumwt;
         }
     }
     //     Check each cell if the ratio of root weight capable of growth to cell volume (rtconc)
@@ -346,16 +346,16 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     //  ActualRootGrowth(l,k) will be equal to adwr1(l,k).
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
-            if (state.root[l][k].age > 0)
+            if (state.soil_cells[l][k].root.age > 0)
             {
                 double rtconc = 0; // ratio of root weight capable of growth to cell volume.
                 for (int i = 0; i < NumRootAgeGroups; i++)
-                    rtconc += state.root[l][k].weight[i] * cgind[i];
+                    rtconc += state.soil_cells[l][k].root.weight[i] * cgind[i];
                 rtconc = rtconc / (dl[l] * wk[k]);
                 if (rtconc > rtminc)
                     RedistRootNewGrowth(sim, u, l, k, adwr1[l][k]);
                 else
-                    state.root[l][k].actual_growth += adwr1[l][k];
+                    state.soil_cells[l][k].root.actual_growth += adwr1[l][k];
             }
     //     The new actual growth ActualRootGrowth(l,k) in each cell is partitioned among the root
     //  classes in it in proportion to the parameters RootGrowthIndex(i), and the previous values of
@@ -367,18 +367,18 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     for (int l = 0; l < state.number_of_layers_with_root; l++)
         for (int k = 0; k < nk; k++)
         {
-            if (state.root[l][k].age > 0)
+            if (state.soil_cells[l][k].root.age > 0)
             {
                 double sumgr = 0; // sum of growth index multiplied by root weight, for all classes in a cell.
                 for (int i = 0; i < NumRootAgeGroups; i++)
-                    sumgr += RootGrowthIndex[i] * state.root[l][k].weight[i];
+                    sumgr += RootGrowthIndex[i] * state.soil_cells[l][k].root.weight[i];
                 for (int i = 0; i < NumRootAgeGroups; i++)
                 {
                     if (sumgr > 0)
-                        state.root[l][k].weight[i] +=
-                            state.root[l][k].actual_growth * RootGrowthIndex[i] * state.root[l][k].weight[i] / sumgr;
+                        state.soil_cells[l][k].root.weight[i] +=
+                            state.soil_cells[l][k].root.actual_growth * RootGrowthIndex[i] * state.soil_cells[l][k].root.weight[i] / sumgr;
                     else
-                        state.root[l][k].weight[i] += state.root[l][k].actual_growth * RootGrowthIndex[i] / sumind;
+                        state.soil_cells[l][k].root.weight[i] += state.soil_cells[l][k].root.actual_growth * RootGrowthIndex[i] / sumind;
                 }
             }
         }
@@ -403,16 +403,16 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         {
             //     Check RootAge to determine if this soil cell contains roots, and then compute root
             //  aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
-            if (state.root[l][k].age > 0)
+            if (state.soil_cells[l][k].root.age > 0)
             {
-                RootAging(state.root[l][k], l, k);
-                DailyRootLoss = RootDeath(state.root[l][k], l, k, DailyRootLoss);
+                RootAging(state.soil_cells[l][k], l, k);
+                DailyRootLoss = RootDeath(state.soil_cells[l][k], l, k, DailyRootLoss);
             }
         }
     //     Check if cultivation is executed in this day and call RootCultivation().
     for (int j = 0; j < 5; j++)
         if (CultivationDate[j] == state.daynum)
-            DailyRootLoss = RootCultivation(state.root, j, NumRootAgeGroups, DailyRootLoss);
+            DailyRootLoss = RootCultivation(state.soil_cells, j, NumRootAgeGroups, DailyRootLoss);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
     RootWeightLoss += DailyRootLoss;
@@ -420,5 +420,5 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     RootNitrogen -= DailyRootLoss * state.root_nitrogen_concentration;
     state.cumulative_nitrogen_loss += DailyRootLoss * state.root_nitrogen_concentration;
     // Call function RootSummation().
-    RootSummation(sim, u, NumRootAgeGroups);
+    RootSummation(sim.states[u], NumRootAgeGroups, sim.row_space);
 }

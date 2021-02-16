@@ -101,7 +101,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
                 if (redfac > 1)
                     redfac = 1;
                 // The computed 'uptake factor' (upf) for each soil cell is the product of 'root weight capable of uptake' and redfac. 
-                upf[l][k] = sim.states[u].root[l][k].weight_capable_uptake * redfac;
+                upf[l][k] = sim.states[u].soil_cells[l][k].root.weight_capable_uptake * redfac;
                 supf += upf[l][k];
             }
         }

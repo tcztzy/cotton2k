@@ -80,7 +80,7 @@ typedef struct State
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];
-    Root root[40][20];
+    SoilCell soil_cells[40][20];
     FruitingSite site[3][30][5];
 } State;
 #endif
