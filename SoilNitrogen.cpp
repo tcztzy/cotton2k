@@ -17,7 +17,7 @@ using namespace std;
 
 void UreaHydrolysis(int, int);
 
-void MineralizeNitrogen(int, int, const int &, const int &);
+void MineralizeNitrogen(int, int, const int &, const int &, double);
 
 extern "C"
 {
@@ -27,7 +27,7 @@ extern "C"
 
 void Nitrification(int, int, double);
 
-void Denitrification(int, int);
+void Denitrification(int, int, double);
 
 //////////////////////////
 /*                References for soil nitrogen routines:
@@ -75,7 +75,7 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
         for (int k = 0; k < nk; k++) {
             if (VolUreaNContent[l][k] > 0)
                 UreaHydrolysis(l, k);
-            MineralizeNitrogen(l, k, sim.states[u].daynum, sim.day_start);
+            MineralizeNitrogen(l, k, sim.states[u].daynum, sim.day_start, sim.row_space);
             if (VolNh4NContent[l][k] > 0.00001)
                 Nitrification(l, k, depth[l]);
 //     Denitrification() is called if there are enough water and nitrates in the
@@ -83,7 +83,7 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
             const double cparmin = 5;
             if (VolNo3NContent[l][k] > 0.001 && VolWaterContent[l][k] > FieldCapacity[l]
                 && SoilTempDailyAvrg[l][k] >= (cparmin + 273.161))
-                Denitrification(l, k);
+                Denitrification(l, k, sim.row_space);
         }
 }
 
@@ -160,7 +160,7 @@ void UreaHydrolysis(int l, int k)
 }
 
 ///////////////////////////////////////////
-void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
+void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart, double row_space)
 //     This function computes the mineralization of organic nitrogen in the soil, and the 
 //  immobilization of mineral nitrogen by soil microorganisms. It is called by function 
 //  SoilNitrogen(). 
@@ -282,7 +282,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
 //  the accumulated nitrogen released by mineralization in the slab, is updated.
     if (netNReleased > 0) {
         VolNh4NContent[l][k] += netNReleased;
-        MineralizedOrganicN += netNReleased * dl(l) * wk[k];
+        MineralizedOrganicN += netNReleased * dl(l) * wk(k, row_space);
     }
 //     If net N released is negative (net immobilization), the NH4 fraction
 //  is reduced, but at least 0.25 ppm (=cparMinNH4 in mg cm-3) of NH4 N
@@ -299,7 +299,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
             else
                 addvnc = VolNh4NContent[l][k] - cparMinNH4;
             VolNh4NContent[l][k] -= addvnc;
-            MineralizedOrganicN -= addvnc * dl(l) * wk[k];
+            MineralizedOrganicN -= addvnc * dl(l) * wk(k, row_space);
             FreshOrganicNitrogen[l][k] += addvnc;
             nnom1 = netNReleased + addvnc;
         }
@@ -312,7 +312,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
                 addvnc = VolNo3NContent[l][k] - cparMinNH4;
             VolNo3NContent[l][k] -= addvnc;
             FreshOrganicNitrogen[l][k] += addvnc;
-            MineralizedOrganicN -= addvnc * dl(l) * wk[k];
+            MineralizedOrganicN -= addvnc * dl(l) * wk(k, row_space);
         }
     }
 }
@@ -369,7 +369,7 @@ void Nitrification(int l, int k, double DepthOfLayer)
 }
 
 /////////////////////////
-void Denitrification(int l, int k)
+void Denitrification(int l, int k, double row_space)
 //     This function computes the denitrification of nitrate N in the soil. 
 //     It is called by function SoilNitrogen().
 //     The procedure is based on the CERES routine, as documented by Godwin and Jones (1991).
@@ -412,5 +412,5 @@ void Denitrification(int l, int k)
         dnrate = 0;
 //     Update VolNo3NContent, and add the amount of nitrogen lost to SoilNitrogenLoss.
     VolNo3NContent[l][k] -= dnrate;
-    SoilNitrogenLoss += dnrate * dl(l) * wk[k];
+    SoilNitrogenLoss += dnrate * dl(l) * wk(k, row_space);
 }

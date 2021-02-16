@@ -244,9 +244,9 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++) {
-            InitialTotalSoilWater += VolWaterContent[l][k] * dl(l) * wk[k];
-            TotalSoilNo3N += VolNo3NContent[l][k] * dl(l) * wk[k];
-            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk[k];
+            InitialTotalSoilWater += VolWaterContent[l][k] * dl(l) * wk(k, sim.row_space);
+            TotalSoilNo3N += VolNo3NContent[l][k] * dl(l) * wk(k, sim.row_space);
+            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, sim.row_space);
             VolUreaNContent[l][k] = 0;
         }
 //     InitialTotalSoilWater is converted from cm3 per slab to mm.

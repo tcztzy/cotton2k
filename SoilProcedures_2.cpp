@@ -11,7 +11,7 @@
 
 double Drain(Simulation &);
 
-double CellDistance(int, int, int, int);
+double CellDistance(int, int, int, int, double);
 
 // SoilProcedures_3
 void WaterFlux(double[], double[], double[], double[], double[], double[], int, int, int, long);
@@ -110,7 +110,7 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
             pp1[k] = PoreSpace[l];
             nit[k] = VolNo3NContent[l][k];
             nur[k] = VolUreaNContent[l][k];
-            wk1[k] = wk[k];
+            wk1[k] = wk(k, sim.row_space);
         }
 //     Call subroutines WaterFlux(), and NitrogenFlow() to compute water nitrate and 
 //  urea transport in the layer. 
@@ -164,7 +164,7 @@ double Drain(Simulation &sim)
 //  water content in array oldvh2oc.
         double avwl = 0;     // average water content in a soil layer
         for (int k = 0; k < nk; k++) {
-            avwl += VolWaterContent[l][k] * wk[k] / sim.row_space;
+            avwl += VolWaterContent[l][k] * wk(k, sim.row_space) / sim.row_space;
             oldvh2oc[k] = VolWaterContent[l][k];
         }
 //     Upper limit of water content in free drainage..
@@ -181,7 +181,7 @@ double Drain(Simulation &sim)
 //  to be added to each cell of the next layer is computed (corrected for non uniform 
 //  column widths). The water content in the next layer is computed.
                 VolWaterContent[l][k] = uplimit;
-                VolWaterContent[l + 1][k] += wmov * wk[k] * nk / sim.row_space;
+                VolWaterContent[l + 1][k] += wmov * wk(k, sim.row_space) * nk / sim.row_space;
 //     The concentrations of nitrate and urea N in the soil solution are
 //  computed and their amounts in this layer and in the next one are updated.
                 double qvout; // amount of water moving out of a cell.
@@ -241,7 +241,7 @@ double Drain(Simulation &sim)
     Drainage = 0;
     for (int k = 0; k < nk; k++) {
         if (VolWaterContent[nlx - 1][k] > MaxWaterCapacity[nlx - 1]) {
-            Drainage += (VolWaterContent[nlx - 1][k] - MaxWaterCapacity[nlx - 1]) * dl(nlx - 1) * wk[k];
+            Drainage += (VolWaterContent[nlx - 1][k] - MaxWaterCapacity[nlx - 1]) * dl(nlx - 1) * wk(k, sim.row_space);
             nitconc = VolNo3NContent[nlx - 1][k] / oldvh2oc[k];
             if (nitconc < 1.e-30)
                 nitconc = 0;
@@ -249,12 +249,12 @@ double Drain(Simulation &sim)
             if (nurconc < 1.e-30)
                 nurconc = 0;
             double saven; //  intermediate variable for computing N loss.
-            saven = (VolNo3NContent[nlx - 1][k] + VolUreaNContent[nlx - 1][k]) * dl(nlx - 1) * wk[k];
+            saven = (VolNo3NContent[nlx - 1][k] + VolUreaNContent[nlx - 1][k]) * dl(nlx - 1) * wk(k, sim.row_space);
             VolWaterContent[nlx - 1][k] = MaxWaterCapacity[nlx - 1];
             VolNo3NContent[nlx - 1][k] = nitconc * MaxWaterCapacity[nlx - 1];
             VolUreaNContent[nlx - 1][k] = nurconc * MaxWaterCapacity[nlx - 1];
             SoilNitrogenLoss +=
-                    saven - (VolNo3NContent[nlx - 1][k] + VolUreaNContent[nlx - 1][k]) * dl(nlx - 1) * wk[k];
+                    saven - (VolNo3NContent[nlx - 1][k] + VolUreaNContent[nlx - 1][k]) * dl(nlx - 1) * wk(k, sim.row_space);
         } // end if Vol...
     } // end loop k
     return Drainage;
@@ -296,11 +296,11 @@ void DripFlow(Simulation &sim, double Drip)
     int k0 = LocationColumnDrip; //  column where the drip emitter is situated
 //     It is assumed that wetting cannot exceed MaxWaterCapacity of this cell. Compute
 //  h2odef, the amount of water needed to saturate this cell.
-    h2odef = (MaxWaterCapacity[l0] - VolWaterContent[l0][k0]) * dl(l0) * wk[k0];
+    h2odef = (MaxWaterCapacity[l0] - VolWaterContent[l0][k0]) * dl(l0) * wk(k0, sim.row_space);
 //      If maximum water capacity is not exceeded - update VolWaterContent of
 //  this cell and exit the function.
     if (dripw[0] <= h2odef) {
-        VolWaterContent[l0][k0] += dripw[0] / (dl(l0) * wk[k0]);
+        VolWaterContent[l0][k0] += dripw[0] / (dl(l0) * wk(k0, sim.row_space));
         return;
     }
 //      If maximum water capacity is exceeded - calculate the excess of water flowing out of 
@@ -310,12 +310,12 @@ void DripFlow(Simulation &sim, double Drip)
 //      Compute the movement of nitrate N to the next ring
     double cnw = 0;  //  concentration of nitrate N in the outflowing water
     if (VolNo3NContent[l0][k0] > 1.e-30) {
-        cnw = VolNo3NContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl(l0) * wk[k0]));
+        cnw = VolNo3NContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl(l0) * wk(k0, sim.row_space)));
 //     cnw is multiplied by dripw[1] to get dripn[1], the amount of nitrate N going out
 //  to the next ring of cells. It is assumed, however, that not more than a proportion  
 //  (NO3FlowFraction) of the nitrate N in this cell can be removed in one iteration.
         if ((cnw * MaxWaterCapacity[l0]) < (NO3FlowFraction[l0] * VolNo3NContent[l0][k0])) {
-            dripn[1] = NO3FlowFraction[l0] * VolNo3NContent[l0][k0] * dl(l0) * wk[k0];
+            dripn[1] = NO3FlowFraction[l0] * VolNo3NContent[l0][k0] * dl(l0) * wk(k0, sim.row_space);
             VolNo3NContent[l0][k0] = (1 - NO3FlowFraction[l0]) * VolNo3NContent[l0][k0];
         } else {
             dripn[1] = dripw[1] * cnw;
@@ -325,9 +325,9 @@ void DripFlow(Simulation &sim, double Drip)
 //     The movement of urea N to the next ring is computed similarly.
     double cuw = 0;  //  concentration of urea N in the outflowing water
     if (VolUreaNContent[l0][k0] > 1.e-30) {
-        cuw = VolUreaNContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl(l0) * wk[k0]));
+        cuw = VolUreaNContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl(l0) * wk(k0, sim.row_space)));
         if ((cuw * MaxWaterCapacity[l0]) < (NO3FlowFraction[l0] * VolUreaNContent[l0][k0])) {
-            dripu[1] = NO3FlowFraction[l0] * VolUreaNContent[l0][k0] * dl(l0) * wk[k0];
+            dripu[1] = NO3FlowFraction[l0] * VolUreaNContent[l0][k0] * dl(l0) * wk(k0, sim.row_space);
             VolUreaNContent[l0][k0] = (1 - NO3FlowFraction[l0]) * VolUreaNContent[l0][k0];
         } else {
             dripu[1] = dripw[1] * cuw;
@@ -361,14 +361,14 @@ void DripFlow(Simulation &sim, double Drip)
             for (int k = 0; k < nk; k++) {
 //     Compute the sums sv, st, sn, sn1, su and su1 within the radius limits of this ring. The 
 //  array defcit is the sum of difference between uplimit and VolWaterContent of each cell.
-                dist = CellDistance(l, k, l0, k0);
+                dist = CellDistance(l, k, l0, k0, sim.row_space);
                 if (dist <= radius && dist > (radius - 6)) {
-                    sv += VolWaterContent[l][k] * dl(l) * wk[k];
-                    st += uplimit * dl(l) * wk[k];
-                    sn += VolNo3NContent[l][k] * dl(l) * wk[k];
-                    sn1 += VolNo3NContent[l][k] * dl(l) * wk[k] * NO3FlowFraction[l];
-                    su += VolUreaNContent[l][k] * dl(l) * wk[k];
-                    su1 += VolUreaNContent[l][k] * dl(l) * wk[k] * NO3FlowFraction[l];
+                    sv += VolWaterContent[l][k] * dl(l) * wk(k, sim.row_space);
+                    st += uplimit * dl(l) * wk(k, sim.row_space);
+                    sn += VolNo3NContent[l][k] * dl(l) * wk(k, sim.row_space);
+                    sn1 += VolNo3NContent[l][k] * dl(l) * wk(k, sim.row_space) * NO3FlowFraction[l];
+                    su += VolUreaNContent[l][k] * dl(l) * wk(k, sim.row_space);
+                    su1 += VolUreaNContent[l][k] * dl(l) * wk(k, sim.row_space) * NO3FlowFraction[l];
                     defcit[l][k] = uplimit - VolWaterContent[l][k];
                 } else
                     defcit[l][k] = 0;
@@ -384,7 +384,7 @@ void DripFlow(Simulation &sim, double Drip)
 //  by the same proportion. this is executed for all the cells in the ring.
             for (int l = 1; l < nl; l++) {
                 for (int k = 0; k < nk; k++) {
-                    dist = CellDistance(l, k, l0, k0);
+                    dist = CellDistance(l, k, l0, k0, sim.row_space);
                     if (dist <= radius && dist > (radius - 6)) {
                         VolWaterContent[l][k] += dripw[kr] * defcit[l][k] / h2odef;
                         VolNo3NContent[l][k] += dripn[kr] * defcit[l][k] / h2odef;
@@ -430,7 +430,7 @@ void DripFlow(Simulation &sim, double Drip)
                 uplimit = MaxWaterCapacity[l];
 //
             for (int k = 0; k < nk; k++) {
-                dist = CellDistance(l, k, l0, k0);
+                dist = CellDistance(l, k, l0, k0, sim.row_space);
                 if (dist <= radius && dist > (radius - 6)) {
                     VolWaterContent[l][k] = uplimit;
                     if (xnloss <= 0)
@@ -462,7 +462,7 @@ void DripFlow(Simulation &sim, double Drip)
 }
 
 /////////////////////////
-double CellDistance(int l, int k, int l0, int k0)
+double CellDistance(int l, int k, int l0, int k0, double row_space)
 //     This function computes the distance between the centers of cells l,k an l0,k0
 //  It is called from DripFlow().
 {
@@ -481,12 +481,12 @@ double CellDistance(int l, int k, int l0, int k0)
     double xk = 0;  // horizontal distance (cm) between cells
     if (k > k0) {
         for (int ik = k0; ik <= k; ik++)
-            xk += wk[ik];
-        xk -= (wk[k] + wk[k0]) * 0.5;
+            xk += wk(ik, row_space);
+        xk -= (wk(k, row_space) + wk(k0, row_space)) * 0.5;
     } else if (k < k0) {
         for (int ik = k0; ik >= k; ik--)
-            xk += wk[ik];
-        xk -= (wk[k] + wk[k0]) * 0.5;
+            xk += wk(ik, row_space);
+        xk -= (wk(k, row_space) + wk(k0, row_space)) * 0.5;
     }
 //     Compute diagonal distance between centers of cells
     return sqrt(xl * xl + xk * xk);

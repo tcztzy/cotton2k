@@ -80,7 +80,7 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
     double efacr; // as efac1 for the cell to the right of this cell.
     double efacu; // as efac1 for the cell above this cell.
     double srwp;  // sum of all efac values.
-    efac1 = dl(l) * wk[k] * state.soil.cells[l][k].root.growth_factor;
+    efac1 = dl(l) * wk(k, sim.row_space) * state.soil.cells[l][k].root.growth_factor;
     efacl = rgfsd * state.soil.cells[l][km1].root.growth_factor;
     efacr = rgfsd * state.soil.cells[l][kp1].root.growth_factor;
     efacu = rgfup * state.soil.cells[lm1][k].root.growth_factor;
@@ -270,7 +270,7 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
     //     On its initiation, lateral root length is assumed to be equal to the
     //  width of a soil column soil cell at the location of the taproot.
     if (rlat1[l] <= 0)
-        rlat1[l] = wk[sim.plant_row_column];
+        rlat1[l] = wk(sim.plant_row_column, sim.row_space);
     double stday; // daily average soil temperature (C) at root tip.
     stday = SoilTempDailyAvrg[l][sim.plant_row_column] - 273.161;
     double temprg; // the effect of soil temperature on root growth.
@@ -280,7 +280,7 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
     double sumwk = 0; // summation of columns width
     for (int k = sim.plant_row_column; k >= 0; k--)
     {
-        sumwk += wk[k];
+        sumwk += wk(k, sim.row_space);
         if (sumwk >= rlat1[l])
         {
             ktip = k;
@@ -339,7 +339,7 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
     //  of a soil column soil cell at the location of the taproot.
     int klocp1 = sim.plant_row_column + 1;
     if (rlat2[l] <= 0)
-        rlat2[l] = wk[klocp1];
+        rlat2[l] = wk(klocp1, sim.row_space);
     double stday; // daily average soil temperature (C) at root tip.
     stday = SoilTempDailyAvrg[l][klocp1] - 273.161;
     double temprg; // the effect of soil temperature on root growth.
@@ -349,7 +349,7 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
     double sumwk = 0;
     for (int k = klocp1; k < nk; k++)
     {
-        sumwk += wk[k];
+        sumwk += wk(k, sim.row_space);
         if (sumwk >= rlat2[l])
         {
             ktip = k;
@@ -471,7 +471,7 @@ double RootDeath(SoilCell &soil_cell, int l, int k, double DailyRootLoss)
 }
 
 //////////////////////////////
-double RootCultivation(SoilCell soil_cells[40][20], int NumRootAgeGroups, double cultivation_depth, double DailyRootLoss)
+double RootCultivation(SoilCell soil_cells[40][20], int NumRootAgeGroups, double cultivation_depth, double DailyRootLoss, double row_space)
 //     This function is executed on the day of soil cultivation. It is called from
 //  ActualRootGrowth(). It has been adapted from GOSSYM. It is assumed that the roots in the
 //  upper soil layers, as defined by the depth of cultivation, are destroyed, with the
@@ -501,7 +501,7 @@ double RootCultivation(SoilCell soil_cells[40][20], int NumRootAgeGroups, double
     double sumwk = 0; // sum of column widths from edge of slab to this column.
     for (int k = 0; k < nk; k++)
     {
-        sumwk += wk[k];
+        sumwk += wk(k, row_space);
         if (fabs(sumwk - PlantRowLocation) >= 15)
         {
             for (int l = 0; l < lcult; l++)

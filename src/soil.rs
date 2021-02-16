@@ -285,6 +285,7 @@ pub fn depth(l: u32) -> f64 {
     }
 }
 
+/// horizontal width of a soil column (cm).
 #[no_mangle]
 extern "C" fn wk(_k: u32, row_space: f64) -> f64 {
     row_space / 20.

@@ -235,7 +235,7 @@ void DailyOutput(Simulation &sim, uint32_t u)
         if (sumdl > 90)
             break;
         for (int k = 0; k < nk; k++)
-            SumNO3N90 += VolNo3NContent[l][k] * dl(l) * wk[k];
+            SumNO3N90 += VolNo3NContent[l][k] * dl(l) * wk(k, sim.row_space);
     }
     SumNO3N90 = SumNO3N90 * 100 / sim.row_space;
 //

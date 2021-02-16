@@ -42,7 +42,7 @@ void RootAging(SoilCell &, int, int);
 
 double RootDeath(SoilCell &, int, int, double);
 
-double RootCultivation(SoilCell[40][20], int, double, double);
+double RootCultivation(SoilCell[40][20], int, double, double, double);
 
 void RootSummation(State &, const int &, double);
 
@@ -328,8 +328,8 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
             //     The weighting factors for allocating the carbon (tpwt) are proportional to the volume
             //  of each soil cell and its distance (sdl) from the tip of the taproot.
             sdl += dl(l);
-            tpwt[l][0] = sdl * dl(l) * wk[sim.plant_row_column];
-            tpwt[l][1] = sdl * dl(l) * wk[sim.plant_row_column + 1];
+            tpwt[l][0] = sdl * dl(l) * wk(sim.plant_row_column, sim.row_space);
+            tpwt[l][1] = sdl * dl(l) * wk(sim.plant_row_column + 1, sim.row_space);
             sumwt += tpwt[l][0] + tpwt[l][1];
         }
         //     The proportional amount of mass is added to the mass of the last (inactive)
@@ -351,7 +351,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
                 double rtconc = 0; // ratio of root weight capable of growth to cell volume.
                 for (int i = 0; i < NumRootAgeGroups; i++)
                     rtconc += state.soil.cells[l][k].root.weight[i] * cgind[i];
-                rtconc = rtconc / (dl(l) * wk[k]);
+                rtconc = rtconc / (dl(l) * wk(k, sim.row_space));
                 if (rtconc > rtminc)
                     RedistRootNewGrowth(sim, u, l, k, adwr1[l][k]);
                 else
@@ -412,7 +412,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     //     Check if cultivation is executed in this day and call RootCultivation().
     for (int j = 0; j < 5; j++)
         if (CultivationDate[j] == state.daynum)
-            DailyRootLoss = RootCultivation(state.soil.cells, NumRootAgeGroups, CultivationDepth[j], DailyRootLoss);
+            DailyRootLoss = RootCultivation(state.soil.cells, NumRootAgeGroups, CultivationDepth[j], DailyRootLoss, sim.row_space);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
     RootWeightLoss += DailyRootLoss;

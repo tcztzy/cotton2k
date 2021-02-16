@@ -204,5 +204,4 @@ double
     VolNh4NContent[maxl][maxk],       // volumetric ammonium nitrogen content of a soil cell, mg N cm-3.
     VolNo3NContent[maxl][maxk],       // volumetric nitrate nitrogen content of a soil cell, mg N cm-3.
     VolUreaNContent[maxl][maxk],      // volumetric urea nitrogen content of a soil cell, mg N cm-3.
-    VolWaterContent[maxl][maxk],      // volumetric water content of a soil cell, cm3 cm-3.
-    wk[maxk];                         // horizontal width of a soil column (cm).
+    VolWaterContent[maxl][maxk];      // volumetric water content of a soil cell, cm3 cm-3.

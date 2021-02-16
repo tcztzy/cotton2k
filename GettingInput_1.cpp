@@ -501,11 +501,10 @@ void InitializeGrid(Simulation &sim)
     sim.plant_row_column = 0;
     for (int k = 0; k < nk; k++)
     {
-        wk[k] = sim.row_space / nk;
-        sumwk = sumwk + wk[k];
+        sumwk = sumwk + wk(k, sim.row_space);
         if (sim.plant_row_column == 0 && sumwk > PlantRowLocation)
         {
-            if ((sumwk - PlantRowLocation) > (0.5 * wk[k]))
+            if ((sumwk - PlantRowLocation) > (0.5 * wk(k, sim.row_space)))
                 sim.plant_row_column = k - 1;
             else
                 sim.plant_row_column = k;

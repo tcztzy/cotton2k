@@ -236,7 +236,7 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, d
 }
 
 ///////////////////////////////////////////////////////////////////
-void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
+void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0, double row_space)
 //     This function computes heat flux in one direction between soil cells.
 //  It is called from SoilTemperature(), and calls ThermalCondSoil() and HeatBalance().
 //     Note: the units are: thermal conductivity = cal cm-1 s-1 oC-1;
@@ -276,7 +276,7 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
         {
             q1[i] = VolWaterContent[n0][i];
             ts1[i] = SoilTemp[n0][i];
-            dz[i] = wk[i];
+            dz[i] = wk(i, row_space);
         }
         hcap[i] = HeatCapacitySoilSolid[l] + q1[i] + (PoreSpace[l] - q1[i]) * ca;
         asoi[i] = ThermalCondSoil(q1[i], ts1[i], l) / hcap[i];

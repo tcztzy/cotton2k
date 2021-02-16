@@ -16,7 +16,7 @@ void SoilTemperatureInit(int &, int &, Simulation &);
 void EnergyBalance(Simulation &, uint32_t, int, int, bool, double, double, const double &, double[20]);
 
 // SoilTemperature_3
-void SoilHeatFlux(double, int, int, int, int);
+void SoilHeatFlux(double, int, int, int, int, double);
 
 tuple<int> PredictEmergence(Simulation &, int, const string &, const int &, const int &, const int &);
 
@@ -81,16 +81,16 @@ void ColumnShading(Simulation &sim, uint32_t u, double rracol[20])
         {
             //     When the column is on the left of the plant row.
             j = sim.plant_row_column - k;
-            sw += wk[j];
+            sw += wk(j, sim.row_space);
             sw0 = sw;
-            sw1 = sw - wk[j] / 2;
+            sw1 = sw - wk(j, sim.row_space) / 2;
             k0 = j;
         }
         else
         {
             //     When the column is on the right of the plant row.
-            sw += wk[k];
-            sw1 = sw - sw0 - wk[k] / 2;
+            sw += wk(k, sim.row_space);
+            sw1 = sw - sw0 - wk(k, sim.row_space) / 2;
             k0 = k;
         }
         //     Relative shading is computed as a function of sw1 and plant height, modified by LightIntercept.
@@ -221,7 +221,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
                 //  this column, and the wind and vapor deficit component of the Penman equation (es2hour).
                 double escol1k; // potential evaporation fron soil surface of a column, mm per hour.
                 escol1k = hour.et1 * rracol[k] + hour.et2;
-                es += escol1k * wk[k];
+                es += escol1k * wk(k, sim.row_space);
                 //     Compute actual evaporation from soil surface. update VolWaterContent of
                 //  the soil soil cell, and add to daily sum of actual evaporation.
                 double evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10 *
@@ -229,7 +229,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
                 if (escol1k > evapmax)
                     escol1k = evapmax;
                 VolWaterContent[0][k] -= 0.1 * escol1k / dl(0);
-                state.actual_soil_evaporation += escol1k * wk[k];
+                state.actual_soil_evaporation += escol1k * wk(k, sim.row_space);
                 ess = escol1k / dlt;
             }
             //     Call EnergyBalance to compute soil surface and canopy temperature.
@@ -252,7 +252,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         double tsolav[maxl]; // hourly average soil temperature C, of a soil layer.
                              //     Loop over kk columns, and call SoilHeatFlux().
         for (int k = 0; k < kk; k++)
-            SoilHeatFlux(dlt, iv, nn, layer, k);
+            SoilHeatFlux(dlt, iv, nn, layer, k, sim.row_space);
         //     If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the
         //  value computed for the first column. Also, do the same for array memebers of VolWaterContent.
         if (isw <= 1)
@@ -275,7 +275,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
             for (int l = 0; l < nl; l++)
             {
                 layer = l;
-                SoilHeatFlux(dlt, iv, nn, layer, l);
+                SoilHeatFlux(dlt, iv, nn, layer, l, sim.row_space);
             }
         }
         //     Compute average temperature of soil layers, in degrees C.
@@ -310,8 +310,8 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
       //      At the end of the day compute actual daily evaporation and its cumulative sum.
     if (kk == 1)
     {
-        es = es / wk[1];
-        state.actual_soil_evaporation /= wk[1];
+        es = es / wk(1, sim.row_space);
+        state.actual_soil_evaporation /= wk(1, sim.row_space);
     }
     else
     {

@@ -116,14 +116,14 @@ void WaterUptake(Simulation &sim, unsigned int u)
                     // Update VolWaterContent cell, storing its previous value as vh2ocx.
                     double vh2ocx; // previous value of VolWaterContent of this cell
                     vh2ocx = VolWaterContent[l][k];
-                    VolWaterContent[l][k] -= upth2o / (dl(l) * wk[k]);
+                    VolWaterContent[l][k] -= upth2o / (dl(l) * wk(k, sim.row_space));
                     // If the new value of VolWaterContent is less than the permanent wilting point, modify the value of upth2o so that VolWaterContent will be equal to it.
                     if (VolWaterContent[l][k] < thetar[l]) {
                         VolWaterContent[l][k] = thetar[l];
                         double xupt;  // intermediate computation of upth2o
 
                         // Compute the difference due to this correction and add it to difupt.
-                        xupt = (vh2ocx - thetar[l]) * dl(l) * wk[k];
+                        xupt = (vh2ocx - thetar[l]) * dl(l) * wk(k, sim.row_space);
                         difupt += upth2o - xupt;
                         upth2o = xupt;
                     }
@@ -188,7 +188,7 @@ void NitrogenUptake(Simulation &sim, int l, int k, double reqnc)
     const double p1 = 100, p2 = 5; // constant parameters for computing AmmonNDissolved.
 //
     double coeff; // coefficient used to convert g per plant to mg cm-3 units.
-    coeff = 10 * sim.row_space / (PerPlantArea * dl(l) * wk[k]);
+    coeff = 10 * sim.row_space / (PerPlantArea * dl(l) * wk(k, sim.row_space));
 //     A Michaelis-Menten procedure is used to compute the rate of nitrate uptake from 
 //  each cell. The maximum possible amount of uptake is reqnc (g N per plant), and
 //  the half of this rate occurs when the nitrate concentration in the soil solution is 
@@ -602,10 +602,10 @@ void SoilSum(Simulation &sim)
 //
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++) {
-            TotalSoilNo3N += VolNo3NContent[l][k] * dl(l) * wk[k];
-            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk[k];
-            TotalSoilUreaN += VolUreaNContent[l][k] * dl(l) * wk[k];
-            TotalSoilWater += VolWaterContent[l][k] * dl(l) * wk[k];
+            TotalSoilNo3N += VolNo3NContent[l][k] * dl(l) * wk(k, sim.row_space);
+            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, sim.row_space);
+            TotalSoilUreaN += VolUreaNContent[l][k] * dl(l) * wk(k, sim.row_space);
+            TotalSoilWater += VolWaterContent[l][k] * dl(l) * wk(k, sim.row_space);
         }
 //
     TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;

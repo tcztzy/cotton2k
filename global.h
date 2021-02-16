@@ -101,11 +101,12 @@ extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9],
     SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], StemWeight[365],
     thad[maxl], thetar[maxl], thetas[9], thts[maxl], tstbd[10][10],
     VarPar[61], VolNh4NContent[maxl][maxk], VolNo3NContent[maxl][maxk], VolUreaNContent[maxl][maxk],
-    VolWaterContent[maxl][maxk], wk[maxk];
+    VolWaterContent[maxl][maxk];
 
 void InitializeGlobal();
 
 extern "C"
 {
     double dl(unsigned int);
+    double wk(unsigned int, double);
 }

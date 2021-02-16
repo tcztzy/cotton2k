@@ -12,7 +12,7 @@
 #include "GeneralFunctions.h"
 #include "RootGrowth.h"
 
-void LeafWaterPotential(State &, const string &);
+void LeafWaterPotential(State &, const string &, double);
 
 extern "C"
 {
@@ -50,7 +50,7 @@ void Stress(Simulation &sim, unsigned int u)
     //     The following constant parameters are used:
     const double vstrs[9] = {-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05};
     //     Call LeafWaterPotential() to compute leaf water potentials.
-    LeafWaterPotential(sim.states[u], sim.profile_name);
+    LeafWaterPotential(sim.states[u], sim.profile_name, sim.row_space);
     //     The running averages, for the last three days, are computed:
     //  AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
     AverageLwpMin += (LwpMin - LwpMinX[2]) / 3;
@@ -106,7 +106,7 @@ void Stress(Simulation &sim, unsigned int u)
 }
 
 //////////////////////////
-void LeafWaterPotential(State &state, const string &ProfileName)
+void LeafWaterPotential(State &state, const string &ProfileName, double row_space)
 //     This function simulates the leaf water potential of cotton plants. It has been
 //  adapted from the model of Moshe Meron (The relation of cotton leaf water potential to
 //  soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
@@ -159,7 +159,7 @@ void LeafWaterPotential(State &state, const string &ProfileName)
             {
                 psinum += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
                 sumlv += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg;
-                rootvol += dl(l) * wk[k];
+                rootvol += dl(l) * wk(k, row_space);
                 if (SoilPsi[l][k] <= vpsil[1])
                     rrl = vpsil[2] / cmg;
                 else
