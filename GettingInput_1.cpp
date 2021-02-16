@@ -490,14 +490,6 @@ void InitializeGrid(Simulation &sim)
     //     Note that maxl and maxk are defined as constants in file "global.h".
     nl = maxl;
     nk = maxk;
-    dl[0] = 2;
-    dl[1] = 2;
-    dl[2] = 2;
-    dl[3] = 4;
-    for (int l = 4; l < maxl - 2; l++)
-        dl[l] = 5;
-    dl[maxl - 2] = 10;
-    dl[maxl - 1] = 10;
     //      The width of the slab columns is computed by dividing the row
     //  spacing by the number of columns. It is assumed that slab width is
     //  equal to the average row spacing, and column widths are uniform.

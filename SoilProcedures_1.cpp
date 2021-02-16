@@ -118,7 +118,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
     {
         //     For rain or surface irrigation.
         //     The number of iterations is computed from the thickness of the first soil layer.
-        noitr = (int)(cparelse * WaterToApply / (dl[0] + 2) + 1);
+        noitr = (int)(cparelse * WaterToApply / (dl(0) + 2) + 1);
         double applywat; // the amount of water applied, mm per iteration.
         applywat = WaterToApply / noitr;
         //     The following subroutines are called noitr times per day:
@@ -135,7 +135,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         //     For drip irrigation.
         //     The number of iterations is computed from the volume of the soil cell in which
         //  the water is applied.
-        noitr = (int)(cpardrip * DripWaterAmount / (dl[LocationLayerDrip] * wk[LocationColumnDrip]) + 1);
+        noitr = (int)(cpardrip * DripWaterAmount / (dl(LocationLayerDrip) * wk[LocationColumnDrip]) + 1);
         double applywat; // the amount of water applied, mm per iteration.
         applywat = DripWaterAmount / noitr;
         // If water is applied, DripFlow() is called followed by CapillaryFlow().
@@ -242,7 +242,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 double sdl = 0; // sum of depth of consecutive soil layers
                 for (int l = 0; l < nl; l++)
                 {
-                    sdl += dl[l];
+                    sdl += dl(l);
                     if (sdl >= 20)
                     {
                         lplow = l + 1;
@@ -253,7 +253,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 //  all soil layers affected by incorporation.
                 double fertdp = 0; // depth of broadcast fertilizer incorporation, cm
                 for (int l = 0; l < lplow; l++)
-                    fertdp += dl[l];
+                    fertdp += dl(l);
                 //     Update the nitrogen contents of all soil soil cells affected by this fertilizer application.
                 for (int l = 0; l < lplow; l++)
                     for (int k = 0; k < nk; k++)
@@ -274,9 +274,9 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 //     Update nitrogen contents of the upper layer.
                 for (int k = 0; k < nk; k++)
                 {
-                    VolNh4NContent[0][k] += NFertilizer[i].amtamm * (1 - 0.70 * LightIntercept) * ferc / dl[0];
-                    VolNo3NContent[0][k] += NFertilizer[i].amtnit * ferc / dl[0];
-                    VolUreaNContent[0][k] += NFertilizer[i].amtura * (1 - 0.70 * LightIntercept) * ferc / dl[0];
+                    VolNh4NContent[0][k] += NFertilizer[i].amtamm * (1 - 0.70 * LightIntercept) * ferc / dl(0);
+                    VolNo3NContent[0][k] += NFertilizer[i].amtnit * ferc / dl(0);
+                    VolUreaNContent[0][k] += NFertilizer[i].amtura * (1 - 0.70 * LightIntercept) * ferc / dl(0);
                 }
             }
             //     If this is a SIDE-DRESSING of N fertilizer:
@@ -289,7 +289,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 int n00 = 1;                    // number of soil soil cells in which side-dressed fertilizer is incorporated.
                                                 //     If the volume of this soil cell is less than 100 cm3, it is assumed that the fertilizer
                                                 //  is also incorporated in the soil cells below and to the sides of it.
-                if ((dl[lsdr] * wk[ksdr]) < 100)
+                if ((dl(lsdr) * wk[ksdr]) < 100)
                 {
                     if (ksdr < nk - 1)
                         n00++;
@@ -305,31 +305,31 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 addnit = NFertilizer[i].amtnit * ferc * sim.row_space / n00;
                 addnur = NFertilizer[i].amtura * ferc * sim.row_space / n00;
                 //     Update the nitrogen contents of these soil cells.
-                VolNo3NContent[lsdr][ksdr] += addnit / (dl[lsdr] * wk[ksdr]);
-                VolNh4NContent[lsdr][ksdr] += addamm / (dl[lsdr] * wk[ksdr]);
-                VolUreaNContent[lsdr][ksdr] += addnur / (dl[lsdr] * wk[ksdr]);
-                if ((dl[lsdr] * wk[ksdr]) < 100)
+                VolNo3NContent[lsdr][ksdr] += addnit / (dl(lsdr) * wk[ksdr]);
+                VolNh4NContent[lsdr][ksdr] += addamm / (dl(lsdr) * wk[ksdr]);
+                VolUreaNContent[lsdr][ksdr] += addnur / (dl(lsdr) * wk[ksdr]);
+                if ((dl(lsdr) * wk[ksdr]) < 100)
                 {
                     if (ksdr < nk - 1)
                     {
                         int kp1 = ksdr + 1; // column to the right of ksdr.
-                        VolNo3NContent[lsdr][kp1] += addnit / (dl[lsdr] * wk[kp1]);
-                        VolNh4NContent[lsdr][kp1] += addamm / (dl[lsdr] * wk[kp1]);
-                        VolUreaNContent[lsdr][kp1] += addnur / (dl[lsdr] * wk[kp1]);
+                        VolNo3NContent[lsdr][kp1] += addnit / (dl(lsdr) * wk[kp1]);
+                        VolNh4NContent[lsdr][kp1] += addamm / (dl(lsdr) * wk[kp1]);
+                        VolUreaNContent[lsdr][kp1] += addnur / (dl(lsdr) * wk[kp1]);
                     }
                     if (ksdr > 0)
                     {
                         int km1 = ksdr - 1; // column to the left of ksdr.
-                        VolNo3NContent[lsdr][km1] += addnit / (dl[lsdr] * wk[km1]);
-                        VolNh4NContent[lsdr][km1] += addamm / (dl[lsdr] * wk[km1]);
-                        VolUreaNContent[lsdr][km1] += addnur / (dl[lsdr] * wk[km1]);
+                        VolNo3NContent[lsdr][km1] += addnit / (dl(lsdr) * wk[km1]);
+                        VolNh4NContent[lsdr][km1] += addamm / (dl(lsdr) * wk[km1]);
+                        VolUreaNContent[lsdr][km1] += addnur / (dl(lsdr) * wk[km1]);
                     }
                     if (lsdr < nl - 1)
                     {
                         int lp1 = lsdr + 1;
-                        VolNo3NContent[lp1][ksdr] += addnit / (dl[lp1] * wk[ksdr]);
-                        VolNh4NContent[lp1][ksdr] += addamm / (dl[lp1] * wk[ksdr]);
-                        VolUreaNContent[lp1][ksdr] += addnur / (dl[lp1] * wk[ksdr]);
+                        VolNo3NContent[lp1][ksdr] += addnit / (dl(lp1) * wk[ksdr]);
+                        VolNh4NContent[lp1][ksdr] += addamm / (dl(lp1) * wk[ksdr]);
+                        VolUreaNContent[lp1][ksdr] += addnur / (dl(lp1) * wk[ksdr]);
                     }
                 }
             }
@@ -339,11 +339,11 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 //      Convert amounts added to mg cm-3, and update the nitrogen content of the
                 //  soil cell in which the drip outlet is situated.
                 VolNh4NContent[LocationLayerDrip][LocationColumnDrip] +=
-                    NFertilizer[i].amtamm * ferc * sim.row_space / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
+                    NFertilizer[i].amtamm * ferc * sim.row_space / (dl(LocationLayerDrip) * wk[LocationColumnDrip]);
                 VolNo3NContent[LocationLayerDrip][LocationColumnDrip] +=
-                    NFertilizer[i].amtnit * ferc * sim.row_space / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
+                    NFertilizer[i].amtnit * ferc * sim.row_space / (dl(LocationLayerDrip) * wk[LocationColumnDrip]);
                 VolUreaNContent[LocationLayerDrip][LocationColumnDrip] +=
-                    NFertilizer[i].amtura * ferc * sim.row_space / (dl[LocationLayerDrip] * wk[LocationColumnDrip]);
+                    NFertilizer[i].amtura * ferc * sim.row_space / (dl(LocationLayerDrip) * wk[LocationColumnDrip]);
             }
         }
     }
@@ -546,7 +546,7 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
         double sumdl = 0; // sum of thickness of all soil layers to be irrigated.
         for (int l = 0; l < nl; l++)
         {
-            sumdl += dl[l];
+            sumdl += dl(l);
             if (sumdl > IrrigationDepth)
             {
                 nIrrLayers = l;
@@ -573,7 +573,7 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
                         //  this depth. RequiredWater is converted from cm3 per slab to mm.
                         double defcit;                                        // water content deficit to irrigation depth
                         defcit = MaxWaterCapacity[l] - VolWaterContent[l][k]; // water content deficit
-                        RequiredWater += dl[l] * wk[k] * defcit;
+                        RequiredWater += dl(l) * wk[k] * defcit;
                     }
                 state.applied_water = RequiredWater * 10 / sim.row_space;
                 //     The amount of water to be applied is checked not to exceed MaxIrrigation.
@@ -640,7 +640,7 @@ double AveragePsi(const State &state)
     for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
     {
         int j = SoilHorizonNum[l];
-        sumdl[j] += dl[l];
+        sumdl[j] += dl(l);
         for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
         {
             //     Check that RootWtCapblUptake in any cell is more than a minimum value vrcumin.
@@ -649,8 +649,8 @@ double AveragePsi(const State &state)
                 //     Compute sumwat as the weighted sum of the water content, and psinum as the sum of
                 //  these weights. Weighting is by root weight capable of uptake, or if it exceeds a maximum
                 //  value (vrcumax) this maximum value is used for weighting.
-                sumwat[j] += VolWaterContent[l][k] * dl[l] * wk[k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
-                psinum[j] += dl[l] * wk[k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
+                sumwat[j] += VolWaterContent[l][k] * dl(l) * wk[k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
+                psinum[j] += dl(l) * wk[k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
             }
         }
     }
@@ -712,7 +712,7 @@ void WaterTable(Simulation &sim, unsigned int u)
         double sumdl = 0; // sum of depth of consecutive soil layers
         for (int l = 0; l < nl; l++)
         {
-            sumdl += dl[l];
+            sumdl += dl(l);
             if (sumdl > lwtable)
             {
                 WaterTableLayer = l;
@@ -731,7 +731,7 @@ void WaterTable(Simulation &sim, unsigned int u)
             {
                 vh2ocx = VolWaterContent[l][k];
                 VolWaterContent[l][k] = PoreSpace[l];
-                addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / sim.row_space;
+                addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl(l) * wk[k] / sim.row_space;
             }
         }
         else
@@ -744,7 +744,7 @@ void WaterTable(Simulation &sim, unsigned int u)
                 {
                     vh2ocx = VolWaterContent[l][k];
                     VolWaterContent[l][k] = MaxWaterCapacity[l];
-                    addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / sim.row_space;
+                    addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl(l) * wk[k] / sim.row_space;
                 }
             }
         }

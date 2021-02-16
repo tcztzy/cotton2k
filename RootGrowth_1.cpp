@@ -327,9 +327,9 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         {
             //     The weighting factors for allocating the carbon (tpwt) are proportional to the volume
             //  of each soil cell and its distance (sdl) from the tip of the taproot.
-            sdl += dl[l];
-            tpwt[l][0] = sdl * dl[l] * wk[sim.plant_row_column];
-            tpwt[l][1] = sdl * dl[l] * wk[sim.plant_row_column + 1];
+            sdl += dl(l);
+            tpwt[l][0] = sdl * dl(l) * wk[sim.plant_row_column];
+            tpwt[l][1] = sdl * dl(l) * wk[sim.plant_row_column + 1];
             sumwt += tpwt[l][0] + tpwt[l][1];
         }
         //     The proportional amount of mass is added to the mass of the last (inactive)
@@ -351,7 +351,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
                 double rtconc = 0; // ratio of root weight capable of growth to cell volume.
                 for (int i = 0; i < NumRootAgeGroups; i++)
                     rtconc += state.soil.cells[l][k].root.weight[i] * cgind[i];
-                rtconc = rtconc / (dl[l] * wk[k]);
+                rtconc = rtconc / (dl(l) * wk[k]);
                 if (rtconc > rtminc)
                     RedistRootNewGrowth(sim, u, l, k, adwr1[l][k]);
                 else

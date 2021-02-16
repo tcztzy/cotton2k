@@ -225,10 +225,10 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
                 //     Compute actual evaporation from soil surface. update VolWaterContent of
                 //  the soil soil cell, and add to daily sum of actual evaporation.
                 double evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10 *
-                                 dl[0]; // maximum possible evaporatio from a soil cell near the surface.
+                                 dl(0); // maximum possible evaporatio from a soil cell near the surface.
                 if (escol1k > evapmax)
                     escol1k = evapmax;
-                VolWaterContent[0][k] -= 0.1 * escol1k / dl[0];
+                VolWaterContent[0][k] -= 0.1 * escol1k / dl(0);
                 state.actual_soil_evaporation += escol1k * wk[k];
                 ess = escol1k / dlt;
             }

@@ -65,7 +65,7 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
     if (u <= 0) {
         double sumdl = 0; // sum of layer thicknesses.
         for (int l = 0; l < nl; l++) {
-            sumdl += dl[l];
+            sumdl += dl(l);
             depth[l] = sumdl;
         }
     }
@@ -282,7 +282,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
 //  the accumulated nitrogen released by mineralization in the slab, is updated.
     if (netNReleased > 0) {
         VolNh4NContent[l][k] += netNReleased;
-        MineralizedOrganicN += netNReleased * dl[l] * wk[k];
+        MineralizedOrganicN += netNReleased * dl(l) * wk[k];
     }
 //     If net N released is negative (net immobilization), the NH4 fraction
 //  is reduced, but at least 0.25 ppm (=cparMinNH4 in mg cm-3) of NH4 N
@@ -299,7 +299,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
             else
                 addvnc = VolNh4NContent[l][k] - cparMinNH4;
             VolNh4NContent[l][k] -= addvnc;
-            MineralizedOrganicN -= addvnc * dl[l] * wk[k];
+            MineralizedOrganicN -= addvnc * dl(l) * wk[k];
             FreshOrganicNitrogen[l][k] += addvnc;
             nnom1 = netNReleased + addvnc;
         }
@@ -312,7 +312,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart)
                 addvnc = VolNo3NContent[l][k] - cparMinNH4;
             VolNo3NContent[l][k] -= addvnc;
             FreshOrganicNitrogen[l][k] += addvnc;
-            MineralizedOrganicN -= addvnc * dl[l] * wk[k];
+            MineralizedOrganicN -= addvnc * dl(l) * wk[k];
         }
     }
 }
@@ -412,5 +412,5 @@ void Denitrification(int l, int k)
         dnrate = 0;
 //     Update VolNo3NContent, and add the amount of nitrogen lost to SoilNitrogenLoss.
     VolNo3NContent[l][k] -= dnrate;
-    SoilNitrogenLoss += dnrate * dl[l] * wk[k];
+    SoilNitrogenLoss += dnrate * dl(l) * wk[k];
 }

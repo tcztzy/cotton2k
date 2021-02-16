@@ -80,7 +80,7 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
     double efacr; // as efac1 for the cell to the right of this cell.
     double efacu; // as efac1 for the cell above this cell.
     double srwp;  // sum of all efac values.
-    efac1 = dl[l] * wk[k] * state.soil.cells[l][k].root.growth_factor;
+    efac1 = dl(l) * wk[k] * state.soil.cells[l][k].root.growth_factor;
     efacl = rgfsd * state.soil.cells[l][km1].root.growth_factor;
     efacr = rgfsd * state.soil.cells[l][kp1].root.growth_factor;
     efacu = rgfup * state.soil.cells[lm1][k].root.growth_factor;
@@ -124,7 +124,7 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
         if (lp1 > LastTaprootLayer && efacd > 0)
         {
             TapRootLength = DepthLastRootLayer + 0.01;
-            DepthLastRootLayer += dl[lp1];
+            DepthLastRootLayer += dl(lp1);
             LastTaprootLayer = lp1;
         }
     //     Update NumLayersWithRoots, if necessary, and the values of RootColNumLeft and RootColNumRight for
@@ -185,7 +185,7 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
         return;
     //     The following is executed when the taproot reaches a new soil layer.
     LastTaprootLayer++;
-    DepthLastRootLayer += dl[LastTaprootLayer];
+    DepthLastRootLayer += dl(LastTaprootLayer);
     if (LastTaprootLayer > state.soil.number_of_layers_with_root - 1)
     {
         state.soil.number_of_layers_with_root = LastTaprootLayer + 1;
@@ -210,13 +210,13 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
         double tran; // root mass transferred to the cell below when the elongating taproot
         // reaches a new soil layer.
         // first column
-        tran = state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] * 2 / dl[LastTaprootLayer - 1];
+        tran = state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] * 2 / dl(LastTaprootLayer - 1);
         if (tran > 0.5 * state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i])
             tran = 0.5 * state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i];
         state.soil.cells[LastTaprootLayer][sim.plant_row_column].root.weight[i] += tran;
         state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] -= tran;
         // second column
-        tran = state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i] * 2 / dl[LastTaprootLayer - 1];
+        tran = state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i] * 2 / dl(LastTaprootLayer - 1);
         if (tran > 0.5 * state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i])
             tran = 0.5 * state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i];
         state.soil.cells[LastTaprootLayer][klocp1].root.weight[i] += tran;
@@ -239,7 +239,7 @@ void InitiateLateralRoots()
     for (int l = LastTaprootLayer; l >= 0; l--)
     {
         //     Compute distance from tip of taproot.
-        sdl += dl[l];
+        sdl += dl(l);
         //     If a layer is marked for a lateral (LateralRootFlag[l] = 1) and its
         //  distance from the tip is larger than distlr - initiate a lateral
         //  (LateralRootFlag[l] = 2).
@@ -490,7 +490,7 @@ double RootCultivation(SoilCell soil_cells[40][20], int NumRootAgeGroups, double
     double sdpth = 0; // sum depth to the end of the layer.
     for (int l = 0; l < nl; l++)
     {
-        sdpth += dl[l];
+        sdpth += dl(l);
         if (sdpth >= cultivation_depth)
         {
             lcult = l;

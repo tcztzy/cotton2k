@@ -159,7 +159,7 @@ void LeafWaterPotential(State &state, const string &ProfileName)
             {
                 psinum += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
                 sumlv += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg;
-                rootvol += dl[l] * wk[k];
+                rootvol += dl(l) * wk[k];
                 if (SoilPsi[l][k] <= vpsil[1])
                     rrl = vpsil[2] / cmg;
                 else

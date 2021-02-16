@@ -252,3 +252,35 @@ extern "C" fn form(c0: f64, d0: f64, g0: f64) -> f64
     (2f64 / (1f64 + (c0 / d0 - 1f64) * g0) + 1f64 / (1f64 + (c0 / d0 - 1f64) * (1f64 - 2f64 * g0)))
         / 3f64
 }
+
+/// the vertical width of a soil layer (cm).
+#[no_mangle]
+extern "C" fn dl(l: u32) -> f64 {
+    if l >= 40 {
+        panic!("Out of range");
+    };
+    match l {
+        0 => 2.,
+        1 => 2.,
+        2 => 2.,
+        3 => 4.,
+        38 => 10.,
+        39 => 10.,
+        _ => 5.,
+    }
+}
+
+pub fn depth(l: u32) -> f64 {
+    if l >= 40 {
+        panic!("Out of range");
+    };
+    match l {
+        0 => 2.,
+        1 => 4.,
+        2 => 6.,
+        3 => 10.,
+        38 => 195.,
+        39 => 205.,
+        _ => 5. * l as f64 - 5.,
+    }
+}

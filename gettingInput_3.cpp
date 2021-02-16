@@ -15,7 +15,7 @@ int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 extern "C"
 {
     double tdewest(double, double, double);
-    int SlabLoc(int, int, const double *, const double *);
+    int SlabLoc(int, int, const double *);
 }
 
 
@@ -205,8 +205,8 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
 //     If this is a drip irrigation, convert distances to soil
 //  layer and column numbers by calling SlabLoc.
             if (sim.irrigation[NumIrrigations].method == 2) {
-                sim.irrigation[NumIrrigations].LocationColumnDrip = SlabLoc(isdhrz, 1, wk, dl);
-                sim.irrigation[NumIrrigations].LocationLayerDrip = SlabLoc(isddph, 2, wk, dl);
+                sim.irrigation[NumIrrigations].LocationColumnDrip = SlabLoc(isdhrz, 1, wk);
+                sim.irrigation[NumIrrigations].LocationLayerDrip = SlabLoc(isddph, 2, wk);
             }
             NumIrrigations++;
         }
@@ -227,8 +227,8 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
 //      If this is a side dressing or drip, convert distances to soil
 //  layer and column numbers by calling SlabLoc.
             if (NFertilizer[NumNitApps].mthfrt == 1 || NFertilizer[NumNitApps].mthfrt == 3) {
-                NFertilizer[NumNitApps].ksdr = SlabLoc(isdhrz, 1, wk, dl);
-                NFertilizer[NumNitApps].lsdr = SlabLoc(isddph, 2, wk, dl);
+                NFertilizer[NumNitApps].ksdr = SlabLoc(isdhrz, 1, wk);
+                NFertilizer[NumNitApps].lsdr = SlabLoc(isddph, 2, wk);
             } else {
                 NFertilizer[NumNitApps].ksdr = 0; // column of application
                 NFertilizer[NumNitApps].lsdr = 0; // layer of application
@@ -301,8 +301,8 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
 //     If this is a drip irrigation, convert distances (input in cm)
 //  to soil layer and column numbers by calling SlabLoc.
             if (IrrigMethod == 2) {
-                LocationColumnDrip = SlabLoc(isdhrz, 1, wk, dl);
-                LocationLayerDrip = SlabLoc(isddph, 2, wk, dl);
+                LocationColumnDrip = SlabLoc(isdhrz, 1, wk);
+                LocationLayerDrip = SlabLoc(isddph, 2, wk);
             }
         }
     }  //  end while DataFile

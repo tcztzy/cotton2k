@@ -127,7 +127,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
     for (int l = 0; l < nl; l++) {
 //     Using the depth of each horizon layer (ldepth), the horizon
 //  number (SoilHorizonNum) is computed for each soil layer.
-        sumdl += dl[l];
+        sumdl += dl(l);
         while ((sumdl > ldepth[j]) && (j < lyrsol))
             j++;
         SoilHorizonNum[l] = j;
@@ -159,7 +159,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //  the end of each layer (sumdl).
     sumdl = 0;
     for (int l = 0; l < nl; l++) {
-        sumdl += dl[l];
+        sumdl += dl(l);
 //     At start of simulation compute estimated movable fraction of
 //  nitrates in each soil layer, following the work of:
 //     Bowen, W.T., Jones, J.W., Carsky, R.J., and Quintana, J.O. 1993.
@@ -244,9 +244,9 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++) {
-            InitialTotalSoilWater += VolWaterContent[l][k] * dl[l] * wk[k];
-            TotalSoilNo3N += VolNo3NContent[l][k] * dl[l] * wk[k];
-            TotalSoilNh4N += VolNh4NContent[l][k] * dl[l] * wk[k];
+            InitialTotalSoilWater += VolWaterContent[l][k] * dl(l) * wk[k];
+            TotalSoilNo3N += VolNo3NContent[l][k] * dl(l) * wk[k];
+            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk[k];
             VolUreaNContent[l][k] = 0;
         }
 //     InitialTotalSoilWater is converted from cm3 per slab to mm.
@@ -385,8 +385,8 @@ void InitializeRootData(Simulation & sim)
 //  LateralRootFlag[l] is assigned a value of 1 for these layers.
         LateralRootFlag[l] = 0;
         if (l > 0)
-            sumdl += 0.5 * dl[l - 1];
-        sumdl += 0.5 * dl[l];
+            sumdl += 0.5 * dl(l - 1);
+        sumdl += 0.5 * dl(l);
         if (sumdl >= ll * rlint) {
             LateralRootFlag[l] = 1;
             ll++;
@@ -410,7 +410,7 @@ void InitializeRootData(Simulation & sim)
     DepthLastRootLayer = 0;
     TotalRootWeight = 0;
     for (int l = 0; l < 7; l++) {
-        DepthLastRootLayer += dl[l]; //compute total depth to the last layer with roots (DepthLastRootLayer).
+        DepthLastRootLayer += dl(l); //compute total depth to the last layer with roots (DepthLastRootLayer).
 //     For each soil soil cell with roots, compute total root weight 
 //  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
@@ -423,7 +423,7 @@ void InitializeRootData(Simulation & sim)
 // middle of the last layer with roots. The last soil layer with
 // taproot, LastTaprootLayer, is defined.
     int NumLayersWithRoots = 7;
-    TapRootLength = (DepthLastRootLayer - 0.5 * dl[NumLayersWithRoots - 1]);
+    TapRootLength = (DepthLastRootLayer - 0.5 * dl(NumLayersWithRoots - 1));
     LastTaprootLayer = 6;
 }
 
@@ -460,7 +460,7 @@ void InitializeSoilTemperature()
     double sumdl = 0; // sum of depth of consecutive soil layers.
     for (int l = 0; l < nl; l++)  // loop by soil layers
     {
-        sumdl += dl[l];
+        sumdl += dl(l);
         int j = (int) ((sumdl + 14) / 15) - 1;   //  layer definition for oma
         if (j > 13)
             j = 13;

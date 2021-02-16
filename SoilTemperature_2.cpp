@@ -390,9 +390,9 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss, d
 //     Compute average rosoil between layers 1 to 3,and heat transfer from
 //  soil surface to 3rd soil layer.
         double rosoil; // multiplier for heat flux between 1st and 3rd soil layers.
-        rosoil = (rosoil1 * dl[0] + rosoil2 * dl[1] + rosoil3 * dl[2])
-                 / (dl[0] + dl[1] + dl[2])
-                 / (.5 * dl[0] + dl[1] + .5 * dl[2]);
+        rosoil = (rosoil1 * dl(0) + rosoil2 * dl(1) + rosoil3 * dl(2))
+                 / (dl(0) + dl(1) + dl(2))
+                 / (.5 * dl(0) + dl(1) + .5 * dl(2));
 //     bbsoil is the heat energy transfer by conductance from soil surface to soil
         double bbsoil = rosoil * (so - so3);
 //     emtlw is emitted long wave radiation from soil surface
@@ -427,9 +427,9 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss, d
         double rosoil1p;   // heat conductivity of 1st soil layer for so+0.001
         rosoil1p = ThermalCondSoil(VolWaterContent[0][k], sop001, 1);
         double rosoilp;    // rosoil for so+0.001
-        rosoilp = (rosoil1p * dl[0] + rosoil2 * dl[1] + rosoil3 * dl[2])
-                  / (dl[0] + dl[1] + dl[2])
-                  / (.5 * dl[0] + dl[1] + .5 * dl[2]);
+        rosoilp = (rosoil1p * dl(0) + rosoil2 * dl(1) + rosoil3 * dl(2))
+                  / (dl(0) + dl(1) + dl(2))
+                  / (.5 * dl(0) + dl(1) + .5 * dl(2));
         double drosoil = (rosoilp - rosoil) / 0.001; // derivative of rosoil
         double dbbsoil = rosoil + drosoil * (so - so3); // derivative of bbsoil
 //     The derivative of the energy balance function

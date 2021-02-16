@@ -270,7 +270,7 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
             l = i;
             q1[i] = VolWaterContent[i][n0];
             ts1[i] = SoilTemp[i][n0];
-            dz[i] = dl[i];
+            dz[i] = dl(i);
         }
         else
         {
@@ -515,7 +515,7 @@ PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int
         double sumdl = 0; // depth to the bottom of a soil layer.
         for (int l = 0; l < nl; l++)
         {
-            sumdl += dl[l];
+            sumdl += dl(l);
             if (sumdl >= dpl)
             {
                 nSeedLayer = l;

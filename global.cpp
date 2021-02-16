@@ -94,7 +94,6 @@ double
     DelayNewFruBranch[3],             // cumulative effect of stresses on delaying the formation of a new fruiting branch.
     DensityFactor,                    // empirical plant density factor.
     DepthLastRootLayer,               // the depth to the end of the last layer with roots (cm).
-    dl[maxl],                         // the vertical width of a soil layer (cm).
     dsand,                            // aggregation factor for sand in water.
     ElCondSatSoil[20],                // electrical conductivity of saturated soil extract (mmho/cm)
     ElCondSatSoilToday,               // electrical conductivity of saturated extract (mmho/cm) on this day.

@@ -87,7 +87,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
 extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9],
     alpha[9], vanGenuchtenBeta[9], BulkDensity[9],
     ClayVolumeFraction[maxl], CultivationDepth[5],
-    DefoliantAppRate[5], DelayNewFruBranch[3], dl[maxl], ElCondSatSoil[20],
+    DefoliantAppRate[5], DelayNewFruBranch[3], ElCondSatSoil[20],
     FieldCapacity[maxl], FoliageTemp[maxk], FreshOrganicMatter[maxl][maxk],
     FreshOrganicNitrogen[maxl][maxk], gh2oc[10],
     HeatCapacitySoilSolid[maxl], HeatCondDrySoil[maxl], HumusNitrogen[maxl][maxk],
@@ -104,3 +104,8 @@ extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9],
     VolWaterContent[maxl][maxk], wk[maxk];
 
 void InitializeGlobal();
+
+extern "C"
+{
+    double dl(unsigned int);
+}

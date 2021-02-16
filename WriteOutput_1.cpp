@@ -231,11 +231,11 @@ void DailyOutput(Simulation &sim, uint32_t u)
     SumNO3N90 = 0;
     double sumdl = 0; // depth to the end of a layer
     for (int l = 0; l < nl; l++) {
-        sumdl += dl[l];
+        sumdl += dl(l);
         if (sumdl > 90)
             break;
         for (int k = 0; k < nk; k++)
-            SumNO3N90 += VolNo3NContent[l][k] * dl[l] * wk[k];
+            SumNO3N90 += VolNo3NContent[l][k] * dl(l) * wk[k];
     }
     SumNO3N90 = SumNO3N90 * 100 / sim.row_space;
 //

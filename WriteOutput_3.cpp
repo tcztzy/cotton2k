@@ -677,7 +677,7 @@ void OutputForSoilMaps(State &state, int irec, int igo, int nday, int year, cons
                 araylk = Array[l][k] - 273.161;
             else if (igo == 3 || igo == 6)// For root weight capable of uptake or total
                 // roots - convert from g to mg mass per cm3 soil.
-                araylk = Array[l][k] * 1000 / (dl[l] * wk[k]);
+                araylk = Array[l][k] * 1000 / (dl(l) * wk[k]);
             else
                 araylk = Array[l][k];
 //     Determine to which range of values belongs araylk, and assign accordingly
