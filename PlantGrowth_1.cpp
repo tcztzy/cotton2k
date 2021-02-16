@@ -153,7 +153,7 @@ void LeafWaterPotential(State &state, const string &ProfileName, double row_spac
                         // (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
     double rrl;         // root resistance per g of active roots.
     for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
-        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k < RootColNumRight[l]; k++)
+        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k < state.soil.layers[l].number_of_right_columns_with_root; k++)
         {
             if (state.soil.cells[l][k].root.weight_capable_uptake >= vpsil[10])
             {

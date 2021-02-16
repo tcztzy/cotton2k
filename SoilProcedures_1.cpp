@@ -207,7 +207,7 @@ void RootsCapableOfUptake(Soil &soil)
     //  of uptake (RootWtCapblUptake) as the sum of products of root weight and capability of
     //  uptake index (cuind) for each root class in it.
     for (int l = 0; l < soil.number_of_layers_with_root; l++)
-        for (int k = soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
+        for (int k = soil.layers[l].number_of_left_columns_with_root; k <= soil.layers[l].number_of_right_columns_with_root; k++)
             for (int i = 0; i < 3; i++)
                 if (soil.cells[l][k].root.weight[i] > 1.e-15)
                     soil.cells[l][k].root.weight_capable_uptake += soil.cells[l][k].root.weight[i] * cuind[i];
@@ -641,7 +641,7 @@ double AveragePsi(const State &state, double row_space)
     {
         int j = SoilHorizonNum[l];
         sumdl[j] += dl(l);
-        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
+        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++)
         {
             //     Check that RootWtCapblUptake in any cell is more than a minimum value vrcumin.
             if (state.soil.cells[l][k].root.weight_capable_uptake >= vrcumin)

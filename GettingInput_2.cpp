@@ -396,13 +396,13 @@ void InitializeRootData(Simulation & sim)
     for (int l = 0; l < nl; l++) {
         if (l < 3) {
             sim.states[0].soil.layers[l].number_of_left_columns_with_root = sim.plant_row_column - 1;
-            RootColNumRight[l] = sim.plant_row_column + 2;
+            sim.states[0].soil.layers[l].number_of_right_columns_with_root = sim.plant_row_column + 2;
         } else if (l < 7) {
             sim.states[0].soil.layers[l].number_of_left_columns_with_root = sim.plant_row_column;
-            RootColNumRight[l] = sim.plant_row_column + 1;
+            sim.states[0].soil.layers[l].number_of_right_columns_with_root = sim.plant_row_column + 1;
         } else {
             sim.states[0].soil.layers[l].number_of_left_columns_with_root = 0;
-            RootColNumRight[l] = 0;
+            sim.states[0].soil.layers[l].number_of_right_columns_with_root = 0;
         }
     }
     init_root_data(sim.states[0].soil.cells, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);

@@ -17,11 +17,12 @@ typedef struct SoilCellStruct
 
 typedef struct SoilLayerStruct
 {
-    unsigned int number_of_left_columns_with_root; // first column with roots in a soil layer.
-    unsigned int number_of_right_columns_with_root;
+    unsigned int number_of_left_columns_with_root;  // first column with roots in a soil layer.
+    unsigned int number_of_right_columns_with_root; // last column with roots in a soil layer.
 } SoilLayer;
 
-typedef struct SoilStruct {
+typedef struct SoilStruct
+{
     unsigned int number_of_layers_with_root;
     SoilLayer layers[40];
     SoilCell cells[40][20];

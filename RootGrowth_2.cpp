@@ -115,8 +115,8 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
         state.soil.cells[lp1][k].root.age = 0.01;
         if (state.soil.layers[lp1].number_of_left_columns_with_root == 0 || k < state.soil.layers[lp1].number_of_left_columns_with_root)
             state.soil.layers[lp1].number_of_left_columns_with_root = k;
-        if (RootColNumRight[lp1] == 0 || k > RootColNumRight[lp1])
-            RootColNumRight[lp1] = k;
+        if (state.soil.layers[lp1].number_of_right_columns_with_root == 0 || k > state.soil.layers[lp1].number_of_right_columns_with_root)
+            state.soil.layers[lp1].number_of_right_columns_with_root = k;
     }
     //     If this is in the location of the taproot, and the roots reach a new soil layer,
     //  update the taproot parameters TapRootLength, DepthLastRootLayer, and LastTaprootLayer.
@@ -133,8 +133,8 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
         state.soil.number_of_layers_with_root = l + 1;
     if (km1 < state.soil.layers[l].number_of_left_columns_with_root)
         state.soil.layers[l].number_of_left_columns_with_root = km1;
-    if (kp1 > RootColNumRight[l])
-        RootColNumRight[l] = kp1;
+    if (kp1 > state.soil.layers[l].number_of_right_columns_with_root)
+        state.soil.layers[l].number_of_right_columns_with_root = kp1;
 }
 
 //////////////////////////////
@@ -195,9 +195,9 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
     if (state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root == 0 ||
         state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root > sim.plant_row_column)
         state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root = sim.plant_row_column;
-    if (RootColNumRight[LastTaprootLayer] == 0 ||
-        RootColNumRight[LastTaprootLayer] < klocp1)
-        RootColNumRight[LastTaprootLayer] = klocp1;
+    if (state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root == 0 ||
+        state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root < klocp1)
+        state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root = klocp1;
     //     RootAge is initialized for these soil cells.
     state.soil.cells[LastTaprootLayer][sim.plant_row_column].root.age = 0.01;
     state.soil.cells[LastTaprootLayer][klocp1].root.age = 0.01;
@@ -379,8 +379,8 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
             //     RootColNumLeft of this layer is redefined.
             if (state.soil.cells[l][newktip].root.age == 0)
                 state.soil.cells[l][newktip].root.age = 0.01;
-            if (newktip > RootColNumRight[l])
-                RootColNumRight[l] = newktip;
+            if (newktip > state.soil.layers[l].number_of_right_columns_with_root)
+                state.soil.layers[l].number_of_right_columns_with_root = newktip;
         }
     }
 }

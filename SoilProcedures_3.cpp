@@ -92,7 +92,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
             double vh2hi; // upper limit of water content for the transpiration function
             vh2lo = qpsi(-15, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j]);
             vh2hi = qpsi(-1, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j]);
-            for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++) {
+            for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++) {
                 double redfac; // reduction factor for water uptake, caused by low levels of soil
                 // water, as a linear function of VolWaterContent, between vh2lo and vh2hi.
                 redfac = (VolWaterContent[l][k] - vh2lo) / (vh2hi - vh2lo);
@@ -108,7 +108,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
 
         difupt = 0;
         for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
-            for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
+            for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++)
                 if (upf[l][k] > 0 && VolWaterContent[l][k] > thetar[l]) {
                     // The amount of water extracted from each cell is proportional to its 'uptake factor'. 
                     double upth2o;  // transpiration from a soil cell, cm3 per day
@@ -143,7 +143,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
     // recompute SoilPsi for all soil cells with roots by calling function PSIQ, 
     for (int l = 0; l < state.soil.number_of_layers_with_root; l++) {
         int j = SoilHorizonNum[l];
-        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
+        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++)
             SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
                             - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
     } // end l & k loops
@@ -158,7 +158,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
     // Compute the proportional N requirement from each soil cell with roots, and call function NitrogenUptake() to compute nitrogen uptake.
     if (sumep > 0 && state.total_required_nitrogen > 0) {
         for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
-            for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++) {
+            for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++) {
                 if (uptk[l][k] > 0) {
                     double reqnc; // proportional allocation of TotalRequiredN to each cell
                     reqnc = state.total_required_nitrogen * uptk[l][k] / sumep;
