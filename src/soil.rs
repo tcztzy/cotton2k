@@ -284,3 +284,12 @@ pub fn depth(l: u32) -> f64 {
         _ => 5. * l as f64 - 5.,
     }
 }
+
+#[no_mangle]
+extern "C" fn wk(_k: u32, row_space: f64) -> f64 {
+    row_space / 20.
+}
+
+pub fn width(k: u32, row_space: f64) -> f64 {
+    k as f64 * row_space / 20.
+}
