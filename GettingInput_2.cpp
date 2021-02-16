@@ -395,17 +395,17 @@ void InitializeRootData(Simulation & sim)
 //     All the state variables of the root system are initialized to zero.
     for (int l = 0; l < nl; l++) {
         if (l < 3) {
-            sim.states[0].soil_layers[l].number_of_left_columns_with_root = sim.plant_row_column - 1;
+            sim.states[0].soil.layers[l].number_of_left_columns_with_root = sim.plant_row_column - 1;
             RootColNumRight[l] = sim.plant_row_column + 2;
         } else if (l < 7) {
-            sim.states[0].soil_layers[l].number_of_left_columns_with_root = sim.plant_row_column;
+            sim.states[0].soil.layers[l].number_of_left_columns_with_root = sim.plant_row_column;
             RootColNumRight[l] = sim.plant_row_column + 1;
         } else {
-            sim.states[0].soil_layers[l].number_of_left_columns_with_root = 0;
+            sim.states[0].soil.layers[l].number_of_left_columns_with_root = 0;
             RootColNumRight[l] = 0;
         }
     }
-    init_root_data(sim.states[0].soil_cells, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);
+    init_root_data(sim.states[0].soil.cells, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);
 //     Start loop for all soil layers containing roots.
     DepthLastRootLayer = 0;
     TotalRootWeight = 0;
@@ -415,7 +415,7 @@ void InitializeRootData(Simulation & sim)
 //  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
             for (int i = 0; i < 3; i++) {
-                TotalRootWeight += sim.states[0].soil_cells[l][k].root.weight[i] * 100 / sim.row_space * PerPlantArea;
+                TotalRootWeight += sim.states[0].soil.cells[l][k].root.weight[i] * 100 / sim.row_space * PerPlantArea;
             }
         }
     }

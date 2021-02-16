@@ -1,5 +1,5 @@
-#ifndef SOIL_CELL_TYPE
-#define SOIL_CELL_TYPE
+#ifndef SOIL_TYPE
+#define SOIL_TYPE
 typedef struct RootStruct
 {
     double potential_growth; // potential root growth in a soil cell (g per day).
@@ -14,4 +14,16 @@ typedef struct SoilCellStruct
 {
     Root root;
 } SoilCell;
+
+typedef struct SoilLayerStruct
+{
+    unsigned int number_of_left_columns_with_root; // first column with roots in a soil layer.
+    unsigned int number_of_right_columns_with_root;
+} SoilLayer;
+
+typedef struct SoilStruct {
+    unsigned int number_of_layers_with_root;
+    SoilLayer layers[40];
+    SoilCell cells[40][20];
+} Soil;
 #endif

@@ -1,7 +1,7 @@
 #ifndef STATE_TYPE
 #define STATE_TYPE
 #include "stdbool.h"
-#include "Root.h"
+#include "Soil.h"
 #include "FruitingSite.h"
 
 typedef struct HourStruct
@@ -39,11 +39,6 @@ typedef struct VegetativeBranchStruct
     unsigned int number_of_fruiting_branches; // number of fruiting branches at each vegetative branch.
     FruitingBranch fruiting_branches[30];
 } VegetativeBranch;
-typedef struct SoilLayerStruct
-{
-    unsigned int number_of_left_columns_with_root; // first column with roots in a soil layer.
-    unsigned int number_of_right_columns_with_root;
-} SoilLayer;
 typedef struct State
 {
     char date[12];
@@ -70,7 +65,6 @@ typedef struct State
     double cumulative_transpiration;            // cumulative transpiration, mm.
     double actual_soil_evaporation;             // actual evaporation from soil surface, mm day-1.
     double cumulative_evaporation;              // cumulative evaporation from soil surface, mm.
-    unsigned int number_of_layers_with_root;    //
     unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.
     unsigned int number_of_fruiting_sites;      // total number of fruiting sites per plant.
     double number_of_squares;                   // number of squares per plant.
@@ -85,8 +79,7 @@ typedef struct State
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];
-    SoilCell soil_cells[40][20];
-    SoilLayer soil_layers[40];
+    Soil soil;
     FruitingSite site[3][30][5];
 } State;
 #endif

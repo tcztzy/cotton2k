@@ -15,7 +15,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 
-void RootsCapableOfUptake(const int &, SoilCell[40][20], SoilLayer[40]);
+void RootsCapableOfUptake(Soil &);
 
 void ApplyFertilizer(Simulation &, unsigned int);
 
@@ -102,12 +102,12 @@ void SoilProcedures(Simulation &sim, uint32_t u)
     //     The following will be executed only after plant emergence
     if (state.daynum >= sim.day_emerge && isw > 0)
     {
-        RootsCapableOfUptake(state.number_of_layers_with_root, state.soil_cells, state.soil_layers); // function computes roots capable of uptake for each soil cell
-        AverageSoilPsi = AveragePsi(state);                                                          // function computes the average matric soil water
-                                                                                                     //                      potential in the root zone, weighted by the roots-capable-of-uptake.
-        WaterUptake(sim, u);                                                                         // function  computes water and nitrogen uptake by plants.
-                                                                                                     //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
-                                                                                                     //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
+        RootsCapableOfUptake(state.soil);   // function computes roots capable of uptake for each soil cell
+        AverageSoilPsi = AveragePsi(state); // function computes the average matric soil water
+                                            //                      potential in the root zone, weighted by the roots-capable-of-uptake.
+        WaterUptake(sim, u);                // function  computes water and nitrogen uptake by plants.
+                                            //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
+                                            //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
         state.cumulative_transpiration += state.actual_transpiration;
         CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10 * sim.row_space / PerPlantArea;
     }
@@ -190,7 +190,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void RootsCapableOfUptake(const int &NumLayersWithRoots, SoilCell soil_cells[40][20], SoilLayer soil_layers[40])
+void RootsCapableOfUptake(Soil &soil)
 //     This function computes the weight of roots capable of uptake for all soil cells.
 //  It is called from SoilProcedures().
 //
@@ -202,15 +202,15 @@ void RootsCapableOfUptake(const int &NumLayersWithRoots, SoilCell soil_cells[40]
     // (between 0 and 1) of water and nutrients by root age classes.
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
-            soil_cells[l][k].root.weight_capable_uptake = 0;
+            soil.cells[l][k].root.weight_capable_uptake = 0;
     //     Loop for all soil soil cells with roots. compute for each soil cell root-weight capable
     //  of uptake (RootWtCapblUptake) as the sum of products of root weight and capability of
     //  uptake index (cuind) for each root class in it.
-    for (int l = 0; l < NumLayersWithRoots; l++)
-        for (int k = soil_layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
+    for (int l = 0; l < soil.number_of_layers_with_root; l++)
+        for (int k = soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
             for (int i = 0; i < 3; i++)
-                if (soil_cells[l][k].root.weight[i] > 1.e-15)
-                    soil_cells[l][k].root.weight_capable_uptake += soil_cells[l][k].root.weight[i] * cuind[i];
+                if (soil.cells[l][k].root.weight[i] > 1.e-15)
+                    soil.cells[l][k].root.weight_capable_uptake += soil.cells[l][k].root.weight[i] * cuind[i];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -637,20 +637,20 @@ double AveragePsi(const State &state)
         sumdl[j] = 0;
     }
     //     Compute sum of dl as sumdl for each soil horizon.
-    for (int l = 0; l < state.number_of_layers_with_root; l++)
+    for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
     {
         int j = SoilHorizonNum[l];
         sumdl[j] += dl[l];
-        for (int k = state.soil_layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
+        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= RootColNumRight[l]; k++)
         {
             //     Check that RootWtCapblUptake in any cell is more than a minimum value vrcumin.
-            if (state.soil_cells[l][k].root.weight_capable_uptake >= vrcumin)
+            if (state.soil.cells[l][k].root.weight_capable_uptake >= vrcumin)
             {
                 //     Compute sumwat as the weighted sum of the water content, and psinum as the sum of
                 //  these weights. Weighting is by root weight capable of uptake, or if it exceeds a maximum
                 //  value (vrcumax) this maximum value is used for weighting.
-                sumwat[j] += VolWaterContent[l][k] * dl[l] * wk[k] * min(state.soil_cells[l][k].root.weight_capable_uptake, vrcumax);
-                psinum[j] += dl[l] * wk[k] * min(state.soil_cells[l][k].root.weight_capable_uptake, vrcumax);
+                sumwat[j] += VolWaterContent[l][k] * dl[l] * wk[k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
+                psinum[j] += dl[l] * wk[k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
             }
         }
     }

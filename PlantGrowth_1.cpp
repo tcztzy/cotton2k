@@ -152,20 +152,20 @@ void LeafWaterPotential(State &state, const string &ProfileName)
                         //     All average values computed for the root zone, are weighted by RootWtCapblUptake
                         // (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
     double rrl;         // root resistance per g of active roots.
-    for (int l = 0; l < state.number_of_layers_with_root; l++)
-        for (int k = state.soil_layers[l].number_of_left_columns_with_root; k < RootColNumRight[l]; k++)
+    for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
+        for (int k = state.soil.layers[l].number_of_left_columns_with_root; k < RootColNumRight[l]; k++)
         {
-            if (state.soil_cells[l][k].root.weight_capable_uptake >= vpsil[10])
+            if (state.soil.cells[l][k].root.weight_capable_uptake >= vpsil[10])
             {
-                psinum += min(state.soil_cells[l][k].root.weight_capable_uptake, vpsil[11]);
-                sumlv += min(state.soil_cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg;
+                psinum += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
+                sumlv += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg;
                 rootvol += dl[l] * wk[k];
                 if (SoilPsi[l][k] <= vpsil[1])
                     rrl = vpsil[2] / cmg;
                 else
                     rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k])) / cmg;
-                rrlsum += min(state.soil_cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl;
-                vh2sum += VolWaterContent[l][k] * min(state.soil_cells[l][k].root.weight_capable_uptake, vpsil[11]);
+                rrlsum += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl;
+                vh2sum += VolWaterContent[l][k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
             }
         }
     //     Compute average root resistance (rroot) and average soil water content (vh2).
@@ -394,7 +394,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
     double sumpdr; // total potential growth rate of roots in g per slab. this is
     // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-    sumpdr = PotentialRootGrowth(state.soil_cells, NumRootAgeGroups, state.number_of_layers_with_root, sim.num_curve);
+    sumpdr = PotentialRootGrowth(state.soil.cells, NumRootAgeGroups, state.soil.number_of_layers_with_root, sim.num_curve);
     //     Total potential growth rate of roots is converted from g per
     //  slab (sumpdr) to g per plant (PotGroAllRoots).
     PotGroAllRoots = sumpdr * 100 * PerPlantArea / sim.row_space;

@@ -620,7 +620,7 @@ void OutputForSoilMaps(State &state, int irec, int igo, int nday, int year, cons
     else if (igo == 3) {
         for (int l = 0; l < maxl; l++)
             for (int k = 0; k < maxk; k++)
-                Array[l][k] = accumulate(state.soil_cells[l][k].root.weight, state.soil_cells[l][k].root.weight + 3, double(0));
+                Array[l][k] = accumulate(state.soil.cells[l][k].root.weight, state.soil.cells[l][k].root.weight + 3, double(0));
         tl1 = "ROOT TOT ";
         for (int i = 0; i < 11; i++)
             range[i] = roosca[i];
@@ -650,7 +650,7 @@ void OutputForSoilMaps(State &state, int irec, int igo, int nday, int year, cons
     else if (igo == 6) {
         for (int l = 0; l < maxl; l++)
             for (int k = 0; k < maxk; k++)
-                Array[l][k] = state.soil_cells[l][k].root.weight_capable_uptake;
+                Array[l][k] = state.soil.cells[l][k].root.weight_capable_uptake;
         tl1 = "ROOT UPT ";
         for (int i = 0; i < 11; i++)
             range[i] = roocup[i];

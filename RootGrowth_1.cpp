@@ -286,7 +286,7 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
         {
-            state.soil_cells[l][k].root.actual_growth = 0;
+            state.soil.cells[l][k].root.actual_growth = 0;
             adwr1[l][k] = 0;
         }
     //     The amount of carbon allocated for root growth is calculated from
@@ -304,12 +304,12 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     actgf = (pavail + CarbonAllocatedForRootGrowth * 0.01 * sim.row_space / PerPlantArea) / sumpdr;
     pavail = 0;
     //
-    for (int l = 0; l < state.number_of_layers_with_root; l++)
+    for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
         for (int k = 0; k < nk; k++)
         {
             //     adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
-            if (state.soil_cells[l][k].root.age > 0)
-                adwr1[l][k] = state.soil_cells[l][k].root.potential_growth * actgf;
+            if (state.soil.cells[l][k].root.age > 0)
+                adwr1[l][k] = state.soil.cells[l][k].root.potential_growth * actgf;
         }
     //     If extra carbon is available, it is assumed to be added to the taproot.
     if (state.extra_carbon > 0)
@@ -336,8 +336,8 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
         //  root class in each soil cell.
         for (int l = 0; l <= LastTaprootLayer; l++)
         {
-            state.soil_cells[l][sim.plant_row_column].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][0] / sumwt;
-            state.soil_cells[l][sim.plant_row_column + 1].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][1] / sumwt;
+            state.soil.cells[l][sim.plant_row_column].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][0] / sumwt;
+            state.soil.cells[l][sim.plant_row_column + 1].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][1] / sumwt;
         }
     }
     //     Check each cell if the ratio of root weight capable of growth to cell volume (rtconc)
@@ -346,16 +346,16 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     //  ActualRootGrowth(l,k) will be equal to adwr1(l,k).
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++)
-            if (state.soil_cells[l][k].root.age > 0)
+            if (state.soil.cells[l][k].root.age > 0)
             {
                 double rtconc = 0; // ratio of root weight capable of growth to cell volume.
                 for (int i = 0; i < NumRootAgeGroups; i++)
-                    rtconc += state.soil_cells[l][k].root.weight[i] * cgind[i];
+                    rtconc += state.soil.cells[l][k].root.weight[i] * cgind[i];
                 rtconc = rtconc / (dl[l] * wk[k]);
                 if (rtconc > rtminc)
                     RedistRootNewGrowth(sim, u, l, k, adwr1[l][k]);
                 else
-                    state.soil_cells[l][k].root.actual_growth += adwr1[l][k];
+                    state.soil.cells[l][k].root.actual_growth += adwr1[l][k];
             }
     //     The new actual growth ActualRootGrowth(l,k) in each cell is partitioned among the root
     //  classes in it in proportion to the parameters RootGrowthIndex(i), and the previous values of
@@ -364,21 +364,21 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     for (int i = 0; i < NumRootAgeGroups; i++)
         sumind += RootGrowthIndex[i];
     //
-    for (int l = 0; l < state.number_of_layers_with_root; l++)
+    for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
         for (int k = 0; k < nk; k++)
         {
-            if (state.soil_cells[l][k].root.age > 0)
+            if (state.soil.cells[l][k].root.age > 0)
             {
                 double sumgr = 0; // sum of growth index multiplied by root weight, for all classes in a cell.
                 for (int i = 0; i < NumRootAgeGroups; i++)
-                    sumgr += RootGrowthIndex[i] * state.soil_cells[l][k].root.weight[i];
+                    sumgr += RootGrowthIndex[i] * state.soil.cells[l][k].root.weight[i];
                 for (int i = 0; i < NumRootAgeGroups; i++)
                 {
                     if (sumgr > 0)
-                        state.soil_cells[l][k].root.weight[i] +=
-                            state.soil_cells[l][k].root.actual_growth * RootGrowthIndex[i] * state.soil_cells[l][k].root.weight[i] / sumgr;
+                        state.soil.cells[l][k].root.weight[i] +=
+                            state.soil.cells[l][k].root.actual_growth * RootGrowthIndex[i] * state.soil.cells[l][k].root.weight[i] / sumgr;
                     else
-                        state.soil_cells[l][k].root.weight[i] += state.soil_cells[l][k].root.actual_growth * RootGrowthIndex[i] / sumind;
+                        state.soil.cells[l][k].root.weight[i] += state.soil.cells[l][k].root.actual_growth * RootGrowthIndex[i] / sumind;
                 }
             }
         }
@@ -398,21 +398,21 @@ void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, 
     }
     //     Initialize DailyRootLoss (weight of sloughed roots) for this day.
     double DailyRootLoss = 0; // total weight of sloughed roots, g per plant per day.
-    for (int l = 0; l < state.number_of_layers_with_root; l++)
+    for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
         for (int k = 0; k < nk; k++)
         {
             //     Check RootAge to determine if this soil cell contains roots, and then compute root
             //  aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
-            if (state.soil_cells[l][k].root.age > 0)
+            if (state.soil.cells[l][k].root.age > 0)
             {
-                RootAging(state.soil_cells[l][k], l, k);
-                DailyRootLoss = RootDeath(state.soil_cells[l][k], l, k, DailyRootLoss);
+                RootAging(state.soil.cells[l][k], l, k);
+                DailyRootLoss = RootDeath(state.soil.cells[l][k], l, k, DailyRootLoss);
             }
         }
     //     Check if cultivation is executed in this day and call RootCultivation().
     for (int j = 0; j < 5; j++)
         if (CultivationDate[j] == state.daynum)
-            DailyRootLoss = RootCultivation(state.soil_cells, j, NumRootAgeGroups, DailyRootLoss);
+            DailyRootLoss = RootCultivation(state.soil.cells, j, NumRootAgeGroups, DailyRootLoss);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
     DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
     RootWeightLoss += DailyRootLoss;
