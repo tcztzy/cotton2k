@@ -65,7 +65,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
             Scratch21[u].soilPsi[l][k] = SoilPsi[l][k];
             Scratch21[u].soilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k];
             Scratch21[u].volNh4NContent[l][k] = VolNh4NContent[l][k];
-            Scratch21[u].volNo3NContent[l][k] = VolNo3NContent[l][k];
             Scratch21[u].volWaterContent[l][k] = VolWaterContent[l][k];
         }
 }

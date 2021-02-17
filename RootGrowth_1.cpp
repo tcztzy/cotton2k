@@ -158,7 +158,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGro
                 double rtrdo; // effect of oxygen deficiency on root growth (returned from SoilAirOnRootGrowth).
                 rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], VolWaterContent[l][k]);
                 double rtrdn; // effect of nitrate deficiency on root growth (returned from SoilNitrateOnRootGrowth).
-                rtrdn = SoilNitrateOnRootGrowth(VolNo3NContent[l][k]);
+                rtrdn = SoilNitrateOnRootGrowth(soil_cells[l][k].nitrate_nitrogen_content);
                 //     The root growth resistance factor RootGroFactor(l,k), which can take a
                 //  value between 0 and 1, is computed as the minimum of these
                 //  resistance factors. It is further modified by multiplying it by

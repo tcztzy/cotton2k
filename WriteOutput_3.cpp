@@ -574,7 +574,7 @@ void OutputForSoilMaps(State &state, int irec, int igo, int nday, int year, cons
     if (igo == 1) {
         for (int l = 0; l < maxl; l++)
             for (int k = 0; k < maxk; k++)
-                Array[l][k] = Scratch21[irec].volNo3NContent[l][k];
+                Array[l][k] = state.soil.cells[l][k].nitrate_nitrogen_content;
         tl1 = "NITRATE N";
         for (int i = 0; i < 11; i++)
             range[i] = vnosca[i];

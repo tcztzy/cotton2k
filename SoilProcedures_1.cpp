@@ -35,11 +35,11 @@ void WaterTable(Simulation &, unsigned int); // WATERTBL
 // SoilProcedure_2
 void CapillaryFlow(Simulation &, unsigned int);
 
-void DripFlow(Simulation &, double);
+void DripFlow(SoilCell[40][20], double, double);
 
 // SoilProcedures_3
 void WaterUptake(Simulation &, unsigned int); // UPTAKE
-void GravityFlow(Simulation &, double);
+void GravityFlow(SoilCell[40][20], double, double);
 
 //////////////////////////
 void SoilProcedures(Simulation &sim, uint32_t u)
@@ -126,7 +126,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         //  drippers, followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++)
         {
-            GravityFlow(sim, applywat);
+            GravityFlow(sim.states[u].soil.cells, applywat, sim.row_space);
             CapillaryFlow(sim, u);
         }
     }
@@ -141,7 +141,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         // If water is applied, DripFlow() is called followed by CapillaryFlow().
         for (int iter = 0; iter < noitr; iter++)
         {
-            DripFlow(sim, applywat);
+            DripFlow(state.soil.cells, applywat, sim.row_space);
             CapillaryFlow(sim, u);
         }
     }
@@ -224,6 +224,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
 //     The following global variables are set here:
 //       CumFertilizerN, LeafNitrogen, VolNh4NContent, VolNo3NContent, VolUreaNContent.
 {
+    State &state = sim.states[u];
     const double ferc = 0.01; //  constant used to convert kgs per ha to mg cm-2
                               //     Loop over all fertilizer applications.
     for (int i = 0; i < NumNitApps; i++)
@@ -259,7 +260,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                     for (int k = 0; k < nk; k++)
                     {
                         VolNh4NContent[l][k] += NFertilizer[i].amtamm * ferc / fertdp;
-                        VolNo3NContent[l][k] += NFertilizer[i].amtnit * ferc / fertdp;
+                        state.soil.cells[l][k].nitrate_nitrogen_content += NFertilizer[i].amtnit * ferc / fertdp;
                         VolUreaNContent[l][k] += NFertilizer[i].amtura * ferc / fertdp;
                     }
             }
@@ -275,7 +276,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 for (int k = 0; k < nk; k++)
                 {
                     VolNh4NContent[0][k] += NFertilizer[i].amtamm * (1 - 0.70 * LightIntercept) * ferc / dl(0);
-                    VolNo3NContent[0][k] += NFertilizer[i].amtnit * ferc / dl(0);
+                    state.soil.cells[0][k].nitrate_nitrogen_content += NFertilizer[i].amtnit * ferc / dl(0);
                     VolUreaNContent[0][k] += NFertilizer[i].amtura * (1 - 0.70 * LightIntercept) * ferc / dl(0);
                 }
             }
@@ -305,7 +306,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 addnit = NFertilizer[i].amtnit * ferc * sim.row_space / n00;
                 addnur = NFertilizer[i].amtura * ferc * sim.row_space / n00;
                 //     Update the nitrogen contents of these soil cells.
-                VolNo3NContent[lsdr][ksdr] += addnit / (dl(lsdr) * wk(ksdr, sim.row_space));
+                state.soil.cells[lsdr][ksdr].nitrate_nitrogen_content += addnit / (dl(lsdr) * wk(ksdr, sim.row_space));
                 VolNh4NContent[lsdr][ksdr] += addamm / (dl(lsdr) * wk(ksdr, sim.row_space));
                 VolUreaNContent[lsdr][ksdr] += addnur / (dl(lsdr) * wk(ksdr, sim.row_space));
                 if ((dl(lsdr) * wk(ksdr, sim.row_space)) < 100)
@@ -313,21 +314,21 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                     if (ksdr < nk - 1)
                     {
                         int kp1 = ksdr + 1; // column to the right of ksdr.
-                        VolNo3NContent[lsdr][kp1] += addnit / (dl(lsdr) * wk(kp1, sim.row_space));
+                        state.soil.cells[lsdr][kp1].nitrate_nitrogen_content += addnit / (dl(lsdr) * wk(kp1, sim.row_space));
                         VolNh4NContent[lsdr][kp1] += addamm / (dl(lsdr) * wk(kp1, sim.row_space));
                         VolUreaNContent[lsdr][kp1] += addnur / (dl(lsdr) * wk(kp1, sim.row_space));
                     }
                     if (ksdr > 0)
                     {
                         int km1 = ksdr - 1; // column to the left of ksdr.
-                        VolNo3NContent[lsdr][km1] += addnit / (dl(lsdr) * wk(km1, sim.row_space));
+                        state.soil.cells[lsdr][km1].nitrate_nitrogen_content += addnit / (dl(lsdr) * wk(km1, sim.row_space));
                         VolNh4NContent[lsdr][km1] += addamm / (dl(lsdr) * wk(km1, sim.row_space));
                         VolUreaNContent[lsdr][km1] += addnur / (dl(lsdr) * wk(km1, sim.row_space));
                     }
                     if (lsdr < nl - 1)
                     {
                         int lp1 = lsdr + 1;
-                        VolNo3NContent[lp1][ksdr] += addnit / (dl(lp1) * wk(ksdr, sim.row_space));
+                        state.soil.cells[lp1][ksdr].nitrate_nitrogen_content += addnit / (dl(lp1) * wk(ksdr, sim.row_space));
                         VolNh4NContent[lp1][ksdr] += addamm / (dl(lp1) * wk(ksdr, sim.row_space));
                         VolUreaNContent[lp1][ksdr] += addnur / (dl(lp1) * wk(ksdr, sim.row_space));
                     }
@@ -340,7 +341,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
                 //  soil cell in which the drip outlet is situated.
                 VolNh4NContent[LocationLayerDrip][LocationColumnDrip] +=
                     NFertilizer[i].amtamm * ferc * sim.row_space / (dl(LocationLayerDrip) * wk(LocationColumnDrip, sim.row_space));
-                VolNo3NContent[LocationLayerDrip][LocationColumnDrip] +=
+                state.soil.cells[LocationLayerDrip][LocationColumnDrip].nitrate_nitrogen_content +=
                     NFertilizer[i].amtnit * ferc * sim.row_space / (dl(LocationLayerDrip) * wk(LocationColumnDrip, sim.row_space));
                 VolUreaNContent[LocationLayerDrip][LocationColumnDrip] +=
                     NFertilizer[i].amtura * ferc * sim.row_space / (dl(LocationLayerDrip) * wk(LocationColumnDrip, sim.row_space));

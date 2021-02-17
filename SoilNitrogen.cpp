@@ -17,7 +17,7 @@ using namespace std;
 
 void UreaHydrolysis(int, int);
 
-void MineralizeNitrogen(int, int, const int &, const int &, double);
+void MineralizeNitrogen(SoilCell &, int, int, const int &, const int &, double);
 
 extern "C"
 {
@@ -25,9 +25,9 @@ extern "C"
     double SoilWaterEffect(double, double, double, double, double);
 }
 
-void Nitrification(int, int, double);
+void Nitrification(SoilCell &, int, int, double);
 
-void Denitrification(int, int, double);
+void Denitrification(SoilCell &, int, int, double);
 
 //////////////////////////
 /*                References for soil nitrogen routines:
@@ -75,15 +75,15 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
         for (int k = 0; k < nk; k++) {
             if (VolUreaNContent[l][k] > 0)
                 UreaHydrolysis(l, k);
-            MineralizeNitrogen(l, k, sim.states[u].daynum, sim.day_start, sim.row_space);
+            MineralizeNitrogen(sim.states[u].soil.cells[l][k], l, k, sim.states[u].daynum, sim.day_start, sim.row_space);
             if (VolNh4NContent[l][k] > 0.00001)
-                Nitrification(l, k, depth[l]);
+                Nitrification(sim.states[u].soil.cells[l][k], l, k, depth[l]);
 //     Denitrification() is called if there are enough water and nitrates in the
 //  soil cell. cparmin is the minimum temperature C for denitrification.
             const double cparmin = 5;
-            if (VolNo3NContent[l][k] > 0.001 && VolWaterContent[l][k] > FieldCapacity[l]
+            if (sim.states[u].soil.cells[l][k].nitrate_nitrogen_content > 0.001 && VolWaterContent[l][k] > FieldCapacity[l]
                 && SoilTempDailyAvrg[l][k] >= (cparmin + 273.161))
-                Denitrification(l, k, sim.row_space);
+                Denitrification(sim.states[u].soil.cells[l][k], l, k, sim.row_space);
         }
 }
 
@@ -160,7 +160,7 @@ void UreaHydrolysis(int l, int k)
 }
 
 ///////////////////////////////////////////
-void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart, double row_space)
+void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, const int &DayStart, double row_space)
 //     This function computes the mineralization of organic nitrogen in the soil, and the 
 //  immobilization of mineral nitrogen by soil microorganisms. It is called by function 
 //  SoilNitrogen(). 
@@ -208,7 +208,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart, do
     double cnRatio = 1000;    // C/N ratio in fresh organic matter and mineral N in soil.
     double cnRatioEffect = 1; // the effect of C/N ratio on rate of mineralization.
     double totalSoilN;        // total N in the soil cell, excluding the stable humus fraction, mg/cm3
-    totalSoilN = FreshOrganicNitrogen[l][k] + VolNo3NContent[l][k] + VolNh4NContent[l][k];
+    totalSoilN = FreshOrganicNitrogen[l][k] + soil_cell.nitrate_nitrogen_content + VolNh4NContent[l][k];
     if (totalSoilN > 0) {
         cnRatio = FreshOrganicMatter[l][k] * 0.4 / totalSoilN;
         if (cnRatio >= 1000)
@@ -247,7 +247,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart, do
 //     All computations assume that the amounts of VolNh4NContent and VNO3C will
 //  each not become lower than cparMinNH4 (= 0.00025) .
         double rnac1; // the maximum possible value of immobilizationRateN, mg/cm3 .
-        rnac1 = VolNh4NContent[l][k] + VolNo3NContent[l][k] - 2 * cparMinNH4;
+        rnac1 = VolNh4NContent[l][k] + soil_cell.nitrate_nitrogen_content - 2 * cparMinNH4;
         if (immobilizationRateN > rnac1)
             immobilizationRateN = rnac1;
         if (immobilizationRateN < 0)
@@ -305,12 +305,12 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart, do
         }
 //     If immobilization is larger than the use of NH4 nitrogen, the NO3
 //  fraction is reduced in a similar procedure.
-        if (nnom1 < 0 && VolNo3NContent[l][k] > cparMinNH4) {
-            if (fabs(nnom1) < (VolNo3NContent[l][k] - cparMinNH4))
+        if (nnom1 < 0 && soil_cell.nitrate_nitrogen_content > cparMinNH4) {
+            if (fabs(nnom1) < (soil_cell.nitrate_nitrogen_content - cparMinNH4))
                 addvnc = -nnom1;
             else
-                addvnc = VolNo3NContent[l][k] - cparMinNH4;
-            VolNo3NContent[l][k] -= addvnc;
+                addvnc = soil_cell.nitrate_nitrogen_content - cparMinNH4;
+            soil_cell.nitrate_nitrogen_content -= addvnc;
             FreshOrganicNitrogen[l][k] += addvnc;
             MineralizedOrganicN -= addvnc * dl(l) * wk(k, row_space);
         }
@@ -318,7 +318,7 @@ void MineralizeNitrogen(int l, int k, const int &Daynum, const int &DayStart, do
 }
 
 //////////////////////////////////
-void Nitrification(int l, int k, double DepthOfLayer)
+void Nitrification(SoilCell &soil_cell, int l, int k, double DepthOfLayer)
 //     This function computes the transformation of soil ammonia nitrogen to nitrate. 
 //  It is called by SoilNitrogen(). It calls the function SoilWaterEffect()
 //
@@ -365,11 +365,11 @@ void Nitrification(int l, int k, double DepthOfLayer)
     double dnit; // actual nitrification (mg n cm-3 day-1).
     dnit = ratenit * VolNh4NContent[l][k];
     VolNh4NContent[l][k] -= dnit;
-    VolNo3NContent[l][k] += dnit;
+    soil_cell.nitrate_nitrogen_content += dnit;
 }
 
 /////////////////////////
-void Denitrification(int l, int k, double row_space)
+void Denitrification(SoilCell &soil_cell, int l, int k, double row_space)
 //     This function computes the denitrification of nitrate N in the soil. 
 //     It is called by function SoilNitrogen().
 //     The procedure is based on the CERES routine, as documented by Godwin and Jones (1991).
@@ -404,13 +404,13 @@ void Denitrification(int l, int k, double row_space)
 //     The actual rate of denitrification is calculated. The equation is modified from CERES to 
 //  units of mg/cm3/day. 
     double dnrate; // actual rate of denitrification, mg N per cm3 of soil per day.
-    dnrate = cpardenit * cw * VolNo3NContent[l][k] * fw * ft;
+    dnrate = cpardenit * cw * soil_cell.nitrate_nitrogen_content * fw * ft;
 //     Make sure that a minimal amount of nitrate will remain after denitrification.
-    if (dnrate > (VolNo3NContent[l][k] - vno3min))
-        dnrate = VolNo3NContent[l][k] - vno3min;
+    if (dnrate > (soil_cell.nitrate_nitrogen_content - vno3min))
+        dnrate = soil_cell.nitrate_nitrogen_content - vno3min;
     if (dnrate < 0)
         dnrate = 0;
 //     Update VolNo3NContent, and add the amount of nitrogen lost to SoilNitrogenLoss.
-    VolNo3NContent[l][k] -= dnrate;
+    soil_cell.nitrate_nitrogen_content -= dnrate;
     SoilNitrogenLoss += dnrate * dl(l) * wk(k, row_space);
 }

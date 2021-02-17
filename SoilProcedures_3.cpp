@@ -17,15 +17,15 @@ extern "C"{
     double PsiOnTranspiration(double);
 }
 
-void NitrogenUptake(Simulation &, int, int, double);
+void NitrogenUptake(SoilCell &, int, int, double, double);
 
 void WaterBalance(double[], double[], double [], int);
 
 // SoilProcedures_2
-double Drain(Simulation &);
+double Drain(SoilCell[40][20], double);
 
 ////////////////////////////////////////////////////////////////////////////
-void GravityFlow(Simulation &sim, double applywat)
+void GravityFlow(SoilCell soil_cells[40][20], double applywat, double row_space)
 //     This function computes the water redistribution in the soil or surface irrigation
 //  (by flooding or sprinklers). It is called by SoilProcedures(). It calls function Drain().
 //     The following argument is used:          ApplyWat = amount of water applied, mm.
@@ -39,11 +39,11 @@ void GravityFlow(Simulation &sim, double applywat)
         VolWaterContent[0][k] += 0.10 * applywat / dl(0);
 //     Call function Drain() to compute downflow of water.
     double WaterDrainedOut; // water drained out of the slab, mm.
-    WaterDrainedOut = Drain(sim);
+    WaterDrainedOut = Drain(soil_cells, row_space);
 //     If there is drainage out of the slab, transform it to mm,
 //  and update the cumulative drainage (CumWaterDrained)
     if (WaterDrainedOut > 0)
-        CumWaterDrained += 10 * WaterDrainedOut / sim.row_space;
+        CumWaterDrained += 10 * WaterDrainedOut / row_space;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -162,14 +162,14 @@ void WaterUptake(Simulation &sim, unsigned int u)
                 if (uptk[l][k] > 0) {
                     double reqnc; // proportional allocation of TotalRequiredN to each cell
                     reqnc = state.total_required_nitrogen * uptk[l][k] / sumep;
-                    NitrogenUptake(sim, l, k, reqnc);
+                    NitrogenUptake(state.soil.cells[l][k], l, k, reqnc, sim.row_space);
                 } // end if uptk
             } // end loop k & l
     } // end if sumep
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void NitrogenUptake(Simulation &sim, int l, int k, double reqnc)
+void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_space)
 //     The function NitrogenUptake() computes the uptake of nitrate and ammonium N
 //  from a soil cell. It is called by WaterUptake().
 //     The arguments of this function are:
@@ -188,24 +188,24 @@ void NitrogenUptake(Simulation &sim, int l, int k, double reqnc)
     const double p1 = 100, p2 = 5; // constant parameters for computing AmmonNDissolved.
 //
     double coeff; // coefficient used to convert g per plant to mg cm-3 units.
-    coeff = 10 * sim.row_space / (PerPlantArea * dl(l) * wk(k, sim.row_space));
+    coeff = 10 * row_space / (PerPlantArea * dl(l) * wk(k, row_space));
 //     A Michaelis-Menten procedure is used to compute the rate of nitrate uptake from 
 //  each cell. The maximum possible amount of uptake is reqnc (g N per plant), and
 //  the half of this rate occurs when the nitrate concentration in the soil solution is 
 //  halfn (mg N per cm3 of soil water).
 //     Compute the uptake of nitrate from this soil cell, upno3c in g N per plant units. 
 //  Define the maximum possible uptake, upmax, as a fraction of VolNo3NContent.
-    if (VolNo3NContent[l][k] > 0) {
+    if (soil_cell.nitrate_nitrogen_content > 0) {
         double upno3c; // uptake rate of nitrate, g N per plant per day
-        upno3c = reqnc * VolNo3NContent[l][k]
-                 / (halfn * VolWaterContent[l][k] + VolNo3NContent[l][k]);
+        upno3c = reqnc * soil_cell.nitrate_nitrogen_content
+                 / (halfn * VolWaterContent[l][k] + soil_cell.nitrate_nitrogen_content);
         double upmax; // maximum possible uptake rate, mg N per soil cell per day
-        upmax = cparupmax * VolNo3NContent[l][k];
+        upmax = cparupmax * soil_cell.nitrate_nitrogen_content;
 //     Make sure that uptake will not exceed upmax and update VolNo3NContent and upno3c.
         if ((coeff * upno3c) < upmax)
-            VolNo3NContent[l][k] -= coeff * upno3c;
+            soil_cell.nitrate_nitrogen_content -= coeff * upno3c;
         else {
-            VolNo3NContent[l][k] -= upmax;
+            soil_cell.nitrate_nitrogen_content -= upmax;
             upno3c = upmax / coeff;
         }
 //     upno3c is added to the total uptake by the plant (SupplyNO3N).
@@ -584,7 +584,7 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void SoilSum(Simulation &sim)
+void SoilSum(State &state, double row_space)
 //     This function computes sums of some soil variables. It is called by SimulateThisDay()
 //     It computes the total amounts per slab of water in mm (TotalSoilWater). The sums of 
 //  nitrogen are in mg N per slab: nitrate (TotalSoilNo3N), ammonium (TotalSoilNh4N), 
@@ -602,12 +602,12 @@ void SoilSum(Simulation &sim)
 //
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++) {
-            TotalSoilNo3N += VolNo3NContent[l][k] * dl(l) * wk(k, sim.row_space);
-            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, sim.row_space);
-            TotalSoilUreaN += VolUreaNContent[l][k] * dl(l) * wk(k, sim.row_space);
-            TotalSoilWater += VolWaterContent[l][k] * dl(l) * wk(k, sim.row_space);
+            TotalSoilNo3N += state.soil.cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, row_space);
+            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, row_space);
+            TotalSoilUreaN += VolUreaNContent[l][k] * dl(l) * wk(k, row_space);
+            TotalSoilWater += VolWaterContent[l][k] * dl(l) * wk(k, row_space);
         }
 //
     TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
-    TotalSoilWater = TotalSoilWater * 10 / sim.row_space;
+    TotalSoilWater = TotalSoilWater * 10 / row_space;
 }

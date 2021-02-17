@@ -201,6 +201,5 @@ double
     tstbd[10][10],                    // input bulk density in the impedance table, g cm-3.
     VarPar[61],                       // array of cultivar specific constant parameters.
     VolNh4NContent[maxl][maxk],       // volumetric ammonium nitrogen content of a soil cell, mg N cm-3.
-    VolNo3NContent[maxl][maxk],       // volumetric nitrate nitrogen content of a soil cell, mg N cm-3.
     VolUreaNContent[maxl][maxk],      // volumetric urea nitrogen content of a soil cell, mg N cm-3.
     VolWaterContent[maxl][maxk];      // volumetric water content of a soil cell, cm3 cm-3.

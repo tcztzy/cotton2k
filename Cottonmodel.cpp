@@ -303,7 +303,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     SoilTemperature(sim, u, rracol); // executes all modules of soil and canopy temperature.
     SoilProcedures(sim, u);          // executes all other soil processes.
     SoilNitrogen(sim, u);            // computes nitrogen transformations in the soil.
-    SoilSum(sim);                    // computes totals of water and N in the soil.
+    SoilSum(state, sim.row_space);                    // computes totals of water and N in the soil.
                                      //     The following is executed each day after plant emergence:
     if (state.daynum >= sim.day_emerge && isw > 0)
     {

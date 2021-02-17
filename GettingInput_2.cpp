@@ -211,7 +211,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
             rnno3[j] = 2.0;
         if (rnnh4[j] < 0.2)
             rnnh4[j] = 0.2;
-        VolNo3NContent[l][0] = rnno3[j] / 15 * .01;
+        sim.states[0].soil.cells[l][0].nitrate_nitrogen_content = rnno3[j] / 15 * .01;
         VolNh4NContent[l][0] = rnnh4[j] / 15 * .01;
         double om; // organic matter in mg / cm3 units.
         om = (oma[j] / 100) * bdl[l] * 1000;
@@ -230,7 +230,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
     for (int l = 0; l < nl; l++)
         for (int k = 1; k < nk; k++) {
             VolWaterContent[l][k] = VolWaterContent[l][0];
-            VolNo3NContent[l][k] = VolNo3NContent[l][0];
+            sim.states[0].soil.cells[l][k].nitrate_nitrogen_content = sim.states[0].soil.cells[l][0].nitrate_nitrogen_content;
             VolNh4NContent[l][k] = VolNh4NContent[l][0];
             FreshOrganicMatter[l][k] = FreshOrganicMatter[l][0];
             HumusOrganicMatter[l][k] = HumusOrganicMatter[l][0];
@@ -245,7 +245,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++) {
             InitialTotalSoilWater += VolWaterContent[l][k] * dl(l) * wk(k, sim.row_space);
-            TotalSoilNo3N += VolNo3NContent[l][k] * dl(l) * wk(k, sim.row_space);
+            TotalSoilNo3N += sim.states[0].soil.cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, sim.row_space);
             TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, sim.row_space);
             VolUreaNContent[l][k] = 0;
         }
@@ -323,7 +323,7 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
 void init_root_data(SoilCell soil_cells[40][20], uint32_t plant_row_column, double mul) {
     for (int l = 0; l < 40; l++) {
         for (int k = 0; k < 20; k++) {
-            soil_cells[l][k] = {{0, 1, 0, 0, 0, {0, 0, 0}}};
+            soil_cells[l][k].root = {0, 1, 0, 0, 0, {0, 0, 0}};
         }
     }
     // FIXME: I consider the value is incorrect
