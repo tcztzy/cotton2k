@@ -28,6 +28,11 @@
 #include "SoilProcedures.h"
 #include "SoilTemperature.h"
 
+extern "C"
+{
+    void output_json(const Simulation &);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //    Class C2KApp
 ///////////////////////////////////////////////////////////////////////////////
@@ -192,6 +197,7 @@ void C2KApp::RunTheModel(const char *profile)
     //     Write output data
     pdlg->m_Running = "Writing Output Files";
     DataOutput(sim);
+    output_json(sim);
     pdlg->EndDialog(0);
     delete pdlg; //  check if needed
 }
