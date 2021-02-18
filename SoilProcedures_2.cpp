@@ -8,6 +8,7 @@
 // 
 #include "global.h"
 #include "GeneralFunctions.h"
+#include "Simulation.h"
 
 double Drain(SoilCell[40][20], double);
 

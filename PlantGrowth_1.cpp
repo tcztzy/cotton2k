@@ -11,6 +11,7 @@
 #include "global.h"
 #include "GeneralFunctions.h"
 #include "RootGrowth.h"
+#include "Simulation.h"
 
 void LeafWaterPotential(State &, const string &, double);
 

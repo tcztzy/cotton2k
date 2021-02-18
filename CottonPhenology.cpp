@@ -15,7 +15,6 @@
 #include "global.h"
 #include "LeafAbscission.h"
 #include "FruitAbscission.h"
-#include "GeneralFunctions.h"
 
 void PreFruitingNode(double, const double &);
 

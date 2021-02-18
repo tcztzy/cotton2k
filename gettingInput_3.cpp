@@ -9,6 +9,7 @@
 //
 #include "global.h"
 #include "GeneralFunctions.h"
+#include "Simulation.h"
 
 int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 

@@ -1,7 +1,6 @@
-#ifndef COTTON2K_H
-#define COTTON2K_H
+#ifndef EXCEPTIONS_H
+#define EXCEPTIONS_H
 #include <filesystem>
-#include "Simulation.h"
 namespace fs = std::filesystem;
 
 class Cotton2KException
@@ -48,8 +47,4 @@ public:
     {
     }
 };
-extern "C"
-{
-    void RunTheModel(const char *);
-}
-#endif //COTTON2K_H
+#endif //EXCEPTIONS_H

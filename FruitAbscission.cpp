@@ -8,7 +8,7 @@
 //       ComputeSiteNumbers()
 //
 #include "global.h"
-#include "GeneralFunctions.h"
+#include "Simulation.h"
 
 double SiteAbscissionRatio(State &, int, int, int, int);
 

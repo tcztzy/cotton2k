@@ -2,7 +2,8 @@
 
 #include <string>
 #include <tuple>
-#include "cotton2k.h"
+#include "exceptions.h"
+#include "Simulation.h"
 
 void DayClim(Simulation &, uint32_t u);
 

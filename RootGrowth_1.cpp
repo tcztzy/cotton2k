@@ -11,7 +11,8 @@
 // ComputeActualRootGrowth()
 //
 #include "global.h"
-#include "cotton2k.h"
+#include "exceptions.h"
+#include "Simulation.h"
 
 using namespace std;
 

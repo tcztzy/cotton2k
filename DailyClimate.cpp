@@ -27,7 +27,6 @@
 //  SimulateRunoff()
 //
 #include "global.h"
-#include "GeneralFunctions.h"
 #include "DailyClimate.h"
 
 extern "C"

@@ -1,4 +1,5 @@
 #pragma once
+#include "Simulation.h"
 
 void OpenOutputFiles(const std::string &, const std::string &, const int &, const int &);
 

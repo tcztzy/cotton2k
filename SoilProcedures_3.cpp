@@ -12,6 +12,7 @@
 //
 #include "global.h"
 #include "GeneralFunctions.h"
+#include "Simulation.h"
 
 extern "C"{
     double PsiOnTranspiration(double);

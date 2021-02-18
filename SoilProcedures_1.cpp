@@ -14,6 +14,7 @@
 //
 #include "global.h"
 #include "GeneralFunctions.h"
+#include "Simulation.h"
 
 void RootsCapableOfUptake(Soil &);
 
