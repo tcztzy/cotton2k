@@ -14,9 +14,7 @@
 //    OnAppAbout()
 //       Class CAoutDlg
 //
-#include "stdafx.h"
 #include "Cottonmodel.h"
-#include "MainFrm.h"
 #include "GeneralFunctions.h"
 #include "CottonPhenology.h"
 #include "DailyClimate.h"
@@ -33,152 +31,10 @@ extern "C"
     void output_json(const Simulation &);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//    Class C2KApp
-///////////////////////////////////////////////////////////////////////////////
-BEGIN_MESSAGE_MAP(C2KApp, CWinApp)
-ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// C2KApp construction
 C2KApp::C2KApp() = default;
 
 C2KApp theApp;
 
-/////////////////////////////////////////////////////////////////////////////
-BOOL C2KApp::InitInstance()
-//     InitInstance() starts the application. it calls the functions:
-//  GetJobFile(), GetProfilesList() and RunTheModel().
-//     Global variables set:  FrameTitle
-//
-{
-    AfxEnableControlContainer();
-    SetRegistryKey(_T("CottonModel"));
-    //
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //     Parse command line for standard shell commands.
-    CCommandLineInfo cmdInfo;
-    ParseCommandLine(cmdInfo);
-    CString JobFileName; // Name of the Job file (with full directory).
-                         //     The name of the "Job" file is usually taken from the command line.
-    JobFileName = cmdInfo.m_strFileName;
-    //     If the "Job" file is not defined in the command line, call GetJobFile().
-    if (JobFileName.GetLength() == 0)
-        JobFileName = GetJobFile();
-    //     Build and set title of the main frame.
-    string FrameTitle = "";
-    CString Slash = "\\";
-    int nLen = JobFileName.GetLength();
-    //
-    for (int i = nLen - 1; i >= 0; i--)
-    {
-        if (JobFileName[i] == Slash)
-            break;
-        FrameTitle = JobFileName[i] + FrameTitle;
-    }
-    //
-    CFrameWnd *pFrame = new CMainFrame(FrameTitle);
-    m_pMainWnd = pFrame;
-    if (!pFrame->LoadFrame(IDR_MAINFRAME))
-        return FALSE;
-    //     The main window has been initialized, so show and update it.
-    pFrame->ShowWindow(m_nCmdShow);
-    pFrame->UpdateWindow();
-    try
-    {
-        // Get the list of the "Profiles" to run.
-        for (std::string profile : GetProfilesList(fs::path((string)JobFileName)))
-        {
-            // Now run the model.
-            RunTheModel(profile.c_str());
-        }
-    }
-    catch (Cotton2KException e)
-    {
-        AfxMessageBox(e.what());
-    }
-    //     End of simulation of all profiles
-    AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. ");
-    return TRUE;
-}
-
-/////////////////////////////////////////////////////////////////////////
-CString C2KApp::GetJobFile()
-//     Function GetJobFile() is called from InitInstance() when the name of the Job file
-//  has not been obtained from parsing the command line. It enables the user to input
-//  this name by a standard "open file" dialog.
-//     It Checks the file extension and returns the name of the Job file (with
-//  full directory path).
-//
-{
-    //     Activate the extended "open file" dialog for windows
-    COpenDlg dlg(TRUE);
-    if (dlg.DoModal() != IDOK)
-        return "No File found";
-    //     Get file name with path
-    CString strFileName = dlg.GetPathName();
-    CString Exten = _T(".JOB");
-    //     Check file extension and define Job name
-    if (strFileName.Right(4) == Exten)
-        return strFileName;
-    else
-    {
-        int strlen = strFileName.GetLength();
-        int newlen = strlen;
-        for (int ii = 4; ii > 0; ii--)
-        {
-            char Dummy = strFileName[strlen - ii];
-            if (Dummy == '.')
-            {
-                newlen = strlen - ii;
-                return strFileName.Left(newlen) + Exten;
-            }
-        }
-        return strFileName.Left(newlen) + Exten;
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////
-std::vector<std::string> C2KApp::GetProfilesList(const fs::path &JobFileName)
-//     Function GetProfilesList() opens the "JOB" file, reads it, and gets
-//  from it the profile list. It is called from InitInstance().
-//     Input argument: name of the JOB file (with path)
-//
-{
-    //     Check if the file exists
-    if (!fs::exists(JobFileName))
-        throw FileNotExists(JobFileName);
-    //     Open the selected Job file for input.
-    ifstream DataFile(JobFileName, ios::in);
-    if (DataFile.fail())
-        //     When the file can not be opened:
-        throw FileNotOpened(JobFileName);
-    char m_TempString[100];
-    //     Skip the first line of the file.
-    DataFile.getline(m_TempString, 99);
-    //     Read the simulation profiles from the next lines of the file, and store them
-    //  in the StringArray ProfileArray.
-    std::vector<std::string> ProfileArray;
-    int readlength = 99;
-    while (readlength > 0)
-    {
-        //     Create array of Profile names
-        DataFile.get(m_TempString, 21);
-        if (DataFile.eof() == 1)
-            break;
-        std::string m_String = m_TempString;
-        readlength = m_String.length();
-        if (readlength > 4)
-            ProfileArray.push_back(m_String.substr(0, readlength - 4));
-        DataFile.getline(m_TempString, 99);
-    }
-    DataFile.close();
-    return ProfileArray;
-}
-
-/////////////////////////////////////////////////////////////////////////////
 void C2KApp::RunTheModel(const char *profile)
 //     This function calls the following functions for each profile:
 //          ReadInput(), DailySimulation() and  DataOutput()
@@ -186,23 +42,13 @@ void C2KApp::RunTheModel(const char *profile)
 {
     // Read the input data for this simulation
     Simulation sim = ReadInput(profile);
-    // Create a modeless dialog with progress control
-    pdlg = new CProgCtrlDlg;
-    pdlg->m_uiRangeTo = sim.day_finish - sim.day_start + 1;
-    pdlg->m_ProfileName = profile;
-    pdlg->m_Running = "Running the Simulation";
-    pdlg->Create();
     // Do daily simulations
     DailySimulation(sim);
     //     Write output data
-    pdlg->m_Running = "Writing Output Files";
     DataOutput(sim);
     output_json(sim);
-    pdlg->EndDialog(0);
-    delete pdlg; //  check if needed
 }
 
-////////////////////////////////////////////////////////////////////////////////
 void C2KApp::DailySimulation(Simulation &sim)
 //     This function controls the dynamic phase of the simulation.
 //     It calls the functions:
@@ -215,7 +61,6 @@ void C2KApp::DailySimulation(Simulation &sim)
     {
         for (int i = 0; i < sim.day_finish - sim.day_start + 1; i++)
         {
-            pdlg->ProgressStepit();
             if (i > 0)
             {
                 memcpy(&sim.states[i], &sim.states[i - 1], sizeof(State));
@@ -298,27 +143,27 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     if (Kday < 0)
         Kday = 0;
     //     The following functions are executed each day (also before emergence).
-    ColumnShading(state, rracol, sim.day_emerge, sim.row_space, sim.plant_row_column);   // computes light interception and soil shading.
-    DayClim(sim, u);                 // computes climate variables for today.
-    SoilTemperature(sim, u, rracol); // executes all modules of soil and canopy temperature.
-    SoilProcedures(sim, u);          // executes all other soil processes.
-    SoilNitrogen(sim, u);            // computes nitrogen transformations in the soil.
-    SoilSum(state, sim.row_space);                    // computes totals of water and N in the soil.
-                                     //     The following is executed each day after plant emergence:
+    ColumnShading(state, rracol, sim.day_emerge, sim.row_space, sim.plant_row_column); // computes light interception and soil shading.
+    DayClim(sim, u);                                                                   // computes climate variables for today.
+    SoilTemperature(sim, u, rracol);                                                   // executes all modules of soil and canopy temperature.
+    SoilProcedures(sim, u);                                                            // executes all other soil processes.
+    SoilNitrogen(sim, u);                                                              // computes nitrogen transformations in the soil.
+    SoilSum(state, sim.row_space);                                                     // computes totals of water and N in the soil.
+                                                                                       //     The following is executed each day after plant emergence:
     if (state.daynum >= sim.day_emerge && isw > 0)
     {
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
-        sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours); // physiological days increment for this day. computes physiological age
-        Defoliate(sim, u);                                             // effects of defoliants applied.
-        Stress(sim, u);                                                // computes water stress factors.
+        sim.states[u].day_inc = PhysiologicalAge(state.hours); // physiological days increment for this day. computes physiological age
+        Defoliate(sim, u);                                     // effects of defoliants applied.
+        Stress(sim, u);                                        // computes water stress factors.
         GetNetPhotosynthesis(sim, u, state.day_length);        // computes net photosynthesis.
         PlantGrowth(sim, u, 3, state.day_length);              // executes all modules of plant growth.
-        CottonPhenology(sim, u);                                       // executes all modules of plant phenology.
-        PlantNitrogen(sim, u);                                         // computes plant nitrogen allocation.
+        CottonPhenology(sim, u);                               // executes all modules of plant phenology.
+        PlantNitrogen(sim, u);                                 // computes plant nitrogen allocation.
         CheckDryMatterBal(state, sim.profile_name);            // checks plant dry matter balance.
-                                                                       //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
-                                                                       //  nitrogen averages by layer, and write this information to files.
+                                                               //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
+                                                               //  nitrogen averages by layer, and write this information to files.
     }
     //     Call DailyOutput for reporting some simulation data for this day.
     DailyOutput(sim, u);
@@ -327,41 +172,4 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     //
     if (state.daynum >= LastDayWeatherData || (Kday > 10 && LeafAreaIndex < 0.0002))
         throw SimulationEnd();
-}
-/////////////////////////////////////////////////////////////////////////////
-// CAboutDlg dialog used for App About
-
-class CAboutDlg : public CDialog
-{
-public:
-    CAboutDlg();
-
-    enum
-    {
-        IDD = IDD_ABOUTBOX
-    };
-
-protected:
-    virtual void DoDataExchange(CDataExchange *pDX); // DDX/DDV support
-    DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
-{
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange *pDX)
-{
-    CDialog::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-//
-void C2KApp::OnAppAbout()
-{
-    CAboutDlg aboutDlg;
-    aboutDlg.DoModal();
 }

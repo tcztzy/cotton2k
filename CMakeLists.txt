@@ -1,13 +1,32 @@
 cmake_minimum_required(VERSION 3.17)
-project(cotton2k)
+project(cotton2k VERSION 5.0.0 LANGUAGES CXX C)
+
 # Use CXX 17 for filesystem and so on.
 set(CMAKE_CXX_STANDARD 17)
 # Use MFC in a Static Library
 add_definitions(-D_AFXDLL)
 set(CMAKE_MFC_FLAG 2)
-file(GLOB SOURCE_FILES "*.cpp" "*.h" "Cottonmodel.rc")
-set_source_files_properties(Cottonmodel.rc PROPERTIES LANGUAGE RC)
-add_executable(cotton2k WIN32 ${SOURCE_FILES})
+
+# Define the SOURCE_FILES
+file(GLOB SOURCE_FILES "*.cpp" "*.h" "cotton2k.pyx")
+
+# Prefer virtualenv
+set(Python_FIND_VIRTUALENV ONLY)
+# Sci-kit Build
+find_package(PythonExtensions REQUIRED)
+find_package(Cython REQUIRED)
+
+set(LIBRARY _${PROJECT_NAME})
+
+add_cython_target(${LIBRARY} CXX)
+add_library(${LIBRARY} MODULE ${${LIBRARY}} ${SOURCE_FILES})
+python_extension_module(${LIBRARY})
+
+target_compile_options(${LIBRARY} PRIVATE
+        "$<$<CXX_COMPILER_ID:Clang>:-Weverything;-Wfatal-errors>"
+        "$<$<CXX_COMPILER_ID:GNU>:-Wall;-Wextra;-Wfatal-errors>"
+        "$<$<CXX_COMPILER_ID:MSVC>:/W3>")
+
 # Enable ExternalProject CMake module
 include(ExternalProject)
 ExternalProject_Add(cotton2k.rs
@@ -19,8 +38,11 @@ ExternalProject_Add(cotton2k.rs
         INSTALL_COMMAND ""
         LOG_BUILD ON
 )
-add_dependencies(cotton2k cotton2k.rs)
-target_link_libraries(cotton2k
-    debug "${CMAKE_SOURCE_DIR}/target/debug/cotton2k.lib"
-    optimized "${CMAKE_SOURCE_DIR}/target/release/cotton2k.lib"
-    ws2_32 userenv advapi32)
+add_dependencies(${LIBRARY} cotton2k.rs)
+target_link_libraries(${LIBRARY}
+        debug "${CMAKE_SOURCE_DIR}/target/debug/cotton2k.lib"
+        optimized "${CMAKE_SOURCE_DIR}/target/release/cotton2k.lib"
+        ws2_32 userenv advapi32)
+target_include_directories(${LIBRARY} PRIVATE
+        ${CMAKE_SOURCE_DIR})
+install(TARGETS ${LIBRARY} LIBRARY DESTINATION cotton2k)

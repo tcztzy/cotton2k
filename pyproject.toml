@@ -18,11 +18,13 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.9"
 PySimpleGUI = { version = "^4.30", optional = true }
+Cython = "^0.29.21"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.7.1"
 pytest = "^6.1.1"
 pytest-cov = "^2.10.1"
+scikit-build = "^0.11.1"
 
 [tool.poetry.extras]
 gui = ["PySimpleGUI"]
@@ -30,7 +32,6 @@ gui = ["PySimpleGUI"]
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
 
 [tool.isort]
 profile = "black"
