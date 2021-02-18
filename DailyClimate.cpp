@@ -42,12 +42,6 @@ extern "C"
     void EvapoTranspiration(State &, double, double, double, double, double);
 }
 
-
-//     Definition of file scope variables:
-double declination, // daily declination angle, in radians.
-    sunr,           // time of sunrise, hours.
-    suns,           // time of sunset, hours.
-    tmpisr;         // extraterrestrial radiation, W / m2.
 //////////////////////////////////////////////////////////////////////////////
 void DayClim(Simulation &sim, uint32_t u)
 //     The function DayClim() is called daily from SimulateThisDay(). It calls the
@@ -63,6 +57,10 @@ void DayClim(Simulation &sim, uint32_t u)
 {
     State &state = sim.states[u];
     //     Compute day length and related variables:
+    double declination; // daily declination angle, in radians.
+    double sunr;        // time of sunrise, hours.
+    double suns;        // time of sunset, hours.
+    double tmpisr;      // extraterrestrial radiation, W / m2.
     ComputeDayLength(state.daynum, sim.year, sim.latitude, sim.longitude, declination, tmpisr, state.solar_noon, state.day_length, sunr, suns);
     //
     double xlat = sim.latitude * pi / 180;    // latitude converted to radians.
@@ -127,5 +125,5 @@ void DayClim(Simulation &sim, uint32_t u)
     //     Compute average daily temperature, using function AverageAirTemperatures.
     AverageAirTemperatures(state.hours, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
     //     Compute potential evapotranspiration.
-    EvapoTranspiration(sim.states[u], sim.latitude, sim.elevation, declination, tmpisr, SitePar[7]);
+    EvapoTranspiration(state, sim.latitude, sim.elevation, declination, tmpisr, SitePar[7]);
 }
