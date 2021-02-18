@@ -22,7 +22,7 @@ void SoilHeatFlux(double, int, int, int, int, double);
 tuple<int> PredictEmergence(Simulation &, int, const string &, const int &, const int &, const int &);
 
 //////////////////////////
-void ColumnShading(Simulation &sim, uint32_t u, double rracol[20])
+void ColumnShading(State &state, double rracol[20], double day_emerge, double row_space, unsigned int plant_row_column)
 //     This function computes light interception by crop canopy and shading
 //  of soil columns by the plants. It is called from SimulateThisDay().
 //
@@ -32,7 +32,7 @@ void ColumnShading(Simulation &sim, uint32_t u, double rracol[20])
 {
     //     Before emergence: no light interception and no shading. LightIntercept is
     //  assigned zero, and the rracol array is assigned 1.
-    if (sim.day_start + u < sim.day_emerge || isw <= 0 || sim.day_emerge <= 0)
+    if (state.daynum < day_emerge || isw <= 0 || day_emerge <= 0)
     {
         LightIntercept = 0;
         for (int k = 0; k < nk; k++)
@@ -41,14 +41,14 @@ void ColumnShading(Simulation &sim, uint32_t u, double rracol[20])
     }
     //     Compute the maximum leaf area index until this day (lmax).
     static double lmax; // maximum leaf area index.
-    if (sim.day_start + u <= sim.day_emerge)
+    if (state.daynum <= day_emerge)
         lmax = 0;
     else if (LeafAreaIndex > lmax)
         lmax = LeafAreaIndex;
     //     Light interception is computed by two methods:
     //     (1) It is assumed to be proportional to the ratio of plant height to row spacing.
     double zint; // light interception computed from plant height.
-    zint = 1.0756 * sim.states[u].plant_height / sim.row_space;
+    zint = 1.0756 * state.plant_height / row_space;
     //     (2) It is computed as a function of leaf area index. If LeafAreaIndex is not greater
     //  than 0.5 lfint is a linear function of it.
     double lfint; // light interception computed from leaf area index.
@@ -78,30 +78,30 @@ void ColumnShading(Simulation &sim, uint32_t u, double rracol[20])
     int j, k0;     // number of columns from plant row location.
     for (int k = 0; k < nk; k++)
     {
-        if (k <= sim.plant_row_column)
+        if (k <= plant_row_column)
         {
             //     When the column is on the left of the plant row.
-            j = sim.plant_row_column - k;
-            sw += wk(j, sim.row_space);
+            j = plant_row_column - k;
+            sw += wk(j, row_space);
             sw0 = sw;
-            sw1 = sw - wk(j, sim.row_space) / 2;
+            sw1 = sw - wk(j, row_space) / 2;
             k0 = j;
         }
         else
         {
             //     When the column is on the right of the plant row.
-            sw += wk(k, sim.row_space);
-            sw1 = sw - sw0 - wk(k, sim.row_space) / 2;
+            sw += wk(k, row_space);
+            sw1 = sw - sw0 - wk(k, row_space) / 2;
             k0 = k;
         }
         //     Relative shading is computed as a function of sw1 and plant height, modified by LightIntercept.
         //  rracol is the fraction of radiation received by a soil column. Iys minimum value is 0.05 .
         double shade; // relative shading of a soil column.
-        if (sw1 >= sim.states[u].plant_height)
+        if (sw1 >= state.plant_height)
             shade = 0;
         else
         {
-            shade = 1 - (sw1 / sim.states[u].plant_height) * (sw1 / sim.states[u].plant_height);
+            shade = 1 - (sw1 / state.plant_height) * (sw1 / state.plant_height);
             if (LightIntercept < zint && LeafAreaIndex < lmax)
                 shade = shade * LightIntercept / zint;
         }

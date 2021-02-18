@@ -298,7 +298,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     if (Kday < 0)
         Kday = 0;
     //     The following functions are executed each day (also before emergence).
-    ColumnShading(sim, u, rracol);   // computes light interception and soil shading.
+    ColumnShading(state, rracol, sim.day_emerge, sim.row_space, sim.plant_row_column);   // computes light interception and soil shading.
     DayClim(sim, u);                 // computes climate variables for today.
     SoilTemperature(sim, u, rracol); // executes all modules of soil and canopy temperature.
     SoilProcedures(sim, u);          // executes all other soil processes.
