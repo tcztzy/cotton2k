@@ -312,11 +312,11 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
         sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours); // physiological days increment for this day. computes physiological age
         Defoliate(sim, u);                                             // effects of defoliants applied.
         Stress(sim, u);                                                // computes water stress factors.
-        GetNetPhotosynthesis(sim, u, sim.states[u].day_length);        // computes net photosynthesis.
-        PlantGrowth(sim, u, 3, sim.states[u].day_length);              // executes all modules of plant growth.
+        GetNetPhotosynthesis(sim, u, state.day_length);        // computes net photosynthesis.
+        PlantGrowth(sim, u, 3, state.day_length);              // executes all modules of plant growth.
         CottonPhenology(sim, u);                                       // executes all modules of plant phenology.
         PlantNitrogen(sim, u);                                         // computes plant nitrogen allocation.
-        CheckDryMatterBal(sim.states[u], sim.profile_name);            // checks plant dry matter balance.
+        CheckDryMatterBal(state, sim.profile_name);            // checks plant dry matter balance.
                                                                        //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
                                                                        //  nitrogen averages by layer, and write this information to files.
     }
