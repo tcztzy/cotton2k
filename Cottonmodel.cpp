@@ -33,22 +33,6 @@ extern "C"
 
 C2KApp::C2KApp() = default;
 
-C2KApp theApp;
-
-void C2KApp::RunTheModel(const char *profile)
-//     This function calls the following functions for each profile:
-//          ReadInput(), DailySimulation() and  DataOutput()
-//
-{
-    // Read the input data for this simulation
-    Simulation sim = ReadInput(profile);
-    // Do daily simulations
-    DailySimulation(sim);
-    //     Write output data
-    DataOutput(sim);
-    output_json(sim);
-}
-
 void C2KApp::DailySimulation(Simulation &sim)
 //     This function controls the dynamic phase of the simulation.
 //     It calls the functions:
