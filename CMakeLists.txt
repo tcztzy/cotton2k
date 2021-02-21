@@ -8,7 +8,7 @@ add_definitions(-D_AFXDLL)
 set(CMAKE_MFC_FLAG 2)
 
 # Define the SOURCE_FILES
-file(GLOB SOURCE_FILES "*.cpp" "*.h" "cotton2k.pyx")
+file(GLOB SOURCE_FILES "*.cpp" "*.h")
 
 # Prefer virtualenv
 set(Python_FIND_VIRTUALENV ONLY)
@@ -45,4 +45,4 @@ target_link_libraries(${LIBRARY}
         ws2_32 userenv advapi32)
 target_include_directories(${LIBRARY} PRIVATE
         ${CMAKE_SOURCE_DIR})
-install(TARGETS ${LIBRARY} LIBRARY DESTINATION cotton2k)
+install(TARGETS ${LIBRARY} LIBRARY DESTINATION ${PYTHON_RELATIVE_SITE_PACKAGES_DIR})

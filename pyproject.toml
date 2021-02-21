@@ -1,37 +1,24 @@
-[tool.poetry]
+[project]
 name = "cotton2k"
 version = "4.0.0a1"
 description = "Reimplementation for Cotton2k simulation model"
-authors = ["Tang Ziya <tcztzy@gmail.com>"]
+authors = [{ name = "Tang Ziya", email = "<tcztzy@gmail.com>" }]
 license = "AGPL-3.0-or-later"
 readme = "README.rst"
-repository = "https://github.com/tcztzy/cotton2k"
-keywords = [
-    "cotton", "simulation", "model"
-]
+requires-python = ">=3.9"
+keywords = ["cotton", "simulation", "model"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-PySimpleGUI = { version = "^4.30", optional = true }
-Cython = "^0.29.21"
-
-[tool.poetry.dev-dependencies]
-pre-commit = "^2.7.1"
-pytest = "^6.1.1"
-pytest-cov = "^2.10.1"
-scikit-build = "^0.11.1"
-
-[tool.poetry.extras]
-gui = ["PySimpleGUI"]
+[project.urls]
+homepage = "https://github.com/tcztzy/cotton2k"
+repository = "https://github.com/tcztzy/cotton2k"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "wheel", "toml", "scikit-build", "cmake", "ninja", "Cython"]
 
 [tool.isort]
 profile = "black"

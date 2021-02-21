@@ -23,6 +23,11 @@ coverage.xml
 # VS packages installation location
 /packages/
 
+# distribution
+/dist/
+
+# Sci-kit build
+/_skbuild/
 
 # Added by cargo
 
