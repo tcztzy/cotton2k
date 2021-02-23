@@ -34,3 +34,10 @@ disable = [
 
 [tool.pylint.FORMAT]
 max-line-length = 88
+
+[tool.coverage.run]
+branch = true
+omit = ["**/cotton2k/__main__.py"]
+
+[tool.coverage.report]
+fail_under = 100
