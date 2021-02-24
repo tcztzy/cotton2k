@@ -25,6 +25,7 @@ coverage.xml
 
 # distribution
 /dist/
+/MANIFEST
 
 # Sci-kit build
 /_skbuild/
