@@ -1,7 +1,6 @@
 use super::util::DoyToDate;
-use super::{Simulation, State};
+use super::{Simulation};
 use chrono::prelude::*;
-use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::ffi::CStr;
 use std::fs::{File, OpenOptions};
 use std::io::prelude::*;
