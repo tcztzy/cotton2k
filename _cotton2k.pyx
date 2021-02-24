@@ -1,5 +1,4 @@
-from functools import cache
-from datetime import date, timedelta
+from datetime import datetime
 
 cdef extern from "State.h":
     ctypedef struct State:
@@ -32,17 +31,40 @@ cdef extern from "Cottonmodel.h":
 cdef class _Simulation:
     cdef Simulation _sim
 
+    def _doy2date(self, j):
+        return datetime.strptime(f"{self.year} {j}", "%Y %j").date()
+
+    @property
+    def year(self):
+        return self._sim.year
+
+    @year.setter
+    def year(self, year):
+        self._sim.year = year
+
     @property
     def start_date(self):
-        return date(self._sim.year, 1, 1) + timedelta(days=self._sim.day_start - 1)
+        return self._doy2date(self._sim.day_start)
+
+    @start_date.setter
+    def start_date(self, d):
+        self._sim.day_start = d.timetuple().tm_yday
 
     @property
     def end_date(self):
-        return date(self._sim.year, 1, 1) + timedelta(days=self._sim.day_finish - 1)
+        return self._doy2date(self._sim.day_finish)
+
+    @end_date.setter
+    def end_date(self, d):
+        self._sim.day_finish = d.timetuple().tm_yday
 
     @property
     def emerge_date(self):
-        return date(self._sim.year, 1, 1) + timedelta(days=self._sim.day_emerge - 1)
+        return self._doy2date(self._sim.day_emerge)
+
+    @emerge_date.setter
+    def emerge_date(self, d):
+        self._sim.day_emerge = d.timetuple().tm_yday
 
     @property
     def states(self):
