@@ -18,8 +18,4 @@ urls = project.pop("urls")
 project["url"] = urls.pop("homepage")
 project["project_urls"] = urls
 print(project)
-setup(
-    packages=find_packages("src"),
-    package_dir={"": "src"},
-    **project
-)
+setup(packages=["cotton2k"], package_dir={"": "src"}, **project)

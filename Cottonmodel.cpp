@@ -26,11 +26,6 @@
 #include "SoilProcedures.h"
 #include "SoilTemperature.h"
 
-extern "C"
-{
-    void output_json(const Simulation &);
-}
-
 C2KApp::C2KApp() = default;
 
 void C2KApp::DailySimulation(Simulation &sim)
