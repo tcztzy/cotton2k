@@ -32,9 +32,6 @@ cdef extern from "Cottonmodel.h":
 cdef class _Simulation:
     cdef Simulation _sim
 
-    def __init__(self, **kwargs):
-        pass
-
     @property
     def start_date(self):
         return date(self._sim.year, 1, 1) + timedelta(days=self._sim.day_start - 1)
