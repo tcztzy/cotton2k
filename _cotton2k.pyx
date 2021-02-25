@@ -66,9 +66,7 @@ cdef extern from "Cottonmodel.h":
 
     cdef cppclass C2KApp:
         C2KApp() except +
-        void RunTheModel(const char *)
         void DailySimulation(Simulation &)
-        void SimulateThisDay(Simulation &, const int &)
 
 cdef class _Simulation:
     cdef Simulation _sim
