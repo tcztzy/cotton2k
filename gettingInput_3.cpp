@@ -11,7 +11,7 @@
 #include "GeneralFunctions.h"
 #include "Simulation.h"
 
-int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
+static int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 
 extern "C"
 {
@@ -154,16 +154,16 @@ int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const string &AgrInputFileName)
-//     This function opens the agricultural inputs data file and reads it. 
+//     This function opens the agricultural inputs data file and reads it.
 //  It is called by ReadInput() once at the beginning of the simulation.
 //
-//     The following common variables are referenced: 
+//     The following common variables are referenced:
 //  AgrInputFileName, iyear
 //     The following common variables are set:
-//  CultivationDate, CultivationDepth, DayFirstDef, DayStartPredIrrig, DayStopPredIrrig, 
-//  DayWaterTableInput, DefoliationDate, DefoliationMethod, DefoliantAppRate, 
-//  ElCondSatSoil, Irrig (structure), IrrigationDepth, IrrigMethod, LevelsOfWaterTable, 
-//  LocationColumnDrip, LocationLayerDrip, MaxIrrigation, MinDaysBetweenIrrig, 
+//  CultivationDate, CultivationDepth, DayFirstDef, DayStartPredIrrig, DayStopPredIrrig,
+//  DayWaterTableInput, DefoliationDate, DefoliationMethod, DefoliantAppRate,
+//  ElCondSatSoil, Irrig (structure), IrrigationDepth, IrrigMethod, LevelsOfWaterTable,
+//  LocationColumnDrip, LocationLayerDrip, MaxIrrigation, MinDaysBetweenIrrig,
 //  NFertilizer (structure), NumIrrigations, NumNitApps, NumWaterTableData.
 //
 {
@@ -180,7 +180,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
         m_AgrInptDesc.erase(m_AgrInptDesc.find_last_not_of(" \r\n\t\f\v") + 1);
     } else
         m_AgrInptDesc = "";
-//   
+//
     NumNitApps = 0;
     NumIrrigations = 0;
     NumWaterTableData = 0;
@@ -195,7 +195,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
         string StrTemp = GetLineData(DataFile);
 //     The type of input is defined from the first 5 characters of the line.
         if (StrTemp.substr(0, 5) == "IRRIG") {
-//     Structure Irrigation {int day, method, LocationColumnDrip, LocationLayerDrip; 
+//     Structure Irrigation {int day, method, LocationColumnDrip, LocationLayerDrip;
 //                           double amount; }   Irrig[150];
             cdate = StrTemp.substr(19, 11);
             sim.irrigation[NumIrrigations].day = DateToDoy(cdate.c_str(), sim.year);     // day of year of this irrigation

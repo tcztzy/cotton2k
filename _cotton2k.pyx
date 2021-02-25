@@ -1,10 +1,34 @@
+from libcpp cimport bool
+from libcpp.string cimport string
+from libc.stdlib cimport malloc
+
 from datetime import datetime
+
+cdef extern void WriteInitialInputData(Simulation &, bool, double, double, double, const char *, int, const char *, const char *, const char *, const char *, const char *, const char *)
+
+cdef extern from "global.h":
+    void InitializeGlobal()
+    int OutIndex[24]
+    double PlantPopulation
+    double TotalSoilNo3N
+    double TotalSoilNh4N
+    double TotalSoilUreaN
+    double SoilNitrogenAtStart
+    double PlantWeightAtStart
+    double TotalRootWeight
+    double TotalStemWeight
+    double TotalLeafWeight
+    double ReserveC
 
 cdef extern from "State.h":
     ctypedef struct State:
         double plant_height
         double plant_weight
         double lint_yield
+
+cdef extern from "Climate.h":
+    ctypedef struct ClimateStruct:
+        pass
 
 cdef extern from "Simulation.h":
     ctypedef struct Simulation:
@@ -13,9 +37,27 @@ cdef extern from "Simulation.h":
         unsigned int day_finish
         unsigned int day_emerge
         State *states
+        ClimateStruct climate[400]
 
-cdef extern from "Input.h":
-    Simulation ReadInput(const char *)
+cdef extern from "GettingInput_1.cpp":
+    Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &)
+    void ReadCalibrationData()
+    void InitializeGrid(Simulation &)
+    double PlantsPerM
+    double SkipRowWidth
+    string SiteName
+    string VarName
+
+cdef extern from "GettingInput_2.cpp":
+    void ReadSoilImpedance(Simulation &)
+    void InitSoil(const string &)
+    void InitializeSoilTemperature()
+    void InitializeSoilData(Simulation &, const string &)
+    void InitializeRootData(Simulation &)
+
+cdef extern from "gettingInput_3.cpp":
+    int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400])
+    void ReadAgriculturalInput(Simulation &, const string &, const string &)
 
 cdef extern from "Output.h":
     void DataOutput(Simulation &)
@@ -70,11 +112,40 @@ cdef class _Simulation:
     def states(self):
         return (self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1))
 
-def run(str profile):
-    app = new C2KApp()
-    sim = ReadInput(profile.encode("utf-8"))
-    app.DailySimulation(sim);
-    DataOutput(sim)
-    py_sim = _Simulation()
-    py_sim._sim = sim
-    return py_sim
+    def run(self):
+        app = new C2KApp()
+        app.DailySimulation(self._sim)
+        # call DataOutput here because global variables varnish after run
+        DataOutput(self._sim)
+
+
+cdef Simulation ReadInput(const char *ProfileName):
+    """This is the main function for reading input."""
+    cdef string ActWthFileName
+    cdef string PrdWthFileName
+    cdef string SoilHydFileName
+    cdef string SoilInitFileName
+    cdef string AgrInputFileName
+    InitializeGlobal()
+    sim = ReadProfileFile(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName)
+    sim.states = <State *> malloc(sizeof(State) * sim.day_finish - sim.day_start + 1)
+    ReadCalibrationData()
+    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, sim.day_start, sim.climate)
+    InitializeGrid(sim)
+    ReadSoilImpedance(sim)
+    WriteInitialInputData(sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str())
+    InitSoil(SoilInitFileName)
+    ReadAgriculturalInput(sim, ProfileName, AgrInputFileName)
+    InitializeSoilData(sim, SoilHydFileName)
+    InitializeSoilTemperature()
+    InitializeRootData(sim)
+    # initialize some variables at the start of simulation.
+    SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN
+    PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC
+    return sim
+
+
+def read_input(str profile):
+    sim = _Simulation()
+    sim._sim = ReadInput(profile.encode("utf-8"))
+    return sim

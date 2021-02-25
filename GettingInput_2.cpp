@@ -12,12 +12,12 @@
 #include "GeneralFunctions.h"
 #include "Input.h"
 
-int ReadSoilHydraulicData(const string &);
+static int ReadSoilHydraulicData(const string &);
 
 //
 // Definitions of variables with file scope:
 //
-double condfc[9],        // hydraulic conductivity at field capacity of horizon layers, cm per day.
+static double condfc[9],        // hydraulic conductivity at field capacity of horizon layers, cm per day.
 h2oint[14],          // initial soil water content, percent of field capacity,
 // defined by input for consecutive 15 cm soil layers.
 ldepth[9],           // depth from soil surface to the end of horizon layers, cm.
@@ -35,7 +35,7 @@ rnno3[14];           // residual nitrogen as nitrate in soil at beginning of sea
 // defined by input for consecutive 15 cm soil layers.
 ////////////////////////////////////////////////////////////////////////////////////
 void ReadSoilImpedance(Simulation & sim)
-//     This function opens the soil root impedance data file and reads it. 
+//     This function opens the soil root impedance data file and reads it.
 //  It is called from ReadInput(), and executed once at the beginning of the simulation.
 //  The variables read here are later used to compute soil impedance to root growth.
 //
@@ -109,12 +109,12 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //     It calls ReadSoilHydraulicData().
 //
 //     Global and file scope variables referenced:
-//        airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, Date, dl, h2oint, ldepth, 
+//        airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, Date, dl, h2oint, ldepth,
 //        nl, oma, OutIndex, psisfc, wk.
 //     Global and file scope variables set:
-//        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter, InitialTotalSoilWater, 
-//        MaxWaterCapacity, NO3FlowFraction, PoreSpace, rnnh4, rnno3, SaturatedHydCond, 
-//        SoilHorizonNum, thad, thetar, thetas, thts, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN, 
+//        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter, InitialTotalSoilWater,
+//        MaxWaterCapacity, NO3FlowFraction, PoreSpace, rnnh4, rnno3, SaturatedHydCond,
+//        SoilHorizonNum, thad, thetar, thetas, thts, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN,
 //        VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent
 {
     int lyrsol;  // the number of soil horizons in the slab (down to 2 m).
@@ -257,7 +257,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 int ReadSoilHydraulicData(const string &SoilHydFileName)
 //     This functions reads the soil hydrology file. It is called by InitializeSoilData().
 //     Global or file scope Variables set here:
-//  airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, conmax, ldepth, pclay, psand, 
+//  airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, conmax, ldepth, pclay, psand,
 //  psidra, psisfc, RatioImplicit, SaturatedHydCond, thetas
 //     Return value = number of soilhorizons (lyrsol)
 {
@@ -279,7 +279,7 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
         pclay[i] = 0;
         psand[i] = 0;
     }
-//     The following code reads data from the file to the variables: 
+//     The following code reads data from the file to the variables:
 //     -Reading line 1--------------------------------------------------------------//
     string Dummy = GetLineData(DataFile);
     string m_fileDesc = ""; // Description of the Hydraulic file
@@ -320,7 +320,7 @@ int ReadSoilHydraulicData(const string &SoilHydFileName)
     return lyrsol;
 }
 
-void init_root_data(SoilCell soil_cells[40][20], uint32_t plant_row_column, double mul) {
+static void init_root_data(SoilCell soil_cells[40][20], uint32_t plant_row_column, double mul) {
     for (int l = 0; l < 40; l++) {
         for (int k = 0; k < 20; k++) {
             soil_cells[l][k].root = {0, 1, 0, 0, 0, {0, 0, 0}};
@@ -361,15 +361,15 @@ void init_root_data(SoilCell soil_cells[40][20], uint32_t plant_row_column, doub
 //////////////////////////////////////////////////////////
 void InitializeRootData(Simulation & sim)
 //     This function initializes the root submodel parameters and variables. It is called
-//  by ReadInput(). it is executed once at the beginning of the simulation. 
+//  by ReadInput(). it is executed once at the beginning of the simulation.
 //
 //     Global or file scope variables referenced:
 //        dl, PlantRowColumn, nk, nl, PerPlantArea.
 //     Global or file scope variables set:
 //        ActualRootGrowth[maxl][maxk], DepthLastRootLayer,
-//	      LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots, NumRootAgeGroups, 
-//        PotGroRoots[maxl][maxk], RootAge[maxl][maxk], RootColNumLeft[maxl], 
-//        RootColNumRight[maxl], RootGroFactor[maxl][maxk], RootWeight[maxl][maxk][3], 
+//	      LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots, NumRootAgeGroups,
+//        PotGroRoots[maxl][maxk], RootAge[maxl][maxk], RootColNumLeft[maxl],
+//        RootColNumRight[maxl], RootGroFactor[maxl][maxk], RootWeight[maxl][maxk][3],
 //        TapRootLength, TotalRootWeight.
 //
 {
@@ -411,7 +411,7 @@ void InitializeRootData(Simulation & sim)
     TotalRootWeight = 0;
     for (int l = 0; l < 7; l++) {
         DepthLastRootLayer += dl(l); //compute total depth to the last layer with roots (DepthLastRootLayer).
-//     For each soil soil cell with roots, compute total root weight 
+//     For each soil soil cell with roots, compute total root weight
 //  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
             for (int i = 0; i < 3; i++) {
@@ -429,13 +429,13 @@ void InitializeRootData(Simulation & sim)
 
 //////////////////////////////////////////////////////////
 void InitializeSoilTemperature()
-//     This function initializes the variables needed for the simulation of 
+//     This function initializes the variables needed for the simulation of
 // soil temperature, and variables used by functions ThermalCondSoil() and SoilHeatFlux().
-//     It is executed once at the beginning of the simulation. It is called by 
+//     It is executed once at the beginning of the simulation. It is called by
 // ReadInput() and it calls form().
 //
 //     Global and file scope variables set:
-//	      MarginalWaterContent[maxl], dclay, dsand, HeatCapacitySoilSolid[maxl], 
+//	      MarginalWaterContent[maxl], dclay, dsand, HeatCapacitySoilSolid[maxl],
 //        HeatCondDrySoil[maxl], ClayVolumeFraction[maxl], SandVolumeFraction[maxl];
 //
 //     Global and file scope variables referenced:

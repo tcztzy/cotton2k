@@ -13,89 +13,42 @@
 
 using namespace std;
 
-Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &);
+static Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &);
 
-void ReadCalibrationData();
+static void ReadCalibrationData();
 
-void InitializeGrid(Simulation &);
+static void InitializeGrid(Simulation &);
 
 extern "C"
 {
     void WriteInitialInputData(Simulation &, bool, double, double, double, const char *, int, const char *, const char *, const char *, const char *, const char *, const char *);
 }
 // GettingInput_2
-void InitSoil(const string &);
+static void InitSoil(const string &);
 
-void ReadSoilImpedance(Simulation &);
+static void ReadSoilImpedance(Simulation &);
 
-void InitializeSoilData(Simulation &, const string &);
+static void InitializeSoilData(Simulation &, const string &);
 
-void InitializeSoilTemperature();
+static void InitializeSoilTemperature();
 
-void InitializeRootData(Simulation &);
+static void InitializeRootData(Simulation &);
 
 // GettingInput_3
-int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400]);
+static int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400]);
 
-void ReadAgriculturalInput(Simulation &, const string &, const string &);
+static void ReadAgriculturalInput(Simulation &, const string &, const string &);
 
 //
 // Definitions of File scope variables:
-int nSiteNum,               // index number for site.
+static int nSiteNum,               // index number for site.
     LastDayOfActualWeather, // last day of actual weather.
     nVarNum;                // index number for cultivar.
-double SkipRowWidth,        // the smaller distance between skip rows, cm
+static double SkipRowWidth,        // the smaller distance between skip rows, cm
     PlantsPerM;             // average number of plants pre meter of row.
-string m_mulchdata,         // string containing input data of mulching
+static string m_mulchdata,         // string containing input data of mulching
     VarName,                // name of the cultivar
     SiteName;               // name of the site
-/////////////////////////////////////////////////////////////
-Simulation ReadInput(const char *ProfileName)
-//     This is the main function for reading input. It is called from RunTheModel().
-//     The following global variables are set here:
-//        PlantWeightAtStart , SoilNitrogenAtStart
-//     The following global variables are referenced here:
-//        ReserveC, TotalLeafWeight, TotalRootWeight, TotalSoilNh4N, TotalSoilNo3N,
-//        TotalSoilUreaN, TotalStemWeight.
-//
-{
-    //     The following functions are called to read initial values of some variables from
-    //  input files, or initialize them otherwise.
-    uint32_t
-        DayEmerge,
-        DayStart,  // Date (DOY) to start simulation.
-        DayFinish, // Date (DOY) to end simulation.
-        DayPlant,
-        DayStartSoilMaps,
-        DayStopSoilMaps, DayStartCO2, DayEndCO2, DayStartMulch, DayEndMulch, MulchIndicator;
-    string
-        ActWthFileName,   // name of input file with actual weather data.
-        PrdWthFileName,   // name of input file with predicted weather data.
-        SoilHydFileName,  // name of input file with soil hydrology data.
-        SoilInitFileName, // name of input file with initial soil data.
-        AgrInputFileName; // name of input file with agricultural input data
-    double
-        CO2EnrichmentFactor,
-        Latitude,
-        Longitude, MulchTranSW, MulchTranLW;
-    InitializeGlobal();
-    Simulation sim = ReadProfileFile(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName);
-    sim.states = (State *)malloc(sizeof(State) * sim.day_finish - sim.day_start + 1);
-    ReadCalibrationData();
-    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, sim.day_start, sim.climate);
-    InitializeGrid(sim);
-    ReadSoilImpedance(sim);
-    WriteInitialInputData(sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str());
-    InitSoil(SoilInitFileName);
-    ReadAgriculturalInput(sim, ProfileName, AgrInputFileName);
-    InitializeSoilData(sim, SoilHydFileName);
-    InitializeSoilTemperature();
-    InitializeRootData(sim);
-    //     initialize some variables at the start of simulation.
-    SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
-    PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
-    return sim;
-}
 
 /////////////////////////////////////////////////////////////////////////////
 Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, string &PrdWthFileName, string &SoilHydFileName,
