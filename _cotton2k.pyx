@@ -57,7 +57,7 @@ cdef extern from "GettingInput_2.cpp":
 
 cdef extern from "gettingInput_3.cpp":
     int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400])
-    void ReadAgriculturalInput(Simulation &, const string &, const string &)
+    void ReadAgriculturalInput(Simulation &, const string &)
 
 cdef extern from "Output.h":
     void DataOutput(Simulation &)
@@ -117,7 +117,7 @@ cdef class _Simulation:
         DataOutput(self._sim)
 
 
-cdef Simulation ReadInput(const char *ProfileName):
+def read_input(str profile):
     """This is the main function for reading input."""
     cdef string ActWthFileName
     cdef string PrdWthFileName
@@ -125,25 +125,21 @@ cdef Simulation ReadInput(const char *ProfileName):
     cdef string SoilInitFileName
     cdef string AgrInputFileName
     InitializeGlobal()
-    sim = ReadProfileFile(ProfileName, ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName)
-    sim.states = <State *> malloc(sizeof(State) * sim.day_finish - sim.day_start + 1)
+    _sim = ReadProfileFile(profile.encode("utf-8"), ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName)
+    _sim.states = <State *> malloc(sizeof(State) * _sim.day_finish - _sim.day_start + 1)
     ReadCalibrationData()
-    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, sim.day_start, sim.climate)
-    InitializeGrid(sim)
-    ReadSoilImpedance(sim)
-    WriteInitialInputData(sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str())
+    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, _sim.day_start, _sim.climate)
+    InitializeGrid(_sim)
+    ReadSoilImpedance(_sim)
+    WriteInitialInputData(_sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str())
     InitSoil(SoilInitFileName)
-    ReadAgriculturalInput(sim, ProfileName, AgrInputFileName)
-    InitializeSoilData(sim, SoilHydFileName)
+    ReadAgriculturalInput(_sim, AgrInputFileName)
+    InitializeSoilData(_sim, SoilHydFileName)
     InitializeSoilTemperature()
-    InitializeRootData(sim)
+    InitializeRootData(_sim)
     # initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN
     PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC
-    return sim
-
-
-def read_input(str profile):
     sim = _Simulation()
-    sim._sim = ReadInput(profile.encode("utf-8"))
+    sim._sim = _sim
     return sim

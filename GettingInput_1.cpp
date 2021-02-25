@@ -37,7 +37,7 @@ static void InitializeRootData(Simulation &);
 // GettingInput_3
 static int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400]);
 
-static void ReadAgriculturalInput(Simulation &, const string &, const string &);
+static void ReadAgriculturalInput(Simulation &, const string &);
 
 //
 // Definitions of File scope variables:

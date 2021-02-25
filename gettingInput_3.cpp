@@ -153,7 +153,7 @@ int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const string &AgrInputFileName)
+void ReadAgriculturalInput(Simulation &sim, const string &AgrInputFileName)
 //     This function opens the agricultural inputs data file and reads it.
 //  It is called by ReadInput() once at the beginning of the simulation.
 //
@@ -309,7 +309,7 @@ void ReadAgriculturalInput(Simulation &sim, const string &ProfileName, const str
     }  //  end while DataFile
 //
 //     Writing of Agricultural Input Data to file B01:
-    ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
+    ofstream File20(fs::path("output") / (string(sim.profile_name) + ".B01"), ios::app);
     if (NumIrrigations > 0)
 //     Write irrigations set by input:
     {
