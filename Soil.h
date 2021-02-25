@@ -13,6 +13,7 @@ typedef struct RootStruct
 typedef struct SoilCellStruct
 {
     double nitrate_nitrogen_content; // volumetric nitrate nitrogen content of a soil cell, mg N cm-3.
+    double fresh_organic_matter;     // fresh organic matter in the soil, mg / cm3.
     Root root;
 } SoilCell;
 

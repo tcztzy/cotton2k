@@ -98,7 +98,6 @@ double
     ElCondSatSoilToday,               // electrical conductivity of saturated extract (mmho/cm) on this day.
     FieldCapacity[maxl],              // volumetric water content of soil at field capacity for each soil layer, cm3 cm-3.
     FoliageTemp[maxk],                // average foliage temperature (oK).
-    FreshOrganicMatter[maxl][maxk],   // fresh organic matter in the soil, mg / cm3.
     FreshOrganicNitrogen[maxl][maxk], // N in fresh organic matter in a soil cell, mg cm-3.
     FruitGrowthRatio,                 // ratio between actual and potential square and boll growth.
     gh2oc[10],                        // input gravimetric soil water content, g g-1, in the soil mechanical impedance table. values have been read from the soil impedance file.

@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void UreaHydrolysis(int, int);
+void UreaHydrolysis(SoilCell &, int, int);
 
 void MineralizeNitrogen(SoilCell &, int, int, const int &, const int &, double);
 
@@ -57,7 +57,7 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
 // Denitrification().
 //
 //     The following global variables are referenced here:
-//       dl, FieldCapacity, nk, nl, SoilTempDailyAvrg, 
+//       dl, FieldCapacity, nk, nl, SoilTempDailyAvrg,
 //       VolWaterContent, VolNh4NContent, VolNo3NContent, VolUreaNContent.
 {
     static double depth[maxl]; // depth to the end of each layer.
@@ -69,12 +69,12 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
             depth[l] = sumdl;
         }
     }
-//     For each soil cell: call functions UreaHydrolysis(), MineralizeNitrogen(), 
+//     For each soil cell: call functions UreaHydrolysis(), MineralizeNitrogen(),
 //  Nitrification() and Denitrification().
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++) {
             if (VolUreaNContent[l][k] > 0)
-                UreaHydrolysis(l, k);
+                UreaHydrolysis(sim.states[u].soil.cells[l][k], l, k);
             MineralizeNitrogen(sim.states[u].soil.cells[l][k], l, k, sim.states[u].daynum, sim.day_start, sim.row_space);
             if (VolNh4NContent[l][k] > 0.00001)
                 Nitrification(sim.states[u].soil.cells[l][k], l, k, depth[l]);
@@ -88,16 +88,16 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
 }
 
 //////////////////////////
-void UreaHydrolysis(int l, int k)
+void UreaHydrolysis(SoilCell &soil_cell, int l, int k)
 //     This function computes the hydrolysis of urea to ammonium in the soil.
 //  It is called by function SoilNitrogen(). It calls the function SoilWaterEffect().
 //     The following procedure is based on the CERES routine, as
 //  documented by Godwin and Jones (1991).
 //
 //     The following global variables are referenced here:
-//       BulkDensity, FieldCapacity, FreshOrganicMatter, HumusOrganicMatter, 
+//       BulkDensity, FieldCapacity, FreshOrganicMatter, HumusOrganicMatter,
 //       SoilHorizonNum, SoilTempDailyAvrg, thetar, thts, VolWaterContent.
-//     The following global variables are set here: 
+//     The following global variables are set here:
 //       VolNh4NContent, VolUreaNContent.
 //     The arguments (k, l) are soil column and layer numbers.
 {
@@ -112,15 +112,15 @@ void UreaHydrolysis(int l, int k)
 //  sum of stable and fresh organic matter, assuming 0.4 carbon content in soil organic matter.
     int j = SoilHorizonNum[l]; // profile horizon number for this soil layer.
     double oc; // organic carbon in the soil (% by weight).
-    oc = 0.4 * (FreshOrganicMatter[l][k] + HumusOrganicMatter[l][k]) * 0.1 / BulkDensity[j];
+    oc = 0.4 * (soil_cell.fresh_organic_matter + HumusOrganicMatter[l][k]) * 0.1 / BulkDensity[j];
 //     Compute the potential rate of hydrolysis of urea. It is assumed
 //  that the potential rate will not be lower than ak0 = 0.25 .
     double ak;  // potential rate of urea hydrolysis (day-1).
     ak = cak1 + cak2 * oc;
     if (ak < ak0)
         ak = ak0;
-//     Compute the effect of soil moisture using function SoilWaterEffect on the rate of urea 
-//  hydrolysis. The constant swf1 is added to the soil moisture function for mineralization, 
+//     Compute the effect of soil moisture using function SoilWaterEffect on the rate of urea
+//  hydrolysis. The constant swf1 is added to the soil moisture function for mineralization,
     double swf; // soil moisture effect on rate of urea hydrolysis.
     swf = SoilWaterEffect(VolWaterContent[l][k], FieldCapacity[l], thetar[l], thts[l], 0.5) + swf1;
     if (swf < 0)
@@ -145,8 +145,8 @@ void UreaHydrolysis(int l, int k)
     VolNh4NContent[l][k] += hydrur;
 /*********************************************************************
      Note: Since COTTON2K does not require soil pH in the input, the
-  CERES rate equation was modified as follows: 
-     ak is a function of soil organic matter, with two site-dependent 
+  CERES rate equation was modified as follows:
+     ak is a function of soil organic matter, with two site-dependent
   parameters cak1 and cak2. Their values are functions of the prevalent pH:
                cak1 = -1.12 + 0.203 * pH
                cak2 = 0.524 - 0.062 * pH
@@ -161,22 +161,22 @@ void UreaHydrolysis(int l, int k)
 
 ///////////////////////////////////////////
 void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, const int &DayStart, double row_space)
-//     This function computes the mineralization of organic nitrogen in the soil, and the 
-//  immobilization of mineral nitrogen by soil microorganisms. It is called by function 
-//  SoilNitrogen(). 
+//     This function computes the mineralization of organic nitrogen in the soil, and the
+//  immobilization of mineral nitrogen by soil microorganisms. It is called by function
+//  SoilNitrogen().
 //     It calls the following functions: SoilTemperatureEffect(), SoilWaterEffect().
 //     The procedure is based on the CERES routines, as documented by Godwin and Jones (1991).
-//     Note: CERES routines assume freshly incorporated organic matter consists of 20% 
-//  carbohydrates, 70% cellulose, and 10% lignin, with maximum decay rates of 0.2, 0.05 
-//  and 0.0095, respectively. Quemada and Cabrera (1995) suggested decay rates of 0.14, 
+//     Note: CERES routines assume freshly incorporated organic matter consists of 20%
+//  carbohydrates, 70% cellulose, and 10% lignin, with maximum decay rates of 0.2, 0.05
+//  and 0.0095, respectively. Quemada and Cabrera (1995) suggested decay rates of 0.14,
 //  0.0034, and 0.00095 per day for carbohydrates, cellulose and lignin, respectively.
-//     Assuming cotton stalks consist of 20% carbohydrates, 50% cellulose and 30% lignin - 
+//     Assuming cotton stalks consist of 20% carbohydrates, 50% cellulose and 30% lignin -
 //  the average maximum decay rate of FreshOrganicMatter decay rate = 0.03 will be used here.
 //
 //     The following global variables are referenced here:
 //  dl, SoilTempDailyAvrg, wk.
 //     The following global variables are set here:
-//  FreshOrganicMatter, FreshOrganicNitrogen, HumusNitrogen, HumusOrganicMatter, 
+//  FreshOrganicMatter, FreshOrganicNitrogen, HumusNitrogen, HumusOrganicMatter,
 //  MineralizedOrganicN, VolNh4NContent, VolNo3NContent
 //     The arguments (k, l) are soil column and layer numbers.
 {
@@ -189,28 +189,28 @@ void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, co
     const double cparMinNH4 = 0.00025; // mimimum NH4 N remaining after mineralization.
     const double decayRateFresh = 0.03; // decay rate constant for fresh organic matter.
     const double decayRateHumus = 0.000083;// decay rate constant for humic organic matter.
-//     On the first day of simulation set initial values for N in fresh organic 
-//  matter and in humus, assuming C/N ratios of cnfresh = 25 and cnhum = 10, 
+//     On the first day of simulation set initial values for N in fresh organic
+//  matter and in humus, assuming C/N ratios of cnfresh = 25 and cnhum = 10,
 //  respectively. Carbon in soil organic matter is 0.4 of its dry weight.
     if (Daynum <= DayStart) {
-        FreshOrganicNitrogen[l][k] = FreshOrganicMatter[l][k] * 0.4 / cnfresh;
+        FreshOrganicNitrogen[l][k] = soil_cell.fresh_organic_matter * 0.4 / cnfresh;
         HumusNitrogen[l][k] = HumusOrganicMatter[l][k] * 0.4 / cnhum;
     }
 //     This function will not be executed for soil cells with no organic matter in them.
-    if (FreshOrganicMatter[l][k] <= 0 && HumusOrganicMatter[l][k] <= 0)
+    if (soil_cell.fresh_organic_matter <= 0 && HumusOrganicMatter[l][k] <= 0)
         return;
 //
 // **  C/N ratio in soil **
-//     The C/N ratio (cnRatio) is computed for the fresh organic matter and the nitrate and 
-//  ammonium nitrogen in the soil. It is assumed that C/N ratios higher than cnmax reduce the 
-// rate of mineralization. Following the findings of Vigil et al. (1991) the value of cnmax 
-// is set to 13. 
+//     The C/N ratio (cnRatio) is computed for the fresh organic matter and the nitrate and
+//  ammonium nitrogen in the soil. It is assumed that C/N ratios higher than cnmax reduce the
+// rate of mineralization. Following the findings of Vigil et al. (1991) the value of cnmax
+// is set to 13.
     double cnRatio = 1000;    // C/N ratio in fresh organic matter and mineral N in soil.
     double cnRatioEffect = 1; // the effect of C/N ratio on rate of mineralization.
     double totalSoilN;        // total N in the soil cell, excluding the stable humus fraction, mg/cm3
     totalSoilN = FreshOrganicNitrogen[l][k] + soil_cell.nitrate_nitrogen_content + VolNh4NContent[l][k];
     if (totalSoilN > 0) {
-        cnRatio = FreshOrganicMatter[l][k] * 0.4 / totalSoilN;
+        cnRatio = soil_cell.fresh_organic_matter * 0.4 / totalSoilN;
         if (cnRatio >= 1000)
             cnRatioEffect = 0;
         else if (cnRatio > cnmax)
@@ -226,16 +226,16 @@ void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, co
 //     The gross release of dry weight and of N from decomposition of fresh organic matter is computed.
     double grossReleaseN; // gross release of N from decomposition, mg/cm3
     double immobilizationRateN; // immobilization rate of N associated with decay of residues, mg/cm3 .
-    if (FreshOrganicMatter[l][k] > 0.00001) {
-//     The decayRateFresh constant (= 0.03) is modified by soil temperature, soil moisture, 
+    if (soil_cell.fresh_organic_matter > 0.00001) {
+//     The decayRateFresh constant (= 0.03) is modified by soil temperature, soil moisture,
 //  and the C/N ratio effect.
         double g1; // the actual decay rate of fresh organic matter, day-1.
         g1 = tfac * wf * cnRatioEffect * decayRateFresh;
         double grossReleaseDW; // the gross release of dry weight from decomposition, mg/cm3
-        grossReleaseDW = g1 * FreshOrganicMatter[l][k];
+        grossReleaseDW = g1 * soil_cell.fresh_organic_matter;
         grossReleaseN = g1 * FreshOrganicNitrogen[l][k];
-//     The amount of N required for microbial decay of a unit of fresh organic matter suggested 
-//  in CERES is 0.02 (derived from:  C fraction in FreshOrganicMatter (=0.4) * biological 
+//     The amount of N required for microbial decay of a unit of fresh organic matter suggested
+//  in CERES is 0.02 (derived from:  C fraction in FreshOrganicMatter (=0.4) * biological
 //  efficiency of C turnover by microbes (=0.4) * N/C ratio in microbes (=0.125) ). However,
 //  Vigil et al. (1991) suggested that this value is 0.0165.
         const double cparnreq = 0.0165; // The amount of N required for decay of fresh organic matter
@@ -243,7 +243,7 @@ void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, co
 //  by grossReleaseDW to get the amount needed (immobilizationRateN) in mg cm-3. Negative value
 //  indicates that there is enough N for microbial decay.
         immobilizationRateN = grossReleaseDW
-                              * (cparnreq - FreshOrganicNitrogen[l][k] / FreshOrganicMatter[l][k]);
+                              * (cparnreq - FreshOrganicNitrogen[l][k] / soil_cell.fresh_organic_matter);
 //     All computations assume that the amounts of VolNh4NContent and VNO3C will
 //  each not become lower than cparMinNH4 (= 0.00025) .
         double rnac1; // the maximum possible value of immobilizationRateN, mg/cm3 .
@@ -253,7 +253,7 @@ void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, co
         if (immobilizationRateN < 0)
             immobilizationRateN = 0;
 //     FreshOrganicMatter and FreshOrganicNitrogen (the N in it) are now updated.
-        FreshOrganicMatter[l][k] -= grossReleaseDW;
+        soil_cell.fresh_organic_matter -= grossReleaseDW;
         FreshOrganicNitrogen[l][k] += immobilizationRateN - grossReleaseN;
     } else {
         grossReleaseN = 0;
@@ -278,7 +278,7 @@ void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, co
 //     Negative value of netNReleased indicates net N immobilization.
     double netNReleased; // the net N released from all organic sources (mg/cm3).
     netNReleased = (1 - cparHumusN) * grossReleaseN + rhmin - immobilizationRateN;
-//     If the net N released is positive, it is added to the NH4 fraction. MineralizedOrganicN, 
+//     If the net N released is positive, it is added to the NH4 fraction. MineralizedOrganicN,
 //  the accumulated nitrogen released by mineralization in the slab, is updated.
     if (netNReleased > 0) {
         VolNh4NContent[l][k] += netNReleased;
@@ -319,7 +319,7 @@ void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, co
 
 //////////////////////////////////
 void Nitrification(SoilCell &soil_cell, int l, int k, double DepthOfLayer)
-//     This function computes the transformation of soil ammonia nitrogen to nitrate. 
+//     This function computes the transformation of soil ammonia nitrogen to nitrate.
 //  It is called by SoilNitrogen(). It calls the function SoilWaterEffect()
 //
 //     The following global variable is referenced here:    SoilTempDailyAvrg
@@ -340,7 +340,7 @@ void Nitrification(SoilCell &soil_cell, int l, int k, double DepthOfLayer)
         sanc = 1 - exp(-cparsanc * VolNh4NContent[l][k]);
     else
         sanc = 1;
-//     The rate of nitrification, con1, is a function of soil temperature. It is slightly 
+//     The rate of nitrification, con1, is a function of soil temperature. It is slightly
 //  modified from GOSSYM. it is transformed from immediate rate to a daily time step ratenit.
 //     The rate is modified by soil depth, assuming that for an increment
 //  of 30 cm depth, the rate is decreased by 55% (multiply by a power of
@@ -370,7 +370,7 @@ void Nitrification(SoilCell &soil_cell, int l, int k, double DepthOfLayer)
 
 /////////////////////////
 void Denitrification(SoilCell &soil_cell, int l, int k, double row_space)
-//     This function computes the denitrification of nitrate N in the soil. 
+//     This function computes the denitrification of nitrate N in the soil.
 //     It is called by function SoilNitrogen().
 //     The procedure is based on the CERES routine, as documented by Godwin and Jones (1991).
 //
@@ -401,8 +401,8 @@ void Denitrification(SoilCell &soil_cell, int l, int k, double row_space)
     ft = 0.1 * exp(cparft * (SoilTempDailyAvrg[l][k] - 273.161));
     if (ft > 1)
         ft = 1;
-//     The actual rate of denitrification is calculated. The equation is modified from CERES to 
-//  units of mg/cm3/day. 
+//     The actual rate of denitrification is calculated. The equation is modified from CERES to
+//  units of mg/cm3/day.
     double dnrate; // actual rate of denitrification, mg N per cm3 of soil per day.
     dnrate = cpardenit * cw * soil_cell.nitrate_nitrogen_content * fw * ft;
 //     Make sure that a minimal amount of nitrate will remain after denitrification.

@@ -222,7 +222,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //     FreshOrganicMatter is the readily mineralizable organic matter (= "fresh organic
 //  matter" in CERES models). HumusOrganicMatter is the remaining organic matter, which
 //  is mineralized very slowly.
-        FreshOrganicMatter[l][0] = om * potom;
+        sim.states[0].soil.cells[l][0].fresh_organic_matter = om * potom;
         HumusOrganicMatter[l][0] = om * (1 - potom);
     }
 //     Since the initial value has been set for the first column only
@@ -232,7 +232,7 @@ void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
             VolWaterContent[l][k] = VolWaterContent[l][0];
             sim.states[0].soil.cells[l][k].nitrate_nitrogen_content = sim.states[0].soil.cells[l][0].nitrate_nitrogen_content;
             VolNh4NContent[l][k] = VolNh4NContent[l][0];
-            FreshOrganicMatter[l][k] = FreshOrganicMatter[l][0];
+            sim.states[0].soil.cells[l][k].fresh_organic_matter = sim.states[0].soil.cells[l][0].fresh_organic_matter;
             HumusOrganicMatter[l][k] = HumusOrganicMatter[l][0];
         }
 //     Total amounts of water (InitialTotalSoilWater), nitrate N (TotalSoilNo3N), ammonium
