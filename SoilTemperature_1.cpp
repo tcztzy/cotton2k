@@ -19,7 +19,7 @@ void EnergyBalance(Simulation &, uint32_t, int, int, bool, double, double, const
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int, double);
 
-tuple<int> PredictEmergence(Simulation &, int, const string &, const int &, const int &, const int &);
+void PredictEmergence(Simulation &, unsigned int, int);
 
 //////////////////////////
 void ColumnShading(State &state, double rracol[20], double day_emerge, double row_space, unsigned int plant_row_column)
@@ -306,7 +306,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
             tfc = tfc / shading;
         //     If emergence date is to be simulated, call PredictEmergence().
         if (isw == 0 && sim.day_start + u >= sim.day_plant)
-            tie(sim.day_emerge) = PredictEmergence(sim, ihr, sim.profile_name, sim.day_start + u, sim.day_emerge, sim.day_plant);
+            PredictEmergence(sim, u, ihr);
     } // end of hourly loop
       //      At the end of the day compute actual daily evaporation and its cumulative sum.
     if (kk == 1)

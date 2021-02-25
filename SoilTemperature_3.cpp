@@ -488,8 +488,7 @@ void HeatBalance(int nn)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-tuple<int>
-PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int &Daynum, const int &dayEmerge, const int &DayPlant)
+void PredictEmergence(Simulation &sim, unsigned int u, int hour)
 //     This function predicts date of emergence. It is called from SoilTemperature().
 //     There is one referenced argument (hour).
 //
@@ -504,9 +503,8 @@ PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int
     static double HypocotylLength;  // length of hypocotyl, cm.
     static double SeedMoisture;     // moisture content of germinating seeds, percent.
     static int nSeedLayer;          // layer number where the seeds are located.
-    int DayEmerge = dayEmerge;
     //     Define some initial values on day of planting.
-    if (Daynum == DayPlant && hour == 0)
+    if (sim.day_start + u == sim.day_plant && hour == 0)
     {
         DelayOfEmergence = 0;
         HypocotylLength = 0.3;
@@ -561,7 +559,7 @@ PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int
             SeedMoisture += dw;
         else
             SeedMoisture = 100;
-        return make_tuple(DayEmerge);
+        return;
     }
     //
     //     Phase 2 of of germination - hypocotyl elongation.
@@ -575,7 +573,7 @@ PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int
     if (xt < 0 && te < 14)
     {
         DelayOfEmergence += xt / 2;
-        return make_tuple(DayEmerge);
+        return;
     }
     else
     {
@@ -584,7 +582,7 @@ PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int
             if (DelayOfEmergence + xt < 0)
             {
                 DelayOfEmergence += xt;
-                return make_tuple(DayEmerge);
+                return;
             }
             else
             {
@@ -603,13 +601,12 @@ PredictEmergence(Simulation &sim, int hour, const string &ProfileName, const int
     if (HypocotylLength > dpl)
     {
         isw = 2;
-        DayEmerge = Daynum;
+        sim.day_emerge = sim.day_start + u;
         Kday = 1;
-        string gerday = DoyToDate(DayEmerge, sim.year);
-        ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
-        File46 << " Predicted Germination on " << gerday << " (Day of Year = " << DayEmerge << " )" << endl;
-        ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::app);
-        File22 << " Predicted Germination on " << gerday << " (Day of Year = " << DayEmerge << " )" << endl;
+        string gerday = DoyToDate(sim.day_emerge, sim.year);
+        ofstream File46(fs::path("output") / (string(sim.profile_name) + ".F01"), ios::app);
+        File46 << " Predicted Germination on " << gerday << " (Day of Year = " << sim.day_emerge << " )" << endl;
+        ofstream File22(fs::path("output") / (string(sim.profile_name) + ".S01"), ios::app);
+        File22 << " Predicted Germination on " << gerday << " (Day of Year = " << sim.day_emerge << " )" << endl;
     }
-    return make_tuple(DayEmerge);
 }
