@@ -116,30 +116,26 @@ cdef class _Simulation:
         # call DataOutput here because global variables varnish after run
         DataOutput(self._sim)
 
-
-def read_input(str profile):
-    """This is the main function for reading input."""
-    cdef string ActWthFileName
-    cdef string PrdWthFileName
-    cdef string SoilHydFileName
-    cdef string SoilInitFileName
-    cdef string AgrInputFileName
-    InitializeGlobal()
-    _sim = ReadProfileFile(profile.encode("utf-8"), ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName)
-    _sim.states = <State *> malloc(sizeof(State) * _sim.day_finish - _sim.day_start + 1)
-    ReadCalibrationData()
-    LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, _sim.day_start, _sim.climate)
-    InitializeGrid(_sim)
-    ReadSoilImpedance(_sim)
-    WriteInitialInputData(_sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str())
-    InitSoil(SoilInitFileName)
-    ReadAgriculturalInput(_sim, AgrInputFileName)
-    InitializeSoilData(_sim, SoilHydFileName)
-    InitializeSoilTemperature()
-    InitializeRootData(_sim)
-    # initialize some variables at the start of simulation.
-    SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN
-    PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC
-    sim = _Simulation()
-    sim._sim = _sim
-    return sim
+    def read_input(self, profile):
+        """This is the main function for reading input."""
+        cdef string ActWthFileName
+        cdef string PrdWthFileName
+        cdef string SoilHydFileName
+        cdef string SoilInitFileName
+        cdef string AgrInputFileName
+        InitializeGlobal()
+        self._sim = ReadProfileFile(profile.encode("utf-8"), ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName)
+        self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
+        ReadCalibrationData()
+        LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, self._sim.day_start, self._sim.climate)
+        InitializeGrid(self._sim)
+        ReadSoilImpedance(self._sim)
+        WriteInitialInputData(self._sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str())
+        InitSoil(SoilInitFileName)
+        ReadAgriculturalInput(self._sim, AgrInputFileName)
+        InitializeSoilData(self._sim, SoilHydFileName)
+        InitializeSoilTemperature()
+        InitializeRootData(self._sim)
+        # initialize some variables at the start of simulation.
+        SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN
+        PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC
