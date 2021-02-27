@@ -1,5 +1,4 @@
 import toml
-from setuptools import find_packages
 from skbuild import setup
 
 with open("pyproject.toml") as pyproject_toml:
