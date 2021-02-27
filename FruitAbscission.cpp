@@ -7,6 +7,7 @@
 //       BollAbscission()
 //       ComputeSiteNumbers()
 //
+#include <cstdint>
 #include "global.h"
 #include "Simulation.h"
 
@@ -24,11 +25,11 @@ extern "C"
 //////////////////////////////////////////////////
 void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //     This function simulates the abscission of squares and bolls.
-//  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(), 
+//  It is called from function CottonPhenology().  It calls SiteAbscissionRatio(),
 //	SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //
 //     The following global variables are referenced here:
-//  CarbonStress, DayInc, FruitingCode, ginp, Gintot, Kday, NitrogenStress, 
+//  CarbonStress, DayInc, FruitingCode, ginp, Gintot, Kday, NitrogenStress,
 //  NumFruitBranches, NumNodes, NumVegBranches, VarPar, WaterStress.
 //
 //     The following global variable are set here:
@@ -39,7 +40,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //     The following constant parameters are used:
     const double vabsfr[9] = {21.0, 0.42, 30.0, 0.05, 6.0, 2.25, 0.60, 5.0, 0.20};
 //
-//     Update tags for shedding: Increment NumSheddingTags by 1, and move the array members 
+//     Update tags for shedding: Increment NumSheddingTags by 1, and move the array members
 // of ShedByCarbonStress, ShedByNitrogenStress, ShedByWaterStress, and AbscissionLag.
     NumSheddingTags++;
     if (NumSheddingTags > 1)
@@ -66,8 +67,8 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
         ShedByWaterStress[0] = 0;
 //     Assign 0.01 to the first member of AbscissionLag.
     AbscissionLag[0] = 0.01;
-//     Updating age of tags for shedding: Each member of array AbscissionLag is 
-//  incremented by physiological age of today. It is further increased (i.e., shedding 
+//     Updating age of tags for shedding: Each member of array AbscissionLag is
+//  incremented by physiological age of today. It is further increased (i.e., shedding
 //  will occur sooner) when maximum temperatures are high.
     double tmax = sim.climate[u].Tmax;
     for (int lt = 0; lt < NumSheddingTags; lt++) {
@@ -111,7 +112,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
             idecr++;
         } // if AbscissionLag
     } // for lt
-//  Decrease NumSheddingTags. If plantmap adjustments are necessary for square 
+//  Decrease NumSheddingTags. If plantmap adjustments are necessary for square
 // number, or green boll number, or open boll number - call AdjustAbscission().
     NumSheddingTags = NumSheddingTags - idecr;
 //
@@ -121,11 +122,11 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 
 /////////////////////////
 double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
-//     This function computes and returns the probability of abscission of a single 
-//  site (k, l, m). It is called from function FruitingSitesAbscission(). 
+//     This function computes and returns the probability of abscission of a single
+//  site (k, l, m). It is called from function FruitingSitesAbscission().
 //
-//     The following global variables are referenced here:   
-//        AgeOfSite, AgeOfBoll, FruitingCode, ShedByCarbonStress, 
+//     The following global variables are referenced here:
+//        AgeOfSite, AgeOfBoll, FruitingCode, ShedByCarbonStress,
 //        ShedByNitrogenStress, ShedByWaterStress, VarPar
 //
 //     The following arguments are used here:
@@ -137,13 +138,13 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
 //     The following constant parameters are used:
     const double vabsc[5] = {21.0, 2.25, 0.60, 5.0, 0.20};
 //
-//     For each site, compute the probability of its abscission (pabs) 
+//     For each site, compute the probability of its abscission (pabs)
 //  as afunction of site age, and the total shedding ratio (shedt) as a
 //  function of plant stresses that occurred when abscission was
 //  triggered.
     double pabs = 0;  // probability of abscission of a fruiting site.
     double shedt = 0; // total shedding ratio, caused by various stresses.
-//     (1) Squares (FruitingCode = 1).  
+//     (1) Squares (FruitingCode = 1).
     if (site.stage == Stage::Square) {
         if (site.age < vabsc[3])
             pabs = 0; // No abscission of very young squares (AgeOfSite less than vabsc(3))
@@ -161,24 +162,24 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
 //  carbohydrate stress and nitrogen stress.
         shedt = 1 - (1 - ShedByCarbonStress[lt]) * (1 - ShedByNitrogenStress[lt]);
     }
-//     (2) Very young bolls (FruitingCode = 7, and AgeOfBoll less than VarPar[47]). 
+//     (2) Very young bolls (FruitingCode = 7, and AgeOfBoll less than VarPar[47]).
     else if (site.stage == Stage::YoungGreenBoll && site.boll.age <= VarPar[47]) {
-//     There is a constant probability of shedding (VarPar[48]), and shedt is a product 
+//     There is a constant probability of shedding (VarPar[48]), and shedt is a product
 //  of the effects carbohydrate, and nitrogen stresses. Note that nitrogen stress has only a
 //  partial effect in this case, as modified by vabsc[2].
         pabs = VarPar[48];
         shedt = 1 - (1 - ShedByCarbonStress[lt]) * (1 - vabsc[2] * ShedByNitrogenStress[lt]);
     }
-//     (3) Medium age bolls (AgeOfBoll between VarPar[47] and VarPar[47] + VarPar[49]). 
+//     (3) Medium age bolls (AgeOfBoll between VarPar[47] and VarPar[47] + VarPar[49]).
     else if (site.boll.age > VarPar[47] && site.boll.age <= (VarPar[47] + VarPar[49])) {
-//     pabs is linearly decreasing with age, and shedt is a product of the effects 
-//  carbohydrate, nitrogen and water stresses.  Note that nitrogen stress has only 
+//     pabs is linearly decreasing with age, and shedt is a product of the effects
+//  carbohydrate, nitrogen and water stresses.  Note that nitrogen stress has only
 //  a partial effect in this case, as modified by vabsc[4].
         pabs = VarPar[48] - (VarPar[48] - VarPar[50]) * (site.boll.age - VarPar[47]) / VarPar[49];
         shedt = 1 -
                 (1 - ShedByCarbonStress[lt]) * (1 - vabsc[4] * ShedByNitrogenStress[lt]) * (1 - ShedByWaterStress[lt]);
     }
-//     (4) Older bolls (AgeOfBoll between VarPar[47] + VarPar[49] and VarPar[47] + 2*VarPar[49]). 
+//     (4) Older bolls (AgeOfBoll between VarPar[47] + VarPar[49] and VarPar[47] + 2*VarPar[49]).
     else if (site.boll.age > (VarPar[47] + VarPar[49]) && site.boll.age <= (VarPar[47] + 2 * VarPar[49])) {
 //     pabs is linearly decreasing with age, and shedt is affected only by water stress.
         pabs = VarPar[50] / VarPar[49] * (VarPar[47] + 2 * VarPar[49] - site.boll.age);
@@ -198,13 +199,13 @@ double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
 //////////////////////////////////////////////////////////////////
 void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 //     This function simulates the abscission of a single square
-//  at site (k, l, m). It is called from function FruitingSitesAbscission() 
-//  if this site is a square. 
+//  at site (k, l, m). It is called from function FruitingSitesAbscission()
+//  if this site is a square.
 //
 //     The following global variable is referenced here:   SquareNConc
 //
 //     The following global variable are set here:
-//   BloomWeightLoss, CumPlantNLoss, FruitingCode, FruitFraction, SquareNitrogen, 
+//   BloomWeightLoss, CumPlantNLoss, FruitingCode, FruitFraction, SquareNitrogen,
 //   SquareWeight, TotalSquareWeight.
 //
 //     The following arguments are used in this function:
@@ -213,8 +214,8 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 //
 {
 //     Compute the square weight lost by shedding (wtlos) as a proportion of SquareWeight
-//  of this site. Update SquareNitrogen, CumPlantNLoss, SquareWeight[k][l][m], BloomWeightLoss, 
-//  TotalSquareWeight, and FruitFraction[k][l][m]. 
+//  of this site. Update SquareNitrogen, CumPlantNLoss, SquareWeight[k][l][m], BloomWeightLoss,
+//  TotalSquareWeight, and FruitFraction[k][l][m].
     double wtlos = site.square.weight * abscissionRatio; // weight lost by shedding at this site.
     SquareNitrogen -= wtlos * SquareNConc;
     state.cumulative_nitrogen_loss += wtlos * SquareNConc;
@@ -223,7 +224,7 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
     TotalSquareWeight -= wtlos;
     site.fraction *= (1 - abscissionRatio);
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, and update
-//  SquareNitrogen, CumPlantNLoss, BloomWeightLoss, TotalSquareWeight, SquareWeight[k][l][m], 
+//  SquareNitrogen, CumPlantNLoss, BloomWeightLoss, TotalSquareWeight, SquareWeight[k][l][m],
 //  and assign 5 to FruitingCode.
     if (site.fraction <= 0.001) {
         site.fraction = 0;
@@ -240,14 +241,14 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, double gin1)
 //     This function simulates the abscission of a single green boll
 //  at site (k, l, m). It is called from function FruitingSitesAbscission() if this site
-//  is a green boll. 
+//  is a green boll.
 //
 //     The following global variables are referenced here:
 //   BurrNConc, SeedNConc
 //
 //     The following global variable are set here:
 //   BollWeight, BurrNitrogen, BurrWeight, BurrWeightGreenBolls, CottonWeightGreenBolls,
-//   CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost, SeedNitrogen, 
+//   CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost, SeedNitrogen,
 //
 //     The following arguments are used in this function:
 //        abscissionRatio - ratio of abscission of a fruiting site.
@@ -255,7 +256,7 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //        k, l, m - location of this site on the plant
 //
 {
-//     Update SeedNitrogen, BurrNitrogen, CumPlantNLoss, GreenBollsLost, CottonWeightGreenBolls, BurrWeightGreenBolls, 
+//     Update SeedNitrogen, BurrNitrogen, CumPlantNLoss, GreenBollsLost, CottonWeightGreenBolls, BurrWeightGreenBolls,
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and FruitFraction[k][l][m].
     SeedNitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * state.seed_nitrogen_concentration;
     BurrNitrogen -= site.burr.weight * abscissionRatio * BurrNConc;

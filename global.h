@@ -1,12 +1,8 @@
 //   global.h
 #pragma once
 
-#include <exception>
-#include <filesystem>
 #include "stdafx.h"
 #include "Irrigation.h"
-
-namespace fs = std::filesystem;
 //
 //  definition of global variables
 //  ==============================

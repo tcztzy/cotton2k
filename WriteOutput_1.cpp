@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <fstream>
 #include "global.h"
+#include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "PlantAdjustment.h"
 
@@ -51,7 +52,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
 //       m_fileDesc = the description of this profile file.
 //
 //     The file extensions are as follows:
-//                                         Extension  OutIndex 
+//                                         Extension  OutIndex
 //                                         ---------   ------
 //  Output files which are always opened:
 //     Summary of the input data               B01
@@ -78,7 +79,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
 //     Simulated plant root data               RUT     22
 //
 {
-//     Get the date of running this simulation.  
+//     Get the date of running this simulation.
     time_t rawtime;
     struct tm *timeinfo;
     char buffer[80];
@@ -108,7 +109,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     if (DayEmerge > 0)
         File46 << " Defined Germination on " << DoyToDate(DayEmerge, year) <<
                " (Day of Year = " << DayEmerge << " )" << endl << endl;
-//     The following lines in the header depend on whether metric or 
+//     The following lines in the header depend on whether metric or
 //  English units are used, or if results are per plant or per unit area.
     if (OutIndex[2] == 0)       // per plant
     {
@@ -143,10 +144,10 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     }
     File46 << endl;
 //
-// Open the input information file B01, and write its header. 
+// Open the input information file B01, and write its header.
     b01(ProfileName.c_str(), m_fileDesc.c_str());
 //
-// Open the summary output file S01, and write its header. 
+// Open the summary output file S01, and write its header.
     ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::out);
     File22 << endl << "                         SUMMARY OF SIMULATION RUN" << endl;
     File22.setf(ios::left);
@@ -199,7 +200,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
         File56 << endl;
     }
 //
-//      When the output flag 18 is non-zero, file '.CHB', which outputs plant carbon balance data, 
+//      When the output flag 18 is non-zero, file '.CHB', which outputs plant carbon balance data,
 //  is opened, and the heading for this file is written.
     if (OutIndex[18] > 0) {
         ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::out);
@@ -215,8 +216,8 @@ void DailyOutput(Simulation &sim, uint32_t u)
 //  This function calls WriteStateVariables(), cotplt(), and output1().
 //
 //     The following global variables are referenced here:
-//       dl, NumFruitBranches, 
-//       NumPreFruNodes, OutIndex, VolNo3NContent, wk,    
+//       dl, NumFruitBranches,
+//       NumPreFruNodes, OutIndex, VolNo3NContent, wk,
 //     The following global variables are set here:      MainStemNodes, SumNO3N90.
 {
 //     1. Compute some variables needed for output:
@@ -251,12 +252,12 @@ void DailyOutput(Simulation &sim, uint32_t u)
 //////////////////////////
 void output1(State &state, const string &ProfileName, const string &Date, const int &Daynum, const int &DayEmerge, const int &FirstBloom,
         const int &FirstSquare, const double &PlantHeight, const double &AbscisedFruitSites)
-//     This function is a collection of write statements for output of model results. 
+//     This function is a collection of write statements for output of model results.
 //  It writes daily data to files F01 and S01. It is called each day from DailyOutput().
 //
 //     The following global variables are referenced here:
-//       AbscisedFruitSites, Date, Daynum, FirstBloom, FirstSquare, isw, Kday, 
-//       LeafAreaIndex, LastDayWeatherData, LintYield, MainStemNodes, NumFruitSites, NumGreenBolls, 
+//       AbscisedFruitSites, Date, Daynum, FirstBloom, FirstSquare, isw, Kday,
+//       LeafAreaIndex, LastDayWeatherData, LintYield, MainStemNodes, NumFruitSites, NumGreenBolls,
 //       NumOpenBolls, NumSquares, OutIndex, PlantHeight, PlantPopulation
 {
     ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::app);
@@ -276,7 +277,7 @@ void output1(State &state, const string &ProfileName, const string &Date, const 
                 conversion = PlantPopulation / 2469;    // 1000s per acre
         }
 //     Write Kday, Date, plant height, LAI, main stem nodes, numbers (per plant, or converted
-//  to per m2, or to 1000s per acre) of fruiting sites, squares, green bolls, open bolls, 
+//  to per m2, or to 1000s per acre) of fruiting sites, squares, green bolls, open bolls,
 //  and cumulated abscised sites, and LintYield (in kg per ha, or lbs per acre).
         File46.unsetf(ios::left);
         File46.width(4);
@@ -469,8 +470,8 @@ void DataOutput(Simulation & sim)
 ////////////////////////
 void WriteLine22(ofstream &File22, double i00, double i01, double i02, const double &PlantHeight, double LintYield)
 //     This function writes a formatted line in file *.S01. It is called from DataOutput().
-//     Global variables referenced: 
-//       Kday, LeafAreaIndex, LintYield, MainStemNodes, PlantHeight. 
+//     Global variables referenced:
+//       Kday, LeafAreaIndex, LintYield, MainStemNodes, PlantHeight.
 {
     File22.setf(ios::fixed);
     File22.width(5);

@@ -14,6 +14,7 @@
 //    OnAppAbout()
 //       Class CAoutDlg
 //
+#include "global.h"
 #include "Cottonmodel.h"
 #include "GeneralFunctions.h"
 #include "CottonPhenology.h"

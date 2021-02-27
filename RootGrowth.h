@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include "Simulation.h"
 
 using namespace std;

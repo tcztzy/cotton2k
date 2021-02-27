@@ -7,11 +7,13 @@
 // CheckDryMatterBal()
 // Defoliate()
 //
+#include <filesystem>
 #include <fstream>
 #include "global.h"
 #include "Simulation.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 extern "C"
 {

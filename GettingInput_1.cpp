@@ -7,11 +7,14 @@
 // InitializeGrid()
 // WriteInitialInputData()
 //
+#include <filesystem>
 #include "global.h"
+#include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "Output.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 static Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &);
 

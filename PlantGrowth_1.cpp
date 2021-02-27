@@ -9,6 +9,7 @@
 // PlantGrowth()
 //
 #include "global.h"
+#include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "RootGrowth.h"
 #include "Simulation.h"
@@ -353,7 +354,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
   field crops.  A metered carbon dioxide release in cotton under
   field conditions.  Agron. J. 65:7-11.
      Baker (1965)  Effects of certain environmental factors on net
-  assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).  
+  assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).
 */
 ////////////////////////////////////////////////////////////////////////////
 void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups, const double &DayLength)

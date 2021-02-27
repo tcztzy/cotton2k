@@ -7,9 +7,13 @@
 // SlabLoc()
 // ReadPlantMapInput()
 //
+#include <filesystem>
 #include "global.h"
+#include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "Simulation.h"
+
+namespace fs = std::filesystem;
 
 static int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
 

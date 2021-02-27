@@ -1,6 +1,5 @@
 //  General auxiliary functions
 #include <fstream> // Necessary for file I/O
-#include "exceptions.h"
 
 using namespace std;
 

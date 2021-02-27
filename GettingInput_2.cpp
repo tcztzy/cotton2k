@@ -8,9 +8,13 @@
 // InitializeSoilTemperature()
 // form()
 //
+#include <filesystem>
 #include "global.h"
+#include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "Input.h"
+
+namespace fs = std::filesystem;
 
 static int ReadSoilHydraulicData(const string &);
 

@@ -8,12 +8,15 @@
 //       HeatBalance()
 //       PredictEmergence()
 //
+#include <filesystem>
 #include <fstream>
 #include "global.h"
+#include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "Input.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 double ThermalCondSoil(double, double, int);
 

@@ -5,12 +5,7 @@
 //  This file contains declartions for class C2K.
 #pragma once
 
-#include "global.h"
-#include "exceptions.h"
 #include "Simulation.h"
-
-using namespace std;
-namespace fs = std::filesystem;
 
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:

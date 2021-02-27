@@ -8,7 +8,7 @@
 // DefoliationLeafAbscission()
 // SortArray()
 //
-#include <tuple>
+#include <cstdint>
 #include "global.h"
 #include "Simulation.h"
 
