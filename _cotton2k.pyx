@@ -32,6 +32,7 @@ cdef extern from "Climate.h":
 
 cdef extern from "Simulation.h":
     ctypedef struct Simulation:
+        const char *profile_name
         int year
         unsigned int day_start
         unsigned int day_finish
@@ -61,6 +62,7 @@ cdef extern from "gettingInput_3.cpp":
 
 cdef extern from "Output.h":
     void DataOutput(Simulation &)
+    void OpenOutputFiles(const string &, const string &, const int &, const int &);
 
 cdef extern from "Cottonmodel.h":
 
@@ -116,7 +118,7 @@ cdef class _Simulation:
         # call DataOutput here because global variables varnish after run
         DataOutput(self._sim)
 
-    def read_input(self, profile):
+    def read_input(self, profile, description, **kwargs):
         """This is the main function for reading input."""
         cdef string ActWthFileName
         cdef string PrdWthFileName
@@ -125,6 +127,7 @@ cdef class _Simulation:
         cdef string AgrInputFileName
         InitializeGlobal()
         self._sim = ReadProfileFile(profile.encode("utf-8"), ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName)
+        OpenOutputFiles(description.encode("utf-8"), self._sim.profile_name, self._sim.day_emerge, self._sim.year)
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
         ReadCalibrationData()
         LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, self._sim.day_start, self._sim.climate)

@@ -1,0 +1,93 @@
+{
+    "$id": "https://raw.githubusercontent.com/tcztzy/cotton2k/master/src/cotton2k.schema.json",
+    "description": "Cotton2K model input JSON schema",
+    "type": "object",
+    "required": [
+        "profile",
+        "start_date",
+        "stop_date"
+    ],
+    "properties": {
+        "profile": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "start_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "stop_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "emerge_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "plant_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "co2_enrichment_factor": {
+            "type": "number",
+            "minimum": 0
+        },
+        "latitude": {
+            "type": "number",
+            "maximum": 90,
+            "minimum": -90
+        },
+        "longitude": {
+            "type": "number",
+            "maximum": 180,
+            "minimum": -180
+        },
+        "elevation": {
+            "type": "number"
+        },
+        "site_parameters": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "row_space": {
+            "type": "number",
+            "minimum": 0
+        },
+        "skip_row": {
+            "type": "number",
+            "minimum": 0
+        },
+        "plants_per_meter": {
+            "type": "number",
+            "minimum": 0
+        },
+        "cultivar_parameters": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "soil_map_frequency": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "soil_map_start_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "soil_map_stop_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "output_flags": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        }
+    }
+}

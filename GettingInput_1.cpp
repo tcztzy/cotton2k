@@ -75,14 +75,6 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
         throw FileNotOpened(strFileName);
     //     Line #1: Read file description.
     string Dummy = GetLineData(DataFile);
-    string m_fileDesc; // Description of the Profile file
-    if (Dummy.length() > 20)
-    {
-        m_fileDesc = Dummy.substr(20);
-        m_fileDesc.erase(m_fileDesc.find_last_not_of(" \r\n\t\f\v") + 1);
-    }
-    else
-        m_fileDesc = "";
     //     Line #2: Read dates of emergence, start and end of simulation, and planting date.
     string DateEmerge, DateSimStart, DateSimEnd, DatePlant;
     Dummy = GetLineData(DataFile);
@@ -287,7 +279,6 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
         Kday = 1;
     }
     //     Call function OpenOutputFiles() to open the output files.
-    OpenOutputFiles(m_fileDesc, ProfileName, DayEmerge, year);
     return {ProfileName, strlen(ProfileName), year, DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude, Elevation, RowSpace};
 }
 

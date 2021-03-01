@@ -5,5 +5,4 @@ void OpenOutputFiles(const std::string &, const std::string &, const int &, cons
 
 void DailyOutput(Simulation &, uint32_t);
 
-void
-DataOutput(Simulation &);
+void DataOutput(Simulation &);

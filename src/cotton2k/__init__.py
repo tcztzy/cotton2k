@@ -1,5 +1,7 @@
 """Cotton2k model."""
+import json
 from importlib.metadata import metadata, version
+from pathlib import Path
 
 from _cotton2k import _Simulation  # pylint: disable=import-error# noqa: F401
 
@@ -11,8 +13,8 @@ __author__: str = meta["Author"]
 __license__: str = meta["License"]
 
 
-def run(profile: str):
+def run(profile_path: Path):
     sim = _Simulation()
-    sim.read_input(profile)
+    sim.read_input(**json.loads(profile_path.read_text()))
     sim.run()
     return sim
