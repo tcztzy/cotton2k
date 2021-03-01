@@ -279,7 +279,28 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
         Kday = 1;
     }
     //     Call function OpenOutputFiles() to open the output files.
-    return {ProfileName, strlen(ProfileName), year, DayEmerge, DayStart, DayFinish, DayPlant, DayStartSoilMaps, DayStopSoilMaps, DayStartCO2, DayEndCO2, CO2EnrichmentFactor, DayStartMulch, DayEndMulch, MulchIndicator, MulchTranSW, MulchTranLW, Latitude, Longitude, Elevation, RowSpace};
+    Simulation sim = { ProfileName };
+    sim.profile_name_length = strlen(ProfileName);
+    sim.year = year;
+    sim.day_emerge = DayEmerge;
+    sim.day_start = DayStart;
+    sim.day_finish = DayFinish;
+    sim.day_plant = DayPlant;
+    sim.day_start_soil_maps = DayStartSoilMaps;
+    sim.day_stop_soil_maps = DayStopSoilMaps;
+    sim.day_start_co2 = DayStartCO2;
+    sim.day_end_co2 = DayEndCO2;
+    sim.co2_enrichment_factor = CO2EnrichmentFactor;
+    sim.day_start_mulch = DayStartMulch;
+    sim.day_end_mulch = DayEndMulch;
+    sim.mulch_indicator = MulchIndicator;
+    sim.mulch_transmissivity_short_wave = MulchTranSW;
+    sim.mulch_transmissivity_long_wave = MulchTranLW;
+    sim.latitude = Latitude;
+    sim.longitude = Longitude;
+    sim.elevation = Elevation;
+    sim.row_space = RowSpace;
+    return sim;
 }
 
 //////////////////////////////////////////////////////////
