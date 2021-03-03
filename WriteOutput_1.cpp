@@ -43,7 +43,7 @@ void output6(State &, const string &);
 void output7(Simulation &);
 
 /////////////////////////////////////////////////////////////
-void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const int &DayEmerge, const int &year)
+void OpenOutputFiles(const char *m_fileDesc, const char *ProfileName, int DayEmerge, int year)
 //     This function opens the output files that will be used by
 //  this simulation. It is called from function ReadProfileFile().
 //
@@ -88,7 +88,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     strftime(buffer, 80, "%A, %B %d, %Y", timeinfo);
     string Rundate = buffer;
 //     Open file F01 and write header to it.
-    ofstream File46(fs::path("output") / (ProfileName + ".F01"), ios::out);
+    ofstream File46(fs::path("output") / (string(ProfileName) + ".F01"), ios::out);
     File46.unsetf(ios::left);
     File46.width(50);
     File46 << "COTTON2K Version 4.0 (2004)" << endl;
@@ -145,10 +145,10 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     File46 << endl;
 //
 // Open the input information file B01, and write its header.
-    b01(ProfileName.c_str(), m_fileDesc.c_str());
+    b01(ProfileName, m_fileDesc);
 //
 // Open the summary output file S01, and write its header.
-    ofstream File22(fs::path("output") / (ProfileName + ".S01"), ios::out);
+    ofstream File22(fs::path("output") / (string(ProfileName) + ".S01"), ios::out);
     File22 << endl << "                         SUMMARY OF SIMULATION RUN" << endl;
     File22.setf(ios::left);
     File22 << "Profile Name:    ";
@@ -181,21 +181,21 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
     int imap; // indicator for soil-map or plant-map output.
     imap = OutIndex[8] + OutIndex[9] + OutIndex[10] + OutIndex[11] + OutIndex[12];
     if (imap > 0)
-        ofstream File23(fs::path("output") / (ProfileName + ".SMP"), ios::out);
+        ofstream File23(fs::path("output") / (string(ProfileName) + ".SMP"), ios::out);
 //
 //      When any of the output flags 7 or 13 is non-zero, open output
 //  file for plant map data, as unit 24.
     imap = OutIndex[7] + OutIndex[13];
     if (imap > 0)
-        ofstream File24(fs::path("output") / (ProfileName + ".PLM"), ios::out);
+        ofstream File24(fs::path("output") / (string(ProfileName) + ".PLM"), ios::out);
 //
 //      The following files are used for checking during model
 // development. They are not intended for general use.
 //      For the soil water data output, two files are opened. The extensions are '.WAT'
 //  and ".WA2". These files are opened when the flag OutIndex[17] is non-zero.
     if (OutIndex[17] > 0) {
-        ofstream File42(fs::path("output") / (ProfileName + ".WAT"), ios::out);
-        ofstream File56(fs::path("output") / (ProfileName + ".WA2"), ios::out);
+        ofstream File42(fs::path("output") / (string(ProfileName) + ".WAT"), ios::out);
+        ofstream File56(fs::path("output") / (string(ProfileName) + ".WA2"), ios::out);
         File56 << "    DATE    vertical water content  for columns 0 and 9";
         File56 << endl;
     }
@@ -203,7 +203,7 @@ void OpenOutputFiles(const string &m_fileDesc, const string &ProfileName, const 
 //      When the output flag 18 is non-zero, file '.CHB', which outputs plant carbon balance data,
 //  is opened, and the heading for this file is written.
     if (OutIndex[18] > 0) {
-        ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::out);
+        ofstream File36(fs::path("output") / (string(ProfileName) + ".CHB"), ios::out);
         File36
                 << "    DATE       CDSTEM   CDLEAF     CDPET    CDROOT    CSTRES    STEMWT    LEAFWT     PETWT    ROOTWT    SUMPDR      NR";
         File36 << endl;

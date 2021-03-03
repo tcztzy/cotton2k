@@ -1,7 +1,7 @@
 #pragma once
 #include "Simulation.h"
 
-void OpenOutputFiles(const std::string &, const std::string &, const int &, const int &);
+void OpenOutputFiles(const char *, const char *, int, int);
 
 void DailyOutput(Simulation &, uint32_t);
 

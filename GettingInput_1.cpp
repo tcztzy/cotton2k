@@ -8,6 +8,7 @@
 // WriteInitialInputData()
 //
 #include <filesystem>
+#include <vector>
 #include "global.h"
 #include "exceptions.h"
 #include "GeneralFunctions.h"
@@ -16,7 +17,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-static Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &);
+static Simulation ReadProfileFile(const char *, vector<string> &);
 
 static void ReadCalibrationData();
 
@@ -45,17 +46,15 @@ static void ReadAgriculturalInput(Simulation &, const string &);
 //
 // Definitions of File scope variables:
 static int nSiteNum,               // index number for site.
-    LastDayOfActualWeather, // last day of actual weather.
     nVarNum;                // index number for cultivar.
 static double SkipRowWidth,        // the smaller distance between skip rows, cm
     PlantsPerM;             // average number of plants pre meter of row.
-static string m_mulchdata,         // string containing input data of mulching
+static string
     VarName,                // name of the cultivar
     SiteName;               // name of the site
 
 /////////////////////////////////////////////////////////////////////////////
-Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, string &PrdWthFileName, string &SoilHydFileName,
-                           string &SoilInitFileName, string &AgrInputFileName)
+Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -126,22 +125,23 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     nLength = Dummy.length();
     if (nLength > 1)
     {
-        ActWthFileName = Dummy.substr(0, 20);
+        string ActWthFileName = Dummy.substr(0, 20);
         ActWthFileName.erase(remove(ActWthFileName.begin(), ActWthFileName.end(), ' '), ActWthFileName.end());
+        filenames[0] = ActWthFileName;
     }
     if (nLength > 21)
     {
-        PrdWthFileName = Dummy.substr(20, 20);
+        string PrdWthFileName = Dummy.substr(20, 20);
         PrdWthFileName.erase(remove(PrdWthFileName.begin(), PrdWthFileName.end(), ' '), PrdWthFileName.end());
+        filenames[1] = PrdWthFileName;
     }
-    else
-        PrdWthFileName = "";
     //     For advanced users only: If soil mulch is used, read relevant parameters.
     uint32_t MulchIndicator = 0;
     uint32_t DayStartMulch = 0;
     uint32_t DayEndMulch = 0;
     double MulchTranSW = 0;
     double MulchTranLW = 0;
+    string m_mulchdata;
     if (nLength > 41)
     {
         m_mulchdata = Dummy.substr(40);
@@ -167,18 +167,21 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
     nLength = Dummy.length();
     if (nLength > 1)
     {
-        SoilHydFileName = Dummy.substr(0, 20);
+        string SoilHydFileName = Dummy.substr(0, 20);
         SoilHydFileName.erase(remove(SoilHydFileName.begin(), SoilHydFileName.end(), ' '), SoilHydFileName.end());
+        filenames[2] = SoilHydFileName;
     }
     if (nLength > 20)
     {
-        SoilInitFileName = Dummy.substr(20, 20);
+        string SoilInitFileName = Dummy.substr(20, 20);
         SoilInitFileName.erase(remove(SoilInitFileName.begin(), SoilInitFileName.end(), ' '), SoilInitFileName.end());
+        filenames[3] = SoilInitFileName;
     }
     if (nLength > 40)
     {
-        AgrInputFileName = Dummy.substr(40, 20);
+        string AgrInputFileName = Dummy.substr(40, 20);
         AgrInputFileName.erase(remove(AgrInputFileName.begin(), AgrInputFileName.end(), ' '), AgrInputFileName.end());
+        filenames[4] = AgrInputFileName;
     }
     //     Line #5: Latitude and longitude of this site, elevation (in m
     //  above sea level), and the index number for this geographic site.
@@ -278,7 +281,6 @@ Simulation ReadProfileFile(const char *ProfileName, string &ActWthFileName, stri
         isw = 2;
         Kday = 1;
     }
-    //     Call function OpenOutputFiles() to open the output files.
     Simulation sim = { ProfileName };
     sim.profile_name_length = strlen(ProfileName);
     sim.year = year;

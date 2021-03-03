@@ -1,13 +1,17 @@
 from libcpp cimport bool
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 from libc.stdlib cimport malloc
 
-from datetime import datetime
+from datetime import datetime, date
 
 cdef extern void WriteInitialInputData(Simulation &, bool, double, double, double, const char *, int, const char *, const char *, const char *, const char *, const char *, const char *)
 
 cdef extern from "global.h":
     void InitializeGlobal()
+    int isw
+    int Kday
+    int SoilMapFreq
     int OutIndex[24]
     double PlantPopulation
     double TotalSoilNo3N
@@ -37,16 +41,33 @@ cdef extern from "Simulation.h":
         unsigned int day_start
         unsigned int day_finish
         unsigned int day_emerge
+        unsigned int day_plant
+        unsigned int day_start_soil_maps
+        unsigned int day_stop_soil_maps
+        unsigned int day_start_co2
+        unsigned int day_end_co2
+        double co2_enrichment_factor
+        unsigned int day_start_mulch
+        unsigned int day_end_mulch
+        unsigned int mulch_indicator
+        double mulch_transmissivity_short_wave
+        double mulch_transmissivity_long_wave
+        double latitude
+        double longitude
+        double elevation
+        double row_space
         State *states
         ClimateStruct climate[400]
 
 cdef extern from "GettingInput_1.cpp":
-    Simulation ReadProfileFile(const char *, string &, string &, string &, string &, string &)
+    Simulation ReadProfileFile(const char *, vector[string] &)
     void ReadCalibrationData()
     void InitializeGrid(Simulation &)
     double PlantsPerM
     double SkipRowWidth
+    int nSiteNum
     string SiteName
+    int nVarNum
     string VarName
 
 cdef extern from "GettingInput_2.cpp":
@@ -62,13 +83,24 @@ cdef extern from "gettingInput_3.cpp":
 
 cdef extern from "Output.h":
     void DataOutput(Simulation &)
-    void OpenOutputFiles(const string &, const string &, const int &, const int &);
+    void OpenOutputFiles(const char *, const char *, int, int);
 
 cdef extern from "Cottonmodel.h":
 
     cdef cppclass C2KApp:
         C2KApp() except +
         void DailySimulation(Simulation &)
+
+
+def _date2doy(d):
+    if isinstance(d, str):
+        d = datetime.strptime(d, "%Y-%m-%d")
+    if isinstance(d, date):
+        return d.timetuple().tm_yday
+    elif isinstance(d, int) and d > 0:
+        return d
+    else:
+        return 0
 
 cdef class _Simulation:
     cdef Simulation _sim
@@ -120,23 +152,21 @@ cdef class _Simulation:
 
     def read_input(self, profile, description, **kwargs):
         """This is the main function for reading input."""
-        cdef string ActWthFileName
-        cdef string PrdWthFileName
-        cdef string SoilHydFileName
-        cdef string SoilInitFileName
-        cdef string AgrInputFileName
+        cdef vector[string] filenames = [b'', b'', b'', b'', b'']
         InitializeGlobal()
-        self._sim = ReadProfileFile(profile.encode("utf-8"), ActWthFileName, PrdWthFileName, SoilHydFileName, SoilInitFileName, AgrInputFileName)
-        OpenOutputFiles(description.encode("utf-8"), self._sim.profile_name, self._sim.day_emerge, self._sim.year)
+        profile_name = profile.encode("utf-8")
+        self._sim = ReadProfileFile(profile_name, filenames)
+        _description = description.encode("utf-8")
+        OpenOutputFiles(_description, <char *>self._sim.profile_name, self._sim.day_emerge, self._sim.year)
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
         ReadCalibrationData()
-        LastDayOfActualWeather = OpenClimateFile(ActWthFileName, PrdWthFileName, self._sim.day_start, self._sim.climate)
+        LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
         ReadSoilImpedance(self._sim)
-        WriteInitialInputData(self._sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, ActWthFileName.c_str(), LastDayOfActualWeather, PrdWthFileName.c_str(), AgrInputFileName.c_str(), SoilInitFileName.c_str(), SoilHydFileName.c_str(), SiteName.c_str(), VarName.c_str())
-        InitSoil(SoilInitFileName)
-        ReadAgriculturalInput(self._sim, AgrInputFileName)
-        InitializeSoilData(self._sim, SoilHydFileName)
+        WriteInitialInputData(self._sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, filenames[0].c_str(), LastDayOfActualWeather, filenames[1].c_str(), filenames[4].c_str(), filenames[3].c_str(), filenames[2].c_str(), SiteName.c_str(), VarName.c_str())
+        InitSoil(filenames[3])
+        ReadAgriculturalInput(self._sim, filenames[4])
+        InitializeSoilData(self._sim, filenames[2])
         InitializeSoilTemperature()
         InitializeRootData(self._sim)
         # initialize some variables at the start of simulation.
