@@ -17,7 +17,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-static Simulation ReadProfileFile(const char *, vector<string> &);
+static Simulation ReadProfileFile(const char *);
 
 static void ReadCalibrationData();
 
@@ -54,7 +54,7 @@ static string
     SiteName;               // name of the site
 
 /////////////////////////////////////////////////////////////////////////////
-Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
+Simulation ReadProfileFile(const char *ProfileName)
 //     This function opens and reads the profile file. It is called from ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
@@ -65,46 +65,10 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
 //  RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
 //
 {
-    fs::path strFileName = fs::path("profiles") / (string(ProfileName) + ".pro"); // file name with path
-                                                                                  //     If file does not exist, or can not be opened, display message
-    if (!fs::exists(strFileName))
-        throw FileNotExists(strFileName);
-    ifstream DataFile(strFileName, ios::in);
-    if (DataFile.fail())
-        throw FileNotOpened(strFileName);
-    //     Line #1: Read file description.
-    string Dummy = GetLineData(DataFile);
-    //     Line #2: Read dates of emergence, start and end of simulation, and planting date.
-    string DateEmerge, DateSimStart, DateSimEnd, DatePlant;
-    Dummy = GetLineData(DataFile);
-    int nLength = Dummy.length();
-    //     For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates
-    //	for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
-    double CO2EnrichmentFactor = 0;
-    uint32_t DayStartCO2 = 0;
-    uint32_t DayEndCO2 = 0;
-    if (nLength > 76)
-    {
-        string ttt = Dummy.substr(60, 10);
-        ttt.erase(remove(ttt.begin(), ttt.end(), ' '), ttt.end());
-        CO2EnrichmentFactor = atof(ttt.c_str());
-        ttt = Dummy.substr(70, 5);
-        ttt.erase(remove(ttt.begin(), ttt.end(), ' '), ttt.end());
-        DayStartCO2 = atoi(ttt.c_str());
-        ttt = Dummy.substr(75);
-        ttt.erase(remove(ttt.begin(), ttt.end(), ' '), ttt.end());
-        DayEndCO2 = atoi(ttt.c_str());
-    }
-    else
-        CO2EnrichmentFactor = 0;
-    DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
     Simulation sim = { ProfileName };
     sim.profile_name_length = strlen(ProfileName);
-    sim.day_start_co2 = DayStartCO2;
-    sim.day_end_co2 = DayEndCO2;
-    sim.co2_enrichment_factor = CO2EnrichmentFactor;
     return sim;
 }
 

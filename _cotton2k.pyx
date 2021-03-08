@@ -60,7 +60,7 @@ cdef extern from "Simulation.h":
         ClimateStruct climate[400]
 
 cdef extern from "GettingInput_1.cpp":
-    Simulation ReadProfileFile(const char *, vector[string] &)
+    Simulation ReadProfileFile(const char *)
     void ReadCalibrationData()
     void InitializeGrid(Simulation &)
     double PlantsPerM
@@ -115,6 +115,16 @@ cdef void read_date(
     sim.day_emerge = day_emerge
     sim.day_finish = day_finish
     sim.day_plant = day_plant
+
+cdef void read_co2_enrichment_config(
+    Simulation &sim,
+    double factor,
+    unsigned int day_start_co2,
+    unsigned int day_end_co2,
+):
+    sim.co2_enrichment_factor = factor
+    sim.day_end_co2 = day_end_co2
+    sim.day_start_co2 = day_start_co2
 
 cdef void read_mulch_config(
     Simulation &sim,
@@ -252,7 +262,7 @@ cdef class _Simulation:
         cdef vector[string] filenames = [b'', b'', b'', b'', b'']
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
-        self._sim = ReadProfileFile(profile_name, filenames)
+        self._sim = ReadProfileFile(profile_name)
         read_date(
             self._sim,
             int(kwargs["start_date"][:4]),
@@ -260,6 +270,12 @@ cdef class _Simulation:
             _date2doy(kwargs.get("stop_date", 0)),
             _date2doy(kwargs.get("emerge_date", 0)),
             _date2doy(kwargs.get("plant_date", 0)),
+        )
+        read_co2_enrichment_config(
+            self._sim,
+            kwargs.get("co2_enrichment_factor", 0),
+            _date2doy(kwargs.get("co2_start_date", 0)),
+            _date2doy(kwargs.get("co2_stop_date", 0)),
         )
         read_mulch_config(
             self._sim,
