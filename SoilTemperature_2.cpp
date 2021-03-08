@@ -6,6 +6,7 @@
 //       SoilSurfaceBalance()
 //       SoilMulchBalance()
 //
+#include <cmath>
 #include "global.h"
 #include "DailyClimate.h"
 
@@ -100,7 +101,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
     rlzero = (ea0 * (1 - hour.cloud_cov) + hour.cloud_cov) * stefa1 * pow(thet, 4)
              - hour.cloud_cor / 41880; // CloudTypeCorr converted from W m-2 to ly sec-1.
 //
-//     Set initial values of canopy temperature and air temperature in canopy. 
+//     Set initial values of canopy temperature and air temperature in canopy.
     double tv; // temperature of plant foliage (K)
     double tafk; // temperature (K) of air inside the canopy.
     if (sf < 0.05) // no vegetation
@@ -121,15 +122,15 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
 //     Short wave radiation intercepted by the canopy:
         rsv = rzero * (1 - hour.albedo) * sf * cswint   //  from above
               + rsup * (1 - hour.albedo) * sf * cswint;  //  reflected from soil surface
-//     Air temperature inside canopy is the average of soil, air, and plant temperatures, 
-//  weighted by 0.1, 0.3, and 0.6, respectively. In case of mulch, mulch temperature replaces 
+//     Air temperature inside canopy is the average of soil, air, and plant temperatures,
+//  weighted by 0.1, 0.3, and 0.6, respectively. In case of mulch, mulch temperature replaces
 //  soil temperature.
         if (bMulchon)
             tafk = (1 - sf) * thet + sf * (0.1 * tm + 0.3 * thet + 0.6 * tv);
         else
             tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
 //
-//     Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2 
+//     Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2
 //  for sensible heat transfer: 2 sides of leaf plus stems and petioles.
         double varcc;   // sensible heat transfer coefficient for soil
         varcc = SensibleHeatTransfer(tv, tafk, PlantHeight, wndhr); // canopy to air
@@ -192,8 +193,8 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, bool bMulchon, d
 
 /////////////////////////////////////////////////////////////////////////////
 double SensibleHeatTransfer(double tsf, double tenviron, double height, double wndcanp)
-//     This function computes the sensible heat transfer coefficient, using the friction 
-//  potential (shear) temperature (thstar), and the surface friction (shear) velocity (ustar) 
+//     This function computes the sensible heat transfer coefficient, using the friction
+//  potential (shear) temperature (thstar), and the surface friction (shear) velocity (ustar)
 //  at the atmospheric boundary. It is called three times from EnergyBalance(): for canopy,
 //  soil surface, or mulch boundaries with their environment.
 //
@@ -483,9 +484,9 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss, d
 void SoilMulchBalance(int ihr, int k, double rlzero, double rsm, double rss, double sf,
                       double &so, double &so2, double &so3, double thet, double &tm, double tv, double wndcanp,
                       const int &Daynum, const double &MulchTranLW)
-//     This function solves the energy balance equations at the interface of the soil 
-//  surface and the plastic mulch cover and computes the resulting temperatures of the 
-//  soil surface and of the plastic mulch.  
+//     This function solves the energy balance equations at the interface of the soil
+//  surface and the plastic mulch cover and computes the resulting temperatures of the
+//  soil surface and of the plastic mulch.
 //     it is called from EnergyBalance(), on each time step and for each soil column, if
 //  this column is covered with a plastic mulch.  It calls functions SensibleHeatTransfer(),
 //  SoilSurfaceBalance() and MulchSurfaceBalance().

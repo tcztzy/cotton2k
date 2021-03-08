@@ -8,6 +8,7 @@
 //       HeatBalance()
 //       PredictEmergence()
 //
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include "global.h"

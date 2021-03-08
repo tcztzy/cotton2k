@@ -7,6 +7,7 @@
 // CheckDryMatterBal()
 // Defoliate()
 //
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include "global.h"
