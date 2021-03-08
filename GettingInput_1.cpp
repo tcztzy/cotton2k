@@ -183,25 +183,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
         AgrInputFileName.erase(remove(AgrInputFileName.begin(), AgrInputFileName.end(), ' '), AgrInputFileName.end());
         filenames[4] = AgrInputFileName;
     }
-    //     Line #5: Latitude and longitude of this site, elevation (in m
-    //  above sea level), and the index number for this geographic site.
-    Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    double Latitude = 0;
-    if (nLength > 1)
-    {
-        Latitude = atof(Dummy.substr(0, 10).c_str());
-    }
-    double Longitude = 0;
-    if (nLength >= 20)
-    {
-        Longitude = atof(Dummy.substr(10, 10).c_str());
-    }
-    double Elevation = 0;
-    if (nLength >= 30)
-        Elevation = atof(Dummy.substr(20, 10).c_str());
-    if (nLength > 30)
-        nSiteNum = atoi(Dummy.substr(30).c_str());
     DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
@@ -224,9 +205,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     sim.mulch_indicator = MulchIndicator;
     sim.mulch_transmissivity_short_wave = MulchTranSW;
     sim.mulch_transmissivity_long_wave = MulchTranLW;
-    sim.latitude = Latitude;
-    sim.longitude = Longitude;
-    sim.elevation = Elevation;
     return sim;
 }
 

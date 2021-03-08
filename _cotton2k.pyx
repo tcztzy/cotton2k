@@ -102,6 +102,19 @@ def _date2doy(d):
     else:
         return 0
 
+cdef void read_site_config(
+    Simulation &sim,
+    double latitude,
+    double longitude,
+    double elevation,
+    int site_id,
+):
+    sim.latitude = latitude
+    sim.longitude = longitude
+    sim.elevation = elevation
+    global nSiteNum
+    nSiteNum = site_id
+
 cdef void read_plant_config(
     Simulation &sim,
     double row_space,
@@ -198,6 +211,13 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim = ReadProfileFile(profile_name, filenames)
+        read_site_config(
+            self._sim,
+            kwargs.get("latitude", 0),
+            kwargs.get("longitude", 0),
+            kwargs.get("elevation", 0),
+            kwargs["site_id"],
+        )
         read_plant_config(
             self._sim,
             kwargs.get("row_space", 0),
