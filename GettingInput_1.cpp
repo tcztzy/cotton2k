@@ -259,28 +259,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     //     If the output frequency indicators are zero, they are set to 999.
     if (SoilMapFreq <= 0)
         SoilMapFreq = 999;
-    //     If the date of emergence has not been given, emergence will be
-    //  simulated by the model. In this case, isw = 0, and a check is
-    //  performed to make sure that the date of planting has been given.
-    if (DayEmerge <= 0)
-    {
-        isw = 0;
-        if (DayPlant <= 0)
-        {
-            string msg = " planting date or emergence date must";
-            msg += " be given in the profile file !!";
-            throw Cotton2KException(msg);
-        }
-    }
-    //     If the date of emergence has been given in the input: isw = 1 if simulation
-    //  starts before emergence, or isw = 2 if simulation starts at emergence.
-    else if (DayEmerge > DayStart)
-        isw = 1;
-    else
-    {
-        isw = 2;
-        Kday = 1;
-    }
     Simulation sim = { ProfileName };
     sim.profile_name_length = strlen(ProfileName);
     sim.year = year;

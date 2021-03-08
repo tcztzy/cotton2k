@@ -102,6 +102,25 @@ def _date2doy(d):
     else:
         return 0
 
+
+cdef void initialize_switch(Simulation &sim):
+    global isw, Kday
+    # If the date of emergence has not been given, emergence will be simulated
+    # by the model. In this case, isw = 0, and a check is performed to make
+    # sure that the date of planting has been given.
+    if sim.day_emerge <= 0:
+        if sim.day_plant <= 0:
+            raise Exception(" planting date or emergence date must be given in the profile file !!")
+        isw = 0
+    # If the date of emergence has been given in the input: isw = 1 if
+    # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
+    elif sim.day_emerge > sim.day_start:
+        isw = 1
+    else:
+        isw = 2
+        Kday = 1
+
+
 cdef class _Simulation:
     cdef Simulation _sim
 
@@ -156,6 +175,7 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim = ReadProfileFile(profile_name, filenames)
+        initialize_switch(self._sim)
         _description = description.encode("utf-8")
         OpenOutputFiles(_description, <char *>self._sim.profile_name, self._sim.day_emerge, self._sim.year)
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
