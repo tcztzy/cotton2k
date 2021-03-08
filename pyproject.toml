@@ -3,12 +3,12 @@ name = "cotton2k"
 version = "4.0.0a2"
 description = "Reimplementation for Cotton2k simulation model"
 authors = [{ name = "Tang Ziya", email = "<tcztzy@gmail.com>" }]
-license = "AGPL-3.0-or-later"
 readme = "README.rst"
 requires-python = ">=3.9"
 keywords = ["cotton", "simulation", "model"]
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
