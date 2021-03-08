@@ -7,9 +7,12 @@
 //       BollAbscission()
 //       ComputeSiteNumbers()
 //
+#include <algorithm>
 #include <cstdint>
 #include "global.h"
 #include "Simulation.h"
+
+using namespace std;
 
 double SiteAbscissionRatio(State &, int, int, int, int);
 

@@ -7,8 +7,11 @@
 // PotentialFruitGrowth()
 // TemperatureOnFruitGrowthRate()
 //
+#include <cmath>
 #include "global.h"
 #include "State.h"
+
+using namespace std;
 
 extern "C"
 {
@@ -287,5 +290,5 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
  components. Field Crops Res. 2:169-175.
     Marani, A., Phene, C.J. and Cardon, G.E. 1992. CALGOS, a
  version of GOSSYM adapted for irrigated cotton.  III. leaf and boll
- growth routines. Beltwide Cotton Grow, Res. Conf. 1992:1361-1363.  
+ growth routines. Beltwide Cotton Grow, Res. Conf. 1992:1361-1363.
 */

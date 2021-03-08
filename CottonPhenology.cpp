@@ -12,9 +12,12 @@
 // NewBollFormation()
 // BollOpening()
 //
+#include <algorithm>
 #include "global.h"
 #include "LeafAbscission.h"
 #include "FruitAbscission.h"
+
+using namespace std;
 
 void PreFruitingNode(double, const double &);
 

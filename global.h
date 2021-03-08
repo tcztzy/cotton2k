@@ -1,7 +1,6 @@
 //   global.h
 #pragma once
 
-#include "stdafx.h"
 #include "Irrigation.h"
 //
 //  definition of global variables
