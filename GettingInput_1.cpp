@@ -161,28 +161,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
         m_mulchdata = "";
         MulchIndicator = 0;
     }
-    //     Line #4: Names of files for soil hydraulic data, soil initial
-    //  conditions, agricultural input, and plant map adjustment.
-    Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    if (nLength > 1)
-    {
-        string SoilHydFileName = Dummy.substr(0, 20);
-        SoilHydFileName.erase(remove(SoilHydFileName.begin(), SoilHydFileName.end(), ' '), SoilHydFileName.end());
-        filenames[2] = SoilHydFileName;
-    }
-    if (nLength > 20)
-    {
-        string SoilInitFileName = Dummy.substr(20, 20);
-        SoilInitFileName.erase(remove(SoilInitFileName.begin(), SoilInitFileName.end(), ' '), SoilInitFileName.end());
-        filenames[3] = SoilInitFileName;
-    }
-    if (nLength > 40)
-    {
-        string AgrInputFileName = Dummy.substr(40, 20);
-        AgrInputFileName.erase(remove(AgrInputFileName.begin(), AgrInputFileName.end(), ' '), AgrInputFileName.end());
-        filenames[4] = AgrInputFileName;
-    }
     DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.

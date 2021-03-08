@@ -102,6 +102,16 @@ def _date2doy(d):
     else:
         return 0
 
+cdef read_filenames(
+    vector[string] &filenames,
+    string soil_hydraulic_filename,
+    string soil_init_filename,
+    string agricultural_input_filename,
+):
+    filenames[2] = soil_hydraulic_filename
+    filenames[3] = soil_init_filename
+    filenames[4] = agricultural_input_filename
+
 cdef void read_site_config(
     Simulation &sim,
     double latitude,
@@ -211,6 +221,12 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim = ReadProfileFile(profile_name, filenames)
+        read_filenames(
+            filenames,
+            kwargs.get("soil_hydraulic_filename", "").encode("UTF-8"),
+            kwargs.get("soil_init_filename", "").encode("UTF-8"),
+            kwargs.get("agricultural_input_filename", "").encode("UTF-8"),
+        )
         read_site_config(
             self._sim,
             kwargs.get("latitude", 0),
