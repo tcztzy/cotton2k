@@ -102,6 +102,11 @@ def _date2doy(d):
     else:
         return 0
 
+def read_output_flags(output_flags):
+    for n in range(24):
+        OutIndex[n] = 0
+    for i, flag in enumerate(output_flags):
+        OutIndex[i+1] = flag
 
 cdef void initialize_switch(Simulation &sim):
     global isw, Kday
@@ -175,6 +180,7 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim = ReadProfileFile(profile_name, filenames)
+        read_output_flags(kwargs.get("output_flags", ()))
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
         OpenOutputFiles(_description, <char *>self._sim.profile_name, self._sim.day_emerge, self._sim.year)

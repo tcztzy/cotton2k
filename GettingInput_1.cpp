@@ -234,19 +234,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
         SoilMapStopDate = Dummy.substr(29, 11);
         SoilMapStopDate.erase(remove(SoilMapStopDate.begin(), SoilMapStopDate.end(), ' '), SoilMapStopDate.end());
     }
-    //     Line #8: 23 output flags.
-    // - Line 8 consists of zeros and ones.  "1" tells the simulator to
-    //   produce a particular report and "0" indicates that no report
-    //   should be produced.
-    for (int n = 0; n < 24; n++)
-        OutIndex[n] = 0;
-    Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    for (int n = 0; n < 23 && 3 * n < nLength; n++)
-    {
-        int n1 = 3 * n;
-        OutIndex[n + 1] = atoi(Dummy.substr(n1, 3).c_str());
-    }
     DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
