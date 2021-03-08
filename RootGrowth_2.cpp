@@ -11,6 +11,7 @@
 // RootCultivation()
 // RootSummation()
 //
+#include <cmath>
 #include <numeric>
 #include <fstream>
 #include "global.h"

@@ -26,6 +26,7 @@
 //  sunangle()
 //  SimulateRunoff()
 //
+#include <cmath>
 #include "global.h"
 #include "DailyClimate.h"
 

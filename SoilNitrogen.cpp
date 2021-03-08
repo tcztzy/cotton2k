@@ -9,6 +9,7 @@
 // Nitrification()
 // Denitrification()
 //
+#include <cmath>
 #include <fstream>
 #include "global.h"
 #include "Simulation.h"

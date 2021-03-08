@@ -10,6 +10,7 @@
 // NitrogenFlow()
 // SoilSum()
 //
+#include <cmath>
 #include "global.h"
 #include "GeneralFunctions.h"
 #include "Simulation.h"
@@ -50,17 +51,17 @@ void GravityFlow(SoilCell soil_cells[40][20], double applywat, double row_space)
 ///////////////////////////////////////////////////////////////////////////////////
 void WaterUptake(Simulation &sim, unsigned int u)
 //     This function computes the uptake of water by plant roots from the soil
-//  (i.e., actual transpiration rate). It is called from SoilProcedures(). 
+//  (i.e., actual transpiration rate). It is called from SoilProcedures().
 //     It calls PsiOnTranspiration(), psiq(), PsiOsmotic().
 //
 //     The following global variables are referenced:
-//  dl, LightIntercept, nk, nl, NumLayersWithRoots, ReferenceTransp, RootColNumLeft, 
+//  dl, LightIntercept, nk, nl, NumLayersWithRoots, ReferenceTransp, RootColNumLeft,
 //  RootColNumRight, SoilHorizonNum, thetar, TotalRequiredN, wk.
 //     The following global variables are set:
-//  ActualTranspiration, SoilPsi, VolWaterContent. 
+//  ActualTranspiration, SoilPsi, VolWaterContent.
 {
     State &state = sim.states[u];
-    // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate. 
+    // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate.
     double LightInter1; // modified light interception factor by canopy
     LightInter1 = LightIntercept * 1.55 - 0.32;
     if (LightInter1 < LightIntercept)
@@ -80,7 +81,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
         }
     double sumep = 0; // sum of actual transpiration from all soil soil cells, cm3 per day.
 
-    // Compute the reduction due to soil moisture supply by function PsiOnTranspiration().  
+    // Compute the reduction due to soil moisture supply by function PsiOnTranspiration().
     double Transp; // the actual transpiration converted to cm3 per slab units.
     Transp = .10 * sim.row_space * PotentialTranspiration * PsiOnTranspiration(AverageSoilPsi);
     double difupt = 0; // the cumulative difference between computed transpiration and actual transpiration, in cm3, due to limitation of PWP.
@@ -101,7 +102,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
                     redfac = 0;
                 if (redfac > 1)
                     redfac = 1;
-                // The computed 'uptake factor' (upf) for each soil cell is the product of 'root weight capable of uptake' and redfac. 
+                // The computed 'uptake factor' (upf) for each soil cell is the product of 'root weight capable of uptake' and redfac.
                 upf[l][k] = sim.states[u].soil.cells[l][k].root.weight_capable_uptake * redfac;
                 supf += upf[l][k];
             }
@@ -111,7 +112,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
         for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
             for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++)
                 if (upf[l][k] > 0 && VolWaterContent[l][k] > thetar[l]) {
-                    // The amount of water extracted from each cell is proportional to its 'uptake factor'. 
+                    // The amount of water extracted from each cell is proportional to its 'uptake factor'.
                     double upth2o;  // transpiration from a soil cell, cm3 per day
                     upth2o = Transp * upf[l][k] / supf;
                     // Update VolWaterContent cell, storing its previous value as vh2ocx.
@@ -130,18 +131,18 @@ void WaterUptake(Simulation &sim, unsigned int u)
                     }
                     if (upth2o < 0)
                         upth2o = 0;
-                    
+
                     // Compute sumep as the sum of the actual amount of water extracted from all soil cells. Recalculate uptk of this soil cell as cumulative upth2o.
                     sumep += upth2o;
                     uptk[l][k] += upth2o;
                 }
-        
+
         // If difupt is greater than zero, redefine the variable Transp as difuptfor use in next loop.
         if (difupt > 0)
             Transp = difupt;
     } while (difupt > 0);
-    
-    // recompute SoilPsi for all soil cells with roots by calling function PSIQ, 
+
+    // recompute SoilPsi for all soil cells with roots by calling function PSIQ,
     for (int l = 0; l < state.soil.number_of_layers_with_root; l++) {
         int j = SoilHorizonNum[l];
         for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++)
@@ -151,11 +152,11 @@ void WaterUptake(Simulation &sim, unsigned int u)
 
     // compute ActualTranspiration as actual water transpired, in mm.
     state.actual_transpiration = sumep * 10 / sim.row_space;
-    
+
     // Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
     SupplyNH4N = 0;
     SupplyNO3N = 0;
-    
+
     // Compute the proportional N requirement from each soil cell with roots, and call function NitrogenUptake() to compute nitrogen uptake.
     if (sumep > 0 && state.total_required_nitrogen > 0) {
         for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
@@ -177,7 +178,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //        k, l - column and layer index of this cell.
 //        reqnc - maximum N uptake (proportional to total N
 //                required for plant growth), g N per plant.
-//     Global variables referenced: 
+//     Global variables referenced:
 //       PerPlantArea, dl, VolWaterContent, wk
 //     The following global variables are set here:
 //       SupplyNH4N, SupplyNO3N, VolNh4NContent, VolNo3NContent
@@ -190,11 +191,11 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //
     double coeff; // coefficient used to convert g per plant to mg cm-3 units.
     coeff = 10 * row_space / (PerPlantArea * dl(l) * wk(k, row_space));
-//     A Michaelis-Menten procedure is used to compute the rate of nitrate uptake from 
+//     A Michaelis-Menten procedure is used to compute the rate of nitrate uptake from
 //  each cell. The maximum possible amount of uptake is reqnc (g N per plant), and
-//  the half of this rate occurs when the nitrate concentration in the soil solution is 
+//  the half of this rate occurs when the nitrate concentration in the soil solution is
 //  halfn (mg N per cm3 of soil water).
-//     Compute the uptake of nitrate from this soil cell, upno3c in g N per plant units. 
+//     Compute the uptake of nitrate from this soil cell, upno3c in g N per plant units.
 //  Define the maximum possible uptake, upmax, as a fraction of VolNo3NContent.
     if (soil_cell.nitrate_nitrogen_content > 0) {
         double upno3c; // uptake rate of nitrate, g N per plant per day
@@ -212,7 +213,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //     upno3c is added to the total uptake by the plant (SupplyNO3N).
         SupplyNO3N += upno3c;
     }
-//     Ammonium in the soil is in a dynamic equilibrium between the adsorbed and the soluble 
+//     Ammonium in the soil is in a dynamic equilibrium between the adsorbed and the soluble
 //  fractions. The parameters p1 and p2 are used to compute the dissolved concentration,
 //  AmmonNDissolved, of ammoniumnitrogen. bb, cc, ee are intermediate values for computing.
     if (VolNh4NContent[l][k] > 0) {
@@ -223,7 +224,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
             ee = 0;
         double AmmonNDissolved; // ammonium N dissolved in soil water, mg cm-3 of soil
         AmmonNDissolved = 0.5 * (sqrt(ee) - bb);
-//     Uptake of ammonium N is now computed from AmmonNDissolved , using the Michaelis-Menten 
+//     Uptake of ammonium N is now computed from AmmonNDissolved , using the Michaelis-Menten
 //  method, as for nitrate. upnh4c is added to the total uptake SupplyNH4N.
         if (AmmonNDissolved > 0) {
             double upnh4c; // uptake rate of ammonium, g N per plant per day
@@ -244,8 +245,8 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 ////////////////////////////////////////////////////////////////////////////////
 void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
                double qs1[], double pp1[], int nn, int iv, int ll, long numiter)
-//     This function computes the movement of water in the soil, caused by potential differences 
-//  between cells in a soil column or in a soil layer. It is called by function  
+//     This function computes the movement of water in the soil, caused by potential differences
+//  between cells in a soil column or in a soil layer. It is called by function
 //  CapillaryFlow(). It calls functions WaterBalance(), psiq(), qpsi() and wcond().
 //
 //     The following arguments are used:
@@ -256,20 +257,20 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
 //       qs1 = array of saturated volumetric water content.
 //       pp1 = array of pore space v/v.
 //       nn = number of cells in the array.
-//       iv = indicator if flow direction, iv = 1 for vertical iv = 0 for horizontal. 
+//       iv = indicator if flow direction, iv = 1 for vertical iv = 0 for horizontal.
 //       ll = layer number if the flow is horizontal.
 //       numiter = counter for the number of iterations.
 //
-//     Global variables referenced: 
+//     Global variables referenced:
 //       alpha, vanGenuchtenBeta, RatioImplicit, SaturatedHydCond, SoilHorizonNum.
-//   
+//
 {
     double delt = 1 / (double) noitr; // the time step of this iteration (fraction of day)
     double cond[40]; // values of hydraulic conductivity
     double kx[40]; // non-dimensional conductivity to the lower layer or to the column on the right
     double ky[40]; // non-dimensional conductivity to the upper layer or to the column on the left
 //     Loop over all soil cells. if this is a vertical flow, define the profile index j
-//  for each soil cell. compute the hydraulic conductivity of each soil cell, using the 
+//  for each soil cell. compute the hydraulic conductivity of each soil cell, using the
 //  function wcond(). Zero the arrays kx and ky.
     int j = SoilHorizonNum[ll]; // for horizontal flow (iv = 0)
     for (int i = 0; i < nn; i++) {
@@ -313,7 +314,7 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
         qx[i] = q1[i];
 //     Loop from the second to the last but one soil cells.
     for (int i = 1; i < nn - 1; i++) {
-//     Compute the difference in soil water potential between adjacent cells (deltpsi). 
+//     Compute the difference in soil water potential between adjacent cells (deltpsi).
 //  This difference is not allowed to be greater than 1000 bars, in order to prevent computational
 //  overflow in cells with low water content.
         double deltpsi = psi1[i - 1] - psi1[i]; // difference of soil water potentials (in bars)
@@ -322,17 +323,17 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
             deltpsi = 1000;
         if (deltpsi < -1000)
             deltpsi = -1000;
-//     If this is a vertical flux, add the gravity component of water potential. 
+//     If this is a vertical flux, add the gravity component of water potential.
         if (iv == 1)
             deltpsi += 0.001 * dy[i];
-//     Compute dumm1 (the hydraulic conductivity redimensioned to cm), and check that it will 
+//     Compute dumm1 (the hydraulic conductivity redimensioned to cm), and check that it will
 //  not exceed conmax multiplied by the distance between soil cells, in order to prevent
 //  overflow errors.
         double dumm1; // redimensioned hydraulic conductivity components between adjacent cells.
         dumm1 = 1000 * avcond[i] * delt / dy[i];
         if (dumm1 > conmax * dy[i])
             dumm1 = conmax * dy[i];
-//     Water entering soil cell i is now computed, weighted by (1 - RatioImplicit). 
+//     Water entering soil cell i is now computed, weighted by (1 - RatioImplicit).
 //  It is not allowed to be greater than 25% of the difference between the cells.
 //     Compute water movement from soil cell i-1 to i:
         double dqq1; // water added to cell i from cell (i-1)
@@ -391,8 +392,8 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
 //     Compute the implicit part of the solution, weighted by RatioImplicit, starting
 //  loop from the second cell.
     for (int i = 1; i < nn; i++) {
-//     Mean conductivity (avcond) between adjacent cells is made "dimensionless" (ky) by 
-//  multiplying it by the time step (delt)and dividing it by cell length (dd) and by dy. 
+//     Mean conductivity (avcond) between adjacent cells is made "dimensionless" (ky) by
+//  multiplying it by the time step (delt)and dividing it by cell length (dd) and by dy.
 //  It is also multiplied by 1000 for converting the potential differences from bars to cm.
         ky[i] = 1000 * avcond[i] * delt / (dy[i] * dd[i]);
 //     Very low values of ky are converted to zero, to prevent underflow computer errors, and
@@ -402,7 +403,7 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
         if (ky[i] > conmax)
             ky[i] = conmax;
     }
-//     ky[i] is the conductivity between soil cells i and i-1, whereas kx[i] is between i and i+1. 
+//     ky[i] is the conductivity between soil cells i and i-1, whereas kx[i] is between i and i+1.
 //  Another loop, until the last but one soil cell, computes kx in a similar manner.
     for (int i = 0; i < nn - 1; i++) {
         kx[i] = 1000 * avcond[i + 1] * delt / (dy[i + 1] * dd[i]);
@@ -426,7 +427,7 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
 //  potential by function psiq and stored in array d1 (in bar units).
         d1[i] = psiq(q1[i], qr1[i], qs1[i], alpha[j], vanGenuchtenBeta[j]);
     }
-//     The solution of the simultaneous equations in the implicit method alternates between 
+//     The solution of the simultaneous equations in the implicit method alternates between
 //  the two directions along the arrays. The reason for this is because the direction of the
 //  solution may cause some cumulative bias. The counter numiter determines the direction
 //  of the solution.
@@ -489,11 +490,11 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
 
 ////////////////////////
 void WaterBalance(double q1[], double qx[], double dd[], int nn)
-//     This function checks and corrects the water balance in the soil cells 
+//     This function checks and corrects the water balance in the soil cells
 //  within a soil column or a soil layer. It is called by WaterFlux().
-//     The implicit part of the solution may cause some deviation in the total amount of water 
-//  to occur. This module corrects the water balance if the sum of deviations is not zero, so 
-//  that the total amount of water in the array will not change. The correction is proportional 
+//     The implicit part of the solution may cause some deviation in the total amount of water
+//  to occur. This module corrects the water balance if the sum of deviations is not zero, so
+//  that the total amount of water in the array will not change. The correction is proportional
 //  to the difference between the previous and present water amounts in each soil cell.
 //
 //     The following arguments are used here:
@@ -519,10 +520,10 @@ void WaterBalance(double q1[], double qx[], double dd[], int nn)
 
 ////////////////////////////////////////////////////////////////////////////////
 void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], double nur[])
-//     This function computes the movement of nitrate and urea between the soil cells, 
-//  within a soil column or within a soil layer, as a result of water flux. 
+//     This function computes the movement of nitrate and urea between the soil cells,
+//  within a soil column or within a soil layer, as a result of water flux.
 //     It is called by function CapillaryFlow().
-//     It is assumed that there is only a passive movement of nitrate and urea 
+//     It is assumed that there is only a passive movement of nitrate and urea
 //  (i.e., with the movement of water).
 //     The following arguments are used here:
 //       dd[] - one dimensional array of layer or column widths.
@@ -546,11 +547,11 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
     double udn[40] = {40 * 0}; // amount of urea N moving to the previous cell.
     double uup[40] = {40 * 0}; // amount of urea N moving to the following cell.
     for (int i = 0; i < nn; i++) {
-//     The amout of water in each soil cell before (aq0) and after (aq1) water movement is 
-//  computed from the previous values of water content (q01), the present values (q1), 
+//     The amout of water in each soil cell before (aq0) and after (aq1) water movement is
+//  computed from the previous values of water content (q01), the present values (q1),
 //  and layer thickness. The associated transfer of soluble nitrate N (qup and qdn) and urea N
-//  (uup and udn) is now computed. qup and uup are upward movement (from cell i+1 to i), 
-//  qdn and udn are downward movement (from cell i-1 to i). 
+//  (uup and udn) is now computed. qup and uup are upward movement (from cell i+1 to i),
+//  qdn and udn are downward movement (from cell i-1 to i).
         double aq0 = q01[i] * dd[i]; // previous amount of water in cell i
         double aq1 = q1[i] * dd[i];  // amount of water in cell i now
         if (i == 0) {
@@ -587,9 +588,9 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
 ///////////////////////////////////////////////////////////////////////////
 void SoilSum(State &state, double row_space)
 //     This function computes sums of some soil variables. It is called by SimulateThisDay()
-//     It computes the total amounts per slab of water in mm (TotalSoilWater). The sums of 
-//  nitrogen are in mg N per slab: nitrate (TotalSoilNo3N), ammonium (TotalSoilNh4N), 
-//  urea (TotalSoilUreaN) and the sum of all mineral nitrogen forms (TotalSoilNitrogen). 
+//     It computes the total amounts per slab of water in mm (TotalSoilWater). The sums of
+//  nitrogen are in mg N per slab: nitrate (TotalSoilNo3N), ammonium (TotalSoilNh4N),
+//  urea (TotalSoilUreaN) and the sum of all mineral nitrogen forms (TotalSoilNitrogen).
 //
 //     The following global variables are referenced here:
 //       dl, nk, nl, RowSpace, VolWaterContent, VolNh4NContent, VolNo3NContent, VolUreaNContent, wk.

@@ -8,6 +8,7 @@
 // GetNetPhotosynthesis()
 // PlantGrowth()
 //
+#include <cmath>
 #include "global.h"
 #include "exceptions.h"
 #include "GeneralFunctions.h"

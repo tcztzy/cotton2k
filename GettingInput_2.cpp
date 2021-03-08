@@ -8,6 +8,7 @@
 // InitializeSoilTemperature()
 // form()
 //
+#include <cmath>
 #include <filesystem>
 #include "global.h"
 #include "exceptions.h"

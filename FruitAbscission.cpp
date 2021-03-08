@@ -8,6 +8,7 @@
 //       ComputeSiteNumbers()
 //
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include "global.h"
 #include "Simulation.h"

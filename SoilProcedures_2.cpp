@@ -1,11 +1,12 @@
 // File SoilProcedures_2.cpp
 //
 //   functions in this file:
-// CapillaryFlow() 
+// CapillaryFlow()
 // Drain()
-// DripFlow()    
+// DripFlow()
 // CellDistance()
-// 
+//
+#include <cmath>
 #include "global.h"
 #include "GeneralFunctions.h"
 #include "Simulation.h"
@@ -21,9 +22,9 @@ void NitrogenFlow(int, double[], double[], double[], double[], double[]);
 
 //////////////////////////
 void CapillaryFlow(Simulation &sim, unsigned int u)
-//     This function computes the capillary water flow between soil cells. It is called by 
-//  SoilProcedures(), noitr times per day.  The number of iterations (noitr) has been computed 
-//  in SoilProcedures() as a function of the amount of water applied. It is executed only once 
+//     This function computes the capillary water flow between soil cells. It is called by
+//  SoilProcedures(), noitr times per day.  The number of iterations (noitr) has been computed
+//  in SoilProcedures() as a function of the amount of water applied. It is executed only once
 //  per day if no water is applied by rain or irrigation.
 //     It calls functions:   Drain(), NitrogenFlow(), psiq(), PsiOsmotic(), WaterFlux().
 //
@@ -51,7 +52,7 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
             SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
                             - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
     }
-//    
+//
     int nlx = nl; // The last layer without a water table.
     if (WaterTableLayer < nlx)
         nlx = WaterTableLayer - 1;
@@ -66,8 +67,8 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
 //
 //     VERTICAL FLOW in each column. the direction indicator iv is set to 1.
     iv = 1;
-//     Loop over all columns. Temporary one-dimensional arrays are defined for each column: 
-//  assign the VolWaterContent[] values to temporary one-dimensional arrays q1 and q01. Assign 
+//     Loop over all columns. Temporary one-dimensional arrays are defined for each column:
+//  assign the VolWaterContent[] values to temporary one-dimensional arrays q1 and q01. Assign
 //  SoilPsi, VolNo3NContent and VolUreaNContent values to arrays psi1, nit and nur, respectively.
     for (int k = 0; k < nk; k++) {
         double _dl[40];
@@ -79,11 +80,11 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
             nur[l] = VolUreaNContent[l][k];
             _dl[l] = dl(l);
         } // end loop l
-//     Call the following functions: WaterFlux() calculates the water flow caused by potential 
-//  gradients; NitrogenFlow() computes the movement of nitrates caused by the flow of water. 
+//     Call the following functions: WaterFlux() calculates the water flow caused by potential
+//  gradients; NitrogenFlow() computes the movement of nitrates caused by the flow of water.
         WaterFlux(q1, psi1, _dl, thad, thts, PoreSpace, nlx, iv, 0, numiter);
         NitrogenFlow(nl, q01, q1, _dl, nit, nur);
-//     Reassign the updated values of q1, nit, nur and psi1 back to 
+//     Reassign the updated values of q1, nit, nur and psi1 back to
 //  VolWaterContent, VolNo3NContent, VolUreaNContent and SoilPsi.
         for (int l = 0; l < nlx; l++) {
             VolWaterContent[l][k] = q1[l];
@@ -98,9 +99,9 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
 //
 //     HORIZONTAL FLUX in each layer. The direction indicator iv is set to 0.
     iv = 0;
-//     Loop over all layers. Define the horizon number j for this layer. Temporary 
-//  one-dimensional arrays are defined for each layer: assign the VolWaterContent values 
-//  to  q1 and q01. Assign SoilPsi, VolNo3NContent, VolUreaNContent, thad and thts values 
+//     Loop over all layers. Define the horizon number j for this layer. Temporary
+//  one-dimensional arrays are defined for each layer: assign the VolWaterContent values
+//  to  q1 and q01. Assign SoilPsi, VolNo3NContent, VolUreaNContent, thad and thts values
 //  of the soil cells to arrays psi1, nit, nur, qr1 and qs1, respectively.
     for (int l = 0; l < nlx; l++) {
         for (int k = 0; k < nk; k++) {
@@ -114,11 +115,11 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
             nur[k] = VolUreaNContent[l][k];
             wk1[k] = wk(k, sim.row_space);
         }
-//     Call subroutines WaterFlux(), and NitrogenFlow() to compute water nitrate and 
-//  urea transport in the layer. 
+//     Call subroutines WaterFlux(), and NitrogenFlow() to compute water nitrate and
+//  urea transport in the layer.
         WaterFlux(q1, psi1, wk1, qr1, qs1, pp1, nk, iv, l, numiter);
         NitrogenFlow(nk, q01, q1, wk1, nit, nur);
-//     Reassign the updated values of q1, nit, nur and psi1 back to 
+//     Reassign the updated values of q1, nit, nur and psi1 back to
 //  VolWaterContent, VolNo3NContent, VolUreaNContent and SoilPsi.
         for (int k = 0; k < nk; k++) {
             VolWaterContent[l][k] = q1[k];
@@ -145,14 +146,14 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
 
 ////////////////////////////////////////////////////////////////////////////////////
 double Drain(SoilCell soil_cells[40][20], double row_space)
-//     This function computes the gravity flow of water in the slab, and returns the 
+//     This function computes the gravity flow of water in the slab, and returns the
 //  drainage of water out of the slab. It is called from GravityFlow() and CapillaryFlow().
 //
 //     The following global variables are referenced:
 //       dl, FieldCapacity, MaxWaterCapacity, nk, nl, NO3FlowFraction, PoreSpace,
 //       WaterTableLayer, wk
 //     The following global variables are set:
-//       SoilNitrogenLoss, VolNo3NContent, VolUreaNContent, VolWaterContent, 
+//       SoilNitrogenLoss, VolNo3NContent, VolUreaNContent, VolWaterContent,
 {
     int nlx = nl; // last soil layer for computing drainage.
     if (WaterTableLayer < nlx)
@@ -172,15 +173,15 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
 //     Upper limit of water content in free drainage..
         double uplimit = MaxWaterCapacity[l];
 //
-//     Check if the average water content exceeds uplimit for this layer, and if it does, 
+//     Check if the average water content exceeds uplimit for this layer, and if it does,
 //  compute amount (wmov) to be moved to the next layer from each cell.
         double wmov; // amount of water moving out of a cell.
         if (avwl > uplimit) {
             wmov = avwl - uplimit;
             wmov = wmov * dl(l) / dl(l + 1);
             for (int k = 0; k < nk; k++) {
-//     Water content of all soil cells in this layer will be uplimit. the amount (qmv) 
-//  to be added to each cell of the next layer is computed (corrected for non uniform 
+//     Water content of all soil cells in this layer will be uplimit. the amount (qmv)
+//  to be added to each cell of the next layer is computed (corrected for non uniform
 //  column widths). The water content in the next layer is computed.
                 VolWaterContent[l][k] = uplimit;
                 VolWaterContent[l + 1][k] += wmov * wk(k, row_space) * nk / row_space;
@@ -209,7 +210,7 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
                 }
             }
         }
-//     If the average water content is not higher than uplimit, start another loop over columns.  
+//     If the average water content is not higher than uplimit, start another loop over columns.
         else {
             for (int k = 0; k < nk; k++) {
 //  Check each soil cell if water content exceeds uplimit,
@@ -264,14 +265,14 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
 
 /////////////////////////////////////////////////////////////////////////////////////
 void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
-//     This function computes the water redistribution in the soil after irrigation 
-//  by a drip system. It also computes the resulting redistribution of nitrate and urea N. 
+//     This function computes the water redistribution in the soil after irrigation
+//  by a drip system. It also computes the resulting redistribution of nitrate and urea N.
 //  It is called by SoilProcedures() noitr times per day. It calls function CellDistrib().
 //     The following argument is used:
 //  Drip - amount of irrigation applied by the drip method, mm.
 //
 //     The following global variables are referenced:
-//       dl, LocationColumnDrip, LocationLayerDrip, MaxWaterCapacity, 
+//       dl, LocationColumnDrip, LocationLayerDrip, MaxWaterCapacity,
 //       nk, nl, NO3FlowFraction, PoreSpace, wk
 //
 //     The following global variables are set:
@@ -306,7 +307,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
         VolWaterContent[l0][k0] += dripw[0] / (dl(l0) * wk(k0, row_space));
         return;
     }
-//      If maximum water capacity is exceeded - calculate the excess of water flowing out of 
+//      If maximum water capacity is exceeded - calculate the excess of water flowing out of
 //  this cell (in cm3 per slab) as dripw[1]. The next ring of cells (kr=1) will receive it
 //  as incoming water flow.
     dripw[1] = dripw[0] - h2odef;
@@ -315,7 +316,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
     if (soil_cell.nitrate_nitrogen_content > 1.e-30) {
         cnw = soil_cell.nitrate_nitrogen_content / (VolWaterContent[l0][k0] + dripw[0] / (dl(l0) * wk(k0, row_space)));
 //     cnw is multiplied by dripw[1] to get dripn[1], the amount of nitrate N going out
-//  to the next ring of cells. It is assumed, however, that not more than a proportion  
+//  to the next ring of cells. It is assumed, however, that not more than a proportion
 //  (NO3FlowFraction) of the nitrate N in this cell can be removed in one iteration.
         if ((cnw * MaxWaterCapacity[l0]) < (NO3FlowFraction[l0] * soil_cell.nitrate_nitrogen_content)) {
             dripn[1] = NO3FlowFraction[l0] * soil_cell.nitrate_nitrogen_content * dl(l0) * wk(k0, row_space);
@@ -355,14 +356,14 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
         double dist; // distance (cm) of a cell center from drip location
 //     Loop over all soil cells
         for (int l = 1; l < nl; l++) {
-//     Upper limit of water content is the porespace volume in layers below the water table, 
+//     Upper limit of water content is the porespace volume in layers below the water table,
 //  MaxWaterCapacity in other layers.
             if (l >= WaterTableLayer)
                 uplimit = PoreSpace[l];
             else
                 uplimit = MaxWaterCapacity[l];
             for (int k = 0; k < nk; k++) {
-//     Compute the sums sv, st, sn, sn1, su and su1 within the radius limits of this ring. The 
+//     Compute the sums sv, st, sn, sn1, su and su1 within the radius limits of this ring. The
 //  array defcit is the sum of difference between uplimit and VolWaterContent of each cell.
                 dist = CellDistance(l, k, l0, k0, row_space);
                 if (dist <= radius && dist > (radius - 6)) {
@@ -377,7 +378,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
                     defcit[l][k] = 0;
             } // end loop k
         } // end loop l
-//     Compute the amount of water needed to saturate all the cells in this ring (h2odef). 
+//     Compute the amount of water needed to saturate all the cells in this ring (h2odef).
         h2odef = st - sv;
 //     Test if the amount of incoming flow, dripw(kr), is greater than  h2odef.
         if (dripw[kr] <= h2odef) {
@@ -398,13 +399,13 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
             return;
         } // end if dripw
 //     If dripw(kr) is greater than h2odef, calculate cnw and cuw as the concentration of nitrate
-//  and urea N in the total water of this ring after receiving the incoming water and nitrogen. 
+//  and urea N in the total water of this ring after receiving the incoming water and nitrogen.
         cnw = (sn + dripn[kr]) / (sv + dripw[kr]);
         cuw = (su + dripu[kr]) / (sv + dripw[kr]);
         double drwout = dripw[kr] - h2odef;  //  the amount of water going out of a ring, cm3.
-//     Compute the nitrate and urea N going out of this ring, and their amount lost from this 
-//  ring. It is assumed that not more than a certain part of the total nitrate or urea N 
-//  (previously computed as sn1 an su1) can be lost from a ring in one iteration. drnout and 
+//     Compute the nitrate and urea N going out of this ring, and their amount lost from this
+//  ring. It is assumed that not more than a certain part of the total nitrate or urea N
+//  (previously computed as sn1 an su1) can be lost from a ring in one iteration. drnout and
 //  xnloss are adjusted accordingly. druout and xuloss are computed similarly for urea N.
         double drnout = drwout * cnw;  //  the amount of nitrate N going out of a ring, mg
         double xnloss = 0; // the amount of nitrate N lost from a ring, mg
@@ -424,7 +425,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
                 druout = dripu[kr] + xuloss;
             }
         }
-//     For all the cells in the ring, as in the 1st cell, saturate VolWaterContent to uplimit, 
+//     For all the cells in the ring, as in the 1st cell, saturate VolWaterContent to uplimit,
 //  and update VolNo3NContent and VolUreaNContent.
         for (int l = 1; l < nl; l++) {
             if (l >= WaterTableLayer)
@@ -447,13 +448,13 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
                 } // end if dist
             } // end loop k
         } // end loop l
-//     The outflow of water, nitrate and urea from this ring will be the inflow into the next ring. 
+//     The outflow of water, nitrate and urea from this ring will be the inflow into the next ring.
         if (kr < (nl - l0 - 1) && kr < maxl - 1) {
             dripw[kr + 1] = drwout;
             dripn[kr + 1] = drnout;
             dripu[kr + 1] = druout;
         } else
-//     If this is the last ring, the outflowing water will be added to the drainage, 
+//     If this is the last ring, the outflowing water will be added to the drainage,
 //  CumWaterDrained, the outflowing nitrogen to SoilNitrogenLoss.
         {
             CumWaterDrained += 10 * drwout / row_space;

@@ -7,6 +7,7 @@
 // InitializeGrid()
 // WriteInitialInputData()
 //
+#include <cmath>
 #include <filesystem>
 #include <vector>
 #include "global.h"
