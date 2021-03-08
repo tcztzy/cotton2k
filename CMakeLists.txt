@@ -39,10 +39,17 @@ ExternalProject_Add(cotton2k.rs
         LOG_BUILD ON
 )
 add_dependencies(${LIBRARY} cotton2k.rs)
+if(WIN32)
 target_link_libraries(${LIBRARY}
         debug "${CMAKE_SOURCE_DIR}/target/debug/cotton2k.lib"
         optimized "${CMAKE_SOURCE_DIR}/target/release/cotton2k.lib"
         ws2_32 userenv advapi32)
+else()
+target_link_libraries(${LIBRARY}
+        debug "${CMAKE_SOURCE_DIR}/target/debug/libcotton2k.a"
+        optimized "${CMAKE_SOURCE_DIR}/target/release/libcotton2k.a"
+        ws2_32 userenv advapi32)
+endif()
 target_include_directories(${LIBRARY} PRIVATE
         ${CMAKE_SOURCE_DIR})
 install(TARGETS ${LIBRARY} LIBRARY DESTINATION ${PYTHON_RELATIVE_SITE_PACKAGES_DIR})
