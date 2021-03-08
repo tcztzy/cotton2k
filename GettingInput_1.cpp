@@ -219,21 +219,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     //     Line #7: Frequency in days for output of soil maps, and dates
     //  for start and stop of this output (blank or 0 if no such output is
     //  required. Same is repeated for output of plant maps.
-    string SoilMapStartDate, SoilMapStopDate;
-    Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    if (nLength > 9)
-        SoilMapFreq = atoi(Dummy.substr(0, 10).c_str());
-    if (nLength >= 16)
-    {
-        SoilMapStartDate = Dummy.substr(14, 11);
-        SoilMapStartDate.erase(remove(SoilMapStartDate.begin(), SoilMapStartDate.end(), ' '), SoilMapStartDate.end());
-    }
-    if (nLength >= 31)
-    {
-        SoilMapStopDate = Dummy.substr(29, 11);
-        SoilMapStopDate.erase(remove(SoilMapStopDate.begin(), SoilMapStopDate.end(), ' '), SoilMapStopDate.end());
-    }
     DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
@@ -241,11 +226,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     uint32_t DayEmerge = DateToDoy(DateEmerge.c_str(), year);
     uint32_t DayFinish = DateToDoy(DateSimEnd.c_str(), year);
     uint32_t DayPlant = DateToDoy(DatePlant.c_str(), year);
-    uint32_t DayStartSoilMaps = DateToDoy(SoilMapStartDate.c_str(), year);
-    uint32_t DayStopSoilMaps = DateToDoy(SoilMapStopDate.c_str(), year);
-    //     If the output frequency indicators are zero, they are set to 999.
-    if (SoilMapFreq <= 0)
-        SoilMapFreq = 999;
     Simulation sim = { ProfileName };
     sim.profile_name_length = strlen(ProfileName);
     sim.year = year;
@@ -253,8 +233,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     sim.day_start = DayStart;
     sim.day_finish = DayFinish;
     sim.day_plant = DayPlant;
-    sim.day_start_soil_maps = DayStartSoilMaps;
-    sim.day_stop_soil_maps = DayStopSoilMaps;
     sim.day_start_co2 = DayStartCO2;
     sim.day_end_co2 = DayEndCO2;
     sim.co2_enrichment_factor = CO2EnrichmentFactor;

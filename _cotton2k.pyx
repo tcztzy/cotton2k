@@ -102,6 +102,12 @@ def _date2doy(d):
     else:
         return 0
 
+cdef void read_soil_map_config(Simulation &sim, int day_start, int day_stop, int frequency):
+    global SoilMapFreq
+    SoilMapFreq = frequency
+    sim.day_start_soil_maps = day_start
+    sim.day_stop_soil_maps = day_stop
+
 def read_output_flags(output_flags):
     for n in range(24):
         OutIndex[n] = 0
@@ -180,6 +186,12 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim = ReadProfileFile(profile_name, filenames)
+        read_soil_map_config(
+            self._sim,
+            _date2doy(kwargs.get("soil_map_start_date", 0)),
+            _date2doy(kwargs.get("soil_map_stop_date", 0)),
+            kwargs.get("soil_map_frequency", 999),
+        )
         read_output_flags(kwargs.get("output_flags", ()))
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
