@@ -102,6 +102,18 @@ def _date2doy(d):
     else:
         return 0
 
+cdef void read_plant_config(
+    Simulation &sim,
+    double row_space,
+    double skip_row,
+    double plants_per_meter,
+    int var_id):
+    global SkipRowWidth, PlantsPerM, nVarNum
+    sim.row_space = row_space
+    SkipRowWidth = skip_row
+    PlantsPerM = plants_per_meter
+    nVarNum = var_id
+
 cdef void read_soil_map_config(Simulation &sim, int day_start, int day_stop, int frequency):
     global SoilMapFreq
     SoilMapFreq = frequency
@@ -186,6 +198,13 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim = ReadProfileFile(profile_name, filenames)
+        read_plant_config(
+            self._sim,
+            kwargs.get("row_space", 0),
+            kwargs.get("skip_row", 0),
+            kwargs.get("plants_per_meter", 0),
+            kwargs["var_id"]
+        )
         read_soil_map_config(
             self._sim,
             _date2doy(kwargs.get("soil_map_start_date", 0)),

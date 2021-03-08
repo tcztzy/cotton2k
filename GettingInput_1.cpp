@@ -202,23 +202,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
         Elevation = atof(Dummy.substr(20, 10).c_str());
     if (nLength > 30)
         nSiteNum = atoi(Dummy.substr(30).c_str());
-    //     Line #6: Row spacing in cm, skip-row spacing in cm (blank or 0
-    //  for no skip rows), number of plants per meter of row, and index
-    //  number for the cultivar.
-    Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    double RowSpace;
-    if (nLength > 1)
-        RowSpace = atof(Dummy.substr(0, 10).c_str());
-    if (nLength >= 20)
-        SkipRowWidth = atof(Dummy.substr(10, 10).c_str());
-    if (nLength >= 30)
-        PlantsPerM = atof(Dummy.substr(20, 10).c_str());
-    if (nLength > 30)
-        nVarNum = atoi(Dummy.substr(30).c_str());
-    //     Line #7: Frequency in days for output of soil maps, and dates
-    //  for start and stop of this output (blank or 0 if no such output is
-    //  required. Same is repeated for output of plant maps.
     DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
@@ -244,7 +227,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     sim.latitude = Latitude;
     sim.longitude = Longitude;
     sim.elevation = Elevation;
-    sim.row_space = RowSpace;
     return sim;
 }
 
