@@ -17,8 +17,6 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-static Simulation ReadProfileFile(const char *);
-
 static void ReadCalibrationData();
 
 static void InitializeGrid(Simulation &);
@@ -52,25 +50,6 @@ static double SkipRowWidth,        // the smaller distance between skip rows, cm
 static string
     VarName,                // name of the cultivar
     SiteName;               // name of the site
-
-/////////////////////////////////////////////////////////////////////////////
-Simulation ReadProfileFile(const char *ProfileName)
-//     This function opens and reads the profile file. It is called from ReadInput().
-//  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
-//     The following global or file-scope variables are set here:
-//  bLat, bLong, CO2EnrichmentFactor,
-//  DayEndCO2, DayStartCO2, DayStartPlantMaps, DayStartSoilMaps,
-//  DayStopPlantMaps, DayStopSoilMaps, Elevation, isw, iyear, Latitude, Longitude, m_mulchdata,
-//  MulchIndicator, nSiteNum, nVarNum, OutIndex, PlantMapFreq, PlantsPerM,
-//  RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName, SoilMapFreq.
-//
-{
-    //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
-    // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
-    Simulation sim = { ProfileName };
-    sim.profile_name_length = strlen(ProfileName);
-    return sim;
-}
 
 //////////////////////////////////////////////////////////
 void ReadCalibrationData()

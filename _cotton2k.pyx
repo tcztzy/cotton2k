@@ -60,7 +60,6 @@ cdef extern from "Simulation.h":
         ClimateStruct climate[400]
 
 cdef extern from "GettingInput_1.cpp":
-    Simulation ReadProfileFile(const char *)
     void ReadCalibrationData()
     void InitializeGrid(Simulation &)
     double PlantsPerM
@@ -262,7 +261,7 @@ cdef class _Simulation:
         cdef vector[string] filenames = [b'', b'', b'', b'', b'']
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
-        self._sim = ReadProfileFile(profile_name)
+        self._sim.profile_name = profile_name
         read_date(
             self._sim,
             int(kwargs["start_date"][:4]),
