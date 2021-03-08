@@ -120,48 +120,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     }
     else
         CO2EnrichmentFactor = 0;
-    //     Line #3: Names of weather files: actual and predicted.
-    Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    if (nLength > 1)
-    {
-        string ActWthFileName = Dummy.substr(0, 20);
-        ActWthFileName.erase(remove(ActWthFileName.begin(), ActWthFileName.end(), ' '), ActWthFileName.end());
-        filenames[0] = ActWthFileName;
-    }
-    if (nLength > 21)
-    {
-        string PrdWthFileName = Dummy.substr(20, 20);
-        PrdWthFileName.erase(remove(PrdWthFileName.begin(), PrdWthFileName.end(), ' '), PrdWthFileName.end());
-        filenames[1] = PrdWthFileName;
-    }
-    //     For advanced users only: If soil mulch is used, read relevant parameters.
-    uint32_t MulchIndicator = 0;
-    uint32_t DayStartMulch = 0;
-    uint32_t DayEndMulch = 0;
-    double MulchTranSW = 0;
-    double MulchTranLW = 0;
-    string m_mulchdata;
-    if (nLength > 41)
-    {
-        m_mulchdata = Dummy.substr(40);
-        MulchIndicator = atoi(m_mulchdata.substr(0, 10).c_str());
-        if (MulchIndicator > 0)
-        {
-            MulchTranSW = atof(m_mulchdata.substr(10, 10).c_str());
-            MulchTranLW = atof(m_mulchdata.substr(20, 10).c_str());
-            DayStartMulch = atoi(m_mulchdata.substr(30, 5).c_str());
-            DayEndMulch = atoi(m_mulchdata.substr(35, 5).c_str());
-            if (DayEndMulch <= 0)
-                DayEndMulch = DateToDoy(DateSimEnd.c_str(), year);
-        }
-    }
-    else
-    {
-        m_mulchdata = "";
-        MulchIndicator = 0;
-    }
-    DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
     uint32_t DayStart = DateToDoy(DateSimStart.c_str(), year);
@@ -178,11 +136,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     sim.day_start_co2 = DayStartCO2;
     sim.day_end_co2 = DayEndCO2;
     sim.co2_enrichment_factor = CO2EnrichmentFactor;
-    sim.day_start_mulch = DayStartMulch;
-    sim.day_end_mulch = DayEndMulch;
-    sim.mulch_indicator = MulchIndicator;
-    sim.mulch_transmissivity_short_wave = MulchTranSW;
-    sim.mulch_transmissivity_long_wave = MulchTranLW;
     return sim;
 }
 
