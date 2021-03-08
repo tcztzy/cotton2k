@@ -6,7 +6,6 @@
 typedef struct Simulation
 {
     const char *profile_name;               // name of input file with profile data (without the extension ".PRO")
-    size_t profile_name_length;             //
     int year;                               // Simulation start year
     unsigned int day_emerge;                // Date of emergence (DOY).
     unsigned int day_start;                 // Date (DOY) to start simulation.
