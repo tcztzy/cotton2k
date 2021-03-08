@@ -78,29 +78,6 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     string DateEmerge, DateSimStart, DateSimEnd, DatePlant;
     Dummy = GetLineData(DataFile);
     int nLength = Dummy.length();
-    if (nLength >= 14)
-    {
-        DateEmerge = Dummy.substr(0, 14);
-        DateEmerge.erase(remove(DateEmerge.begin(), DateEmerge.end(), ' '), DateEmerge.end());
-    }
-    if (nLength >= 23)
-    {
-        DateSimStart = Dummy.substr(15, 14);
-        DateSimStart.erase(remove(DateSimStart.begin(), DateSimStart.end(), ' '), DateSimStart.end());
-    }
-    if (nLength >= 38)
-    {
-        DateSimEnd = Dummy.substr(30, 14);
-        DateSimEnd.erase(remove(DateSimEnd.begin(), DateSimEnd.end(), ' '), DateSimEnd.end());
-    }
-    if (nLength >= 53)
-    {
-        DatePlant = Dummy.substr(45, 14);
-        DatePlant.erase(remove(DatePlant.begin(), DatePlant.end(), ' '), DatePlant.end());
-    }
-    else
-        DatePlant = "";
-    int year = atoi(DateSimStart.substr(7, 4).c_str());
     //     For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates
     //	for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
     double CO2EnrichmentFactor = 0;
@@ -120,19 +97,11 @@ Simulation ReadProfileFile(const char *ProfileName, vector<string> &filenames)
     }
     else
         CO2EnrichmentFactor = 0;
+    DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
-    uint32_t DayStart = DateToDoy(DateSimStart.c_str(), year);
-    uint32_t DayEmerge = DateToDoy(DateEmerge.c_str(), year);
-    uint32_t DayFinish = DateToDoy(DateSimEnd.c_str(), year);
-    uint32_t DayPlant = DateToDoy(DatePlant.c_str(), year);
     Simulation sim = { ProfileName };
     sim.profile_name_length = strlen(ProfileName);
-    sim.year = year;
-    sim.day_emerge = DayEmerge;
-    sim.day_start = DayStart;
-    sim.day_finish = DayFinish;
-    sim.day_plant = DayPlant;
     sim.day_start_co2 = DayStartCO2;
     sim.day_end_co2 = DayEndCO2;
     sim.co2_enrichment_factor = CO2EnrichmentFactor;

@@ -102,6 +102,20 @@ def _date2doy(d):
     else:
         return 0
 
+cdef void read_date(
+    Simulation &sim,
+    int year,
+    int day_start,
+    int day_finish,
+    int day_emerge,
+    int day_plant,
+):
+    sim.year = year
+    sim.day_start = day_start
+    sim.day_emerge = day_emerge
+    sim.day_finish = day_finish
+    sim.day_plant = day_plant
+
 cdef void read_mulch_config(
     Simulation &sim,
     int indicator,
@@ -239,6 +253,14 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim = ReadProfileFile(profile_name, filenames)
+        read_date(
+            self._sim,
+            int(kwargs["start_date"][:4]),
+            _date2doy(kwargs["start_date"]),
+            _date2doy(kwargs.get("stop_date", 0)),
+            _date2doy(kwargs.get("emerge_date", 0)),
+            _date2doy(kwargs.get("plant_date", 0)),
+        )
         read_mulch_config(
             self._sim,
             kwargs.get("mulch_indicator", 0),
