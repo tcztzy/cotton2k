@@ -31,8 +31,6 @@ void PredictDripIrrigation(Simulation &, uint32_t, double, const double &);
 
 void PredictSurfaceIrrigation(Simulation &, unsigned int, double);
 
-void OutputPredictedIrrigation(double, double, const string &, const int &, const int &, const double &);
-
 double AveragePsi(const State &, double);
 
 void WaterTable(Simulation &, unsigned int); // WATERTBL
@@ -373,11 +371,10 @@ void ComputeIrrigation(Simulation &sim, uint32_t u)
     else
         PredictSurfaceIrrigation(sim, u, TargetStress);
     //     If the amount of water to be applied (AppliedWater) is non zero update the date of
-    //  last irrigation, and write report in output file *.B01.
+    //  last irrigation.
     if (sim.states[u].applied_water > 0.00001)
     {
         LastIrrigation = sim.day_start + u;
-        OutputPredictedIrrigation(sim.states[u].applied_water, TargetStress, sim.profile_name, sim.day_start + u, sim.year, sim.states[u].water_stress);
     }
 }
 
@@ -588,31 +585,6 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
             }
         }
     }
-}
-
-////////////////////////////////////////////////////////////////////////////
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress, const string &ProfileName, const int &Daynum, const int &year, const double &WaterStress)
-//      This function is called from ComputeIrrigation().
-//      It writes output ofapplication of predicted irrigation to file *.B01
-//      Function DoyToDate() is used.
-//      Arguments used: AppliedWater, TargetStress.
-//      Global variables referenced: iyear, WaterStress.
-{
-    ofstream File20(fs::path("output") / (ProfileName + ".B01"), ios::app);
-    File20 << " Predicted irrigation on " << DoyToDate(Daynum, year) << " - ";
-    if (OutIndex[1] == 0)
-        File20 << AppliedWater << " mm. ";
-    else
-        File20 << AppliedWater / 25.4 << " inches. ";
-    File20 << " Water Stress: Actual = ";
-    File20.setf(ios::fixed);
-    File20.precision(3);
-    File20.width(6);
-    File20 << WaterStress;
-    File20 << " Target = ";
-    File20.width(6);
-    File20 << TargetStress;
-    File20 << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

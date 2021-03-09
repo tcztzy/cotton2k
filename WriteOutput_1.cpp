@@ -17,11 +17,6 @@
 
 namespace fs = std::filesystem;
 
-extern "C"
-{
-    void b01(const char *, const char *);
-}
-
 void output1(State &, const string &, const string &, const int &, const int &, const int &, const int &, const double &,
              const double &);
 
@@ -55,7 +50,6 @@ void OpenOutputFiles(const char *m_fileDesc, const char *ProfileName, int DayEme
 //                                         Extension  OutIndex
 //                                         ---------   ------
 //  Output files which are always opened:
-//     Summary of the input data               B01
 //     Summary output file                     S01
 //     Output data for plotting charts         PLT
 //     Detailed output file                    F01
@@ -143,9 +137,6 @@ void OpenOutputFiles(const char *m_fileDesc, const char *ProfileName, int DayEme
         }
     }
     File46 << endl;
-//
-// Open the input information file B01, and write its header.
-    b01(ProfileName, m_fileDesc);
 //
 // Open the summary output file S01, and write its header.
     ofstream File22(fs::path("output") / (string(ProfileName) + ".S01"), ios::out);

@@ -10,7 +10,6 @@ from pathlib import Path
 
 today = date.today().strftime("%A, %B %d, %Y").ljust(30)
 extensions = [
-    "B01",
     "F01",
     "PLT",
     "S01",

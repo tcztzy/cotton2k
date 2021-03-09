@@ -5,8 +5,6 @@ from libc.stdlib cimport malloc
 
 from datetime import datetime, date
 
-cdef extern void WriteInitialInputData(Simulation &, bool, double, double, double, const char *, int, const char *, const char *, const char *, const char *, const char *, const char *)
-
 cdef extern from "global.h":
     void InitializeGlobal()
     int isw
@@ -321,7 +319,6 @@ cdef class _Simulation:
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
         ReadSoilImpedance(self._sim)
-        WriteInitialInputData(self._sim, OutIndex[1], PlantsPerM, SkipRowWidth, PlantPopulation, filenames[0].c_str(), LastDayOfActualWeather, filenames[1].c_str(), filenames[4].c_str(), filenames[3].c_str(), filenames[2].c_str(), SiteName.c_str(), VarName.c_str())
         InitSoil(filenames[3])
         ReadAgriculturalInput(self._sim, filenames[4])
         InitializeSoilData(self._sim, filenames[2])

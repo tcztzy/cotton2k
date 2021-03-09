@@ -16,11 +16,6 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-extern "C"
-{
-    void b01_append_defoliant(const char *, const char *);
-}
-
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.
 //////////////////////////////////////////////////
 void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpet, double &cdroot, const string &ProfileName)
@@ -535,8 +530,6 @@ void Defoliate(Simulation &sim, uint32_t u)
                   //
         if (state.daynum == DefoliationDate[i])
         {
-            //     Report defoliation to output file B01.
-            b01_append_defoliant(sim.profile_name, sim.states[u].date);
             //     If it is a predicted defoliation, assign tdfkgh as 2.5 .
             //     Else, compute the amount intercepted by the plants in kg per ha
             //  (defkgh), and add it to tdfkgh.

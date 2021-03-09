@@ -5,7 +5,6 @@
 // ReadProfileFile()
 // ReadCalibrationData()
 // InitializeGrid()
-// WriteInitialInputData()
 //
 #include <cmath>
 #include <filesystem>
@@ -22,10 +21,6 @@ static void ReadCalibrationData();
 
 static void InitializeGrid(Simulation &);
 
-extern "C"
-{
-    void WriteInitialInputData(Simulation &, bool, double, double, double, const char *, int, const char *, const char *, const char *, const char *, const char *, const char *);
-}
 // GettingInput_2
 static void InitSoil(const string &);
 
