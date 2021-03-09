@@ -47,8 +47,7 @@ target_link_libraries(${LIBRARY}
 else()
 target_link_libraries(${LIBRARY}
         debug "${CMAKE_SOURCE_DIR}/target/debug/libcotton2k.a"
-        optimized "${CMAKE_SOURCE_DIR}/target/release/libcotton2k.a"
-        ws2_32 userenv advapi32)
+        optimized "${CMAKE_SOURCE_DIR}/target/release/libcotton2k.a")
 endif()
 target_include_directories(${LIBRARY} PRIVATE
         ${CMAKE_SOURCE_DIR})
