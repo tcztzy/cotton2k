@@ -1,14 +1,15 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
+#include <stdexcept>
 #include <filesystem>
 namespace fs = std::filesystem;
 
 class Cotton2KException
-    : public std::exception
+    : public std::runtime_error
 {
 public:
     Cotton2KException(const std::string &_Message)
-        : exception(_Message.c_str(), 1)
+        : std::runtime_error(_Message.c_str())
     {
     }
 };
@@ -34,16 +35,16 @@ public:
 };
 
 class SimulationEnd
-    : public std::exception
+    : public std::runtime_error
 {
 public:
     SimulationEnd() noexcept
-        : std::exception("Simulation end.", 1)
+        : std::runtime_error("Simulation end.")
     {
     }
 
     SimulationEnd(const std::string &_Message) noexcept
-        : std::exception(_Message.c_str(), 1)
+        : std::runtime_error(_Message.c_str())
     {
     }
 };
