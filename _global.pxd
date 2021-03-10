@@ -4,6 +4,8 @@ cdef extern from "global.h":
     int Kday
     int SoilMapFreq
     int OutIndex[24]
+    double VarPar[61]
+    double SitePar[21]
     double PlantPopulation
     double TotalSoilNo3N
     double TotalSoilNh4N

@@ -64,24 +64,16 @@ cdef void read_filenames(
     filenames[3] = soil_init_filename
     filenames[4] = agricultural_input_filename
 
-cdef void read_site_config(
-    Simulation &sim,
-    int site_id,
-):
-    global nSiteNum
-    nSiteNum = site_id
-
 cdef void read_plant_config(
     Simulation &sim,
     double row_space,
     double skip_row,
     double plants_per_meter,
-    int var_id):
-    global SkipRowWidth, PlantsPerM, nVarNum
+):
+    global SkipRowWidth, PlantsPerM
     sim.row_space = row_space
     SkipRowWidth = skip_row
     PlantsPerM = plants_per_meter
-    nVarNum = var_id
 
 cdef void read_soil_map_config(Simulation &sim, int day_start, int day_stop, int frequency):
     global SoilMapFreq
@@ -111,6 +103,13 @@ cdef void initialize_switch(Simulation &sim):
     else:
         isw = 2
         Kday = 1
+
+
+def read_calibration(var, site):
+    for i, v in enumerate(var):
+        VarPar[i + 1] = v
+    for i, v in enumerate(site):
+        SitePar[i + 1] = v
 
 
 cdef class _Simulation:
@@ -224,16 +223,11 @@ cdef class _Simulation:
             kwargs.get("soil_init_filename", "").encode("UTF-8"),
             kwargs.get("agricultural_input_filename", "").encode("UTF-8"),
         )
-        read_site_config(
-            self._sim,
-            kwargs["site_id"],
-        )
         read_plant_config(
             self._sim,
             kwargs.get("row_space", 0),
             kwargs.get("skip_row", 0),
             kwargs.get("plants_per_meter", 0),
-            kwargs["var_id"]
         )
         read_soil_map_config(
             self._sim,
@@ -246,7 +240,7 @@ cdef class _Simulation:
         _description = description.encode("utf-8")
         OpenOutputFiles(_description, <char *>self._sim.profile_name, self._sim.day_emerge, self._sim.year)
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
-        ReadCalibrationData()
+        read_calibration(kwargs.get("cultivar_parameters", []), kwargs.get("site_parameters", []))
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
         ReadSoilImpedance(self._sim)

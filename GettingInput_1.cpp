@@ -3,7 +3,6 @@
 //   functions in this file:
 // ReadInput()
 // ReadProfileFile()
-// ReadCalibrationData()
 // InitializeGrid()
 //
 #include <cmath>
@@ -16,8 +15,6 @@
 
 using namespace std;
 namespace fs = std::filesystem;
-
-static void ReadCalibrationData();
 
 static void InitializeGrid(Simulation &);
 
@@ -37,139 +34,8 @@ static int OpenClimateFile(const string &, const string &, const int &, ClimateS
 
 static void ReadAgriculturalInput(Simulation &, const string &);
 
-//
-// Definitions of File scope variables:
-static int nSiteNum,               // index number for site.
-    nVarNum;                // index number for cultivar.
 static double SkipRowWidth,        // the smaller distance between skip rows, cm
     PlantsPerM;             // average number of plants pre meter of row.
-static string
-    VarName,                // name of the cultivar
-    SiteName;               // name of the site
-
-//////////////////////////////////////////////////////////
-void ReadCalibrationData()
-//     This function reads the values of the calibration parameters
-//  from input files. It is called from ReadInput(). It calls GetLineData().
-//
-//     The following global or file-scope variables are set here:
-//  SiteName, SitePar, VarName, VarPar
-{
-    //     Open file of variety file list.
-    fs::path strFileName = fs::path("data") / "vars" / "varlist.dat";
-    //     If file does not exist, display message and and open a new file
-    if (!fs::exists(strFileName))
-        throw FileNotExists(strFileName);
-    ifstream DataFile(strFileName, ios::in);
-    if (DataFile.fail())
-        throw FileNotOpened(strFileName);
-    //
-    string Dummy, VarFile;
-    // FIXME: if it go through to the last blank line, it wouldn't break because it doesn't reach the eof
-    for (int m_idx = 0; m_idx < 1000; m_idx++)
-    {
-        if (DataFile.eof() == 1)
-            break;
-        Dummy = GetLineData(DataFile);
-        int nLength = Dummy.length();
-        int num;
-        string Name, FileName;
-        if (nLength >= 4)
-        {
-            num = atoi(Dummy.substr(0, 4).c_str());
-        }
-        if (nLength >= 25)
-        {
-            Name = Dummy.substr(5, 20);
-            Name.erase(remove(Name.begin(), Name.end(), ' '), Name.end());
-        }
-        if (nLength >= 45)
-        {
-            FileName = Dummy.substr(40, 20);
-            FileName.erase(remove(FileName.begin(), FileName.end(), ' '), FileName.end());
-        }
-        if (num == nVarNum)
-        {
-            VarFile = FileName;
-            VarName = Name;
-            break;
-        }
-    }
-    DataFile.close();
-    //
-    strFileName = fs::path("data") / "vars" / VarFile;
-    //  If file does not exist, or can not be opened, display message
-    if (!fs::exists(strFileName))
-        throw FileNotExists(strFileName);
-    ifstream DataFile1(strFileName, ios::in);
-    if (DataFile1.fail())
-        throw FileNotOpened(strFileName);
-    //     Read values of variety related parameters
-    GetLineData(DataFile1); // skip 1st line
-    for (int i = 1; i <= 60; i++)
-    {
-        Dummy = GetLineData(DataFile1);
-        VarPar[i] = atof(Dummy.substr(0, 20).c_str());
-    }
-    DataFile1.close();
-    //     Open file of site file list.
-    strFileName = fs::path("data") / "site" / "sitelist.dat";
-    //     If file does not exist, or can not be opened, display message
-    if (!fs::exists(strFileName))
-        throw FileNotExists(strFileName);
-    string SiteFile;
-    ifstream DataFile2(strFileName, ios::in);
-    if (DataFile2.fail())
-        throw FileNotOpened(strFileName);
-    //
-    for (int m_idx = 0; m_idx < 1000; m_idx++)
-    {
-        if (DataFile2.eof() == 1)
-            break;
-
-        Dummy = GetLineData(DataFile2);
-        int nLength = Dummy.length();
-        int num;
-        string Name, FileName;
-        if (nLength >= 4)
-        {
-            num = atoi(Dummy.substr(0, 4).c_str());
-        }
-        if (nLength >= 25)
-        {
-            Name = Dummy.substr(5, 20);
-            Name.erase(remove(Name.begin(), Name.end(), ' '), Name.end());
-        }
-        if (nLength >= 45)
-        {
-            FileName = Dummy.substr(40, 20);
-            FileName.erase(remove(FileName.begin(), FileName.end(), ' '), FileName.end());
-        }
-        if (num == nSiteNum)
-        {
-            SiteFile = FileName;
-            SiteName = Name;
-            break;
-        }
-    }
-    DataFile2.close();
-    //
-    strFileName = fs::path("data") / "site" / SiteFile;
-    //     If file does not exist, or can not be opened, display message
-    if (!fs::exists(strFileName))
-        throw FileNotExists(strFileName);
-    ifstream DataFile3(strFileName, ios::in);
-    if (DataFile3.fail())
-        throw FileNotOpened(strFileName);
-    //     Read values of site related parameters
-    GetLineData(DataFile3); // skip 1st line
-    for (int i = 1; i <= 20; i++)
-    {
-        Dummy = GetLineData(DataFile3);
-        SitePar[i] = atof(Dummy.substr(0, 20).c_str());
-    }
-    DataFile3.close();
-}
 
 //////////////////////////////////////////////////////////
 void InitializeGrid(Simulation &sim)

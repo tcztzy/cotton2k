@@ -3,14 +3,9 @@ from libcpp.string cimport string
 from _structs cimport Simulation, ClimateStruct
 
 cdef extern from "GettingInput_1.cpp":
-    void ReadCalibrationData()
     void InitializeGrid(Simulation &)
     double PlantsPerM
     double SkipRowWidth
-    int nSiteNum
-    string SiteName
-    int nVarNum
-    string VarName
 
 cdef extern from "GettingInput_2.cpp":
     void ReadSoilImpedance(Simulation &)
