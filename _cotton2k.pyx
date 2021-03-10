@@ -7,31 +7,7 @@ from datetime import datetime, date
 
 from _global cimport *
 from _structs cimport *
-
-cdef extern from "GettingInput_1.cpp":
-    void ReadCalibrationData()
-    void InitializeGrid(Simulation &)
-    double PlantsPerM
-    double SkipRowWidth
-    int nSiteNum
-    string SiteName
-    int nVarNum
-    string VarName
-
-cdef extern from "GettingInput_2.cpp":
-    void ReadSoilImpedance(Simulation &)
-    void InitSoil(const string &)
-    void InitializeSoilTemperature()
-    void InitializeSoilData(Simulation &, const string &)
-    void InitializeRootData(Simulation &)
-
-cdef extern from "gettingInput_3.cpp":
-    int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400])
-    void ReadAgriculturalInput(Simulation &, const string &)
-
-cdef extern from "Output.h":
-    void DataOutput(Simulation &)
-    void OpenOutputFiles(const char *, const char *, int, int);
+from _io cimport *
 
 cdef extern from "Cottonmodel.h":
 
