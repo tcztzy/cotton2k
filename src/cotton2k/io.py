@@ -19,6 +19,9 @@ def read_input(path: Path) -> _Simulation:
         "site_parameters",
         "cultivar_parameters",
         "output_flags",
+        "row_space",
+        "skip_row_width",
+        "plants_per_meter",
     ]:
         if attr in kwargs:
             setattr(sim, attr, kwargs.get(attr))

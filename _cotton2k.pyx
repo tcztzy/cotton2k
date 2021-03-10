@@ -64,17 +64,6 @@ cdef void read_filenames(
     filenames[3] = soil_init_filename
     filenames[4] = agricultural_input_filename
 
-cdef void read_plant_config(
-    Simulation &sim,
-    double row_space,
-    double skip_row,
-    double plants_per_meter,
-):
-    global SkipRowWidth, PlantsPerM
-    sim.row_space = row_space
-    SkipRowWidth = skip_row
-    PlantsPerM = plants_per_meter
-
 cdef void read_soil_map_config(Simulation &sim, int day_start, int day_stop, int frequency):
     global SoilMapFreq
     SoilMapFreq = frequency
@@ -202,6 +191,32 @@ cdef class _Simulation:
             OutIndex[i + 1] = flag
 
     @property
+    def row_space(self):
+        return self._sim.row_space
+
+    @row_space.setter
+    def row_space(self, value):
+        self._sim.row_space = value or 0
+
+    @property
+    def skip_row_width(self):
+        return SkipRowWidth
+
+    @skip_row_width.setter
+    def skip_row_width(self, value):
+        global SkipRowWidth
+        SkipRowWidth = value or 0
+
+    @property
+    def plants_per_meter(self):
+        return PlantsPerM
+
+    @plants_per_meter.setter
+    def plants_per_meter(self, value):
+        global PlantsPerM
+        PlantsPerM = value or 0
+
+    @property
     def states(self):
         return (self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1))
 
@@ -238,12 +253,6 @@ cdef class _Simulation:
             kwargs.get("soil_hydraulic_filename", "").encode("UTF-8"),
             kwargs.get("soil_init_filename", "").encode("UTF-8"),
             kwargs.get("agricultural_input_filename", "").encode("UTF-8"),
-        )
-        read_plant_config(
-            self._sim,
-            kwargs.get("row_space", 0),
-            kwargs.get("skip_row", 0),
-            kwargs.get("plants_per_meter", 0),
         )
         read_soil_map_config(
             self._sim,

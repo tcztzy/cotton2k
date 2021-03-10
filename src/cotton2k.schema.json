@@ -57,7 +57,7 @@
             "type": "number",
             "minimum": 0
         },
-        "skip_row": {
+        "skip_row_width": {
             "type": "number",
             "minimum": 0
         },
