@@ -81,12 +81,6 @@ cdef void read_soil_map_config(Simulation &sim, int day_start, int day_stop, int
     sim.day_start_soil_maps = day_start
     sim.day_stop_soil_maps = day_stop
 
-def read_output_flags(output_flags):
-    for n in range(24):
-        OutIndex[n] = 0
-    for i, flag in enumerate(output_flags):
-        OutIndex[i+1] = flag
-
 cdef void initialize_switch(Simulation &sim):
     global isw, Kday
     # If the date of emergence has not been given, emergence will be simulated
@@ -197,6 +191,17 @@ cdef class _Simulation:
             VarPar[i + 1] = p
 
     @property
+    def output_flags(self):
+        return OutIndex
+
+    @output_flags.setter
+    def output_flags(self, flags):
+        for n in range(24):
+            OutIndex[n] = 0
+        for i, flag in enumerate(flags):
+            OutIndex[i + 1] = flag
+
+    @property
     def states(self):
         return (self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1))
 
@@ -246,7 +251,6 @@ cdef class _Simulation:
             _date2doy(kwargs.get("soil_map_stop_date", 0)),
             kwargs.get("soil_map_frequency", 999),
         )
-        read_output_flags(kwargs.get("output_flags", ()))
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
         OpenOutputFiles(_description, <char *>self._sim.profile_name, self._sim.day_emerge, self._sim.year)
