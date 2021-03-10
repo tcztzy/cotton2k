@@ -66,14 +66,8 @@ cdef void read_filenames(
 
 cdef void read_site_config(
     Simulation &sim,
-    double latitude,
-    double longitude,
-    double elevation,
     int site_id,
 ):
-    sim.latitude = latitude
-    sim.longitude = longitude
-    sim.elevation = elevation
     global nSiteNum
     nSiteNum = site_id
 
@@ -169,6 +163,30 @@ cdef class _Simulation:
         self._sim.day_plant = _date2doy(d)
 
     @property
+    def latitude(self):
+        return self._sim.latitude
+
+    @latitude.setter
+    def latitude(self, value):
+        self._sim.latitude = value or 0
+
+    @property
+    def longitude(self):
+        return self._sim.longitude
+
+    @longitude.setter
+    def longitude(self, value):
+        self._sim.longitude = value or 0
+
+    @property
+    def elevation(self):
+        return self._sim.elevation
+
+    @elevation.setter
+    def elevation(self, value):
+        self._sim.elevation = value or 0
+
+    @property
     def states(self):
         return (self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1))
 
@@ -208,9 +226,6 @@ cdef class _Simulation:
         )
         read_site_config(
             self._sim,
-            kwargs.get("latitude", 0),
-            kwargs.get("longitude", 0),
-            kwargs.get("elevation", 0),
             kwargs["site_id"],
         )
         read_plant_config(
