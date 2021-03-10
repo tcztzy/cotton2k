@@ -105,13 +105,6 @@ cdef void initialize_switch(Simulation &sim):
         Kday = 1
 
 
-def read_calibration(var, site):
-    for i, v in enumerate(var):
-        VarPar[i + 1] = v
-    for i, v in enumerate(site):
-        SitePar[i + 1] = v
-
-
 cdef class _Simulation:
     cdef Simulation _sim
 
@@ -186,6 +179,24 @@ cdef class _Simulation:
         self._sim.elevation = value or 0
 
     @property
+    def site_parameters(self):
+        return SitePar
+
+    @site_parameters.setter
+    def site_parameters(self, parameters):
+        for i, p in enumerate(parameters):
+            SitePar[i + 1] = p
+
+    @property
+    def cultivar_parameters(self):
+        return VarPar
+
+    @cultivar_parameters.setter
+    def cultivar_parameters(self, parameters):
+        for i, p in enumerate(parameters):
+            VarPar[i + 1] = p
+
+    @property
     def states(self):
         return (self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1))
 
@@ -240,7 +251,6 @@ cdef class _Simulation:
         _description = description.encode("utf-8")
         OpenOutputFiles(_description, <char *>self._sim.profile_name, self._sim.day_emerge, self._sim.year)
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
-        read_calibration(kwargs.get("cultivar_parameters", []), kwargs.get("site_parameters", []))
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
         ReadSoilImpedance(self._sim)

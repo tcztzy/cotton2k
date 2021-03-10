@@ -16,6 +16,8 @@ def read_input(path: Path) -> _Simulation:
         "latitude",
         "longitude",
         "elevation",
+        "site_parameters",
+        "cultivar_parameters",
     ]:
         if attr in kwargs:
             setattr(sim, attr, kwargs.get(attr))
