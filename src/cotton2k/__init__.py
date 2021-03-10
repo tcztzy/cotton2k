@@ -3,7 +3,7 @@ import json
 from importlib.metadata import metadata, version
 from pathlib import Path
 
-from _cotton2k import _Simulation  # pylint: disable=import-error# noqa: F401
+from .io import read_input
 
 __all__ = ("run",)
 
@@ -14,7 +14,6 @@ __license__: str = meta["License"]
 
 
 def run(profile_path: Path):
-    sim = _Simulation()
-    sim.read_input(**json.loads(profile_path.read_text()))
+    sim = read_input(profile_path)
     sim.run()
     return sim

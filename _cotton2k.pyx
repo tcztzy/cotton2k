@@ -26,20 +26,6 @@ def _date2doy(d):
     else:
         return 0
 
-cdef void read_date(
-    Simulation &sim,
-    int year,
-    int day_start,
-    int day_finish,
-    int day_emerge,
-    int day_plant,
-):
-    sim.year = year
-    sim.day_start = day_start
-    sim.day_emerge = day_emerge
-    sim.day_finish = day_finish
-    sim.day_plant = day_plant
-
 cdef void read_co2_enrichment_config(
     Simulation &sim,
     double factor,
@@ -137,7 +123,10 @@ cdef class _Simulation:
     cdef Simulation _sim
 
     def _doy2date(self, j):
-        return datetime.strptime(f"{self.year} {j}", "%Y %j").date()
+        try:
+            return datetime.strptime(f"{self.year} {j}", "%Y %j").date()
+        except:
+            return
 
     @property
     def year(self):
@@ -153,15 +142,15 @@ cdef class _Simulation:
 
     @start_date.setter
     def start_date(self, d):
-        self._sim.day_start = d.timetuple().tm_yday
+        self._sim.day_start = _date2doy(d)
 
     @property
-    def end_date(self):
+    def stop_date(self):
         return self._doy2date(self._sim.day_finish)
 
-    @end_date.setter
-    def end_date(self, d):
-        self._sim.day_finish = d.timetuple().tm_yday
+    @stop_date.setter
+    def stop_date(self, d):
+        self._sim.day_finish = _date2doy(d)
 
     @property
     def emerge_date(self):
@@ -169,7 +158,15 @@ cdef class _Simulation:
 
     @emerge_date.setter
     def emerge_date(self, d):
-        self._sim.day_emerge = d.timetuple().tm_yday
+        self._sim.day_emerge = _date2doy(d)
+
+    @property
+    def plant_date(self):
+        return self._doy2date(self._sim.day_plant)
+
+    @plant_date.setter
+    def plant_date(self, d):
+        self._sim.day_plant = _date2doy(d)
 
     @property
     def states(self):
@@ -187,14 +184,6 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim.profile_name = profile_name
-        read_date(
-            self._sim,
-            int(kwargs["start_date"][:4]),
-            _date2doy(kwargs["start_date"]),
-            _date2doy(kwargs.get("stop_date", 0)),
-            _date2doy(kwargs.get("emerge_date", 0)),
-            _date2doy(kwargs.get("plant_date", 0)),
-        )
         read_co2_enrichment_config(
             self._sim,
             kwargs.get("co2_enrichment_factor", 0),
