@@ -458,37 +458,4 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     state.plant_height += AddPlantHeight(denf2, state.day_inc, NumPreFruNodes, state.site[0][1][0].stage, AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, state.water_stress_stem, state.carbon_stress, NStressVeg, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
-    //     Output data to file *.CHB
-    if (OutIndex[18] > 0)
-    {
-        ofstream File36(fs::path("output") / (string(sim.profile_name) + ".CHB"), ios::app);
-        File36.unsetf(ios::left);
-        File36.width(11);
-        File36 << sim.states[u].date;
-        File36.setf(ios::fixed);
-        File36.precision(5);
-        File36.width(10);
-        File36 << cdstem;
-        File36.width(10);
-        File36 << cdleaf;
-        File36.width(10);
-        File36 << cdpet;
-        File36.width(10);
-        File36 << cdroot;
-        File36.width(10);
-        File36 << sim.states[u].carbon_stress;
-        File36.width(10);
-        File36 << TotalStemWeight;
-        File36.width(10);
-        File36 << TotalLeafWeight;
-        File36.width(10);
-        File36 << TotalPetioleWeight;
-        File36.width(10);
-        File36 << TotalRootWeight;
-        File36.width(10);
-        File36 << sumpdr;
-        File36.width(10);
-        File36 << NStressRoots;
-        File36 << endl;
-    }
 }

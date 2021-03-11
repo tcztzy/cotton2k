@@ -153,42 +153,6 @@ void SoilProcedures(Simulation &sim, uint32_t u)
         noitr = 1;
         CapillaryFlow(sim, u);
     }
-    //     If the output flag OutIndex(17) is non-zero, write to output file *.WAT.
-    //  This flag is also the interval in days between outputs. This is used for checking only.
-    if (OutIndex[17] > 0)
-    {
-        int kkk = state.daynum / OutIndex[17];
-        if (kkk * OutIndex[17] == state.daynum)
-        {
-            ofstream File42(fs::path("output") / (string(sim.profile_name) + ".WAT"), ios::app);
-            File42 << endl
-                   << " Average Values by Layers on Day of Year ";
-            File42 << state.daynum << endl;
-            File42 << " Layer          VolWaterContent          SoilPsi " << endl;
-            for (int l = 0; l < nl; l++)
-            {
-                //     Compute for each layer the average water content and the average matric water potential.
-                double psiavx = 0; // average of SoilPsi for a soil layer, bars.
-                double vavg = 0;   // average water content in a soil layer, cm3 cm-3.
-                for (int k = 0; k < nk; k++)
-                {
-                    vavg += VolWaterContent[l][k];
-                    psiavx += SoilPsi[l][k];
-                }
-                vavg = vavg / nk;
-                psiavx = psiavx / nk;
-                File42.width(6);
-                File42 << l + 1;
-                File42.setf(ios::fixed);
-                File42.precision(3);
-                File42.width(15);
-                File42 << vavg;
-                File42.width(15);
-                File42 << psiavx;
-                File42 << endl;
-            }
-        }
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

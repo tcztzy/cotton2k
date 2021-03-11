@@ -198,8 +198,6 @@ cdef class _Simulation:
     def run(self):
         app = new C2KApp()
         app.DailySimulation(self._sim)
-        # call DataOutput here because global variables varnish after run
-        DataOutput(self._sim)
 
     def read_input(self, profile, description, **kwargs):
         """This is the main function for reading input."""
@@ -223,7 +221,6 @@ cdef class _Simulation:
         )
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
-        OpenOutputFiles(_description, <char *>self._sim.profile_name, self._sim.day_emerge, self._sim.year)
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)

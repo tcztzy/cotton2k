@@ -21,7 +21,6 @@
 #include "CottonPhenology.h"
 #include "DailyClimate.h"
 #include "Input.h"
-#include "Output.h"
 #include "PlantGrowth.h"
 #include "PlantNitrogen.h"
 #include "SoilNitrogen.h"
@@ -105,7 +104,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
 //     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
 //     SoilNitrogen(), SoilSum(), PhysiologicalAge(), Defoliate(), Stress(),
 //     GetNetPhotosynthesis(), PlantGrowth(), CottonPhenology(), PlantNitrogen(),
-//     CheckDryMatterBal(), DailyOutput();
+//     CheckDryMatterBal();
 //
 //     The following global variables are referenced here:
 //  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex.
@@ -146,8 +145,6 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
                                                                //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
                                                                //  nitrogen averages by layer, and write this information to files.
     }
-    //     Call DailyOutput for reporting some simulation data for this day.
-    DailyOutput(sim, u);
     //     Check if the date to stop simulation has been reached, or if this is the last day
     //  with available weather data. Simulation will also stop when no leaves remain on the plant.
     //

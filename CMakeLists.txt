@@ -23,11 +23,6 @@ add_cython_target(${LIBRARY} CXX)
 add_library(${LIBRARY} MODULE ${${LIBRARY}} ${SOURCE_FILES})
 python_extension_module(${LIBRARY})
 
-target_compile_options(${LIBRARY} PRIVATE
-        "$<$<CXX_COMPILER_ID:Clang>:-Weverything;-Wfatal-errors>"
-        "$<$<CXX_COMPILER_ID:GNU>:-Wall;-Wextra;-Wfatal-errors>"
-        "$<$<CXX_COMPILER_ID:MSVC>:/W3>")
-
 # Enable ExternalProject CMake module
 include(ExternalProject)
 ExternalProject_Add(cotton2k.rs

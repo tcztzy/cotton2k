@@ -9,7 +9,6 @@
 //
 #include <cmath>
 #include <filesystem>
-#include <fstream>
 #include "global.h"
 #include "Simulation.hpp"
 
@@ -62,35 +61,6 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
     state.carbon_stress = cpool / cdsum;
     if (state.carbon_stress > 1)
         state.carbon_stress = 1;
-    //     If output flag is non zero, write daily carbon balance data to file CHB
-    if (OutIndex[18] > 0)
-    {
-        ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::app);
-        File36.unsetf(ios::left);
-        File36.width(6);
-        File36 << Kday;
-        File36.setf(ios::fixed);
-        File36.precision(4);
-        File36.width(9);
-        File36 << cpool;
-        File36.width(9);
-        File36 << ReserveC;
-        File36.width(9);
-        File36 << cdstem;
-        File36.width(9);
-        File36 << cdleaf;
-        File36.width(9);
-        File36 << cdpet;
-        File36.width(9);
-        File36 << cdroot;
-        File36.width(9);
-        File36 << cdsqar;
-        File36.width(9);
-        File36 << cdboll;
-        File36.width(9);
-        File36 << state.carbon_stress;
-        File36 << endl;
-    }
     //     When carbohydrate supply is sufficient for growth requirements, CarbonStress will be
     //  assigned 1, and the carbohydrates actually supplied for plant growth (TotalActualLeafGrowth,
     //  TotalActualPetioleGrowth, ActualStemGrowth, CarbonAllocatedForRootGrowth, pdboll, pdsq)
@@ -409,52 +379,6 @@ void CheckDryMatterBal(State &state, const string &ProfileName)
     used = state.plant_weight + GreenBollsLost + state.abscised_leaf_weight + state.bloom_weight_loss + RootWeightLoss;
     //     chobal is whole plant C balance. It should be zero.
     double chobal = avail - used;
-    //  Report results to file *.CHB
-    if (OutIndex[18] > 0)
-    {
-        ofstream File36(fs::path("output") / (ProfileName + ".CHB"), ios::app);
-        File36.unsetf(ios::left);
-        File36 << " Kday=";
-        File36.width(3);
-        File36 << Kday;
-        File36 << " Plantweight, avail, used, chobal=";
-        File36.setf(ios::fixed);
-        File36.precision(2);
-        File36.width(9);
-        File36 << state.plant_weight;
-        File36.width(9);
-        File36 << avail;
-        File36.width(9);
-        File36 << used;
-        File36.width(9);
-        File36 << chobal;
-        File36 << endl;
-        //
-        double ccx; // seed cotton plus burr weight in open bolls.
-        ccx = CottonWeightOpenBolls + BurrWeightOpenBolls;
-        double gbb; // seed cotton plus burr weight in green bolls.
-        gbb = CottonWeightGreenBolls + BurrWeightGreenBolls;
-        File36 << state.date;
-        File36 << " lfwt, ptwt, stwt, RootWeight, TotalSquareWeight, gbb, ccx, ReserveC=";
-        File36.precision(4);
-        File36.width(9);
-        File36 << TotalLeafWeight;
-        File36.width(9);
-        File36 << TotalPetioleWeight;
-        File36.width(9);
-        File36 << TotalStemWeight;
-        File36.width(9);
-        File36 << TotalRootWeight;
-        File36.width(9);
-        File36 << TotalSquareWeight;
-        File36.width(9);
-        File36 << gbb;
-        File36.width(9);
-        File36 << ccx;
-        File36.width(9);
-        File36 << ReserveC;
-        File36 << endl;
-    }
 }
 
 //////////////////////////

@@ -3,7 +3,7 @@ import json
 from importlib.metadata import metadata, version
 from pathlib import Path
 
-from .io import read_input
+from .io import read_input, write_output
 
 __all__ = ("run",)
 
@@ -14,6 +14,9 @@ __license__: str = meta["License"]
 
 
 def run(profile_path: Path):
-    sim = read_input(profile_path)
+    sim, input_content = read_input(profile_path)
     sim.run()
+    write_output(
+        sim, profile_path.parent / (input_content["profile"] + ".cotton2k-output.json")
+    )
     return sim

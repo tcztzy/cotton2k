@@ -17,7 +17,3 @@ cdef extern from "GettingInput_2.cpp":
 cdef extern from "gettingInput_3.cpp":
     int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400])
     void ReadAgriculturalInput(Simulation &, const string &)
-
-cdef extern from "Output.h":
-    void DataOutput(Simulation &)
-    void OpenOutputFiles(const char *, const char *, int, int);

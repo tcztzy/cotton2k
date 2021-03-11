@@ -11,7 +11,7 @@
 // GetNitrogenStress()
 // NitrogenUptakeRequirement()
 //
-#include <fstream>
+#include <string>
 #include "global.h"
 #include "Simulation.hpp"
 

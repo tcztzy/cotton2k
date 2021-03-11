@@ -9,7 +9,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WriteStateVariables(Simulation &sim, unsigned int u)
-//     This function stores all state or rate variables, needed for output, in the structure Scratch21. It is called from DailySimulation() and DailyOutput().
+//     This function stores all state or rate variables, needed for output, in the structure Scratch21. It is called from DailySimulation().
 //     Each record is an array cell, starting from day of start of simulation.
 //
 {

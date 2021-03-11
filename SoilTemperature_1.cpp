@@ -5,7 +5,6 @@
 //       SoilTemperatureInit()
 //
 #include <cmath>
-#include <fstream>
 #include "global.h"
 #include "exceptions.h"
 #include "Simulation.hpp"

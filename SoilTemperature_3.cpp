@@ -9,7 +9,6 @@
 //
 #include <cmath>
 #include <filesystem>
-#include <fstream>
 #include "global.h"
 #include "exceptions.h"
 #include "GeneralFunctions.h"
@@ -498,10 +497,5 @@ void PredictEmergence(Simulation &sim, unsigned int u, int hour)
         isw = 2;
         sim.day_emerge = sim.day_start + u;
         Kday = 1;
-        string gerday = DoyToDate(sim.day_emerge, sim.year);
-        ofstream File46(fs::path("output") / (string(sim.profile_name) + ".F01"), ios::app);
-        File46 << " Predicted Germination on " << gerday << " (Day of Year = " << sim.day_emerge << " )" << endl;
-        ofstream File22(fs::path("output") / (string(sim.profile_name) + ".S01"), ios::app);
-        File22 << " Predicted Germination on " << gerday << " (Day of Year = " << sim.day_emerge << " )" << endl;
     }
 }
