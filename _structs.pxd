@@ -22,5 +22,6 @@ cdef extern from "Simulation.hpp":
         double longitude
         double elevation
         double row_space
+        unsigned int plant_row_column
         State *states
         ClimateStruct climate[400]

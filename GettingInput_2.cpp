@@ -39,7 +39,7 @@ rnnh4[14],           // residual nitrogen as ammonium in soil at beginning of se
 rnno3[14];           // residual nitrogen as nitrate in soil at beginning of season, kg per ha.
 // defined by input for consecutive 15 cm soil layers.
 ////////////////////////////////////////////////////////////////////////////////////
-void ReadSoilImpedance(Simulation & sim)
+static void ReadSoilImpedance(Simulation & sim)
 //     This function opens the soil root impedance data file and reads it.
 //  It is called from ReadInput(), and executed once at the beginning of the simulation.
 //  The variables read here are later used to compute soil impedance to root growth.
@@ -72,7 +72,7 @@ void ReadSoilImpedance(Simulation & sim)
 }
 
 //////////////////////////////////////////////////////////////////
-void InitSoil(const string &SoilInitFileName)
+static void InitSoil(const string &SoilInitFileName)
 //     This function opens the initial soil data file and reads it. It is executed
 //  once at the beginning of the simulation. It is called by ReadInput().
 //
@@ -107,7 +107,7 @@ void InitSoil(const string &SoilInitFileName)
 }
 
 //////////////////////////////////////////////////////////
-void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
+static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //     This function computes and sets the initial soil data. It is
 //  executed once at the beginning of the simulation, after the soil
 //  hydraulic data file has been read. It is called by ReadInput().
@@ -364,7 +364,7 @@ static void init_root_data(SoilCell soil_cells[40][20], uint32_t plant_row_colum
 }
 
 //////////////////////////////////////////////////////////
-void InitializeRootData(Simulation & sim)
+static void InitializeRootData(Simulation & sim)
 //     This function initializes the root submodel parameters and variables. It is called
 //  by ReadInput(). it is executed once at the beginning of the simulation.
 //
@@ -433,7 +433,7 @@ void InitializeRootData(Simulation & sim)
 }
 
 //////////////////////////////////////////////////////////
-void InitializeSoilTemperature()
+static void InitializeSoilTemperature()
 //     This function initializes the variables needed for the simulation of
 // soil temperature, and variables used by functions ThermalCondSoil() and SoilHeatFlux().
 //     It is executed once at the beginning of the simulation. It is called by

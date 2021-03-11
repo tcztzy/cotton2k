@@ -2,8 +2,6 @@
 
 #include "Simulation.hpp"
 
-Simulation ReadInput(const char *);
-
 // GettingInput_2
 extern "C"
 {

@@ -26,7 +26,7 @@ extern "C"
 
 
 ///////////////////////////////////////////////////////////////////////////////
-int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart, ClimateStruct Clim[400])
+static int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart, ClimateStruct Clim[400])
 //     This function gets the climate data file. It is called by ReadInput(),
 // and it calls ReadClimateData().
 //  Global variables set:  LastDayWeatherData.
@@ -157,7 +157,7 @@ int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-void ReadAgriculturalInput(Simulation &sim, const string &AgrInputFileName)
+static void ReadAgriculturalInput(Simulation &sim, const string &AgrInputFileName)
 //     This function opens the agricultural inputs data file and reads it.
 //  It is called by ReadInput() once at the beginning of the simulation.
 //
