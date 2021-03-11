@@ -66,18 +66,6 @@
             "items": {
                 "type": "number"
             }
-        },
-        "soil_map_frequency": {
-            "type": "integer",
-            "minimum": 1
-        },
-        "soil_map_start_date": {
-            "type": "string",
-            "format": "date"
-        },
-        "soil_map_stop_date": {
-            "type": "string",
-            "format": "date"
         }
     }
 }

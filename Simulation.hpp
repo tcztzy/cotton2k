@@ -11,8 +11,6 @@ typedef struct Simulation
     unsigned int day_start;                 // Date (DOY) to start simulation.
     unsigned int day_finish;                // Date (DOY) to finish simulation.
     unsigned int day_plant;                 // Date (DOY) of planting.
-    unsigned int day_start_soil_maps;       // Date (DOY) to start soil slab maps output.
-    unsigned int day_stop_soil_maps;        // Date (DOY) to stop soil slab maps output.
     double latitude;                        // degree
     double longitude;                       // degree
     double elevation;                       // meter

@@ -7,7 +7,6 @@ cdef extern from "global.h":
     void InitializeGlobal()
     int isw
     int Kday
-    int SoilMapFreq
     const int maxl
     const int maxk
     int nl

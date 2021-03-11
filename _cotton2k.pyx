@@ -40,12 +40,6 @@ cdef void read_filenames(
     filenames[3] = soil_init_filename
     filenames[4] = agricultural_input_filename
 
-cdef void read_soil_map_config(Simulation &sim, int day_start, int day_stop, int frequency):
-    global SoilMapFreq
-    SoilMapFreq = frequency
-    sim.day_start_soil_maps = day_start
-    sim.day_stop_soil_maps = day_stop
-
 cdef void initialize_switch(Simulation &sim):
     global isw, Kday
     # If the date of emergence has not been given, emergence will be simulated
@@ -245,12 +239,6 @@ cdef class _Simulation:
             kwargs.get("soil_hydraulic_filename", "").encode("UTF-8"),
             kwargs.get("soil_init_filename", "").encode("UTF-8"),
             kwargs.get("agricultural_input_filename", "").encode("UTF-8"),
-        )
-        read_soil_map_config(
-            self._sim,
-            _date2doy(kwargs.get("soil_map_start_date", 0)),
-            _date2doy(kwargs.get("soil_map_stop_date", 0)),
-            kwargs.get("soil_map_frequency", 999),
         )
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
