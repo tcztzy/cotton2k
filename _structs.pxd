@@ -18,11 +18,6 @@ cdef extern from "Simulation.hpp":
         unsigned int day_plant
         unsigned int day_start_soil_maps
         unsigned int day_stop_soil_maps
-        unsigned int day_start_mulch
-        unsigned int day_end_mulch
-        unsigned int mulch_indicator
-        double mulch_transmissivity_short_wave
-        double mulch_transmissivity_long_wave
         double latitude
         double longitude
         double elevation

@@ -110,7 +110,6 @@ void InitializeGlobal()
 //
     for (int k = 0; k < maxk; k++) {
         FoliageTemp[k] = 295;
-        MulchTemp[k] = 295;
     }
 //
     for (int l = 0; l < maxl; l++) {

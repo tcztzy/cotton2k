@@ -2,7 +2,6 @@
 //
 //   List of functions in this file:
 //       CanopyBalance()
-//       MulchSurfaceBalance()
 //       SoilHeatFlux()
 //       ThermalCondSoil()
 //       HeatBalance()
@@ -30,13 +29,11 @@ double ts0[maxl];  // array of previous soil temperatures.
 double hcap[maxl]; // heat capacity of soil layer (cal cm-3 oC-1).
 /////////////////////////////////////////
 void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
-                   double c2, double sf, double so, double thet, double tm, double &tv, const int &Daynum,
-                   const double &MulchTranLW)
+                   double c2, double sf, double so, double thet, double &tv, const int &Daynum)
 //     This function solves the energy balance equations at the foliage / air interface, and
 //  computes the resulting temperature of the foliage. It is Called from EnergyBalance().
 //     Units for all energy fluxes are: cal cm-2 sec-1.
 //
-//     The following global variables are referenced here:    MulchTranLW.
 //     The following argument is set in this function:
 //       tv - temperature of plant canopy.
 //     The following arguments are referenced in this function:
@@ -49,25 +46,19 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
 //       sf - fraction of shaded soil area
 //       so - temperature of soil surface (k).
 //       thet - air temperature (k).
-//       tm - plastic mulch temperature (K), tm = 0 if column not mulched.
 {
     //     Constants:
-    const double ef = 0.95;                                         // emissivity of the foliage surface
-    const double eg = 0.95;                                         // emissivity of the soil surface
-    const double stefa1 = 1.38e-12;                                 // stefan-boltsman constant.
-                                                                    //
-    double rlv1;                                                    // long wave radiation reaching the canopy
-    if (tm > 0)                                                     // column is mulched
-        rlv1 = sf * ef * rlzero                                     // from sky
-               + sf * ef * eg * stefa1 * MulchTranLW * pow(so, 4)   // from soil
-               + sf * ef * (1 - MulchTranLW) * stefa1 * pow(tm, 4); // from mulch
-    else                                                            // column is not mulched
-        rlv1 = sf * ef * rlzero                                     // from sky
-               + sf * ef * eg * stefa1 * pow(so, 4);                // from soil
-                                                                    //     rlv4 is the multiplier of tv**4 for emitted long wave radiation from vegetation, corrected
-                                                                    //  for the amount reflected back from soil surface and absorbed by foliage. This is two-sided
-                                                                    //  ( note that when eg = ef = 1, the coefficient corr will be 2)
-    double corr = 1 + eg / (ef + eg - ef * eg);                     // coefficient
+    const double ef = 0.95;                      // emissivity of the foliage surface
+    const double eg = 0.95;                      // emissivity of the soil surface
+    const double stefa1 = 1.38e-12;              // stefan-boltsman constant.
+                                                 //
+    double rlv1;                                 // long wave radiation reaching the canopy
+    rlv1 = sf * ef * rlzero                      // from sky
+           + sf * ef * eg * stefa1 * pow(so, 4); // from soil
+                                                 //     rlv4 is the multiplier of tv**4 for emitted long wave radiation from vegetation, corrected
+                                                 //  for the amount reflected back from soil surface and absorbed by foliage. This is two-sided
+                                                 //  ( note that when eg = ef = 1, the coefficient corr will be 2)
+    double corr = 1 + eg / (ef + eg - ef * eg);  // coefficient
     double rlv4 = stefa1 * sf * ef * corr;
     double dsenfheat = c2 * (1 - 0.6 * sf); // derivative of senfheat
                                             //     Start iterations for tv:
@@ -82,10 +73,7 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
         //     Sensible heat transfer from vegetation
         double tvex = tv; // previous value of tv
         double tafk;      // average air temperature above soil surface (k) in canopy
-        if (tm > 0.)
-            tafk = (1 - sf) * thet + sf * (0.1 * tm + 0.3 * thet + 0.6 * tv);
-        else
-            tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
+        tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
         double senfheat; // sensible heat transfer from foliage
         senfheat = c2 * (tv - tafk);
         //     Compute the energy balance at the plant surface (cc), and
@@ -139,103 +127,6 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
     msg += " so      = " + (string)C1 + "\n";
     sprintf(C1, "%10.3g", tv);
     msg += " tv = " + (string)C1 + "\n";
-    throw SimulationEnd(msg);
-}
-
-/////////////////////////////////////////
-void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, double sf,
-                         double hsgp, double hsgm, double so, double thet, double &tm, double tv, const int &Daynum)
-//     This function solves the energy balance equations for the transparent (polyethylene) mulch,
-//  and computes its resulting temperature (tm). It is called from EnrgyBalance(), and uses
-//  function ThermalCondSoil(). Units for all energy fluxes are: cal cm-2 sec-1.
-//
-//     The following global variables are referenced here:        MulchTranLW.
-//     The following argument is set in this function:
-//       tm - temperature of surface mulch(K)
-//     The following arguments are used in this function:
-//       hsgp - multiplier for computing sensible heat transfer from mulch to air
-//       hsgm - multiplier for computing sensible heat transfer from mulch to soil
-//       ihr - the time in hours.
-//       k - soil column number.
-//       rls5 = multiplier for long wave energy emitted from soil surface
-//       rlsp - incoming long wave radiation (ly / sec) reaching plastic layer.
-//       rsm - global radiation absorbed by mulch surface
-//       sf - fraction of shaded soil area
-//       so - temperature of soil surface.
-//       thet - air temperature (K).
-//       tv - temperature of plant canopy
-{
-    double dsenheat; // derivative of sensible heat transfer
-    if (sf <= 0.05)  // if this is a shaded column
-        dsenheat = hsgp * (1 - sf * 0.1) + hsgm;
-    else
-        dsenheat = hsgp + hsgm;
-    //     Start iterations for soil mulch temperature (tm)
-    int mop = 0; // count of iterations for soil mulch energy balance
-    do
-    {
-        //     Emitted long wave radiation from soil mulch
-        double emtlw; // emitted long wave radiation from soil surface
-        emtlw = rls5 * pow(tm, 4);
-        //     Sensible heat transfer
-        double tafk;    // average air temperature above soil surface and in canopy (K)
-        double senheat; // sensible heat transfer from soil surface
-        if (sf >= 0.05) // if this is a shaded column
-            tafk = (1 - sf) * thet + sf * (0.1 * tm + 0.3 * thet + 0.6 * tv);
-        else
-            tafk = thet;
-        senheat = hsgp * (tm - tafk) + hsgm * (tm - so);
-        //     Compute the energy balance tmbal. (positive direction is upward)
-        double tmbal;      // energy balance of the soil mulch
-        tmbal = emtlw      // (a) long wave radiation emitted from soil mulch
-                - rlsp     // long wave radiation reaching the soil mulch
-                - rsm      // global radiation absorbed
-                + senheat; // (d) heat transfer from soil surface to air
-        if (fabs(tmbal) < 10.e-6)
-            return;    // end iterations for tm
-                       //     If tmbal is not small enough, compute its derivative by tm (tmbalp).
-                       //     The derivative of emitted long wave radiation
-        double demtlw; // derivative of emtlw
-        demtlw = 4 * rls5 * pow(tm, 3);
-        //	   The derivative of the energy balance function
-        double tmbalp;       // derivative of energy balance at the soil mulch (by tm)
-        tmbalp = demtlw      // (a)
-                 + dsenheat; // (d)
-                             //     Correct the upper soil temperature by  the ratio of tmbal to tmbalp.
-        double tmbaladjust;  // adjustment of soil mulch temperature before next iteration
-        tmbaladjust = tmbal / tmbalp;
-        //     If adjustment is small enough, no more iterations are needed.
-        if (fabs(tmbaladjust) < 0.002)
-            return;
-        //     If tmbaladjust is not the same sign as tmbalex, reduce fluctuations
-        double tmex;    // previous value of mulch temperature (k)
-        double tmbalex; // previous value of tmbaladjust.
-        if (mop >= 2)
-            if (fabs(tmbaladjust + tmbalex) < fabs(tmbaladjust - tmbalex))
-            {
-                tmbaladjust = (tmbaladjust + tmbalex) / 2;
-                tm = (tm + tmex) / 2;
-            }
-        if (tmbaladjust > 10)
-            tmbaladjust = 10;
-        if (tmbaladjust < -10)
-            tmbaladjust = -10;
-        //
-        tm = tm - tmbaladjust;
-        tmex = tm;
-        tmbalex = tmbaladjust;
-        mop++;
-        //     Go to next iteration
-    } while (mop < 50);
-    //     If reached 50 iterations there must be an error somewhere!
-    string msg = " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! \n";
-    char C1[12];
-    sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-    msg += " Daynum, ihr, k = " + (string)C1 + "\n";
-    sprintf(C1, "%10.3g", so);
-    msg += " so      = " + (string)C1 + "\n";
-    sprintf(C1, "%10.3g", tm);
-    msg += " tm = " + (string)C1 + "\n";
     throw SimulationEnd(msg);
 }
 

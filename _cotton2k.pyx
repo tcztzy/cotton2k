@@ -25,20 +25,6 @@ def _date2doy(d):
     else:
         return 0
 
-cdef void read_mulch_config(
-    Simulation &sim,
-    int indicator,
-    int day_start,
-    int day_stop,
-    double short_wave_transmissivity,
-    double long_wave_transmissivity,
-):
-    sim.mulch_indicator = indicator
-    sim.day_start_mulch = day_start
-    sim.day_end_mulch = day_stop if day_stop >= 0 else sim.day_finish
-    sim.mulch_transmissivity_short_wave = short_wave_transmissivity
-    sim.mulch_transmissivity_long_wave = long_wave_transmissivity
-
 cdef void read_filenames(
     vector[string] &filenames,
     string actual_weather_filename,
@@ -221,14 +207,6 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim.profile_name = profile_name
-        read_mulch_config(
-            self._sim,
-            kwargs.get("mulch_indicator", 0),
-            _date2doy(kwargs.get("mulch_start_date", 0)),
-            _date2doy(kwargs.get("mulch_stop_date", 0)),
-            kwargs.get("mulch_short_wave_transmissivity", 0),
-            kwargs.get("mulch_long_wave_transmissivity", 0),
-        )
         read_filenames(
             filenames,
             kwargs.get("actual_weather_filename", "").encode("UTF-8"),

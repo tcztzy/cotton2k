@@ -13,15 +13,6 @@ typedef struct Simulation
     unsigned int day_plant;                 // Date (DOY) of planting.
     unsigned int day_start_soil_maps;       // Date (DOY) to start soil slab maps output.
     unsigned int day_stop_soil_maps;        // Date (DOY) to stop soil slab maps output.
-    unsigned int day_start_mulch;           // Date (DOY) for beginning of mulch.
-    unsigned int day_end_mulch;             // date (DOY) for ending of mulch.
-    unsigned int mulch_indicator;           // indicating if and where a soil mulch exists, the value are:
-                                            // 0 = no mulch;
-                                            // 1 = plastic layer on all soil surface;
-                                            // 2 = plastic layer on all soil surface except one column at each side of the plant row;
-                                            // 3 = plastic layer on all soil surface except two columns at each side of the plant row.
-    double mulch_transmissivity_short_wave; // transmissivity of soil mulch to short wave radiation
-    double mulch_transmissivity_long_wave;  // transmissivity of soil mulch to long wave radiation.
     double latitude;                        // degree
     double longitude;                       // degree
     double elevation;                       // meter

@@ -15,7 +15,7 @@ using namespace std;
 void SoilTemperatureInit(int &, int &, Simulation &);
 
 // SoilTemperature_2
-void EnergyBalance(Simulation &, uint32_t, int, int, bool, double, double, const double &, double[20]);
+void EnergyBalance(Simulation &, uint32_t, int, int, double, double, const double &, double[20]);
 
 // SoilTemperature_3
 void SoilHeatFlux(double, int, int, int, int, double);
@@ -119,8 +119,8 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
 //  EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
 //
 //     The following global variables are referenced here:
-//       ActualTranspiration, AirTemp, DayEndMulchDaynum, DayStartMulch,
-//       DewPointTemp, dl, FoliageTemp, isw, MulchIndicator, MulchTemp, nk, nl, OutIndex,
+//       ActualTranspiration, AirTemp,
+//       DewPointTemp, dl, FoliageTemp, isw, nk, nl, OutIndex,
 //       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity,
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
@@ -179,11 +179,9 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         double etp0 = 0; // actual transpiration (mm s-1) for this hour
         if (state.evapotranspiration > 0.000001)
             etp0 = state.actual_transpiration * hour.ref_et / state.evapotranspiration / dlt;
-        double tmav = 0; // average mulch temperature.
-        int kmulch = 0;  // number of soil columns covered with mulch.
-                         //
-                         //     Compute vertical transport for each column
-                         //
+        //
+        //     Compute vertical transport for each column
+        //
         for (int k = 0; k < kk; k++)
         {
             //     Set SoilTemp for the lowest soil layer.
@@ -192,60 +190,26 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
             double etp1 = 0; // actual hourly transpiration (mm s-1) for a column.
             if (shadeav > 0.000001)
                 etp1 = etp0 * (1 - rracol[k]) / shadeav;
-            //     Check if mulch is on for this date and for this column.
-            bool bMulchon; // is true if this column is covered with plastic mulch now, false if not.
-            if (sim.mulch_indicator == 0 || sim.day_start + u < sim.day_start_mulch || sim.day_start + u > sim.day_end_mulch)
-                bMulchon = false;
-            else
-            {
-                if (sim.mulch_indicator == 1)
-                    bMulchon = true;
-                else if (sim.mulch_indicator == 2)
-                {
-                    if (k >= sim.plant_row_column && k <= (sim.plant_row_column + 1))
-                        bMulchon = false;
-                    else
-                        bMulchon = true;
-                }
-                else if (sim.mulch_indicator >= 3)
-                {
-                    if (k >= (sim.plant_row_column - 1) && k <= (sim.plant_row_column + 2))
-                        bMulchon = false;
-                    else
-                        bMulchon = true;
-                }
-            }
             double ess = 0; //   evaporation rate from surface of a soil column (mm / sec).
-            if (bMulchon == false)
-            {
-                //     The potential evaporation rate (escol1k) from a column is the sum of the radiation
-                //  component of the Penman equation(es1hour), multiplied by the relative radiation reaching
-                //  this column, and the wind and vapor deficit component of the Penman equation (es2hour).
-                double escol1k; // potential evaporation fron soil surface of a column, mm per hour.
-                escol1k = hour.et1 * rracol[k] + hour.et2;
-                es += escol1k * wk(k, sim.row_space);
-                //     Compute actual evaporation from soil surface. update VolWaterContent of
-                //  the soil soil cell, and add to daily sum of actual evaporation.
-                double evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10 *
-                                 dl(0); // maximum possible evaporatio from a soil cell near the surface.
-                if (escol1k > evapmax)
-                    escol1k = evapmax;
-                VolWaterContent[0][k] -= 0.1 * escol1k / dl(0);
-                state.actual_soil_evaporation += escol1k * wk(k, sim.row_space);
-                ess = escol1k / dlt;
-            }
+            //     The potential evaporation rate (escol1k) from a column is the sum of the radiation
+            //  component of the Penman equation(es1hour), multiplied by the relative radiation reaching
+            //  this column, and the wind and vapor deficit component of the Penman equation (es2hour).
+            double escol1k; // potential evaporation fron soil surface of a column, mm per hour.
+            escol1k = hour.et1 * rracol[k] + hour.et2;
+            es += escol1k * wk(k, sim.row_space);
+            //     Compute actual evaporation from soil surface. update VolWaterContent of
+            //  the soil soil cell, and add to daily sum of actual evaporation.
+            double evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10 *
+                             dl(0); // maximum possible evaporatio from a soil cell near the surface.
+            if (escol1k > evapmax)
+                escol1k = evapmax;
+            VolWaterContent[0][k] -= 0.1 * escol1k / dl(0);
+            state.actual_soil_evaporation += escol1k * wk(k, sim.row_space);
+            ess = escol1k / dlt;
             //     Call EnergyBalance to compute soil surface and canopy temperature.
-            EnergyBalance(sim, u, ihr, k, bMulchon, ess, etp1, state.plant_height, rracol);
-            if (bMulchon)
-            {
-                tmav += MulchTemp[k] - 273.161;
-                kmulch++;
-            }
+            EnergyBalance(sim, u, ihr, k, ess, etp1, state.plant_height, rracol);
 
         } // End loop of k
-          //
-        if (kmulch >= 0)
-            tmav = tmav / kmulch;
         //     Compute soil temperature flux in the vertical direction.
         //     Assign iv = 1, layer = 0, nn = nl.
         int iv = 1;          // indicates vertical (=1) or horizontal (=0) flux.
@@ -415,18 +379,6 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
 
      Lettau, B. 1971. Determination of the thermal diffusivity in
   the upper layers of a natural ground cover. Soil Sci. 112:173-177.
-
-     Mahrer, Y. 1979. Prediction of soil temperatures of a soil
-  mulched with transparent polyethylene. J. Appl. Meteorol. 18:1263-
-  1267.
-
-     Mahrer, Y. 1980. A numerical model for calculating the soil
-  temperature regime under transparent polyethylene mulches. Agric.
-  Meteorol. 22:227-234.
-
-     Mahrer, Y., Naot, O., Rawitz, E. and Katan, J. 1984.
-  Temperature and moisture regimes in soils mulched with transparent
-  polyethylene. Soil Sci. Soc. Amer. J. 48:362-367.
 
      Monin, A.S. 1973. Boundary layers in planetary atmospheres. In:
   P. Morrel (ed.), Dynamic meteorology, D. Reidel Publishing Company,

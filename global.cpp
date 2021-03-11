@@ -126,7 +126,6 @@ double
     MaxIrrigation,                    // maximum amount of applied water in a predicted irrigation
     MaxWaterCapacity[maxl],           // volumetric water content of a soil layer at maximum capacity, before drainage, cm3 cm-3.
     MineralizedOrganicN,              // cumulative amount of mineralized organic N, mgs per slab.
-    MulchTemp[maxk],                  // polyethylene mulch temperature at a column(oK).
     NetPhotosynthesis,                // net photosynthetic rate, g per plant per day.
     NightTimeTemp,                    // average night-time temperature, C.
     NO3FlowFraction[maxl],            // fraction of nitrate that can move to the next layer.
