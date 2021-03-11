@@ -18,7 +18,7 @@ using namespace std;
 
 const double cgind[3] = {1, 1, 0.10}; // the index for the capability of growth of class I roots (0 to 1).
 
-void RootImpedance(const int &);
+void RootImpedance();
 
 extern "C"
 {
@@ -83,7 +83,7 @@ void RootSummation(State &, const int &, double);
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGroups, const int &NumLayersWithRoots, const int &ncurve)
+double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGroups, const int &NumLayersWithRoots)
 //     This function calculates the potential root growth rate.  The return value
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(),
@@ -101,7 +101,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGro
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
             soil_cells[l][k].root.potential_growth = 0;
-    RootImpedance(ncurve);
+    RootImpedance();
     double sumpdr = 0; // sum of potential root growth rate for the whole slab
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
@@ -189,7 +189,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGro
 }
 
 //////////////////////////
-void RootImpedance(const int &ncurve)
+void RootImpedance()
 //     This function calculates soil mechanical impedance to root growth, rtimpd(l,k),
 //  for all soil cells. It is called from PotentialRootGrowth(). The impedance is a function
 //  of bulk density and water content in each soil soil cell. No changes have been made

@@ -393,7 +393,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
     double sumpdr; // total potential growth rate of roots in g per slab. this is
     // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-    sumpdr = PotentialRootGrowth(state.soil.cells, NumRootAgeGroups, state.soil.number_of_layers_with_root, sim.num_curve);
+    sumpdr = PotentialRootGrowth(state.soil.cells, NumRootAgeGroups, state.soil.number_of_layers_with_root);
     //     Total potential growth rate of roots is converted from g per
     //  slab (sumpdr) to g per plant (PotGroAllRoots).
     PotGroAllRoots = sumpdr * 100 * PerPlantArea / sim.row_space;

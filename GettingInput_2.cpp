@@ -57,10 +57,9 @@ static void ReadSoilImpedance(Simulation & sim)
     string Dummy = GetLineData(DataFile); // 1st line
     string SoilName = Dummy;
     Dummy = GetLineData(DataFile); // 2nd line
-    int ncurve = atoi(Dummy.c_str());
+    ncurve = atoi(Dummy.c_str());
     if (ncurve > 10)
         ncurve = 10;
-    sim.num_curve = ncurve;
     for (int i = 0; i < ncurve; i++) {
         DataFile >> inrim >> gh2oc[i];
         if (inrim > 10)
