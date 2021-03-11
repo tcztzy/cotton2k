@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 using namespace std;
 

@@ -5,7 +5,7 @@
 //  This file contains declartions for class C2K.
 #pragma once
 
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:

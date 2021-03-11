@@ -13,7 +13,7 @@
 #include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "RootGrowth.h"
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 void LeafWaterPotential(State &, const string &, double);
 

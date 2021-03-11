@@ -11,7 +11,7 @@
 #include "global.h"
 #include "exceptions.h"
 #include "GeneralFunctions.h"
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 namespace fs = std::filesystem;
 

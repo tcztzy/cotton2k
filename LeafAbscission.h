@@ -1,6 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 void LeafAbscission(Simulation &, uint32_t);

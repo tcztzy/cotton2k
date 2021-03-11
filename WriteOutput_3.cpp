@@ -14,7 +14,7 @@
 #include <filesystem>
 #include "global.h"
 #include "GeneralFunctions.h"
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 namespace fs = std::filesystem;
 
@@ -267,8 +267,8 @@ void output2(Simulation &sim)
 
 ///////////////////////
 void output3(Simulation &sim)
-//     This procedure is optionally called from DataOutput(). It writes output of weights of 
-//  dry matter of plant parts to file F01. Data are extracted from structure Scratch21. 
+//     This procedure is optionally called from DataOutput(). It writes output of weights of
+//  dry matter of plant parts to file F01. Data are extracted from structure Scratch21.
 //     Global variables referenced:    OutIndex, PlantPopulation
 {
 //  Write header lines.
@@ -331,7 +331,7 @@ void output3(Simulation &sim)
 void output4(Simulation &sim)
 //     This procedure is optionally called from DataOutput(). It writes output of water
 //  and evapotranspiration data to file F01, when the output flag OutIndex(4) is non-zero.
-//     Data are extracted from structure Scratch21. 
+//     Data are extracted from structure Scratch21.
 //     Global variables referenced:         OutIndex
 {
 //     Write header lines.
@@ -497,7 +497,7 @@ void output6(State &state, const string &ProfileName)
 void output7(Simulation &sim)
 //     This function is called by DataOutput(). It writes soil map output by calling
 //  OutputForSoilMaps(). If the day of year is between DayStartSoilMaps and DayStopSoilMaps,
-//  the following will be executed at SoilMapFreq day intervals. It will also be executed 
+//  the following will be executed at SoilMapFreq day intervals. It will also be executed
 //  if the simulation is ended.
 //
 //     The following global variables are referenced:
@@ -673,7 +673,7 @@ void OutputForSoilMaps(State &state, int irec, int igo, int nday, int year, cons
     for (int k = 0; k < maxk; k++)
         for (int l = 0; l < maxl; l++) {
             double araylk; // array element for cell (l,k).
-//     Assign the value for this cell to araylk. 
+//     Assign the value for this cell to araylk.
             if (igo == 5) // For soil temperature - convert from K to C.
                 araylk = Array[l][k] - 273.161;
             else if (igo == 3 || igo == 6)// For root weight capable of uptake or total

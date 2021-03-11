@@ -8,7 +8,7 @@ cdef extern from "Climate.h":
     ctypedef struct ClimateStruct:
         pass
 
-cdef extern from "Simulation.h":
+cdef extern from "Simulation.hpp":
     ctypedef struct Simulation:
         const char *profile_name
         int year

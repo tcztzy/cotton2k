@@ -1,5 +1,5 @@
 #pragma once
 
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 void WriteStateVariables(Simulation &, unsigned int);

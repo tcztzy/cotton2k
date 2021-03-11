@@ -8,7 +8,7 @@
 #include <fstream>
 #include "global.h"
 #include "exceptions.h"
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 using namespace std;
 

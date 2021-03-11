@@ -1,7 +1,7 @@
 #pragma once
 
 #include "exceptions.h"
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 void DayClim(Simulation &, uint32_t u);
 

@@ -13,7 +13,7 @@
 #include <cmath>
 #include "global.h"
 #include "GeneralFunctions.h"
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 extern "C"{
     double PsiOnTranspiration(double);

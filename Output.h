@@ -1,5 +1,5 @@
 #pragma once
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 void OpenOutputFiles(const char *, const char *, int, int);
 

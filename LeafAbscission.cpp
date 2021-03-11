@@ -10,7 +10,7 @@
 //
 #include <cstdint>
 #include "global.h"
-#include "Simulation.h"
+#include "Simulation.hpp"
 
 using namespace std;
 
