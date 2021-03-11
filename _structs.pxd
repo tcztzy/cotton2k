@@ -18,9 +18,6 @@ cdef extern from "Simulation.hpp":
         unsigned int day_plant
         unsigned int day_start_soil_maps
         unsigned int day_stop_soil_maps
-        unsigned int day_start_co2
-        unsigned int day_end_co2
-        double co2_enrichment_factor
         unsigned int day_start_mulch
         unsigned int day_end_mulch
         unsigned int mulch_indicator

@@ -30,10 +30,6 @@
             "type": "string",
             "format": "date"
         },
-        "co2_enrichment_factor": {
-            "type": "number",
-            "minimum": 0
-        },
         "latitude": {
             "type": "number",
             "maximum": 90,

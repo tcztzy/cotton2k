@@ -247,8 +247,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
 //     This function simulates the net photosynthesis of cotton  plants. It is called
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
-//       BurrWeightOpenBolls, CO2EnrichmentFactor, CottonWeightOpenBolls,
-//       DayLength, DayEndCO2, DayStartCO2,
+//       BurrWeightOpenBolls, CottonWeightOpenBolls, DayLength,
 //       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept, PerPlantArea,
 //       PlantWeight, ptsred, StemWeight, TotalLeafWeight.
 //     The following global variables are set here:
@@ -289,10 +288,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     //     CO2EnrichmentFactor is used for CO2 enrichment simulations, between DOY
     //  dates DayStartCO2 and DayEndCO2.
     double pnetcor; // correction factor for gross photosynthesis.
-    if (state.daynum >= sim.day_start_co2 && state.daynum <= sim.day_end_co2 && sim.co2_enrichment_factor > 1)
-        pnetcor = AmbientCO2Factor * vpnet[0] * sim.co2_enrichment_factor;
-    else
-        pnetcor = AmbientCO2Factor * vpnet[0];
+    pnetcor = AmbientCO2Factor * vpnet[0];
     //     Compute ptnfac, the effect of leaf N concentration on
     //  photosynthesis, using an empirical relationship.
     double ptnfac; // correction factor for low nitrogen content in leaves.

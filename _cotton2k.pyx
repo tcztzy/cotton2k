@@ -25,16 +25,6 @@ def _date2doy(d):
     else:
         return 0
 
-cdef void read_co2_enrichment_config(
-    Simulation &sim,
-    double factor,
-    unsigned int day_start_co2,
-    unsigned int day_end_co2,
-):
-    sim.co2_enrichment_factor = factor
-    sim.day_end_co2 = day_end_co2
-    sim.day_start_co2 = day_start_co2
-
 cdef void read_mulch_config(
     Simulation &sim,
     int indicator,
@@ -231,12 +221,6 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim.profile_name = profile_name
-        read_co2_enrichment_config(
-            self._sim,
-            kwargs.get("co2_enrichment_factor", 0),
-            _date2doy(kwargs.get("co2_start_date", 0)),
-            _date2doy(kwargs.get("co2_stop_date", 0)),
-        )
         read_mulch_config(
             self._sim,
             kwargs.get("mulch_indicator", 0),

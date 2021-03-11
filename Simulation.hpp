@@ -13,9 +13,6 @@ typedef struct Simulation
     unsigned int day_plant;                 // Date (DOY) of planting.
     unsigned int day_start_soil_maps;       // Date (DOY) to start soil slab maps output.
     unsigned int day_stop_soil_maps;        // Date (DOY) to stop soil slab maps output.
-    unsigned int day_start_co2;             // First date (DOY) with CO2 enrichment.
-    unsigned int day_end_co2;               // Last date (DOY) with CO2 enrichment.
-    double co2_enrichment_factor;           // factor describing effect of CO2 enrichment.
     unsigned int day_start_mulch;           // Date (DOY) for beginning of mulch.
     unsigned int day_end_mulch;             // date (DOY) for ending of mulch.
     unsigned int mulch_indicator;           // indicating if and where a soil mulch exists, the value are:
