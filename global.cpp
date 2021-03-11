@@ -50,8 +50,7 @@ int inrim,       // number of input bulk-density data points for the impedance c
     // (AbscissionLag, ShedByCarbonStress, ShedByNitrogenStress and ShedByWaterStress).
     NumWaterTableData; // number of water table level input data.
 
-int OutIndex[24],          // output flags.
-    SoilHorizonNum[maxl],  // the soil horizon number associated with each soil layer in the slab.
+int SoilHorizonNum[maxl],  // the soil horizon number associated with each soil layer in the slab.
     SoilMapFreq,           // frequency of output of soil slab maps
     WaterTableLayer;       // number of uppermost soil layer below water table.
 

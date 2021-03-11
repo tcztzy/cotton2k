@@ -117,7 +117,7 @@ void LeafWaterPotential(State &state, const string &ProfileName, double row_spac
 //
 //     The following global variables are referenced here:
 //       AgeOfPreFruNode, AverageSoilPsi, vanGenuchtenBeta, dl, Kday, LeafAge, NumFruitBranches,
-//       NumNodes, NumPreFruNodes, NumVegBranches, OutIndex,
+//       NumNodes, NumPreFruNodes, NumVegBranches,
 //       pi, PlantHeight, PoreSpace, ReferenceETP, RootColNumLeft, RootColNumRight,
 //       RootWtCapblUptake, SaturatedHydCond, SoilPsi, thad, thts, VolWaterContent, wk.
 //     The following global variables are set here:

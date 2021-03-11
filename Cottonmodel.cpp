@@ -107,7 +107,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
 //     CheckDryMatterBal();
 //
 //     The following global variables are referenced here:
-//  iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex.
+//  iyear, Kday, LastDayWeatherData, LeafAreaIndex.
 //
 //     The following global variables are set here:
 //  isw, Kday.

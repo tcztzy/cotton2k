@@ -199,17 +199,6 @@ cdef class _Simulation:
             VarPar[i + 1] = p
 
     @property
-    def output_flags(self):
-        return OutIndex
-
-    @output_flags.setter
-    def output_flags(self, flags):
-        for n in range(24):
-            OutIndex[n] = 0
-        for i, flag in enumerate(flags):
-            OutIndex[i + 1] = flag
-
-    @property
     def row_space(self):
         return self._sim.row_space
 

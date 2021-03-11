@@ -19,7 +19,6 @@ def read_input(path: Path) -> tuple[_Simulation, dict]:
         "elevation",
         "site_parameters",
         "cultivar_parameters",
-        "output_flags",
         "row_space",
         "skip_row_width",
         "plants_per_meter",

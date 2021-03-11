@@ -53,7 +53,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     The following global variables are referenced here:
 //       ActualTranspiration, Clim, DayStartPredIrrig, DayStopPredIrrig,
 //       dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk, nl, NumIrrigations,
-//       NumWaterTableData, OutIndex, PerPlantArea, SoilPsi, SupplyNH4N, SupplyNO3N,
+//       NumWaterTableData, PerPlantArea, SoilPsi, SupplyNH4N, SupplyNO3N,
 //       VolWaterContent, wk.
 //     The following global variables are set here:
 //       AverageSoilPsi, CumNitrogenUptake, CumTranspiration, CumWaterAdded, LocationColumnDrip,

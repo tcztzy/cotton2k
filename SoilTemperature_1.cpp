@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void SoilTemperatureInit(int &, int &, Simulation &);
+void SoilTemperatureInit(Simulation &);
 
 // SoilTemperature_2
 void EnergyBalance(Simulation &, uint32_t, int, int, double, double, const double &, double[20]);
@@ -119,7 +119,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
 //
 //     The following global variables are referenced here:
 //       ActualTranspiration, AirTemp,
-//       DewPointTemp, dl, FoliageTemp, isw, nk, nl, OutIndex,
+//       DewPointTemp, dl, FoliageTemp, isw, nk, nl,
 //       PlantRowColumn, ReferenceETP, ReferenceTransp, RelativeHumidity,
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
@@ -127,14 +127,8 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
 //       SoilTempDailyAvrg, VolWaterContent,
 {
     State &state = sim.states[u];
-    static int jt1, jt2; //  Julian dates for start and end of output.
     if (u == 0)
-        SoilTemperatureInit(jt1, jt2, sim);
-    //     Set output flag jtout, indicating if output of soil temperature is required.
-    bool jtout = false; // output flag for soil temperature data
-    if (OutIndex[16] > 0)
-        if (sim.day_start + u >= jt1 && sim.day_start + u <= jt2)
-            jtout = true;
+        SoilTemperatureInit(sim);
     //     Compute dts, the daily change in deep soil temperature (C), as
     //  a site-dependent function of Daynum.
     double dts = 2 * pi * SitePar[10] / 365 * cos(2 * pi * (sim.day_start + u - SitePar[11]) / 365);
@@ -400,21 +394,17 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
   Soil Sci. Soc. Am. Proc. 33:354-360.
 */
 ////////////////////////////////////////////////////////////////////////
-void SoilTemperatureInit(int &jt1, int &jt2, Simulation &sim)
+void SoilTemperatureInit(Simulation &sim)
 //     This function is called from SoilTemperature() at the start of the simulation. It sets
 //  initial values to soil and canopy temperatures.
 //     The following arguments are set in this function:
 //  jt1, jt2 - input of start and stop of output of soil temperatures.
 //
 //     The following global variables are referenced here:
-//  Clim (structure), nl, OutIndex, SitePar.
+//  Clim (structure), nl, SitePar.
 //     The following global variables are set here:
 //  DeepSoilTemperature, SoilTemp.
 {
-    //     If there is an output flag for soil temperatures, a dialog pops up for defining
-    //  the start and stop dates for this output.
-    jt1 = 0;
-    jt2 = 0;
     //     Compute initial values of soil temperature: It is assumed that at the start of simulation
     //  the temperature of the first soil layer (upper boundary) is equal to the average air temperature
     //  of the previous five days (if climate data not available - start from first climate data).

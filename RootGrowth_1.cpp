@@ -90,7 +90,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGro
 //  SoilMechanicResistance(), SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
 //
 //     The following global variables are referenced here:
-//       NumRootAgeGroups, nk, OutIndex,
+//       NumRootAgeGroups, nk,
 //       PerPlantArea, PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg,
 //       VolNo3NContent, VolWaterContent.
 //     The following global variables are set here:    PotGroRoots, RootGroFactor

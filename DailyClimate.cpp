@@ -51,7 +51,7 @@ void DayClim(Simulation &sim, uint32_t u)
 //     daytemp(), EvapoTranspiration(), tdewhour(), dayrh(), daywnd()
 //         Global variables referenced:
 //    DayStart, declination, LastDayWeatherData, Latitude,
-//    OutIndex, pi, SitePar
+//    pi, SitePar
 //         Global variables set:
 //    AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
 //

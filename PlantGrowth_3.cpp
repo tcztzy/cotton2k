@@ -21,7 +21,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
-//        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots, NStressVeg, OutIndex,
+//        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots, NStressVeg,
 //        PerPlantArea, PotGroAllBolls, PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles,
 //        PotGroAllRoots, PotGroAllSquares, PotGroStem, TotalLeafWeight, TotalStemWeight,
 //        WaterStress.
@@ -364,7 +364,7 @@ void CheckDryMatterBal(State &state, const string &ProfileName)
 //     The following global variables are referenced here:
 //       AbscisedLeafWeight, BloomWeightLoss, BurrWeightGreenBolls, BurrWeightOpenBolls,
 //       CottonWeightGreenBolls, CottonWeightOpenBolls, CumNetPhotosynth, GreenBollsLost, Kday,
-//       OutIndex, PlantWeightAtStart, ReserveC, RootWeightLoss, TotalLeafWeight, TotalPetioleWeight,
+//       PlantWeightAtStart, ReserveC, RootWeightLoss, TotalLeafWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
 //     The following global variable is set here:     PlantWeight.
 {

@@ -115,7 +115,7 @@ static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //
 //     Global and file scope variables referenced:
 //        airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, Date, dl, h2oint, ldepth,
-//        nl, oma, OutIndex, psisfc, wk.
+//        nl, oma, psisfc, wk.
 //     Global and file scope variables set:
 //        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter, InitialTotalSoilWater,
 //        MaxWaterCapacity, NO3FlowFraction, PoreSpace, rnnh4, rnno3, SaturatedHydCond,

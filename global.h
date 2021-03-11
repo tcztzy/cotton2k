@@ -52,7 +52,7 @@ extern int DayFirstDef,
     NumIrrigations, NumNitApps, NumPreFruNodes,
     NumSheddingTags, NumWaterTableData, SoilMapFreq, WaterTableLayer;
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
-    LateralRootFlag[maxl], OutIndex[24], SoilHorizonNum[maxl];
+    LateralRootFlag[maxl], SoilHorizonNum[maxl];
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth,
     ActualSquareGrowth, ActualStemGrowth, addwtbl,

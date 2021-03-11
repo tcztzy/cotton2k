@@ -8,7 +8,6 @@ cdef extern from "global.h":
     int isw
     int Kday
     int SoilMapFreq
-    int OutIndex[24]
     const int maxl
     const int maxk
     int nl

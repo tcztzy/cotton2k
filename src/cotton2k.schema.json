@@ -78,12 +78,6 @@
         "soil_map_stop_date": {
             "type": "string",
             "format": "date"
-        },
-        "output_flags": {
-            "type": "array",
-            "items": {
-                "type": "integer"
-            }
         }
     }
 }
