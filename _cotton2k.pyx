@@ -1,4 +1,3 @@
-from libcpp cimport bool
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libc.stdlib cimport malloc
