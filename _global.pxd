@@ -5,12 +5,17 @@ cdef extern:
 
 cdef extern from "global.h":
     void InitializeGlobal()
+    unsigned int ncurve
+    int inrim
     int isw
     int Kday
     const int maxl
     const int maxk
     int nl
     int nk
+    double gh2oc[10]
+    double tstbd[10][10]
+    double impede[10][10]
     double VarPar[61]
     double SitePar[21]
     double PlantPopulation

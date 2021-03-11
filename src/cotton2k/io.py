@@ -1,9 +1,13 @@
 """Input/Output"""
+import csv
 import json
 from pathlib import Path
 from typing import Optional
 
-from _cotton2k import _Simulation  # pylint: disable=import-error# noqa: F401
+from _cotton2k import (  # pylint: disable=import-error# noqa: F401
+    SoilImpedance,
+    _Simulation,
+)
 
 
 def read_input(path: Path) -> tuple[_Simulation, dict]:
@@ -27,6 +31,17 @@ def read_input(path: Path) -> tuple[_Simulation, dict]:
             setattr(sim, attr, kwargs.get(attr))
     sim.year = int(kwargs["start_date"][:4])
     sim.read_input(**kwargs)
+    si = SoilImpedance()
+    with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
+        reader = csv.DictReader(csvfile)
+        si.curves = list(
+            map(
+                lambda row: {
+                    (k if k == "water" else float(k)): float(v) for k, v in row.items()
+                },
+                reader,
+            )
+        )
     return sim, kwargs
 
 

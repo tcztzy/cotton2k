@@ -20,6 +20,6 @@ print(project)
 setup(
     packages=["cotton2k"],
     package_dir={"": "src"},
-    package_data={"cotton2k": ["*.json"]},
+    package_data={"cotton2k": ["*.json", "*.csv"]},
     **project
 )

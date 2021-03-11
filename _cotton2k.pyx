@@ -101,6 +101,23 @@ cdef void InitializeGrid(Simulation &sim):
                 sim.plant_row_column = k
 
 
+cdef class SoilImpedance:
+
+    @property
+    def curves(self):
+        return {gh2oc[i]: {tstbd[j][i]: impede[j][i] for j in range(inrim)} for i in range(ncurve)}
+
+    @curves.setter
+    def curves(self, impedance_table):
+        global ncurve, inrim
+        ncurve = len(impedance_table)
+        inrim = len(impedance_table[0])
+        for i, row in enumerate(impedance_table):
+            gh2oc[i] = row.pop("water")
+            for j, pair in enumerate(sorted(row.items())):
+                tstbd[j][i], impede[j][i] = pair
+
+
 cdef class _Simulation:
     cdef Simulation _sim
 
@@ -245,7 +262,6 @@ cdef class _Simulation:
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
-        ReadSoilImpedance(self._sim)
         InitSoil(filenames[3])
         ReadAgriculturalInput(self._sim, filenames[4])
         InitializeSoilData(self._sim, filenames[2])
