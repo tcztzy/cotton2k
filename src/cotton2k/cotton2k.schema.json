@@ -9,41 +9,51 @@
     ],
     "properties": {
         "profile": {
+            "description": "The name of profile",
             "type": "string"
         },
         "description": {
+            "description": "Simulation description",
             "type": "string"
         },
         "start_date": {
+            "description": "Simulation start date, in iso format 'YYYY-mm-dd'",
             "type": "string",
             "format": "date"
         },
         "stop_date": {
+            "description": "Simulation stop date, in iso format 'YYYY-mm-dd'",
             "type": "string",
             "format": "date"
         },
         "emerge_date": {
+            "description": "Cotton emerge date",
             "type": "string",
             "format": "date"
         },
         "plant_date": {
+            "description": "Cotton plant date",
             "type": "string",
             "format": "date"
         },
         "latitude": {
+            "description": "The site's latitude",
             "type": "number",
             "maximum": 90,
             "minimum": -90
         },
         "longitude": {
+            "description": "The site's longitude",
             "type": "number",
             "maximum": 180,
             "minimum": -180
         },
         "elevation": {
+            "description": "The site's elevation in meter",
             "type": "number"
         },
         "site_parameters": {
+            "description": "",
             "type": "array",
             "items": {
                 "type": "number"
