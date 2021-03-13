@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from _cotton2k import (  # pylint: disable=import-error# noqa: F401
+    InitialSoil,
     SoilImpedance,
     _Simulation,
 )
@@ -29,6 +30,8 @@ def read_input(path: Path) -> tuple[_Simulation, dict]:
     ]:
         if attr in kwargs:
             setattr(sim, attr, kwargs.get(attr))
+    initial_soil = InitialSoil()
+    initial_soil.layers = kwargs.get("initial_soil", [])
     sim.year = int(kwargs["start_date"][:4])
     sim.read_input(**kwargs)
     si = SoilImpedance()

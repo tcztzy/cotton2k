@@ -1,6 +1,5 @@
 //  File GettingInput_2.cpp
 //     Consists of the following functions:
-// InitSoil()
 // InitializeSoilData()
 // ReadSoilHydraulicData()
 // InitializeRootData()
@@ -37,41 +36,6 @@ rnnh4[14],           // residual nitrogen as ammonium in soil at beginning of se
 // defined by input for consecutive 15 cm soil layers.
 rnno3[14];           // residual nitrogen as nitrate in soil at beginning of season, kg per ha.
 // defined by input for consecutive 15 cm soil layers.
-
-//////////////////////////////////////////////////////////////////
-static void InitSoil(const string &SoilInitFileName)
-//     This function opens the initial soil data file and reads it. It is executed
-//  once at the beginning of the simulation. It is called by ReadInput().
-//
-//     Global or file scope variables set:
-//        rnnh4, rnno3, oma, h2oint.
-{
-//     The the file containing the initial soil data is opened for input.
-    fs::path strFileName = fs::path("soils") / SoilInitFileName;
-    ifstream fstr(strFileName, ios::in);
-    if (fstr.fail())
-        throw FileNotOpened(strFileName);
-//     The description of this file is read from the first line of the file.
-    char dscrip[100];
-    fstr.getline(dscrip, 99);
-//     The next 12 lines contain data for 12 consecutive 15 cm soil
-//  layers (the last layer is 35 cm).
-//      (1) residual ammonium N, kgs per ha.
-//      (2) residual nitrate N, kgs per ha.
-//      (3) organic matter, percent of soil dry weight.
-//      (4) soil water content, percent of field capacity.
-    for (int i = 0; i < 12; i++)
-        fstr >> rnnh4[i] >> rnno3[i] >> oma[i] >> h2oint[i];
-    fstr.close();
-//     Data for soil layers below 180 cm are assumed to be the same
-//  as those for the last defined layer (layer 11 is 165-200 cm).
-    for (int i = 12; i < 14; i++) {
-        h2oint[i] = h2oint[11];
-        rnnh4[i] = rnnh4[11];
-        rnno3[i] = rnno3[11];
-        oma[i] = oma[11];
-    }
-}
 
 //////////////////////////////////////////////////////////
 static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)

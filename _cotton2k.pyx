@@ -101,6 +101,28 @@ cdef void InitializeGrid(Simulation &sim):
                 sim.plant_row_column = k
 
 
+cdef class InitialSoil:
+
+    @property
+    def layers(self):
+        return [
+            {
+                "ammonium_nitrogen": rnnh4[i],
+                "nitrate_nitrogen": rnno3[i],
+                "organic_matter": oma[i],
+                "water": h2oint[i]
+            } for i in range(14)
+        ]
+
+    @layers.setter
+    def layers(self, init_soil):
+        for i, layer in enumerate(init_soil):
+            rnnh4[i] = layer["ammonium_nitrogen"]
+            rnno3[i] = layer["nitrate_nitrogen"]
+            oma[i] = layer["organic_matter"]
+            h2oint[i] = layer["water"]
+
+
 cdef class SoilImpedance:
 
     @property
@@ -262,7 +284,6 @@ cdef class _Simulation:
         self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
-        InitSoil(filenames[3])
         ReadAgriculturalInput(self._sim, filenames[4])
         InitializeSoilData(self._sim, filenames[2])
         InitializeSoilTemperature()
