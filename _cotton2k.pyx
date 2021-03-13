@@ -101,10 +101,19 @@ cdef void InitializeGrid(Simulation &sim):
                 sim.plant_row_column = k
 
 
-cdef class InitialSoil:
+cdef class Soil:
+    cdef unsigned int number_of_layers
+    def __init__(self, initial, hydrology):
+        self.initial = initial
+        self.hydrology = hydrology
+        self.number_of_layers = len(hydrology["layers"])
 
     @property
-    def layers(self):
+    def lyrsol(self):
+        return self.number_of_layers
+
+    @property
+    def initial(self):
         return [
             {
                 "ammonium_nitrogen": rnnh4[i],
@@ -114,13 +123,57 @@ cdef class InitialSoil:
             } for i in range(14)
         ]
 
-    @layers.setter
-    def layers(self, init_soil):
+    @initial.setter
+    def initial(self, init_soil):
         for i, layer in enumerate(init_soil):
             rnnh4[i] = layer["ammonium_nitrogen"]
             rnno3[i] = layer["nitrate_nitrogen"]
             oma[i] = layer["organic_matter"]
             h2oint[i] = layer["water"]
+
+    @property
+    def hydrology(self):
+        return {
+            "ratio_implicit": RatioImplicit,
+            "max_conductivity": conmax,
+            "field_capacity_water_potential": psisfc,
+            "immediate_drainage_water_potential": psidra,
+            "layers": [
+                {
+                    "depth": ldepth[i],
+                    "air_dry": airdr[i],
+                    "theta": thetas[i],
+                    "alpha": alpha[i],
+                    "beta": vanGenuchtenBeta,
+                    "saturated_hydraulic_conductivity": SaturatedHydCond[i],
+                    "field_capacity_hydraulic_conductivity": condfc[i],
+                    "bulk_density": BulkDensity[i],
+                    "clay": pclay[i],
+                    "sand": psand[i],
+                }
+                for i in range(self.number_of_layers)
+            ]
+        }
+
+    @hydrology.setter
+    def hydrology(self, soil_hydrology):
+        global RatioImplicit, conmax, psisfc, psidra
+        RatioImplicit = soil_hydrology["ratio_implicit"]
+        conmax = soil_hydrology["max_conductivity"]
+        psisfc = soil_hydrology["field_capacity_water_potential"]
+        psidra = soil_hydrology["immediate_drainage_water_potential"]
+        for i, layer in enumerate(soil_hydrology["layers"]):
+            ldepth[i] = layer["depth"]
+            airdr[i] = layer["air_dry"]
+            thetas[i] = layer["theta"]
+            alpha[i] = layer["alpha"]
+            vanGenuchtenBeta[i] = layer["beta"]
+            SaturatedHydCond[i] = layer["saturated_hydraulic_conductivity"]
+            condfc[i] = layer["field_capacity_hydraulic_conductivity"]
+            BulkDensity[i] = layer["bulk_density"]
+            pclay[i] = layer["clay"]
+            psand[i] = layer["sand"]
+
 
 
 cdef class SoilImpedance:
@@ -265,7 +318,7 @@ cdef class _Simulation:
         app = new C2KApp()
         app.DailySimulation(self._sim)
 
-    def read_input(self, profile, description, **kwargs):
+    def read_input(self, profile, description, lyrsol, **kwargs):
         """This is the main function for reading input."""
         cdef vector[string] filenames = [b'', b'', b'', b'', b'']
         InitializeGlobal()
@@ -285,7 +338,7 @@ cdef class _Simulation:
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
         ReadAgriculturalInput(self._sim, filenames[4])
-        InitializeSoilData(self._sim, filenames[2])
+        InitializeSoilData(self._sim, filenames[2], lyrsol)
         InitializeSoilTemperature()
         InitializeRootData(self._sim)
         # initialize some variables at the start of simulation.

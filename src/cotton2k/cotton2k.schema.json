@@ -1,5 +1,6 @@
 {
-    "$id": "https://raw.githubusercontent.com/tcztzy/cotton2k/master/src/cotton2k.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/tcztzy/cotton2k/master/src/cotton2k/cotton2k.schema.json",
     "description": "Cotton2K model input JSON schema",
     "type": "object",
     "required": [
@@ -75,6 +76,106 @@
             "type": "array",
             "items": {
                 "type": "number"
+            }
+        },
+        "soil": {
+            "description": "Soil measurements",
+            "type": "object",
+            "properties": {
+                "initial": {
+                    "description": "Soil initial status",
+                    "type": "array",
+                    "items": {
+                        "description": "Each layer soil status",
+                        "type": "object",
+                        "properties": {
+                            "ammonium_nitrogen": { "type": "number" },
+                            "nitrate_nitrogen": { "type": "number" },
+                            "organic_matter": { "type": "number" },
+                            "water": { "type": "number" }
+                        },
+                        "required": ["ammonium_nitrogen", "nitrate_nitrogen", "organic_matter", "water"]
+                    },
+                    "maxItems": 14
+                },
+                "hydrology": {
+                    "description": "Soil Hydrology data",
+                    "type": "object",
+                    "properties": {
+                        "ratio_implicit": {
+                            "description": "the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.",
+                            "type": "number",
+                            "maximum": 1,
+                            "minimum": 0
+                        },
+                        "max_conductivity": {
+                            "description": "the maximum value for non-dimensional hydraulic conductivity",
+                            "type": "number"
+                        },
+                        "field_capacity_water_potential": {
+                            "description": "soil matric water potential at field capacity, bars (suggested value -0.33 to -0.1).",
+                            "type": "number"
+                        },
+                        "immediate_drainage_water_potential": {
+                            "description": "soil matric water potential, bars, for which immediate drainage will be simulated (suggested value -0.25 to -0.1)"
+                        },
+                        "layers": {
+                            "description": "soil horizons in the slab (down to 2 m)",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "depth": {
+                                        "description": "depth from soil surface to the end of horizon layers, cm.",
+                                        "type": "number",
+                                        "minimum": 0
+                                    },
+                                    "air_dry": {
+                                        "description": "volumetric water content of soil at \"air-dry\" for each soil horizon, cm3 cm-3.",
+                                        "type": "number"
+                                    },
+                                    "theta": {
+                                        "description": "volumetric saturated water content of soil horizon, cm3 cm-3.",
+                                        "type": "number"
+                                    },
+                                    "alpha": {
+                                        "description": "parameter of the Van Genuchten equation.",
+                                        "type": "number"
+                                    },
+                                    "beta": {
+                                        "description": "parameter of the Van Genuchten equation.",
+                                        "type": "number"
+                                    },
+                                    "saturated_hydraulic_conductivity": {
+                                        "description": "saturated hydraulic conductivity, cm per day.",
+                                        "type": "number"
+                                    },
+                                    "field_capacity_hydraulic_conductivity": {
+                                        "description": "hydraulic conductivity at field capacity of horizon layers, cm per day.",
+                                        "type": "number"
+                                    },
+                                    "bulk_density": {
+                                        "description": "bulk density of soil in a horizon, g cm-3.",
+                                        "type": "number"
+                                    },
+                                    "clay": {
+                                        "description": "percentage of clay in soil horizon of horizon layers.",
+                                        "type": "number",
+                                        "maximum": 100,
+                                        "minimum": 0
+                                    },
+                                    "sand": {
+                                        "description": "percentage of sand in soil horizon of horizon layers.",
+                                        "type": "number",
+                                        "maximum": 100,
+                                        "minimum": 0
+                                    }
+                                }
+                            },
+                            "maxItems": 9
+                        }
+                    }
+                }
             }
         }
     }

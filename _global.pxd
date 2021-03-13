@@ -31,3 +31,11 @@ cdef extern from "global.h":
     double PlantRowLocation
     double PerPlantArea
     double DensityFactor
+    double RatioImplicit
+    double conmax
+    double airdr[9]
+    double thetas[9]
+    double alpha[9]
+    double vanGenuchtenBeta[9]
+    double SaturatedHydCond[9]
+    double BulkDensity[9]

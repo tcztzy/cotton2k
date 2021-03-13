@@ -1,7 +1,6 @@
 //  File GettingInput_2.cpp
 //     Consists of the following functions:
 // InitializeSoilData()
-// ReadSoilHydraulicData()
 // InitializeRootData()
 // InitializeSoilTemperature()
 // form()
@@ -14,9 +13,6 @@
 #include "Input.h"
 
 namespace fs = std::filesystem;
-
-static int ReadSoilHydraulicData(const string &);
-
 //
 // Definitions of variables with file scope:
 //
@@ -38,11 +34,10 @@ rnno3[14];           // residual nitrogen as nitrate in soil at beginning of sea
 // defined by input for consecutive 15 cm soil layers.
 
 //////////////////////////////////////////////////////////
-static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
+static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName, unsigned int lyrsol)
 //     This function computes and sets the initial soil data. It is
 //  executed once at the beginning of the simulation, after the soil
 //  hydraulic data file has been read. It is called by ReadInput().
-//     It calls ReadSoilHydraulicData().
 //
 //     Global and file scope variables referenced:
 //        airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, Date, dl, h2oint, ldepth,
@@ -53,9 +48,6 @@ static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
 //        SoilHorizonNum, thad, thetar, thetas, thts, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN,
 //        VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent
 {
-    int lyrsol;  // the number of soil horizons in the slab (down to 2 m).
-    lyrsol = ReadSoilHydraulicData(SoilHydFileName);
-//
     int j = 0; // horizon number
     double sumdl = 0; // depth to the bottom this layer (cm);
     double rm = 2.65; // density of the solid fraction of the soil (g / cm3)
@@ -187,73 +179,6 @@ static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName)
         }
 //     InitialTotalSoilWater is converted from cm3 per slab to mm.
     InitialTotalSoilWater = 10 * InitialTotalSoilWater / sim.row_space;
-}
-
-/////////////////////////////////////////////////////////////////////
-int ReadSoilHydraulicData(const string &SoilHydFileName)
-//     This functions reads the soil hydrology file. It is called by InitializeSoilData().
-//     Global or file scope Variables set here:
-//  airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, conmax, ldepth, pclay, psand,
-//  psidra, psisfc, RatioImplicit, SaturatedHydCond, thetas
-//     Return value = number of soilhorizons (lyrsol)
-{
-//     The the file containing the hydraulic soil data is opened for input.
-    fs::path m_FileName = fs::path("soils") / SoilHydFileName;
-    ifstream DataFile(m_FileName, ios::in);
-    if (DataFile.fail())
-        throw FileNotOpened(m_FileName);
-//     Zeroise arrays of data values.
-    for (int i = 0; i < 9; i++) {
-        ldepth[i] = 0;
-        airdr[i] = 0;
-        thetas[i] = 0;
-        alpha[i] = 0;
-        vanGenuchtenBeta[i] = 0;
-        SaturatedHydCond[i] = 0;
-        condfc[i] = 0;
-        BulkDensity[i] = 0;
-        pclay[i] = 0;
-        psand[i] = 0;
-    }
-//     The following code reads data from the file to the variables:
-//     -Reading line 1--------------------------------------------------------------//
-    string Dummy = GetLineData(DataFile);
-    string m_fileDesc = ""; // Description of the Hydraulic file
-    if (Dummy.length() > 1)
-        m_fileDesc = Dummy.erase(Dummy.find_last_not_of(" \r\n\t\f\v") + 1);
-//     -Reading line 2--------------------------------------------------------------//
-    Dummy = GetLineData(DataFile);
-    int lyrsol;   // the number of soil horizons in the slab (down to 2 m).
-    lyrsol = atoi(Dummy.substr(0, 10).c_str());
-    RatioImplicit = atof(Dummy.substr(10, 10).c_str());
-    conmax = atof(Dummy.substr(20, 10).c_str());
-    psisfc = atof(Dummy.substr(30, 10).c_str());
-    psidra = atof(Dummy.substr(40, 10).c_str());
-    if (lyrsol > 9)
-        lyrsol = 9; // not more than 9 layers
-    if (psisfc > 0)
-        psisfc = -psisfc; // make sure it is negative
-    if (psidra > 0)
-        psidra = -psidra; // make sure it is negative
-//     -Reading next lines  -------------------------------------------
-    for (int il = 0; il < lyrsol; il++) {
-//     First line for each layer
-        Dummy = GetLineData(DataFile);
-        ldepth[il] = atof(Dummy.substr(0, 10).c_str());
-        airdr[il] = atof(Dummy.substr(10, 10).c_str());
-        thetas[il] = atof(Dummy.substr(20, 10).c_str());
-        alpha[il] = atof(Dummy.substr(30, 10).c_str());
-        vanGenuchtenBeta[il] = atof(Dummy.substr(40, 10).c_str());
-        SaturatedHydCond[il] = atof(Dummy.substr(50, 10).c_str());
-        condfc[il] = atof(Dummy.substr(60, 10).c_str());
-//     Second line for each layer
-        Dummy = GetLineData(DataFile);
-        BulkDensity[il] = atof(Dummy.substr(0, 10).c_str());
-        pclay[il] = atof(Dummy.substr(10, 10).c_str());
-        psand[il] = atof(Dummy.substr(20, 10).c_str());
-    }
-    DataFile.close();
-    return lyrsol;
 }
 
 static void init_root_data(SoilCell soil_cells[40][20], uint32_t plant_row_column, double mul) {
