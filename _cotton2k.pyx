@@ -334,7 +334,7 @@ cdef class _Simulation:
         )
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
-        self._sim.states = <State *> malloc(sizeof(State) * self._sim.day_finish - self._sim.day_start + 1)
+        self._sim.states = <State *> malloc(sizeof(State) * (self._sim.day_finish - self._sim.day_start + 1))
         LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
         ReadAgriculturalInput(self._sim, filenames[4])
