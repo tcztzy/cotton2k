@@ -12,12 +12,9 @@
 // AveragePsi()
 // WaterTable()
 //
-#include <filesystem>
 #include "global.h"
 #include "GeneralFunctions.h"
 #include "Simulation.hpp"
-
-namespace fs = std::filesystem;
 
 void RootsCapableOfUptake(Soil &);
 
