@@ -26,20 +26,6 @@ def _date2doy(d):
     else:
         return 0
 
-cdef void read_filenames(
-    vector[string] &filenames,
-    string actual_weather_filename,
-    string predicted_weather_filename,
-    string soil_hydraulic_filename,
-    string soil_init_filename,
-    string agricultural_input_filename,
-):
-    filenames[0] = actual_weather_filename
-    filenames[1] = predicted_weather_filename
-    filenames[2] = soil_hydraulic_filename
-    filenames[3] = soil_init_filename
-    filenames[4] = agricultural_input_filename
-
 cdef void initialize_switch(Simulation &sim):
     global isw, Kday
     # If the date of emergence has not been given, emergence will be simulated
@@ -255,6 +241,52 @@ cdef class Climate:
             raise StopIteration
 
 
+
+cdef read_agricultural_input(Simulation &sim, inputs):
+    global NumNitApps, NumIrrigations
+    NumNitApps = 0
+    idef = 0
+    cdef Irrigation irrigation
+    cdef NitrogenFertilizer nf
+    for i in inputs:
+        if i["type"] == "irrigation":
+            irrigation.day = _date2doy(i["date"])  # day of year of this irrigation
+            irrigation.amount = i["amount"]  # net amount of water applied, mm
+            irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
+            isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm
+            isddph = i.get("drip_depth", 0)  # vertical placement cm
+            # If this is a drip irrigation, convert distances to soil
+            # layer and column numbers by calling SlabLoc.
+            if irrigation.method == 2:
+                irrigation.LocationColumnDrip = SlabLoc(isdhrz, sim.row_space)
+                irrigation.LocationLayerDrip = SlabLoc(isddph, 0)
+            sim.irrigation[NumIrrigations] = irrigation
+            NumIrrigations += 1
+        elif i["type"] == "fertilization":
+            nf.day = _date2doy(i["date"])
+            nf.amtamm = i.get("ammonium", 0)
+            nf.amtnit = i.get("nitrate", 0)
+            nf.amtura = i.get("urea", 0)
+            nf.mthfrt = i.get("method", 0)
+            isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
+            isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.
+            if nf.mthfrt == 1 or nf.mthfrt == 3:
+                nf.ksdr = SlabLoc(isdhrz, sim.row_space)
+                nf.lsdr = SlabLoc(isddph, 0)
+            else:
+                nf.ksdr = 0
+                nf.lsdr = 0
+            NFertilizer[NumNitApps] = nf
+            NumNitApps += 1
+        elif i["type"] == "defoliation prediction":
+            DefoliationDate[idef] = _date2doy(i["date"])
+            DefoliantAppRate[idef] = -99.9
+            if idef == 0:
+                DayFirstDef = DefoliationDate[0]
+            DefoliationMethod[idef] = i.get("method", 0)
+            idef += 1
+
+
 cdef class _Simulation:
     cdef Simulation _sim
 
@@ -400,19 +432,11 @@ cdef class _Simulation:
         InitializeGlobal()
         profile_name = profile.encode("utf-8")
         self._sim.profile_name = profile_name
-        read_filenames(
-            filenames,
-            kwargs.get("actual_weather_filename", "").encode("UTF-8"),
-            kwargs.get("predicted_weathre_filename", "").encode("UTF-8"),
-            kwargs.get("soil_hydraulic_filename", "").encode("UTF-8"),
-            kwargs.get("soil_init_filename", "").encode("UTF-8"),
-            kwargs.get("agricultural_input_filename", "").encode("UTF-8"),
-        )
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
         self._sim.states = <State *> malloc(sizeof(State) * (self._sim.day_finish - self._sim.day_start + 1))
         InitializeGrid(self._sim)
-        ReadAgriculturalInput(self._sim, filenames[4])
+        read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
         InitializeSoilData(self._sim, lyrsol)
         InitializeSoilTemperature()
         InitializeRootData(self._sim)

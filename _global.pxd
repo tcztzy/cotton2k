@@ -2,9 +2,18 @@ cdef extern:
     double dl(unsigned int)
     double wk(unsigned int, double)
     double tdewest(double, double, double)
+    int SlabLoc(int, double)
 
 
 cdef extern from "global.h":
+    ctypedef struct NitrogenFertilizer:
+        int day
+        int mthfrt
+        int ksdr
+        int lsdr
+        double amtamm
+        double amtnit
+        double amtura
     void InitializeGlobal()
     unsigned int ncurve
     int inrim
@@ -41,3 +50,10 @@ cdef extern from "global.h":
     double vanGenuchtenBeta[9]
     double SaturatedHydCond[9]
     double BulkDensity[9]
+    double DefoliantAppRate[5]
+    int DefoliationDate[5]
+    int DefoliationMethod[5]
+    NitrogenFertilizer NFertilizer[150]
+    int NumNitApps
+    int DayFirstDef
+    int NumIrrigations

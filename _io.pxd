@@ -16,6 +16,3 @@ cdef extern from "GettingInput_2.cpp":
     double condfc[9]
     double pclay[9]
     double psand[9]
-
-cdef extern from "gettingInput_3.cpp":
-    void ReadAgriculturalInput(Simulation &, const string &)

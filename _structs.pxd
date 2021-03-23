@@ -13,6 +13,14 @@ cdef extern from "Climate.h":
         double Wind
         double Tdew
 
+cdef extern from "Irrigation.h":
+    ctypedef struct Irrigation:
+        int day
+        int method
+        int LocationColumnDrip
+        int LocationLayerDrip
+        double amount
+
 cdef extern from "Simulation.hpp":
     ctypedef struct Simulation:
         const char *profile_name
@@ -28,3 +36,4 @@ cdef extern from "Simulation.hpp":
         unsigned int plant_row_column
         State *states
         ClimateStruct climate[400]
+        Irrigation irrigation[150]
