@@ -413,7 +413,7 @@ cdef class _Simulation:
         self._sim.states = <State *> malloc(sizeof(State) * (self._sim.day_finish - self._sim.day_start + 1))
         InitializeGrid(self._sim)
         ReadAgriculturalInput(self._sim, filenames[4])
-        InitializeSoilData(self._sim, filenames[2], lyrsol)
+        InitializeSoilData(self._sim, lyrsol)
         InitializeSoilTemperature()
         InitializeRootData(self._sim)
         # initialize some variables at the start of simulation.

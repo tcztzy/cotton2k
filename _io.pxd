@@ -4,7 +4,7 @@ from _structs cimport Simulation, ClimateStruct
 
 cdef extern from "GettingInput_2.cpp":
     void InitializeSoilTemperature()
-    void InitializeSoilData(Simulation &, const string &, unsigned int)
+    void InitializeSoilData(Simulation &, unsigned int)
     void InitializeRootData(Simulation &)
     double rnnh4[14]
     double rnno3[14]

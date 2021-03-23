@@ -32,7 +32,7 @@ rnno3[14];           // residual nitrogen as nitrate in soil at beginning of sea
 // defined by input for consecutive 15 cm soil layers.
 
 //////////////////////////////////////////////////////////
-static void InitializeSoilData(Simulation &sim, const string &SoilHydFileName, unsigned int lyrsol)
+static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
 //     This function computes and sets the initial soil data. It is
 //  executed once at the beginning of the simulation, after the soil
 //  hydraulic data file has been read. It is called by ReadInput().
