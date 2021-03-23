@@ -1,8 +1,5 @@
 //  File GettingInput_3.cpp
 //    Functions in this file:
-// OpenClimateFile()
-// ReadClimateData()
-// tdewest()
 // ReadAgriculturalInput()
 // SlabLoc()
 // ReadPlantMapInput()
@@ -15,145 +12,9 @@
 
 namespace fs = std::filesystem;
 
-static int ReadClimateData(ifstream &, const int &, ClimateStruct[]);
-
 extern "C"
 {
-    double tdewest(double, double, double);
     int SlabLoc(int, double);
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-static int OpenClimateFile(const string &ActWthFileName, const string &PrdWthFileName, const int &DayStart, ClimateStruct Clim[400])
-//     This function gets the climate data file. It is called by ReadInput(),
-// and it calls ReadClimateData().
-//  Global variables set:  LastDayWeatherData.
-//  Return value: LastDayOfActualWeather.
-//
-{
-    int LastDayOfPredictedWeather = 0;    // last DOY of predicted weather data
-    int LastDayOfActualWeather = 0;       // last DOY of actual weather data
-//     Open file of predicted weather data.
-    if (PrdWthFileName.length() > 0) {
-        fs::path strFileName = fs::path("climate") / PrdWthFileName;
-//     If file does not exist, display message.
-        if (!fs::exists(strFileName))
-            throw FileNotExists(strFileName);
-        else {
-            ifstream DataFile(strFileName, ios::in);
-            if (DataFile.fail())
-                throw FileNotOpened(strFileName);
-            else {
-                LastDayOfPredictedWeather = ReadClimateData(DataFile, DayStart, Clim);
-                DataFile.close();
-            }
-        }
-    }
-//     Open file of actual weather data.
-    if (ActWthFileName.length() > 0) {
-        fs::path strFileName = fs::path("climate") / ActWthFileName;
-//     If file does not exist, display message.
-        if (!fs::exists(strFileName))
-            throw FileNotExists(strFileName);
-        else {
-            ifstream DataFile1(strFileName, ios::in);
-            if (DataFile1.fail())
-                throw FileNotOpened(strFileName);
-            else {
-                LastDayOfActualWeather = ReadClimateData(DataFile1, DayStart, Clim);
-                DataFile1.close();
-            }
-        }
-    }
-//     Define the last day of weather data
-    LastDayWeatherData = LastDayOfActualWeather;
-    if (LastDayWeatherData < LastDayOfPredictedWeather)
-        LastDayWeatherData = LastDayOfPredictedWeather;
-    return LastDayOfActualWeather;
-}
-
-/////////////////////////////////////////////////////
-int ReadClimateData(ifstream &DataFile, const int &DayStart, ClimateStruct Clim[400])
-//     This function reads the climate data file. It is called by OpenClimateFile(), and it
-//  calls GetLineData().
-//     It stores the data read from the file in the structure Clim.
-//
-{
-//     Read 1st line
-    string Dummy = GetLineData(DataFile);
-    int nLength = Dummy.length();
-//     The following variables inform if the data in the climate file are in metric or "English" units.
-    int iswRad = 0, iswTmp = 0, iswRain = 0, iswDewt = 0, iswWind = 0;
-    double AverageWind = 0;
-    if (nLength >= 31)
-        iswRad = atoi(Dummy.substr(31, 3).c_str());
-    if (nLength >= 34)
-        iswTmp = atoi(Dummy.substr(34, 3).c_str());
-    if (nLength >= 37)
-        iswRain = atoi(Dummy.substr(37, 3).c_str());
-    if (nLength >= 40)
-        iswWind = atoi(Dummy.substr(40, 3).c_str());
-    if (nLength >= 43)
-        iswDewt = atoi(Dummy.substr(43, 3).c_str());
-    if (nLength >= 61)
-        AverageWind = atof(Dummy.substr(61, 10).c_str());
-//     Read all other lines
-    int jdd = 0;    // day of year
-    while (DataFile.eof() == 0) {
-//     Test for end of file, and get the day of year (jdd)
-        Dummy = GetLineData(DataFile);
-        if (DataFile.eof())
-            break;
-        jdd = atoi(Dummy.substr(0, 4).c_str());
-        int j = jdd - DayStart;   // days from start of simulation
-//     Daily weather data are stored in the structure Clim, derived from
-//  struct ClimateStruct {int nDay; float Rad, Tmax, Tmin, Rain, Wind, Tdew; }
-        if (j >= 0) {
-            Clim[j].nDay = jdd;
-//     Get float values
-            Clim[j].Rad = atof(Dummy.substr(21, 7).c_str());//  Radiation data
-            Clim[j].Tmax = atof(Dummy.substr(28, 7).c_str());//  maximum temperature data
-            Clim[j].Tmin = atof(Dummy.substr(35, 7).c_str());//  minimum temperature data
-            Clim[j].Rain = atof(Dummy.substr(42, 7).c_str());//  rain data
-//     If iswRad is 1, convert solar radiation from MJ/m2 to langleys.
-            if (iswRad == 1)
-                Clim[j].Rad = Clim[j].Rad * 23.884;
-//     If iswTmp is 0, convert maximum and minimum temperatures from F to C.
-            if (iswTmp == 0) {
-                Clim[j].Tmax = (Clim[j].Tmax - 32) / 1.8;
-                Clim[j].Tmin = (Clim[j].Tmin - 32) / 1.8;
-            }
-//     Check if wind data are available
-            double f6 = atof(Dummy.substr(49, 7).c_str());
-            if (iswWind < 0 || f6 <= 0)
-                Clim[j].Wind = AverageWind;
-            else {
-                Clim[j].Wind = f6;
-//     If iswWind is 0, convert daily windrun from miles to km.
-                if (iswWind == 0)
-                    Clim[j].Wind = Clim[j].Wind * 1.609;
-            }
-//     Check if dew point temperature data are available
-            if (iswDewt < 0)
-                Clim[j].Tdew = -100;
-            else {
-                Clim[j].Tdew = atof(Dummy.substr(56, 7).c_str());
-//     If iswDewt is 0, convert dewpoint temperatures from F to C.
-                if (iswTmp == 0)
-                    Clim[j].Tdew = (Clim[j].Tdew - 32) / 1.8;
-            }
-//     If iswRain is 0, convert rainfall from inches to mm.
-            if (iswRain == 0)
-                Clim[j].Rain = Clim[j].Rain * 25.4;
-        }
-//     Estimate dewpoint temperature when it is not available:
-        if (Clim[j].Tdew <= -100)
-            Clim[j].Tdew = tdewest(Clim[j].Tmax, SitePar[5], SitePar[6]);
-    }
-    DataFile.close();
-    return jdd;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

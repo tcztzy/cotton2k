@@ -6,7 +6,12 @@ cdef extern from "State.h":
 
 cdef extern from "Climate.h":
     ctypedef struct ClimateStruct:
-        pass
+        double Rad
+        double Tmax
+        double Tmin
+        double Rain
+        double Wind
+        double Tdew
 
 cdef extern from "Simulation.hpp":
     ctypedef struct Simulation:

@@ -18,5 +18,4 @@ cdef extern from "GettingInput_2.cpp":
     double psand[9]
 
 cdef extern from "gettingInput_3.cpp":
-    int OpenClimateFile(const string &, const string &, const int &, ClimateStruct[400])
     void ReadAgriculturalInput(Simulation &, const string &)

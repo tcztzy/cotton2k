@@ -1,6 +1,7 @@
 cdef extern:
     double dl(unsigned int)
     double wk(unsigned int, double)
+    double tdewest(double, double, double)
 
 
 cdef extern from "global.h":
@@ -9,6 +10,7 @@ cdef extern from "global.h":
     int inrim
     int isw
     int Kday
+    int LastDayWeatherData
     const int maxl
     const int maxk
     int nl

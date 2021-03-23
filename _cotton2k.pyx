@@ -193,6 +193,68 @@ cdef class SoilImpedance:
                 tstbd[j][i], impede[j][i] = pair
 
 
+cdef class Climate:
+    cdef ClimateStruct *climate
+    cdef unsigned int start_day
+    cdef unsigned int days
+    cdef unsigned int current
+
+    def __init__(self, start_date, climate):
+        global LastDayWeatherData
+        self.start_day = _date2doy(start_date)
+        self.current = self.start_day
+        self.days = len(climate)
+        self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))
+        LastDayWeatherData = len(climate) + self.start_day - 1
+        for i, daily_climate in enumerate(climate):
+            self.climate[i].Rad = daily_climate["radiation"]
+            self.climate[i].Tmax = daily_climate["max"]
+            self.climate[i].Tmin = daily_climate["min"]
+            self.climate[i].Wind = daily_climate["wind"]
+            self.climate[i].Rain = daily_climate["rain"]
+            self.climate[i].Tdew = daily_climate.get("dewpoint", tdewest(daily_climate["max"], SitePar[5], SitePar[6]))
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            start = key.start or 0
+            stop = key.stop or self.days
+            step = key.step or 1
+            if isinstance(start, date):
+                start = _date2doy(start) - self.start_day
+            if isinstance(stop, date):
+                stop = _date2doy(stop) - self.start_day
+            return [{
+                "radiation": self.climate[i].Rad,
+                "max": self.climate[i].Tmax,
+                "min": self.climate[i].Tmin,
+                "wind": self.climate[i].Wind,
+                "rain": self.climate[i].Rain,
+                "dewpoint": self.climate[i].Tdew,
+            } for i in range(start, stop, step)]
+        else:
+            if not isinstance(key, int):
+                key = _date2doy(key) - self.start_day
+            climate = self.climate[key]
+            return {
+                "radiation": climate["Rad"],
+                "max": climate["Tmax"],
+                "min": climate["Tmin"],
+                "wind": climate["Wind"],
+                "rain": climate["Rain"],
+                "dewpoint": climate["Tdew"],
+            }
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current < self.start_day + self.days:
+            self.current += 1
+            return self[self.current - 1]
+        else:
+            raise StopIteration
+
+
 cdef class _Simulation:
     cdef Simulation _sim
 
@@ -314,6 +376,20 @@ cdef class _Simulation:
     def states(self):
         return (self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1))
 
+    @property
+    def climate(self):
+        return self._sim.climate
+
+    @climate.setter
+    def climate(self, climate):
+        for i, daily_climate in enumerate(climate):
+            self._sim.climate[i].Rad = daily_climate["radiation"]
+            self._sim.climate[i].Tmax = daily_climate["max"]
+            self._sim.climate[i].Tmin = daily_climate["min"]
+            self._sim.climate[i].Wind = daily_climate["wind"]
+            self._sim.climate[i].Rain = daily_climate["rain"]
+            self._sim.climate[i].Tdew = daily_climate["dewpoint"]
+
     def run(self):
         app = new C2KApp()
         app.DailySimulation(self._sim)
@@ -335,7 +411,6 @@ cdef class _Simulation:
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
         self._sim.states = <State *> malloc(sizeof(State) * (self._sim.day_finish - self._sim.day_start + 1))
-        LastDayOfActualWeather = OpenClimateFile(filenames[0], filenames[1], self._sim.day_start, self._sim.climate)
         InitializeGrid(self._sim)
         ReadAgriculturalInput(self._sim, filenames[4])
         InitializeSoilData(self._sim, filenames[2], lyrsol)

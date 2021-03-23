@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from _cotton2k import (  # pylint: disable=import-error# noqa: F401
+    Climate,
     Soil,
     SoilImpedance,
     _Simulation,
@@ -44,6 +45,9 @@ def read_input(path: Path) -> tuple[_Simulation, dict]:
                 reader,
             )
         )
+    sim.climate = Climate(kwargs.get("climate_start_date", 0), kwargs.get("climate"))[
+        sim.start_date :
+    ]
     return sim, kwargs
 
 
