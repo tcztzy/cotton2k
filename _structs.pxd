@@ -6,6 +6,7 @@ cdef extern from "State.h":
         double number_of_squares
         double number_of_green_bolls
         double number_of_open_bolls
+        double leaf_area_index
 
 cdef extern from "Climate.h":
     ctypedef struct ClimateStruct:

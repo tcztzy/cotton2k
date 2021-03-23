@@ -43,8 +43,8 @@ void ColumnShading(State &state, double rracol[20], double day_emerge, double ro
     static double lmax; // maximum leaf area index.
     if (state.daynum <= day_emerge)
         lmax = 0;
-    else if (LeafAreaIndex > lmax)
-        lmax = LeafAreaIndex;
+    else if (state.leaf_area_index > lmax)
+        lmax = state.leaf_area_index;
     //     Light interception is computed by two methods:
     //     (1) It is assumed to be proportional to the ratio of plant height to row spacing.
     double zint; // light interception computed from plant height.
@@ -52,17 +52,17 @@ void ColumnShading(State &state, double rracol[20], double day_emerge, double ro
     //     (2) It is computed as a function of leaf area index. If LeafAreaIndex is not greater
     //  than 0.5 lfint is a linear function of it.
     double lfint; // light interception computed from leaf area index.
-    if (LeafAreaIndex <= 0.5)
-        lfint = 0.80 * LeafAreaIndex;
+    if (state.leaf_area_index <= 0.5)
+        lfint = 0.80 * state.leaf_area_index;
     else
         //     If the leaf area index is greater than 0.5, lfint is computed as an exponential
         //  function of LeafAreaIndex.
-        lfint = 1 - exp(0.07 - 1.16 * LeafAreaIndex);
+        lfint = 1 - exp(0.07 - 1.16 * state.leaf_area_index);
     //     If lfint is greater then zint, LightIntercept is their average value.
     //  Otherwise, if the LeafAreaIndex is decreasing, it is lfint. Else it is zint.
     if (lfint > zint)
         LightIntercept = 0.5 * (zint + lfint);
-    else if (LeafAreaIndex < lmax)
+    else if (state.leaf_area_index < lmax)
         LightIntercept = lfint;
     else
         LightIntercept = zint;
@@ -102,7 +102,7 @@ void ColumnShading(State &state, double rracol[20], double day_emerge, double ro
         else
         {
             shade = 1 - (sw1 / state.plant_height) * (sw1 / state.plant_height);
-            if (LightIntercept < zint && LeafAreaIndex < lmax)
+            if (LightIntercept < zint && state.leaf_area_index < lmax)
                 shade = shade * LightIntercept / zint;
         }
         rracol[k0] = 1 - shade;

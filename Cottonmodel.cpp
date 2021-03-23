@@ -65,6 +65,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.water_stress_stem = 1;
                 state0.carbon_stress = 1;
                 state0.extra_carbon = 0;
+                state0.leaf_area_index = 0.001;
                 state0.number_of_vegetative_branches = 1;
                 state0.number_of_squares = 0;
                 state0.number_of_green_bolls = 0;
@@ -134,7 +135,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     {
         //     If this day is after emergence, assign to isw the value of 2.
         isw = 2;
-        sim.states[u].day_inc = PhysiologicalAge(state.hours); // physiological days increment for this day. computes physiological age
+        state.day_inc = PhysiologicalAge(state.hours); // physiological days increment for this day. computes physiological age
         Defoliate(sim, u);                                     // effects of defoliants applied.
         Stress(sim, u);                                        // computes water stress factors.
         GetNetPhotosynthesis(sim, u, state.day_length);        // computes net photosynthesis.
@@ -148,6 +149,6 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
     //     Check if the date to stop simulation has been reached, or if this is the last day
     //  with available weather data. Simulation will also stop when no leaves remain on the plant.
     //
-    if (state.daynum >= LastDayWeatherData || (Kday > 10 && LeafAreaIndex < 0.0002))
+    if (state.daynum >= LastDayWeatherData || (Kday > 10 && state.leaf_area_index < 0.0002))
         throw SimulationEnd();
 }

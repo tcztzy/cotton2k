@@ -442,7 +442,7 @@ void Defoliate(Simulation &sim, uint32_t u)
                   //  leaf area index is still greater than 0.2, set another defoliation.
             if (i >= 1)
             {
-                if (state.daynum == (DefoliationDate[i - 1] + 10) && LeafAreaIndex >= 0.2)
+                if (state.daynum == (DefoliationDate[i - 1] + 10) && state.leaf_area_index >= 0.2)
                 {
                     DefoliationDate[i] = state.daynum;
                     if (i < 4)

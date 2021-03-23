@@ -43,12 +43,12 @@ void LeafAbscission(Simulation &sim, uint32_t u)
 {
     State &state = sim.states[u];
     //     If there are almost no leaves, this routine is not executed.
-    if (LeafAreaIndex <= 0.0001)
+    if (state.leaf_area_index <= 0.0001)
         return;
     //     Compute droplf as a function of LeafAreaIndex.
     const double vdrop1 = 140, vdrop2 = 1; // constant parameters to compute droplf.
     double droplf;                         // leaf age until its abscission.
-    droplf = vdrop1 - vdrop2 * LeafAreaIndex;
+    droplf = vdrop1 - vdrop2 * state.leaf_area_index;
     //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
     //  prefruiting node leaves.
     PreFruitLeafAbscission(state, droplf, state.daynum, sim.first_square, state.day_inc);
@@ -76,9 +76,9 @@ void LeafAbscission(Simulation &sim, uint32_t u)
         }
     }
     //     Compute the resulting LeafAreaIndex but do not let it get too small.
-    LeafAreaIndex = TotalLeafArea / PerPlantArea;
-    if (LeafAreaIndex < 0.0001)
-        LeafAreaIndex = 0.0001;
+    state.leaf_area_index = TotalLeafArea / PerPlantArea;
+    if (state.leaf_area_index < 0.0001)
+        state.leaf_area_index = 0.0001;
 }
 
 /////////////////////////
@@ -111,7 +111,7 @@ void PreFruitLeafAbscission(State &state, double droplf, const int &Daynum, cons
         //  LeafNitrogen, CumPlantNLoss.
         //     Assign zero to LeafAreaPreFru, PetioleWeightPreFru and LeafWeightPreFru of this leaf.
         //     If a defoliation was applied, add 1 to the counter NumAbscisedLeaves.
-        if (AgeOfPreFruNode[j] >= droplf && LeafAreaPreFru[j] > 0 && LeafAreaIndex > 0.1)
+        if (AgeOfPreFruNode[j] >= droplf && LeafAreaPreFru[j] > 0 && state.leaf_area_index > 0.1)
         {
             TotalLeafArea -= LeafAreaPreFru[j];
             state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
@@ -156,7 +156,7 @@ void MainStemLeafAbscission(State &state, int k, int l, double droplf, const int
     //     Assign zero to LeafAreaMainStem, PetioleWeightMainStem and LeafWeightMainStem of this leaf.
     //     If this is after defoliation, add 1 to the counter NumAbscisedLeaves.
     MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[l].main_stem_leaf;
-    if (state.site[k][l][0].leaf.age > droplf && main_stem_leaf.leaf_area > 0 && LeafAreaIndex > 0.1)
+    if (state.site[k][l][0].leaf.age > droplf && main_stem_leaf.leaf_area > 0 && state.leaf_area_index > 0.1)
     {
         state.abscised_leaf_weight += main_stem_leaf.leaf_weight + main_stem_leaf.petiole_weight;
         TotalLeafWeight -= main_stem_leaf.leaf_weight;
@@ -203,7 +203,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
     //     Assign zero to LeafAreaNodes, PetioleWeightNodes and LeafWeightNodes of this leaf.
     //     If this is after defoliation, add 1 to the NumAbscisedLeaves.
     FruitingSite &site = state.site[k][l][m];
-    if (site.leaf.age >= droplf && site.leaf.area > 0 && LeafAreaIndex > 0.1)
+    if (site.leaf.age >= droplf && site.leaf.area > 0 && state.leaf_area_index > 0.1)
     {
         state.abscised_leaf_weight += site.leaf.weight + site.petiole.weight;
         TotalLeafWeight -= site.leaf.weight;

@@ -39,7 +39,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].h2obal = InitialTotalSoilWater + CumWaterAdded
                                             + addwtbl - TotalSoilWater - state.cumulative_transpiration
                                             - state.cumulative_evaporation - CumWaterDrained;
-    Scratch21[u].leafAreaIndex = LeafAreaIndex;
     Scratch21[u].lightIntercept = LightIntercept;
     Scratch21[u].lwpMin = LwpMin;
     Scratch21[u].mainStemNodes = MainStemNodes;

@@ -430,7 +430,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     TotalPetioleWeight = 0;
     //     Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
     ActualLeafGrowth(state);
-    LeafAreaIndex = TotalLeafArea / PerPlantArea;
+    state.leaf_area_index = TotalLeafArea / PerPlantArea;
     //     Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
     TotalStemWeight += ActualStemGrowth;
     StemWeight[Kday] = TotalStemWeight;

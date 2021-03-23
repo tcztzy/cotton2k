@@ -33,7 +33,6 @@ void InitializeGlobal()
     GreenBollsLost = 0;
 
     LastIrrigation = 0;
-    LeafAreaIndex = 0.001;
     LeafNitrogen = 0.0112;
 
     MaxIrrigation = 0;

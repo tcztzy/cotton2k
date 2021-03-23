@@ -558,8 +558,8 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     if (site.boll.weight > 0)
     {
         double dum; // effect of leaf area index on boll temperature and age.
-        if (LeafAreaIndex <= vfrsite[11] && Kday > 100)
-            dum = vfrsite[12] - vfrsite[13] * LeafAreaIndex;
+        if (state.leaf_area_index <= vfrsite[11] && Kday > 100)
+            dum = vfrsite[12] - vfrsite[13] * state.leaf_area_index;
         else
             dum = 1;
         double dagebol; // added physiological age of boll on this day.
@@ -679,10 +679,10 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     if (DayFirstDef > 0 && state.daynum > DayFirstDef)
         dehiss = dehiss * pow(vboldhs[5], (state.daynum - DayFirstDef));
     //     If leaf area index is less than dpar1, decrease dehiss.
-    if (LeafAreaIndex < ddpar1)
+    if (state.leaf_area_index < ddpar1)
     {
         double fdhslai; // effect of small lai on dehiss
-        fdhslai = ddpar2 + LeafAreaIndex * (1 - ddpar2) / ddpar1;
+        fdhslai = ddpar2 + state.leaf_area_index * (1 - ddpar2) / ddpar1;
         if (fdhslai < 0)
             fdhslai = 0;
         if (fdhslai > 1)
