@@ -3,6 +3,9 @@ cdef extern from "State.h":
         double plant_height
         double plant_weight
         double lint_yield
+        double number_of_squares
+        double number_of_green_bolls
+        double number_of_open_bolls
 
 cdef extern from "Climate.h":
     ctypedef struct ClimateStruct:
