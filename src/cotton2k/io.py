@@ -1,9 +1,9 @@
 """Input/Output"""
 import csv
-import json
 from pathlib import Path
 from typing import Optional
 
+import orjson
 from _cotton2k import (  # pylint: disable=import-error# noqa: F401
     Climate,
     Soil,
@@ -14,7 +14,7 @@ from _cotton2k import (  # pylint: disable=import-error# noqa: F401
 
 def read_input(path: Path) -> tuple[_Simulation, dict]:
     sim = _Simulation()
-    kwargs = json.loads(path.read_text())
+    kwargs = orjson.loads(path.read_text())
     for attr in [
         "start_date",
         "stop_date",
@@ -52,6 +52,4 @@ def read_input(path: Path) -> tuple[_Simulation, dict]:
 
 
 def write_output(sim: _Simulation, path: Optional[Path] = None) -> None:
-    states = list(sim.states)
-    with open(path or "UNKNOWN.cotton2k-output.json", "w") as f:
-        json.dump(states, f)
+    (path or Path("default.cotton2k-output.json")).write_bytes(orjson.dumps(sim.states))

@@ -406,7 +406,7 @@ cdef class _Simulation:
 
     @property
     def states(self):
-        return (self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1))
+        return [self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1)]
 
     @property
     def climate(self):

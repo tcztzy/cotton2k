@@ -1,5 +1,4 @@
 """Cotton2k model."""
-import json
 from importlib.metadata import metadata, version
 from pathlib import Path
 

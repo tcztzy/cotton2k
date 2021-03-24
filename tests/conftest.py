@@ -1,5 +1,4 @@
 import json
-from os import linesep
 from pathlib import Path
 
 from pytest import fixture
