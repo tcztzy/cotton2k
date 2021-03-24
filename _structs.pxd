@@ -61,7 +61,7 @@ cdef extern from "FruitingSite.h":
         Burr burr
         Petiole petiole
 
-cdef extern from "State.h":
+cdef extern from "State.hpp":
     ctypedef struct Hour:
         double temperature
         double radiation

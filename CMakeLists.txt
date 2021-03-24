@@ -9,7 +9,7 @@ add_definitions(-D_AFXDLL)
 set(CMAKE_MFC_FLAG 2)
 
 # Define the SOURCE_FILES
-file(GLOB SOURCE_FILES "*.cpp" "*.h")
+file(GLOB SOURCE_FILES "*.cpp" "*.h" "*.hpp")
 
 # Prefer virtualenv
 set(Python_FIND_VIRTUALENV ONLY)

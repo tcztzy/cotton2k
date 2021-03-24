@@ -1,6 +1,6 @@
 #ifndef SIMULATION_TYPE
 #define SIMULATION_TYPE
-#include "State.h"
+#include "State.hpp"
 #include "Climate.h"
 #include "Irrigation.h"
 typedef struct Simulation
