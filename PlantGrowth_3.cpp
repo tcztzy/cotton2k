@@ -8,7 +8,6 @@
 // Defoliate()
 //
 #include <cmath>
-#include <filesystem>
 #include <string>
 #include "global.h"
 #include "Simulation.hpp"

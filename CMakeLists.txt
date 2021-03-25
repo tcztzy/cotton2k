@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 project(cotton2k VERSION 5.0.0 LANGUAGES CXX C)
 
-# Use CXX 17 for filesystem and so on.
 # Use CXX 20 for <algorithm> remove override
 set(CMAKE_CXX_STANDARD 20)
 # Use MFC in a Static Library

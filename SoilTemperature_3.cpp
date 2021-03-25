@@ -8,14 +8,12 @@
 //       PredictEmergence()
 //
 #include <cmath>
-#include <filesystem>
 #include "global.h"
 #include "exceptions.h"
 #include "GeneralFunctions.h"
 #include "Input.h"
 
 using namespace std;
-namespace fs = std::filesystem;
 
 double ThermalCondSoil(double, double, int);
 
