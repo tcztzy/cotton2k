@@ -426,12 +426,10 @@ cdef class _Simulation:
         app = new C2KApp()
         app.DailySimulation(self._sim)
 
-    def read_input(self, profile, description, lyrsol, **kwargs):
+    def read_input(self, description, lyrsol, **kwargs):
         """This is the main function for reading input."""
         cdef vector[string] filenames = [b'', b'', b'', b'', b'']
         InitializeGlobal()
-        profile_name = profile.encode("utf-8")
-        self._sim.profile_name = profile_name
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
         self._sim.states = <State *> malloc(sizeof(State) * (self._sim.day_finish - self._sim.day_start + 1))

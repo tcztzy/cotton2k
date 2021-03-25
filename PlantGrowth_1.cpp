@@ -15,7 +15,7 @@
 #include "RootGrowth.h"
 #include "Simulation.hpp"
 
-void LeafWaterPotential(State &, const string &, double);
+void LeafWaterPotential(State &, double);
 
 extern "C"
 {
@@ -30,7 +30,7 @@ void PotentialLeafGrowth(State &);
 void PotentialFruitGrowth(State &, const double &);
 
 // PlantGrowth_3
-void DryMatterBalance(State &, double &, double &, double &, double &, const string &);
+void DryMatterBalance(State &, double &, double &, double &, double &);
 
 void ActualFruitGrowth(State &);
 
@@ -53,7 +53,7 @@ void Stress(Simulation &sim, unsigned int u)
     //     The following constant parameters are used:
     const double vstrs[9] = {-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05};
     //     Call LeafWaterPotential() to compute leaf water potentials.
-    LeafWaterPotential(sim.states[u], sim.profile_name, sim.row_space);
+    LeafWaterPotential(sim.states[u], sim.row_space);
     //     The running averages, for the last three days, are computed:
     //  AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
     AverageLwpMin += (LwpMin - LwpMinX[2]) / 3;
@@ -109,7 +109,7 @@ void Stress(Simulation &sim, unsigned int u)
 }
 
 //////////////////////////
-void LeafWaterPotential(State &state, const string &ProfileName, double row_space)
+void LeafWaterPotential(State &state, double row_space)
 //     This function simulates the leaf water potential of cotton plants. It has been
 //  adapted from the model of Moshe Meron (The relation of cotton leaf water potential to
 //  soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
@@ -409,7 +409,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //     cdroot is carbohydrate requirement for root growth, g per plant per day.
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
     double cdstem, cdleaf, cdpet, cdroot;
-    DryMatterBalance(state ,cdstem, cdleaf, cdpet, cdroot, sim.profile_name);
+    DryMatterBalance(state ,cdstem, cdleaf, cdpet, cdroot);
     //     If it is after first square, call ActualFruitGrowth() to compute actual
     //  growth rate of squares and bolls.
     if (state.site[0][0][0].stage != Stage::NotYetFormed)

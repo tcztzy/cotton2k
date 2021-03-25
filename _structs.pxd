@@ -121,7 +121,6 @@ cdef extern from "Irrigation.h":
 
 cdef extern from "Simulation.hpp":
     ctypedef struct Simulation:
-        const char *profile_name
         int year
         unsigned int day_start
         unsigned int day_finish

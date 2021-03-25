@@ -142,7 +142,7 @@ void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
         PlantGrowth(sim, u, 3, state.day_length);              // executes all modules of plant growth.
         CottonPhenology(sim, u);                               // executes all modules of plant phenology.
         PlantNitrogen(sim, u);                                 // computes plant nitrogen allocation.
-        CheckDryMatterBal(state, sim.profile_name);            // checks plant dry matter balance.
+        CheckDryMatterBal(state);            // checks plant dry matter balance.
                                                                //     If the relevant output flag is not zero, compute soil nitrogen balance and soil
                                                                //  nitrogen averages by layer, and write this information to files.
     }

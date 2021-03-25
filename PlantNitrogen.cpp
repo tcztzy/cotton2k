@@ -17,9 +17,9 @@
 
 using namespace std;
 
-void NitrogenRequirement(State &, const string &, const int &, const int &, double);
+void NitrogenRequirement(State &, const int &, const int &, double);
 
-void NitrogenSupply(State &, const string &);
+void NitrogenSupply(State &);
 
 double PetioleNitrateN(State &);
 
@@ -110,8 +110,8 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
     addnv = 0;  // daily added nitrogen to vegetative shoot, g per plant.
 
     //   The following subroutines are now called:
-    NitrogenRequirement(state, sim.profile_name, state.daynum, sim.day_emerge, state.extra_carbon); //  computes the N requirements for growth.
-    NitrogenSupply(state, sim.profile_name);                                                      //  computes the supply of N from uptake and reserves.
+    NitrogenRequirement(state, state.daynum, sim.day_emerge, state.extra_carbon); //  computes the N requirements for growth.
+    NitrogenSupply(state);                                                      //  computes the supply of N from uptake and reserves.
     NitrogenAllocation();                                                                         //  computes the allocation of N in the plant.
     if (xtran > 0)
         ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
@@ -121,7 +121,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 }
 
 //////////////////////////
-void NitrogenRequirement(State &state, const string &ProfileName, const int &Daynum, const int &DayEmerge, double ExtraCarbon)
+void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, double ExtraCarbon)
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
@@ -185,7 +185,7 @@ void NitrogenRequirement(State &state, const string &ProfileName, const int &Day
 }
 
 //////////////////////////
-void NitrogenSupply(State &state, const string &ProfileName)
+void NitrogenSupply(State &state)
 //     This function computes the supply of N by uptake from the soil reserves,
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //

@@ -12,7 +12,7 @@ from _cotton2k import (  # pylint: disable=import-error# noqa: F401
 )
 
 
-def read_input(path: Path) -> tuple[_Simulation, dict]:
+def read_input(path: Path) -> _Simulation:
     sim = _Simulation()
     kwargs = orjson.loads(path.read_text())
     for attr in [
@@ -48,7 +48,7 @@ def read_input(path: Path) -> tuple[_Simulation, dict]:
     sim.climate = Climate(kwargs.get("climate_start_date", 0), kwargs.get("climate"))[
         sim.start_date :
     ]
-    return sim, kwargs
+    return sim
 
 
 def write_output(sim: _Simulation, path: Optional[Path] = None) -> None:

@@ -13,9 +13,7 @@ __license__: str = meta["License"]
 
 
 def run(profile_path: Path):
-    sim, input_content = read_input(profile_path)
+    sim = read_input(profile_path)
     sim.run()
-    write_output(
-        sim, profile_path.parent / (input_content["profile"] + ".cotton2k-output.json")
-    )
+    write_output(sim, profile_path.parent / (profile_path.stem + "-output.json"))
     return sim

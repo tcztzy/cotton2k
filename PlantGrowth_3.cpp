@@ -9,15 +9,15 @@
 //
 #include <cmath>
 #include <filesystem>
+#include <string>
 #include "global.h"
 #include "Simulation.hpp"
 
 using namespace std;
-namespace fs = std::filesystem;
 
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.
 //////////////////////////////////////////////////
-void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpet, double &cdroot, const string &ProfileName)
+void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpet, double &cdroot)
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
@@ -358,7 +358,7 @@ void ActualLeafGrowth(State &state)
 }
 
 //////////////////////////
-void CheckDryMatterBal(State &state, const string &ProfileName)
+void CheckDryMatterBal(State &state)
 //     This function checks the dry matter balances in the cotton model, for diagnostic
 //  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
 //     The following global variables are referenced here:

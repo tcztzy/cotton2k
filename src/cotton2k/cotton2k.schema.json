@@ -9,10 +9,6 @@
         "stop_date"
     ],
     "properties": {
-        "profile": {
-            "description": "The name of profile",
-            "type": "string"
-        },
         "description": {
             "description": "Simulation description",
             "type": "string"

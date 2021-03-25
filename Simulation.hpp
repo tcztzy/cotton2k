@@ -5,7 +5,6 @@
 #include "Irrigation.h"
 typedef struct Simulation
 {
-    const char *profile_name;               // name of input file with profile data (without the extension ".PRO")
     int year;                               // Simulation start year
     unsigned int day_emerge;                // Date of emergence (DOY).
     unsigned int day_start;                 // Date (DOY) to start simulation.
