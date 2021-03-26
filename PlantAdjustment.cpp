@@ -31,14 +31,6 @@ void WriteStateVariables(Simulation &sim, unsigned int u)
     Scratch21[u].deadwt = sim.states[u].abscised_leaf_weight + state.bloom_weight_loss + GreenBollsLost + RootWeightLoss;
     Scratch21[u].dayTimeTemp = DayTimeTemp;
     Scratch21[u].gbw = CottonWeightGreenBolls + BurrWeightGreenBolls;
-//     h2obal is computed as the water balance in mm. It should always be zero.
-//  The "positive" amount is the initial water in the soil slab, plus water
-//  added by rain and irrigation, and also water added from the water-table.
-//  The "negative" is the present total soil water in the soil slab, and cumulative
-//  amounts lost by transpiration, evaporation and drainage.
-    Scratch21[u].h2obal = InitialTotalSoilWater + CumWaterAdded
-                                            + addwtbl - TotalSoilWater - state.cumulative_transpiration
-                                            - state.cumulative_evaporation - CumWaterDrained;
     Scratch21[u].lightIntercept = LightIntercept;
     Scratch21[u].lwpMin = LwpMin;
     Scratch21[u].mainStemNodes = MainStemNodes;

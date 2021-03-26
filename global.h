@@ -20,7 +20,7 @@ typedef struct scratch
             cumPlantNLoss, cumWaterAdded, cumWaterDrained,
             dayTimeTemp, deadwt, deepSoilTemperature,
             ep, es, extraCarbon, fruitGrowthRatio,
-            greenBollsLost, gbw, gintot, h2obal,
+            greenBollsLost, gbw, gintot,
             leafNitrogen, lightIntercept, lwpMin,
             mineralizedOrganicN,
             netPhotosynthesis, nightTimeTemp, nStressFruiting,
