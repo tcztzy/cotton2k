@@ -138,7 +138,6 @@ double
     PetioleWeightPreFru[9],           // weight of prefruiting node petioles, g.
     PlantPopulation,                  // plant population, plants per hectar.
     PlantRowLocation,                 // distance of plant row from slab edge, cm.
-    PlantWeightAtStart,               // total plant dry matter at germination, g per plant.
     PoreSpace[maxl],                  // pore space of soil, volume fraction.
     PotGroAllBolls,                   // sum of potential growth rates of seedcotton in all bolls, g plant-1 day-1.
     PotGroAllBurrs,                   // sum of potential growth rates of burrs in all bolls, g plant-1 day-1.

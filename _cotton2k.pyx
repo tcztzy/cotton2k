@@ -424,16 +424,13 @@ cdef class _Simulation:
         app = new C2KApp()
         app.DailySimulation(self._sim)
 
-    def read_input(self, description, lyrsol, **kwargs):
+    def read_input(self, lyrsol, **kwargs):
         """This is the main function for reading input."""
         InitializeGlobal()
         initialize_switch(self._sim)
-        _description = description.encode("utf-8")
         self._sim.states = <State *> malloc(sizeof(State) * (self._sim.day_finish - self._sim.day_start + 1))
         InitializeGrid(self._sim)
         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
         InitializeSoilData(self._sim, lyrsol)
         InitializeSoilTemperature()
         InitializeRootData(self._sim)
-        # initialize some variables at the start of simulation.
-        PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC

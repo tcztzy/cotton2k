@@ -363,21 +363,12 @@ void CheckDryMatterBal(State &state)
 //     The following global variables are referenced here:
 //       AbscisedLeafWeight, BloomWeightLoss, BurrWeightGreenBolls, BurrWeightOpenBolls,
 //       CottonWeightGreenBolls, CottonWeightOpenBolls, CumNetPhotosynth, GreenBollsLost, Kday,
-//       PlantWeightAtStart, ReserveC, RootWeightLoss, TotalLeafWeight, TotalPetioleWeight,
+//       ReserveC, RootWeightLoss, TotalLeafWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
 //     The following global variable is set here:     PlantWeight.
 {
-    //     Compute the supply as the weight at emergence plus cumulative net photosynthesis.
-    double avail; // supply part of a material balance.
-    avail = PlantWeightAtStart + CumNetPhotosynth;
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
     state.plant_weight = TotalRootWeight + TotalStemWeight + CottonWeightGreenBolls + BurrWeightGreenBolls + TotalLeafWeight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
-    //     Compute the "used" side as PlantWeight plus dry matter abscised as bolls,
-    //  squares, leaves and dry matter of roots that died.
-    double used; // demand part of a material balance.
-    used = state.plant_weight + GreenBollsLost + state.abscised_leaf_weight + state.bloom_weight_loss + RootWeightLoss;
-    //     chobal is whole plant C balance. It should be zero.
-    double chobal = avail - used;
 }
 
 //////////////////////////
