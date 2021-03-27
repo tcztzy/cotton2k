@@ -436,5 +436,4 @@ cdef class _Simulation:
         InitializeSoilTemperature()
         InitializeRootData(self._sim)
         # initialize some variables at the start of simulation.
-        SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN
         PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC

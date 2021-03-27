@@ -164,7 +164,6 @@ double
     ShedByNitrogenStress[20],         // the effect of nitrogen stress on shedding.
     ShedByWaterStress[20],            // the effect of moisture stress on shedding.
     SitePar[21],                      // array of site specific constant parameters.
-    SoilNitrogenAtStart,              // total soil nitrogen at the start of simulation, mg per slab.
     SoilNitrogenLoss,                 // cumulative loss of nitrogen by drainage out of the lowest soil layer, mg per slab.
     SoilPsi[maxl][maxk],              // matric water potential of a soil cell, bars.
     SoilTemp[maxl][maxk],             // hourly soil temperature oK.
