@@ -1,5 +1,3 @@
-from libcpp.string cimport string
-from libcpp.vector cimport vector
 from libc.stdlib cimport malloc
 from libc.math cimport exp
 
@@ -428,7 +426,6 @@ cdef class _Simulation:
 
     def read_input(self, description, lyrsol, **kwargs):
         """This is the main function for reading input."""
-        cdef vector[string] filenames = [b'', b'', b'', b'', b'']
         InitializeGlobal()
         initialize_switch(self._sim)
         _description = description.encode("utf-8")
