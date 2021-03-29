@@ -156,7 +156,7 @@ void MainStemLeafAbscission(State &state, int k, int l, double droplf, const int
     //     Assign zero to LeafAreaMainStem, PetioleWeightMainStem and LeafWeightMainStem of this leaf.
     //     If this is after defoliation, add 1 to the counter NumAbscisedLeaves.
     MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[l].main_stem_leaf;
-    if (state.site[k][l][0].leaf.age > droplf && main_stem_leaf.leaf_area > 0 && state.leaf_area_index > 0.1)
+    if (state.vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age > droplf && main_stem_leaf.leaf_area > 0 && state.leaf_area_index > 0.1)
     {
         state.abscised_leaf_weight += main_stem_leaf.leaf_weight + main_stem_leaf.petiole_weight;
         TotalLeafWeight -= main_stem_leaf.leaf_weight;
@@ -202,7 +202,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, c
     //  LeafNitrogen, CumPlantNLoss,
     //     Assign zero to LeafAreaNodes, PetioleWeightNodes and LeafWeightNodes of this leaf.
     //     If this is after defoliation, add 1 to the NumAbscisedLeaves.
-    FruitingSite &site = state.site[k][l][m];
+    FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
     if (site.leaf.age >= droplf && site.leaf.area > 0 && state.leaf_area_index > 0.1)
     {
         state.abscised_leaf_weight += site.leaf.weight + site.petiole.weight;
@@ -273,7 +273,7 @@ void DefoliationLeafAbscission(State &state)
         {
             if (state.vegetative_branches[k].fruiting_branches[l].main_stem_leaf.leaf_weight > 0)
             {
-                SortByAge[lefcnt] = state.site[k][l][0].age;
+                SortByAge[lefcnt] = state.vegetative_branches[k].fruiting_branches[l].nodes[0].age;
                 indexk[lefcnt] = k;
                 indexl[lefcnt] = l;
                 indexm[lefcnt] = 66; // 66 indicates this leaf is at the base of the fruiting branch
@@ -281,9 +281,9 @@ void DefoliationLeafAbscission(State &state)
             }
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)
             {
-                if (state.site[k][l][m].leaf.weight > 0)
+                if (state.vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.weight > 0)
                 {
-                    SortByAge[lefcnt] = state.site[k][l][m].age;
+                    SortByAge[lefcnt] = state.vegetative_branches[k].fruiting_branches[l].nodes[m].age;
                     indexk[lefcnt] = k;
                     indexl[lefcnt] = l;
                     indexm[lefcnt] = m;
@@ -307,7 +307,7 @@ void DefoliationLeafAbscission(State &state)
             int k = indexk[i];
             int l = indexl[i];
             int m = indexm[i];
-            FruitingSite &site = state.site[k][l][m];
+            FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
             if (m == 66) // main stem leaves
             {
                 MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[l].main_stem_leaf;

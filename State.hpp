@@ -81,6 +81,5 @@ typedef struct State
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];
     Soil soil;
-    FruitingSite site[3][30][5];
 } State;
 #endif

@@ -125,10 +125,10 @@ void PotentialLeafGrowth(State &state)
                 if (smax < VarPar[4])
                     smax = VarPar[4];
                 c = vpotlf[10] + lp1 * vpotlf[11];
-                if (state.site[k][l][0].leaf.age > 70)
+                if (state.vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age > 70)
                     rate = 0;
                 else
-                    rate = smax * c * p * exp(-c * pow(state.site[k][l][0].leaf.age, p)) * pow(state.site[k][l][0].leaf.age, (p - 1));
+                    rate = smax * c * p * exp(-c * pow(state.vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age, p)) * pow(state.vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age, (p - 1));
                 //     Add leaf and petiole weight potential growth to SPDWL and SPDWP.
                 if (rate >= 1e-12)
                 {
@@ -145,7 +145,7 @@ void PotentialLeafGrowth(State &state)
             double cc = c;                                                                                       // value of c for the corresponding main stem leaf.
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
             {
-                FruitingSite &site = state.site[k][l][m];
+                FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
                 if (site.leaf.area <= 0)
                 {
                     site.leaf.potential_growth = 0;
@@ -212,14 +212,14 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
         {
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop for nodes on a fruiting branch
             {
-                FruitingSite &site = state.site[k][l][m];
+                FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
                 //     Calculate potential square growth for node (k,l,m).
                 //     Sum potential growth rates of squares as PotGroAllSquares.
                 if (site.stage == Stage::Square)
                 {
                     //     ratesqr is the rate of square growth, g per square per day.
                     //  The routine for this is derived from GOSSYM, and so are the parameters used.
-                    double ratesqr = tfrt * vpotfrt[3] * exp(-vpotfrt[2] + vpotfrt[3] * state.site[k][l][m].age);
+                    double ratesqr = tfrt * vpotfrt[3] * exp(-vpotfrt[2] + vpotfrt[3] * state.vegetative_branches[k].fruiting_branches[l].nodes[m].age);
                     site.square.potential_growth = ratesqr * site.fraction;
                     PotGroAllSquares += site.square.potential_growth;
                 }
@@ -245,7 +245,7 @@ void PotentialFruitGrowth(State &state, const double &DayLength)
                 else if (site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll)
                 {
                     //     pex is an intermediate variable to compute boll growth.
-                    double pex = exp(-4 * rbmax * (state.site[k][l][m].boll.age - agemax) / wbmax);
+                    double pex = exp(-4 * rbmax * (state.vegetative_branches[k].fruiting_branches[l].nodes[m].boll.age - agemax) / wbmax);
                     //  ratebol is the rate of boll (seed and lint) growth, g per boll per day.
                     double ratebol = 4 * rbmax * pex / pow((1 + pex), 2);
                     ratebol = ratebol * tfrt;

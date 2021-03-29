@@ -15,7 +15,7 @@ extern "C" fn ComputeSiteNumbers(state: &mut State)
             for m in 0..state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes
                 as usize
             {
-                let site = &mut state.site[k][l][m];
+                let site = &mut state.vegetative_branches[k].fruiting_branches[l].nodes[m];
                 if site.stage == Stage_Square {
                     state.number_of_squares += site.fraction;
                 } else if site.stage == Stage_YoungGreenBoll || site.stage == Stage_GreenBoll {

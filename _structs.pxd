@@ -100,7 +100,6 @@ cdef extern from "State.hpp":
         VegetativeBranch vegetative_branches[3]
         Hour hours[24]
         cSoil soil
-        FruitingSite site[3][30][5]
 
 cdef extern from "Climate.h":
     ctypedef struct ClimateStruct:

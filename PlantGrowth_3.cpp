@@ -253,7 +253,7 @@ void ActualFruitGrowth(State &state)
         for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)  // loop of fruiting branches
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
             {
-                FruitingSite &site = state.site[k][l][m];
+                FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
                 //     If this site is a square, the actual dry weight added to it
                 //  (dwsq) is proportional to its potential growth.
                 //     Update the weight of this square (SquareWeight), sum of today's added dry
@@ -345,7 +345,7 @@ void ActualLeafGrowth(State &state)
             //  (PetioleWeightNodes) and total area (TotalLeafArea).
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
             {
-                FruitingSite &site = state.site[k][l][m];
+                FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
                 site.leaf.weight += site.leaf.potential_growth * LeafWeightAreaRatio * vratio;
                 TotalLeafWeight += site.leaf.weight;
                 site.petiole.weight += site.petiole.potential_growth * vratio;

@@ -309,7 +309,7 @@ double PetioleNitrateN(State &state)
             numl += state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes;
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)
             {
-                petno3r = p1 - state.site[k][l][m].leaf.age * p2;
+                petno3r = p1 - state.vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.age * p2;
                 if (petno3r < p3)
                     petno3r = p3;
                 spetno3 += petno3r;
