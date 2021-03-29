@@ -627,7 +627,7 @@ void WaterTable(Simulation &sim, unsigned int u)
 //       nk, nl, NumWaterTableData, PoreSpace, MaxWaterCapacity, wk.
 //
 //     The following global variables are set here:
-//       addwtbl, ElCondSatSoilToday, WaterTableLayer, VolWaterContent.
+//       ElCondSatSoilToday, WaterTableLayer, VolWaterContent.
 //
 {
     if (NumWaterTableData <= 0)
@@ -658,31 +658,25 @@ void WaterTable(Simulation &sim, unsigned int u)
             }
         }
     }
-    //     The total water entering the soil slab (addwtbl) is computed. It is used to check
-    //  the water balance in the soil.
-    double vh2ocx; // previous water content of a cell
+    // check the water balance in the soil.
     for (int l = 0; l < nl; l++)
     {
         if (l >= WaterTableLayer)
         {
             for (int k = 0; k < nk; k++)
             {
-                vh2ocx = VolWaterContent[l][k];
                 VolWaterContent[l][k] = PoreSpace[l];
-                addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl(l) * wk(k, sim.row_space) / sim.row_space;
             }
         }
         else
         {
             //     Make sure that (in case water table was lowered) water content is not
-            //  higher than MaxWaterCapacity and adjust addwtbl.
+            //  higher than MaxWaterCapacity.
             for (int k = 0; k < nk; k++)
             {
                 if (VolWaterContent[l][k] > MaxWaterCapacity[l])
                 {
-                    vh2ocx = VolWaterContent[l][k];
                     VolWaterContent[l][k] = MaxWaterCapacity[l];
-                    addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl(l) * wk(k, sim.row_space) / sim.row_space;
                 }
             }
         }

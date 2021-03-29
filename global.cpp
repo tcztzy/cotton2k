@@ -61,7 +61,6 @@ double
     ActualBurrGrowth,                 // total actual growth of burrs in bolls, g plant-1 day-1.
     ActualSquareGrowth,               // total actual growth of squares, g plant-1 day-1.
     ActualStemGrowth,                 // actual growth rate of stems, g plant-1 day-1.
-    addwtbl,                          // water added to the slab (in mm) due to high water table.
     AgeOfPreFruNode[9],               // age of each prefruiting node, physiological days.
     airdr[9],                         // volumetric water content of soil at "air-dry" for each soil horizon, cm3 cm-3.
     alpha[9],                         // parameter of the Van Genuchten equation.

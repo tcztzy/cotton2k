@@ -56,7 +56,7 @@ extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], Defol
 extern unsigned int ncurve;// number of input soil-moisture curves in the impedance table.
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth,
-    ActualSquareGrowth, ActualStemGrowth, addwtbl,
+    ActualSquareGrowth, ActualStemGrowth,
     AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
     BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
     CarbonAllocatedForRootGrowth, conmax,
