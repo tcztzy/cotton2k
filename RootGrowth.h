@@ -1,8 +1,6 @@
 #pragma once
-
+#include <cinttypes>
 #include "Simulation.hpp"
-
-using namespace std;
 
 double PotentialRootGrowth(SoilCell[40][20], const int &, const int &);
 

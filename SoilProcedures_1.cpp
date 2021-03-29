@@ -12,6 +12,7 @@
 // AveragePsi()
 // WaterTable()
 //
+#include <cmath>
 #include "global.h"
 #include "GeneralFunctions.h"
 #include "Simulation.hpp"

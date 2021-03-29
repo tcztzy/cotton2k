@@ -1,4 +1,6 @@
 #pragma once
+#include <cinttypes>
+#include "Simulation.hpp"
 
 void ColumnShading(State &, double[20], double, double, unsigned int);
 

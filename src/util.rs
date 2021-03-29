@@ -5,7 +5,7 @@ use std::os::raw::c_char;
 use std::slice;
 
 #[no_mangle]
-pub extern "C" fn DateToDoy(date_str: *const c_char, year_start: i32) -> i64 {
+pub fn DateToDoy(date_str: *const c_char, year_start: i32) -> i64 {
     let date_string = unsafe { CStr::from_ptr(date_str) };
     let date = date_string.to_str().unwrap().trim();
     match NaiveDate::parse_from_str(date, "%d-%b-%Y") {

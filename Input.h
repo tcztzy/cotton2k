@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Simulation.hpp"
-
 // GettingInput_2
 extern "C"
 {

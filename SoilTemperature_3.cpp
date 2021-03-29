@@ -8,6 +8,7 @@
 //       PredictEmergence()
 //
 #include <cmath>
+#include "Simulation.hpp"
 #include "global.h"
 #include "exceptions.h"
 #include "GeneralFunctions.h"

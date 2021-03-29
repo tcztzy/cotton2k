@@ -32,7 +32,7 @@ C2KApp::C2KApp() = default;
 void C2KApp::DailySimulation(Simulation &sim)
 //     This function controls the dynamic phase of the simulation.
 //     It calls the functions:
-//        SimulateThisDay(), WriteStateVariables()
+//        SimulateThisDay()
 //
 //     The following global variable are referenced:   Kday.
 //
