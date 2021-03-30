@@ -11,7 +11,7 @@ cdef extern from "Cottonmodel.h":
 
     cdef cppclass C2KApp:
         C2KApp() except +
-        void DailySimulation(Simulation &)
+        void DailySimulation(cSimulation &)
 
 
 def _date2doy(d):
@@ -24,7 +24,7 @@ def _date2doy(d):
     else:
         return 0
 
-cdef void initialize_switch(Simulation &sim):
+cdef void initialize_switch(cSimulation &sim):
     global isw, Kday
     # If the date of emergence has not been given, emergence will be simulated
     # by the model. In this case, isw = 0, and a check is performed to make
@@ -44,7 +44,7 @@ cdef void initialize_switch(Simulation &sim):
 cdef double SkipRowWidth  # the smaller distance between skip rows, cm
 cdef double PlantsPerM  # average number of plants pre meter of row.
 
-cdef void InitializeGrid(Simulation &sim):
+cdef void InitializeGrid(cSimulation &sim):
     """
     This function initializes the soil grid variables. It is executed once at the beginning of the simulation. It is called from ReadInput().
 
@@ -63,9 +63,9 @@ cdef void InitializeGrid(Simulation &sim):
         PlantRowLocation = 0.5 * SkipRowWidth
     # Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per plant, in dm2, and the empirical plant density factor (DensityFactor). This factor will be used to express the effect of plant density on some plant growth rate functions.
     # NOTE: DensityFactor = 1 for 5 plants per sq m (or 50000 per ha).
-    PlantPopulation = PlantsPerM / sim.row_space * 1000000;
-    PerPlantArea = 1000000 / PlantPopulation;
-    DensityFactor = exp(VarPar[1] * (5 - PlantPopulation / 10000));
+    PlantPopulation = PlantsPerM / sim.row_space * 1000000
+    PerPlantArea = 1000000 / PlantPopulation
+    DensityFactor = exp(VarPar[1] * (5 - PlantPopulation / 10000))
     # Define the numbers of rows and columns in the soil slab (nl, nk).
     # Define the depth, in cm, of consecutive nl layers.
     # NOTE: maxl and maxk are defined as constants in file "global.h".
@@ -77,7 +77,7 @@ cdef void InitializeGrid(Simulation &sim):
     cdef double sumwk = 0  # sum of column widths
     sim.plant_row_column = 0
     for k in range(nk):
-        sumwk = sumwk + wk(k, sim.row_space);
+        sumwk = sumwk + wk(k, sim.row_space)
         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:
             if (sumwk - PlantRowLocation) > (0.5 * wk(k, sim.row_space)):
                 sim.plant_row_column = k - 1
@@ -240,7 +240,7 @@ cdef class Climate:
 
 
 
-cdef read_agricultural_input(Simulation &sim, inputs):
+cdef read_agricultural_input(cSimulation &sim, inputs):
     global NumNitApps, NumIrrigations
     NumNitApps = 0
     idef = 0
@@ -284,9 +284,139 @@ cdef read_agricultural_input(Simulation &sim, inputs):
             DefoliationMethod[idef] = i.get("method", 0)
             idef += 1
 
+cdef class FruitingBranch:
+    cdef cFruitingBranch _branch
+    __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")
 
-cdef class _Simulation:
-    cdef Simulation _sim
+    def __init__(self, _branch):
+        self._branch = _branch
+
+    @property
+    def delay_for_new_node(self):
+        return self._branch.delay_for_new_node
+
+    @property
+    def main_stem_leaf(self):
+        return self._branch.main_stem_leaf
+
+    @property
+    def nodes(self):
+        return [self._branch.nodes[i] for i in range(self._branch.number_of_fruiting_nodes)]
+
+    def __iter__(self):
+        for attr in self.__slots__:
+            yield attr, getattr(self, attr)
+
+
+cdef class VegetativeBranch:
+    cdef cVegetativeBranch _branch
+
+    def __init__(self, _branch):
+        self._branch = _branch
+
+    @property
+    def fruiting_branches(self):
+        return [FruitingBranch(self._branch.fruiting_branches[i]) for i in range(self._branch.number_of_fruiting_branches)]
+
+    def __iter__(self):
+        yield "fruiting_branches", self.fruiting_branches
+
+
+cdef class State:
+    cdef cState _state
+    __slots__ = (
+        "plant_height",
+        "plant_weight",
+        "lint_yield",
+        "number_of_squares",
+        "number_of_green_bolls",
+        "number_of_open_bolls",
+        "leaf_area_index",
+        "vegetative_branches",
+        "hours",
+        "soil",
+    )
+
+    def __init__(self, _state):
+        self._state = _state
+
+    @property
+    def plant_height(self):
+        return self._state.plant_height
+
+    @plant_height.setter
+    def plant_height(self, value):
+        self._state.plant_height = value
+
+    @property
+    def plant_weight(self):
+        return self._state.plant_weight
+
+    @plant_weight.setter
+    def plant_weight(self, value):
+        self._state.plant_weight = value
+
+    @property
+    def lint_yield(self):
+        return self._state.lint_yield
+
+    @lint_yield.setter
+    def lint_yield(self, value):
+        self._state.lint_yield = value
+
+    @property
+    def number_of_squares(self):
+        return self._state.number_of_squares
+
+    @number_of_squares.setter
+    def number_of_squares(self, value):
+        self._state.number_of_squares = value
+
+    @property
+    def number_of_green_bolls(self):
+        return self._state.number_of_green_bolls
+
+    @number_of_green_bolls.setter
+    def number_of_green_bolls(self, value):
+        self._state.number_of_green_bolls = value
+
+    @property
+    def number_of_open_bolls(self):
+        return self._state.number_of_open_bolls
+
+    @number_of_open_bolls.setter
+    def number_of_open_bolls(self, value):
+        self._state.number_of_open_bolls = value
+
+    @property
+    def leaf_area_index(self):
+        return self._state.leaf_area_index
+
+    @leaf_area_index.setter
+    def leaf_area_index(self, value):
+        self._state.leaf_area_index = value
+
+    @property
+    def vegetative_branches(self):
+        return [VegetativeBranch(self._state.vegetative_branches[i]) for i in range(self._state.number_of_vegetative_branches)]
+
+    @property
+    def hours(self):
+        return self._state.hours
+
+    @property
+    def soil(self):
+        return self._state.soil
+
+    def __iter__(self):
+        for attr in self.__slots__:
+            value = getattr(self, attr)
+            if value == 0 and attr.startswith("number_of_"):
+                continue
+            yield attr, value
+
+cdef class Simulation:
+    cdef cSimulation _sim
 
     def _doy2date(self, j):
         try:
@@ -404,7 +534,7 @@ cdef class _Simulation:
 
     @property
     def states(self):
-        return [self._sim.states[i] for i in range(self._sim.day_finish - self._sim.day_start + 1)]
+        return [State(self._sim.states[i]) for i in range(self._sim.day_finish - self._sim.day_start + 1)]
 
     @property
     def climate(self):
@@ -428,7 +558,7 @@ cdef class _Simulation:
         """This is the main function for reading input."""
         InitializeGlobal()
         initialize_switch(self._sim)
-        self._sim.states = <State *> malloc(sizeof(State) * (self._sim.day_finish - self._sim.day_start + 1))
+        self._sim.states = <cState *> malloc(sizeof(cState) * (self._sim.day_finish - self._sim.day_start + 1))
         InitializeGrid(self._sim)
         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
         InitializeSoilData(self._sim, lyrsol)

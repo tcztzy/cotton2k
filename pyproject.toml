@@ -12,10 +12,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
-dependencies = [
-    "orjson",
-    "jsonschema",
-]
 
 [project.urls]
 homepage = "https://github.com/tcztzy/cotton2k"

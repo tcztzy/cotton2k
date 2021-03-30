@@ -1,20 +1,23 @@
 """Input/Output"""
 import csv
+import json
 from pathlib import Path
 from typing import Optional
 
-import orjson
 from _cotton2k import (  # pylint: disable=import-error# noqa: F401
     Climate,
+    FruitingBranch,
+    Simulation,
     Soil,
     SoilImpedance,
-    _Simulation,
+    State,
+    VegetativeBranch,
 )
 
 
-def read_input(path: Path) -> _Simulation:
-    sim = _Simulation()
-    kwargs = orjson.loads(path.read_text())
+def read_input(path: Path) -> Simulation:
+    sim = Simulation()
+    kwargs = json.loads(path.read_text())
     for attr in [
         "start_date",
         "stop_date",
@@ -51,5 +54,14 @@ def read_input(path: Path) -> _Simulation:
     return sim
 
 
-def write_output(sim: _Simulation, path: Optional[Path] = None) -> None:
-    (path or Path("default.cotton2k-output.json")).write_bytes(orjson.dumps(sim.states))
+class Cotton2KJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, (State, VegetativeBranch, FruitingBranch)):
+            return dict(o)
+        return super.default(o)
+
+
+def write_output(sim: Simulation, path: Optional[Path] = None) -> None:
+    (path or Path("default.cotton2k-output.json")).write_text(
+        json.dumps(sim.states, cls=Cotton2KJSONEncoder)
+    )

@@ -1,11 +1,11 @@
 from libcpp.string cimport string
 
-from _structs cimport Simulation, ClimateStruct
+from _structs cimport cSimulation, ClimateStruct
 
 cdef extern from "GettingInput_2.cpp":
     void InitializeSoilTemperature()
-    void InitializeSoilData(Simulation &, unsigned int)
-    void InitializeRootData(Simulation &)
+    void InitializeSoilData(cSimulation &, unsigned int)
+    void InitializeRootData(cSimulation &)
     double rnnh4[14]
     double rnno3[14]
     double oma[14]

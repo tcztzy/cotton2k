@@ -81,15 +81,15 @@ cdef extern from "State.hpp":
         double potential_growth_for_leaf_area
         double potential_growth_for_leaf_weight
         double potential_growth_for_petiole_weight
-    ctypedef struct FruitingBranch:
+    ctypedef struct cFruitingBranch "FruitingBranch":
         unsigned int number_of_fruiting_nodes
         double delay_for_new_node
         MainStemLeaf main_stem_leaf
         FruitingSite nodes[5]
-    ctypedef struct VegetativeBranch:
+    ctypedef struct cVegetativeBranch "VegetativeBranch":
         unsigned int number_of_fruiting_branches
-        FruitingBranch fruiting_branches[30]
-    ctypedef struct State:
+        cFruitingBranch fruiting_branches[30]
+    ctypedef struct cState "State":
         double plant_height
         double plant_weight
         double lint_yield
@@ -97,7 +97,8 @@ cdef extern from "State.hpp":
         double number_of_green_bolls
         double number_of_open_bolls
         double leaf_area_index
-        VegetativeBranch vegetative_branches[3]
+        unsigned int number_of_vegetative_branches
+        cVegetativeBranch vegetative_branches[3]
         Hour hours[24]
         cSoil soil
 
@@ -119,7 +120,7 @@ cdef extern from "Irrigation.h":
         double amount
 
 cdef extern from "Simulation.hpp":
-    ctypedef struct Simulation:
+    ctypedef struct cSimulation "Simulation":
         int year
         unsigned int day_start
         unsigned int day_finish
@@ -130,6 +131,6 @@ cdef extern from "Simulation.hpp":
         double elevation
         double row_space
         unsigned int plant_row_column
-        State *states
+        cState *states
         ClimateStruct climate[400]
         Irrigation irrigation[150]
