@@ -18,7 +18,7 @@ repos:
     rev: v5.7.0
     hooks:
     -   id: isort
-        files: ^(src/cotton2k|tests)/
+        files: ^(src/cotton2k/|tests/|setup.py)
 -   repo: https://github.com/pre-commit/mirrors-pylint
     rev: 'v2.6.0'
     hooks:

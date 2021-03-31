@@ -18,7 +18,8 @@ homepage = "https://github.com/tcztzy/cotton2k"
 repository = "https://github.com/tcztzy/cotton2k"
 
 [build-system]
-requires = ["setuptools", "wheel", "toml", "scikit-build", "cmake", "ninja", "Cython"]
+requires = ["setuptools", "wheel", "toml", "Cython"]
+build-backend = "setuptools.build_meta"
 
 [tool.isort]
 profile = "black"

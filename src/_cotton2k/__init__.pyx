@@ -1,11 +1,13 @@
+# distutils: language=c++
+# cython: language_level=3
 from libc.stdlib cimport malloc
 from libc.math cimport exp
 
 from datetime import datetime, date
 
-from _global cimport *
-from _structs cimport *
-from _io cimport *
+from _cotton2k._global cimport *
+from _cotton2k._structs cimport *
+from _cotton2k._io cimport *
 
 cdef extern from "Cottonmodel.h":
 

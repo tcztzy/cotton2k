@@ -13,22 +13,13 @@ coverage.xml
 /build/
 # CLion default build directory
 /cmake-build-debug/
-# VS debug and release files
-/Debug/
-/Release/
-/tests/Debug/
-/tests/Release/
-# User defined
-*.vcxproj.user
-# VS packages installation location
-/packages/
 
 # distribution
 /dist/
 /MANIFEST
 
-# Sci-kit build
-/_skbuild/
+# Cython generated file
+/src/_cotton2k/__init__.cpp
 
 # Added by cargo
 

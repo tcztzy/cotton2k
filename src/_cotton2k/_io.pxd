@@ -1,6 +1,6 @@
 from libcpp.string cimport string
 
-from _structs cimport cSimulation, ClimateStruct
+from _cotton2k._structs cimport cSimulation, ClimateStruct
 
 cdef extern from "GettingInput_2.cpp":
     void InitializeSoilTemperature()
