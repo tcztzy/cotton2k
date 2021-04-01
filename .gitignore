@@ -24,3 +24,6 @@ coverage.xml
 # Added by cargo
 
 /target
+
+*.cotton2k.json
+*.cotton2k-output.json
