@@ -90,7 +90,6 @@ void C2KApp::DailySimulation(Simulation &sim)
                     }
                 }
             }
-            strcpy(sim.states[i].date, DoyToDate(sim.day_start + i, sim.year));
             SimulateThisDay(sim, i);
         }
     }
