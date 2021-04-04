@@ -467,6 +467,14 @@ cdef class Simulation:
         self._sim.day_plant = _date2doy(d)
 
     @property
+    def topping_date(self):
+        return self._doy2date(self._sim.day_topping)
+
+    @topping_date.setter
+    def topping_date(self, d):
+        self._sim.day_topping = _date2doy(d)
+
+    @property
     def latitude(self):
         return self._sim.latitude
 

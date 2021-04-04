@@ -33,6 +33,11 @@
             "type": "string",
             "format": "date"
         },
+        "topping_date": {
+            "description": "Date of topping",
+            "type": "string",
+            "format": "date"
+        },
         "latitude": {
             "description": "The site's latitude",
             "type": "number",

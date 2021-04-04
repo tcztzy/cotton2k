@@ -126,6 +126,7 @@ cdef extern from "Simulation.hpp":
         unsigned int day_finish
         unsigned int day_emerge
         unsigned int day_plant
+        unsigned int day_topping
         double latitude
         double longitude
         double elevation

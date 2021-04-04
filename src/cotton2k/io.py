@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from _cotton2k import (  # pylint: disable=import-error# noqa: F401
+from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     Climate,
     FruitingBranch,
     Simulation,
@@ -23,6 +23,7 @@ def read_input(path: Path) -> Simulation:
         "stop_date",
         "emerge_date",
         "plant_date",
+        "topping_date",
         "latitude",
         "longitude",
         "elevation",
