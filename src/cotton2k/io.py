@@ -2,7 +2,7 @@
 import csv
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     Climate,
@@ -15,9 +15,14 @@ from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
 )
 
 
-def read_input(path: Path) -> Simulation:
+def read_input(path: Union[Path, str, dict]) -> Simulation:
     sim = Simulation()
-    kwargs = json.loads(path.read_text())
+    if isinstance(path, dict):
+        kwargs = path
+    elif isinstance(path, str):
+        kwargs = json.loads(Path(path).read_text())
+    else:
+        kwargs = json.loads(path.read_text())
     for attr in [
         "start_date",
         "stop_date",
@@ -62,7 +67,8 @@ class Cotton2KJSONEncoder(json.JSONEncoder):
         return super.default(o)
 
 
-def write_output(sim: Simulation, path: Optional[Path] = None) -> None:
-    (path or Path("default.cotton2k-output.json")).write_text(
-        json.dumps(sim.states, cls=Cotton2KJSONEncoder)
-    )
+def write_output(sim: Simulation, path: Optional[Path] = None) -> str:
+    content = json.dumps(sim.states, cls=Cotton2KJSONEncoder)
+    if path is not None:
+        path.write_text(content)
+    return content
