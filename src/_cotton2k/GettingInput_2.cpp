@@ -31,6 +31,7 @@ rnnh4[14],           // residual nitrogen as ammonium in soil at beginning of se
 // defined by input for consecutive 15 cm soil layers.
 rnno3[14];           // residual nitrogen as nitrate in soil at beginning of season, kg per ha.
 // defined by input for consecutive 15 cm soil layers.
+static double LayerDepth = 15;
 
 //////////////////////////////////////////////////////////
 static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
@@ -122,7 +123,7 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
 //     Compute the initial volumetric water content (VolWaterContent) of each
 //  layer, and check that it will not be less than the air-dry value or
 //  more than pore space volume.
-        j = (int) ((sumdl - 1) / 15);
+        j = (int) ((sumdl - 1) / LayerDepth);
         if (j > 13)
             j = 13;
         int n = SoilHorizonNum[l];
@@ -138,8 +139,8 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
             rnno3[j] = 2.0;
         if (rnnh4[j] < 0.2)
             rnnh4[j] = 0.2;
-        sim.states[0].soil.cells[l][0].nitrate_nitrogen_content = rnno3[j] / 15 * .01;
-        VolNh4NContent[l][0] = rnnh4[j] / 15 * .01;
+        sim.states[0].soil.cells[l][0].nitrate_nitrogen_content = rnno3[j] / LayerDepth * .01;
+        VolNh4NContent[l][0] = rnnh4[j] / LayerDepth * .01;
         double om; // organic matter in mg / cm3 units.
         om = (oma[j] / 100) * bdl[l] * 1000;
 //     potom is the proportion of readily mineralizable om. it is a
@@ -321,7 +322,7 @@ static void InitializeSoilTemperature()
     for (int l = 0; l < nl; l++)  // loop by soil layers
     {
         sumdl += dl(l);
-        int j = (int) ((sumdl + 14) / 15) - 1;   //  layer definition for oma
+        int j = (int) ((sumdl + LayerDepth - 1) / LayerDepth) - 1;   //  layer definition for oma
         if (j > 13)
             j = 13;
 //     Using the values of the clay and organic matter percentages in the soil, compute

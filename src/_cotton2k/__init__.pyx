@@ -89,7 +89,9 @@ cdef void InitializeGrid(cSimulation &sim):
 
 cdef class Soil:
     cdef unsigned int number_of_layers
-    def __init__(self, initial, hydrology):
+    def __init__(self, initial, hydrology, layer_depth=None):
+        if layer_depth is not None:
+            self.layer_depth = layer_depth
         self.initial = initial
         self.hydrology = hydrology
         self.number_of_layers = len(hydrology["layers"])
@@ -97,6 +99,15 @@ cdef class Soil:
     @property
     def lyrsol(self):
         return self.number_of_layers
+
+    @property
+    def layer_depth(self):
+        return LayerDepth
+
+    @layer_depth.setter
+    def layer_depth(self, value):
+        global LayerDepth
+        LayerDepth = value
 
     @property
     def initial(self):
@@ -334,6 +345,7 @@ cdef class State:
         "number_of_green_bolls",
         "number_of_open_bolls",
         "leaf_area_index",
+        "ginning_percent",
         "vegetative_branches",
         "hours",
         "soil",
@@ -365,6 +377,14 @@ cdef class State:
     @lint_yield.setter
     def lint_yield(self, value):
         self._state.lint_yield = value
+
+    @property
+    def ginning_percent(self):
+        return self._state.ginning_percent
+
+    @ginning_percent.setter
+    def ginning_percent(self, value):
+        self._state.ginning_percent = value
 
     @property
     def number_of_squares(self):

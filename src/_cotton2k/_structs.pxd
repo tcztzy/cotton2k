@@ -97,6 +97,7 @@ cdef extern from "State.hpp":
         double number_of_green_bolls
         double number_of_open_bolls
         double leaf_area_index
+        double ginning_percent
         unsigned int number_of_vegetative_branches
         cVegetativeBranch vegetative_branches[3]
         Hour hours[24]

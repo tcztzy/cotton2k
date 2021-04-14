@@ -703,6 +703,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     //     Compute the average ginning percentage of all the bolls opened
     //  until now (Gintot).
     ginp = (VarPar[41] - VarPar[42] * atn) / 100;
+    state.ginning_percent = ginp;
     Gintot = (Gintot * state.number_of_open_bolls + ginp * site.fraction) /
              (state.number_of_open_bolls + site.fraction);
     //     Cumulative lint yield (LintYield) is computed in kg per ha.

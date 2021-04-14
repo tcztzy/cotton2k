@@ -77,6 +77,7 @@ void C2KApp::DailySimulation(Simulation &sim)
                 state0.petiole_nitrogen_concentration = 0;
                 state0.seed_nitrogen_concentration = 0;
                 state0.root_nitrogen_concentration = .026;
+                state0.ginning_percent = 0;
                 for (int k = 0; k < 3; k++)
                 {
                     state0.vegetative_branches[k].number_of_fruiting_branches = 0;
