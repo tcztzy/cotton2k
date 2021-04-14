@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 
@@ -35,8 +36,10 @@ extensions = [
             ),
         ],
         library_dirs=["target/release"],
-        libraries=["cotton2k"],
-        extra_compile_args=["-std=c++20"],
+        libraries=["cotton2k"]
+        if os.name != "nt"
+        else ["cotton2k", "ws2_32", "userenv", "advapi32"],
+        extra_compile_args=["-std=c++20" if os.name != "nt" else "/std:c++latest"],
     )
 ]
 

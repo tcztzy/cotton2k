@@ -160,15 +160,15 @@ void LeafWaterPotential(State &state, double row_space)
         {
             if (state.soil.cells[l][k].root.weight_capable_uptake >= vpsil[10])
             {
-                psinum += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
-                sumlv += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg;
+                psinum += std::min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
+                sumlv += std::min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg;
                 rootvol += dl(l) * wk(k, row_space);
                 if (SoilPsi[l][k] <= vpsil[1])
                     rrl = vpsil[2] / cmg;
                 else
                     rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k])) / cmg;
-                rrlsum += min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl;
-                vh2sum += VolWaterContent[l][k] * min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
+                rrlsum += std::min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl;
+                vh2sum += VolWaterContent[l][k] * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
             }
         }
     //     Compute average root resistance (rroot) and average soil water content (vh2).
@@ -234,7 +234,7 @@ void LeafWaterPotential(State &state, double row_space)
         if (state.hours[ihr].ref_et > etmax)
             etmax = state.hours[ihr].ref_et;
     }
-    LwpMin = LwpMax - 0.1 * max(etmax, vpsil[12]) * rtotal;
+    LwpMin = LwpMax - 0.1 * std::max(etmax, vpsil[12]) * rtotal;
     //     Check for minimum and maximum values.
     if (LwpMin < vpsil[9])
         LwpMin = vpsil[9];

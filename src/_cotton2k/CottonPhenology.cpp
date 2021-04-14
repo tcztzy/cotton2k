@@ -544,7 +544,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
                 sim.first_bloom = state.daynum;
             //     Determine node of most recent white flower.
             if (k == 0 && m == 0)
-                NodeRecentWhiteFlower = max(NodeRecentWhiteFlower, l);
+                NodeRecentWhiteFlower = std::max(NodeRecentWhiteFlower, l);
         }
         return;
     }

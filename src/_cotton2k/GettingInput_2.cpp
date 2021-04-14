@@ -146,7 +146,7 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
 //     potom is the proportion of readily mineralizable om. it is a
 //  function of soil depth (sumdl, in cm), modified from GOSSYM (where
 //  it probably includes the 0.4 factor for organic C in om).
-        double potom = max(0., 0.15125 - 0.02878 * log(sumdl));
+        double potom = std::max(0., 0.15125 - 0.02878 * log(sumdl));
 //     FreshOrganicMatter is the readily mineralizable organic matter (= "fresh organic
 //  matter" in CERES models). HumusOrganicMatter is the remaining organic matter, which
 //  is mineralized very slowly.

@@ -76,7 +76,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //  will occur sooner) when maximum temperatures are high.
     double tmax = sim.climate[u].Tmax;
     for (int lt = 0; lt < NumSheddingTags; lt++) {
-        AbscissionLag[lt] += max(sim.states[u].day_inc, 0.40);
+        AbscissionLag[lt] += std::max(sim.states[u].day_inc, 0.40);
         if (tmax > vabsfr[2])
             AbscissionLag[lt] += (tmax - vabsfr[2]) * vabsfr[3];
     }

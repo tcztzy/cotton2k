@@ -441,7 +441,7 @@ void PredictDripIrrigation(Simulation &sim, uint32_t u, double TargetStress, con
         if (!bIsIrr && WaterStress <= 0.99)
         {
             //     The first predicted drip irrigation is applied
-            state.applied_water = min(30., MaxIrrigation);
+            state.applied_water = std::min(30., MaxIrrigation);
             irr1st = true;
             RequiredWater = 0;
         }
@@ -588,8 +588,8 @@ double AveragePsi(const State &state, double row_space)
                 //     Compute sumwat as the weighted sum of the water content, and psinum as the sum of
                 //  these weights. Weighting is by root weight capable of uptake, or if it exceeds a maximum
                 //  value (vrcumax) this maximum value is used for weighting.
-                sumwat[j] += VolWaterContent[l][k] * dl(l) * wk(k, row_space) * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
-                psinum[j] += dl(l) * wk(k, row_space) * min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
+                sumwat[j] += VolWaterContent[l][k] * dl(l) * wk(k, row_space) * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
+                psinum[j] += dl(l) * wk(k, row_space) * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
             }
         }
     }

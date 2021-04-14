@@ -365,7 +365,7 @@ void NitrogenAllocation()
     double useofn; // amount of nitrogen used in growth of a plant organ.
     if (rqnsed > 0)
     {
-        useofn = min(vseednmax * npool, rqnsed);
+        useofn = std::min(vseednmax * npool, rqnsed);
         SeedNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
@@ -374,14 +374,14 @@ void NitrogenAllocation()
     //  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
     if (rqnbur > 0)
     {
-        useofn = min(vburnmax * npool, rqnbur);
+        useofn = std::min(vburnmax * npool, rqnbur);
         BurrNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
     }
     if (rqnsqr > 0)
     {
-        useofn = min(vsqrnmax * npool, rqnsqr);
+        useofn = std::min(vsqrnmax * npool, rqnsqr);
         SquareNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
@@ -391,21 +391,21 @@ void NitrogenAllocation()
     //  petioles, up to vpetnmax = 0.75
     if (rqnlef > 0)
     {
-        useofn = min(vlfnmax * npool, rqnlef);
+        useofn = std::min(vlfnmax * npool, rqnlef);
         LeafNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
     if (rqnstm > 0)
     {
-        useofn = min(vstmnmax * npool, rqnstm);
+        useofn = std::min(vstmnmax * npool, rqnstm);
         StemNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
     if (rqnpet > 0)
     {
-        useofn = min(vpetnmax * npool, rqnpet);
+        useofn = std::min(vpetnmax * npool, rqnpet);
         PetioleNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
@@ -414,7 +414,7 @@ void NitrogenAllocation()
     //  it is defined as xtran.
     if (rqnrut > 0)
     {
-        useofn = min(npool, rqnrut);
+        useofn = std::min(npool, rqnrut);
         RootNitrogen += useofn;
         addnr += useofn;
         npool -= useofn;

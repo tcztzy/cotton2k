@@ -160,7 +160,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
                 frt = 1;
             //     Compute the actual carbohydrates used for root growth, and the
             //  remaining available carbohydrates.
-            CarbonAllocatedForRootGrowth = max((cdroot * frt), (cavail - cdstem));
+            CarbonAllocatedForRootGrowth = std::max((cdroot * frt), (cavail - cdstem));
             cavail -= CarbonAllocatedForRootGrowth;
         }
         else
