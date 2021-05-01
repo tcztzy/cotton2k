@@ -14,15 +14,25 @@ from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     VegetativeBranch,
 )
 
+SOIL_IMPEDANCE = SoilImpedance()
+with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
+    reader = csv.DictReader(csvfile)
+    SOIL_IMPEDANCE.curves = list(
+        map(
+            lambda row: {
+                (k if k == "water" else float(k)): float(v) for k, v in row.items()
+            },
+            reader,
+        )
+    )
+
 
 def read_input(path: Union[Path, str, dict]) -> Simulation:
     sim = Simulation()
     if isinstance(path, dict):
         kwargs = path
-    elif isinstance(path, str):
-        kwargs = json.loads(Path(path).read_text())
     else:
-        kwargs = json.loads(path.read_text())
+        kwargs = json.loads(Path(path).read_text())
     for attr in [
         "start_date",
         "stop_date",
@@ -43,17 +53,6 @@ def read_input(path: Union[Path, str, dict]) -> Simulation:
     soil = Soil(**kwargs.get("soil", {}))
     sim.year = int(kwargs["start_date"][:4])
     sim.read_input(lyrsol=soil.lyrsol, **kwargs)
-    si = SoilImpedance()
-    with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
-        reader = csv.DictReader(csvfile)
-        si.curves = list(
-            map(
-                lambda row: {
-                    (k if k == "water" else float(k)): float(v) for k, v in row.items()
-                },
-                reader,
-            )
-        )
     sim.climate = Climate(kwargs.get("climate_start_date", 0), kwargs.get("climate"))[
         sim.start_date :
     ]

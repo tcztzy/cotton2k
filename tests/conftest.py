@@ -3,6 +3,9 @@ from pathlib import Path
 
 from pytest import fixture
 
+from _cotton2k import Simulation
+from cotton2k import run
+
 
 @fixture
 def empty_json(tmp_path: Path) -> Path:
@@ -1700,3 +1703,8 @@ def test_json(tmp_path: Path) -> Path:
         )
     )
     return test
+
+
+@fixture
+def sim(test_json) -> Simulation:
+    return run(test_json)

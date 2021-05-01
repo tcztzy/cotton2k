@@ -27,3 +27,5 @@ coverage.xml
 
 *.cotton2k.json
 *.cotton2k-output.json
+
+*.so
