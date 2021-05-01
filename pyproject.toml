@@ -44,4 +44,4 @@ max-line-length = 88
 branch = true
 
 [tool.coverage.report]
-fail_under = 75
+fail_under = 90
