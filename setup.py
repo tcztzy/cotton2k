@@ -1,52 +1,26 @@
 import os
 import subprocess
-from pathlib import Path
+from collections import defaultdict
+from glob import glob
 
-import toml
 from Cython.Build import cythonize
-from setuptools import Extension, setup
+from pyproject_toml import setup
+from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 
-with open("pyproject.toml") as pyproject_toml:
-    project = toml.load(pyproject_toml)["project"]
-
-with open(project.pop("readme"), encoding="utf-8") as readme:
-    project["long_description"] = readme.read()
-    project["long_description_content_type"] = "text/x-rst"
-
-author = project.pop("authors")[0]
-project["author"] = author["name"]
-project["author_email"] = author["email"]
-project["python_requires"] = project.pop("requires-python")
-project["install_requires"] = project.pop("dependencies", None)
-urls = project.pop("urls")
-project["url"] = urls.pop("homepage")
-project["project_urls"] = urls
-
-extensions = [
-    Extension(
-        "_cotton2k",
-        sources=[
-            "src/_cotton2k/__init__.pyx",
-            *map(
-                str,
-                filter(
-                    lambda p: p.stem != "__init__", Path("src/_cotton2k").glob("*.cpp")
-                ),
-            ),
-        ],
-        library_dirs=["target/release"],
-        libraries=["cotton2k"]
-        if os.name != "nt"
-        else ["cotton2k", "ws2_32", "userenv", "advapi32"],
-        extra_compile_args=["-std=c++20" if os.name != "nt" else "/std:c++latest"],
-    )
-]
+extra_compile_args = defaultdict(lambda: ["-std=c++20"])
+extra_compile_args["msvc"] = ["/std:c++latest"]
+libraries = defaultdict(lambda: ["cotton2k"])
+extra_compile_args["nt"].extend(["ws2_32", "userenv", "advapi32"])
 
 
 class cotton2k_build_ext(build_ext):
     def build_extension(self, ext):
         subprocess.call(["cargo", "build", "--release"])
+        args = extra_compile_args[self.compiler.compiler_type]
+        for extension in self.extensions:
+            extension.libraries = libraries[os.name]
+            extension.extra_compile_args = args
         super().build_extension(ext)
 
 
@@ -54,7 +28,20 @@ setup(
     packages=["cotton2k"],
     package_dir={"": "src"},
     package_data={"cotton2k": ["*.json", "*.csv"]},
-    ext_modules=cythonize(extensions),
+    ext_modules=cythonize(
+        [
+            Extension(
+                "_cotton2k",
+                sources=[
+                    "src/_cotton2k/__init__.pyx",
+                    *filter(
+                        lambda p: "__init__" not in p,
+                        glob("src/_cotton2k/*.cpp"),
+                    ),
+                ],
+                library_dirs=["target/release"],
+            )
+        ]
+    ),
     cmdclass={"build_ext": cotton2k_build_ext},
-    **project
 )
