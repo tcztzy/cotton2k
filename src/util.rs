@@ -4,35 +4,6 @@ use std::ffi::CStr;
 use std::os::raw::c_char;
 use std::slice;
 
-#[no_mangle]
-pub fn DateToDoy(date_str: *const c_char, year_start: i32) -> i64 {
-    let date_string = unsafe { CStr::from_ptr(date_str) };
-    let date = date_string.to_str().unwrap().trim();
-    match NaiveDate::parse_from_str(date, "%d-%b-%Y") {
-        Ok(nd) => {
-            if nd.year() == year_start + 1 {
-                (nd.ordinal() + NaiveDate::from_ymd(nd.year(), 1, 1).pred().ordinal()) as i64
-            } else {
-                nd.ordinal() as i64
-            }
-        }
-        Err(..) => 0,
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn DoyToDate(doy: i32, year_start: i32) -> *const u8 {
-    if doy > 0 {
-        (NaiveDate::from_ymd(year_start, 1, 1).pred() + Duration::days(doy.into()))
-            .format("%d-%b-%Y\0")
-            .to_string()
-            .to_uppercase()
-            .as_ptr()
-    } else {
-        (" ".repeat(11) + "\0").as_ptr()
-    }
-}
-
 /// This function sorts an array of values by its value (larger is first)
 /// together with three indexes associated with each value.
 #[no_mangle]

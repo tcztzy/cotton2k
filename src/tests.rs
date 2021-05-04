@@ -23,19 +23,3 @@ fn test_soil_tem_on_root_growth() {
     assert!(approx_equal(SoilTemOnRootGrowth(14.), 0.0528, 5));
     assert_eq!(SoilTemOnRootGrowth(13.5), 0.);
 }
-
-#[test]
-fn test_doy_to_date() {
-    let s = unsafe { str::from_utf8(slice::from_raw_parts(DoyToDate(1, 2021), 11)).unwrap() };
-    assert_eq!(s, "01-JAN-2021");
-    let s = unsafe { str::from_utf8(slice::from_raw_parts(DoyToDate(259, 1984), 11)).unwrap() };
-    assert_eq!(s, "15-SEP-1984");
-    let s = unsafe { str::from_utf8(slice::from_raw_parts(DoyToDate(0, 2021), 11)).unwrap() };
-    assert_eq!(s, " ".repeat(11));
-}
-
-#[test]
-fn test_date_to_doy() {
-    assert_eq!(DateToDoy("01-JAN-2021".as_ptr() as *const i8, 2021), 1);
-    assert_eq!(DateToDoy("01-OCT-2020".as_ptr() as *const i8, 2021), 275);
-}

@@ -103,7 +103,7 @@ void C2KApp::DailySimulation(Simulation &sim)
 void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation().   It calls the following functions:
-//     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
+//     ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
 //     SoilNitrogen(), SoilSum(), PhysiologicalAge(), Defoliate(), Stress(),
 //     GetNetPhotosynthesis(), PlantGrowth(), CottonPhenology(), PlantNitrogen(),
 //     CheckDryMatterBal();
