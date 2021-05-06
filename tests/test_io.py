@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from _cotton2k import Simulation
@@ -15,4 +17,6 @@ def test_read_input(empty_json, test_json):
 
 
 def test_write_output(sim: Simulation):
-    write_output(sim)
+    output = json.loads(write_output(sim))
+    assert len(output) == 181
+    assert abs(output[-1]["lint_yield"] - 2140.8176182453344) < 1
