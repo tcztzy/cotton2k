@@ -9,22 +9,14 @@ from _cotton2k._global cimport *
 from _cotton2k._structs cimport *
 from _cotton2k._io cimport *
 
+from _cotton2k.utils import date2doy
+
 cdef extern from "Cottonmodel.h":
 
     cdef cppclass C2KApp:
         C2KApp() except +
         void DailySimulation(cSimulation &)
 
-
-def _date2doy(d):
-    if isinstance(d, str):
-        d = datetime.strptime(d, "%Y-%m-%d")
-    if isinstance(d, date):
-        return d.timetuple().tm_yday
-    elif isinstance(d, int) and d > 0:
-        return d
-    else:
-        return 0
 
 cdef void initialize_switch(cSimulation &sim):
     global isw, Kday
@@ -198,7 +190,7 @@ cdef class Climate:
 
     def __init__(self, start_date, climate):
         global LastDayWeatherData
-        self.start_day = _date2doy(start_date)
+        self.start_day = date2doy(start_date)
         self.current = self.start_day
         self.days = len(climate)
         self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))
@@ -217,9 +209,9 @@ cdef class Climate:
             stop = key.stop or self.days
             step = key.step or 1
             if isinstance(start, date):
-                start = _date2doy(start) - self.start_day
+                start = date2doy(start) - self.start_day
             if isinstance(stop, date):
-                stop = _date2doy(stop) - self.start_day
+                stop = date2doy(stop) - self.start_day
             return [{
                 "radiation": self.climate[i].Rad,
                 "max": self.climate[i].Tmax,
@@ -230,7 +222,7 @@ cdef class Climate:
             } for i in range(start, stop, step)]
         else:
             if not isinstance(key, int):
-                key = _date2doy(key) - self.start_day
+                key = date2doy(key) - self.start_day
             climate = self.climate[key]
             return {
                 "radiation": climate["Rad"],
@@ -261,7 +253,7 @@ cdef read_agricultural_input(cSimulation &sim, inputs):
     cdef NitrogenFertilizer nf
     for i in inputs:
         if i["type"] == "irrigation":
-            irrigation.day = _date2doy(i["date"])  # day of year of this irrigation
+            irrigation.day = date2doy(i["date"])  # day of year of this irrigation
             irrigation.amount = i["amount"]  # net amount of water applied, mm
             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm
@@ -274,7 +266,7 @@ cdef read_agricultural_input(cSimulation &sim, inputs):
             sim.irrigation[NumIrrigations] = irrigation
             NumIrrigations += 1
         elif i["type"] == "fertilization":
-            nf.day = _date2doy(i["date"])
+            nf.day = date2doy(i["date"])
             nf.amtamm = i.get("ammonium", 0)
             nf.amtnit = i.get("nitrate", 0)
             nf.amtura = i.get("urea", 0)
@@ -290,7 +282,7 @@ cdef read_agricultural_input(cSimulation &sim, inputs):
             NFertilizer[NumNitApps] = nf
             NumNitApps += 1
         elif i["type"] == "defoliation prediction":
-            DefoliationDate[idef] = _date2doy(i["date"])
+            DefoliationDate[idef] = date2doy(i["date"])
             DefoliantAppRate[idef] = -99.9
             if idef == 0:
                 DayFirstDef = DefoliationDate[0]
@@ -460,7 +452,7 @@ cdef class Simulation:
 
     @start_date.setter
     def start_date(self, d):
-        self._sim.day_start = _date2doy(d)
+        self._sim.day_start = date2doy(d)
 
     @property
     def stop_date(self):
@@ -468,7 +460,7 @@ cdef class Simulation:
 
     @stop_date.setter
     def stop_date(self, d):
-        self._sim.day_finish = _date2doy(d)
+        self._sim.day_finish = date2doy(d)
 
     @property
     def emerge_date(self):
@@ -476,7 +468,7 @@ cdef class Simulation:
 
     @emerge_date.setter
     def emerge_date(self, d):
-        self._sim.day_emerge = _date2doy(d)
+        self._sim.day_emerge = date2doy(d)
 
     @property
     def plant_date(self):
@@ -484,7 +476,7 @@ cdef class Simulation:
 
     @plant_date.setter
     def plant_date(self, d):
-        self._sim.day_plant = _date2doy(d)
+        self._sim.day_plant = date2doy(d)
 
     @property
     def topping_date(self):
@@ -492,7 +484,7 @@ cdef class Simulation:
 
     @topping_date.setter
     def topping_date(self, d):
-        self._sim.day_topping = _date2doy(d)
+        self._sim.day_topping = date2doy(d)
 
     @property
     def latitude(self):
