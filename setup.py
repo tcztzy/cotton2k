@@ -2,11 +2,29 @@ import os
 import subprocess
 from collections import defaultdict
 from glob import glob
-from multiprocessing import cpu_count
 
-from Cython.Build import build_ext, cythonize
+try:
+    from multiprocessing import cpu_count
+
+    from Cython.Build import build_ext, cythonize
+
+    extensions = cythonize("src/_cotton2k/*.pyx", nthreads=cpu_count())
+except ImportError:
+    from pathlib import Path
+
+    from setuptools import Extension
+    from setuptools.command.build_ext import build_ext
+
+    extensions = list(
+        map(
+            lambda source: Extension(
+                f"{source.parent.name}.{source.stem}",
+                sources=[str(source).replace(".pyx", ".cpp")],
+            ),
+            Path("src/_cotton2k").glob("*.pyx"),
+        )
+    )
 from pyproject_toml import setup
-from setuptools import Extension
 
 extra_compile_args = defaultdict(lambda: ["-std=c++20"])
 extra_compile_args["msvc"] = ["/std:c++latest"]
@@ -30,6 +48,6 @@ setup(
     packages=["cotton2k"],
     package_dir={"": "src"},
     package_data={"cotton2k": ["*.json", "*.csv"]},
-    ext_modules=cythonize("src/_cotton2k/*.pyx", nthreads=cpu_count()),
+    ext_modules=extensions,
     cmdclass={"build_ext": cotton2k_build_ext},
 )

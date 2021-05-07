@@ -22,7 +22,7 @@ homepage = "https://github.com/tcztzy/cotton2k"
 repository = "https://github.com/tcztzy/cotton2k"
 
 [build-system]
-requires = ["pyproject-toml >= 0.0.10", "Cython"]
+requires = ["pyproject-toml >= 0.0.10"]
 build-backend = "pyproject_toml.build_system.build_backend"
 
 [tool.isort]
