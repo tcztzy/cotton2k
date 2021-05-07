@@ -164,24 +164,6 @@ cdef class Soil:
             psand[i] = layer["sand"]
 
 
-
-cdef class SoilImpedance:
-
-    @property
-    def curves(self):
-        return {gh2oc[i]: {tstbd[j][i]: impede[j][i] for j in range(inrim)} for i in range(ncurve)}
-
-    @curves.setter
-    def curves(self, impedance_table):
-        global ncurve, inrim
-        ncurve = len(impedance_table)
-        inrim = len(impedance_table[0])
-        for i, row in enumerate(impedance_table):
-            gh2oc[i] = row.pop("water")
-            for j, pair in enumerate(sorted(row.items())):
-                tstbd[j][i], impede[j][i] = pair
-
-
 cdef class Climate:
     cdef ClimateStruct *climate
     cdef unsigned int start_day

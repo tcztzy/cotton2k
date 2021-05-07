@@ -1,9 +1,9 @@
-from .simulation import (
+from _cotton2k.simulation import (
     Climate,
     FruitingBranch,
     Simulation,
     Soil,
-    SoilImpedance,
     State,
     VegetativeBranch,
 )
+from _cotton2k.soil_impedance import SoilImpedance
