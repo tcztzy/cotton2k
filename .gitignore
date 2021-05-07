@@ -18,9 +18,6 @@ coverage.xml
 /dist/
 /MANIFEST
 
-# Cython generated file
-/src/_cotton2k/__init__.cpp
-
 # Added by cargo
 
 /target
