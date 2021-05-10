@@ -39,57 +39,12 @@ void DailySimulation(Simulation &sim)
 {
     try
     {
-        for (int i = 0; i < sim.day_finish - sim.day_start + 1; i++)
+        initialize_state0(sim.states[0], sim.day_start);
+        SimulateThisDay(sim, 0);
+        for (int i = 1; i < sim.day_finish - sim.day_start + 1; i++)
         {
-            if (i > 0)
-            {
-                memcpy(&sim.states[i], &sim.states[i - 1], sizeof(State));
-                sim.states[i].daynum++;
-            }
-            else
-            {
-                State &state0 = sim.states[0];
-                state0.daynum = sim.day_start;
-                state0.lint_yield = 0;
-                state0.soil.number_of_layers_with_root = 7;
-                state0.plant_height = 4.0;
-                state0.plant_weight = 0;
-                state0.bloom_weight_loss = 0;
-                state0.abscised_fruit_sites = 0;
-                state0.abscised_leaf_weight = 0;
-                state0.cumulative_nitrogen_loss = 0;
-                state0.cumulative_transpiration = 0;
-                state0.cumulative_evaporation = 0;
-                state0.applied_water = 0;
-                state0.water_stress = 1;
-                state0.water_stress_stem = 1;
-                state0.carbon_stress = 1;
-                state0.extra_carbon = 0;
-                state0.leaf_area_index = 0.001;
-                state0.number_of_vegetative_branches = 1;
-                state0.number_of_squares = 0;
-                state0.number_of_green_bolls = 0;
-                state0.number_of_open_bolls = 0;
-                state0.nitrogen_stress = 1;
-                state0.total_required_nitrogen = 0;
-                state0.leaf_nitrogen_concentration = .056;
-                state0.petiole_nitrogen_concentration = 0;
-                state0.seed_nitrogen_concentration = 0;
-                state0.root_nitrogen_concentration = .026;
-                state0.ginning_percent = 0;
-                for (int k = 0; k < 3; k++)
-                {
-                    state0.vegetative_branches[k].number_of_fruiting_branches = 0;
-                    for (int l = 0; l < 30; l++)
-                    {
-                        state0.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 0;
-                        state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0;
-                        state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = {0, 0, 0, 0, 0, 0};
-                        for (int m = 0; m < 5; m++)
-                            state0.vegetative_branches[k].fruiting_branches[l].nodes[m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
-                    }
-                }
-            }
+            memcpy(&sim.states[i], &sim.states[i - 1], sizeof(State));
+            sim.states[i].daynum++;
             SimulateThisDay(sim, i);
         }
     }
@@ -151,4 +106,48 @@ void SimulateThisDay(Simulation &sim, const int &u)
     //
     if (state.daynum >= LastDayWeatherData || (Kday > 10 && state.leaf_area_index < 0.0002))
         throw SimulationEnd();
+}
+
+
+void initialize_state0(State &state0, uint32_t day_start) {
+    state0.daynum = day_start;
+    state0.lint_yield = 0;
+    state0.soil.number_of_layers_with_root = 7;
+    state0.plant_height = 4.0;
+    state0.plant_weight = 0;
+    state0.bloom_weight_loss = 0;
+    state0.abscised_fruit_sites = 0;
+    state0.abscised_leaf_weight = 0;
+    state0.cumulative_nitrogen_loss = 0;
+    state0.cumulative_transpiration = 0;
+    state0.cumulative_evaporation = 0;
+    state0.applied_water = 0;
+    state0.water_stress = 1;
+    state0.water_stress_stem = 1;
+    state0.carbon_stress = 1;
+    state0.extra_carbon = 0;
+    state0.leaf_area_index = 0.001;
+    state0.number_of_vegetative_branches = 1;
+    state0.number_of_squares = 0;
+    state0.number_of_green_bolls = 0;
+    state0.number_of_open_bolls = 0;
+    state0.nitrogen_stress = 1;
+    state0.total_required_nitrogen = 0;
+    state0.leaf_nitrogen_concentration = .056;
+    state0.petiole_nitrogen_concentration = 0;
+    state0.seed_nitrogen_concentration = 0;
+    state0.root_nitrogen_concentration = .026;
+    state0.ginning_percent = 0;
+    for (int k = 0; k < 3; k++)
+    {
+        state0.vegetative_branches[k].number_of_fruiting_branches = 0;
+        for (int l = 0; l < 30; l++)
+        {
+            state0.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 0;
+            state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0;
+            state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = {0, 0, 0, 0, 0, 0};
+            for (int m = 0; m < 5; m++)
+                state0.vegetative_branches[k].fruiting_branches[l].nodes[m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
+        }
+    }
 }

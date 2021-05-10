@@ -5,8 +5,11 @@
 //  This file contains declartions for class C2K.
 #pragma once
 
+#include <cstdint>
 #include "Simulation.hpp"
 
 void DailySimulation(Simulation &);
 
 static void SimulateThisDay(Simulation &, const int &);
+
+void initialize_state0(State &, uint32_t);
