@@ -880,7 +880,7 @@ struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct____iter__;
 struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct_1___iter__;
 struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct_2___iter__;
 
-/* "_cotton2k/simulation.pyx":82
+/* "_cotton2k/simulation.pyx":79
  * 
  * 
  * cdef class Soil:             # <<<<<<<<<<<<<<
@@ -893,7 +893,7 @@ struct __pyx_obj_9_cotton2k_10simulation_Soil {
 };
 
 
-/* "_cotton2k/simulation.pyx":167
+/* "_cotton2k/simulation.pyx":164
  * 
  * 
  * cdef class Climate:             # <<<<<<<<<<<<<<
@@ -909,7 +909,7 @@ struct __pyx_obj_9_cotton2k_10simulation_Climate {
 };
 
 
-/* "_cotton2k/simulation.pyx":274
+/* "_cotton2k/simulation.pyx":271
  *             idef += 1
  * 
  * cdef class FruitingBranch:             # <<<<<<<<<<<<<<
@@ -922,7 +922,7 @@ struct __pyx_obj_9_cotton2k_10simulation_FruitingBranch {
 };
 
 
-/* "_cotton2k/simulation.pyx":298
+/* "_cotton2k/simulation.pyx":295
  * 
  * 
  * cdef class VegetativeBranch:             # <<<<<<<<<<<<<<
@@ -935,7 +935,7 @@ struct __pyx_obj_9_cotton2k_10simulation_VegetativeBranch {
 };
 
 
-/* "_cotton2k/simulation.pyx":312
+/* "_cotton2k/simulation.pyx":309
  * 
  * 
  * cdef class State:             # <<<<<<<<<<<<<<
@@ -948,7 +948,7 @@ struct __pyx_obj_9_cotton2k_10simulation_State {
 };
 
 
-/* "_cotton2k/simulation.pyx":414
+/* "_cotton2k/simulation.pyx":411
  *             yield attr, value
  * 
  * cdef class Simulation:             # <<<<<<<<<<<<<<
@@ -961,7 +961,7 @@ struct __pyx_obj_9_cotton2k_10simulation_Simulation {
 };
 
 
-/* "_cotton2k/simulation.pyx":293
+/* "_cotton2k/simulation.pyx":290
  *         return [self._branch.nodes[i] for i in range(self._branch.number_of_fruiting_nodes)]
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -978,7 +978,7 @@ struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct____iter__ {
 };
 
 
-/* "_cotton2k/simulation.pyx":308
+/* "_cotton2k/simulation.pyx":305
  *         return [FruitingBranch(self._branch.fruiting_branches[i]) for i in range(self._branch.number_of_fruiting_branches)]
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -991,7 +991,7 @@ struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct_1___iter__ {
 };
 
 
-/* "_cotton2k/simulation.pyx":407
+/* "_cotton2k/simulation.pyx":404
  *         return self._state.soil
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -1496,48 +1496,6 @@ static PyObject* __pyx_convert__to_py_Root(Root s);
 static PyObject* __pyx_convert__to_py_SoilCell(SoilCell s);
 static PyObject* __pyx_convert__to_py_Soil(Soil s);
 static PyObject* __pyx_convert__to_py_State(State s);
-/* CppExceptionConversion.proto */
-#ifndef __Pyx_CppExn2PyErr
-#include <new>
-#include <typeinfo>
-#include <stdexcept>
-#include <ios>
-static void __Pyx_CppExn2PyErr() {
-  try {
-    if (PyErr_Occurred())
-      ; // let the latest Python exn pass through and ignore the current one
-    else
-      throw;
-  } catch (const std::bad_alloc& exn) {
-    PyErr_SetString(PyExc_MemoryError, exn.what());
-  } catch (const std::bad_cast& exn) {
-    PyErr_SetString(PyExc_TypeError, exn.what());
-  } catch (const std::bad_typeid& exn) {
-    PyErr_SetString(PyExc_TypeError, exn.what());
-  } catch (const std::domain_error& exn) {
-    PyErr_SetString(PyExc_ValueError, exn.what());
-  } catch (const std::invalid_argument& exn) {
-    PyErr_SetString(PyExc_ValueError, exn.what());
-  } catch (const std::ios_base::failure& exn) {
-    PyErr_SetString(PyExc_IOError, exn.what());
-  } catch (const std::out_of_range& exn) {
-    PyErr_SetString(PyExc_IndexError, exn.what());
-  } catch (const std::overflow_error& exn) {
-    PyErr_SetString(PyExc_OverflowError, exn.what());
-  } catch (const std::range_error& exn) {
-    PyErr_SetString(PyExc_ArithmeticError, exn.what());
-  } catch (const std::underflow_error& exn) {
-    PyErr_SetString(PyExc_ArithmeticError, exn.what());
-  } catch (const std::exception& exn) {
-    PyErr_SetString(PyExc_RuntimeError, exn.what());
-  }
-  catch (...)
-  {
-    PyErr_SetString(PyExc_RuntimeError, "Unknown exception");
-  }
-}
-#endif
-
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value);
 
@@ -2436,7 +2394,7 @@ static PyObject *__pyx_tuple__79;
 static PyObject *__pyx_codeobj__80;
 /* Late includes */
 
-/* "_cotton2k/simulation.pyx":21
+/* "_cotton2k/simulation.pyx":18
  * 
  * 
  * cdef void initialize_switch(cSimulation &sim):             # <<<<<<<<<<<<<<
@@ -2453,7 +2411,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("initialize_switch", 0);
 
-  /* "_cotton2k/simulation.pyx":26
+  /* "_cotton2k/simulation.pyx":23
  *     # by the model. In this case, isw = 0, and a check is performed to make
  *     # sure that the date of planting has been given.
  *     if sim.day_emerge <= 0:             # <<<<<<<<<<<<<<
@@ -2463,7 +2421,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
   __pyx_t_1 = ((__pyx_v_sim.day_emerge <= 0) != 0);
   if (__pyx_t_1) {
 
-    /* "_cotton2k/simulation.pyx":27
+    /* "_cotton2k/simulation.pyx":24
  *     # sure that the date of planting has been given.
  *     if sim.day_emerge <= 0:
  *         if sim.day_plant <= 0:             # <<<<<<<<<<<<<<
@@ -2473,20 +2431,20 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
     __pyx_t_1 = ((__pyx_v_sim.day_plant <= 0) != 0);
     if (unlikely(__pyx_t_1)) {
 
-      /* "_cotton2k/simulation.pyx":28
+      /* "_cotton2k/simulation.pyx":25
  *     if sim.day_emerge <= 0:
  *         if sim.day_plant <= 0:
  *             raise Exception(" planting date or emergence date must be given in the profile file !!")             # <<<<<<<<<<<<<<
  *         isw = 0
  *     # If the date of emergence has been given in the input: isw = 1 if
  */
-      __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])), __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 28, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])), __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_Raise(__pyx_t_2, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __PYX_ERR(0, 28, __pyx_L1_error)
+      __PYX_ERR(0, 25, __pyx_L1_error)
 
-      /* "_cotton2k/simulation.pyx":27
+      /* "_cotton2k/simulation.pyx":24
  *     # sure that the date of planting has been given.
  *     if sim.day_emerge <= 0:
  *         if sim.day_plant <= 0:             # <<<<<<<<<<<<<<
@@ -2495,7 +2453,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
  */
     }
 
-    /* "_cotton2k/simulation.pyx":29
+    /* "_cotton2k/simulation.pyx":26
  *         if sim.day_plant <= 0:
  *             raise Exception(" planting date or emergence date must be given in the profile file !!")
  *         isw = 0             # <<<<<<<<<<<<<<
@@ -2504,7 +2462,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
  */
     isw = 0;
 
-    /* "_cotton2k/simulation.pyx":26
+    /* "_cotton2k/simulation.pyx":23
  *     # by the model. In this case, isw = 0, and a check is performed to make
  *     # sure that the date of planting has been given.
  *     if sim.day_emerge <= 0:             # <<<<<<<<<<<<<<
@@ -2514,7 +2472,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
     goto __pyx_L3;
   }
 
-  /* "_cotton2k/simulation.pyx":32
+  /* "_cotton2k/simulation.pyx":29
  *     # If the date of emergence has been given in the input: isw = 1 if
  *     # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
  *     elif sim.day_emerge > sim.day_start:             # <<<<<<<<<<<<<<
@@ -2524,7 +2482,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
   __pyx_t_1 = ((__pyx_v_sim.day_emerge > __pyx_v_sim.day_start) != 0);
   if (__pyx_t_1) {
 
-    /* "_cotton2k/simulation.pyx":33
+    /* "_cotton2k/simulation.pyx":30
  *     # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
  *     elif sim.day_emerge > sim.day_start:
  *         isw = 1             # <<<<<<<<<<<<<<
@@ -2533,7 +2491,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
  */
     isw = 1;
 
-    /* "_cotton2k/simulation.pyx":32
+    /* "_cotton2k/simulation.pyx":29
  *     # If the date of emergence has been given in the input: isw = 1 if
  *     # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
  *     elif sim.day_emerge > sim.day_start:             # <<<<<<<<<<<<<<
@@ -2543,7 +2501,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
     goto __pyx_L3;
   }
 
-  /* "_cotton2k/simulation.pyx":35
+  /* "_cotton2k/simulation.pyx":32
  *         isw = 1
  *     else:
  *         isw = 2             # <<<<<<<<<<<<<<
@@ -2553,7 +2511,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
   /*else*/ {
     isw = 2;
 
-    /* "_cotton2k/simulation.pyx":36
+    /* "_cotton2k/simulation.pyx":33
  *     else:
  *         isw = 2
  *         Kday = 1             # <<<<<<<<<<<<<<
@@ -2564,7 +2522,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
   }
   __pyx_L3:;
 
-  /* "_cotton2k/simulation.pyx":21
+  /* "_cotton2k/simulation.pyx":18
  * 
  * 
  * cdef void initialize_switch(cSimulation &sim):             # <<<<<<<<<<<<<<
@@ -2581,7 +2539,7 @@ static void __pyx_f_9_cotton2k_10simulation_initialize_switch(Simulation &__pyx_
   __Pyx_RefNannyFinishContext();
 }
 
-/* "_cotton2k/simulation.pyx":41
+/* "_cotton2k/simulation.pyx":38
  * cdef double PlantsPerM  # average number of plants pre meter of row.
  * 
  * cdef void InitializeGrid(cSimulation &sim):             # <<<<<<<<<<<<<<
@@ -2605,7 +2563,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("InitializeGrid", 0);
 
-  /* "_cotton2k/simulation.pyx":53
+  /* "_cotton2k/simulation.pyx":50
  *     # PlantRowLocation is the distance from edge of slab, cm, of the plant row.
  *     global PlantRowLocation, PlantPopulation, PerPlantArea, DensityFactor, nl, nk, SkipRowWidth, PlantsPerM
  *     PlantRowLocation = 0.5 * sim.row_space             # <<<<<<<<<<<<<<
@@ -2614,7 +2572,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   PlantRowLocation = (0.5 * __pyx_v_sim.row_space);
 
-  /* "_cotton2k/simulation.pyx":54
+  /* "_cotton2k/simulation.pyx":51
  *     global PlantRowLocation, PlantPopulation, PerPlantArea, DensityFactor, nl, nk, SkipRowWidth, PlantsPerM
  *     PlantRowLocation = 0.5 * sim.row_space
  *     if (SkipRowWidth > 1):             # <<<<<<<<<<<<<<
@@ -2624,7 +2582,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   __pyx_t_1 = ((__pyx_v_9_cotton2k_10simulation_SkipRowWidth > 1.0) != 0);
   if (__pyx_t_1) {
 
-    /* "_cotton2k/simulation.pyx":56
+    /* "_cotton2k/simulation.pyx":53
  *     if (SkipRowWidth > 1):
  *         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
  *         sim.row_space = 0.5 * (sim.row_space + SkipRowWidth)  # actual width of the soil slab (cm)             # <<<<<<<<<<<<<<
@@ -2633,7 +2591,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
     __pyx_v_sim.row_space = (0.5 * (__pyx_v_sim.row_space + __pyx_v_9_cotton2k_10simulation_SkipRowWidth));
 
-    /* "_cotton2k/simulation.pyx":57
+    /* "_cotton2k/simulation.pyx":54
  *         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
  *         sim.row_space = 0.5 * (sim.row_space + SkipRowWidth)  # actual width of the soil slab (cm)
  *         PlantRowLocation = 0.5 * SkipRowWidth             # <<<<<<<<<<<<<<
@@ -2642,7 +2600,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
     PlantRowLocation = (0.5 * __pyx_v_9_cotton2k_10simulation_SkipRowWidth);
 
-    /* "_cotton2k/simulation.pyx":54
+    /* "_cotton2k/simulation.pyx":51
  *     global PlantRowLocation, PlantPopulation, PerPlantArea, DensityFactor, nl, nk, SkipRowWidth, PlantsPerM
  *     PlantRowLocation = 0.5 * sim.row_space
  *     if (SkipRowWidth > 1):             # <<<<<<<<<<<<<<
@@ -2651,7 +2609,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   }
 
-  /* "_cotton2k/simulation.pyx":60
+  /* "_cotton2k/simulation.pyx":57
  *     # Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per plant, in dm2, and the empirical plant density factor (DensityFactor). This factor will be used to express the effect of plant density on some plant growth rate functions.
  *     # NOTE: DensityFactor = 1 for 5 plants per sq m (or 50000 per ha).
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000             # <<<<<<<<<<<<<<
@@ -2660,11 +2618,11 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   if (unlikely(__pyx_v_sim.row_space == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 60, __pyx_L1_error)
+    __PYX_ERR(0, 57, __pyx_L1_error)
   }
   PlantPopulation = ((__pyx_v_9_cotton2k_10simulation_PlantsPerM / __pyx_v_sim.row_space) * 1000000.0);
 
-  /* "_cotton2k/simulation.pyx":61
+  /* "_cotton2k/simulation.pyx":58
  *     # NOTE: DensityFactor = 1 for 5 plants per sq m (or 50000 per ha).
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000
  *     PerPlantArea = 1000000 / PlantPopulation             # <<<<<<<<<<<<<<
@@ -2673,11 +2631,11 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   if (unlikely(PlantPopulation == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 61, __pyx_L1_error)
+    __PYX_ERR(0, 58, __pyx_L1_error)
   }
   PerPlantArea = (1000000.0 / PlantPopulation);
 
-  /* "_cotton2k/simulation.pyx":62
+  /* "_cotton2k/simulation.pyx":59
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000
  *     PerPlantArea = 1000000 / PlantPopulation
  *     DensityFactor = exp(VarPar[1] * (5 - PlantPopulation / 10000))             # <<<<<<<<<<<<<<
@@ -2686,7 +2644,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   DensityFactor = exp(((VarPar[1]) * (5.0 - (PlantPopulation / 10000.0))));
 
-  /* "_cotton2k/simulation.pyx":66
+  /* "_cotton2k/simulation.pyx":63
  *     # Define the depth, in cm, of consecutive nl layers.
  *     # NOTE: maxl and maxk are defined as constants in file "global.h".
  *     nl = maxl             # <<<<<<<<<<<<<<
@@ -2695,7 +2653,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   nl = maxl;
 
-  /* "_cotton2k/simulation.pyx":67
+  /* "_cotton2k/simulation.pyx":64
  *     # NOTE: maxl and maxk are defined as constants in file "global.h".
  *     nl = maxl
  *     nk = maxk             # <<<<<<<<<<<<<<
@@ -2704,7 +2662,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   nk = maxk;
 
-  /* "_cotton2k/simulation.pyx":71
+  /* "_cotton2k/simulation.pyx":68
  *     # NOTE: wk is an array - to enable the option of non-uniform column widths in the future.
  *     # PlantRowColumn (the column including the plant row) is now computed from PlantRowLocation (the distance of the plant row from the edge of the slab).
  *     cdef double sumwk = 0  # sum of column widths             # <<<<<<<<<<<<<<
@@ -2713,7 +2671,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   __pyx_v_sumwk = 0.0;
 
-  /* "_cotton2k/simulation.pyx":72
+  /* "_cotton2k/simulation.pyx":69
  *     # PlantRowColumn (the column including the plant row) is now computed from PlantRowLocation (the distance of the plant row from the edge of the slab).
  *     cdef double sumwk = 0  # sum of column widths
  *     sim.plant_row_column = 0             # <<<<<<<<<<<<<<
@@ -2722,25 +2680,25 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
   __pyx_v_sim.plant_row_column = 0;
 
-  /* "_cotton2k/simulation.pyx":73
+  /* "_cotton2k/simulation.pyx":70
  *     cdef double sumwk = 0  # sum of column widths
  *     sim.plant_row_column = 0
  *     for k in range(nk):             # <<<<<<<<<<<<<<
  *         sumwk = sumwk + wk(k, sim.row_space)
  *         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:
  */
-  __pyx_t_2 = __Pyx_PyInt_From_int(nk); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(nk); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
     __pyx_t_2 = __pyx_t_3; __Pyx_INCREF(__pyx_t_2); __pyx_t_4 = 0;
     __pyx_t_5 = NULL;
   } else {
-    __pyx_t_4 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __pyx_t_4 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __pyx_t_5 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   for (;;) {
@@ -2748,17 +2706,17 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_4 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 73, __pyx_L1_error)
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 70, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
         if (__pyx_t_4 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 73, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 70, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       }
@@ -2768,7 +2726,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 73, __pyx_L1_error)
+          else __PYX_ERR(0, 70, __pyx_L1_error)
         }
         break;
       }
@@ -2777,17 +2735,17 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
     __Pyx_XDECREF_SET(__pyx_v_k, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "_cotton2k/simulation.pyx":74
+    /* "_cotton2k/simulation.pyx":71
  *     sim.plant_row_column = 0
  *     for k in range(nk):
  *         sumwk = sumwk + wk(k, sim.row_space)             # <<<<<<<<<<<<<<
  *         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:
  *             if (sumwk - PlantRowLocation) > (0.5 * wk(k, sim.row_space)):
  */
-    __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_k); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_k); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 71, __pyx_L1_error)
     __pyx_v_sumwk = (__pyx_v_sumwk + wk(__pyx_t_6, __pyx_v_sim.row_space));
 
-    /* "_cotton2k/simulation.pyx":75
+    /* "_cotton2k/simulation.pyx":72
  *     for k in range(nk):
  *         sumwk = sumwk + wk(k, sim.row_space)
  *         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:             # <<<<<<<<<<<<<<
@@ -2805,31 +2763,31 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
     __pyx_L7_bool_binop_done:;
     if (__pyx_t_1) {
 
-      /* "_cotton2k/simulation.pyx":76
+      /* "_cotton2k/simulation.pyx":73
  *         sumwk = sumwk + wk(k, sim.row_space)
  *         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:
  *             if (sumwk - PlantRowLocation) > (0.5 * wk(k, sim.row_space)):             # <<<<<<<<<<<<<<
  *                 sim.plant_row_column = k - 1
  *             else:
  */
-      __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_k); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_k); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L1_error)
       __pyx_t_1 = (((__pyx_v_sumwk - PlantRowLocation) > (0.5 * wk(__pyx_t_6, __pyx_v_sim.row_space))) != 0);
       if (__pyx_t_1) {
 
-        /* "_cotton2k/simulation.pyx":77
+        /* "_cotton2k/simulation.pyx":74
  *         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:
  *             if (sumwk - PlantRowLocation) > (0.5 * wk(k, sim.row_space)):
  *                 sim.plant_row_column = k - 1             # <<<<<<<<<<<<<<
  *             else:
  *                 sim.plant_row_column = k
  */
-        __pyx_t_3 = __Pyx_PyInt_SubtractObjC(__pyx_v_k, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_SubtractObjC(__pyx_v_k, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 74, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_t_3); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_t_3); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_v_sim.plant_row_column = __pyx_t_6;
 
-        /* "_cotton2k/simulation.pyx":76
+        /* "_cotton2k/simulation.pyx":73
  *         sumwk = sumwk + wk(k, sim.row_space)
  *         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:
  *             if (sumwk - PlantRowLocation) > (0.5 * wk(k, sim.row_space)):             # <<<<<<<<<<<<<<
@@ -2839,7 +2797,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
         goto __pyx_L9;
       }
 
-      /* "_cotton2k/simulation.pyx":79
+      /* "_cotton2k/simulation.pyx":76
  *                 sim.plant_row_column = k - 1
  *             else:
  *                 sim.plant_row_column = k             # <<<<<<<<<<<<<<
@@ -2847,12 +2805,12 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  * 
  */
       /*else*/ {
-        __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_k); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 79, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_k); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L1_error)
         __pyx_v_sim.plant_row_column = __pyx_t_6;
       }
       __pyx_L9:;
 
-      /* "_cotton2k/simulation.pyx":75
+      /* "_cotton2k/simulation.pyx":72
  *     for k in range(nk):
  *         sumwk = sumwk + wk(k, sim.row_space)
  *         if sim.plant_row_column == 0 and sumwk > PlantRowLocation:             # <<<<<<<<<<<<<<
@@ -2861,7 +2819,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  */
     }
 
-    /* "_cotton2k/simulation.pyx":73
+    /* "_cotton2k/simulation.pyx":70
  *     cdef double sumwk = 0  # sum of column widths
  *     sim.plant_row_column = 0
  *     for k in range(nk):             # <<<<<<<<<<<<<<
@@ -2871,7 +2829,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "_cotton2k/simulation.pyx":41
+  /* "_cotton2k/simulation.pyx":38
  * cdef double PlantsPerM  # average number of plants pre meter of row.
  * 
  * cdef void InitializeGrid(cSimulation &sim):             # <<<<<<<<<<<<<<
@@ -2890,7 +2848,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   __Pyx_RefNannyFinishContext();
 }
 
-/* "_cotton2k/simulation.pyx":84
+/* "_cotton2k/simulation.pyx":81
  * cdef class Soil:
  *     cdef unsigned int number_of_layers
  *     def __init__(self, initial, hydrology, layer_depth=None):             # <<<<<<<<<<<<<<
@@ -2936,7 +2894,7 @@ static int __pyx_pw_9_cotton2k_10simulation_4Soil_1__init__(PyObject *__pyx_v_se
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_hydrology)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, 1); __PYX_ERR(0, 84, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, 1); __PYX_ERR(0, 81, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -2946,7 +2904,7 @@ static int __pyx_pw_9_cotton2k_10simulation_4Soil_1__init__(PyObject *__pyx_v_se
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 84, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 81, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2964,7 +2922,7 @@ static int __pyx_pw_9_cotton2k_10simulation_4Soil_1__init__(PyObject *__pyx_v_se
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 84, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 81, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("_cotton2k.simulation.Soil.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2989,7 +2947,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil___init__(struct __pyx_obj_9_co
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "_cotton2k/simulation.pyx":85
+  /* "_cotton2k/simulation.pyx":82
  *     cdef unsigned int number_of_layers
  *     def __init__(self, initial, hydrology, layer_depth=None):
  *         if layer_depth is not None:             # <<<<<<<<<<<<<<
@@ -3000,16 +2958,16 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil___init__(struct __pyx_obj_9_co
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "_cotton2k/simulation.pyx":86
+    /* "_cotton2k/simulation.pyx":83
  *     def __init__(self, initial, hydrology, layer_depth=None):
  *         if layer_depth is not None:
  *             self.layer_depth = layer_depth             # <<<<<<<<<<<<<<
  *         self.initial = initial
  *         self.hydrology = hydrology
  */
-    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_layer_depth, __pyx_v_layer_depth) < 0) __PYX_ERR(0, 86, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_layer_depth, __pyx_v_layer_depth) < 0) __PYX_ERR(0, 83, __pyx_L1_error)
 
-    /* "_cotton2k/simulation.pyx":85
+    /* "_cotton2k/simulation.pyx":82
  *     cdef unsigned int number_of_layers
  *     def __init__(self, initial, hydrology, layer_depth=None):
  *         if layer_depth is not None:             # <<<<<<<<<<<<<<
@@ -3018,38 +2976,38 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil___init__(struct __pyx_obj_9_co
  */
   }
 
-  /* "_cotton2k/simulation.pyx":87
+  /* "_cotton2k/simulation.pyx":84
  *         if layer_depth is not None:
  *             self.layer_depth = layer_depth
  *         self.initial = initial             # <<<<<<<<<<<<<<
  *         self.hydrology = hydrology
  *         self.number_of_layers = len(hydrology["layers"])
  */
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_initial, __pyx_v_initial) < 0) __PYX_ERR(0, 87, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_initial, __pyx_v_initial) < 0) __PYX_ERR(0, 84, __pyx_L1_error)
 
-  /* "_cotton2k/simulation.pyx":88
+  /* "_cotton2k/simulation.pyx":85
  *             self.layer_depth = layer_depth
  *         self.initial = initial
  *         self.hydrology = hydrology             # <<<<<<<<<<<<<<
  *         self.number_of_layers = len(hydrology["layers"])
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_hydrology, __pyx_v_hydrology) < 0) __PYX_ERR(0, 88, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_hydrology, __pyx_v_hydrology) < 0) __PYX_ERR(0, 85, __pyx_L1_error)
 
-  /* "_cotton2k/simulation.pyx":89
+  /* "_cotton2k/simulation.pyx":86
  *         self.initial = initial
  *         self.hydrology = hydrology
  *         self.number_of_layers = len(hydrology["layers"])             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_hydrology, __pyx_n_u_layers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 89, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_hydrology, __pyx_n_u_layers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 86, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 89, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 86, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_self->number_of_layers = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":84
+  /* "_cotton2k/simulation.pyx":81
  * cdef class Soil:
  *     cdef unsigned int number_of_layers
  *     def __init__(self, initial, hydrology, layer_depth=None):             # <<<<<<<<<<<<<<
@@ -3069,7 +3027,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil___init__(struct __pyx_obj_9_co
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":92
+/* "_cotton2k/simulation.pyx":89
  * 
  *     @property
  *     def lyrsol(self):             # <<<<<<<<<<<<<<
@@ -3099,7 +3057,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_6lyrsol___get__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":93
+  /* "_cotton2k/simulation.pyx":90
  *     @property
  *     def lyrsol(self):
  *         return self.number_of_layers             # <<<<<<<<<<<<<<
@@ -3107,13 +3065,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_6lyrsol___get__(struct _
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->number_of_layers); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->number_of_layers); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":92
+  /* "_cotton2k/simulation.pyx":89
  * 
  *     @property
  *     def lyrsol(self):             # <<<<<<<<<<<<<<
@@ -3132,7 +3090,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_6lyrsol___get__(struct _
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":96
+/* "_cotton2k/simulation.pyx":93
  * 
  *     @property
  *     def layer_depth(self):             # <<<<<<<<<<<<<<
@@ -3162,7 +3120,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_11layer_depth___get__(CY
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":97
+  /* "_cotton2k/simulation.pyx":94
  *     @property
  *     def layer_depth(self):
  *         return LayerDepth             # <<<<<<<<<<<<<<
@@ -3170,13 +3128,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_11layer_depth___get__(CY
  *     @layer_depth.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(LayerDepth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 97, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(LayerDepth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":96
+  /* "_cotton2k/simulation.pyx":93
  * 
  *     @property
  *     def layer_depth(self):             # <<<<<<<<<<<<<<
@@ -3195,7 +3153,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_11layer_depth___get__(CY
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":100
+/* "_cotton2k/simulation.pyx":97
  * 
  *     @layer_depth.setter
  *     def layer_depth(self, value):             # <<<<<<<<<<<<<<
@@ -3225,17 +3183,17 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_11layer_depth_2__set__(CYTHON_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":102
+  /* "_cotton2k/simulation.pyx":99
  *     def layer_depth(self, value):
  *         global LayerDepth
  *         LayerDepth = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L1_error)
   LayerDepth = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":100
+  /* "_cotton2k/simulation.pyx":97
  * 
  *     @layer_depth.setter
  *     def layer_depth(self, value):             # <<<<<<<<<<<<<<
@@ -3254,7 +3212,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_11layer_depth_2__set__(CYTHON_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":105
+/* "_cotton2k/simulation.pyx":102
  * 
  *     @property
  *     def initial(self):             # <<<<<<<<<<<<<<
@@ -3288,7 +3246,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_7initial___get__(CYTHON_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":106
+  /* "_cotton2k/simulation.pyx":103
  *     @property
  *     def initial(self):
  *         return [             # <<<<<<<<<<<<<<
@@ -3297,10 +3255,10 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_7initial___get__(CYTHON_
  */
   __Pyx_XDECREF(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
 
-    /* "_cotton2k/simulation.pyx":112
+    /* "_cotton2k/simulation.pyx":109
  *                 "organic_matter": oma[i],
  *                 "water": h2oint[i]
  *             } for i in range(14)             # <<<<<<<<<<<<<<
@@ -3310,56 +3268,56 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_7initial___get__(CYTHON_
     for (__pyx_t_2 = 0; __pyx_t_2 < 14; __pyx_t_2+=1) {
       __pyx_7genexpr__pyx_v_i = __pyx_t_2;
 
-      /* "_cotton2k/simulation.pyx":108
+      /* "_cotton2k/simulation.pyx":105
  *         return [
  *             {
  *                 "ammonium_nitrogen": rnnh4[i],             # <<<<<<<<<<<<<<
  *                 "nitrate_nitrogen": rnno3[i],
  *                 "organic_matter": oma[i],
  */
-      __pyx_t_3 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 108, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 105, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = PyFloat_FromDouble((rnnh4[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 108, __pyx_L1_error)
+      __pyx_t_4 = PyFloat_FromDouble((rnnh4[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_ammonium_nitrogen, __pyx_t_4) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_ammonium_nitrogen, __pyx_t_4) < 0) __PYX_ERR(0, 105, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "_cotton2k/simulation.pyx":109
+      /* "_cotton2k/simulation.pyx":106
  *             {
  *                 "ammonium_nitrogen": rnnh4[i],
  *                 "nitrate_nitrogen": rnno3[i],             # <<<<<<<<<<<<<<
  *                 "organic_matter": oma[i],
  *                 "water": h2oint[i]
  */
-      __pyx_t_4 = PyFloat_FromDouble((rnno3[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
+      __pyx_t_4 = PyFloat_FromDouble((rnno3[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 106, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_nitrate_nitrogen, __pyx_t_4) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_nitrate_nitrogen, __pyx_t_4) < 0) __PYX_ERR(0, 105, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "_cotton2k/simulation.pyx":110
+      /* "_cotton2k/simulation.pyx":107
  *                 "ammonium_nitrogen": rnnh4[i],
  *                 "nitrate_nitrogen": rnno3[i],
  *                 "organic_matter": oma[i],             # <<<<<<<<<<<<<<
  *                 "water": h2oint[i]
  *             } for i in range(14)
  */
-      __pyx_t_4 = PyFloat_FromDouble((oma[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
+      __pyx_t_4 = PyFloat_FromDouble((oma[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_organic_matter, __pyx_t_4) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_organic_matter, __pyx_t_4) < 0) __PYX_ERR(0, 105, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "_cotton2k/simulation.pyx":111
+      /* "_cotton2k/simulation.pyx":108
  *                 "nitrate_nitrogen": rnno3[i],
  *                 "organic_matter": oma[i],
  *                 "water": h2oint[i]             # <<<<<<<<<<<<<<
  *             } for i in range(14)
  *         ]
  */
-      __pyx_t_4 = PyFloat_FromDouble((h2oint[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __pyx_t_4 = PyFloat_FromDouble((h2oint[__pyx_7genexpr__pyx_v_i])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 108, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_water, __pyx_t_4) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_3, __pyx_n_u_water, __pyx_t_4) < 0) __PYX_ERR(0, 105, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 106, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 103, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
   } /* exit inner scope */
@@ -3367,7 +3325,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_7initial___get__(CYTHON_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":105
+  /* "_cotton2k/simulation.pyx":102
  * 
  *     @property
  *     def initial(self):             # <<<<<<<<<<<<<<
@@ -3388,7 +3346,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_7initial___get__(CYTHON_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":116
+/* "_cotton2k/simulation.pyx":113
  * 
  *     @initial.setter
  *     def initial(self, init_soil):             # <<<<<<<<<<<<<<
@@ -3426,7 +3384,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_7initial_2__set__(CYTHON_UNUSE
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":117
+  /* "_cotton2k/simulation.pyx":114
  *     @initial.setter
  *     def initial(self, init_soil):
  *         for i, layer in enumerate(init_soil):             # <<<<<<<<<<<<<<
@@ -3439,26 +3397,26 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_7initial_2__set__(CYTHON_UNUSE
     __pyx_t_2 = __pyx_v_init_soil; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_init_soil); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_init_soil); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 114, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 114, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_4)) {
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 117, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 114, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 114, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 117, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 114, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 114, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -3468,7 +3426,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_7initial_2__set__(CYTHON_UNUSE
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 117, __pyx_L1_error)
+          else __PYX_ERR(0, 114, __pyx_L1_error)
         }
         break;
       }
@@ -3478,69 +3436,69 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_7initial_2__set__(CYTHON_UNUSE
     __pyx_t_5 = 0;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 114, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "_cotton2k/simulation.pyx":118
+    /* "_cotton2k/simulation.pyx":115
  *     def initial(self, init_soil):
  *         for i, layer in enumerate(init_soil):
  *             rnnh4[i] = layer["ammonium_nitrogen"]             # <<<<<<<<<<<<<<
  *             rnno3[i] = layer["nitrate_nitrogen"]
  *             oma[i] = layer["organic_matter"]
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_ammonium_nitrogen); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_ammonium_nitrogen); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 115, __pyx_L1_error)
     (rnnh4[__pyx_t_7]) = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":119
+    /* "_cotton2k/simulation.pyx":116
  *         for i, layer in enumerate(init_soil):
  *             rnnh4[i] = layer["ammonium_nitrogen"]
  *             rnno3[i] = layer["nitrate_nitrogen"]             # <<<<<<<<<<<<<<
  *             oma[i] = layer["organic_matter"]
  *             h2oint[i] = layer["water"]
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_nitrate_nitrogen); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 119, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_nitrate_nitrogen); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 116, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 119, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 116, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 119, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 116, __pyx_L1_error)
     (rnno3[__pyx_t_7]) = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":120
+    /* "_cotton2k/simulation.pyx":117
  *             rnnh4[i] = layer["ammonium_nitrogen"]
  *             rnno3[i] = layer["nitrate_nitrogen"]
  *             oma[i] = layer["organic_matter"]             # <<<<<<<<<<<<<<
  *             h2oint[i] = layer["water"]
  * 
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_organic_matter); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 120, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_organic_matter); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 120, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 120, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 117, __pyx_L1_error)
     (oma[__pyx_t_7]) = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":121
+    /* "_cotton2k/simulation.pyx":118
  *             rnno3[i] = layer["nitrate_nitrogen"]
  *             oma[i] = layer["organic_matter"]
  *             h2oint[i] = layer["water"]             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_water); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_water); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 118, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 118, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 118, __pyx_L1_error)
     (h2oint[__pyx_t_7]) = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":117
+    /* "_cotton2k/simulation.pyx":114
  *     @initial.setter
  *     def initial(self, init_soil):
  *         for i, layer in enumerate(init_soil):             # <<<<<<<<<<<<<<
@@ -3551,7 +3509,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_7initial_2__set__(CYTHON_UNUSE
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":116
+  /* "_cotton2k/simulation.pyx":113
  * 
  *     @initial.setter
  *     def initial(self, init_soil):             # <<<<<<<<<<<<<<
@@ -3575,7 +3533,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_7initial_2__set__(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":124
+/* "_cotton2k/simulation.pyx":121
  * 
  *     @property
  *     def hydrology(self):             # <<<<<<<<<<<<<<
@@ -3612,7 +3570,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology___get__(struc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":125
+  /* "_cotton2k/simulation.pyx":122
  *     @property
  *     def hydrology(self):
  *         return {             # <<<<<<<<<<<<<<
@@ -3621,68 +3579,68 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology___get__(struc
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "_cotton2k/simulation.pyx":126
+  /* "_cotton2k/simulation.pyx":123
  *     def hydrology(self):
  *         return {
  *             "ratio_implicit": RatioImplicit,             # <<<<<<<<<<<<<<
  *             "max_conductivity": conmax,
  *             "field_capacity_water_potential": psisfc,
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyFloat_FromDouble(RatioImplicit); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(RatioImplicit); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_ratio_implicit, __pyx_t_2) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_ratio_implicit, __pyx_t_2) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "_cotton2k/simulation.pyx":127
+  /* "_cotton2k/simulation.pyx":124
  *         return {
  *             "ratio_implicit": RatioImplicit,
  *             "max_conductivity": conmax,             # <<<<<<<<<<<<<<
  *             "field_capacity_water_potential": psisfc,
  *             "immediate_drainage_water_potential": psidra,
  */
-  __pyx_t_2 = PyFloat_FromDouble(conmax); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(conmax); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_max_conductivity, __pyx_t_2) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_max_conductivity, __pyx_t_2) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "_cotton2k/simulation.pyx":128
+  /* "_cotton2k/simulation.pyx":125
  *             "ratio_implicit": RatioImplicit,
  *             "max_conductivity": conmax,
  *             "field_capacity_water_potential": psisfc,             # <<<<<<<<<<<<<<
  *             "immediate_drainage_water_potential": psidra,
  *             "layers": [
  */
-  __pyx_t_2 = PyFloat_FromDouble(psisfc); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(psisfc); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_field_capacity_water_potential, __pyx_t_2) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_field_capacity_water_potential, __pyx_t_2) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "_cotton2k/simulation.pyx":129
+  /* "_cotton2k/simulation.pyx":126
  *             "max_conductivity": conmax,
  *             "field_capacity_water_potential": psisfc,
  *             "immediate_drainage_water_potential": psidra,             # <<<<<<<<<<<<<<
  *             "layers": [
  *                 {
  */
-  __pyx_t_2 = PyFloat_FromDouble(psidra); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(psidra); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_immediate_drainage_water_potenti, __pyx_t_2) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_immediate_drainage_water_potenti, __pyx_t_2) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   { /* enter inner scope */
 
-    /* "_cotton2k/simulation.pyx":130
+    /* "_cotton2k/simulation.pyx":127
  *             "field_capacity_water_potential": psisfc,
  *             "immediate_drainage_water_potential": psidra,
  *             "layers": [             # <<<<<<<<<<<<<<
  *                 {
  *                     "depth": ldepth[i],
  */
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 130, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
 
-    /* "_cotton2k/simulation.pyx":143
+    /* "_cotton2k/simulation.pyx":140
  *                     "sand": psand[i],
  *                 }
  *                 for i in range(self.number_of_layers)             # <<<<<<<<<<<<<<
@@ -3694,138 +3652,138 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology___get__(struc
     for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
       __pyx_8genexpr1__pyx_v_i = __pyx_t_5;
 
-      /* "_cotton2k/simulation.pyx":132
+      /* "_cotton2k/simulation.pyx":129
  *             "layers": [
  *                 {
  *                     "depth": ldepth[i],             # <<<<<<<<<<<<<<
  *                     "air_dry": airdr[i],
  *                     "theta": thetas[i],
  */
-      __pyx_t_6 = __Pyx_PyDict_NewPresized(10); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 132, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyDict_NewPresized(10); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = PyFloat_FromDouble((ldepth[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 132, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((ldepth[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_depth, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_depth, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":133
+      /* "_cotton2k/simulation.pyx":130
  *                 {
  *                     "depth": ldepth[i],
  *                     "air_dry": airdr[i],             # <<<<<<<<<<<<<<
  *                     "theta": thetas[i],
  *                     "alpha": alpha[i],
  */
-      __pyx_t_7 = PyFloat_FromDouble((airdr[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 133, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((airdr[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 130, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_air_dry, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_air_dry, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":134
+      /* "_cotton2k/simulation.pyx":131
  *                     "depth": ldepth[i],
  *                     "air_dry": airdr[i],
  *                     "theta": thetas[i],             # <<<<<<<<<<<<<<
  *                     "alpha": alpha[i],
  *                     "beta": vanGenuchtenBeta,
  */
-      __pyx_t_7 = PyFloat_FromDouble((thetas[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((thetas[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 131, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_theta, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_theta, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":135
+      /* "_cotton2k/simulation.pyx":132
  *                     "air_dry": airdr[i],
  *                     "theta": thetas[i],
  *                     "alpha": alpha[i],             # <<<<<<<<<<<<<<
  *                     "beta": vanGenuchtenBeta,
  *                     "saturated_hydraulic_conductivity": SaturatedHydCond[i],
  */
-      __pyx_t_7 = PyFloat_FromDouble((alpha[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 135, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((alpha[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 132, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_alpha, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_alpha, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":136
+      /* "_cotton2k/simulation.pyx":133
  *                     "theta": thetas[i],
  *                     "alpha": alpha[i],
  *                     "beta": vanGenuchtenBeta,             # <<<<<<<<<<<<<<
  *                     "saturated_hydraulic_conductivity": SaturatedHydCond[i],
  *                     "field_capacity_hydraulic_conductivity": condfc[i],
  */
-      __pyx_t_7 = __Pyx_carray_to_py_double(vanGenuchtenBeta, 9); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 136, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_carray_to_py_double(vanGenuchtenBeta, 9); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 133, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_beta, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_beta, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":137
+      /* "_cotton2k/simulation.pyx":134
  *                     "alpha": alpha[i],
  *                     "beta": vanGenuchtenBeta,
  *                     "saturated_hydraulic_conductivity": SaturatedHydCond[i],             # <<<<<<<<<<<<<<
  *                     "field_capacity_hydraulic_conductivity": condfc[i],
  *                     "bulk_density": BulkDensity[i],
  */
-      __pyx_t_7 = PyFloat_FromDouble((SaturatedHydCond[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 137, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((SaturatedHydCond[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_saturated_hydraulic_conductivity, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_saturated_hydraulic_conductivity, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":138
+      /* "_cotton2k/simulation.pyx":135
  *                     "beta": vanGenuchtenBeta,
  *                     "saturated_hydraulic_conductivity": SaturatedHydCond[i],
  *                     "field_capacity_hydraulic_conductivity": condfc[i],             # <<<<<<<<<<<<<<
  *                     "bulk_density": BulkDensity[i],
  *                     "clay": pclay[i],
  */
-      __pyx_t_7 = PyFloat_FromDouble((condfc[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 138, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((condfc[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 135, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_field_capacity_hydraulic_conduct, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_field_capacity_hydraulic_conduct, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":139
+      /* "_cotton2k/simulation.pyx":136
  *                     "saturated_hydraulic_conductivity": SaturatedHydCond[i],
  *                     "field_capacity_hydraulic_conductivity": condfc[i],
  *                     "bulk_density": BulkDensity[i],             # <<<<<<<<<<<<<<
  *                     "clay": pclay[i],
  *                     "sand": psand[i],
  */
-      __pyx_t_7 = PyFloat_FromDouble((BulkDensity[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 139, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((BulkDensity[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 136, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_bulk_density, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_bulk_density, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":140
+      /* "_cotton2k/simulation.pyx":137
  *                     "field_capacity_hydraulic_conductivity": condfc[i],
  *                     "bulk_density": BulkDensity[i],
  *                     "clay": pclay[i],             # <<<<<<<<<<<<<<
  *                     "sand": psand[i],
  *                 }
  */
-      __pyx_t_7 = PyFloat_FromDouble((pclay[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 140, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((pclay[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 137, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_clay, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_clay, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "_cotton2k/simulation.pyx":141
+      /* "_cotton2k/simulation.pyx":138
  *                     "bulk_density": BulkDensity[i],
  *                     "clay": pclay[i],
  *                     "sand": psand[i],             # <<<<<<<<<<<<<<
  *                 }
  *                 for i in range(self.number_of_layers)
  */
-      __pyx_t_7 = PyFloat_FromDouble((psand[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 141, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble((psand[__pyx_8genexpr1__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 138, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_sand, __pyx_t_7) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_u_sand, __pyx_t_7) < 0) __PYX_ERR(0, 129, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_2, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 130, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_2, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 127, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
   } /* exit inner scope */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_layers, __pyx_t_2) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_layers, __pyx_t_2) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":124
+  /* "_cotton2k/simulation.pyx":121
  * 
  *     @property
  *     def hydrology(self):             # <<<<<<<<<<<<<<
@@ -3847,7 +3805,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology___get__(struc
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":148
+/* "_cotton2k/simulation.pyx":145
  * 
  *     @hydrology.setter
  *     def hydrology(self, soil_hydrology):             # <<<<<<<<<<<<<<
@@ -3885,59 +3843,59 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology_2__set__(CYTHON_UNU
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":150
+  /* "_cotton2k/simulation.pyx":147
  *     def hydrology(self, soil_hydrology):
  *         global RatioImplicit, conmax, psisfc, psidra
  *         RatioImplicit = soil_hydrology["ratio_implicit"]             # <<<<<<<<<<<<<<
  *         conmax = soil_hydrology["max_conductivity"]
  *         psisfc = soil_hydrology["field_capacity_water_potential"]
  */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_ratio_implicit); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_ratio_implicit); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 150, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   RatioImplicit = __pyx_t_2;
 
-  /* "_cotton2k/simulation.pyx":151
+  /* "_cotton2k/simulation.pyx":148
  *         global RatioImplicit, conmax, psisfc, psidra
  *         RatioImplicit = soil_hydrology["ratio_implicit"]
  *         conmax = soil_hydrology["max_conductivity"]             # <<<<<<<<<<<<<<
  *         psisfc = soil_hydrology["field_capacity_water_potential"]
  *         psidra = soil_hydrology["immediate_drainage_water_potential"]
  */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_max_conductivity); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_max_conductivity); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   conmax = __pyx_t_2;
 
-  /* "_cotton2k/simulation.pyx":152
+  /* "_cotton2k/simulation.pyx":149
  *         RatioImplicit = soil_hydrology["ratio_implicit"]
  *         conmax = soil_hydrology["max_conductivity"]
  *         psisfc = soil_hydrology["field_capacity_water_potential"]             # <<<<<<<<<<<<<<
  *         psidra = soil_hydrology["immediate_drainage_water_potential"]
  *         for i, layer in enumerate(soil_hydrology["layers"]):
  */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_field_capacity_water_potential); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_field_capacity_water_potential); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   psisfc = __pyx_t_2;
 
-  /* "_cotton2k/simulation.pyx":153
+  /* "_cotton2k/simulation.pyx":150
  *         conmax = soil_hydrology["max_conductivity"]
  *         psisfc = soil_hydrology["field_capacity_water_potential"]
  *         psidra = soil_hydrology["immediate_drainage_water_potential"]             # <<<<<<<<<<<<<<
  *         for i, layer in enumerate(soil_hydrology["layers"]):
  *             ldepth[i] = layer["depth"]
  */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_immediate_drainage_water_potenti); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_immediate_drainage_water_potenti); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   psidra = __pyx_t_2;
 
-  /* "_cotton2k/simulation.pyx":154
+  /* "_cotton2k/simulation.pyx":151
  *         psisfc = soil_hydrology["field_capacity_water_potential"]
  *         psidra = soil_hydrology["immediate_drainage_water_potential"]
  *         for i, layer in enumerate(soil_hydrology["layers"]):             # <<<<<<<<<<<<<<
@@ -3946,15 +3904,15 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology_2__set__(CYTHON_UNU
  */
   __Pyx_INCREF(__pyx_int_0);
   __pyx_t_1 = __pyx_int_0;
-  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_layers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_soil_hydrology, __pyx_n_u_layers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
     __pyx_t_4 = __pyx_t_3; __Pyx_INCREF(__pyx_t_4); __pyx_t_5 = 0;
     __pyx_t_6 = NULL;
   } else {
-    __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 154, __pyx_L1_error)
+    __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 151, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 154, __pyx_L1_error)
+    __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 151, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   for (;;) {
@@ -3962,17 +3920,17 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology_2__set__(CYTHON_UNU
       if (likely(PyList_CheckExact(__pyx_t_4))) {
         if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 154, __pyx_L1_error)
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 151, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
         if (__pyx_t_5 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 154, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 151, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       }
@@ -3982,7 +3940,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology_2__set__(CYTHON_UNU
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 154, __pyx_L1_error)
+          else __PYX_ERR(0, 151, __pyx_L1_error)
         }
         break;
       }
@@ -3992,153 +3950,153 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology_2__set__(CYTHON_UNU
     __pyx_t_3 = 0;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-    __pyx_t_3 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "_cotton2k/simulation.pyx":155
+    /* "_cotton2k/simulation.pyx":152
  *         psidra = soil_hydrology["immediate_drainage_water_potential"]
  *         for i, layer in enumerate(soil_hydrology["layers"]):
  *             ldepth[i] = layer["depth"]             # <<<<<<<<<<<<<<
  *             airdr[i] = layer["air_dry"]
  *             thetas[i] = layer["theta"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_depth); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_depth); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 152, __pyx_L1_error)
     (ldepth[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":156
+    /* "_cotton2k/simulation.pyx":153
  *         for i, layer in enumerate(soil_hydrology["layers"]):
  *             ldepth[i] = layer["depth"]
  *             airdr[i] = layer["air_dry"]             # <<<<<<<<<<<<<<
  *             thetas[i] = layer["theta"]
  *             alpha[i] = layer["alpha"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_air_dry); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 156, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_air_dry); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 156, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 156, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L1_error)
     (airdr[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":157
+    /* "_cotton2k/simulation.pyx":154
  *             ldepth[i] = layer["depth"]
  *             airdr[i] = layer["air_dry"]
  *             thetas[i] = layer["theta"]             # <<<<<<<<<<<<<<
  *             alpha[i] = layer["alpha"]
  *             vanGenuchtenBeta[i] = layer["beta"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_theta); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_theta); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 154, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 154, __pyx_L1_error)
     (thetas[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":158
+    /* "_cotton2k/simulation.pyx":155
  *             airdr[i] = layer["air_dry"]
  *             thetas[i] = layer["theta"]
  *             alpha[i] = layer["alpha"]             # <<<<<<<<<<<<<<
  *             vanGenuchtenBeta[i] = layer["beta"]
  *             SaturatedHydCond[i] = layer["saturated_hydraulic_conductivity"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_alpha); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 158, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_alpha); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 155, __pyx_L1_error)
     (alpha[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":159
+    /* "_cotton2k/simulation.pyx":156
  *             thetas[i] = layer["theta"]
  *             alpha[i] = layer["alpha"]
  *             vanGenuchtenBeta[i] = layer["beta"]             # <<<<<<<<<<<<<<
  *             SaturatedHydCond[i] = layer["saturated_hydraulic_conductivity"]
  *             condfc[i] = layer["field_capacity_hydraulic_conductivity"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_beta); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 159, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_beta); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 156, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 159, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 156, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 159, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 156, __pyx_L1_error)
     (vanGenuchtenBeta[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":160
+    /* "_cotton2k/simulation.pyx":157
  *             alpha[i] = layer["alpha"]
  *             vanGenuchtenBeta[i] = layer["beta"]
  *             SaturatedHydCond[i] = layer["saturated_hydraulic_conductivity"]             # <<<<<<<<<<<<<<
  *             condfc[i] = layer["field_capacity_hydraulic_conductivity"]
  *             BulkDensity[i] = layer["bulk_density"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_saturated_hydraulic_conductivity); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 160, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_saturated_hydraulic_conductivity); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L1_error)
     (SaturatedHydCond[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":161
+    /* "_cotton2k/simulation.pyx":158
  *             vanGenuchtenBeta[i] = layer["beta"]
  *             SaturatedHydCond[i] = layer["saturated_hydraulic_conductivity"]
  *             condfc[i] = layer["field_capacity_hydraulic_conductivity"]             # <<<<<<<<<<<<<<
  *             BulkDensity[i] = layer["bulk_density"]
  *             pclay[i] = layer["clay"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_field_capacity_hydraulic_conduct); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_field_capacity_hydraulic_conduct); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 158, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 161, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 161, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
     (condfc[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":162
+    /* "_cotton2k/simulation.pyx":159
  *             SaturatedHydCond[i] = layer["saturated_hydraulic_conductivity"]
  *             condfc[i] = layer["field_capacity_hydraulic_conductivity"]
  *             BulkDensity[i] = layer["bulk_density"]             # <<<<<<<<<<<<<<
  *             pclay[i] = layer["clay"]
  *             psand[i] = layer["sand"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_bulk_density); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 162, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_bulk_density); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 159, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 162, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 159, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 162, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 159, __pyx_L1_error)
     (BulkDensity[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":163
+    /* "_cotton2k/simulation.pyx":160
  *             condfc[i] = layer["field_capacity_hydraulic_conductivity"]
  *             BulkDensity[i] = layer["bulk_density"]
  *             pclay[i] = layer["clay"]             # <<<<<<<<<<<<<<
  *             psand[i] = layer["sand"]
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_clay); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_clay); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 160, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 163, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 163, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 160, __pyx_L1_error)
     (pclay[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":164
+    /* "_cotton2k/simulation.pyx":161
  *             BulkDensity[i] = layer["bulk_density"]
  *             pclay[i] = layer["clay"]
  *             psand[i] = layer["sand"]             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_sand); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_layer, __pyx_n_u_sand); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 161, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 161, __pyx_L1_error)
     (psand[__pyx_t_7]) = __pyx_t_2;
 
-    /* "_cotton2k/simulation.pyx":154
+    /* "_cotton2k/simulation.pyx":151
  *         psisfc = soil_hydrology["field_capacity_water_potential"]
  *         psidra = soil_hydrology["immediate_drainage_water_potential"]
  *         for i, layer in enumerate(soil_hydrology["layers"]):             # <<<<<<<<<<<<<<
@@ -4149,7 +4107,7 @@ static int __pyx_pf_9_cotton2k_10simulation_4Soil_9hydrology_2__set__(CYTHON_UNU
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":148
+  /* "_cotton2k/simulation.pyx":145
  * 
  *     @hydrology.setter
  *     def hydrology(self, soil_hydrology):             # <<<<<<<<<<<<<<
@@ -4467,7 +4425,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_4Soil_4__setstate_cython__(str
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":173
+/* "_cotton2k/simulation.pyx":170
  *     cdef unsigned int current
  * 
  *     def __init__(self, start_date, climate):             # <<<<<<<<<<<<<<
@@ -4509,11 +4467,11 @@ static int __pyx_pw_9_cotton2k_10simulation_7Climate_1__init__(PyObject *__pyx_v
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_climate)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 173, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 170, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 173, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 170, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4526,7 +4484,7 @@ static int __pyx_pw_9_cotton2k_10simulation_7Climate_1__init__(PyObject *__pyx_v
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 173, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 170, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("_cotton2k.simulation.Climate.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4562,14 +4520,14 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "_cotton2k/simulation.pyx":175
+  /* "_cotton2k/simulation.pyx":172
  *     def __init__(self, start_date, climate):
  *         global LastDayWeatherData
  *         self.start_day = date2doy(start_date)             # <<<<<<<<<<<<<<
  *         self.current = self.start_day
  *         self.days = len(climate)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4583,14 +4541,14 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_start_date) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_start_date);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->start_day = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":176
+  /* "_cotton2k/simulation.pyx":173
  *         global LastDayWeatherData
  *         self.start_day = date2doy(start_date)
  *         self.current = self.start_day             # <<<<<<<<<<<<<<
@@ -4600,37 +4558,37 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
   __pyx_t_4 = __pyx_v_self->start_day;
   __pyx_v_self->current = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":177
+  /* "_cotton2k/simulation.pyx":174
  *         self.start_day = date2doy(start_date)
  *         self.current = self.start_day
  *         self.days = len(climate)             # <<<<<<<<<<<<<<
  *         self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))
  *         LastDayWeatherData = len(climate) + self.start_day - 1
  */
-  __pyx_t_5 = PyObject_Length(__pyx_v_climate); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 177, __pyx_L1_error)
+  __pyx_t_5 = PyObject_Length(__pyx_v_climate); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 174, __pyx_L1_error)
   __pyx_v_self->days = __pyx_t_5;
 
-  /* "_cotton2k/simulation.pyx":178
+  /* "_cotton2k/simulation.pyx":175
  *         self.current = self.start_day
  *         self.days = len(climate)
  *         self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))             # <<<<<<<<<<<<<<
  *         LastDayWeatherData = len(climate) + self.start_day - 1
  *         for i, daily_climate in enumerate(climate):
  */
-  __pyx_t_5 = PyObject_Length(__pyx_v_climate); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_5 = PyObject_Length(__pyx_v_climate); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 175, __pyx_L1_error)
   __pyx_v_self->climate = ((ClimateStruct *)malloc(((sizeof(ClimateStruct)) * __pyx_t_5)));
 
-  /* "_cotton2k/simulation.pyx":179
+  /* "_cotton2k/simulation.pyx":176
  *         self.days = len(climate)
  *         self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))
  *         LastDayWeatherData = len(climate) + self.start_day - 1             # <<<<<<<<<<<<<<
  *         for i, daily_climate in enumerate(climate):
  *             self.climate[i].Rad = daily_climate["radiation"]
  */
-  __pyx_t_5 = PyObject_Length(__pyx_v_climate); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_5 = PyObject_Length(__pyx_v_climate); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 176, __pyx_L1_error)
   LastDayWeatherData = ((__pyx_t_5 + __pyx_v_self->start_day) - 1);
 
-  /* "_cotton2k/simulation.pyx":180
+  /* "_cotton2k/simulation.pyx":177
  *         self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))
  *         LastDayWeatherData = len(climate) + self.start_day - 1
  *         for i, daily_climate in enumerate(climate):             # <<<<<<<<<<<<<<
@@ -4643,26 +4601,26 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
     __pyx_t_2 = __pyx_v_climate; __Pyx_INCREF(__pyx_t_2); __pyx_t_5 = 0;
     __pyx_t_6 = NULL;
   } else {
-    __pyx_t_5 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_climate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_5 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_climate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 177, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_6 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 177, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_6)) {
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 180, __pyx_L1_error)
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 177, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 177, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
         if (__pyx_t_5 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 180, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 177, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 177, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       }
@@ -4672,7 +4630,7 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 180, __pyx_L1_error)
+          else __PYX_ERR(0, 177, __pyx_L1_error)
         }
         break;
       }
@@ -4682,96 +4640,96 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
     __pyx_t_3 = 0;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-    __pyx_t_3 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 177, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "_cotton2k/simulation.pyx":181
+    /* "_cotton2k/simulation.pyx":178
  *         LastDayWeatherData = len(climate) + self.start_day - 1
  *         for i, daily_climate in enumerate(climate):
  *             self.climate[i].Rad = daily_climate["radiation"]             # <<<<<<<<<<<<<<
  *             self.climate[i].Tmax = daily_climate["max"]
  *             self.climate[i].Tmin = daily_climate["min"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_radiation); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 181, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_radiation); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 178, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 181, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 178, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 181, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 178, __pyx_L1_error)
     (__pyx_v_self->climate[__pyx_t_8]).Rad = __pyx_t_7;
 
-    /* "_cotton2k/simulation.pyx":182
+    /* "_cotton2k/simulation.pyx":179
  *         for i, daily_climate in enumerate(climate):
  *             self.climate[i].Rad = daily_climate["radiation"]
  *             self.climate[i].Tmax = daily_climate["max"]             # <<<<<<<<<<<<<<
  *             self.climate[i].Tmin = daily_climate["min"]
  *             self.climate[i].Wind = daily_climate["wind"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_max); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 182, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_max); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 179, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 182, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 179, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 182, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 179, __pyx_L1_error)
     (__pyx_v_self->climate[__pyx_t_8]).Tmax = __pyx_t_7;
 
-    /* "_cotton2k/simulation.pyx":183
+    /* "_cotton2k/simulation.pyx":180
  *             self.climate[i].Rad = daily_climate["radiation"]
  *             self.climate[i].Tmax = daily_climate["max"]
  *             self.climate[i].Tmin = daily_climate["min"]             # <<<<<<<<<<<<<<
  *             self.climate[i].Wind = daily_climate["wind"]
  *             self.climate[i].Rain = daily_climate["rain"]
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 180, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 180, __pyx_L1_error)
     (__pyx_v_self->climate[__pyx_t_8]).Tmin = __pyx_t_7;
 
-    /* "_cotton2k/simulation.pyx":184
+    /* "_cotton2k/simulation.pyx":181
  *             self.climate[i].Tmax = daily_climate["max"]
  *             self.climate[i].Tmin = daily_climate["min"]
  *             self.climate[i].Wind = daily_climate["wind"]             # <<<<<<<<<<<<<<
  *             self.climate[i].Rain = daily_climate["rain"]
  *             self.climate[i].Tdew = daily_climate.get("dewpoint", tdewest(daily_climate["max"], SitePar[5], SitePar[6]))
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_wind); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_wind); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 181, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 181, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 181, __pyx_L1_error)
     (__pyx_v_self->climate[__pyx_t_8]).Wind = __pyx_t_7;
 
-    /* "_cotton2k/simulation.pyx":185
+    /* "_cotton2k/simulation.pyx":182
  *             self.climate[i].Tmin = daily_climate["min"]
  *             self.climate[i].Wind = daily_climate["wind"]
  *             self.climate[i].Rain = daily_climate["rain"]             # <<<<<<<<<<<<<<
  *             self.climate[i].Tdew = daily_climate.get("dewpoint", tdewest(daily_climate["max"], SitePar[5], SitePar[6]))
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_rain); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 185, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_rain); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 182, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 182, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 182, __pyx_L1_error)
     (__pyx_v_self->climate[__pyx_t_8]).Rain = __pyx_t_7;
 
-    /* "_cotton2k/simulation.pyx":186
+    /* "_cotton2k/simulation.pyx":183
  *             self.climate[i].Wind = daily_climate["wind"]
  *             self.climate[i].Rain = daily_climate["rain"]
  *             self.climate[i].Tdew = daily_climate.get("dewpoint", tdewest(daily_climate["max"], SitePar[5], SitePar[6]))             # <<<<<<<<<<<<<<
  * 
  *     def __getitem__(self, key):
  */
-    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_daily_climate, __pyx_n_s_get); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_daily_climate, __pyx_n_s_get); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
-    __pyx_t_10 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_max); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_max); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_10); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_10); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __pyx_t_10 = PyFloat_FromDouble(tdewest(__pyx_t_7, (SitePar[5]), (SitePar[6]))); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_10 = PyFloat_FromDouble(tdewest(__pyx_t_7, (SitePar[5]), (SitePar[6]))); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __pyx_t_11 = NULL;
     __pyx_t_12 = 0;
@@ -4788,7 +4746,7 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_9)) {
       PyObject *__pyx_temp[3] = {__pyx_t_11, __pyx_n_u_dewpoint, __pyx_t_10};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
@@ -4797,14 +4755,14 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
       PyObject *__pyx_temp[3] = {__pyx_t_11, __pyx_n_u_dewpoint, __pyx_t_10};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     } else
     #endif
     {
-      __pyx_t_13 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_13 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 183, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
       if (__pyx_t_11) {
         __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_11); __pyx_t_11 = NULL;
@@ -4815,17 +4773,17 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
       __Pyx_GIVEREF(__pyx_t_10);
       PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_12, __pyx_t_10);
       __pyx_t_10 = 0;
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_13, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_13, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
     }
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
     (__pyx_v_self->climate[__pyx_t_8]).Tdew = __pyx_t_7;
 
-    /* "_cotton2k/simulation.pyx":180
+    /* "_cotton2k/simulation.pyx":177
  *         self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))
  *         LastDayWeatherData = len(climate) + self.start_day - 1
  *         for i, daily_climate in enumerate(climate):             # <<<<<<<<<<<<<<
@@ -4836,7 +4794,7 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":173
+  /* "_cotton2k/simulation.pyx":170
  *     cdef unsigned int current
  * 
  *     def __init__(self, start_date, climate):             # <<<<<<<<<<<<<<
@@ -4864,7 +4822,7 @@ static int __pyx_pf_9_cotton2k_10simulation_7Climate___init__(struct __pyx_obj_9
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":188
+/* "_cotton2k/simulation.pyx":185
  *             self.climate[i].Tdew = daily_climate.get("dewpoint", tdewest(daily_climate["max"], SitePar[5], SitePar[6]))
  * 
  *     def __getitem__(self, key):             # <<<<<<<<<<<<<<
@@ -4908,7 +4866,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
   __Pyx_RefNannySetupContext("__getitem__", 0);
   __Pyx_INCREF(__pyx_v_key);
 
-  /* "_cotton2k/simulation.pyx":189
+  /* "_cotton2k/simulation.pyx":186
  * 
  *     def __getitem__(self, key):
  *         if isinstance(key, slice):             # <<<<<<<<<<<<<<
@@ -4919,16 +4877,16 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "_cotton2k/simulation.pyx":190
+    /* "_cotton2k/simulation.pyx":187
  *     def __getitem__(self, key):
  *         if isinstance(key, slice):
  *             start = key.start or 0             # <<<<<<<<<<<<<<
  *             stop = key.stop or self.days
  *             step = key.step or 1
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_start); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_start); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 187, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 187, __pyx_L1_error)
     if (!__pyx_t_2) {
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     } else {
@@ -4937,7 +4895,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       goto __pyx_L4_bool_binop_done;
     }
-    __pyx_t_4 = __Pyx_PyInt_From_long(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_long(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 187, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_3 = __pyx_t_4;
     __pyx_t_4 = 0;
@@ -4945,16 +4903,16 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
     __pyx_v_start = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "_cotton2k/simulation.pyx":191
+    /* "_cotton2k/simulation.pyx":188
  *         if isinstance(key, slice):
  *             start = key.start or 0
  *             stop = key.stop or self.days             # <<<<<<<<<<<<<<
  *             step = key.step or 1
  *             if isinstance(start, date):
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_stop); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_stop); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 188, __pyx_L1_error)
     if (!__pyx_t_2) {
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     } else {
@@ -4963,7 +4921,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->days); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->days); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_3 = __pyx_t_4;
     __pyx_t_4 = 0;
@@ -4971,16 +4929,16 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
     __pyx_v_stop = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "_cotton2k/simulation.pyx":192
+    /* "_cotton2k/simulation.pyx":189
  *             start = key.start or 0
  *             stop = key.stop or self.days
  *             step = key.step or 1             # <<<<<<<<<<<<<<
  *             if isinstance(start, date):
  *                 start = date2doy(start) - self.start_day
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_step); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 192, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_step); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 192, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 189, __pyx_L1_error)
     if (!__pyx_t_2) {
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     } else {
@@ -4989,7 +4947,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       goto __pyx_L8_bool_binop_done;
     }
-    __pyx_t_4 = __Pyx_PyInt_From_long(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 192, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_long(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_3 = __pyx_t_4;
     __pyx_t_4 = 0;
@@ -4997,28 +4955,28 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
     __pyx_v_step = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "_cotton2k/simulation.pyx":193
+    /* "_cotton2k/simulation.pyx":190
  *             stop = key.stop or self.days
  *             step = key.step or 1
  *             if isinstance(start, date):             # <<<<<<<<<<<<<<
  *                 start = date2doy(start) - self.start_day
  *             if isinstance(stop, date):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_date); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 193, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_date); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 190, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = PyObject_IsInstance(__pyx_v_start, __pyx_t_3); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 193, __pyx_L1_error)
+    __pyx_t_2 = PyObject_IsInstance(__pyx_v_start, __pyx_t_3); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 190, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_1 = (__pyx_t_2 != 0);
     if (__pyx_t_1) {
 
-      /* "_cotton2k/simulation.pyx":194
+      /* "_cotton2k/simulation.pyx":191
  *             step = key.step or 1
  *             if isinstance(start, date):
  *                 start = date2doy(start) - self.start_day             # <<<<<<<<<<<<<<
  *             if isinstance(stop, date):
  *                 stop = date2doy(stop) - self.start_day
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 194, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 191, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -5032,19 +4990,19 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
       }
       __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_v_start) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_start);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 191, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->start_day); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 194, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->start_day); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 191, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = PyNumber_Subtract(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 194, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_Subtract(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 191, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF_SET(__pyx_v_start, __pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "_cotton2k/simulation.pyx":193
+      /* "_cotton2k/simulation.pyx":190
  *             stop = key.stop or self.days
  *             step = key.step or 1
  *             if isinstance(start, date):             # <<<<<<<<<<<<<<
@@ -5053,28 +5011,28 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
  */
     }
 
-    /* "_cotton2k/simulation.pyx":195
+    /* "_cotton2k/simulation.pyx":192
  *             if isinstance(start, date):
  *                 start = date2doy(start) - self.start_day
  *             if isinstance(stop, date):             # <<<<<<<<<<<<<<
  *                 stop = date2doy(stop) - self.start_day
  *             return [{
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_date); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_date); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 192, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = PyObject_IsInstance(__pyx_v_stop, __pyx_t_5); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 195, __pyx_L1_error)
+    __pyx_t_1 = PyObject_IsInstance(__pyx_v_stop, __pyx_t_5); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 192, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_2 = (__pyx_t_1 != 0);
     if (__pyx_t_2) {
 
-      /* "_cotton2k/simulation.pyx":196
+      /* "_cotton2k/simulation.pyx":193
  *                 start = date2doy(start) - self.start_day
  *             if isinstance(stop, date):
  *                 stop = date2doy(stop) - self.start_day             # <<<<<<<<<<<<<<
  *             return [{
  *                 "radiation": self.climate[i].Rad,
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 196, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 193, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_3 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -5088,19 +5046,19 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
       }
       __pyx_t_5 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_v_stop) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_stop);
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 196, __pyx_L1_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 193, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->start_day); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 196, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->start_day); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 193, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_3 = PyNumber_Subtract(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 196, __pyx_L1_error)
+      __pyx_t_3 = PyNumber_Subtract(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 193, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF_SET(__pyx_v_stop, __pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "_cotton2k/simulation.pyx":195
+      /* "_cotton2k/simulation.pyx":192
  *             if isinstance(start, date):
  *                 start = date2doy(start) - self.start_day
  *             if isinstance(stop, date):             # <<<<<<<<<<<<<<
@@ -5109,7 +5067,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
  */
     }
 
-    /* "_cotton2k/simulation.pyx":197
+    /* "_cotton2k/simulation.pyx":194
  *             if isinstance(stop, date):
  *                 stop = date2doy(stop) - self.start_day
  *             return [{             # <<<<<<<<<<<<<<
@@ -5118,17 +5076,17 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
  */
     __Pyx_XDECREF(__pyx_r);
     { /* enter inner scope */
-      __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 197, __pyx_L14_error)
+      __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L14_error)
       __Pyx_GOTREF(__pyx_t_3);
 
-      /* "_cotton2k/simulation.pyx":204
+      /* "_cotton2k/simulation.pyx":201
  *                 "rain": self.climate[i].Rain,
  *                 "dewpoint": self.climate[i].Tdew,
  *             } for i in range(start, stop, step)]             # <<<<<<<<<<<<<<
  *         else:
  *             if not isinstance(key, int):
  */
-      __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 204, __pyx_L14_error)
+      __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 201, __pyx_L14_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_INCREF(__pyx_v_start);
       __Pyx_GIVEREF(__pyx_v_start);
@@ -5139,16 +5097,16 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
       __Pyx_INCREF(__pyx_v_step);
       __Pyx_GIVEREF(__pyx_v_step);
       PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_v_step);
-      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 204, __pyx_L14_error)
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 201, __pyx_L14_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (likely(PyList_CheckExact(__pyx_t_5)) || PyTuple_CheckExact(__pyx_t_5)) {
         __pyx_t_4 = __pyx_t_5; __Pyx_INCREF(__pyx_t_4); __pyx_t_6 = 0;
         __pyx_t_7 = NULL;
       } else {
-        __pyx_t_6 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 204, __pyx_L14_error)
+        __pyx_t_6 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 201, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_7 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 204, __pyx_L14_error)
+        __pyx_t_7 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 201, __pyx_L14_error)
       }
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       for (;;) {
@@ -5156,17 +5114,17 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
           if (likely(PyList_CheckExact(__pyx_t_4))) {
             if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_4)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_5 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L14_error)
+            __pyx_t_5 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 201, __pyx_L14_error)
             #else
-            __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 204, __pyx_L14_error)
+            __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 201, __pyx_L14_error)
             __Pyx_GOTREF(__pyx_t_5);
             #endif
           } else {
             if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L14_error)
+            __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 201, __pyx_L14_error)
             #else
-            __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 204, __pyx_L14_error)
+            __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 201, __pyx_L14_error)
             __Pyx_GOTREF(__pyx_t_5);
             #endif
           }
@@ -5176,7 +5134,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
               if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-              else __PYX_ERR(0, 204, __pyx_L14_error)
+              else __PYX_ERR(0, 201, __pyx_L14_error)
             }
             break;
           }
@@ -5185,89 +5143,89 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
         __Pyx_XDECREF_SET(__pyx_8genexpr2__pyx_v_i, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "_cotton2k/simulation.pyx":198
+        /* "_cotton2k/simulation.pyx":195
  *                 stop = date2doy(stop) - self.start_day
  *             return [{
  *                 "radiation": self.climate[i].Rad,             # <<<<<<<<<<<<<<
  *                 "max": self.climate[i].Tmax,
  *                 "min": self.climate[i].Tmin,
  */
-        __pyx_t_5 = __Pyx_PyDict_NewPresized(6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 198, __pyx_L14_error)
+        __pyx_t_5 = __Pyx_PyDict_NewPresized(6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 198, __pyx_L14_error)
-        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Rad); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 198, __pyx_L14_error)
+        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 195, __pyx_L14_error)
+        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Rad); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_9);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_radiation, __pyx_t_9) < 0) __PYX_ERR(0, 198, __pyx_L14_error)
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_radiation, __pyx_t_9) < 0) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "_cotton2k/simulation.pyx":199
+        /* "_cotton2k/simulation.pyx":196
  *             return [{
  *                 "radiation": self.climate[i].Rad,
  *                 "max": self.climate[i].Tmax,             # <<<<<<<<<<<<<<
  *                 "min": self.climate[i].Tmin,
  *                 "wind": self.climate[i].Wind,
  */
-        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 199, __pyx_L14_error)
-        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Tmax); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 199, __pyx_L14_error)
+        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 196, __pyx_L14_error)
+        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Tmax); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 196, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_9);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_max, __pyx_t_9) < 0) __PYX_ERR(0, 198, __pyx_L14_error)
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_max, __pyx_t_9) < 0) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "_cotton2k/simulation.pyx":200
+        /* "_cotton2k/simulation.pyx":197
  *                 "radiation": self.climate[i].Rad,
  *                 "max": self.climate[i].Tmax,
  *                 "min": self.climate[i].Tmin,             # <<<<<<<<<<<<<<
  *                 "wind": self.climate[i].Wind,
  *                 "rain": self.climate[i].Rain,
  */
-        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 200, __pyx_L14_error)
-        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Tmin); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 200, __pyx_L14_error)
+        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 197, __pyx_L14_error)
+        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Tmin); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 197, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_9);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_min, __pyx_t_9) < 0) __PYX_ERR(0, 198, __pyx_L14_error)
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_min, __pyx_t_9) < 0) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "_cotton2k/simulation.pyx":201
+        /* "_cotton2k/simulation.pyx":198
  *                 "max": self.climate[i].Tmax,
  *                 "min": self.climate[i].Tmin,
  *                 "wind": self.climate[i].Wind,             # <<<<<<<<<<<<<<
  *                 "rain": self.climate[i].Rain,
  *                 "dewpoint": self.climate[i].Tdew,
  */
-        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 201, __pyx_L14_error)
-        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Wind); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 201, __pyx_L14_error)
+        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 198, __pyx_L14_error)
+        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Wind); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 198, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_9);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_wind, __pyx_t_9) < 0) __PYX_ERR(0, 198, __pyx_L14_error)
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_wind, __pyx_t_9) < 0) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "_cotton2k/simulation.pyx":202
+        /* "_cotton2k/simulation.pyx":199
  *                 "min": self.climate[i].Tmin,
  *                 "wind": self.climate[i].Wind,
  *                 "rain": self.climate[i].Rain,             # <<<<<<<<<<<<<<
  *                 "dewpoint": self.climate[i].Tdew,
  *             } for i in range(start, stop, step)]
  */
-        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 202, __pyx_L14_error)
-        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Rain); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 202, __pyx_L14_error)
+        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 199, __pyx_L14_error)
+        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Rain); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 199, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_9);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_rain, __pyx_t_9) < 0) __PYX_ERR(0, 198, __pyx_L14_error)
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_rain, __pyx_t_9) < 0) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "_cotton2k/simulation.pyx":203
+        /* "_cotton2k/simulation.pyx":200
  *                 "wind": self.climate[i].Wind,
  *                 "rain": self.climate[i].Rain,
  *                 "dewpoint": self.climate[i].Tdew,             # <<<<<<<<<<<<<<
  *             } for i in range(start, stop, step)]
  *         else:
  */
-        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 203, __pyx_L14_error)
-        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Tdew); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 203, __pyx_L14_error)
+        __pyx_t_8 = __Pyx_PyIndex_AsSsize_t(__pyx_8genexpr2__pyx_v_i); if (unlikely((__pyx_t_8 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 200, __pyx_L14_error)
+        __pyx_t_9 = PyFloat_FromDouble((__pyx_v_self->climate[__pyx_t_8]).Tdew); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 200, __pyx_L14_error)
         __Pyx_GOTREF(__pyx_t_9);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_dewpoint, __pyx_t_9) < 0) __PYX_ERR(0, 198, __pyx_L14_error)
+        if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_dewpoint, __pyx_t_9) < 0) __PYX_ERR(0, 195, __pyx_L14_error)
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-        if (unlikely(__Pyx_ListComp_Append(__pyx_t_3, (PyObject*)__pyx_t_5))) __PYX_ERR(0, 197, __pyx_L14_error)
+        if (unlikely(__Pyx_ListComp_Append(__pyx_t_3, (PyObject*)__pyx_t_5))) __PYX_ERR(0, 194, __pyx_L14_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "_cotton2k/simulation.pyx":204
+        /* "_cotton2k/simulation.pyx":201
  *                 "rain": self.climate[i].Rain,
  *                 "dewpoint": self.climate[i].Tdew,
  *             } for i in range(start, stop, step)]             # <<<<<<<<<<<<<<
@@ -5287,7 +5245,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
     __pyx_t_3 = 0;
     goto __pyx_L0;
 
-    /* "_cotton2k/simulation.pyx":189
+    /* "_cotton2k/simulation.pyx":186
  * 
  *     def __getitem__(self, key):
  *         if isinstance(key, slice):             # <<<<<<<<<<<<<<
@@ -5296,7 +5254,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
  */
   }
 
-  /* "_cotton2k/simulation.pyx":206
+  /* "_cotton2k/simulation.pyx":203
  *             } for i in range(start, stop, step)]
  *         else:
  *             if not isinstance(key, int):             # <<<<<<<<<<<<<<
@@ -5308,14 +5266,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
     __pyx_t_1 = ((!(__pyx_t_2 != 0)) != 0);
     if (__pyx_t_1) {
 
-      /* "_cotton2k/simulation.pyx":207
+      /* "_cotton2k/simulation.pyx":204
  *         else:
  *             if not isinstance(key, int):
  *                 key = date2doy(key) - self.start_day             # <<<<<<<<<<<<<<
  *             climate = self.climate[key]
  *             return {
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 207, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 204, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -5329,19 +5287,19 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
       }
       __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_v_key) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_key);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 207, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 204, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->start_day); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 207, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->start_day); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 204, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = PyNumber_Subtract(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 207, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_Subtract(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 204, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF_SET(__pyx_v_key, __pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "_cotton2k/simulation.pyx":206
+      /* "_cotton2k/simulation.pyx":203
  *             } for i in range(start, stop, step)]
  *         else:
  *             if not isinstance(key, int):             # <<<<<<<<<<<<<<
@@ -5350,20 +5308,20 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
  */
     }
 
-    /* "_cotton2k/simulation.pyx":208
+    /* "_cotton2k/simulation.pyx":205
  *             if not isinstance(key, int):
  *                 key = date2doy(key) - self.start_day
  *             climate = self.climate[key]             # <<<<<<<<<<<<<<
  *             return {
  *                 "radiation": climate["Rad"],
  */
-    __pyx_t_6 = __Pyx_PyIndex_AsSsize_t(__pyx_v_key); if (unlikely((__pyx_t_6 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 208, __pyx_L1_error)
-    __pyx_t_5 = __pyx_convert__to_py_ClimateStruct((__pyx_v_self->climate[__pyx_t_6])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyIndex_AsSsize_t(__pyx_v_key); if (unlikely((__pyx_t_6 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 205, __pyx_L1_error)
+    __pyx_t_5 = __pyx_convert__to_py_ClimateStruct((__pyx_v_self->climate[__pyx_t_6])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 205, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_v_climate = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "_cotton2k/simulation.pyx":209
+    /* "_cotton2k/simulation.pyx":206
  *                 key = date2doy(key) - self.start_day
  *             climate = self.climate[key]
  *             return {             # <<<<<<<<<<<<<<
@@ -5372,85 +5330,85 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
  */
     __Pyx_XDECREF(__pyx_r);
 
-    /* "_cotton2k/simulation.pyx":210
+    /* "_cotton2k/simulation.pyx":207
  *             climate = self.climate[key]
  *             return {
  *                 "radiation": climate["Rad"],             # <<<<<<<<<<<<<<
  *                 "max": climate["Tmax"],
  *                 "min": climate["Tmin"],
  */
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Rad); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Rad); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_radiation, __pyx_t_4) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_radiation, __pyx_t_4) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "_cotton2k/simulation.pyx":211
+    /* "_cotton2k/simulation.pyx":208
  *             return {
  *                 "radiation": climate["Rad"],
  *                 "max": climate["Tmax"],             # <<<<<<<<<<<<<<
  *                 "min": climate["Tmin"],
  *                 "wind": climate["Wind"],
  */
-    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Tmax); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 211, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Tmax); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 208, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_max, __pyx_t_4) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_max, __pyx_t_4) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "_cotton2k/simulation.pyx":212
+    /* "_cotton2k/simulation.pyx":209
  *                 "radiation": climate["Rad"],
  *                 "max": climate["Tmax"],
  *                 "min": climate["Tmin"],             # <<<<<<<<<<<<<<
  *                 "wind": climate["Wind"],
  *                 "rain": climate["Rain"],
  */
-    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Tmin); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Tmin); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 209, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_min, __pyx_t_4) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_min, __pyx_t_4) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "_cotton2k/simulation.pyx":213
+    /* "_cotton2k/simulation.pyx":210
  *                 "max": climate["Tmax"],
  *                 "min": climate["Tmin"],
  *                 "wind": climate["Wind"],             # <<<<<<<<<<<<<<
  *                 "rain": climate["Rain"],
  *                 "dewpoint": climate["Tdew"],
  */
-    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Wind); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Wind); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 210, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_wind, __pyx_t_4) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_wind, __pyx_t_4) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "_cotton2k/simulation.pyx":214
+    /* "_cotton2k/simulation.pyx":211
  *                 "min": climate["Tmin"],
  *                 "wind": climate["Wind"],
  *                 "rain": climate["Rain"],             # <<<<<<<<<<<<<<
  *                 "dewpoint": climate["Tdew"],
  *             }
  */
-    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Rain); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 214, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Rain); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_rain, __pyx_t_4) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_rain, __pyx_t_4) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "_cotton2k/simulation.pyx":215
+    /* "_cotton2k/simulation.pyx":212
  *                 "wind": climate["Wind"],
  *                 "rain": climate["Rain"],
  *                 "dewpoint": climate["Tdew"],             # <<<<<<<<<<<<<<
  *             }
  * 
  */
-    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Tdew); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 215, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_climate, __pyx_n_u_Tdew); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_dewpoint, __pyx_t_4) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_u_dewpoint, __pyx_t_4) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_r = __pyx_t_5;
     __pyx_t_5 = 0;
     goto __pyx_L0;
   }
 
-  /* "_cotton2k/simulation.pyx":188
+  /* "_cotton2k/simulation.pyx":185
  *             self.climate[i].Tdew = daily_climate.get("dewpoint", tdewest(daily_climate["max"], SitePar[5], SitePar[6]))
  * 
  *     def __getitem__(self, key):             # <<<<<<<<<<<<<<
@@ -5478,7 +5436,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_2__getitem__(struct _
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":218
+/* "_cotton2k/simulation.pyx":215
  *             }
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5504,7 +5462,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_4__iter__(struct __py
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iter__", 0);
 
-  /* "_cotton2k/simulation.pyx":219
+  /* "_cotton2k/simulation.pyx":216
  * 
  *     def __iter__(self):
  *         return self             # <<<<<<<<<<<<<<
@@ -5516,7 +5474,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_4__iter__(struct __py
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":218
+  /* "_cotton2k/simulation.pyx":215
  *             }
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5531,7 +5489,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_4__iter__(struct __py
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":221
+/* "_cotton2k/simulation.pyx":218
  *         return self
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -5563,7 +5521,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_6__next__(struct __py
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__next__", 0);
 
-  /* "_cotton2k/simulation.pyx":222
+  /* "_cotton2k/simulation.pyx":219
  * 
  *     def __next__(self):
  *         if self.current < self.start_day + self.days:             # <<<<<<<<<<<<<<
@@ -5573,7 +5531,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_6__next__(struct __py
   __pyx_t_1 = ((__pyx_v_self->current < (__pyx_v_self->start_day + __pyx_v_self->days)) != 0);
   if (likely(__pyx_t_1)) {
 
-    /* "_cotton2k/simulation.pyx":223
+    /* "_cotton2k/simulation.pyx":220
  *     def __next__(self):
  *         if self.current < self.start_day + self.days:
  *             self.current += 1             # <<<<<<<<<<<<<<
@@ -5582,7 +5540,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_6__next__(struct __py
  */
     __pyx_v_self->current = (__pyx_v_self->current + 1);
 
-    /* "_cotton2k/simulation.pyx":224
+    /* "_cotton2k/simulation.pyx":221
  *         if self.current < self.start_day + self.days:
  *             self.current += 1
  *             return self[self.current - 1]             # <<<<<<<<<<<<<<
@@ -5591,13 +5549,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_6__next__(struct __py
  */
     __Pyx_XDECREF(__pyx_r);
     __pyx_t_2 = (__pyx_v_self->current - 1);
-    __pyx_t_3 = __Pyx_GetItemInt(((PyObject *)__pyx_v_self), __pyx_t_2, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 224, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt(((PyObject *)__pyx_v_self), __pyx_t_2, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 221, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_r = __pyx_t_3;
     __pyx_t_3 = 0;
     goto __pyx_L0;
 
-    /* "_cotton2k/simulation.pyx":222
+    /* "_cotton2k/simulation.pyx":219
  * 
  *     def __next__(self):
  *         if self.current < self.start_day + self.days:             # <<<<<<<<<<<<<<
@@ -5606,7 +5564,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_6__next__(struct __py
  */
   }
 
-  /* "_cotton2k/simulation.pyx":226
+  /* "_cotton2k/simulation.pyx":223
  *             return self[self.current - 1]
  *         else:
  *             raise StopIteration             # <<<<<<<<<<<<<<
@@ -5615,10 +5573,10 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_6__next__(struct __py
  */
   /*else*/ {
     __Pyx_Raise(__pyx_builtin_StopIteration, 0, 0, 0);
-    __PYX_ERR(0, 226, __pyx_L1_error)
+    __PYX_ERR(0, 223, __pyx_L1_error)
   }
 
-  /* "_cotton2k/simulation.pyx":221
+  /* "_cotton2k/simulation.pyx":218
  *         return self
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -5750,7 +5708,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_7Climate_10__setstate_cython__
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":230
+/* "_cotton2k/simulation.pyx":227
  * 
  * 
  * cdef read_agricultural_input(cSimulation &sim, inputs):             # <<<<<<<<<<<<<<
@@ -5784,7 +5742,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("read_agricultural_input", 0);
 
-  /* "_cotton2k/simulation.pyx":232
+  /* "_cotton2k/simulation.pyx":229
  * cdef read_agricultural_input(cSimulation &sim, inputs):
  *     global NumNitApps, NumIrrigations
  *     NumNitApps = 0             # <<<<<<<<<<<<<<
@@ -5793,7 +5751,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
   NumNitApps = 0;
 
-  /* "_cotton2k/simulation.pyx":233
+  /* "_cotton2k/simulation.pyx":230
  *     global NumNitApps, NumIrrigations
  *     NumNitApps = 0
  *     idef = 0             # <<<<<<<<<<<<<<
@@ -5803,7 +5761,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_idef = __pyx_int_0;
 
-  /* "_cotton2k/simulation.pyx":236
+  /* "_cotton2k/simulation.pyx":233
  *     cdef Irrigation irrigation
  *     cdef NitrogenFertilizer nf
  *     for i in inputs:             # <<<<<<<<<<<<<<
@@ -5814,26 +5772,26 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
     __pyx_t_1 = __pyx_v_inputs; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_inputs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 236, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_inputs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 236, __pyx_L1_error)
+    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 233, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 236, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 233, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 233, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_2 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 236, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 233, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 233, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -5843,7 +5801,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 236, __pyx_L1_error)
+          else __PYX_ERR(0, 233, __pyx_L1_error)
         }
         break;
       }
@@ -5852,29 +5810,29 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "_cotton2k/simulation.pyx":237
+    /* "_cotton2k/simulation.pyx":234
  *     cdef NitrogenFertilizer nf
  *     for i in inputs:
  *         if i["type"] == "irrigation":             # <<<<<<<<<<<<<<
  *             irrigation.day = date2doy(i["date"])  # day of year of this irrigation
  *             irrigation.amount = i["amount"]  # net amount of water applied, mm
  */
-    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_type); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_type); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 234, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_4, __pyx_n_u_irrigation, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 237, __pyx_L1_error)
+    __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_4, __pyx_n_u_irrigation, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 234, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (__pyx_t_5) {
 
-      /* "_cotton2k/simulation.pyx":238
+      /* "_cotton2k/simulation.pyx":235
  *     for i in inputs:
  *         if i["type"] == "irrigation":
  *             irrigation.day = date2doy(i["date"])  # day of year of this irrigation             # <<<<<<<<<<<<<<
  *             irrigation.amount = i["amount"]  # net amount of water applied, mm
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 238, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 235, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 238, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 235, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -5889,73 +5847,73 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
       __pyx_t_4 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_8, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 238, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 238, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 235, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_v_irrigation.day = __pyx_t_9;
 
-      /* "_cotton2k/simulation.pyx":239
+      /* "_cotton2k/simulation.pyx":236
  *         if i["type"] == "irrigation":
  *             irrigation.day = date2doy(i["date"])  # day of year of this irrigation
  *             irrigation.amount = i["amount"]  # net amount of water applied, mm             # <<<<<<<<<<<<<<
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm
  */
-      __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_amount); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_amount); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 239, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 236, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_v_irrigation.amount = __pyx_t_10;
 
-      /* "_cotton2k/simulation.pyx":240
+      /* "_cotton2k/simulation.pyx":237
  *             irrigation.day = date2doy(i["date"])  # day of year of this irrigation
  *             irrigation.amount = i["amount"]  # net amount of water applied, mm
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip             # <<<<<<<<<<<<<<
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm
  *             isddph = i.get("drip_depth", 0)  # vertical placement cm
  */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 240, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 237, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 240, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 237, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_v_irrigation.method = __pyx_t_9;
 
-      /* "_cotton2k/simulation.pyx":241
+      /* "_cotton2k/simulation.pyx":238
  *             irrigation.amount = i["amount"]  # net amount of water applied, mm
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm             # <<<<<<<<<<<<<<
  *             isddph = i.get("drip_depth", 0)  # vertical placement cm
  *             # If this is a drip irrigation, convert distances to soil
  */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 241, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 238, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 241, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 238, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_XDECREF_SET(__pyx_v_isdhrz, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "_cotton2k/simulation.pyx":242
+      /* "_cotton2k/simulation.pyx":239
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm
  *             isddph = i.get("drip_depth", 0)  # vertical placement cm             # <<<<<<<<<<<<<<
  *             # If this is a drip irrigation, convert distances to soil
  *             # layer and column numbers by calling SlabLoc.
  */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 242, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 242, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 239, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_XDECREF_SET(__pyx_v_isddph, __pyx_t_6);
       __pyx_t_6 = 0;
 
-      /* "_cotton2k/simulation.pyx":245
+      /* "_cotton2k/simulation.pyx":242
  *             # If this is a drip irrigation, convert distances to soil
  *             # layer and column numbers by calling SlabLoc.
  *             if irrigation.method == 2:             # <<<<<<<<<<<<<<
@@ -5965,27 +5923,27 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
       __pyx_t_5 = ((__pyx_v_irrigation.method == 2) != 0);
       if (__pyx_t_5) {
 
-        /* "_cotton2k/simulation.pyx":246
+        /* "_cotton2k/simulation.pyx":243
  *             # layer and column numbers by calling SlabLoc.
  *             if irrigation.method == 2:
  *                 irrigation.LocationColumnDrip = SlabLoc(isdhrz, sim.row_space)             # <<<<<<<<<<<<<<
  *                 irrigation.LocationLayerDrip = SlabLoc(isddph, 0)
  *             sim.irrigation[NumIrrigations] = irrigation
  */
-        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isdhrz); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 246, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isdhrz); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 243, __pyx_L1_error)
         __pyx_v_irrigation.LocationColumnDrip = SlabLoc(__pyx_t_9, __pyx_v_sim.row_space);
 
-        /* "_cotton2k/simulation.pyx":247
+        /* "_cotton2k/simulation.pyx":244
  *             if irrigation.method == 2:
  *                 irrigation.LocationColumnDrip = SlabLoc(isdhrz, sim.row_space)
  *                 irrigation.LocationLayerDrip = SlabLoc(isddph, 0)             # <<<<<<<<<<<<<<
  *             sim.irrigation[NumIrrigations] = irrigation
  *             NumIrrigations += 1
  */
-        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isddph); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 247, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isddph); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 244, __pyx_L1_error)
         __pyx_v_irrigation.LocationLayerDrip = SlabLoc(__pyx_t_9, 0.0);
 
-        /* "_cotton2k/simulation.pyx":245
+        /* "_cotton2k/simulation.pyx":242
  *             # If this is a drip irrigation, convert distances to soil
  *             # layer and column numbers by calling SlabLoc.
  *             if irrigation.method == 2:             # <<<<<<<<<<<<<<
@@ -5994,7 +5952,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
       }
 
-      /* "_cotton2k/simulation.pyx":248
+      /* "_cotton2k/simulation.pyx":245
  *                 irrigation.LocationColumnDrip = SlabLoc(isdhrz, sim.row_space)
  *                 irrigation.LocationLayerDrip = SlabLoc(isddph, 0)
  *             sim.irrigation[NumIrrigations] = irrigation             # <<<<<<<<<<<<<<
@@ -6003,7 +5961,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
       (__pyx_v_sim.irrigation[NumIrrigations]) = __pyx_v_irrigation;
 
-      /* "_cotton2k/simulation.pyx":249
+      /* "_cotton2k/simulation.pyx":246
  *                 irrigation.LocationLayerDrip = SlabLoc(isddph, 0)
  *             sim.irrigation[NumIrrigations] = irrigation
  *             NumIrrigations += 1             # <<<<<<<<<<<<<<
@@ -6012,7 +5970,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
       NumIrrigations = (NumIrrigations + 1);
 
-      /* "_cotton2k/simulation.pyx":237
+      /* "_cotton2k/simulation.pyx":234
  *     cdef NitrogenFertilizer nf
  *     for i in inputs:
  *         if i["type"] == "irrigation":             # <<<<<<<<<<<<<<
@@ -6022,29 +5980,29 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
       goto __pyx_L5;
     }
 
-    /* "_cotton2k/simulation.pyx":250
+    /* "_cotton2k/simulation.pyx":247
  *             sim.irrigation[NumIrrigations] = irrigation
  *             NumIrrigations += 1
  *         elif i["type"] == "fertilization":             # <<<<<<<<<<<<<<
  *             nf.day = date2doy(i["date"])
  *             nf.amtamm = i.get("ammonium", 0)
  */
-    __pyx_t_6 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_type); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 250, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_type); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 247, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_6, __pyx_n_u_fertilization, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 250, __pyx_L1_error)
+    __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_6, __pyx_n_u_fertilization, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 247, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (__pyx_t_5) {
 
-      /* "_cotton2k/simulation.pyx":251
+      /* "_cotton2k/simulation.pyx":248
  *             NumIrrigations += 1
  *         elif i["type"] == "fertilization":
  *             nf.day = date2doy(i["date"])             # <<<<<<<<<<<<<<
  *             nf.amtamm = i.get("ammonium", 0)
  *             nf.amtnit = i.get("nitrate", 0)
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 251, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 251, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 248, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -6059,108 +6017,108 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
       __pyx_t_6 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_8, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 251, __pyx_L1_error)
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 248, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 251, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 248, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_v_nf.day = __pyx_t_9;
 
-      /* "_cotton2k/simulation.pyx":252
+      /* "_cotton2k/simulation.pyx":249
  *         elif i["type"] == "fertilization":
  *             nf.day = date2doy(i["date"])
  *             nf.amtamm = i.get("ammonium", 0)             # <<<<<<<<<<<<<<
  *             nf.amtnit = i.get("nitrate", 0)
  *             nf.amtura = i.get("urea", 0)
  */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 252, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 249, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 252, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 249, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 249, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_v_nf.amtamm = __pyx_t_10;
 
-      /* "_cotton2k/simulation.pyx":253
+      /* "_cotton2k/simulation.pyx":250
  *             nf.day = date2doy(i["date"])
  *             nf.amtamm = i.get("ammonium", 0)
  *             nf.amtnit = i.get("nitrate", 0)             # <<<<<<<<<<<<<<
  *             nf.amtura = i.get("urea", 0)
  *             nf.mthfrt = i.get("method", 0)
  */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 253, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 250, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 253, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 250, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 253, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 250, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_v_nf.amtnit = __pyx_t_10;
 
-      /* "_cotton2k/simulation.pyx":254
+      /* "_cotton2k/simulation.pyx":251
  *             nf.amtamm = i.get("ammonium", 0)
  *             nf.amtnit = i.get("nitrate", 0)
  *             nf.amtura = i.get("urea", 0)             # <<<<<<<<<<<<<<
  *             nf.mthfrt = i.get("method", 0)
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
  */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 254, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 251, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 254, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 251, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 254, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 251, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_v_nf.amtura = __pyx_t_10;
 
-      /* "_cotton2k/simulation.pyx":255
+      /* "_cotton2k/simulation.pyx":252
  *             nf.amtnit = i.get("nitrate", 0)
  *             nf.amtura = i.get("urea", 0)
  *             nf.mthfrt = i.get("method", 0)             # <<<<<<<<<<<<<<
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
  *             isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.
  */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 255, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 252, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 255, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 252, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 255, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_v_nf.mthfrt = __pyx_t_9;
 
-      /* "_cotton2k/simulation.pyx":256
+      /* "_cotton2k/simulation.pyx":253
  *             nf.amtura = i.get("urea", 0)
  *             nf.mthfrt = i.get("method", 0)
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.             # <<<<<<<<<<<<<<
  *             isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.
  *             if nf.mthfrt == 1 or nf.mthfrt == 3:
  */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 256, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 253, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 256, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 253, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_XDECREF_SET(__pyx_v_isdhrz, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "_cotton2k/simulation.pyx":257
+      /* "_cotton2k/simulation.pyx":254
  *             nf.mthfrt = i.get("method", 0)
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
  *             isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.             # <<<<<<<<<<<<<<
  *             if nf.mthfrt == 1 or nf.mthfrt == 3:
  *                 nf.ksdr = SlabLoc(isdhrz, sim.row_space)
  */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 257, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 254, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 257, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 254, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_XDECREF_SET(__pyx_v_isddph, __pyx_t_6);
       __pyx_t_6 = 0;
 
-      /* "_cotton2k/simulation.pyx":258
+      /* "_cotton2k/simulation.pyx":255
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
  *             isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.
  *             if nf.mthfrt == 1 or nf.mthfrt == 3:             # <<<<<<<<<<<<<<
@@ -6171,27 +6129,27 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
         case 1:
         case 3:
 
-        /* "_cotton2k/simulation.pyx":259
+        /* "_cotton2k/simulation.pyx":256
  *             isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.
  *             if nf.mthfrt == 1 or nf.mthfrt == 3:
  *                 nf.ksdr = SlabLoc(isdhrz, sim.row_space)             # <<<<<<<<<<<<<<
  *                 nf.lsdr = SlabLoc(isddph, 0)
  *             else:
  */
-        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isdhrz); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 259, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isdhrz); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 256, __pyx_L1_error)
         __pyx_v_nf.ksdr = SlabLoc(__pyx_t_9, __pyx_v_sim.row_space);
 
-        /* "_cotton2k/simulation.pyx":260
+        /* "_cotton2k/simulation.pyx":257
  *             if nf.mthfrt == 1 or nf.mthfrt == 3:
  *                 nf.ksdr = SlabLoc(isdhrz, sim.row_space)
  *                 nf.lsdr = SlabLoc(isddph, 0)             # <<<<<<<<<<<<<<
  *             else:
  *                 nf.ksdr = 0
  */
-        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isddph); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 260, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_v_isddph); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
         __pyx_v_nf.lsdr = SlabLoc(__pyx_t_9, 0.0);
 
-        /* "_cotton2k/simulation.pyx":258
+        /* "_cotton2k/simulation.pyx":255
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
  *             isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.
  *             if nf.mthfrt == 1 or nf.mthfrt == 3:             # <<<<<<<<<<<<<<
@@ -6201,7 +6159,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
         break;
         default:
 
-        /* "_cotton2k/simulation.pyx":262
+        /* "_cotton2k/simulation.pyx":259
  *                 nf.lsdr = SlabLoc(isddph, 0)
  *             else:
  *                 nf.ksdr = 0             # <<<<<<<<<<<<<<
@@ -6210,7 +6168,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
         __pyx_v_nf.ksdr = 0;
 
-        /* "_cotton2k/simulation.pyx":263
+        /* "_cotton2k/simulation.pyx":260
  *             else:
  *                 nf.ksdr = 0
  *                 nf.lsdr = 0             # <<<<<<<<<<<<<<
@@ -6221,7 +6179,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
         break;
       }
 
-      /* "_cotton2k/simulation.pyx":264
+      /* "_cotton2k/simulation.pyx":261
  *                 nf.ksdr = 0
  *                 nf.lsdr = 0
  *             NFertilizer[NumNitApps] = nf             # <<<<<<<<<<<<<<
@@ -6230,7 +6188,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
       (NFertilizer[NumNitApps]) = __pyx_v_nf;
 
-      /* "_cotton2k/simulation.pyx":265
+      /* "_cotton2k/simulation.pyx":262
  *                 nf.lsdr = 0
  *             NFertilizer[NumNitApps] = nf
  *             NumNitApps += 1             # <<<<<<<<<<<<<<
@@ -6239,7 +6197,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
       NumNitApps = (NumNitApps + 1);
 
-      /* "_cotton2k/simulation.pyx":250
+      /* "_cotton2k/simulation.pyx":247
  *             sim.irrigation[NumIrrigations] = irrigation
  *             NumIrrigations += 1
  *         elif i["type"] == "fertilization":             # <<<<<<<<<<<<<<
@@ -6249,29 +6207,29 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
       goto __pyx_L5;
     }
 
-    /* "_cotton2k/simulation.pyx":266
+    /* "_cotton2k/simulation.pyx":263
  *             NFertilizer[NumNitApps] = nf
  *             NumNitApps += 1
  *         elif i["type"] == "defoliation prediction":             # <<<<<<<<<<<<<<
  *             DefoliationDate[idef] = date2doy(i["date"])
  *             DefoliantAppRate[idef] = -99.9
  */
-    __pyx_t_6 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_type); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 266, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_type); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 263, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_6, __pyx_kp_u_defoliation_prediction, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 266, __pyx_L1_error)
+    __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_6, __pyx_kp_u_defoliation_prediction, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 263, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (__pyx_t_5) {
 
-      /* "_cotton2k/simulation.pyx":267
+      /* "_cotton2k/simulation.pyx":264
  *             NumNitApps += 1
  *         elif i["type"] == "defoliation prediction":
  *             DefoliationDate[idef] = date2doy(i["date"])             # <<<<<<<<<<<<<<
  *             DefoliantAppRate[idef] = -99.9
  *             if idef == 0:
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 267, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 264, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 267, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_Dict_GetItem(__pyx_v_i, __pyx_n_u_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 264, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -6286,38 +6244,38 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
       __pyx_t_6 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_8, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 267, __pyx_L1_error)
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 264, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 267, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 264, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idef); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 267, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idef); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 264, __pyx_L1_error)
       (DefoliationDate[__pyx_t_11]) = __pyx_t_9;
 
-      /* "_cotton2k/simulation.pyx":268
+      /* "_cotton2k/simulation.pyx":265
  *         elif i["type"] == "defoliation prediction":
  *             DefoliationDate[idef] = date2doy(i["date"])
  *             DefoliantAppRate[idef] = -99.9             # <<<<<<<<<<<<<<
  *             if idef == 0:
  *                 DayFirstDef = DefoliationDate[0]
  */
-      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idef); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 268, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idef); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 265, __pyx_L1_error)
       (DefoliantAppRate[__pyx_t_11]) = -99.9;
 
-      /* "_cotton2k/simulation.pyx":269
+      /* "_cotton2k/simulation.pyx":266
  *             DefoliationDate[idef] = date2doy(i["date"])
  *             DefoliantAppRate[idef] = -99.9
  *             if idef == 0:             # <<<<<<<<<<<<<<
  *                 DayFirstDef = DefoliationDate[0]
  *             DefoliationMethod[idef] = i.get("method", 0)
  */
-      __pyx_t_6 = __Pyx_PyInt_EqObjC(__pyx_v_idef, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 269, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyInt_EqObjC(__pyx_v_idef, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 266, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 269, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 266, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       if (__pyx_t_5) {
 
-        /* "_cotton2k/simulation.pyx":270
+        /* "_cotton2k/simulation.pyx":267
  *             DefoliantAppRate[idef] = -99.9
  *             if idef == 0:
  *                 DayFirstDef = DefoliationDate[0]             # <<<<<<<<<<<<<<
@@ -6326,7 +6284,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
         __pyx_v_DayFirstDef = (DefoliationDate[0]);
 
-        /* "_cotton2k/simulation.pyx":269
+        /* "_cotton2k/simulation.pyx":266
  *             DefoliationDate[idef] = date2doy(i["date"])
  *             DefoliantAppRate[idef] = -99.9
  *             if idef == 0:             # <<<<<<<<<<<<<<
@@ -6335,36 +6293,36 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  */
       }
 
-      /* "_cotton2k/simulation.pyx":271
+      /* "_cotton2k/simulation.pyx":268
  *             if idef == 0:
  *                 DayFirstDef = DefoliationDate[0]
  *             DefoliationMethod[idef] = i.get("method", 0)             # <<<<<<<<<<<<<<
  *             idef += 1
  * 
  */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 271, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_i, __pyx_n_s_get); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 271, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 271, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 268, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idef); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 271, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idef); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 268, __pyx_L1_error)
       (DefoliationMethod[__pyx_t_11]) = __pyx_t_9;
 
-      /* "_cotton2k/simulation.pyx":272
+      /* "_cotton2k/simulation.pyx":269
  *                 DayFirstDef = DefoliationDate[0]
  *             DefoliationMethod[idef] = i.get("method", 0)
  *             idef += 1             # <<<<<<<<<<<<<<
  * 
  * cdef class FruitingBranch:
  */
-      __pyx_t_4 = __Pyx_PyInt_AddObjC(__pyx_v_idef, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 272, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyInt_AddObjC(__pyx_v_idef, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 269, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF_SET(__pyx_v_idef, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "_cotton2k/simulation.pyx":266
+      /* "_cotton2k/simulation.pyx":263
  *             NFertilizer[NumNitApps] = nf
  *             NumNitApps += 1
  *         elif i["type"] == "defoliation prediction":             # <<<<<<<<<<<<<<
@@ -6374,7 +6332,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
     }
     __pyx_L5:;
 
-    /* "_cotton2k/simulation.pyx":236
+    /* "_cotton2k/simulation.pyx":233
  *     cdef Irrigation irrigation
  *     cdef NitrogenFertilizer nf
  *     for i in inputs:             # <<<<<<<<<<<<<<
@@ -6384,7 +6342,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":230
+  /* "_cotton2k/simulation.pyx":227
  * 
  * 
  * cdef read_agricultural_input(cSimulation &sim, inputs):             # <<<<<<<<<<<<<<
@@ -6413,7 +6371,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":278
+/* "_cotton2k/simulation.pyx":275
  *     __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")
  * 
  *     def __init__(self, _branch):             # <<<<<<<<<<<<<<
@@ -6450,7 +6408,7 @@ static int __pyx_pw_9_cotton2k_10simulation_14FruitingBranch_1__init__(PyObject 
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 278, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 275, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -6461,7 +6419,7 @@ static int __pyx_pw_9_cotton2k_10simulation_14FruitingBranch_1__init__(PyObject 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 278, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 275, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("_cotton2k.simulation.FruitingBranch.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -6483,17 +6441,17 @@ static int __pyx_pf_9_cotton2k_10simulation_14FruitingBranch___init__(struct __p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "_cotton2k/simulation.pyx":279
+  /* "_cotton2k/simulation.pyx":276
  * 
  *     def __init__(self, _branch):
  *         self._branch = _branch             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_convert__from_py_FruitingBranch(__pyx_v__branch); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__from_py_FruitingBranch(__pyx_v__branch); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 276, __pyx_L1_error)
   __pyx_v_self->_branch = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":278
+  /* "_cotton2k/simulation.pyx":275
  *     __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")
  * 
  *     def __init__(self, _branch):             # <<<<<<<<<<<<<<
@@ -6512,7 +6470,7 @@ static int __pyx_pf_9_cotton2k_10simulation_14FruitingBranch___init__(struct __p
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":282
+/* "_cotton2k/simulation.pyx":279
  * 
  *     @property
  *     def delay_for_new_node(self):             # <<<<<<<<<<<<<<
@@ -6542,7 +6500,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_18delay_for_n
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":283
+  /* "_cotton2k/simulation.pyx":280
  *     @property
  *     def delay_for_new_node(self):
  *         return self._branch.delay_for_new_node             # <<<<<<<<<<<<<<
@@ -6550,13 +6508,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_18delay_for_n
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_branch.delay_for_new_node); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 283, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_branch.delay_for_new_node); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 280, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":282
+  /* "_cotton2k/simulation.pyx":279
  * 
  *     @property
  *     def delay_for_new_node(self):             # <<<<<<<<<<<<<<
@@ -6575,7 +6533,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_18delay_for_n
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":286
+/* "_cotton2k/simulation.pyx":283
  * 
  *     @property
  *     def main_stem_leaf(self):             # <<<<<<<<<<<<<<
@@ -6605,7 +6563,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_14main_stem_l
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":287
+  /* "_cotton2k/simulation.pyx":284
  *     @property
  *     def main_stem_leaf(self):
  *         return self._branch.main_stem_leaf             # <<<<<<<<<<<<<<
@@ -6613,13 +6571,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_14main_stem_l
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert__to_py_MainStemLeaf(__pyx_v_self->_branch.main_stem_leaf); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__to_py_MainStemLeaf(__pyx_v_self->_branch.main_stem_leaf); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 284, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":286
+  /* "_cotton2k/simulation.pyx":283
  * 
  *     @property
  *     def main_stem_leaf(self):             # <<<<<<<<<<<<<<
@@ -6638,7 +6596,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_14main_stem_l
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":290
+/* "_cotton2k/simulation.pyx":287
  * 
  *     @property
  *     def nodes(self):             # <<<<<<<<<<<<<<
@@ -6673,7 +6631,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_5nodes___get_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":291
+  /* "_cotton2k/simulation.pyx":288
  *     @property
  *     def nodes(self):
  *         return [self._branch.nodes[i] for i in range(self._branch.number_of_fruiting_nodes)]             # <<<<<<<<<<<<<<
@@ -6682,15 +6640,15 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_5nodes___get_
  */
   __Pyx_XDECREF(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_2 = __pyx_v_self->_branch.number_of_fruiting_nodes;
     __pyx_t_3 = __pyx_t_2;
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_8genexpr3__pyx_v_i = __pyx_t_4;
-      __pyx_t_5 = __pyx_convert__to_py_FruitingSite((__pyx_v_self->_branch.nodes[__pyx_8genexpr3__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 291, __pyx_L1_error)
+      __pyx_t_5 = __pyx_convert__to_py_FruitingSite((__pyx_v_self->_branch.nodes[__pyx_8genexpr3__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 288, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(0, 291, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(0, 288, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
   } /* exit inner scope */
@@ -6698,7 +6656,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_5nodes___get_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":290
+  /* "_cotton2k/simulation.pyx":287
  * 
  *     @property
  *     def nodes(self):             # <<<<<<<<<<<<<<
@@ -6719,7 +6677,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_5nodes___get_
 }
 static PyObject *__pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "_cotton2k/simulation.pyx":293
+/* "_cotton2k/simulation.pyx":290
  *         return [self._branch.nodes[i] for i in range(self._branch.number_of_fruiting_nodes)]
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -6752,7 +6710,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_2__iter__(str
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct____iter__ *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 293, __pyx_L1_error)
+    __PYX_ERR(0, 290, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
@@ -6760,7 +6718,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_2__iter__(str
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_iter, __pyx_n_s_FruitingBranch___iter, __pyx_n_s_cotton2k_simulation); if (unlikely(!gen)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_iter, __pyx_n_s_FruitingBranch___iter, __pyx_n_s_cotton2k_simulation); if (unlikely(!gen)) __PYX_ERR(0, 290, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -6798,24 +6756,24 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator(__
     return NULL;
   }
   __pyx_L3_first_run:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 293, __pyx_L1_error)
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 290, __pyx_L1_error)
 
-  /* "_cotton2k/simulation.pyx":294
+  /* "_cotton2k/simulation.pyx":291
  * 
  *     def __iter__(self):
  *         for attr in self.__slots__:             # <<<<<<<<<<<<<<
  *             yield attr, getattr(self, attr)
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_n_s_slots); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 294, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_n_s_slots); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 294, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 291, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 294, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 291, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -6823,17 +6781,17 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator(__
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 294, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 291, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 294, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 294, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 291, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 294, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -6843,7 +6801,7 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator(__
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 294, __pyx_L1_error)
+          else __PYX_ERR(0, 291, __pyx_L1_error)
         }
         break;
       }
@@ -6854,16 +6812,16 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator(__
     __Pyx_GIVEREF(__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "_cotton2k/simulation.pyx":295
+    /* "_cotton2k/simulation.pyx":292
  *     def __iter__(self):
  *         for attr in self.__slots__:
  *             yield attr, getattr(self, attr)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_t_1 = __Pyx_GetAttr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_cur_scope->__pyx_v_attr); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 295, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetAttr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_cur_scope->__pyx_v_attr); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 292, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 295, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 292, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_INCREF(__pyx_cur_scope->__pyx_v_attr);
     __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_attr);
@@ -6889,9 +6847,9 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator(__
     __Pyx_XGOTREF(__pyx_t_2);
     __pyx_t_3 = __pyx_cur_scope->__pyx_t_1;
     __pyx_t_4 = __pyx_cur_scope->__pyx_t_2;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 295, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 292, __pyx_L1_error)
 
-    /* "_cotton2k/simulation.pyx":294
+    /* "_cotton2k/simulation.pyx":291
  * 
  *     def __iter__(self):
  *         for attr in self.__slots__:             # <<<<<<<<<<<<<<
@@ -6902,7 +6860,7 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_14FruitingBranch_4generator(__
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "_cotton2k/simulation.pyx":293
+  /* "_cotton2k/simulation.pyx":290
  *         return [self._branch.nodes[i] for i in range(self._branch.number_of_fruiting_nodes)]
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -7042,7 +7000,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_14FruitingBranch_7__setstate_c
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":301
+/* "_cotton2k/simulation.pyx":298
  *     cdef cVegetativeBranch _branch
  * 
  *     def __init__(self, _branch):             # <<<<<<<<<<<<<<
@@ -7079,7 +7037,7 @@ static int __pyx_pw_9_cotton2k_10simulation_16VegetativeBranch_1__init__(PyObjec
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 301, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 298, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -7090,7 +7048,7 @@ static int __pyx_pw_9_cotton2k_10simulation_16VegetativeBranch_1__init__(PyObjec
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 301, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 298, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("_cotton2k.simulation.VegetativeBranch.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7112,17 +7070,17 @@ static int __pyx_pf_9_cotton2k_10simulation_16VegetativeBranch___init__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "_cotton2k/simulation.pyx":302
+  /* "_cotton2k/simulation.pyx":299
  * 
  *     def __init__(self, _branch):
  *         self._branch = _branch             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_convert__from_py_VegetativeBranch(__pyx_v__branch); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__from_py_VegetativeBranch(__pyx_v__branch); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 299, __pyx_L1_error)
   __pyx_v_self->_branch = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":301
+  /* "_cotton2k/simulation.pyx":298
  *     cdef cVegetativeBranch _branch
  * 
  *     def __init__(self, _branch):             # <<<<<<<<<<<<<<
@@ -7141,7 +7099,7 @@ static int __pyx_pf_9_cotton2k_10simulation_16VegetativeBranch___init__(struct _
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":305
+/* "_cotton2k/simulation.pyx":302
  * 
  *     @property
  *     def fruiting_branches(self):             # <<<<<<<<<<<<<<
@@ -7177,7 +7135,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_16VegetativeBranch_17fruiting_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":306
+  /* "_cotton2k/simulation.pyx":303
  *     @property
  *     def fruiting_branches(self):
  *         return [FruitingBranch(self._branch.fruiting_branches[i]) for i in range(self._branch.number_of_fruiting_branches)]             # <<<<<<<<<<<<<<
@@ -7186,18 +7144,18 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_16VegetativeBranch_17fruiting_
  */
   __Pyx_XDECREF(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 306, __pyx_L1_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 303, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_2 = __pyx_v_self->_branch.number_of_fruiting_branches;
     __pyx_t_3 = __pyx_t_2;
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_8genexpr4__pyx_v_i = __pyx_t_4;
-      __pyx_t_5 = __pyx_convert__to_py_FruitingBranch((__pyx_v_self->_branch.fruiting_branches[__pyx_8genexpr4__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 306, __pyx_L1_error)
+      __pyx_t_5 = __pyx_convert__to_py_FruitingBranch((__pyx_v_self->_branch.fruiting_branches[__pyx_8genexpr4__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 303, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_9_cotton2k_10simulation_FruitingBranch), __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 306, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_9_cotton2k_10simulation_FruitingBranch), __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 303, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 306, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 303, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
   } /* exit inner scope */
@@ -7205,7 +7163,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_16VegetativeBranch_17fruiting_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":305
+  /* "_cotton2k/simulation.pyx":302
  * 
  *     @property
  *     def fruiting_branches(self):             # <<<<<<<<<<<<<<
@@ -7227,7 +7185,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_16VegetativeBranch_17fruiting_
 }
 static PyObject *__pyx_gb_9_cotton2k_10simulation_16VegetativeBranch_4generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "_cotton2k/simulation.pyx":308
+/* "_cotton2k/simulation.pyx":305
  *         return [FruitingBranch(self._branch.fruiting_branches[i]) for i in range(self._branch.number_of_fruiting_branches)]
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -7260,7 +7218,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_16VegetativeBranch_2__iter__(s
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct_1___iter__ *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 308, __pyx_L1_error)
+    __PYX_ERR(0, 305, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
@@ -7268,7 +7226,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_16VegetativeBranch_2__iter__(s
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9_cotton2k_10simulation_16VegetativeBranch_4generator1, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_iter, __pyx_n_s_VegetativeBranch___iter, __pyx_n_s_cotton2k_simulation); if (unlikely(!gen)) __PYX_ERR(0, 308, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9_cotton2k_10simulation_16VegetativeBranch_4generator1, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_iter, __pyx_n_s_VegetativeBranch___iter, __pyx_n_s_cotton2k_simulation); if (unlikely(!gen)) __PYX_ERR(0, 305, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -7303,18 +7261,18 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_16VegetativeBranch_4generator1
     return NULL;
   }
   __pyx_L3_first_run:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 308, __pyx_L1_error)
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 305, __pyx_L1_error)
 
-  /* "_cotton2k/simulation.pyx":309
+  /* "_cotton2k/simulation.pyx":306
  * 
  *     def __iter__(self):
  *         yield "fruiting_branches", self.fruiting_branches             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_n_s_fruiting_branches); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 309, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_n_s_fruiting_branches); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 309, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_n_u_fruiting_branches);
   __Pyx_GIVEREF(__pyx_n_u_fruiting_branches);
@@ -7331,10 +7289,10 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_16VegetativeBranch_4generator1
   __pyx_generator->resume_label = 1;
   return __pyx_r;
   __pyx_L4_resume_from_yield:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 309, __pyx_L1_error)
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 306, __pyx_L1_error)
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "_cotton2k/simulation.pyx":308
+  /* "_cotton2k/simulation.pyx":305
  *         return [FruitingBranch(self._branch.fruiting_branches[i]) for i in range(self._branch.number_of_fruiting_branches)]
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -7473,7 +7431,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_16VegetativeBranch_7__setstate
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":328
+/* "_cotton2k/simulation.pyx":325
  *     )
  * 
  *     def __init__(self, _state):             # <<<<<<<<<<<<<<
@@ -7510,7 +7468,7 @@ static int __pyx_pw_9_cotton2k_10simulation_5State_1__init__(PyObject *__pyx_v_s
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 328, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 325, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -7521,7 +7479,7 @@ static int __pyx_pw_9_cotton2k_10simulation_5State_1__init__(PyObject *__pyx_v_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 328, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 325, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("_cotton2k.simulation.State.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7543,17 +7501,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State___init__(struct __pyx_obj_9_c
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "_cotton2k/simulation.pyx":329
+  /* "_cotton2k/simulation.pyx":326
  * 
  *     def __init__(self, _state):
  *         self._state = _state             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_convert__from_py_State(__pyx_v__state); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 329, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__from_py_State(__pyx_v__state); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 326, __pyx_L1_error)
   __pyx_v_self->_state = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":328
+  /* "_cotton2k/simulation.pyx":325
  *     )
  * 
  *     def __init__(self, _state):             # <<<<<<<<<<<<<<
@@ -7572,7 +7530,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State___init__(struct __pyx_obj_9_c
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":332
+/* "_cotton2k/simulation.pyx":329
  * 
  *     @property
  *     def plant_height(self):             # <<<<<<<<<<<<<<
@@ -7602,7 +7560,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_12plant_height___get__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":333
+  /* "_cotton2k/simulation.pyx":330
  *     @property
  *     def plant_height(self):
  *         return self._state.plant_height             # <<<<<<<<<<<<<<
@@ -7610,13 +7568,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_12plant_height___get__(
  *     @plant_height.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.plant_height); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 333, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.plant_height); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 330, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":332
+  /* "_cotton2k/simulation.pyx":329
  * 
  *     @property
  *     def plant_height(self):             # <<<<<<<<<<<<<<
@@ -7635,7 +7593,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_12plant_height___get__(
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":336
+/* "_cotton2k/simulation.pyx":333
  * 
  *     @plant_height.setter
  *     def plant_height(self, value):             # <<<<<<<<<<<<<<
@@ -7665,17 +7623,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_12plant_height_2__set__(struc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":337
+  /* "_cotton2k/simulation.pyx":334
  *     @plant_height.setter
  *     def plant_height(self, value):
  *         self._state.plant_height = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 337, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 334, __pyx_L1_error)
   __pyx_v_self->_state.plant_height = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":336
+  /* "_cotton2k/simulation.pyx":333
  * 
  *     @plant_height.setter
  *     def plant_height(self, value):             # <<<<<<<<<<<<<<
@@ -7694,7 +7652,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_12plant_height_2__set__(struc
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":340
+/* "_cotton2k/simulation.pyx":337
  * 
  *     @property
  *     def plant_weight(self):             # <<<<<<<<<<<<<<
@@ -7724,7 +7682,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_12plant_weight___get__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":341
+  /* "_cotton2k/simulation.pyx":338
  *     @property
  *     def plant_weight(self):
  *         return self._state.plant_weight             # <<<<<<<<<<<<<<
@@ -7732,13 +7690,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_12plant_weight___get__(
  *     @plant_weight.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.plant_weight); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 341, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.plant_weight); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":340
+  /* "_cotton2k/simulation.pyx":337
  * 
  *     @property
  *     def plant_weight(self):             # <<<<<<<<<<<<<<
@@ -7757,7 +7715,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_12plant_weight___get__(
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":344
+/* "_cotton2k/simulation.pyx":341
  * 
  *     @plant_weight.setter
  *     def plant_weight(self, value):             # <<<<<<<<<<<<<<
@@ -7787,17 +7745,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_12plant_weight_2__set__(struc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":345
+  /* "_cotton2k/simulation.pyx":342
  *     @plant_weight.setter
  *     def plant_weight(self, value):
  *         self._state.plant_weight = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 345, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 342, __pyx_L1_error)
   __pyx_v_self->_state.plant_weight = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":344
+  /* "_cotton2k/simulation.pyx":341
  * 
  *     @plant_weight.setter
  *     def plant_weight(self, value):             # <<<<<<<<<<<<<<
@@ -7816,7 +7774,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_12plant_weight_2__set__(struc
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":348
+/* "_cotton2k/simulation.pyx":345
  * 
  *     @property
  *     def lint_yield(self):             # <<<<<<<<<<<<<<
@@ -7846,7 +7804,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_10lint_yield___get__(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":349
+  /* "_cotton2k/simulation.pyx":346
  *     @property
  *     def lint_yield(self):
  *         return self._state.lint_yield             # <<<<<<<<<<<<<<
@@ -7854,13 +7812,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_10lint_yield___get__(st
  *     @lint_yield.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.lint_yield); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.lint_yield); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":348
+  /* "_cotton2k/simulation.pyx":345
  * 
  *     @property
  *     def lint_yield(self):             # <<<<<<<<<<<<<<
@@ -7879,7 +7837,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_10lint_yield___get__(st
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":352
+/* "_cotton2k/simulation.pyx":349
  * 
  *     @lint_yield.setter
  *     def lint_yield(self, value):             # <<<<<<<<<<<<<<
@@ -7909,17 +7867,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_10lint_yield_2__set__(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":353
+  /* "_cotton2k/simulation.pyx":350
  *     @lint_yield.setter
  *     def lint_yield(self, value):
  *         self._state.lint_yield = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 350, __pyx_L1_error)
   __pyx_v_self->_state.lint_yield = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":352
+  /* "_cotton2k/simulation.pyx":349
  * 
  *     @lint_yield.setter
  *     def lint_yield(self, value):             # <<<<<<<<<<<<<<
@@ -7938,7 +7896,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_10lint_yield_2__set__(struct 
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":356
+/* "_cotton2k/simulation.pyx":353
  * 
  *     @property
  *     def ginning_percent(self):             # <<<<<<<<<<<<<<
@@ -7968,7 +7926,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_15ginning_percent___get
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":357
+  /* "_cotton2k/simulation.pyx":354
  *     @property
  *     def ginning_percent(self):
  *         return self._state.ginning_percent             # <<<<<<<<<<<<<<
@@ -7976,13 +7934,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_15ginning_percent___get
  *     @ginning_percent.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.ginning_percent); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.ginning_percent); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 354, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":356
+  /* "_cotton2k/simulation.pyx":353
  * 
  *     @property
  *     def ginning_percent(self):             # <<<<<<<<<<<<<<
@@ -8001,7 +7959,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_15ginning_percent___get
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":360
+/* "_cotton2k/simulation.pyx":357
  * 
  *     @ginning_percent.setter
  *     def ginning_percent(self, value):             # <<<<<<<<<<<<<<
@@ -8031,17 +7989,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_15ginning_percent_2__set__(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":361
+  /* "_cotton2k/simulation.pyx":358
  *     @ginning_percent.setter
  *     def ginning_percent(self, value):
  *         self._state.ginning_percent = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 361, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 358, __pyx_L1_error)
   __pyx_v_self->_state.ginning_percent = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":360
+  /* "_cotton2k/simulation.pyx":357
  * 
  *     @ginning_percent.setter
  *     def ginning_percent(self, value):             # <<<<<<<<<<<<<<
@@ -8060,7 +8018,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_15ginning_percent_2__set__(st
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":364
+/* "_cotton2k/simulation.pyx":361
  * 
  *     @property
  *     def number_of_squares(self):             # <<<<<<<<<<<<<<
@@ -8090,7 +8048,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_17number_of_squares___g
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":365
+  /* "_cotton2k/simulation.pyx":362
  *     @property
  *     def number_of_squares(self):
  *         return self._state.number_of_squares             # <<<<<<<<<<<<<<
@@ -8098,13 +8056,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_17number_of_squares___g
  *     @number_of_squares.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.number_of_squares); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 365, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.number_of_squares); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":364
+  /* "_cotton2k/simulation.pyx":361
  * 
  *     @property
  *     def number_of_squares(self):             # <<<<<<<<<<<<<<
@@ -8123,7 +8081,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_17number_of_squares___g
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":368
+/* "_cotton2k/simulation.pyx":365
  * 
  *     @number_of_squares.setter
  *     def number_of_squares(self, value):             # <<<<<<<<<<<<<<
@@ -8153,17 +8111,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_17number_of_squares_2__set__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":369
+  /* "_cotton2k/simulation.pyx":366
  *     @number_of_squares.setter
  *     def number_of_squares(self, value):
  *         self._state.number_of_squares = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 366, __pyx_L1_error)
   __pyx_v_self->_state.number_of_squares = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":368
+  /* "_cotton2k/simulation.pyx":365
  * 
  *     @number_of_squares.setter
  *     def number_of_squares(self, value):             # <<<<<<<<<<<<<<
@@ -8182,7 +8140,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_17number_of_squares_2__set__(
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":372
+/* "_cotton2k/simulation.pyx":369
  * 
  *     @property
  *     def number_of_green_bolls(self):             # <<<<<<<<<<<<<<
@@ -8212,7 +8170,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_21number_of_green_bolls
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":373
+  /* "_cotton2k/simulation.pyx":370
  *     @property
  *     def number_of_green_bolls(self):
  *         return self._state.number_of_green_bolls             # <<<<<<<<<<<<<<
@@ -8220,13 +8178,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_21number_of_green_bolls
  *     @number_of_green_bolls.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.number_of_green_bolls); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 373, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.number_of_green_bolls); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 370, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":372
+  /* "_cotton2k/simulation.pyx":369
  * 
  *     @property
  *     def number_of_green_bolls(self):             # <<<<<<<<<<<<<<
@@ -8245,7 +8203,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_21number_of_green_bolls
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":376
+/* "_cotton2k/simulation.pyx":373
  * 
  *     @number_of_green_bolls.setter
  *     def number_of_green_bolls(self, value):             # <<<<<<<<<<<<<<
@@ -8275,17 +8233,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_21number_of_green_bolls_2__se
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":377
+  /* "_cotton2k/simulation.pyx":374
  *     @number_of_green_bolls.setter
  *     def number_of_green_bolls(self, value):
  *         self._state.number_of_green_bolls = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 374, __pyx_L1_error)
   __pyx_v_self->_state.number_of_green_bolls = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":376
+  /* "_cotton2k/simulation.pyx":373
  * 
  *     @number_of_green_bolls.setter
  *     def number_of_green_bolls(self, value):             # <<<<<<<<<<<<<<
@@ -8304,7 +8262,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_21number_of_green_bolls_2__se
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":380
+/* "_cotton2k/simulation.pyx":377
  * 
  *     @property
  *     def number_of_open_bolls(self):             # <<<<<<<<<<<<<<
@@ -8334,7 +8292,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_20number_of_open_bolls_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":381
+  /* "_cotton2k/simulation.pyx":378
  *     @property
  *     def number_of_open_bolls(self):
  *         return self._state.number_of_open_bolls             # <<<<<<<<<<<<<<
@@ -8342,13 +8300,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_20number_of_open_bolls_
  *     @number_of_open_bolls.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.number_of_open_bolls); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.number_of_open_bolls); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 378, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":380
+  /* "_cotton2k/simulation.pyx":377
  * 
  *     @property
  *     def number_of_open_bolls(self):             # <<<<<<<<<<<<<<
@@ -8367,7 +8325,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_20number_of_open_bolls_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":384
+/* "_cotton2k/simulation.pyx":381
  * 
  *     @number_of_open_bolls.setter
  *     def number_of_open_bolls(self, value):             # <<<<<<<<<<<<<<
@@ -8397,17 +8355,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_20number_of_open_bolls_2__set
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":385
+  /* "_cotton2k/simulation.pyx":382
  *     @number_of_open_bolls.setter
  *     def number_of_open_bolls(self, value):
  *         self._state.number_of_open_bolls = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 385, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 382, __pyx_L1_error)
   __pyx_v_self->_state.number_of_open_bolls = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":384
+  /* "_cotton2k/simulation.pyx":381
  * 
  *     @number_of_open_bolls.setter
  *     def number_of_open_bolls(self, value):             # <<<<<<<<<<<<<<
@@ -8426,7 +8384,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_20number_of_open_bolls_2__set
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":388
+/* "_cotton2k/simulation.pyx":385
  * 
  *     @property
  *     def leaf_area_index(self):             # <<<<<<<<<<<<<<
@@ -8456,7 +8414,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_15leaf_area_index___get
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":389
+  /* "_cotton2k/simulation.pyx":386
  *     @property
  *     def leaf_area_index(self):
  *         return self._state.leaf_area_index             # <<<<<<<<<<<<<<
@@ -8464,13 +8422,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_15leaf_area_index___get
  *     @leaf_area_index.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.leaf_area_index); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 389, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_state.leaf_area_index); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 386, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":388
+  /* "_cotton2k/simulation.pyx":385
  * 
  *     @property
  *     def leaf_area_index(self):             # <<<<<<<<<<<<<<
@@ -8489,7 +8447,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_15leaf_area_index___get
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":392
+/* "_cotton2k/simulation.pyx":389
  * 
  *     @leaf_area_index.setter
  *     def leaf_area_index(self, value):             # <<<<<<<<<<<<<<
@@ -8519,17 +8477,17 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_15leaf_area_index_2__set__(st
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":393
+  /* "_cotton2k/simulation.pyx":390
  *     @leaf_area_index.setter
  *     def leaf_area_index(self, value):
  *         self._state.leaf_area_index = value             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 393, __pyx_L1_error)
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 390, __pyx_L1_error)
   __pyx_v_self->_state.leaf_area_index = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":392
+  /* "_cotton2k/simulation.pyx":389
  * 
  *     @leaf_area_index.setter
  *     def leaf_area_index(self, value):             # <<<<<<<<<<<<<<
@@ -8548,7 +8506,7 @@ static int __pyx_pf_9_cotton2k_10simulation_5State_15leaf_area_index_2__set__(st
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":396
+/* "_cotton2k/simulation.pyx":393
  * 
  *     @property
  *     def vegetative_branches(self):             # <<<<<<<<<<<<<<
@@ -8584,7 +8542,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_19vegetative_branches__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":397
+  /* "_cotton2k/simulation.pyx":394
  *     @property
  *     def vegetative_branches(self):
  *         return [VegetativeBranch(self._state.vegetative_branches[i]) for i in range(self._state.number_of_vegetative_branches)]             # <<<<<<<<<<<<<<
@@ -8593,18 +8551,18 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_19vegetative_branches__
  */
   __Pyx_XDECREF(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 397, __pyx_L1_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 394, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_2 = __pyx_v_self->_state.number_of_vegetative_branches;
     __pyx_t_3 = __pyx_t_2;
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_8genexpr5__pyx_v_i = __pyx_t_4;
-      __pyx_t_5 = __pyx_convert__to_py_VegetativeBranch((__pyx_v_self->_state.vegetative_branches[__pyx_8genexpr5__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 397, __pyx_L1_error)
+      __pyx_t_5 = __pyx_convert__to_py_VegetativeBranch((__pyx_v_self->_state.vegetative_branches[__pyx_8genexpr5__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 394, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_9_cotton2k_10simulation_VegetativeBranch), __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 397, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_9_cotton2k_10simulation_VegetativeBranch), __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 394, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 397, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 394, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
   } /* exit inner scope */
@@ -8612,7 +8570,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_19vegetative_branches__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":396
+  /* "_cotton2k/simulation.pyx":393
  * 
  *     @property
  *     def vegetative_branches(self):             # <<<<<<<<<<<<<<
@@ -8633,7 +8591,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_19vegetative_branches__
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":400
+/* "_cotton2k/simulation.pyx":397
  * 
  *     @property
  *     def hours(self):             # <<<<<<<<<<<<<<
@@ -8663,7 +8621,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_5hours___get__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":401
+  /* "_cotton2k/simulation.pyx":398
  *     @property
  *     def hours(self):
  *         return self._state.hours             # <<<<<<<<<<<<<<
@@ -8671,13 +8629,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_5hours___get__(struct _
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_carray_to_py_Hour(__pyx_v_self->_state.hours, 24); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 401, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_py_Hour(__pyx_v_self->_state.hours, 24); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":400
+  /* "_cotton2k/simulation.pyx":397
  * 
  *     @property
  *     def hours(self):             # <<<<<<<<<<<<<<
@@ -8696,7 +8654,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_5hours___get__(struct _
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":404
+/* "_cotton2k/simulation.pyx":401
  * 
  *     @property
  *     def soil(self):             # <<<<<<<<<<<<<<
@@ -8726,7 +8684,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_4soil___get__(struct __
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":405
+  /* "_cotton2k/simulation.pyx":402
  *     @property
  *     def soil(self):
  *         return self._state.soil             # <<<<<<<<<<<<<<
@@ -8734,13 +8692,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_4soil___get__(struct __
  *     def __iter__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert__to_py_Soil(__pyx_v_self->_state.soil); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__to_py_Soil(__pyx_v_self->_state.soil); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 402, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":404
+  /* "_cotton2k/simulation.pyx":401
  * 
  *     @property
  *     def soil(self):             # <<<<<<<<<<<<<<
@@ -8760,7 +8718,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_4soil___get__(struct __
 }
 static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "_cotton2k/simulation.pyx":407
+/* "_cotton2k/simulation.pyx":404
  *         return self._state.soil
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -8793,7 +8751,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_2__iter__(struct __pyx_
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9_cotton2k_10simulation___pyx_scope_struct_2___iter__ *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 407, __pyx_L1_error)
+    __PYX_ERR(0, 404, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
@@ -8801,7 +8759,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_2__iter__(struct __pyx_
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9_cotton2k_10simulation_5State_4generator2, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_iter, __pyx_n_s_State___iter, __pyx_n_s_cotton2k_simulation); if (unlikely(!gen)) __PYX_ERR(0, 407, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9_cotton2k_10simulation_5State_4generator2, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_iter, __pyx_n_s_State___iter, __pyx_n_s_cotton2k_simulation); if (unlikely(!gen)) __PYX_ERR(0, 404, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -8842,24 +8800,24 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
     return NULL;
   }
   __pyx_L3_first_run:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 407, __pyx_L1_error)
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 404, __pyx_L1_error)
 
-  /* "_cotton2k/simulation.pyx":408
+  /* "_cotton2k/simulation.pyx":405
  * 
  *     def __iter__(self):
  *         for attr in self.__slots__:             # <<<<<<<<<<<<<<
  *             value = getattr(self, attr)
  *             if value == 0 and attr.startswith("number_of_"):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_n_s_slots); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 408, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_n_s_slots); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 408, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 405, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 408, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 405, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -8867,17 +8825,17 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 408, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 405, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 408, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 408, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 405, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 408, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -8887,7 +8845,7 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 408, __pyx_L1_error)
+          else __PYX_ERR(0, 405, __pyx_L1_error)
         }
         break;
       }
@@ -8898,37 +8856,37 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
     __Pyx_GIVEREF(__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "_cotton2k/simulation.pyx":409
+    /* "_cotton2k/simulation.pyx":406
  *     def __iter__(self):
  *         for attr in self.__slots__:
  *             value = getattr(self, attr)             # <<<<<<<<<<<<<<
  *             if value == 0 and attr.startswith("number_of_"):
  *                 continue
  */
-    __pyx_t_1 = __Pyx_GetAttr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_cur_scope->__pyx_v_attr); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 409, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetAttr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_cur_scope->__pyx_v_attr); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 406, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_value);
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_value, __pyx_t_1);
     __Pyx_GIVEREF(__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "_cotton2k/simulation.pyx":410
+    /* "_cotton2k/simulation.pyx":407
  *         for attr in self.__slots__:
  *             value = getattr(self, attr)
  *             if value == 0 and attr.startswith("number_of_"):             # <<<<<<<<<<<<<<
  *                 continue
  *             yield attr, value
  */
-    __pyx_t_1 = __Pyx_PyInt_EqObjC(__pyx_cur_scope->__pyx_v_value, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_EqObjC(__pyx_cur_scope->__pyx_v_value, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 407, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 410, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 407, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     if (__pyx_t_6) {
     } else {
       __pyx_t_5 = __pyx_t_6;
       goto __pyx_L7_bool_binop_done;
     }
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_attr, __pyx_n_s_startswith); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 410, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_attr, __pyx_n_s_startswith); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 407, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_8 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -8942,16 +8900,16 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
     }
     __pyx_t_1 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_8, __pyx_n_u_number_of) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_n_u_number_of);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 407, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 410, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 407, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_5 = __pyx_t_6;
     __pyx_L7_bool_binop_done:;
     if (__pyx_t_5) {
 
-      /* "_cotton2k/simulation.pyx":411
+      /* "_cotton2k/simulation.pyx":408
  *             value = getattr(self, attr)
  *             if value == 0 and attr.startswith("number_of_"):
  *                 continue             # <<<<<<<<<<<<<<
@@ -8960,7 +8918,7 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
  */
       goto __pyx_L4_continue;
 
-      /* "_cotton2k/simulation.pyx":410
+      /* "_cotton2k/simulation.pyx":407
  *         for attr in self.__slots__:
  *             value = getattr(self, attr)
  *             if value == 0 and attr.startswith("number_of_"):             # <<<<<<<<<<<<<<
@@ -8969,14 +8927,14 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
  */
     }
 
-    /* "_cotton2k/simulation.pyx":412
+    /* "_cotton2k/simulation.pyx":409
  *             if value == 0 and attr.startswith("number_of_"):
  *                 continue
  *             yield attr, value             # <<<<<<<<<<<<<<
  * 
  * cdef class Simulation:
  */
-    __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 412, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 409, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_cur_scope->__pyx_v_attr);
     __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_attr);
@@ -9002,9 +8960,9 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
     __Pyx_XGOTREF(__pyx_t_2);
     __pyx_t_3 = __pyx_cur_scope->__pyx_t_1;
     __pyx_t_4 = __pyx_cur_scope->__pyx_t_2;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 412, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 409, __pyx_L1_error)
 
-    /* "_cotton2k/simulation.pyx":408
+    /* "_cotton2k/simulation.pyx":405
  * 
  *     def __iter__(self):
  *         for attr in self.__slots__:             # <<<<<<<<<<<<<<
@@ -9016,7 +8974,7 @@ static PyObject *__pyx_gb_9_cotton2k_10simulation_5State_4generator2(__pyx_Corou
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "_cotton2k/simulation.pyx":407
+  /* "_cotton2k/simulation.pyx":404
  *         return self._state.soil
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -9157,7 +9115,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_5State_7__setstate_cython__(CY
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":417
+/* "_cotton2k/simulation.pyx":414
  *     cdef cSimulation _sim
  * 
  *     def _doy2date(self, j):             # <<<<<<<<<<<<<<
@@ -9198,7 +9156,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_doy2date", 0);
 
-  /* "_cotton2k/simulation.pyx":418
+  /* "_cotton2k/simulation.pyx":415
  * 
  *     def _doy2date(self, j):
  *         try:             # <<<<<<<<<<<<<<
@@ -9214,7 +9172,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "_cotton2k/simulation.pyx":419
+      /* "_cotton2k/simulation.pyx":416
  *     def _doy2date(self, j):
  *         try:
  *             return datetime.strptime(f"{self.year} {j}", "%Y %j").date()             # <<<<<<<<<<<<<<
@@ -9222,18 +9180,18 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
  *             return
  */
       __Pyx_XDECREF(__pyx_r);
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_datetime); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_datetime); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_strptime); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_strptime); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_6 = PyTuple_New(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __pyx_t_6 = PyTuple_New(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __pyx_t_8 = 0;
       __pyx_t_9 = 127;
-      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_year); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_year); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_11 = __Pyx_PyObject_FormatSimple(__pyx_t_10, __pyx_empty_unicode); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __pyx_t_11 = __Pyx_PyObject_FormatSimple(__pyx_t_10, __pyx_empty_unicode); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       __pyx_t_9 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_11) > __pyx_t_9) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_11) : __pyx_t_9;
@@ -9245,14 +9203,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
       __pyx_t_8 += 1;
       __Pyx_GIVEREF(__pyx_kp_u__16);
       PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_kp_u__16);
-      __pyx_t_11 = __Pyx_PyObject_FormatSimple(__pyx_v_j, __pyx_empty_unicode); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __pyx_t_11 = __Pyx_PyObject_FormatSimple(__pyx_v_j, __pyx_empty_unicode); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_11);
       __pyx_t_9 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_11) > __pyx_t_9) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_11) : __pyx_t_9;
       __pyx_t_8 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_11);
       __Pyx_GIVEREF(__pyx_t_11);
       PyTuple_SET_ITEM(__pyx_t_6, 2, __pyx_t_11);
       __pyx_t_11 = 0;
-      __pyx_t_11 = __Pyx_PyUnicode_Join(__pyx_t_6, 3, __pyx_t_8, __pyx_t_9); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __pyx_t_11 = __Pyx_PyUnicode_Join(__pyx_t_6, 3, __pyx_t_8, __pyx_t_9); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_t_6 = NULL;
@@ -9270,7 +9228,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_11, __pyx_kp_u_Y_j};
-        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 419, __pyx_L3_error)
+        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 416, __pyx_L3_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
@@ -9279,14 +9237,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_11, __pyx_kp_u_Y_j};
-        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 419, __pyx_L3_error)
+        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 416, __pyx_L3_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       } else
       #endif
       {
-        __pyx_t_10 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 419, __pyx_L3_error)
+        __pyx_t_10 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 416, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_10);
         if (__pyx_t_6) {
           __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -9297,12 +9255,12 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
         __Pyx_GIVEREF(__pyx_kp_u_Y_j);
         PyTuple_SET_ITEM(__pyx_t_10, 1+__pyx_t_12, __pyx_kp_u_Y_j);
         __pyx_t_11 = 0;
-        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_10, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 419, __pyx_L3_error)
+        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_10, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 416, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       }
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 419, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_date); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_t_5 = NULL;
@@ -9317,14 +9275,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
       }
       __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 419, __pyx_L3_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 416, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_r = __pyx_t_4;
       __pyx_t_4 = 0;
       goto __pyx_L7_try_return;
 
-      /* "_cotton2k/simulation.pyx":418
+      /* "_cotton2k/simulation.pyx":415
  * 
  *     def _doy2date(self, j):
  *         try:             # <<<<<<<<<<<<<<
@@ -9340,7 +9298,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "_cotton2k/simulation.pyx":420
+    /* "_cotton2k/simulation.pyx":417
  *         try:
  *             return datetime.strptime(f"{self.year} {j}", "%Y %j").date()
  *         except:             # <<<<<<<<<<<<<<
@@ -9349,12 +9307,12 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
  */
     /*except:*/ {
       __Pyx_AddTraceback("_cotton2k.simulation.Simulation._doy2date", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_7, &__pyx_t_5) < 0) __PYX_ERR(0, 420, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_7, &__pyx_t_5) < 0) __PYX_ERR(0, 417, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "_cotton2k/simulation.pyx":421
+      /* "_cotton2k/simulation.pyx":418
  *             return datetime.strptime(f"{self.year} {j}", "%Y %j").date()
  *         except:
  *             return             # <<<<<<<<<<<<<<
@@ -9370,7 +9328,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
     }
     __pyx_L5_except_error:;
 
-    /* "_cotton2k/simulation.pyx":418
+    /* "_cotton2k/simulation.pyx":415
  * 
  *     def _doy2date(self, j):
  *         try:             # <<<<<<<<<<<<<<
@@ -9396,7 +9354,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
     goto __pyx_L0;
   }
 
-  /* "_cotton2k/simulation.pyx":417
+  /* "_cotton2k/simulation.pyx":414
  *     cdef cSimulation _sim
  * 
  *     def _doy2date(self, j):             # <<<<<<<<<<<<<<
@@ -9420,7 +9378,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation__doy2date(struct 
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":424
+/* "_cotton2k/simulation.pyx":421
  * 
  *     @property
  *     def year(self):             # <<<<<<<<<<<<<<
@@ -9450,7 +9408,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4year___get__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":425
+  /* "_cotton2k/simulation.pyx":422
  *     @property
  *     def year(self):
  *         return self._sim.year             # <<<<<<<<<<<<<<
@@ -9458,13 +9416,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4year___get__(str
  *     @year.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->_sim.year); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 425, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->_sim.year); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 422, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":424
+  /* "_cotton2k/simulation.pyx":421
  * 
  *     @property
  *     def year(self):             # <<<<<<<<<<<<<<
@@ -9483,7 +9441,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4year___get__(str
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":428
+/* "_cotton2k/simulation.pyx":425
  * 
  *     @year.setter
  *     def year(self, year):             # <<<<<<<<<<<<<<
@@ -9513,17 +9471,17 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_4year_2__set__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":429
+  /* "_cotton2k/simulation.pyx":426
  *     @year.setter
  *     def year(self, year):
  *         self._sim.year = year             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_year); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 429, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_year); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 426, __pyx_L1_error)
   __pyx_v_self->_sim.year = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":428
+  /* "_cotton2k/simulation.pyx":425
  * 
  *     @year.setter
  *     def year(self, year):             # <<<<<<<<<<<<<<
@@ -9542,7 +9500,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_4year_2__set__(struct _
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":432
+/* "_cotton2k/simulation.pyx":429
  * 
  *     @property
  *     def start_date(self):             # <<<<<<<<<<<<<<
@@ -9575,7 +9533,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10start_date___ge
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":433
+  /* "_cotton2k/simulation.pyx":430
  *     @property
  *     def start_date(self):
  *         return self._doy2date(self._sim.day_start)             # <<<<<<<<<<<<<<
@@ -9583,9 +9541,9 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10start_date___ge
  *     @start_date.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 433, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 430, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_start); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 433, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_start); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 430, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -9600,14 +9558,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10start_date___ge
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 433, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 430, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":432
+  /* "_cotton2k/simulation.pyx":429
  * 
  *     @property
  *     def start_date(self):             # <<<<<<<<<<<<<<
@@ -9629,7 +9587,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10start_date___ge
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":436
+/* "_cotton2k/simulation.pyx":433
  * 
  *     @start_date.setter
  *     def start_date(self, d):             # <<<<<<<<<<<<<<
@@ -9662,14 +9620,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_10start_date_2__set__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":437
+  /* "_cotton2k/simulation.pyx":434
  *     @start_date.setter
  *     def start_date(self, d):
  *         self._sim.day_start = date2doy(d)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 437, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 434, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -9683,14 +9641,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_10start_date_2__set__(s
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_d) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_d);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 437, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 434, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 437, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 434, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->_sim.day_start = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":436
+  /* "_cotton2k/simulation.pyx":433
  * 
  *     @start_date.setter
  *     def start_date(self, d):             # <<<<<<<<<<<<<<
@@ -9712,7 +9670,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_10start_date_2__set__(s
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":440
+/* "_cotton2k/simulation.pyx":437
  * 
  *     @property
  *     def stop_date(self):             # <<<<<<<<<<<<<<
@@ -9745,7 +9703,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9stop_date___get_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":441
+  /* "_cotton2k/simulation.pyx":438
  *     @property
  *     def stop_date(self):
  *         return self._doy2date(self._sim.day_finish)             # <<<<<<<<<<<<<<
@@ -9753,9 +9711,9 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9stop_date___get_
  *     @stop_date.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 441, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 438, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_finish); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 441, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_finish); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 438, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -9770,14 +9728,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9stop_date___get_
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 441, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 438, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":440
+  /* "_cotton2k/simulation.pyx":437
  * 
  *     @property
  *     def stop_date(self):             # <<<<<<<<<<<<<<
@@ -9799,7 +9757,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9stop_date___get_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":444
+/* "_cotton2k/simulation.pyx":441
  * 
  *     @stop_date.setter
  *     def stop_date(self, d):             # <<<<<<<<<<<<<<
@@ -9832,14 +9790,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9stop_date_2__set__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":445
+  /* "_cotton2k/simulation.pyx":442
  *     @stop_date.setter
  *     def stop_date(self, d):
  *         self._sim.day_finish = date2doy(d)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 445, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -9853,14 +9811,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9stop_date_2__set__(str
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_d) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_d);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 445, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 445, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 442, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->_sim.day_finish = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":444
+  /* "_cotton2k/simulation.pyx":441
  * 
  *     @stop_date.setter
  *     def stop_date(self, d):             # <<<<<<<<<<<<<<
@@ -9882,7 +9840,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9stop_date_2__set__(str
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":448
+/* "_cotton2k/simulation.pyx":445
  * 
  *     @property
  *     def emerge_date(self):             # <<<<<<<<<<<<<<
@@ -9915,7 +9873,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_11emerge_date___g
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":449
+  /* "_cotton2k/simulation.pyx":446
  *     @property
  *     def emerge_date(self):
  *         return self._doy2date(self._sim.day_emerge)             # <<<<<<<<<<<<<<
@@ -9923,9 +9881,9 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_11emerge_date___g
  *     @emerge_date.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 449, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 446, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_emerge); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 449, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_emerge); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 446, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -9940,14 +9898,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_11emerge_date___g
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 449, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 446, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":448
+  /* "_cotton2k/simulation.pyx":445
  * 
  *     @property
  *     def emerge_date(self):             # <<<<<<<<<<<<<<
@@ -9969,7 +9927,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_11emerge_date___g
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":452
+/* "_cotton2k/simulation.pyx":449
  * 
  *     @emerge_date.setter
  *     def emerge_date(self, d):             # <<<<<<<<<<<<<<
@@ -10002,14 +9960,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_11emerge_date_2__set__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":453
+  /* "_cotton2k/simulation.pyx":450
  *     @emerge_date.setter
  *     def emerge_date(self, d):
  *         self._sim.day_emerge = date2doy(d)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 453, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 450, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -10023,14 +9981,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_11emerge_date_2__set__(
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_d) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_d);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 453, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 450, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 453, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 450, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->_sim.day_emerge = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":452
+  /* "_cotton2k/simulation.pyx":449
  * 
  *     @emerge_date.setter
  *     def emerge_date(self, d):             # <<<<<<<<<<<<<<
@@ -10052,7 +10010,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_11emerge_date_2__set__(
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":456
+/* "_cotton2k/simulation.pyx":453
  * 
  *     @property
  *     def plant_date(self):             # <<<<<<<<<<<<<<
@@ -10085,7 +10043,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10plant_date___ge
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":457
+  /* "_cotton2k/simulation.pyx":454
  *     @property
  *     def plant_date(self):
  *         return self._doy2date(self._sim.day_plant)             # <<<<<<<<<<<<<<
@@ -10093,9 +10051,9 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10plant_date___ge
  *     @plant_date.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 457, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_plant); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 457, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_plant); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -10110,14 +10068,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10plant_date___ge
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 457, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":456
+  /* "_cotton2k/simulation.pyx":453
  * 
  *     @property
  *     def plant_date(self):             # <<<<<<<<<<<<<<
@@ -10139,7 +10097,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_10plant_date___ge
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":460
+/* "_cotton2k/simulation.pyx":457
  * 
  *     @plant_date.setter
  *     def plant_date(self, d):             # <<<<<<<<<<<<<<
@@ -10172,14 +10130,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_10plant_date_2__set__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":461
+  /* "_cotton2k/simulation.pyx":458
  *     @plant_date.setter
  *     def plant_date(self, d):
  *         self._sim.day_plant = date2doy(d)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 461, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -10193,14 +10151,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_10plant_date_2__set__(s
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_d) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_d);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 461, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->_sim.day_plant = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":460
+  /* "_cotton2k/simulation.pyx":457
  * 
  *     @plant_date.setter
  *     def plant_date(self, d):             # <<<<<<<<<<<<<<
@@ -10222,7 +10180,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_10plant_date_2__set__(s
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":464
+/* "_cotton2k/simulation.pyx":461
  * 
  *     @property
  *     def topping_date(self):             # <<<<<<<<<<<<<<
@@ -10255,7 +10213,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_12topping_date___
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":465
+  /* "_cotton2k/simulation.pyx":462
  *     @property
  *     def topping_date(self):
  *         return self._doy2date(self._sim.day_topping)             # <<<<<<<<<<<<<<
@@ -10263,9 +10221,9 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_12topping_date___
  *     @topping_date.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_doy2date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 462, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_topping); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->_sim.day_topping); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 462, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -10280,14 +10238,14 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_12topping_date___
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 465, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 462, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":464
+  /* "_cotton2k/simulation.pyx":461
  * 
  *     @property
  *     def topping_date(self):             # <<<<<<<<<<<<<<
@@ -10309,7 +10267,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_12topping_date___
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":468
+/* "_cotton2k/simulation.pyx":465
  * 
  *     @topping_date.setter
  *     def topping_date(self, d):             # <<<<<<<<<<<<<<
@@ -10342,14 +10300,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_12topping_date_2__set__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":469
+  /* "_cotton2k/simulation.pyx":466
  *     @topping_date.setter
  *     def topping_date(self, d):
  *         self._sim.day_topping = date2doy(d)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 469, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_date2doy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -10363,14 +10321,14 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_12topping_date_2__set__
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_d) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_d);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 469, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 469, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->_sim.day_topping = __pyx_t_4;
 
-  /* "_cotton2k/simulation.pyx":468
+  /* "_cotton2k/simulation.pyx":465
  * 
  *     @topping_date.setter
  *     def topping_date(self, d):             # <<<<<<<<<<<<<<
@@ -10392,7 +10350,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_12topping_date_2__set__
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":472
+/* "_cotton2k/simulation.pyx":469
  * 
  *     @property
  *     def latitude(self):             # <<<<<<<<<<<<<<
@@ -10422,7 +10380,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_8latitude___get__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":473
+  /* "_cotton2k/simulation.pyx":470
  *     @property
  *     def latitude(self):
  *         return self._sim.latitude             # <<<<<<<<<<<<<<
@@ -10430,13 +10388,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_8latitude___get__
  *     @latitude.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.latitude); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.latitude); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":472
+  /* "_cotton2k/simulation.pyx":469
  * 
  *     @property
  *     def latitude(self):             # <<<<<<<<<<<<<<
@@ -10455,7 +10413,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_8latitude___get__
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":476
+/* "_cotton2k/simulation.pyx":473
  * 
  *     @latitude.setter
  *     def latitude(self, value):             # <<<<<<<<<<<<<<
@@ -10487,17 +10445,17 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_8latitude_2__set__(stru
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":477
+  /* "_cotton2k/simulation.pyx":474
  *     @latitude.setter
  *     def latitude(self, value):
  *         self._sim.latitude = value or 0             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 474, __pyx_L1_error)
   if (!__pyx_t_2) {
   } else {
-    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 474, __pyx_L1_error)
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L3_bool_binop_done;
   }
@@ -10505,7 +10463,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_8latitude_2__set__(stru
   __pyx_L3_bool_binop_done:;
   __pyx_v_self->_sim.latitude = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":476
+  /* "_cotton2k/simulation.pyx":473
  * 
  *     @latitude.setter
  *     def latitude(self, value):             # <<<<<<<<<<<<<<
@@ -10524,7 +10482,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_8latitude_2__set__(stru
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":480
+/* "_cotton2k/simulation.pyx":477
  * 
  *     @property
  *     def longitude(self):             # <<<<<<<<<<<<<<
@@ -10554,7 +10512,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9longitude___get_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":481
+  /* "_cotton2k/simulation.pyx":478
  *     @property
  *     def longitude(self):
  *         return self._sim.longitude             # <<<<<<<<<<<<<<
@@ -10562,13 +10520,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9longitude___get_
  *     @longitude.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.longitude); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 481, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.longitude); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":480
+  /* "_cotton2k/simulation.pyx":477
  * 
  *     @property
  *     def longitude(self):             # <<<<<<<<<<<<<<
@@ -10587,7 +10545,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9longitude___get_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":484
+/* "_cotton2k/simulation.pyx":481
  * 
  *     @longitude.setter
  *     def longitude(self, value):             # <<<<<<<<<<<<<<
@@ -10619,17 +10577,17 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9longitude_2__set__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":485
+  /* "_cotton2k/simulation.pyx":482
  *     @longitude.setter
  *     def longitude(self, value):
  *         self._sim.longitude = value or 0             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 485, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 482, __pyx_L1_error)
   if (!__pyx_t_2) {
   } else {
-    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 485, __pyx_L1_error)
+    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 482, __pyx_L1_error)
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L3_bool_binop_done;
   }
@@ -10637,7 +10595,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9longitude_2__set__(str
   __pyx_L3_bool_binop_done:;
   __pyx_v_self->_sim.longitude = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":484
+  /* "_cotton2k/simulation.pyx":481
  * 
  *     @longitude.setter
  *     def longitude(self, value):             # <<<<<<<<<<<<<<
@@ -10656,7 +10614,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9longitude_2__set__(str
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":488
+/* "_cotton2k/simulation.pyx":485
  * 
  *     @property
  *     def elevation(self):             # <<<<<<<<<<<<<<
@@ -10686,7 +10644,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation___get_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":489
+  /* "_cotton2k/simulation.pyx":486
  *     @property
  *     def elevation(self):
  *         return self._sim.elevation             # <<<<<<<<<<<<<<
@@ -10694,13 +10652,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation___get_
  *     @elevation.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.elevation); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 489, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.elevation); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 486, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":488
+  /* "_cotton2k/simulation.pyx":485
  * 
  *     @property
  *     def elevation(self):             # <<<<<<<<<<<<<<
@@ -10719,7 +10677,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation___get_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":492
+/* "_cotton2k/simulation.pyx":489
  * 
  *     @elevation.setter
  *     def elevation(self, value):             # <<<<<<<<<<<<<<
@@ -10751,17 +10709,17 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation_2__set__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":493
+  /* "_cotton2k/simulation.pyx":490
  *     @elevation.setter
  *     def elevation(self, value):
  *         self._sim.elevation = value or 0             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 493, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 490, __pyx_L1_error)
   if (!__pyx_t_2) {
   } else {
-    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 493, __pyx_L1_error)
+    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 490, __pyx_L1_error)
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L3_bool_binop_done;
   }
@@ -10769,7 +10727,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation_2__set__(str
   __pyx_L3_bool_binop_done:;
   __pyx_v_self->_sim.elevation = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":492
+  /* "_cotton2k/simulation.pyx":489
  * 
  *     @elevation.setter
  *     def elevation(self, value):             # <<<<<<<<<<<<<<
@@ -10788,7 +10746,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation_2__set__(str
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":496
+/* "_cotton2k/simulation.pyx":493
  * 
  *     @property
  *     def site_parameters(self):             # <<<<<<<<<<<<<<
@@ -10818,7 +10776,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":497
+  /* "_cotton2k/simulation.pyx":494
  *     @property
  *     def site_parameters(self):
  *         return SitePar             # <<<<<<<<<<<<<<
@@ -10826,13 +10784,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters
  *     @site_parameters.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_carray_to_py_double(SitePar, 21); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_py_double(SitePar, 21); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":496
+  /* "_cotton2k/simulation.pyx":493
  * 
  *     @property
  *     def site_parameters(self):             # <<<<<<<<<<<<<<
@@ -10851,7 +10809,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":500
+/* "_cotton2k/simulation.pyx":497
  * 
  *     @site_parameters.setter
  *     def site_parameters(self, parameters):             # <<<<<<<<<<<<<<
@@ -10889,7 +10847,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__se
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":501
+  /* "_cotton2k/simulation.pyx":498
  *     @site_parameters.setter
  *     def site_parameters(self, parameters):
  *         for i, p in enumerate(parameters):             # <<<<<<<<<<<<<<
@@ -10902,26 +10860,26 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__se
     __pyx_t_2 = __pyx_v_parameters; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_parameters); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 501, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_parameters); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 498, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 501, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 498, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_4)) {
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 501, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 498, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 501, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 498, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 501, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 498, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 501, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 498, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -10931,7 +10889,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__se
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 501, __pyx_L1_error)
+          else __PYX_ERR(0, 498, __pyx_L1_error)
         }
         break;
       }
@@ -10941,27 +10899,27 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__se
     __pyx_t_5 = 0;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 501, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 498, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "_cotton2k/simulation.pyx":502
+    /* "_cotton2k/simulation.pyx":499
  *     def site_parameters(self, parameters):
  *         for i, p in enumerate(parameters):
  *             SitePar[i + 1] = p             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_v_p); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 502, __pyx_L1_error)
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_v_i, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 502, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_v_p); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_v_i, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 499, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_t_5); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 502, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_t_5); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 499, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     (SitePar[__pyx_t_7]) = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":501
+    /* "_cotton2k/simulation.pyx":498
  *     @site_parameters.setter
  *     def site_parameters(self, parameters):
  *         for i, p in enumerate(parameters):             # <<<<<<<<<<<<<<
@@ -10972,7 +10930,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__se
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":500
+  /* "_cotton2k/simulation.pyx":497
  * 
  *     @site_parameters.setter
  *     def site_parameters(self, parameters):             # <<<<<<<<<<<<<<
@@ -10996,7 +10954,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__se
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":505
+/* "_cotton2k/simulation.pyx":502
  * 
  *     @property
  *     def cultivar_parameters(self):             # <<<<<<<<<<<<<<
@@ -11026,7 +10984,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parame
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":506
+  /* "_cotton2k/simulation.pyx":503
  *     @property
  *     def cultivar_parameters(self):
  *         return VarPar             # <<<<<<<<<<<<<<
@@ -11034,13 +10992,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parame
  *     @cultivar_parameters.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_carray_to_py_double(VarPar, 61); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 506, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_py_double(VarPar, 61); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 503, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":505
+  /* "_cotton2k/simulation.pyx":502
  * 
  *     @property
  *     def cultivar_parameters(self):             # <<<<<<<<<<<<<<
@@ -11059,7 +11017,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parame
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":509
+/* "_cotton2k/simulation.pyx":506
  * 
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):             # <<<<<<<<<<<<<<
@@ -11097,7 +11055,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":510
+  /* "_cotton2k/simulation.pyx":507
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):
  *         for i, p in enumerate(parameters):             # <<<<<<<<<<<<<<
@@ -11110,26 +11068,26 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
     __pyx_t_2 = __pyx_v_parameters; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_parameters); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 510, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_parameters); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 507, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 510, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 507, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_4)) {
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 510, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 507, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 510, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 507, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 510, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 507, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 510, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 507, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -11139,7 +11097,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 510, __pyx_L1_error)
+          else __PYX_ERR(0, 507, __pyx_L1_error)
         }
         break;
       }
@@ -11149,27 +11107,27 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
     __pyx_t_5 = 0;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 510, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 507, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "_cotton2k/simulation.pyx":511
+    /* "_cotton2k/simulation.pyx":508
  *     def cultivar_parameters(self, parameters):
  *         for i, p in enumerate(parameters):
  *             VarPar[i + 1] = p             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_v_p); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 511, __pyx_L1_error)
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_v_i, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 511, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_v_p); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 508, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_v_i, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 508, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_t_5); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 511, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_t_5); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 508, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     (VarPar[__pyx_t_7]) = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":510
+    /* "_cotton2k/simulation.pyx":507
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):
  *         for i, p in enumerate(parameters):             # <<<<<<<<<<<<<<
@@ -11180,7 +11138,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":509
+  /* "_cotton2k/simulation.pyx":506
  * 
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):             # <<<<<<<<<<<<<<
@@ -11204,7 +11162,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":514
+/* "_cotton2k/simulation.pyx":511
  * 
  *     @property
  *     def row_space(self):             # <<<<<<<<<<<<<<
@@ -11234,7 +11192,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space___get_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":515
+  /* "_cotton2k/simulation.pyx":512
  *     @property
  *     def row_space(self):
  *         return self._sim.row_space             # <<<<<<<<<<<<<<
@@ -11242,13 +11200,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space___get_
  *     @row_space.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.row_space); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 515, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_sim.row_space); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 512, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":514
+  /* "_cotton2k/simulation.pyx":511
  * 
  *     @property
  *     def row_space(self):             # <<<<<<<<<<<<<<
@@ -11267,7 +11225,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space___get_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":518
+/* "_cotton2k/simulation.pyx":515
  * 
  *     @row_space.setter
  *     def row_space(self, value):             # <<<<<<<<<<<<<<
@@ -11299,17 +11257,17 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space_2__set__(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":519
+  /* "_cotton2k/simulation.pyx":516
  *     @row_space.setter
  *     def row_space(self, value):
  *         self._sim.row_space = value or 0             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 519, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 516, __pyx_L1_error)
   if (!__pyx_t_2) {
   } else {
-    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 519, __pyx_L1_error)
+    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 516, __pyx_L1_error)
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L3_bool_binop_done;
   }
@@ -11317,7 +11275,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space_2__set__(str
   __pyx_L3_bool_binop_done:;
   __pyx_v_self->_sim.row_space = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":518
+  /* "_cotton2k/simulation.pyx":515
  * 
  *     @row_space.setter
  *     def row_space(self, value):             # <<<<<<<<<<<<<<
@@ -11336,7 +11294,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space_2__set__(str
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":522
+/* "_cotton2k/simulation.pyx":519
  * 
  *     @property
  *     def skip_row_width(self):             # <<<<<<<<<<<<<<
@@ -11366,7 +11324,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_14skip_row_width_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":523
+  /* "_cotton2k/simulation.pyx":520
  *     @property
  *     def skip_row_width(self):
  *         return SkipRowWidth             # <<<<<<<<<<<<<<
@@ -11374,13 +11332,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_14skip_row_width_
  *     @skip_row_width.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_9_cotton2k_10simulation_SkipRowWidth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 523, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_9_cotton2k_10simulation_SkipRowWidth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":522
+  /* "_cotton2k/simulation.pyx":519
  * 
  *     @property
  *     def skip_row_width(self):             # <<<<<<<<<<<<<<
@@ -11399,7 +11357,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_14skip_row_width_
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":526
+/* "_cotton2k/simulation.pyx":523
  * 
  *     @skip_row_width.setter
  *     def skip_row_width(self, value):             # <<<<<<<<<<<<<<
@@ -11431,17 +11389,17 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_14skip_row_width_2__set
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":528
+  /* "_cotton2k/simulation.pyx":525
  *     def skip_row_width(self, value):
  *         global SkipRowWidth
  *         SkipRowWidth = value or 0             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 528, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 525, __pyx_L1_error)
   if (!__pyx_t_2) {
   } else {
-    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 528, __pyx_L1_error)
+    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 525, __pyx_L1_error)
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L3_bool_binop_done;
   }
@@ -11449,7 +11407,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_14skip_row_width_2__set
   __pyx_L3_bool_binop_done:;
   __pyx_v_9_cotton2k_10simulation_SkipRowWidth = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":526
+  /* "_cotton2k/simulation.pyx":523
  * 
  *     @skip_row_width.setter
  *     def skip_row_width(self, value):             # <<<<<<<<<<<<<<
@@ -11468,7 +11426,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_14skip_row_width_2__set
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":531
+/* "_cotton2k/simulation.pyx":528
  * 
  *     @property
  *     def plants_per_meter(self):             # <<<<<<<<<<<<<<
@@ -11498,7 +11456,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_16plants_per_mete
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":532
+  /* "_cotton2k/simulation.pyx":529
  *     @property
  *     def plants_per_meter(self):
  *         return PlantsPerM             # <<<<<<<<<<<<<<
@@ -11506,13 +11464,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_16plants_per_mete
  *     @plants_per_meter.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_9_cotton2k_10simulation_PlantsPerM); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 532, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_9_cotton2k_10simulation_PlantsPerM); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 529, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":531
+  /* "_cotton2k/simulation.pyx":528
  * 
  *     @property
  *     def plants_per_meter(self):             # <<<<<<<<<<<<<<
@@ -11531,7 +11489,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_16plants_per_mete
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":535
+/* "_cotton2k/simulation.pyx":532
  * 
  *     @plants_per_meter.setter
  *     def plants_per_meter(self, value):             # <<<<<<<<<<<<<<
@@ -11563,17 +11521,17 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_16plants_per_meter_2__s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":537
+  /* "_cotton2k/simulation.pyx":534
  *     def plants_per_meter(self, value):
  *         global PlantsPerM
  *         PlantsPerM = value or 0             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 537, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 534, __pyx_L1_error)
   if (!__pyx_t_2) {
   } else {
-    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 537, __pyx_L1_error)
+    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 534, __pyx_L1_error)
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L3_bool_binop_done;
   }
@@ -11581,7 +11539,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_16plants_per_meter_2__s
   __pyx_L3_bool_binop_done:;
   __pyx_v_9_cotton2k_10simulation_PlantsPerM = __pyx_t_1;
 
-  /* "_cotton2k/simulation.pyx":535
+  /* "_cotton2k/simulation.pyx":532
  * 
  *     @plants_per_meter.setter
  *     def plants_per_meter(self, value):             # <<<<<<<<<<<<<<
@@ -11600,7 +11558,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_16plants_per_meter_2__s
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":540
+/* "_cotton2k/simulation.pyx":537
  * 
  *     @property
  *     def states(self):             # <<<<<<<<<<<<<<
@@ -11636,7 +11594,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_6states___get__(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":541
+  /* "_cotton2k/simulation.pyx":538
  *     @property
  *     def states(self):
  *         return [State(self._sim.states[i]) for i in range(self._sim.day_finish - self._sim.day_start + 1)]             # <<<<<<<<<<<<<<
@@ -11645,18 +11603,18 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_6states___get__(s
  */
   __Pyx_XDECREF(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 541, __pyx_L1_error)
+    __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_2 = ((__pyx_v_self->_sim.day_finish - __pyx_v_self->_sim.day_start) + 1);
     __pyx_t_3 = __pyx_t_2;
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_8genexpr6__pyx_v_i = __pyx_t_4;
-      __pyx_t_5 = __pyx_convert__to_py_State((__pyx_v_self->_sim.states[__pyx_8genexpr6__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __pyx_t_5 = __pyx_convert__to_py_State((__pyx_v_self->_sim.states[__pyx_8genexpr6__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 538, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_9_cotton2k_10simulation_State), __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_9_cotton2k_10simulation_State), __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 538, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 541, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 538, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
   } /* exit inner scope */
@@ -11664,7 +11622,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_6states___get__(s
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":540
+  /* "_cotton2k/simulation.pyx":537
  * 
  *     @property
  *     def states(self):             # <<<<<<<<<<<<<<
@@ -11685,7 +11643,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_6states___get__(s
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":544
+/* "_cotton2k/simulation.pyx":541
  * 
  *     @property
  *     def climate(self):             # <<<<<<<<<<<<<<
@@ -11715,7 +11673,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_7climate___get__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "_cotton2k/simulation.pyx":545
+  /* "_cotton2k/simulation.pyx":542
  *     @property
  *     def climate(self):
  *         return self._sim.climate             # <<<<<<<<<<<<<<
@@ -11723,13 +11681,13 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_7climate___get__(
  *     @climate.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_carray_to_py_ClimateStruct(__pyx_v_self->_sim.climate, 0x190); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 545, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_py_ClimateStruct(__pyx_v_self->_sim.climate, 0x190); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 542, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "_cotton2k/simulation.pyx":544
+  /* "_cotton2k/simulation.pyx":541
  * 
  *     @property
  *     def climate(self):             # <<<<<<<<<<<<<<
@@ -11748,7 +11706,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_7climate___get__(
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":548
+/* "_cotton2k/simulation.pyx":545
  * 
  *     @climate.setter
  *     def climate(self, climate):             # <<<<<<<<<<<<<<
@@ -11786,7 +11744,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_7climate_2__set__(struc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "_cotton2k/simulation.pyx":549
+  /* "_cotton2k/simulation.pyx":546
  *     @climate.setter
  *     def climate(self, climate):
  *         for i, daily_climate in enumerate(climate):             # <<<<<<<<<<<<<<
@@ -11799,26 +11757,26 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_7climate_2__set__(struc
     __pyx_t_2 = __pyx_v_climate; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_climate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 549, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_v_climate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 546, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 549, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 546, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_4)) {
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 549, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 546, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 549, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 546, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 549, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 546, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 549, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 546, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -11828,7 +11786,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_7climate_2__set__(struc
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 549, __pyx_L1_error)
+          else __PYX_ERR(0, 546, __pyx_L1_error)
         }
         break;
       }
@@ -11838,97 +11796,97 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_7climate_2__set__(struc
     __pyx_t_5 = 0;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 549, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 546, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "_cotton2k/simulation.pyx":550
+    /* "_cotton2k/simulation.pyx":547
  *     def climate(self, climate):
  *         for i, daily_climate in enumerate(climate):
  *             self._sim.climate[i].Rad = daily_climate["radiation"]             # <<<<<<<<<<<<<<
  *             self._sim.climate[i].Tmax = daily_climate["max"]
  *             self._sim.climate[i].Tmin = daily_climate["min"]
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_radiation); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 550, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_radiation); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 547, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 550, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 547, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 550, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 547, __pyx_L1_error)
     (__pyx_v_self->_sim.climate[__pyx_t_7]).Rad = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":551
+    /* "_cotton2k/simulation.pyx":548
  *         for i, daily_climate in enumerate(climate):
  *             self._sim.climate[i].Rad = daily_climate["radiation"]
  *             self._sim.climate[i].Tmax = daily_climate["max"]             # <<<<<<<<<<<<<<
  *             self._sim.climate[i].Tmin = daily_climate["min"]
  *             self._sim.climate[i].Wind = daily_climate["wind"]
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_max); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 551, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_max); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 548, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 551, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 548, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 551, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 548, __pyx_L1_error)
     (__pyx_v_self->_sim.climate[__pyx_t_7]).Tmax = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":552
+    /* "_cotton2k/simulation.pyx":549
  *             self._sim.climate[i].Rad = daily_climate["radiation"]
  *             self._sim.climate[i].Tmax = daily_climate["max"]
  *             self._sim.climate[i].Tmin = daily_climate["min"]             # <<<<<<<<<<<<<<
  *             self._sim.climate[i].Wind = daily_climate["wind"]
  *             self._sim.climate[i].Rain = daily_climate["rain"]
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_min); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 552, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_min); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 549, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 552, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 549, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 552, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 549, __pyx_L1_error)
     (__pyx_v_self->_sim.climate[__pyx_t_7]).Tmin = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":553
+    /* "_cotton2k/simulation.pyx":550
  *             self._sim.climate[i].Tmax = daily_climate["max"]
  *             self._sim.climate[i].Tmin = daily_climate["min"]
  *             self._sim.climate[i].Wind = daily_climate["wind"]             # <<<<<<<<<<<<<<
  *             self._sim.climate[i].Rain = daily_climate["rain"]
  *             self._sim.climate[i].Tdew = daily_climate["dewpoint"]
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_wind); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 553, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_wind); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 550, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 553, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 550, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 553, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 550, __pyx_L1_error)
     (__pyx_v_self->_sim.climate[__pyx_t_7]).Wind = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":554
+    /* "_cotton2k/simulation.pyx":551
  *             self._sim.climate[i].Tmin = daily_climate["min"]
  *             self._sim.climate[i].Wind = daily_climate["wind"]
  *             self._sim.climate[i].Rain = daily_climate["rain"]             # <<<<<<<<<<<<<<
  *             self._sim.climate[i].Tdew = daily_climate["dewpoint"]
  * 
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_rain); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 554, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_rain); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 551, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 554, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 551, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 554, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 551, __pyx_L1_error)
     (__pyx_v_self->_sim.climate[__pyx_t_7]).Rain = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":555
+    /* "_cotton2k/simulation.pyx":552
  *             self._sim.climate[i].Wind = daily_climate["wind"]
  *             self._sim.climate[i].Rain = daily_climate["rain"]
  *             self._sim.climate[i].Tdew = daily_climate["dewpoint"]             # <<<<<<<<<<<<<<
  * 
  *     def run(self):
  */
-    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_dewpoint); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 555, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_daily_climate, __pyx_n_u_dewpoint); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 552, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 555, __pyx_L1_error)
+    __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 552, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 555, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 552, __pyx_L1_error)
     (__pyx_v_self->_sim.climate[__pyx_t_7]).Tdew = __pyx_t_6;
 
-    /* "_cotton2k/simulation.pyx":549
+    /* "_cotton2k/simulation.pyx":546
  *     @climate.setter
  *     def climate(self, climate):
  *         for i, daily_climate in enumerate(climate):             # <<<<<<<<<<<<<<
@@ -11939,7 +11897,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_7climate_2__set__(struc
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":548
+  /* "_cotton2k/simulation.pyx":545
  * 
  *     @climate.setter
  *     def climate(self, climate):             # <<<<<<<<<<<<<<
@@ -11963,12 +11921,12 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_7climate_2__set__(struc
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":557
+/* "_cotton2k/simulation.pyx":554
  *             self._sim.climate[i].Tdew = daily_climate["dewpoint"]
  * 
  *     def run(self):             # <<<<<<<<<<<<<<
- *         app = new C2KApp()
- *         app.DailySimulation(self._sim)
+ *         DailySimulation(self._sim)
+ * 
  */
 
 /* Python wrapper */
@@ -11985,61 +11943,36 @@ static PyObject *__pyx_pw_9_cotton2k_10simulation_10Simulation_3run(PyObject *__
 }
 
 static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_2run(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self) {
-  C2KApp *__pyx_v_app;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  C2KApp *__pyx_t_1;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("run", 0);
 
-  /* "_cotton2k/simulation.pyx":558
+  /* "_cotton2k/simulation.pyx":555
  * 
  *     def run(self):
- *         app = new C2KApp()             # <<<<<<<<<<<<<<
- *         app.DailySimulation(self._sim)
- * 
- */
-  try {
-    __pyx_t_1 = new C2KApp();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 558, __pyx_L1_error)
-  }
-  __pyx_v_app = __pyx_t_1;
-
-  /* "_cotton2k/simulation.pyx":559
- *     def run(self):
- *         app = new C2KApp()
- *         app.DailySimulation(self._sim)             # <<<<<<<<<<<<<<
+ *         DailySimulation(self._sim)             # <<<<<<<<<<<<<<
  * 
  *     def read_input(self, lyrsol, **kwargs):
  */
-  __pyx_v_app->DailySimulation(__pyx_v_self->_sim);
+  DailySimulation(__pyx_v_self->_sim);
 
-  /* "_cotton2k/simulation.pyx":557
+  /* "_cotton2k/simulation.pyx":554
  *             self._sim.climate[i].Tdew = daily_climate["dewpoint"]
  * 
  *     def run(self):             # <<<<<<<<<<<<<<
- *         app = new C2KApp()
- *         app.DailySimulation(self._sim)
+ *         DailySimulation(self._sim)
+ * 
  */
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("_cotton2k.simulation.Simulation.run", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "_cotton2k/simulation.pyx":561
- *         app.DailySimulation(self._sim)
+/* "_cotton2k/simulation.pyx":557
+ *         DailySimulation(self._sim)
  * 
  *     def read_input(self, lyrsol, **kwargs):             # <<<<<<<<<<<<<<
  *         """This is the main function for reading input."""
@@ -12079,7 +12012,7 @@ static PyObject *__pyx_pw_9_cotton2k_10simulation_10Simulation_5read_input(PyObj
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "read_input") < 0)) __PYX_ERR(0, 561, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, __pyx_v_kwargs, values, pos_args, "read_input") < 0)) __PYX_ERR(0, 557, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -12090,7 +12023,7 @@ static PyObject *__pyx_pw_9_cotton2k_10simulation_10Simulation_5read_input(PyObj
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("read_input", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 561, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("read_input", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 557, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_kwargs); __pyx_v_kwargs = 0;
   __Pyx_AddTraceback("_cotton2k.simulation.Simulation.read_input", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -12116,7 +12049,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4read_input(struc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("read_input", 0);
 
-  /* "_cotton2k/simulation.pyx":563
+  /* "_cotton2k/simulation.pyx":559
  *     def read_input(self, lyrsol, **kwargs):
  *         """This is the main function for reading input."""
  *         InitializeGlobal()             # <<<<<<<<<<<<<<
@@ -12125,7 +12058,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4read_input(struc
  */
   InitializeGlobal();
 
-  /* "_cotton2k/simulation.pyx":564
+  /* "_cotton2k/simulation.pyx":560
  *         """This is the main function for reading input."""
  *         InitializeGlobal()
  *         initialize_switch(self._sim)             # <<<<<<<<<<<<<<
@@ -12134,7 +12067,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4read_input(struc
  */
   __pyx_f_9_cotton2k_10simulation_initialize_switch(__pyx_v_self->_sim);
 
-  /* "_cotton2k/simulation.pyx":565
+  /* "_cotton2k/simulation.pyx":561
  *         InitializeGlobal()
  *         initialize_switch(self._sim)
  *         self._sim.states = <cState *> malloc(sizeof(cState) * (self._sim.day_finish - self._sim.day_start + 1))             # <<<<<<<<<<<<<<
@@ -12143,7 +12076,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4read_input(struc
  */
   __pyx_v_self->_sim.states = ((State *)malloc(((sizeof(State)) * ((__pyx_v_self->_sim.day_finish - __pyx_v_self->_sim.day_start) + 1))));
 
-  /* "_cotton2k/simulation.pyx":566
+  /* "_cotton2k/simulation.pyx":562
  *         initialize_switch(self._sim)
  *         self._sim.states = <cState *> malloc(sizeof(cState) * (self._sim.day_finish - self._sim.day_start + 1))
  *         InitializeGrid(self._sim)             # <<<<<<<<<<<<<<
@@ -12152,34 +12085,34 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4read_input(struc
  */
   __pyx_f_9_cotton2k_10simulation_InitializeGrid(__pyx_v_self->_sim);
 
-  /* "_cotton2k/simulation.pyx":567
+  /* "_cotton2k/simulation.pyx":563
  *         self._sim.states = <cState *> malloc(sizeof(cState) * (self._sim.day_finish - self._sim.day_start + 1))
  *         InitializeGrid(self._sim)
  *         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))             # <<<<<<<<<<<<<<
  *         InitializeSoilData(self._sim, lyrsol)
  *         InitializeSoilTemperature()
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 567, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_GetItemDefault(__pyx_v_kwargs, __pyx_n_u_agricultural_inputs, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 567, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_GetItemDefault(__pyx_v_kwargs, __pyx_n_u_agricultural_inputs, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __pyx_f_9_cotton2k_10simulation_read_agricultural_input(__pyx_v_self->_sim, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 567, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_9_cotton2k_10simulation_read_agricultural_input(__pyx_v_self->_sim, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 563, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":568
+  /* "_cotton2k/simulation.pyx":564
  *         InitializeGrid(self._sim)
  *         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
  *         InitializeSoilData(self._sim, lyrsol)             # <<<<<<<<<<<<<<
  *         InitializeSoilTemperature()
  *         InitializeRootData(self._sim)
  */
-  __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_v_lyrsol); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 568, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_v_lyrsol); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 564, __pyx_L1_error)
   InitializeSoilData(__pyx_v_self->_sim, __pyx_t_3);
 
-  /* "_cotton2k/simulation.pyx":569
+  /* "_cotton2k/simulation.pyx":565
  *         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
  *         InitializeSoilData(self._sim, lyrsol)
  *         InitializeSoilTemperature()             # <<<<<<<<<<<<<<
@@ -12187,15 +12120,15 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_4read_input(struc
  */
   InitializeSoilTemperature();
 
-  /* "_cotton2k/simulation.pyx":570
+  /* "_cotton2k/simulation.pyx":566
  *         InitializeSoilData(self._sim, lyrsol)
  *         InitializeSoilTemperature()
  *         InitializeRootData(self._sim)             # <<<<<<<<<<<<<<
  */
   InitializeRootData(__pyx_v_self->_sim);
 
-  /* "_cotton2k/simulation.pyx":561
- *         app.DailySimulation(self._sim)
+  /* "_cotton2k/simulation.pyx":557
+ *         DailySimulation(self._sim)
  * 
  *     def read_input(self, lyrsol, **kwargs):             # <<<<<<<<<<<<<<
  *         """This is the main function for reading input."""
@@ -27514,9 +27447,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 73, __pyx_L1_error)
-  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 117, __pyx_L1_error)
-  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 226, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 223, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(1, 18, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 19, __pyx_L1_error)
@@ -27531,14 +27464,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "_cotton2k/simulation.pyx":28
+  /* "_cotton2k/simulation.pyx":25
  *     if sim.day_emerge <= 0:
  *         if sim.day_plant <= 0:
  *             raise Exception(" planting date or emergence date must be given in the profile file !!")             # <<<<<<<<<<<<<<
  *         isw = 0
  *     # If the date of emergence has been given in the input: isw = 1 if
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_planting_date_or_emergence_date); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_planting_date_or_emergence_date); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
@@ -27561,69 +27494,69 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "_cotton2k/simulation.pyx":240
+  /* "_cotton2k/simulation.pyx":237
  *             irrigation.day = date2doy(i["date"])  # day of year of this irrigation
  *             irrigation.amount = i["amount"]  # net amount of water applied, mm
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip             # <<<<<<<<<<<<<<
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm
  *             isddph = i.get("drip_depth", 0)  # vertical placement cm
  */
-  __pyx_tuple__4 = PyTuple_Pack(2, __pyx_n_u_method, __pyx_int_0); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 240, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(2, __pyx_n_u_method, __pyx_int_0); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "_cotton2k/simulation.pyx":241
+  /* "_cotton2k/simulation.pyx":238
  *             irrigation.amount = i["amount"]  # net amount of water applied, mm
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm             # <<<<<<<<<<<<<<
  *             isddph = i.get("drip_depth", 0)  # vertical placement cm
  *             # If this is a drip irrigation, convert distances to soil
  */
-  __pyx_tuple__5 = PyTuple_Pack(2, __pyx_n_u_drip_horizontal_place, __pyx_int_0); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_tuple__5 = PyTuple_Pack(2, __pyx_n_u_drip_horizontal_place, __pyx_int_0); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 238, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "_cotton2k/simulation.pyx":242
+  /* "_cotton2k/simulation.pyx":239
  *             irrigation.method = i.get("method", 0)  # method of irrigation: 1=  2=drip
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement cm
  *             isddph = i.get("drip_depth", 0)  # vertical placement cm             # <<<<<<<<<<<<<<
  *             # If this is a drip irrigation, convert distances to soil
  *             # layer and column numbers by calling SlabLoc.
  */
-  __pyx_tuple__6 = PyTuple_Pack(2, __pyx_n_u_drip_depth, __pyx_int_0); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 242, __pyx_L1_error)
+  __pyx_tuple__6 = PyTuple_Pack(2, __pyx_n_u_drip_depth, __pyx_int_0); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 239, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__6);
   __Pyx_GIVEREF(__pyx_tuple__6);
 
-  /* "_cotton2k/simulation.pyx":252
+  /* "_cotton2k/simulation.pyx":249
  *         elif i["type"] == "fertilization":
  *             nf.day = date2doy(i["date"])
  *             nf.amtamm = i.get("ammonium", 0)             # <<<<<<<<<<<<<<
  *             nf.amtnit = i.get("nitrate", 0)
  *             nf.amtura = i.get("urea", 0)
  */
-  __pyx_tuple__7 = PyTuple_Pack(2, __pyx_n_u_ammonium, __pyx_int_0); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_tuple__7 = PyTuple_Pack(2, __pyx_n_u_ammonium, __pyx_int_0); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
 
-  /* "_cotton2k/simulation.pyx":253
+  /* "_cotton2k/simulation.pyx":250
  *             nf.day = date2doy(i["date"])
  *             nf.amtamm = i.get("ammonium", 0)
  *             nf.amtnit = i.get("nitrate", 0)             # <<<<<<<<<<<<<<
  *             nf.amtura = i.get("urea", 0)
  *             nf.mthfrt = i.get("method", 0)
  */
-  __pyx_tuple__8 = PyTuple_Pack(2, __pyx_n_u_nitrate, __pyx_int_0); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(2, __pyx_n_u_nitrate, __pyx_int_0); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "_cotton2k/simulation.pyx":254
+  /* "_cotton2k/simulation.pyx":251
  *             nf.amtamm = i.get("ammonium", 0)
  *             nf.amtnit = i.get("nitrate", 0)
  *             nf.amtura = i.get("urea", 0)             # <<<<<<<<<<<<<<
  *             nf.mthfrt = i.get("method", 0)
  *             isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
  */
-  __pyx_tuple__9 = PyTuple_Pack(2, __pyx_n_u_urea, __pyx_int_0); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 254, __pyx_L1_error)
+  __pyx_tuple__9 = PyTuple_Pack(2, __pyx_n_u_urea, __pyx_int_0); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
 
@@ -28333,25 +28266,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__76);
   __Pyx_GIVEREF(__pyx_tuple__76);
 
-  /* "_cotton2k/simulation.pyx":276
+  /* "_cotton2k/simulation.pyx":273
  * cdef class FruitingBranch:
  *     cdef cFruitingBranch _branch
  *     __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")             # <<<<<<<<<<<<<<
  * 
  *     def __init__(self, _branch):
  */
-  __pyx_tuple__77 = PyTuple_Pack(3, __pyx_n_u_delay_for_new_node, __pyx_n_u_main_stem_leaf, __pyx_n_u_nodes); if (unlikely(!__pyx_tuple__77)) __PYX_ERR(0, 276, __pyx_L1_error)
+  __pyx_tuple__77 = PyTuple_Pack(3, __pyx_n_u_delay_for_new_node, __pyx_n_u_main_stem_leaf, __pyx_n_u_nodes); if (unlikely(!__pyx_tuple__77)) __PYX_ERR(0, 273, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__77);
   __Pyx_GIVEREF(__pyx_tuple__77);
 
-  /* "_cotton2k/simulation.pyx":315
+  /* "_cotton2k/simulation.pyx":312
  *     cdef cState _state
  *     __slots__ = (
  *         "plant_height",             # <<<<<<<<<<<<<<
  *         "plant_weight",
  *         "lint_yield",
  */
-  __pyx_tuple__78 = PyTuple_Pack(11, __pyx_n_u_plant_height, __pyx_n_u_plant_weight, __pyx_n_u_lint_yield, __pyx_n_u_number_of_squares, __pyx_n_u_number_of_green_bolls, __pyx_n_u_number_of_open_bolls, __pyx_n_u_leaf_area_index, __pyx_n_u_ginning_percent, __pyx_n_u_vegetative_branches, __pyx_n_u_hours, __pyx_n_u_soil); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(0, 315, __pyx_L1_error)
+  __pyx_tuple__78 = PyTuple_Pack(11, __pyx_n_u_plant_height, __pyx_n_u_plant_weight, __pyx_n_u_lint_yield, __pyx_n_u_number_of_squares, __pyx_n_u_number_of_green_bolls, __pyx_n_u_number_of_open_bolls, __pyx_n_u_leaf_area_index, __pyx_n_u_ginning_percent, __pyx_n_u_vegetative_branches, __pyx_n_u_hours, __pyx_n_u_soil); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(0, 312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__78);
   __Pyx_GIVEREF(__pyx_tuple__78);
 
@@ -28421,67 +28354,67 @@ static int __Pyx_modinit_type_init_code(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_Soil) < 0) __PYX_ERR(0, 82, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_Soil) < 0) __PYX_ERR(0, 79, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation_Soil.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9_cotton2k_10simulation_Soil.tp_dictoffset && __pyx_type_9_cotton2k_10simulation_Soil.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_9_cotton2k_10simulation_Soil.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Soil, (PyObject *)&__pyx_type_9_cotton2k_10simulation_Soil) < 0) __PYX_ERR(0, 82, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_Soil) < 0) __PYX_ERR(0, 82, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Soil, (PyObject *)&__pyx_type_9_cotton2k_10simulation_Soil) < 0) __PYX_ERR(0, 79, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_Soil) < 0) __PYX_ERR(0, 79, __pyx_L1_error)
   __pyx_ptype_9_cotton2k_10simulation_Soil = &__pyx_type_9_cotton2k_10simulation_Soil;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_Climate) < 0) __PYX_ERR(0, 167, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_Climate) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation_Climate.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9_cotton2k_10simulation_Climate.tp_dictoffset && __pyx_type_9_cotton2k_10simulation_Climate.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_9_cotton2k_10simulation_Climate.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Climate, (PyObject *)&__pyx_type_9_cotton2k_10simulation_Climate) < 0) __PYX_ERR(0, 167, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_Climate) < 0) __PYX_ERR(0, 167, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Climate, (PyObject *)&__pyx_type_9_cotton2k_10simulation_Climate) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_Climate) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   __pyx_ptype_9_cotton2k_10simulation_Climate = &__pyx_type_9_cotton2k_10simulation_Climate;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_FruitingBranch) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_FruitingBranch) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation_FruitingBranch.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9_cotton2k_10simulation_FruitingBranch.tp_dictoffset && __pyx_type_9_cotton2k_10simulation_FruitingBranch.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_9_cotton2k_10simulation_FruitingBranch.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_FruitingBranch, (PyObject *)&__pyx_type_9_cotton2k_10simulation_FruitingBranch) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_FruitingBranch) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_FruitingBranch, (PyObject *)&__pyx_type_9_cotton2k_10simulation_FruitingBranch) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_FruitingBranch) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   __pyx_ptype_9_cotton2k_10simulation_FruitingBranch = &__pyx_type_9_cotton2k_10simulation_FruitingBranch;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_VegetativeBranch) < 0) __PYX_ERR(0, 298, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_VegetativeBranch) < 0) __PYX_ERR(0, 295, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation_VegetativeBranch.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9_cotton2k_10simulation_VegetativeBranch.tp_dictoffset && __pyx_type_9_cotton2k_10simulation_VegetativeBranch.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_9_cotton2k_10simulation_VegetativeBranch.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_VegetativeBranch, (PyObject *)&__pyx_type_9_cotton2k_10simulation_VegetativeBranch) < 0) __PYX_ERR(0, 298, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_VegetativeBranch) < 0) __PYX_ERR(0, 298, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_VegetativeBranch, (PyObject *)&__pyx_type_9_cotton2k_10simulation_VegetativeBranch) < 0) __PYX_ERR(0, 295, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_VegetativeBranch) < 0) __PYX_ERR(0, 295, __pyx_L1_error)
   __pyx_ptype_9_cotton2k_10simulation_VegetativeBranch = &__pyx_type_9_cotton2k_10simulation_VegetativeBranch;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_State) < 0) __PYX_ERR(0, 312, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_State) < 0) __PYX_ERR(0, 309, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation_State.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9_cotton2k_10simulation_State.tp_dictoffset && __pyx_type_9_cotton2k_10simulation_State.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_9_cotton2k_10simulation_State.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_State, (PyObject *)&__pyx_type_9_cotton2k_10simulation_State) < 0) __PYX_ERR(0, 312, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_State) < 0) __PYX_ERR(0, 312, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_State, (PyObject *)&__pyx_type_9_cotton2k_10simulation_State) < 0) __PYX_ERR(0, 309, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_State) < 0) __PYX_ERR(0, 309, __pyx_L1_error)
   __pyx_ptype_9_cotton2k_10simulation_State = &__pyx_type_9_cotton2k_10simulation_State;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_Simulation) < 0) __PYX_ERR(0, 414, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation_Simulation) < 0) __PYX_ERR(0, 411, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation_Simulation.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9_cotton2k_10simulation_Simulation.tp_dictoffset && __pyx_type_9_cotton2k_10simulation_Simulation.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_9_cotton2k_10simulation_Simulation.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Simulation, (PyObject *)&__pyx_type_9_cotton2k_10simulation_Simulation) < 0) __PYX_ERR(0, 414, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_Simulation) < 0) __PYX_ERR(0, 414, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Simulation, (PyObject *)&__pyx_type_9_cotton2k_10simulation_Simulation) < 0) __PYX_ERR(0, 411, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9_cotton2k_10simulation_Simulation) < 0) __PYX_ERR(0, 411, __pyx_L1_error)
   __pyx_ptype_9_cotton2k_10simulation_Simulation = &__pyx_type_9_cotton2k_10simulation_Simulation;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation___pyx_scope_struct____iter__) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation___pyx_scope_struct____iter__) < 0) __PYX_ERR(0, 290, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation___pyx_scope_struct____iter__.tp_print = 0;
   #endif
@@ -28489,7 +28422,7 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_type_9_cotton2k_10simulation___pyx_scope_struct____iter__.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
   __pyx_ptype_9_cotton2k_10simulation___pyx_scope_struct____iter__ = &__pyx_type_9_cotton2k_10simulation___pyx_scope_struct____iter__;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation___pyx_scope_struct_1___iter__) < 0) __PYX_ERR(0, 308, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation___pyx_scope_struct_1___iter__) < 0) __PYX_ERR(0, 305, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation___pyx_scope_struct_1___iter__.tp_print = 0;
   #endif
@@ -28497,7 +28430,7 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_type_9_cotton2k_10simulation___pyx_scope_struct_1___iter__.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
   __pyx_ptype_9_cotton2k_10simulation___pyx_scope_struct_1___iter__ = &__pyx_type_9_cotton2k_10simulation___pyx_scope_struct_1___iter__;
-  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation___pyx_scope_struct_2___iter__) < 0) __PYX_ERR(0, 407, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9_cotton2k_10simulation___pyx_scope_struct_2___iter__) < 0) __PYX_ERR(0, 404, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9_cotton2k_10simulation___pyx_scope_struct_2___iter__.tp_print = 0;
   #endif
@@ -28788,24 +28721,24 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "_cotton2k/simulation.pyx":276
+  /* "_cotton2k/simulation.pyx":273
  * cdef class FruitingBranch:
  *     cdef cFruitingBranch _branch
  *     __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")             # <<<<<<<<<<<<<<
  * 
  *     def __init__(self, _branch):
  */
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_FruitingBranch->tp_dict, __pyx_n_s_slots, __pyx_tuple__77) < 0) __PYX_ERR(0, 276, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_FruitingBranch->tp_dict, __pyx_n_s_slots, __pyx_tuple__77) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
   PyType_Modified(__pyx_ptype_9_cotton2k_10simulation_FruitingBranch);
 
-  /* "_cotton2k/simulation.pyx":315
+  /* "_cotton2k/simulation.pyx":312
  *     cdef cState _state
  *     __slots__ = (
  *         "plant_height",             # <<<<<<<<<<<<<<
  *         "plant_weight",
  *         "lint_yield",
  */
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_State->tp_dict, __pyx_n_s_slots, __pyx_tuple__78) < 0) __PYX_ERR(0, 314, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_State->tp_dict, __pyx_n_s_slots, __pyx_tuple__78) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
   PyType_Modified(__pyx_ptype_9_cotton2k_10simulation_State);
 
   /* "(tree fragment)":1

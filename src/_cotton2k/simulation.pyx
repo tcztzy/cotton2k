@@ -12,10 +12,7 @@ from _cotton2k._io cimport *
 from _cotton2k.utils import date2doy
 
 cdef extern from "Cottonmodel.h":
-
-    cdef cppclass C2KApp:
-        C2KApp() except +
-        void DailySimulation(cSimulation &)
+    void DailySimulation(cSimulation &)
 
 
 cdef void initialize_switch(cSimulation &sim):
@@ -555,8 +552,7 @@ cdef class Simulation:
             self._sim.climate[i].Tdew = daily_climate["dewpoint"]
 
     def run(self):
-        app = new C2KApp()
-        app.DailySimulation(self._sim)
+        DailySimulation(self._sim)
 
     def read_input(self, lyrsol, **kwargs):
         """This is the main function for reading input."""

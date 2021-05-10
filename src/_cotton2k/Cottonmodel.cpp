@@ -28,9 +28,8 @@
 #include "SoilProcedures.h"
 #include "SoilTemperature.h"
 
-C2KApp::C2KApp() = default;
 
-void C2KApp::DailySimulation(Simulation &sim)
+void DailySimulation(Simulation &sim)
 //     This function controls the dynamic phase of the simulation.
 //     It calls the functions:
 //        SimulateThisDay()
@@ -100,7 +99,7 @@ void C2KApp::DailySimulation(Simulation &sim)
 }
 
 //////////////////////////////////////////////////
-void C2KApp::SimulateThisDay(Simulation &sim, const int &u)
+void SimulateThisDay(Simulation &sim, const int &u)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation().   It calls the following functions:
 //     ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),

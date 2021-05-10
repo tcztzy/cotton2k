@@ -7,15 +7,6 @@
 
 #include "Simulation.hpp"
 
-/////////////////////////////////////////////////////////////////////////////
-// C2KApp:
-//
-class C2KApp
-{
-public:
-    C2KApp();
+void DailySimulation(Simulation &);
 
-    void DailySimulation(Simulation &);
-
-    static void SimulateThisDay(Simulation &, const int &);
-};
+static void SimulateThisDay(Simulation &, const int &);
