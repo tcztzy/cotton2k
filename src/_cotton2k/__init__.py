@@ -2,7 +2,7 @@ from _cotton2k.simulation import (
     Climate,
     FruitingBranch,
     Simulation,
-    Soil,
+    SoilInit,
     State,
     VegetativeBranch,
 )

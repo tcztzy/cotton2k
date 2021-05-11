@@ -8,8 +8,8 @@ from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     Climate,
     FruitingBranch,
     Simulation,
-    Soil,
     SoilImpedance,
+    SoilInit,
     State,
     VegetativeBranch,
 )
@@ -50,7 +50,7 @@ def read_input(path: Union[Path, str, dict]) -> Simulation:
     ]:
         if attr in kwargs:
             setattr(sim, attr, kwargs.get(attr))
-    soil = Soil(**kwargs.get("soil", {}))
+    soil = SoilInit(**kwargs.get("soil", {}))
     sim.year = int(kwargs["start_date"][:4])
     sim.read_input(lyrsol=soil.lyrsol, **kwargs)
     sim.climate = Climate(kwargs.get("climate_start_date", 0), kwargs.get("climate"))[

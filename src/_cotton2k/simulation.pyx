@@ -76,7 +76,7 @@ cdef void InitializeGrid(cSimulation &sim):
                 sim.plant_row_column = k
 
 
-cdef class Soil:
+cdef class SoilInit:
     cdef unsigned int number_of_layers
     def __init__(self, initial, hydrology, layer_depth=None):
         if layer_depth is not None:
@@ -324,6 +324,14 @@ cdef class State:
 
     def __init__(self, _state):
         self._state = _state
+
+    @property
+    def daynum(self):
+        return self._state.daynum
+
+    @daynum.setter
+    def daynum(self, value):
+        self._state.daynum
 
     @property
     def plant_height(self):
