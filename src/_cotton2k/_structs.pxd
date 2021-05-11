@@ -1,3 +1,5 @@
+from libcpp cimport bool as bool_t
+
 cdef extern from "Soil.h":
 
     ctypedef struct Root:
@@ -90,15 +92,43 @@ cdef extern from "State.hpp":
         unsigned int number_of_fruiting_branches
         cFruitingBranch fruiting_branches[30]
     ctypedef struct cState "State":
+        unsigned int daynum
+        double day_inc
+        double lint_yield
+        double bloom_weight_loss
+        double abscised_fruit_sites
+        double abscised_leaf_weight
+        double cumulative_nitrogen_loss
+        double applied_water
+        double water_stress
+        double water_stress_stem
+        double carbon_stress
+        double extra_carbon
+        double day_length
         double plant_height
         double plant_weight
-        double lint_yield
+        double runoff
+        double solar_noon
+        double net_radiation
+        double evapotranspiration
+        double actual_transpiration
+        double cumulative_transpiration
+        double actual_soil_evaporation
+        double cumulative_evaporation
+        unsigned int number_of_vegetative_branches
+        unsigned int number_of_fruiting_sites
         double number_of_squares
         double number_of_green_bolls
         double number_of_open_bolls
+        double nitrogen_stress
+        double total_required_nitrogen
         double leaf_area_index
+        double leaf_nitrogen_concentration
+        double petiole_nitrogen_concentration
+        double seed_nitrogen_concentration
+        double root_nitrogen_concentration
         double ginning_percent
-        unsigned int number_of_vegetative_branches
+        bool_t pollination_switch
         cVegetativeBranch vegetative_branches[3]
         Hour hours[24]
         cSoil soil
