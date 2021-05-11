@@ -10,6 +10,6 @@
 
 void DailySimulation(Simulation &);
 
-static void SimulateThisDay(Simulation &, const int &);
+void SimulateThisDay(Simulation &, uint32_t);
 
 void initialize_state0(State &, uint32_t);

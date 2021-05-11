@@ -14,6 +14,7 @@
 //    OnAppAbout()
 //       Class CAoutDlg
 //
+#include <bits/stdint-uintn.h>
 #include <cstring>
 #include "State.hpp"
 #include "global.h"
@@ -54,7 +55,7 @@ void DailySimulation(Simulation &sim)
 }
 
 //////////////////////////////////////////////////
-void SimulateThisDay(Simulation &sim, const int &u)
+void SimulateThisDay(Simulation &sim, uint32_t u)
 //     This function executes all the simulation computations in a day. It is called from
 //  DailySimulation().   It calls the following functions:
 //     ColumnShading(), DayClim(), SoilTemperature(), SoilProcedures(),
