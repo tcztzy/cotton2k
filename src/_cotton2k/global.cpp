@@ -16,7 +16,6 @@ struct NitrogenFertilizer NFertilizer[150]; // nitrogen fertilizer application i
 unsigned int ncurve;
 
 int CultivationDate[5],     // Dates (DOY) of cultivatrion.
-    DayFirstDef,            // Date (DOY) of first defoliation.
     DayStartPredIrrig,      // Date (DOY) for starting predicted irrigation.
     DayStopPredIrrig,       // Date (DOY) for stopping predicted irrigation.
     DayWaterTableInput[20], // Dates (DOY) of water table input data.

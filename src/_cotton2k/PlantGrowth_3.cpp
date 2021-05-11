@@ -381,7 +381,7 @@ void Defoliate(Simulation &sim, uint32_t u)
 //       NumGreenBolls, NumOpenBolls, LwpMin.
 //
 //     The following global variables are set here:
-//       DayFirstDef, DefoliantAppRate, DefoliationDate, DefoliationMethod, PercentDefoliation.
+//       DefoliantAppRate, DefoliationDate, DefoliationMethod, PercentDefoliation.
 //
 {
     State &state = sim.states[u];
@@ -423,8 +423,8 @@ void Defoliate(Simulation &sim, uint32_t u)
                     idsw = 1;
                     DefoliationDate[i] = state.daynum;
                     DefoliantAppRate[1] = -99.9;
-                    if (state.daynum < DayFirstDef || DayFirstDef <= 0)
-                        DayFirstDef = state.daynum;
+                    if (state.daynum < sim.day_defoliate || sim.day_defoliate <= 0)
+                        sim.day_defoliate = state.daynum;
                     DefoliationMethod[i] = 0;
                 } // if Daynum
             }     // if i, idsw
@@ -463,10 +463,10 @@ void Defoliate(Simulation &sim, uint32_t u)
           //  average daily temperature, leaf water potential, days after first
           //  defoliation application, and tdfkgh. The regression equation is
           //  modified from the equation suggested in GOSSYM.
-        if (DefoliationDate[i] > 0 && state.daynum > DayFirstDef)
+        if (DefoliationDate[i] > 0 && state.daynum > sim.day_defoliate)
         {
             double dum = -LwpMin * 10; // value of LwpMin in bars.
-            PercentDefoliation = p1 + p2 * AvrgDailyTemp + p3 * tdfkgh + p4 * (state.daynum - DayFirstDef) + p5 * dum - p6 * dum * dum + p7 * AvrgDailyTemp * tdfkgh * (state.daynum - DayFirstDef) * dum;
+            PercentDefoliation = p1 + p2 * AvrgDailyTemp + p3 * tdfkgh + p4 * (state.daynum - sim.day_defoliate) + p5 * dum - p6 * dum * dum + p7 * AvrgDailyTemp * tdfkgh * (state.daynum - sim.day_defoliate) * dum;
             if (PercentDefoliation < 0)
                 PercentDefoliation = 0;
             double perdmax = 40; // maximum possible percent of defoliation.

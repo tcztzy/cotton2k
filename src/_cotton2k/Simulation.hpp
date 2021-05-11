@@ -11,6 +11,7 @@ typedef struct Simulation
     unsigned int day_finish;                // Date (DOY) to finish simulation.
     unsigned int day_plant;                 // Date (DOY) of planting.
     unsigned int day_topping;               // Date (DOY) of topping.
+    unsigned int day_defoliate;             // Date (DOY) of first defoliation.
     double latitude;                        // degree
     double longitude;                       // degree
     double elevation;                       // meter

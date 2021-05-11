@@ -264,7 +264,7 @@ cdef read_agricultural_input(cSimulation &sim, inputs):
             DefoliationDate[idef] = date2doy(i["date"])
             DefoliantAppRate[idef] = -99.9
             if idef == 0:
-                DayFirstDef = DefoliationDate[0]
+                sim.day_defoliate = DefoliationDate[0]
             DefoliationMethod[idef] = i.get("method", 0)
             idef += 1
 

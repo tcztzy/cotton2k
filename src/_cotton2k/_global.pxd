@@ -53,5 +53,4 @@ cdef extern from "global.h":
     int DefoliationMethod[5]
     NitrogenFertilizer NFertilizer[150]
     int NumNitApps
-    int DayFirstDef
     int NumIrrigations

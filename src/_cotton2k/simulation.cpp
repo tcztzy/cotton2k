@@ -5867,7 +5867,6 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
   PyObject *__pyx_v_i = NULL;
   PyObject *__pyx_v_isdhrz = NULL;
   PyObject *__pyx_v_isddph = NULL;
-  CYTHON_UNUSED int __pyx_v_DayFirstDef;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -6401,7 +6400,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  *             DefoliationDate[idef] = date2doy(i["date"])
  *             DefoliantAppRate[idef] = -99.9             # <<<<<<<<<<<<<<
  *             if idef == 0:
- *                 DayFirstDef = DefoliationDate[0]
+ *                 sim.day_defoliate = DefoliationDate[0]
  */
       __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idef); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 265, __pyx_L1_error)
       (DefoliantAppRate[__pyx_t_11]) = -99.9;
@@ -6410,7 +6409,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
  *             DefoliationDate[idef] = date2doy(i["date"])
  *             DefoliantAppRate[idef] = -99.9
  *             if idef == 0:             # <<<<<<<<<<<<<<
- *                 DayFirstDef = DefoliationDate[0]
+ *                 sim.day_defoliate = DefoliationDate[0]
  *             DefoliationMethod[idef] = i.get("method", 0)
  */
       __pyx_t_6 = __Pyx_PyInt_EqObjC(__pyx_v_idef, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 266, __pyx_L1_error)
@@ -6422,24 +6421,24 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
         /* "_cotton2k/simulation.pyx":267
  *             DefoliantAppRate[idef] = -99.9
  *             if idef == 0:
- *                 DayFirstDef = DefoliationDate[0]             # <<<<<<<<<<<<<<
+ *                 sim.day_defoliate = DefoliationDate[0]             # <<<<<<<<<<<<<<
  *             DefoliationMethod[idef] = i.get("method", 0)
  *             idef += 1
  */
-        __pyx_v_DayFirstDef = (DefoliationDate[0]);
+        __pyx_v_sim.day_defoliate = (DefoliationDate[0]);
 
         /* "_cotton2k/simulation.pyx":266
  *             DefoliationDate[idef] = date2doy(i["date"])
  *             DefoliantAppRate[idef] = -99.9
  *             if idef == 0:             # <<<<<<<<<<<<<<
- *                 DayFirstDef = DefoliationDate[0]
+ *                 sim.day_defoliate = DefoliationDate[0]
  *             DefoliationMethod[idef] = i.get("method", 0)
  */
       }
 
       /* "_cotton2k/simulation.pyx":268
  *             if idef == 0:
- *                 DayFirstDef = DefoliationDate[0]
+ *                 sim.day_defoliate = DefoliationDate[0]
  *             DefoliationMethod[idef] = i.get("method", 0)             # <<<<<<<<<<<<<<
  *             idef += 1
  * 
@@ -6455,7 +6454,7 @@ static PyObject *__pyx_f_9_cotton2k_10simulation_read_agricultural_input(Simulat
       (DefoliationMethod[__pyx_t_11]) = __pyx_t_9;
 
       /* "_cotton2k/simulation.pyx":269
- *                 DayFirstDef = DefoliationDate[0]
+ *                 sim.day_defoliate = DefoliationDate[0]
  *             DefoliationMethod[idef] = i.get("method", 0)
  *             idef += 1             # <<<<<<<<<<<<<<
  * 

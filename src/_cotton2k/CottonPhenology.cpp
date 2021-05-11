@@ -459,7 +459,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
 //        AvrgDailyTemp, CottonWeightGreenBolls,
-//        DayFirstDef, Kday, LeafAreaIndex,
+//        Kday, LeafAreaIndex,
 //        NStressVeg, NumFruitBranches, NStressFruiting, WaterStress, VarPar.
 //     The following global variable are set here:
 //        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight,
@@ -498,7 +498,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     agefac = (1 - WaterStress) * vfrsite[0] + (1 - NStressVeg) * vfrsite[1];
     site.leaf.age += state.day_inc + agefac;
     //  After the application of defoliation, add the effect of defoliation on leaf age.
-    if (DayFirstDef > 0 && state.daynum > DayFirstDef)
+    if (sim.day_defoliate > 0 && state.daynum > sim.day_defoliate)
         site.leaf.age += VarPar[38];
     //     FruitingCode = 3, 4, 5 or 6 indicates that this node has an open boll,
     //  or has been completely abscised. Return in this case.
@@ -645,7 +645,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //     Function BollOpening() simulates the transition of each fruiting site
 //  from green to dehissed (open) boll. It is called from SimulateFruitingSite().
 //     The following global variables are referenced here:
-//        AgeOfBoll, BollWeight, BurrWeight, DayFirstDef, FruitFraction,
+//        AgeOfBoll, BollWeight, BurrWeight, FruitFraction,
 //        LeafAreaIndex, PlantPopulation, VarPar
 //     The following global variable are set here:
 //        BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls, CottonWeightOpenBolls,
@@ -676,8 +676,8 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     if (dehiss > vboldhs[4])
         dehiss = vboldhs[4];
     //     Dehiss is decreased after a defoliation.
-    if (DayFirstDef > 0 && state.daynum > DayFirstDef)
-        dehiss = dehiss * pow(vboldhs[5], (state.daynum - DayFirstDef));
+    if (sim.day_defoliate > 0 && state.daynum > sim.day_defoliate)
+        dehiss = dehiss * pow(vboldhs[5], (state.daynum - sim.day_defoliate));
     //     If leaf area index is less than dpar1, decrease dehiss.
     if (state.leaf_area_index < ddpar1)
     {
