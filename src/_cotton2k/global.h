@@ -13,26 +13,7 @@ const double pi = 3.14159;
 ////    Structures    ////
 typedef struct scratch
 {
-        int kday, mainStemNodes;
-        double amitri, averageSoilPsi, avrgDailyTemp, burrNConc, burrWeightOpenBolls,
-            cottonWeightGreenBolls, cottonWeightOpenBolls,
-            cumFertilizerN, cumNetPhotosynth, cumNitrogenUptake,
-            cumPlantNLoss, cumWaterAdded, cumWaterDrained,
-            dayTimeTemp, deadwt, deepSoilTemperature,
-            ep, es, extraCarbon, fruitGrowthRatio,
-            greenBollsLost, gbw, gintot,
-            leafNitrogen, lightIntercept, lwpMin,
-            mineralizedOrganicN,
-            netPhotosynthesis, nightTimeTemp, nStressFruiting,
-            nStressRoots, nStressVeg, petioleNO3NConc, petioleNitrogen,
-            reserveC, rootNitrogen, rootWeightLoss,
-            seedNitrogen, soilNitrogenLoss, squareNConc, squareNitrogen,
-            stemNConc, stemNitrogen, sumNO3N90, supplyNH4N, supplyNO3N,
-            tapRootLength, totalLeafWeight, totalPetioleWeight, totalRequiredN,
-            totalRootWeight, totalSoilNh4N, totalSoilNo3N, totalSoilUreaN,
-            totalSoilWater, totalSquareWeight, totalStemWeight;
-        double soilPsi[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
-            volWaterContent[maxl][maxk], volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk];
+    double amitri, ep, es;
 } scratch;
 extern scratch Scratch21[400];
 typedef struct NitrogenFertilizer
