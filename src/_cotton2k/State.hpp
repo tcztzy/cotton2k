@@ -76,6 +76,7 @@ typedef struct State
     double leaf_area_index;                     // Leaf area index
     double leaf_area;
     double leaf_weight;
+    double leaf_weight_area_ratio;              // temperature dependent factor for converting leaf area to leaf weight during the day, g dm-1
     double leaf_nitrogen_concentration;         // average nitrogen concentration in leaves.
     double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
     double seed_nitrogen_concentration;         // average nitrogen concentration in seeds.

@@ -345,7 +345,7 @@ void ActualLeafGrowth(State &state)
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
             {
                 FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
-                site.leaf.weight += site.leaf.potential_growth * LeafWeightAreaRatio * vratio;
+                site.leaf.weight += site.leaf.potential_growth * state.leaf_weight_area_ratio * vratio;
                 state.leaf_weight += site.leaf.weight;
                 site.petiole.weight += site.petiole.potential_growth * vratio;
                 TotalPetioleWeight += site.petiole.weight;

@@ -170,7 +170,7 @@ void PreFruitingNode(State &state, double stemNRatio)
 //     This function checks if a new prefruiting node is to be added, and then sets it.
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//        DayInc, LeafWeightAreaRatio, VarPar.
+//        DayInc, VarPar.
 //     The following global variable are set here:
 //        LeafNitrogen, LeafWeightPreFru.
 //     The following argument is used:
@@ -207,7 +207,7 @@ void PreFruitingNode(State &state, double stemNRatio)
     {
         state.number_of_pre_fruiting_nodes++;
         state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] = VarPar[34];
-        LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] = state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * LeafWeightAreaRatio;
+        LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] = state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * state.leaf_weight_area_ratio;
         state.leaf_weight += LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1];
         state.stem_weight -= LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1];
         LeafNitrogen += LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
@@ -219,7 +219,7 @@ void PreFruitingNode(State &state, double stemNRatio)
 void CreateFirstSquare(State &state, double stemNRatio)
 //     This function initiates the first square. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//        Kday, LeafWeightAreaRatio, VarPar.
+//        Kday, VarPar.
 //     The following global variable are set here:
 //        AbscisedLeafWeight, AvrgNodeTemper, CumPlantNLoss, FirstSquare, FruitFraction,
 //        FruitGrowthRatio, FruitingCode, LeafAreaNodes, LeafNitrogen, LeafWeightNodes,
@@ -236,7 +236,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     //  VarPar[34] is the initial area of a new leaf. The mass and nitrogen of the new leaf
     //  are substacted from the stem.
     site.leaf.area = VarPar[34];
-    site.leaf.weight = VarPar[34] * LeafWeightAreaRatio;
+    site.leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
     state.stem_weight -= site.leaf.weight;
     state.leaf_weight += site.leaf.weight;
     LeafNitrogen += site.leaf.weight * stemNRatio;
@@ -261,7 +261,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
 //     This function decides whether a new vegetative branch is to be added, and
 //  then forms it. It is called from CottonPhenology().
 //     The following global variables are referenced here:
-//        AgeOfSite, LeafWeightAreaRatio, VarPar.
+//        AgeOfSite, VarPar.
 //     The following global variable are set here:
 //        AvrgNodeTemper, FruitFraction, FruitingCode, LeafAreaMainStem, LeafAreaNodes,
 //        LeafNitrogen, LeafWeightMainStem, LeafWeightNodes, NumFruitBranches, NumNodes,
@@ -296,11 +296,11 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     site.stage = Stage::Square;
     //      Add a new leaf to the first site of this branch.
     site.leaf.area = VarPar[34];
-    site.leaf.weight = VarPar[34] * LeafWeightAreaRatio;
+    site.leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
     //      Add a new mainstem leaf to the first node of this branch.
     MainStemLeaf &main_stem_leaf = state.vegetative_branches[state.number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf;
     main_stem_leaf.leaf_area = VarPar[34];
-    main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * LeafWeightAreaRatio;
+    main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * state.leaf_weight_area_ratio;
     //      The initial mass and nitrogen in the new leaves are
     //  substracted from the stem.
     state.stem_weight -= site.leaf.weight + main_stem_leaf.leaf_weight;
@@ -321,8 +321,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
 //     This function decides if a new fruiting branch is to be added to a vegetative
 //  branch, and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//  AdjAddMSNodesRate, AgeOfSite, LeafWeightAreaRatio,
-//  VarPar, WaterStress.
+//  AdjAddMSNodesRate, AgeOfSite, VarPar, WaterStress.
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewFruBranch, FruitFraction, FruitingCode, LeafAreaMainStem,
 //        LeafAreaNodes, LeafNitrogen, LeafWeightMainStem, LeafWeightNodes, NumFruitBranches,
@@ -374,10 +373,10 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     //  corresponding main stem node. The mass and nitrogen in the new leaves is substacted
     //  from the stem.
     state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.area = VarPar[34];
-    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight = VarPar[34] * LeafWeightAreaRatio;
+    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
     MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[newbr].main_stem_leaf;
     main_stem_leaf.leaf_area = VarPar[34];
-    main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * LeafWeightAreaRatio;
+    main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * state.leaf_weight_area_ratio;
     state.stem_weight -= main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight;
     state.leaf_weight += main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight;
     // addlfn is the nitrogen added to new leaves from stem.
@@ -394,8 +393,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
 //     Function AddFruitingNode() decides if a new node is to be added to a fruiting branch,
 //  and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//  AdjAddSitesRate, AgeOfSite, LeafWeightAreaRatio,
-//  VarPar, WaterStress,
+//  AdjAddSitesRate, AgeOfSite, VarPar, WaterStress,
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewNode, FruitFraction, FruitingCode, LeafAreaNodes, LeafWeightNodes,
 //        NumNodes, LeafNitrogen.
@@ -442,7 +440,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     //     Initiate a new leaf at the new node. The mass and nitrogen in
     //  the new leaf is substacted from the stem.
     state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.area = VarPar[34];
-    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight = VarPar[34] * LeafWeightAreaRatio;
+    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
     state.stem_weight -= state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight;
     state.leaf_weight += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight;
     LeafNitrogen += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio;

@@ -38,7 +38,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
 //        LeafAreaMainStem, NumFruitBranches, NumNodes,
 //        NumVegBranches, VarPar, WaterStress.
 //     The following global variables are set here:
-//        LeafWeightAreaRatio, PotGroAllLeaves, PotGroAllPetioles,
+//        PotGroAllLeaves, PotGroAllPetioles,
 //        PotGroLeafAreaMainStem, PotGroLeafAreaNodes,  PotGroLeafAreaPreFru,
 //        PotGroLeafWeightMainStem, PotGroLeafWeightNodes, PotGroLeafWeightPreFru,
 //        PotGroPetioleWeightMainStem, PotGroPetioleWeightNodes, PotGroPetioleWeightPreFru.
@@ -52,7 +52,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
     double wstrlf = state.water_stress * (1 + vpotlf[0] * (2 - state.water_stress)) - vpotlf[0];
     if (wstrlf < 0.05)
         wstrlf = 0.05;
-    //     Calculate wtfstrs, the effect of leaf water stress onLeafWeightAreaRatio (the ratio
+    //     Calculate wtfstrs, the effect of leaf water stress on state.leaf_weight_area_ratio (the ratio
     //  of leaf dry weight to leaf area). This has also been empirically calibrated in COTTON2K.
     double wtfstrs = vpotlf[1] + vpotlf[2] * (1 - wstrlf);
     //     Compute the ratio of leaf dry weight increment to leaf area increment (g per dm2),
@@ -61,7 +61,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
     double tdday = state.average_temperature; // limited value of today's average temperature.
     if (tdday < vpotlf[3])
         tdday = vpotlf[3];
-    LeafWeightAreaRatio = wtfstrs / (vpotlf[4] + tdday * (vpotlf[5] - tdday * vpotlf[6]));
+    state.leaf_weight_area_ratio = wtfstrs / (vpotlf[4] + tdday * (vpotlf[5] - tdday * vpotlf[6]));
     //     Assign zero to total potential growth of leaf and petiole.
     PotGroAllLeaves = 0;
     PotGroAllPetioles = 0;
@@ -93,8 +93,8 @@ void PotentialLeafGrowth(State &state, double density_factor)
             if (rate >= 1e-12)
             {
                 PotGroLeafAreaPreFru[j] = rate * wstrlf * TemperatureOnLeafGrowthRate(state.average_temperature);
-                PotGroLeafWeightPreFru[j] = PotGroLeafAreaPreFru[j] * LeafWeightAreaRatio;
-                PotGroPetioleWeightPreFru[j] = PotGroLeafAreaPreFru[j] * LeafWeightAreaRatio * vpotlf[13];
+                PotGroLeafWeightPreFru[j] = PotGroLeafAreaPreFru[j] * state.leaf_weight_area_ratio;
+                PotGroPetioleWeightPreFru[j] = PotGroLeafAreaPreFru[j] * state.leaf_weight_area_ratio * vpotlf[13];
                 PotGroAllLeaves += PotGroLeafWeightPreFru[j];
                 PotGroAllPetioles += PotGroPetioleWeightPreFru[j];
             } // rate
@@ -133,8 +133,8 @@ void PotentialLeafGrowth(State &state, double density_factor)
                 if (rate >= 1e-12)
                 {
                     main_stem_leaf.potential_growth_for_leaf_area = rate * wstrlf * TemperatureOnLeafGrowthRate(state.average_temperature);
-                    main_stem_leaf.potential_growth_for_leaf_weight = main_stem_leaf.potential_growth_for_leaf_area * LeafWeightAreaRatio;
-                    main_stem_leaf.potential_growth_for_petiole_weight = main_stem_leaf.potential_growth_for_leaf_area * LeafWeightAreaRatio * vpotlf[13];
+                    main_stem_leaf.potential_growth_for_leaf_weight = main_stem_leaf.potential_growth_for_leaf_area * state.leaf_weight_area_ratio;
+                    main_stem_leaf.potential_growth_for_petiole_weight = main_stem_leaf.potential_growth_for_leaf_area * state.leaf_weight_area_ratio * vpotlf[13];
                     PotGroAllLeaves += main_stem_leaf.potential_growth_for_leaf_weight;
                     PotGroAllPetioles += main_stem_leaf.potential_growth_for_petiole_weight;
                 }
@@ -169,8 +169,8 @@ void PotentialLeafGrowth(State &state, double density_factor)
                     {
                         //     Growth rate is modified by water stress. Potential growth is computed as a function of average temperature.
                         site.leaf.potential_growth = rate * wstrlf * TemperatureOnLeafGrowthRate(state.average_temperature);
-                        site.petiole.potential_growth = site.leaf.potential_growth * LeafWeightAreaRatio * vpotlf[13];
-                        PotGroAllLeaves += site.leaf.potential_growth * LeafWeightAreaRatio;
+                        site.petiole.potential_growth = site.leaf.potential_growth * state.leaf_weight_area_ratio * vpotlf[13];
+                        PotGroAllLeaves += site.leaf.potential_growth * state.leaf_weight_area_ratio;
                         PotGroAllPetioles += site.petiole.potential_growth;
                     } //if rate
                 }     // if LeafAreaNodes
