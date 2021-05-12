@@ -191,7 +191,7 @@ void NitrogenSupply(State &state)
 //
 //     The following global variables are referenced here:
 //       BurrWeightGreenBolls, Kday, reqtot, SupplyNH4N, SupplyNO3N,
-//       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalStemWeight.
+//       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight.
 //     The following global and file scope variables are set here:
 //       burres, BurrNitrogen, LeafNitrogen, leafrs, npool, PetioleNitrogen, petrs,
 //       RootNitrogen, rootrs, stemrs, uptn, xtran.
@@ -248,7 +248,7 @@ void NitrogenSupply(State &state)
         petrs = petrs1 + petrs2;
         PetioleNitrogen -= petrs;
         //  Stem N reserves.
-        stemrs = (state.stem_nitrogen - vstmnmin * TotalStemWeight) * MobilizNFractionStemRoot;
+        stemrs = (state.stem_nitrogen - vstmnmin * state.stem_weight) * MobilizNFractionStemRoot;
         if (stemrs < 0)
             stemrs = 0;
         state.stem_nitrogen -= stemrs;
@@ -429,7 +429,7 @@ void ExtraNitrogenAllocation(State &state)
 //
 //     The following global and file scope variables are referenced here:
 //       burres, BurrWeightGreenBolls, leafrs, petrs, rootrs, stemrs,
-//       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalStemWeight, xtran.
+//       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, xtran.
 //     The following global variables are set here:
 //       BurrNitrogen, PetioleNitrogen, RootNitrogen, LeafNitrogen.
 {
@@ -455,10 +455,10 @@ void ExtraNitrogenAllocation(State &state)
         //     If there are no reserves, allocate xtran in proportion to the dry
         //  weights in each of these organs.
         double vegwt; // weight of vegetative plant parts, plus burrs.
-        vegwt = TotalLeafWeight + TotalPetioleWeight + TotalStemWeight + TotalRootWeight + BurrWeightGreenBolls;
+        vegwt = TotalLeafWeight + TotalPetioleWeight + state.stem_weight + TotalRootWeight + BurrWeightGreenBolls;
         addlfn = xtran * TotalLeafWeight / vegwt;
         addpetn = xtran * TotalPetioleWeight / vegwt;
-        addstm = xtran * TotalStemWeight / vegwt;
+        addstm = xtran * state.stem_weight / vegwt;
         addrt = xtran * TotalRootWeight / vegwt;
         addbur = xtran * BurrWeightGreenBolls / vegwt;
     }
@@ -482,7 +482,7 @@ void PlantNitrogenContent(State &state)
 //       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls,
 //       CottonWeightOpenBolls, Gintot, LeafNitrogen, PetioleNitrogen, RootNitrogen,
 //       SeedNitrogen, SquareNitrogen, TotalLeafWeight, TotalPetioleWeight,
-//       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
+//       TotalRootWeight, TotalSquareWeight.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
 //       SeedNConc, SquareNConc, StemNConc.
@@ -497,8 +497,8 @@ void PlantNitrogenContent(State &state)
         state.petiole_nitrogen_concentration = PetioleNitrogen / TotalPetioleWeight;
         PetioleNO3NConc = state.petiole_nitrogen_concentration * PetioleNitrateN(state);
     }
-    if (TotalStemWeight > 0)
-        StemNConc = state.stem_nitrogen / TotalStemWeight;
+    if (state.stem_weight > 0)
+        StemNConc = state.stem_nitrogen / state.stem_weight;
     if (TotalRootWeight > 0)
         state.root_nitrogen_concentration = RootNitrogen / TotalRootWeight;
     if (TotalSquareWeight > 0)
@@ -577,7 +577,7 @@ void NitrogenUptakeRequirement(State &state)
 //       BurrNConc, BurrWeightGreenBolls, CottonWeightGreenBolls, Kday,
 //       LeafNConc, PetioleNConc, reqtot, RootNConc, SeedNConc, SquareNConc,
 //       StemNConc, StemWeight, TotalLeafWeight, TotalPetioleWeight,
-//       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
+//       TotalRootWeight, TotalSquareWeight.
 {
     //     The following constant parameters are used:
     const double seedcn1 = .045;   //   further requirement for existing seed tissue.
@@ -604,9 +604,9 @@ void NitrogenUptakeRequirement(State &state)
     int kkday;      // day (from emergence) of oldest actively growing stem tissue.
     kkday = Kday - voldstm;
     if (kkday < 1)
-        grstmwt = TotalStemWeight;
+        grstmwt = state.stem_weight;
     else
-        grstmwt = TotalStemWeight - StemWeight[kkday];
+        grstmwt = state.stem_weight - StemWeight[kkday];
     if (StemNConc < vnreqstm)
         state.total_required_nitrogen += grstmwt * (vnreqstm - StemNConc);
     //     Compute nitrogen uptake requirement for existing tissues of roots,

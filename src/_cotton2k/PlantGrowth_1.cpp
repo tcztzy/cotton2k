@@ -367,7 +367,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 //
 //     The following global variables are set here:
 //        LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
-//        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
+//        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight.
 {
     State &state = sim.states[u];
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
@@ -376,13 +376,13 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //  growth rate of squares and bolls.
     if (state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage::NotYetFormed)
         PotentialFruitGrowth(state, DayLength);
-    //     Active stem tissue (stemnew) is the difference between TotalStemWeight
+    //     Active stem tissue (stemnew) is the difference between state.stem_weight
     //  and the value of StemWeight(kkday).
     int voldstm = 32;           // constant parameter (days for stem tissue to become "old")
     int kkday = Kday - voldstm; // age of young stem tissue
     if (kkday < 1)
         kkday = 1;
-    double stemnew = TotalStemWeight - StemWeight[kkday]; // dry weight of active stem tissue.
+    double stemnew = state.stem_weight - StemWeight[kkday]; // dry weight of active stem tissue.
                                                           //     Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
                                                           //  The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
                                                           //  Stem growth is also affected by water stress (WaterStressStem). PotGroStem is limited by (maxstmgr * PerPlantArea) g per plant per day.
@@ -431,9 +431,9 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //     Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
     ActualLeafGrowth(state);
     state.leaf_area_index = TotalLeafArea / PerPlantArea;
-    //     Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
-    TotalStemWeight += ActualStemGrowth;
-    StemWeight[Kday] = TotalStemWeight;
+    //     Add ActualStemGrowth to state.stem_weight, and define StemWeight(Kday) for this day.
+    state.stem_weight += ActualStemGrowth;
+    StemWeight[Kday] = state.stem_weight;
     //     Plant density affects growth in height of tall plants.
     double htdenf = 55; // minimum plant height for plant density affecting growth in height.
     double z1;          // intermediate variable to compute denf2.

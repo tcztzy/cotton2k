@@ -107,6 +107,7 @@ cdef extern from "State.hpp":
         double day_length
         double plant_height
         double plant_weight
+        double stem_weight
         double runoff
         double solar_noon
         double net_radiation

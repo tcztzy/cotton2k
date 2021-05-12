@@ -56,6 +56,7 @@ typedef struct State
     double day_length;               // day length, in hours
     double plant_height;
     double plant_weight;
+    double stem_weight; // total stem weight, g per plant.
     double runoff;
     double solar_noon;
     double net_radiation;                       // daily total net radiation, W m-2.

@@ -34,7 +34,6 @@ cdef extern from "global.h":
     double TotalSoilNh4N
     double TotalSoilUreaN
     double TotalRootWeight
-    double TotalStemWeight
     double TotalLeafWeight
     double ReserveC
     double PlantRowLocation

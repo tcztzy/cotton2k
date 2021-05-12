@@ -22,7 +22,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
 //     The following global variables are referenced here:
 //        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots, NStressVeg,
 //        PerPlantArea, PotGroAllBolls, PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles,
-//        PotGroAllRoots, PotGroAllSquares, PotGroStem, TotalLeafWeight, TotalStemWeight,
+//        PotGroAllRoots, PotGroAllSquares, PotGroStem, TotalLeafWeight,
 //        WaterStress.
 //     The following global and file scope variables are set here:
 //        ActualStemGrowth, CarbonAllocatedForRootGrowth, CarbonStress, ExtraCarbon,
@@ -140,7 +140,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
                           //  weight of vegetative shoot (stem + leaves). This equation is based
                           //  on data from Avi Ben-Porath's PhD thesis.
                           //     ratio is modified (calibrated) by vchbal[11].
-            ratio = vchbal[8] + vchbal[9] * exp(-vchbal[10] * (TotalStemWeight + TotalLeafWeight + TotalPetioleWeight) *
+            ratio = vchbal[8] + vchbal[9] * exp(-vchbal[10] * (state.stem_weight + TotalLeafWeight + TotalPetioleWeight) *
                                                 PerPlantArea);
             ratio = ratio * vchbal[11];
             //     rtmax is the proportion of remaining available carbohydrates that can be supplied to
@@ -364,11 +364,11 @@ void CheckDryMatterBal(State &state)
 //       AbscisedLeafWeight, BloomWeightLoss, BurrWeightGreenBolls, BurrWeightOpenBolls,
 //       CottonWeightGreenBolls, CottonWeightOpenBolls, CumNetPhotosynth, GreenBollsLost, Kday,
 //       ReserveC, RootWeightLoss, TotalLeafWeight, TotalPetioleWeight,
-//       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
+//       TotalRootWeight, TotalSquareWeight.
 //     The following global variable is set here:     PlantWeight.
 {
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    state.plant_weight = TotalRootWeight + TotalStemWeight + CottonWeightGreenBolls + BurrWeightGreenBolls + TotalLeafWeight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
+    state.plant_weight = TotalRootWeight + state.stem_weight + CottonWeightGreenBolls + BurrWeightGreenBolls + TotalLeafWeight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
 }
 
 //////////////////////////

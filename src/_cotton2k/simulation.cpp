@@ -1839,6 +1839,7 @@ static const char __pyx_k_wind_speed[] = "wind_speed";
 static const char __pyx_k_PickleError[] = "PickleError";
 static const char __pyx_k_layer_depth[] = "layer_depth";
 static const char __pyx_k_leaf_weight[] = "leaf_weight";
+static const char __pyx_k_stem_weight[] = "stem_weight";
 static const char __pyx_k_temperature[] = "temperature";
 static const char __pyx_k_State___iter[] = "State.__iter__";
 static const char __pyx_k_bulk_density[] = "bulk_density";
@@ -1989,32 +1990,33 @@ static const char __pyx_k_No_value_specified_for_struct_at_58[] = "No value spec
 static const char __pyx_k_No_value_specified_for_struct_at_59[] = "No value specified for struct attribute 'day_length'";
 static const char __pyx_k_No_value_specified_for_struct_at_60[] = "No value specified for struct attribute 'plant_height'";
 static const char __pyx_k_No_value_specified_for_struct_at_61[] = "No value specified for struct attribute 'plant_weight'";
-static const char __pyx_k_No_value_specified_for_struct_at_62[] = "No value specified for struct attribute 'runoff'";
-static const char __pyx_k_No_value_specified_for_struct_at_63[] = "No value specified for struct attribute 'solar_noon'";
-static const char __pyx_k_No_value_specified_for_struct_at_64[] = "No value specified for struct attribute 'net_radiation'";
-static const char __pyx_k_No_value_specified_for_struct_at_65[] = "No value specified for struct attribute 'evapotranspiration'";
-static const char __pyx_k_No_value_specified_for_struct_at_66[] = "No value specified for struct attribute 'actual_transpiration'";
-static const char __pyx_k_No_value_specified_for_struct_at_67[] = "No value specified for struct attribute 'cumulative_transpiration'";
-static const char __pyx_k_No_value_specified_for_struct_at_68[] = "No value specified for struct attribute 'actual_soil_evaporation'";
-static const char __pyx_k_No_value_specified_for_struct_at_69[] = "No value specified for struct attribute 'cumulative_evaporation'";
-static const char __pyx_k_No_value_specified_for_struct_at_70[] = "No value specified for struct attribute 'number_of_vegetative_branches'";
-static const char __pyx_k_No_value_specified_for_struct_at_71[] = "No value specified for struct attribute 'number_of_fruiting_sites'";
-static const char __pyx_k_No_value_specified_for_struct_at_72[] = "No value specified for struct attribute 'number_of_squares'";
-static const char __pyx_k_No_value_specified_for_struct_at_73[] = "No value specified for struct attribute 'number_of_green_bolls'";
-static const char __pyx_k_No_value_specified_for_struct_at_74[] = "No value specified for struct attribute 'number_of_open_bolls'";
-static const char __pyx_k_No_value_specified_for_struct_at_75[] = "No value specified for struct attribute 'nitrogen_stress'";
-static const char __pyx_k_No_value_specified_for_struct_at_76[] = "No value specified for struct attribute 'total_required_nitrogen'";
-static const char __pyx_k_No_value_specified_for_struct_at_77[] = "No value specified for struct attribute 'leaf_area_index'";
-static const char __pyx_k_No_value_specified_for_struct_at_78[] = "No value specified for struct attribute 'leaf_nitrogen_concentration'";
-static const char __pyx_k_No_value_specified_for_struct_at_79[] = "No value specified for struct attribute 'petiole_nitrogen_concentration'";
-static const char __pyx_k_No_value_specified_for_struct_at_80[] = "No value specified for struct attribute 'seed_nitrogen_concentration'";
-static const char __pyx_k_No_value_specified_for_struct_at_81[] = "No value specified for struct attribute 'root_nitrogen_concentration'";
-static const char __pyx_k_No_value_specified_for_struct_at_82[] = "No value specified for struct attribute 'stem_nitrogen'";
-static const char __pyx_k_No_value_specified_for_struct_at_83[] = "No value specified for struct attribute 'ginning_percent'";
-static const char __pyx_k_No_value_specified_for_struct_at_84[] = "No value specified for struct attribute 'pollination_switch'";
-static const char __pyx_k_No_value_specified_for_struct_at_85[] = "No value specified for struct attribute 'vegetative_branches'";
-static const char __pyx_k_No_value_specified_for_struct_at_86[] = "No value specified for struct attribute 'hours'";
-static const char __pyx_k_No_value_specified_for_struct_at_87[] = "No value specified for struct attribute 'soil'";
+static const char __pyx_k_No_value_specified_for_struct_at_62[] = "No value specified for struct attribute 'stem_weight'";
+static const char __pyx_k_No_value_specified_for_struct_at_63[] = "No value specified for struct attribute 'runoff'";
+static const char __pyx_k_No_value_specified_for_struct_at_64[] = "No value specified for struct attribute 'solar_noon'";
+static const char __pyx_k_No_value_specified_for_struct_at_65[] = "No value specified for struct attribute 'net_radiation'";
+static const char __pyx_k_No_value_specified_for_struct_at_66[] = "No value specified for struct attribute 'evapotranspiration'";
+static const char __pyx_k_No_value_specified_for_struct_at_67[] = "No value specified for struct attribute 'actual_transpiration'";
+static const char __pyx_k_No_value_specified_for_struct_at_68[] = "No value specified for struct attribute 'cumulative_transpiration'";
+static const char __pyx_k_No_value_specified_for_struct_at_69[] = "No value specified for struct attribute 'actual_soil_evaporation'";
+static const char __pyx_k_No_value_specified_for_struct_at_70[] = "No value specified for struct attribute 'cumulative_evaporation'";
+static const char __pyx_k_No_value_specified_for_struct_at_71[] = "No value specified for struct attribute 'number_of_vegetative_branches'";
+static const char __pyx_k_No_value_specified_for_struct_at_72[] = "No value specified for struct attribute 'number_of_fruiting_sites'";
+static const char __pyx_k_No_value_specified_for_struct_at_73[] = "No value specified for struct attribute 'number_of_squares'";
+static const char __pyx_k_No_value_specified_for_struct_at_74[] = "No value specified for struct attribute 'number_of_green_bolls'";
+static const char __pyx_k_No_value_specified_for_struct_at_75[] = "No value specified for struct attribute 'number_of_open_bolls'";
+static const char __pyx_k_No_value_specified_for_struct_at_76[] = "No value specified for struct attribute 'nitrogen_stress'";
+static const char __pyx_k_No_value_specified_for_struct_at_77[] = "No value specified for struct attribute 'total_required_nitrogen'";
+static const char __pyx_k_No_value_specified_for_struct_at_78[] = "No value specified for struct attribute 'leaf_area_index'";
+static const char __pyx_k_No_value_specified_for_struct_at_79[] = "No value specified for struct attribute 'leaf_nitrogen_concentration'";
+static const char __pyx_k_No_value_specified_for_struct_at_80[] = "No value specified for struct attribute 'petiole_nitrogen_concentration'";
+static const char __pyx_k_No_value_specified_for_struct_at_81[] = "No value specified for struct attribute 'seed_nitrogen_concentration'";
+static const char __pyx_k_No_value_specified_for_struct_at_82[] = "No value specified for struct attribute 'root_nitrogen_concentration'";
+static const char __pyx_k_No_value_specified_for_struct_at_83[] = "No value specified for struct attribute 'stem_nitrogen'";
+static const char __pyx_k_No_value_specified_for_struct_at_84[] = "No value specified for struct attribute 'ginning_percent'";
+static const char __pyx_k_No_value_specified_for_struct_at_85[] = "No value specified for struct attribute 'pollination_switch'";
+static const char __pyx_k_No_value_specified_for_struct_at_86[] = "No value specified for struct attribute 'vegetative_branches'";
+static const char __pyx_k_No_value_specified_for_struct_at_87[] = "No value specified for struct attribute 'hours'";
+static const char __pyx_k_No_value_specified_for_struct_at_88[] = "No value specified for struct attribute 'soil'";
 static PyObject *__pyx_n_s_Climate;
 static PyObject *__pyx_n_s_FruitingBranch;
 static PyObject *__pyx_n_s_FruitingBranch___iter;
@@ -2107,6 +2109,7 @@ static PyObject *__pyx_kp_s_No_value_specified_for_struct_at_84;
 static PyObject *__pyx_kp_s_No_value_specified_for_struct_at_85;
 static PyObject *__pyx_kp_s_No_value_specified_for_struct_at_86;
 static PyObject *__pyx_kp_s_No_value_specified_for_struct_at_87;
+static PyObject *__pyx_kp_s_No_value_specified_for_struct_at_88;
 static PyObject *__pyx_kp_s_No_value_specified_for_struct_at_9;
 static PyObject *__pyx_n_s_OverflowError;
 static PyObject *__pyx_n_s_PickleError;
@@ -2308,6 +2311,7 @@ static PyObject *__pyx_n_s_start_date;
 static PyObject *__pyx_n_s_startswith;
 static PyObject *__pyx_n_s_state;
 static PyObject *__pyx_n_s_stem_nitrogen;
+static PyObject *__pyx_n_s_stem_weight;
 static PyObject *__pyx_n_s_step;
 static PyObject *__pyx_n_s_stop;
 static PyObject *__pyx_kp_s_stringsource;
@@ -2540,7 +2544,8 @@ static PyObject *__pyx_tuple__105;
 static PyObject *__pyx_tuple__106;
 static PyObject *__pyx_tuple__107;
 static PyObject *__pyx_tuple__108;
-static PyObject *__pyx_codeobj__109;
+static PyObject *__pyx_tuple__109;
+static PyObject *__pyx_codeobj__110;
 /* Late includes */
 
 /* "_cotton2k/simulation.pyx":18
@@ -24743,7 +24748,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'plant_weight'")
  *     result.plant_weight = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['runoff']
+ *         value = obj['stem_weight']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 90, __pyx_L1_error)
   __pyx_v_result.plant_weight = __pyx_t_11;
@@ -24752,7 +24757,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'plant_weight'")
  *     result.plant_weight = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['runoff']
+ *         value = obj['stem_weight']
  *     except KeyError:
  */
   {
@@ -24767,11 +24772,11 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       /* "FromPyStructUtility":92
  *     result.plant_weight = value
  *     try:
- *         value = obj['runoff']             # <<<<<<<<<<<<<<
+ *         value = obj['stem_weight']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'runoff'")
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_runoff); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 92, __pyx_L124_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_stem_weight); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 92, __pyx_L124_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
@@ -24780,7 +24785,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'plant_weight'")
  *     result.plant_weight = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['runoff']
+ *         value = obj['stem_weight']
  *     except KeyError:
  */
     }
@@ -24796,10 +24801,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":93
  *     try:
- *         value = obj['runoff']
+ *         value = obj['stem_weight']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'runoff'")
- *     result.runoff = value
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")
+ *     result.stem_weight = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -24810,10 +24815,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":94
- *         value = obj['runoff']
+ *         value = obj['stem_weight']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'runoff'")             # <<<<<<<<<<<<<<
- *     result.runoff = value
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")             # <<<<<<<<<<<<<<
+ *     result.stem_weight = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__80, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 94, __pyx_L126_except_error)
@@ -24829,7 +24834,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'plant_weight'")
  *     result.plant_weight = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['runoff']
+ *         value = obj['stem_weight']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -24842,19 +24847,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":95
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'runoff'")
- *     result.runoff = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")
+ *     result.stem_weight = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['solar_noon']
+ *         value = obj['runoff']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 95, __pyx_L1_error)
-  __pyx_v_result.runoff = __pyx_t_11;
+  __pyx_v_result.stem_weight = __pyx_t_11;
 
   /* "FromPyStructUtility":96
- *         raise ValueError("No value specified for struct attribute 'runoff'")
- *     result.runoff = value
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")
+ *     result.stem_weight = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['solar_noon']
+ *         value = obj['runoff']
  *     except KeyError:
  */
   {
@@ -24867,22 +24872,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":97
- *     result.runoff = value
+ *     result.stem_weight = value
  *     try:
- *         value = obj['solar_noon']             # <<<<<<<<<<<<<<
+ *         value = obj['runoff']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")
+ *         raise ValueError("No value specified for struct attribute 'runoff'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_solar_noon); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 97, __pyx_L132_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_runoff); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 97, __pyx_L132_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":96
- *         raise ValueError("No value specified for struct attribute 'runoff'")
- *     result.runoff = value
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")
+ *     result.stem_weight = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['solar_noon']
+ *         value = obj['runoff']
  *     except KeyError:
  */
     }
@@ -24898,10 +24903,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":98
  *     try:
- *         value = obj['solar_noon']
+ *         value = obj['runoff']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")
- *     result.solar_noon = value
+ *         raise ValueError("No value specified for struct attribute 'runoff'")
+ *     result.runoff = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -24912,10 +24917,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":99
- *         value = obj['solar_noon']
+ *         value = obj['runoff']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")             # <<<<<<<<<<<<<<
- *     result.solar_noon = value
+ *         raise ValueError("No value specified for struct attribute 'runoff'")             # <<<<<<<<<<<<<<
+ *     result.runoff = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__81, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 99, __pyx_L134_except_error)
@@ -24928,10 +24933,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L134_except_error:;
 
     /* "FromPyStructUtility":96
- *         raise ValueError("No value specified for struct attribute 'runoff'")
- *     result.runoff = value
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")
+ *     result.stem_weight = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['solar_noon']
+ *         value = obj['runoff']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -24944,19 +24949,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":100
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")
- *     result.solar_noon = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'runoff'")
+ *     result.runoff = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['net_radiation']
+ *         value = obj['solar_noon']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 100, __pyx_L1_error)
-  __pyx_v_result.solar_noon = __pyx_t_11;
+  __pyx_v_result.runoff = __pyx_t_11;
 
   /* "FromPyStructUtility":101
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")
- *     result.solar_noon = value
+ *         raise ValueError("No value specified for struct attribute 'runoff'")
+ *     result.runoff = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['net_radiation']
+ *         value = obj['solar_noon']
  *     except KeyError:
  */
   {
@@ -24969,22 +24974,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":102
- *     result.solar_noon = value
+ *     result.runoff = value
  *     try:
- *         value = obj['net_radiation']             # <<<<<<<<<<<<<<
+ *         value = obj['solar_noon']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_net_radiation); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 102, __pyx_L140_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_solar_noon); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 102, __pyx_L140_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":101
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")
- *     result.solar_noon = value
+ *         raise ValueError("No value specified for struct attribute 'runoff'")
+ *     result.runoff = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['net_radiation']
+ *         value = obj['solar_noon']
  *     except KeyError:
  */
     }
@@ -25000,10 +25005,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":103
  *     try:
- *         value = obj['net_radiation']
+ *         value = obj['solar_noon']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")
- *     result.net_radiation = value
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")
+ *     result.solar_noon = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25014,10 +25019,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":104
- *         value = obj['net_radiation']
+ *         value = obj['solar_noon']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")             # <<<<<<<<<<<<<<
- *     result.net_radiation = value
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")             # <<<<<<<<<<<<<<
+ *     result.solar_noon = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__82, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 104, __pyx_L142_except_error)
@@ -25030,10 +25035,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L142_except_error:;
 
     /* "FromPyStructUtility":101
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")
- *     result.solar_noon = value
+ *         raise ValueError("No value specified for struct attribute 'runoff'")
+ *     result.runoff = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['net_radiation']
+ *         value = obj['solar_noon']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -25046,19 +25051,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":105
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")
- *     result.net_radiation = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")
+ *     result.solar_noon = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['evapotranspiration']
+ *         value = obj['net_radiation']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 105, __pyx_L1_error)
-  __pyx_v_result.net_radiation = __pyx_t_11;
+  __pyx_v_result.solar_noon = __pyx_t_11;
 
   /* "FromPyStructUtility":106
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")
- *     result.net_radiation = value
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")
+ *     result.solar_noon = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['evapotranspiration']
+ *         value = obj['net_radiation']
  *     except KeyError:
  */
   {
@@ -25071,22 +25076,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":107
- *     result.net_radiation = value
+ *     result.solar_noon = value
  *     try:
- *         value = obj['evapotranspiration']             # <<<<<<<<<<<<<<
+ *         value = obj['net_radiation']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_evapotranspiration); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 107, __pyx_L148_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_net_radiation); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 107, __pyx_L148_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":106
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")
- *     result.net_radiation = value
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")
+ *     result.solar_noon = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['evapotranspiration']
+ *         value = obj['net_radiation']
  *     except KeyError:
  */
     }
@@ -25102,10 +25107,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":108
  *     try:
- *         value = obj['evapotranspiration']
+ *         value = obj['net_radiation']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
- *     result.evapotranspiration = value
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")
+ *     result.net_radiation = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25116,10 +25121,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":109
- *         value = obj['evapotranspiration']
+ *         value = obj['net_radiation']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")             # <<<<<<<<<<<<<<
- *     result.evapotranspiration = value
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")             # <<<<<<<<<<<<<<
+ *     result.net_radiation = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__83, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 109, __pyx_L150_except_error)
@@ -25132,10 +25137,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L150_except_error:;
 
     /* "FromPyStructUtility":106
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")
- *     result.net_radiation = value
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")
+ *     result.solar_noon = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['evapotranspiration']
+ *         value = obj['net_radiation']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -25148,19 +25153,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":110
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
- *     result.evapotranspiration = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")
+ *     result.net_radiation = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['actual_transpiration']
+ *         value = obj['evapotranspiration']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 110, __pyx_L1_error)
-  __pyx_v_result.evapotranspiration = __pyx_t_11;
+  __pyx_v_result.net_radiation = __pyx_t_11;
 
   /* "FromPyStructUtility":111
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
- *     result.evapotranspiration = value
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")
+ *     result.net_radiation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['actual_transpiration']
+ *         value = obj['evapotranspiration']
  *     except KeyError:
  */
   {
@@ -25173,22 +25178,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":112
- *     result.evapotranspiration = value
+ *     result.net_radiation = value
  *     try:
- *         value = obj['actual_transpiration']             # <<<<<<<<<<<<<<
+ *         value = obj['evapotranspiration']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_actual_transpiration); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 112, __pyx_L156_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_evapotranspiration); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 112, __pyx_L156_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":111
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
- *     result.evapotranspiration = value
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")
+ *     result.net_radiation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['actual_transpiration']
+ *         value = obj['evapotranspiration']
  *     except KeyError:
  */
     }
@@ -25204,10 +25209,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":113
  *     try:
- *         value = obj['actual_transpiration']
+ *         value = obj['evapotranspiration']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
- *     result.actual_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
+ *     result.evapotranspiration = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25218,10 +25223,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":114
- *         value = obj['actual_transpiration']
+ *         value = obj['evapotranspiration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")             # <<<<<<<<<<<<<<
- *     result.actual_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")             # <<<<<<<<<<<<<<
+ *     result.evapotranspiration = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__84, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 114, __pyx_L158_except_error)
@@ -25234,10 +25239,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L158_except_error:;
 
     /* "FromPyStructUtility":111
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
- *     result.evapotranspiration = value
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")
+ *     result.net_radiation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['actual_transpiration']
+ *         value = obj['evapotranspiration']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -25250,19 +25255,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":115
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
- *     result.actual_transpiration = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
+ *     result.evapotranspiration = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['cumulative_transpiration']
+ *         value = obj['actual_transpiration']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 115, __pyx_L1_error)
-  __pyx_v_result.actual_transpiration = __pyx_t_11;
+  __pyx_v_result.evapotranspiration = __pyx_t_11;
 
   /* "FromPyStructUtility":116
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
- *     result.actual_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
+ *     result.evapotranspiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['cumulative_transpiration']
+ *         value = obj['actual_transpiration']
  *     except KeyError:
  */
   {
@@ -25275,22 +25280,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":117
- *     result.actual_transpiration = value
+ *     result.evapotranspiration = value
  *     try:
- *         value = obj['cumulative_transpiration']             # <<<<<<<<<<<<<<
+ *         value = obj['actual_transpiration']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_cumulative_transpiration); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 117, __pyx_L164_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_actual_transpiration); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 117, __pyx_L164_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":116
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
- *     result.actual_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
+ *     result.evapotranspiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['cumulative_transpiration']
+ *         value = obj['actual_transpiration']
  *     except KeyError:
  */
     }
@@ -25306,10 +25311,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":118
  *     try:
- *         value = obj['cumulative_transpiration']
+ *         value = obj['actual_transpiration']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
- *     result.cumulative_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
+ *     result.actual_transpiration = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25320,10 +25325,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":119
- *         value = obj['cumulative_transpiration']
+ *         value = obj['actual_transpiration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")             # <<<<<<<<<<<<<<
- *     result.cumulative_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")             # <<<<<<<<<<<<<<
+ *     result.actual_transpiration = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__85, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 119, __pyx_L166_except_error)
@@ -25336,10 +25341,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L166_except_error:;
 
     /* "FromPyStructUtility":116
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
- *     result.actual_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")
+ *     result.evapotranspiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['cumulative_transpiration']
+ *         value = obj['actual_transpiration']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -25352,19 +25357,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":120
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
- *     result.cumulative_transpiration = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
+ *     result.actual_transpiration = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['actual_soil_evaporation']
+ *         value = obj['cumulative_transpiration']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 120, __pyx_L1_error)
-  __pyx_v_result.cumulative_transpiration = __pyx_t_11;
+  __pyx_v_result.actual_transpiration = __pyx_t_11;
 
   /* "FromPyStructUtility":121
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
- *     result.cumulative_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
+ *     result.actual_transpiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['actual_soil_evaporation']
+ *         value = obj['cumulative_transpiration']
  *     except KeyError:
  */
   {
@@ -25377,22 +25382,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":122
- *     result.cumulative_transpiration = value
+ *     result.actual_transpiration = value
  *     try:
- *         value = obj['actual_soil_evaporation']             # <<<<<<<<<<<<<<
+ *         value = obj['cumulative_transpiration']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_actual_soil_evaporation); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 122, __pyx_L172_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_cumulative_transpiration); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 122, __pyx_L172_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":121
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
- *     result.cumulative_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
+ *     result.actual_transpiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['actual_soil_evaporation']
+ *         value = obj['cumulative_transpiration']
  *     except KeyError:
  */
     }
@@ -25408,10 +25413,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":123
  *     try:
- *         value = obj['actual_soil_evaporation']
+ *         value = obj['cumulative_transpiration']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
- *     result.actual_soil_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
+ *     result.cumulative_transpiration = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25422,10 +25427,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":124
- *         value = obj['actual_soil_evaporation']
+ *         value = obj['cumulative_transpiration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")             # <<<<<<<<<<<<<<
- *     result.actual_soil_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")             # <<<<<<<<<<<<<<
+ *     result.cumulative_transpiration = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__86, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 124, __pyx_L174_except_error)
@@ -25438,10 +25443,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L174_except_error:;
 
     /* "FromPyStructUtility":121
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
- *     result.cumulative_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")
+ *     result.actual_transpiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['actual_soil_evaporation']
+ *         value = obj['cumulative_transpiration']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -25454,19 +25459,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":125
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
- *     result.actual_soil_evaporation = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
+ *     result.cumulative_transpiration = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['cumulative_evaporation']
+ *         value = obj['actual_soil_evaporation']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 125, __pyx_L1_error)
-  __pyx_v_result.actual_soil_evaporation = __pyx_t_11;
+  __pyx_v_result.cumulative_transpiration = __pyx_t_11;
 
   /* "FromPyStructUtility":126
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
- *     result.actual_soil_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
+ *     result.cumulative_transpiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['cumulative_evaporation']
+ *         value = obj['actual_soil_evaporation']
  *     except KeyError:
  */
   {
@@ -25479,22 +25484,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":127
- *     result.actual_soil_evaporation = value
+ *     result.cumulative_transpiration = value
  *     try:
- *         value = obj['cumulative_evaporation']             # <<<<<<<<<<<<<<
+ *         value = obj['actual_soil_evaporation']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_cumulative_evaporation); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 127, __pyx_L180_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_actual_soil_evaporation); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 127, __pyx_L180_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":126
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
- *     result.actual_soil_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
+ *     result.cumulative_transpiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['cumulative_evaporation']
+ *         value = obj['actual_soil_evaporation']
  *     except KeyError:
  */
     }
@@ -25510,10 +25515,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":128
  *     try:
- *         value = obj['cumulative_evaporation']
+ *         value = obj['actual_soil_evaporation']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
- *     result.cumulative_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
+ *     result.actual_soil_evaporation = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25524,10 +25529,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":129
- *         value = obj['cumulative_evaporation']
+ *         value = obj['actual_soil_evaporation']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")             # <<<<<<<<<<<<<<
- *     result.cumulative_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")             # <<<<<<<<<<<<<<
+ *     result.actual_soil_evaporation = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__87, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 129, __pyx_L182_except_error)
@@ -25540,10 +25545,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L182_except_error:;
 
     /* "FromPyStructUtility":126
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
- *     result.actual_soil_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")
+ *     result.cumulative_transpiration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['cumulative_evaporation']
+ *         value = obj['actual_soil_evaporation']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -25556,19 +25561,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":130
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
- *     result.cumulative_evaporation = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
+ *     result.actual_soil_evaporation = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['number_of_vegetative_branches']
+ *         value = obj['cumulative_evaporation']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 130, __pyx_L1_error)
-  __pyx_v_result.cumulative_evaporation = __pyx_t_11;
+  __pyx_v_result.actual_soil_evaporation = __pyx_t_11;
 
   /* "FromPyStructUtility":131
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
- *     result.cumulative_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
+ *     result.actual_soil_evaporation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_vegetative_branches']
+ *         value = obj['cumulative_evaporation']
  *     except KeyError:
  */
   {
@@ -25581,22 +25586,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":132
- *     result.cumulative_evaporation = value
+ *     result.actual_soil_evaporation = value
  *     try:
- *         value = obj['number_of_vegetative_branches']             # <<<<<<<<<<<<<<
+ *         value = obj['cumulative_evaporation']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_vegetative_branches); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 132, __pyx_L188_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_cumulative_evaporation); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 132, __pyx_L188_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":131
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
- *     result.cumulative_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
+ *     result.actual_soil_evaporation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_vegetative_branches']
+ *         value = obj['cumulative_evaporation']
  *     except KeyError:
  */
     }
@@ -25612,10 +25617,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":133
  *     try:
- *         value = obj['number_of_vegetative_branches']
+ *         value = obj['cumulative_evaporation']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
- *     result.number_of_vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
+ *     result.cumulative_evaporation = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25626,10 +25631,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":134
- *         value = obj['number_of_vegetative_branches']
+ *         value = obj['cumulative_evaporation']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")             # <<<<<<<<<<<<<<
- *     result.number_of_vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")             # <<<<<<<<<<<<<<
+ *     result.cumulative_evaporation = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__88, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 134, __pyx_L190_except_error)
@@ -25642,10 +25647,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L190_except_error:;
 
     /* "FromPyStructUtility":131
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
- *     result.cumulative_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")
+ *     result.actual_soil_evaporation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_vegetative_branches']
+ *         value = obj['cumulative_evaporation']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -25658,19 +25663,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":135
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
- *     result.number_of_vegetative_branches = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
+ *     result.cumulative_evaporation = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['number_of_fruiting_sites']
+ *         value = obj['number_of_vegetative_branches']
  */
-  __pyx_t_10 = __Pyx_PyInt_As_unsigned_int(__pyx_v_value); if (unlikely((__pyx_t_10 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 135, __pyx_L1_error)
-  __pyx_v_result.number_of_vegetative_branches = __pyx_t_10;
+  __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 135, __pyx_L1_error)
+  __pyx_v_result.cumulative_evaporation = __pyx_t_11;
 
   /* "FromPyStructUtility":136
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
- *     result.number_of_vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
+ *     result.cumulative_evaporation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_fruiting_sites']
+ *         value = obj['number_of_vegetative_branches']
  *     except KeyError:
  */
   {
@@ -25683,22 +25688,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":137
- *     result.number_of_vegetative_branches = value
+ *     result.cumulative_evaporation = value
  *     try:
- *         value = obj['number_of_fruiting_sites']             # <<<<<<<<<<<<<<
+ *         value = obj['number_of_vegetative_branches']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_fruiting_sites); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 137, __pyx_L196_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_vegetative_branches); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 137, __pyx_L196_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":136
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
- *     result.number_of_vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
+ *     result.cumulative_evaporation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_fruiting_sites']
+ *         value = obj['number_of_vegetative_branches']
  *     except KeyError:
  */
     }
@@ -25714,10 +25719,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":138
  *     try:
- *         value = obj['number_of_fruiting_sites']
+ *         value = obj['number_of_vegetative_branches']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
- *     result.number_of_fruiting_sites = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
+ *     result.number_of_vegetative_branches = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25728,10 +25733,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":139
- *         value = obj['number_of_fruiting_sites']
+ *         value = obj['number_of_vegetative_branches']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")             # <<<<<<<<<<<<<<
- *     result.number_of_fruiting_sites = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")             # <<<<<<<<<<<<<<
+ *     result.number_of_vegetative_branches = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__89, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 139, __pyx_L198_except_error)
@@ -25744,10 +25749,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L198_except_error:;
 
     /* "FromPyStructUtility":136
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
- *     result.number_of_vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")
+ *     result.cumulative_evaporation = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_fruiting_sites']
+ *         value = obj['number_of_vegetative_branches']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -25760,19 +25765,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":140
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
- *     result.number_of_fruiting_sites = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
+ *     result.number_of_vegetative_branches = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['number_of_squares']
+ *         value = obj['number_of_fruiting_sites']
  */
   __pyx_t_10 = __Pyx_PyInt_As_unsigned_int(__pyx_v_value); if (unlikely((__pyx_t_10 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 140, __pyx_L1_error)
-  __pyx_v_result.number_of_fruiting_sites = __pyx_t_10;
+  __pyx_v_result.number_of_vegetative_branches = __pyx_t_10;
 
   /* "FromPyStructUtility":141
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
- *     result.number_of_fruiting_sites = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
+ *     result.number_of_vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_squares']
+ *         value = obj['number_of_fruiting_sites']
  *     except KeyError:
  */
   {
@@ -25785,22 +25790,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":142
- *     result.number_of_fruiting_sites = value
+ *     result.number_of_vegetative_branches = value
  *     try:
- *         value = obj['number_of_squares']             # <<<<<<<<<<<<<<
+ *         value = obj['number_of_fruiting_sites']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_squares); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 142, __pyx_L204_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_fruiting_sites); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 142, __pyx_L204_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":141
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
- *     result.number_of_fruiting_sites = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
+ *     result.number_of_vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_squares']
+ *         value = obj['number_of_fruiting_sites']
  *     except KeyError:
  */
     }
@@ -25816,10 +25821,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":143
  *     try:
- *         value = obj['number_of_squares']
+ *         value = obj['number_of_fruiting_sites']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
- *     result.number_of_squares = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
+ *     result.number_of_fruiting_sites = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25830,10 +25835,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":144
- *         value = obj['number_of_squares']
+ *         value = obj['number_of_fruiting_sites']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")             # <<<<<<<<<<<<<<
- *     result.number_of_squares = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")             # <<<<<<<<<<<<<<
+ *     result.number_of_fruiting_sites = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__90, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 144, __pyx_L206_except_error)
@@ -25846,10 +25851,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L206_except_error:;
 
     /* "FromPyStructUtility":141
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
- *     result.number_of_fruiting_sites = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")
+ *     result.number_of_vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_squares']
+ *         value = obj['number_of_fruiting_sites']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -25862,19 +25867,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":145
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
- *     result.number_of_squares = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
+ *     result.number_of_fruiting_sites = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['number_of_green_bolls']
+ *         value = obj['number_of_squares']
  */
-  __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 145, __pyx_L1_error)
-  __pyx_v_result.number_of_squares = __pyx_t_11;
+  __pyx_t_10 = __Pyx_PyInt_As_unsigned_int(__pyx_v_value); if (unlikely((__pyx_t_10 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 145, __pyx_L1_error)
+  __pyx_v_result.number_of_fruiting_sites = __pyx_t_10;
 
   /* "FromPyStructUtility":146
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
- *     result.number_of_squares = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
+ *     result.number_of_fruiting_sites = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_green_bolls']
+ *         value = obj['number_of_squares']
  *     except KeyError:
  */
   {
@@ -25887,22 +25892,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":147
- *     result.number_of_squares = value
+ *     result.number_of_fruiting_sites = value
  *     try:
- *         value = obj['number_of_green_bolls']             # <<<<<<<<<<<<<<
+ *         value = obj['number_of_squares']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_green_bolls); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 147, __pyx_L212_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_squares); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 147, __pyx_L212_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":146
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
- *     result.number_of_squares = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
+ *     result.number_of_fruiting_sites = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_green_bolls']
+ *         value = obj['number_of_squares']
  *     except KeyError:
  */
     }
@@ -25918,10 +25923,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":148
  *     try:
- *         value = obj['number_of_green_bolls']
+ *         value = obj['number_of_squares']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
- *     result.number_of_green_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
+ *     result.number_of_squares = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -25932,10 +25937,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":149
- *         value = obj['number_of_green_bolls']
+ *         value = obj['number_of_squares']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")             # <<<<<<<<<<<<<<
- *     result.number_of_green_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")             # <<<<<<<<<<<<<<
+ *     result.number_of_squares = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__91, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 149, __pyx_L214_except_error)
@@ -25948,10 +25953,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L214_except_error:;
 
     /* "FromPyStructUtility":146
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
- *     result.number_of_squares = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")
+ *     result.number_of_fruiting_sites = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_green_bolls']
+ *         value = obj['number_of_squares']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -25964,19 +25969,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":150
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
- *     result.number_of_green_bolls = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
+ *     result.number_of_squares = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['number_of_open_bolls']
+ *         value = obj['number_of_green_bolls']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 150, __pyx_L1_error)
-  __pyx_v_result.number_of_green_bolls = __pyx_t_11;
+  __pyx_v_result.number_of_squares = __pyx_t_11;
 
   /* "FromPyStructUtility":151
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
- *     result.number_of_green_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
+ *     result.number_of_squares = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_open_bolls']
+ *         value = obj['number_of_green_bolls']
  *     except KeyError:
  */
   {
@@ -25989,22 +25994,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":152
- *     result.number_of_green_bolls = value
+ *     result.number_of_squares = value
  *     try:
- *         value = obj['number_of_open_bolls']             # <<<<<<<<<<<<<<
+ *         value = obj['number_of_green_bolls']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_open_bolls); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 152, __pyx_L220_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_green_bolls); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 152, __pyx_L220_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":151
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
- *     result.number_of_green_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
+ *     result.number_of_squares = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_open_bolls']
+ *         value = obj['number_of_green_bolls']
  *     except KeyError:
  */
     }
@@ -26020,10 +26025,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":153
  *     try:
- *         value = obj['number_of_open_bolls']
+ *         value = obj['number_of_green_bolls']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
- *     result.number_of_open_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
+ *     result.number_of_green_bolls = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26034,10 +26039,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":154
- *         value = obj['number_of_open_bolls']
+ *         value = obj['number_of_green_bolls']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")             # <<<<<<<<<<<<<<
- *     result.number_of_open_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")             # <<<<<<<<<<<<<<
+ *     result.number_of_green_bolls = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__92, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 154, __pyx_L222_except_error)
@@ -26050,10 +26055,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L222_except_error:;
 
     /* "FromPyStructUtility":151
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
- *     result.number_of_green_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")
+ *     result.number_of_squares = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['number_of_open_bolls']
+ *         value = obj['number_of_green_bolls']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -26066,19 +26071,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":155
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
- *     result.number_of_open_bolls = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
+ *     result.number_of_green_bolls = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['nitrogen_stress']
+ *         value = obj['number_of_open_bolls']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 155, __pyx_L1_error)
-  __pyx_v_result.number_of_open_bolls = __pyx_t_11;
+  __pyx_v_result.number_of_green_bolls = __pyx_t_11;
 
   /* "FromPyStructUtility":156
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
- *     result.number_of_open_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
+ *     result.number_of_green_bolls = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['nitrogen_stress']
+ *         value = obj['number_of_open_bolls']
  *     except KeyError:
  */
   {
@@ -26091,22 +26096,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":157
- *     result.number_of_open_bolls = value
+ *     result.number_of_green_bolls = value
  *     try:
- *         value = obj['nitrogen_stress']             # <<<<<<<<<<<<<<
+ *         value = obj['number_of_open_bolls']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_nitrogen_stress); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 157, __pyx_L228_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_number_of_open_bolls); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 157, __pyx_L228_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":156
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
- *     result.number_of_open_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
+ *     result.number_of_green_bolls = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['nitrogen_stress']
+ *         value = obj['number_of_open_bolls']
  *     except KeyError:
  */
     }
@@ -26122,10 +26127,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":158
  *     try:
- *         value = obj['nitrogen_stress']
+ *         value = obj['number_of_open_bolls']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
- *     result.nitrogen_stress = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
+ *     result.number_of_open_bolls = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26136,10 +26141,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":159
- *         value = obj['nitrogen_stress']
+ *         value = obj['number_of_open_bolls']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")             # <<<<<<<<<<<<<<
- *     result.nitrogen_stress = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")             # <<<<<<<<<<<<<<
+ *     result.number_of_open_bolls = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__93, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 159, __pyx_L230_except_error)
@@ -26152,10 +26157,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L230_except_error:;
 
     /* "FromPyStructUtility":156
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
- *     result.number_of_open_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")
+ *     result.number_of_green_bolls = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['nitrogen_stress']
+ *         value = obj['number_of_open_bolls']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -26168,19 +26173,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":160
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
- *     result.nitrogen_stress = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
+ *     result.number_of_open_bolls = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['total_required_nitrogen']
+ *         value = obj['nitrogen_stress']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 160, __pyx_L1_error)
-  __pyx_v_result.nitrogen_stress = __pyx_t_11;
+  __pyx_v_result.number_of_open_bolls = __pyx_t_11;
 
   /* "FromPyStructUtility":161
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
- *     result.nitrogen_stress = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
+ *     result.number_of_open_bolls = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['total_required_nitrogen']
+ *         value = obj['nitrogen_stress']
  *     except KeyError:
  */
   {
@@ -26193,22 +26198,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":162
- *     result.nitrogen_stress = value
+ *     result.number_of_open_bolls = value
  *     try:
- *         value = obj['total_required_nitrogen']             # <<<<<<<<<<<<<<
+ *         value = obj['nitrogen_stress']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_total_required_nitrogen); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 162, __pyx_L236_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_nitrogen_stress); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 162, __pyx_L236_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":161
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
- *     result.nitrogen_stress = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
+ *     result.number_of_open_bolls = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['total_required_nitrogen']
+ *         value = obj['nitrogen_stress']
  *     except KeyError:
  */
     }
@@ -26224,10 +26229,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":163
  *     try:
- *         value = obj['total_required_nitrogen']
+ *         value = obj['nitrogen_stress']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
- *     result.total_required_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
+ *     result.nitrogen_stress = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26238,10 +26243,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":164
- *         value = obj['total_required_nitrogen']
+ *         value = obj['nitrogen_stress']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")             # <<<<<<<<<<<<<<
- *     result.total_required_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")             # <<<<<<<<<<<<<<
+ *     result.nitrogen_stress = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__94, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 164, __pyx_L238_except_error)
@@ -26254,10 +26259,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L238_except_error:;
 
     /* "FromPyStructUtility":161
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
- *     result.nitrogen_stress = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")
+ *     result.number_of_open_bolls = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['total_required_nitrogen']
+ *         value = obj['nitrogen_stress']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -26270,19 +26275,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":165
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
- *     result.total_required_nitrogen = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
+ *     result.nitrogen_stress = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['leaf_area_index']
+ *         value = obj['total_required_nitrogen']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 165, __pyx_L1_error)
-  __pyx_v_result.total_required_nitrogen = __pyx_t_11;
+  __pyx_v_result.nitrogen_stress = __pyx_t_11;
 
   /* "FromPyStructUtility":166
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
- *     result.total_required_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
+ *     result.nitrogen_stress = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['leaf_area_index']
+ *         value = obj['total_required_nitrogen']
  *     except KeyError:
  */
   {
@@ -26295,22 +26300,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":167
- *     result.total_required_nitrogen = value
+ *     result.nitrogen_stress = value
  *     try:
- *         value = obj['leaf_area_index']             # <<<<<<<<<<<<<<
+ *         value = obj['total_required_nitrogen']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_leaf_area_index); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 167, __pyx_L244_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_total_required_nitrogen); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 167, __pyx_L244_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":166
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
- *     result.total_required_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
+ *     result.nitrogen_stress = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['leaf_area_index']
+ *         value = obj['total_required_nitrogen']
  *     except KeyError:
  */
     }
@@ -26326,10 +26331,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":168
  *     try:
- *         value = obj['leaf_area_index']
+ *         value = obj['total_required_nitrogen']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
- *     result.leaf_area_index = value
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
+ *     result.total_required_nitrogen = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26340,10 +26345,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":169
- *         value = obj['leaf_area_index']
+ *         value = obj['total_required_nitrogen']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")             # <<<<<<<<<<<<<<
- *     result.leaf_area_index = value
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")             # <<<<<<<<<<<<<<
+ *     result.total_required_nitrogen = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__95, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 169, __pyx_L246_except_error)
@@ -26356,10 +26361,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L246_except_error:;
 
     /* "FromPyStructUtility":166
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
- *     result.total_required_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")
+ *     result.nitrogen_stress = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['leaf_area_index']
+ *         value = obj['total_required_nitrogen']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -26372,19 +26377,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":170
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
- *     result.leaf_area_index = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
+ *     result.total_required_nitrogen = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['leaf_nitrogen_concentration']
+ *         value = obj['leaf_area_index']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 170, __pyx_L1_error)
-  __pyx_v_result.leaf_area_index = __pyx_t_11;
+  __pyx_v_result.total_required_nitrogen = __pyx_t_11;
 
   /* "FromPyStructUtility":171
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
- *     result.leaf_area_index = value
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
+ *     result.total_required_nitrogen = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['leaf_nitrogen_concentration']
+ *         value = obj['leaf_area_index']
  *     except KeyError:
  */
   {
@@ -26397,22 +26402,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":172
- *     result.leaf_area_index = value
+ *     result.total_required_nitrogen = value
  *     try:
- *         value = obj['leaf_nitrogen_concentration']             # <<<<<<<<<<<<<<
+ *         value = obj['leaf_area_index']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_leaf_nitrogen_concentration); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 172, __pyx_L252_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_leaf_area_index); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 172, __pyx_L252_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":171
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
- *     result.leaf_area_index = value
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
+ *     result.total_required_nitrogen = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['leaf_nitrogen_concentration']
+ *         value = obj['leaf_area_index']
  *     except KeyError:
  */
     }
@@ -26428,10 +26433,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":173
  *     try:
- *         value = obj['leaf_nitrogen_concentration']
+ *         value = obj['leaf_area_index']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
- *     result.leaf_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
+ *     result.leaf_area_index = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26442,10 +26447,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":174
- *         value = obj['leaf_nitrogen_concentration']
+ *         value = obj['leaf_area_index']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.leaf_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")             # <<<<<<<<<<<<<<
+ *     result.leaf_area_index = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__96, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 174, __pyx_L254_except_error)
@@ -26458,10 +26463,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L254_except_error:;
 
     /* "FromPyStructUtility":171
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
- *     result.leaf_area_index = value
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")
+ *     result.total_required_nitrogen = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['leaf_nitrogen_concentration']
+ *         value = obj['leaf_area_index']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -26474,19 +26479,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":175
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
- *     result.leaf_nitrogen_concentration = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
+ *     result.leaf_area_index = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['petiole_nitrogen_concentration']
+ *         value = obj['leaf_nitrogen_concentration']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 175, __pyx_L1_error)
-  __pyx_v_result.leaf_nitrogen_concentration = __pyx_t_11;
+  __pyx_v_result.leaf_area_index = __pyx_t_11;
 
   /* "FromPyStructUtility":176
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
- *     result.leaf_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
+ *     result.leaf_area_index = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['petiole_nitrogen_concentration']
+ *         value = obj['leaf_nitrogen_concentration']
  *     except KeyError:
  */
   {
@@ -26499,22 +26504,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":177
- *     result.leaf_nitrogen_concentration = value
+ *     result.leaf_area_index = value
  *     try:
- *         value = obj['petiole_nitrogen_concentration']             # <<<<<<<<<<<<<<
+ *         value = obj['leaf_nitrogen_concentration']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_petiole_nitrogen_concentration); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 177, __pyx_L260_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_leaf_nitrogen_concentration); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 177, __pyx_L260_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":176
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
- *     result.leaf_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
+ *     result.leaf_area_index = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['petiole_nitrogen_concentration']
+ *         value = obj['leaf_nitrogen_concentration']
  *     except KeyError:
  */
     }
@@ -26530,10 +26535,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":178
  *     try:
- *         value = obj['petiole_nitrogen_concentration']
+ *         value = obj['leaf_nitrogen_concentration']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
- *     result.petiole_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
+ *     result.leaf_nitrogen_concentration = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26544,10 +26549,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":179
- *         value = obj['petiole_nitrogen_concentration']
+ *         value = obj['leaf_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.petiole_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.leaf_nitrogen_concentration = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__97, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 179, __pyx_L262_except_error)
@@ -26560,10 +26565,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L262_except_error:;
 
     /* "FromPyStructUtility":176
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
- *     result.leaf_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")
+ *     result.leaf_area_index = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['petiole_nitrogen_concentration']
+ *         value = obj['leaf_nitrogen_concentration']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -26576,19 +26581,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":180
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
- *     result.petiole_nitrogen_concentration = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
+ *     result.leaf_nitrogen_concentration = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['seed_nitrogen_concentration']
+ *         value = obj['petiole_nitrogen_concentration']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 180, __pyx_L1_error)
-  __pyx_v_result.petiole_nitrogen_concentration = __pyx_t_11;
+  __pyx_v_result.leaf_nitrogen_concentration = __pyx_t_11;
 
   /* "FromPyStructUtility":181
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
- *     result.petiole_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
+ *     result.leaf_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['seed_nitrogen_concentration']
+ *         value = obj['petiole_nitrogen_concentration']
  *     except KeyError:
  */
   {
@@ -26601,22 +26606,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":182
- *     result.petiole_nitrogen_concentration = value
+ *     result.leaf_nitrogen_concentration = value
  *     try:
- *         value = obj['seed_nitrogen_concentration']             # <<<<<<<<<<<<<<
+ *         value = obj['petiole_nitrogen_concentration']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_seed_nitrogen_concentration); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 182, __pyx_L268_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_petiole_nitrogen_concentration); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 182, __pyx_L268_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":181
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
- *     result.petiole_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
+ *     result.leaf_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['seed_nitrogen_concentration']
+ *         value = obj['petiole_nitrogen_concentration']
  *     except KeyError:
  */
     }
@@ -26632,10 +26637,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":183
  *     try:
- *         value = obj['seed_nitrogen_concentration']
+ *         value = obj['petiole_nitrogen_concentration']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
- *     result.seed_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
+ *     result.petiole_nitrogen_concentration = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26646,10 +26651,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":184
- *         value = obj['seed_nitrogen_concentration']
+ *         value = obj['petiole_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.seed_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.petiole_nitrogen_concentration = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__98, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 184, __pyx_L270_except_error)
@@ -26662,10 +26667,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L270_except_error:;
 
     /* "FromPyStructUtility":181
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
- *     result.petiole_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")
+ *     result.leaf_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['seed_nitrogen_concentration']
+ *         value = obj['petiole_nitrogen_concentration']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -26678,19 +26683,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":185
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
- *     result.seed_nitrogen_concentration = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
+ *     result.petiole_nitrogen_concentration = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['root_nitrogen_concentration']
+ *         value = obj['seed_nitrogen_concentration']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 185, __pyx_L1_error)
-  __pyx_v_result.seed_nitrogen_concentration = __pyx_t_11;
+  __pyx_v_result.petiole_nitrogen_concentration = __pyx_t_11;
 
   /* "FromPyStructUtility":186
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
- *     result.seed_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
+ *     result.petiole_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['root_nitrogen_concentration']
+ *         value = obj['seed_nitrogen_concentration']
  *     except KeyError:
  */
   {
@@ -26703,22 +26708,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":187
- *     result.seed_nitrogen_concentration = value
+ *     result.petiole_nitrogen_concentration = value
  *     try:
- *         value = obj['root_nitrogen_concentration']             # <<<<<<<<<<<<<<
+ *         value = obj['seed_nitrogen_concentration']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_root_nitrogen_concentration); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 187, __pyx_L276_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_seed_nitrogen_concentration); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 187, __pyx_L276_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":186
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
- *     result.seed_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
+ *     result.petiole_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['root_nitrogen_concentration']
+ *         value = obj['seed_nitrogen_concentration']
  *     except KeyError:
  */
     }
@@ -26734,10 +26739,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":188
  *     try:
- *         value = obj['root_nitrogen_concentration']
+ *         value = obj['seed_nitrogen_concentration']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
- *     result.root_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
+ *     result.seed_nitrogen_concentration = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26748,10 +26753,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":189
- *         value = obj['root_nitrogen_concentration']
+ *         value = obj['seed_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.root_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.seed_nitrogen_concentration = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__99, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 189, __pyx_L278_except_error)
@@ -26764,10 +26769,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L278_except_error:;
 
     /* "FromPyStructUtility":186
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
- *     result.seed_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")
+ *     result.petiole_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['root_nitrogen_concentration']
+ *         value = obj['seed_nitrogen_concentration']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -26780,19 +26785,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":190
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
- *     result.root_nitrogen_concentration = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
+ *     result.seed_nitrogen_concentration = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['stem_nitrogen']
+ *         value = obj['root_nitrogen_concentration']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 190, __pyx_L1_error)
-  __pyx_v_result.root_nitrogen_concentration = __pyx_t_11;
+  __pyx_v_result.seed_nitrogen_concentration = __pyx_t_11;
 
   /* "FromPyStructUtility":191
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
- *     result.root_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
+ *     result.seed_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['stem_nitrogen']
+ *         value = obj['root_nitrogen_concentration']
  *     except KeyError:
  */
   {
@@ -26805,22 +26810,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":192
- *     result.root_nitrogen_concentration = value
+ *     result.seed_nitrogen_concentration = value
  *     try:
- *         value = obj['stem_nitrogen']             # <<<<<<<<<<<<<<
+ *         value = obj['root_nitrogen_concentration']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_stem_nitrogen); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 192, __pyx_L284_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_root_nitrogen_concentration); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 192, __pyx_L284_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":191
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
- *     result.root_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
+ *     result.seed_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['stem_nitrogen']
+ *         value = obj['root_nitrogen_concentration']
  *     except KeyError:
  */
     }
@@ -26836,10 +26841,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":193
  *     try:
- *         value = obj['stem_nitrogen']
+ *         value = obj['root_nitrogen_concentration']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
- *     result.stem_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
+ *     result.root_nitrogen_concentration = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26850,10 +26855,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":194
- *         value = obj['stem_nitrogen']
+ *         value = obj['root_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")             # <<<<<<<<<<<<<<
- *     result.stem_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.root_nitrogen_concentration = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__100, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 194, __pyx_L286_except_error)
@@ -26866,10 +26871,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L286_except_error:;
 
     /* "FromPyStructUtility":191
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
- *     result.root_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")
+ *     result.seed_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['stem_nitrogen']
+ *         value = obj['root_nitrogen_concentration']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -26882,19 +26887,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":195
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
- *     result.stem_nitrogen = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
+ *     result.root_nitrogen_concentration = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['ginning_percent']
+ *         value = obj['stem_nitrogen']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 195, __pyx_L1_error)
-  __pyx_v_result.stem_nitrogen = __pyx_t_11;
+  __pyx_v_result.root_nitrogen_concentration = __pyx_t_11;
 
   /* "FromPyStructUtility":196
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
- *     result.stem_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
+ *     result.root_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['ginning_percent']
+ *         value = obj['stem_nitrogen']
  *     except KeyError:
  */
   {
@@ -26907,22 +26912,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":197
- *     result.stem_nitrogen = value
+ *     result.root_nitrogen_concentration = value
  *     try:
- *         value = obj['ginning_percent']             # <<<<<<<<<<<<<<
+ *         value = obj['stem_nitrogen']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_ginning_percent); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 197, __pyx_L292_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_stem_nitrogen); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 197, __pyx_L292_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":196
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
- *     result.stem_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
+ *     result.root_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['ginning_percent']
+ *         value = obj['stem_nitrogen']
  *     except KeyError:
  */
     }
@@ -26938,10 +26943,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":198
  *     try:
- *         value = obj['ginning_percent']
+ *         value = obj['stem_nitrogen']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
- *     result.ginning_percent = value
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
+ *     result.stem_nitrogen = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -26952,10 +26957,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":199
- *         value = obj['ginning_percent']
+ *         value = obj['stem_nitrogen']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")             # <<<<<<<<<<<<<<
- *     result.ginning_percent = value
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")             # <<<<<<<<<<<<<<
+ *     result.stem_nitrogen = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__101, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 199, __pyx_L294_except_error)
@@ -26968,10 +26973,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L294_except_error:;
 
     /* "FromPyStructUtility":196
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
- *     result.stem_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")
+ *     result.root_nitrogen_concentration = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['ginning_percent']
+ *         value = obj['stem_nitrogen']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -26984,19 +26989,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":200
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
- *     result.ginning_percent = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
+ *     result.stem_nitrogen = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['pollination_switch']
+ *         value = obj['ginning_percent']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 200, __pyx_L1_error)
-  __pyx_v_result.ginning_percent = __pyx_t_11;
+  __pyx_v_result.stem_nitrogen = __pyx_t_11;
 
   /* "FromPyStructUtility":201
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
- *     result.ginning_percent = value
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
+ *     result.stem_nitrogen = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['pollination_switch']
+ *         value = obj['ginning_percent']
  *     except KeyError:
  */
   {
@@ -27009,22 +27014,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":202
- *     result.ginning_percent = value
+ *     result.stem_nitrogen = value
  *     try:
- *         value = obj['pollination_switch']             # <<<<<<<<<<<<<<
+ *         value = obj['ginning_percent']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_pollination_switch); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 202, __pyx_L300_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_ginning_percent); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 202, __pyx_L300_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":201
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
- *     result.ginning_percent = value
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
+ *     result.stem_nitrogen = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['pollination_switch']
+ *         value = obj['ginning_percent']
  *     except KeyError:
  */
     }
@@ -27040,10 +27045,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":203
  *     try:
- *         value = obj['pollination_switch']
+ *         value = obj['ginning_percent']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
+ *     result.ginning_percent = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27054,10 +27059,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":204
- *         value = obj['pollination_switch']
+ *         value = obj['ginning_percent']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")             # <<<<<<<<<<<<<<
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")             # <<<<<<<<<<<<<<
+ *     result.ginning_percent = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__102, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 204, __pyx_L302_except_error)
@@ -27070,10 +27075,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L302_except_error:;
 
     /* "FromPyStructUtility":201
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
- *     result.ginning_percent = value
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")
+ *     result.stem_nitrogen = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['pollination_switch']
+ *         value = obj['ginning_percent']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -27086,19 +27091,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":205
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
+ *     result.ginning_percent = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  */
-  __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_12 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 205, __pyx_L1_error)
-  __pyx_v_result.pollination_switch = __pyx_t_12;
+  __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 205, __pyx_L1_error)
+  __pyx_v_result.ginning_percent = __pyx_t_11;
 
   /* "FromPyStructUtility":206
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
+ *     result.ginning_percent = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
  */
   {
@@ -27111,22 +27116,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":207
- *     result.pollination_switch = value
+ *     result.ginning_percent = value
  *     try:
- *         value = obj['vegetative_branches']             # <<<<<<<<<<<<<<
+ *         value = obj['pollination_switch']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_vegetative_branches); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 207, __pyx_L308_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_pollination_switch); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 207, __pyx_L308_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":206
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
+ *     result.ginning_percent = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
  */
     }
@@ -27142,10 +27147,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":208
  *     try:
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27156,10 +27161,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":209
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")             # <<<<<<<<<<<<<<
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")             # <<<<<<<<<<<<<<
+ *     result.pollination_switch = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__103, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 209, __pyx_L310_except_error)
@@ -27172,10 +27177,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L310_except_error:;
 
     /* "FromPyStructUtility":206
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
+ *     result.ginning_percent = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -27188,19 +27193,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":210
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  */
-  if (unlikely(__Pyx_carray_from_py_VegetativeBranch(__pyx_v_value, __pyx_t_13, 3) < 0)) __PYX_ERR(1, 210, __pyx_L1_error)
-  memcpy(&(__pyx_v_result.vegetative_branches[0]), __pyx_t_13, sizeof(__pyx_v_result.vegetative_branches[0]) * (3));
+  __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_12 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 210, __pyx_L1_error)
+  __pyx_v_result.pollination_switch = __pyx_t_12;
 
   /* "FromPyStructUtility":211
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
  */
   {
@@ -27213,22 +27218,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":212
- *     result.vegetative_branches = value
+ *     result.pollination_switch = value
  *     try:
- *         value = obj['hours']             # <<<<<<<<<<<<<<
+ *         value = obj['vegetative_branches']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'hours'")
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_hours); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 212, __pyx_L316_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_vegetative_branches); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 212, __pyx_L316_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":211
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
  */
     }
@@ -27244,10 +27249,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":213
  *     try:
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27258,10 +27263,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":214
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'hours'")             # <<<<<<<<<<<<<<
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")             # <<<<<<<<<<<<<<
+ *     result.vegetative_branches = value
  *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__104, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 214, __pyx_L318_except_error)
@@ -27274,10 +27279,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L318_except_error:;
 
     /* "FromPyStructUtility":211
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -27290,19 +27295,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":215
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['soil']
+ *         value = obj['hours']
  */
-  if (unlikely(__Pyx_carray_from_py_Hour(__pyx_v_value, __pyx_t_14, 24) < 0)) __PYX_ERR(1, 215, __pyx_L1_error)
-  memcpy(&(__pyx_v_result.hours[0]), __pyx_t_14, sizeof(__pyx_v_result.hours[0]) * (24));
+  if (unlikely(__Pyx_carray_from_py_VegetativeBranch(__pyx_v_value, __pyx_t_13, 3) < 0)) __PYX_ERR(1, 215, __pyx_L1_error)
+  memcpy(&(__pyx_v_result.vegetative_branches[0]), __pyx_t_13, sizeof(__pyx_v_result.vegetative_branches[0]) * (3));
 
   /* "FromPyStructUtility":216
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
  */
   {
@@ -27315,22 +27320,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":217
- *     result.hours = value
+ *     result.vegetative_branches = value
  *     try:
- *         value = obj['soil']             # <<<<<<<<<<<<<<
+ *         value = obj['hours']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'soil'")
+ *         raise ValueError("No value specified for struct attribute 'hours'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_soil); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 217, __pyx_L324_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_hours); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 217, __pyx_L324_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":216
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
  */
     }
@@ -27346,10 +27351,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":218
  *     try:
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'soil'")
- *     result.soil = value
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27360,11 +27365,11 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":219
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'soil'")             # <<<<<<<<<<<<<<
- *     result.soil = value
- *     return result
+ *         raise ValueError("No value specified for struct attribute 'hours'")             # <<<<<<<<<<<<<<
+ *     result.hours = value
+ *     try:
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__105, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 219, __pyx_L326_except_error)
       __Pyx_GOTREF(__pyx_t_9);
@@ -27376,10 +27381,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L326_except_error:;
 
     /* "FromPyStructUtility":216
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -27392,15 +27397,117 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":220
  *     except KeyError:
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value             # <<<<<<<<<<<<<<
+ *     try:
+ *         value = obj['soil']
+ */
+  if (unlikely(__Pyx_carray_from_py_Hour(__pyx_v_value, __pyx_t_14, 24) < 0)) __PYX_ERR(1, 220, __pyx_L1_error)
+  memcpy(&(__pyx_v_result.hours[0]), __pyx_t_14, sizeof(__pyx_v_result.hours[0]) * (24));
+
+  /* "FromPyStructUtility":221
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
+ *     try:             # <<<<<<<<<<<<<<
+ *         value = obj['soil']
+ *     except KeyError:
+ */
+  {
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ExceptionSave(&__pyx_t_5, &__pyx_t_4, &__pyx_t_3);
+    __Pyx_XGOTREF(__pyx_t_5);
+    __Pyx_XGOTREF(__pyx_t_4);
+    __Pyx_XGOTREF(__pyx_t_3);
+    /*try:*/ {
+
+      /* "FromPyStructUtility":222
+ *     result.hours = value
+ *     try:
+ *         value = obj['soil']             # <<<<<<<<<<<<<<
+ *     except KeyError:
+ *         raise ValueError("No value specified for struct attribute 'soil'")
+ */
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_soil); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 222, __pyx_L332_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
+      __pyx_t_8 = 0;
+
+      /* "FromPyStructUtility":221
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
+ *     try:             # <<<<<<<<<<<<<<
+ *         value = obj['soil']
+ *     except KeyError:
+ */
+    }
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    goto __pyx_L337_try_end;
+    __pyx_L332_error:;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+
+    /* "FromPyStructUtility":223
+ *     try:
+ *         value = obj['soil']
+ *     except KeyError:             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'soil'")
+ *     result.soil = value
+ */
+    __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
+    if (__pyx_t_6) {
+      __Pyx_AddTraceback("FromPyStructUtility.__pyx_convert__from_py_State", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      if (__Pyx_GetException(&__pyx_t_8, &__pyx_t_7, &__pyx_t_2) < 0) __PYX_ERR(1, 223, __pyx_L334_except_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_GOTREF(__pyx_t_7);
+      __Pyx_GOTREF(__pyx_t_2);
+
+      /* "FromPyStructUtility":224
+ *         value = obj['soil']
+ *     except KeyError:
+ *         raise ValueError("No value specified for struct attribute 'soil'")             # <<<<<<<<<<<<<<
+ *     result.soil = value
+ *     return result
+ */
+      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__106, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 224, __pyx_L334_except_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_Raise(__pyx_t_9, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __PYX_ERR(1, 224, __pyx_L334_except_error)
+    }
+    goto __pyx_L334_except_error;
+    __pyx_L334_except_error:;
+
+    /* "FromPyStructUtility":221
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
+ *     try:             # <<<<<<<<<<<<<<
+ *         value = obj['soil']
+ *     except KeyError:
+ */
+    __Pyx_XGIVEREF(__pyx_t_5);
+    __Pyx_XGIVEREF(__pyx_t_4);
+    __Pyx_XGIVEREF(__pyx_t_3);
+    __Pyx_ExceptionReset(__pyx_t_5, __pyx_t_4, __pyx_t_3);
+    goto __pyx_L1_error;
+    __pyx_L337_try_end:;
+  }
+
+  /* "FromPyStructUtility":225
+ *     except KeyError:
  *         raise ValueError("No value specified for struct attribute 'soil'")
  *     result.soil = value             # <<<<<<<<<<<<<<
  *     return result
  * 
  */
-  __pyx_t_15 = __pyx_convert__from_py_Soil(__pyx_v_value); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 220, __pyx_L1_error)
+  __pyx_t_15 = __pyx_convert__from_py_Soil(__pyx_v_value); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 225, __pyx_L1_error)
   __pyx_v_result.soil = __pyx_t_15;
 
-  /* "FromPyStructUtility":221
+  /* "FromPyStructUtility":226
  *         raise ValueError("No value specified for struct attribute 'soil'")
  *     result.soil = value
  *     return result             # <<<<<<<<<<<<<<
@@ -30513,6 +30620,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_No_value_specified_for_struct_at_85, __pyx_k_No_value_specified_for_struct_at_85, sizeof(__pyx_k_No_value_specified_for_struct_at_85), 0, 0, 1, 0},
   {&__pyx_kp_s_No_value_specified_for_struct_at_86, __pyx_k_No_value_specified_for_struct_at_86, sizeof(__pyx_k_No_value_specified_for_struct_at_86), 0, 0, 1, 0},
   {&__pyx_kp_s_No_value_specified_for_struct_at_87, __pyx_k_No_value_specified_for_struct_at_87, sizeof(__pyx_k_No_value_specified_for_struct_at_87), 0, 0, 1, 0},
+  {&__pyx_kp_s_No_value_specified_for_struct_at_88, __pyx_k_No_value_specified_for_struct_at_88, sizeof(__pyx_k_No_value_specified_for_struct_at_88), 0, 0, 1, 0},
   {&__pyx_kp_s_No_value_specified_for_struct_at_9, __pyx_k_No_value_specified_for_struct_at_9, sizeof(__pyx_k_No_value_specified_for_struct_at_9), 0, 0, 1, 0},
   {&__pyx_n_s_OverflowError, __pyx_k_OverflowError, sizeof(__pyx_k_OverflowError), 0, 0, 1, 1},
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
@@ -30714,6 +30822,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_startswith, __pyx_k_startswith, sizeof(__pyx_k_startswith), 0, 0, 1, 1},
   {&__pyx_n_s_state, __pyx_k_state, sizeof(__pyx_k_state), 0, 0, 1, 1},
   {&__pyx_n_s_stem_nitrogen, __pyx_k_stem_nitrogen, sizeof(__pyx_k_stem_nitrogen), 0, 0, 1, 1},
+  {&__pyx_n_s_stem_weight, __pyx_k_stem_weight, sizeof(__pyx_k_stem_weight), 0, 0, 1, 1},
   {&__pyx_n_s_step, __pyx_k_step, sizeof(__pyx_k_step), 0, 0, 1, 1},
   {&__pyx_n_s_stop, __pyx_k_stop, sizeof(__pyx_k_stop), 0, 0, 1, 1},
   {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
@@ -31592,10 +31701,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__79);
 
   /* "FromPyStructUtility":94
- *         value = obj['runoff']
+ *         value = obj['stem_weight']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'runoff'")             # <<<<<<<<<<<<<<
- *     result.runoff = value
+ *         raise ValueError("No value specified for struct attribute 'stem_weight'")             # <<<<<<<<<<<<<<
+ *     result.stem_weight = value
  *     try:
  */
   __pyx_tuple__80 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_62); if (unlikely(!__pyx_tuple__80)) __PYX_ERR(1, 94, __pyx_L1_error)
@@ -31603,10 +31712,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__80);
 
   /* "FromPyStructUtility":99
- *         value = obj['solar_noon']
+ *         value = obj['runoff']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'solar_noon'")             # <<<<<<<<<<<<<<
- *     result.solar_noon = value
+ *         raise ValueError("No value specified for struct attribute 'runoff'")             # <<<<<<<<<<<<<<
+ *     result.runoff = value
  *     try:
  */
   __pyx_tuple__81 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_63); if (unlikely(!__pyx_tuple__81)) __PYX_ERR(1, 99, __pyx_L1_error)
@@ -31614,10 +31723,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__81);
 
   /* "FromPyStructUtility":104
- *         value = obj['net_radiation']
+ *         value = obj['solar_noon']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'net_radiation'")             # <<<<<<<<<<<<<<
- *     result.net_radiation = value
+ *         raise ValueError("No value specified for struct attribute 'solar_noon'")             # <<<<<<<<<<<<<<
+ *     result.solar_noon = value
  *     try:
  */
   __pyx_tuple__82 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_64); if (unlikely(!__pyx_tuple__82)) __PYX_ERR(1, 104, __pyx_L1_error)
@@ -31625,10 +31734,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__82);
 
   /* "FromPyStructUtility":109
- *         value = obj['evapotranspiration']
+ *         value = obj['net_radiation']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")             # <<<<<<<<<<<<<<
- *     result.evapotranspiration = value
+ *         raise ValueError("No value specified for struct attribute 'net_radiation'")             # <<<<<<<<<<<<<<
+ *     result.net_radiation = value
  *     try:
  */
   __pyx_tuple__83 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_65); if (unlikely(!__pyx_tuple__83)) __PYX_ERR(1, 109, __pyx_L1_error)
@@ -31636,10 +31745,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__83);
 
   /* "FromPyStructUtility":114
- *         value = obj['actual_transpiration']
+ *         value = obj['evapotranspiration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")             # <<<<<<<<<<<<<<
- *     result.actual_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'evapotranspiration'")             # <<<<<<<<<<<<<<
+ *     result.evapotranspiration = value
  *     try:
  */
   __pyx_tuple__84 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_66); if (unlikely(!__pyx_tuple__84)) __PYX_ERR(1, 114, __pyx_L1_error)
@@ -31647,10 +31756,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__84);
 
   /* "FromPyStructUtility":119
- *         value = obj['cumulative_transpiration']
+ *         value = obj['actual_transpiration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")             # <<<<<<<<<<<<<<
- *     result.cumulative_transpiration = value
+ *         raise ValueError("No value specified for struct attribute 'actual_transpiration'")             # <<<<<<<<<<<<<<
+ *     result.actual_transpiration = value
  *     try:
  */
   __pyx_tuple__85 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_67); if (unlikely(!__pyx_tuple__85)) __PYX_ERR(1, 119, __pyx_L1_error)
@@ -31658,10 +31767,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__85);
 
   /* "FromPyStructUtility":124
- *         value = obj['actual_soil_evaporation']
+ *         value = obj['cumulative_transpiration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")             # <<<<<<<<<<<<<<
- *     result.actual_soil_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_transpiration'")             # <<<<<<<<<<<<<<
+ *     result.cumulative_transpiration = value
  *     try:
  */
   __pyx_tuple__86 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_68); if (unlikely(!__pyx_tuple__86)) __PYX_ERR(1, 124, __pyx_L1_error)
@@ -31669,10 +31778,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__86);
 
   /* "FromPyStructUtility":129
- *         value = obj['cumulative_evaporation']
+ *         value = obj['actual_soil_evaporation']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")             # <<<<<<<<<<<<<<
- *     result.cumulative_evaporation = value
+ *         raise ValueError("No value specified for struct attribute 'actual_soil_evaporation'")             # <<<<<<<<<<<<<<
+ *     result.actual_soil_evaporation = value
  *     try:
  */
   __pyx_tuple__87 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_69); if (unlikely(!__pyx_tuple__87)) __PYX_ERR(1, 129, __pyx_L1_error)
@@ -31680,10 +31789,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__87);
 
   /* "FromPyStructUtility":134
- *         value = obj['number_of_vegetative_branches']
+ *         value = obj['cumulative_evaporation']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")             # <<<<<<<<<<<<<<
- *     result.number_of_vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'cumulative_evaporation'")             # <<<<<<<<<<<<<<
+ *     result.cumulative_evaporation = value
  *     try:
  */
   __pyx_tuple__88 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_70); if (unlikely(!__pyx_tuple__88)) __PYX_ERR(1, 134, __pyx_L1_error)
@@ -31691,10 +31800,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__88);
 
   /* "FromPyStructUtility":139
- *         value = obj['number_of_fruiting_sites']
+ *         value = obj['number_of_vegetative_branches']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")             # <<<<<<<<<<<<<<
- *     result.number_of_fruiting_sites = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_vegetative_branches'")             # <<<<<<<<<<<<<<
+ *     result.number_of_vegetative_branches = value
  *     try:
  */
   __pyx_tuple__89 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_71); if (unlikely(!__pyx_tuple__89)) __PYX_ERR(1, 139, __pyx_L1_error)
@@ -31702,10 +31811,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__89);
 
   /* "FromPyStructUtility":144
- *         value = obj['number_of_squares']
+ *         value = obj['number_of_fruiting_sites']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_squares'")             # <<<<<<<<<<<<<<
- *     result.number_of_squares = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_fruiting_sites'")             # <<<<<<<<<<<<<<
+ *     result.number_of_fruiting_sites = value
  *     try:
  */
   __pyx_tuple__90 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_72); if (unlikely(!__pyx_tuple__90)) __PYX_ERR(1, 144, __pyx_L1_error)
@@ -31713,10 +31822,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__90);
 
   /* "FromPyStructUtility":149
- *         value = obj['number_of_green_bolls']
+ *         value = obj['number_of_squares']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")             # <<<<<<<<<<<<<<
- *     result.number_of_green_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_squares'")             # <<<<<<<<<<<<<<
+ *     result.number_of_squares = value
  *     try:
  */
   __pyx_tuple__91 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_73); if (unlikely(!__pyx_tuple__91)) __PYX_ERR(1, 149, __pyx_L1_error)
@@ -31724,10 +31833,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__91);
 
   /* "FromPyStructUtility":154
- *         value = obj['number_of_open_bolls']
+ *         value = obj['number_of_green_bolls']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")             # <<<<<<<<<<<<<<
- *     result.number_of_open_bolls = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_green_bolls'")             # <<<<<<<<<<<<<<
+ *     result.number_of_green_bolls = value
  *     try:
  */
   __pyx_tuple__92 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_74); if (unlikely(!__pyx_tuple__92)) __PYX_ERR(1, 154, __pyx_L1_error)
@@ -31735,10 +31844,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__92);
 
   /* "FromPyStructUtility":159
- *         value = obj['nitrogen_stress']
+ *         value = obj['number_of_open_bolls']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")             # <<<<<<<<<<<<<<
- *     result.nitrogen_stress = value
+ *         raise ValueError("No value specified for struct attribute 'number_of_open_bolls'")             # <<<<<<<<<<<<<<
+ *     result.number_of_open_bolls = value
  *     try:
  */
   __pyx_tuple__93 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_75); if (unlikely(!__pyx_tuple__93)) __PYX_ERR(1, 159, __pyx_L1_error)
@@ -31746,10 +31855,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__93);
 
   /* "FromPyStructUtility":164
- *         value = obj['total_required_nitrogen']
+ *         value = obj['nitrogen_stress']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")             # <<<<<<<<<<<<<<
- *     result.total_required_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'nitrogen_stress'")             # <<<<<<<<<<<<<<
+ *     result.nitrogen_stress = value
  *     try:
  */
   __pyx_tuple__94 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_76); if (unlikely(!__pyx_tuple__94)) __PYX_ERR(1, 164, __pyx_L1_error)
@@ -31757,10 +31866,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__94);
 
   /* "FromPyStructUtility":169
- *         value = obj['leaf_area_index']
+ *         value = obj['total_required_nitrogen']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")             # <<<<<<<<<<<<<<
- *     result.leaf_area_index = value
+ *         raise ValueError("No value specified for struct attribute 'total_required_nitrogen'")             # <<<<<<<<<<<<<<
+ *     result.total_required_nitrogen = value
  *     try:
  */
   __pyx_tuple__95 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_77); if (unlikely(!__pyx_tuple__95)) __PYX_ERR(1, 169, __pyx_L1_error)
@@ -31768,10 +31877,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__95);
 
   /* "FromPyStructUtility":174
- *         value = obj['leaf_nitrogen_concentration']
+ *         value = obj['leaf_area_index']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.leaf_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_area_index'")             # <<<<<<<<<<<<<<
+ *     result.leaf_area_index = value
  *     try:
  */
   __pyx_tuple__96 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_78); if (unlikely(!__pyx_tuple__96)) __PYX_ERR(1, 174, __pyx_L1_error)
@@ -31779,10 +31888,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__96);
 
   /* "FromPyStructUtility":179
- *         value = obj['petiole_nitrogen_concentration']
+ *         value = obj['leaf_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.petiole_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'leaf_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.leaf_nitrogen_concentration = value
  *     try:
  */
   __pyx_tuple__97 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_79); if (unlikely(!__pyx_tuple__97)) __PYX_ERR(1, 179, __pyx_L1_error)
@@ -31790,10 +31899,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__97);
 
   /* "FromPyStructUtility":184
- *         value = obj['seed_nitrogen_concentration']
+ *         value = obj['petiole_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.seed_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'petiole_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.petiole_nitrogen_concentration = value
  *     try:
  */
   __pyx_tuple__98 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_80); if (unlikely(!__pyx_tuple__98)) __PYX_ERR(1, 184, __pyx_L1_error)
@@ -31801,10 +31910,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__98);
 
   /* "FromPyStructUtility":189
- *         value = obj['root_nitrogen_concentration']
+ *         value = obj['seed_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")             # <<<<<<<<<<<<<<
- *     result.root_nitrogen_concentration = value
+ *         raise ValueError("No value specified for struct attribute 'seed_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.seed_nitrogen_concentration = value
  *     try:
  */
   __pyx_tuple__99 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_81); if (unlikely(!__pyx_tuple__99)) __PYX_ERR(1, 189, __pyx_L1_error)
@@ -31812,10 +31921,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__99);
 
   /* "FromPyStructUtility":194
- *         value = obj['stem_nitrogen']
+ *         value = obj['root_nitrogen_concentration']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")             # <<<<<<<<<<<<<<
- *     result.stem_nitrogen = value
+ *         raise ValueError("No value specified for struct attribute 'root_nitrogen_concentration'")             # <<<<<<<<<<<<<<
+ *     result.root_nitrogen_concentration = value
  *     try:
  */
   __pyx_tuple__100 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_82); if (unlikely(!__pyx_tuple__100)) __PYX_ERR(1, 194, __pyx_L1_error)
@@ -31823,10 +31932,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__100);
 
   /* "FromPyStructUtility":199
- *         value = obj['ginning_percent']
+ *         value = obj['stem_nitrogen']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'ginning_percent'")             # <<<<<<<<<<<<<<
- *     result.ginning_percent = value
+ *         raise ValueError("No value specified for struct attribute 'stem_nitrogen'")             # <<<<<<<<<<<<<<
+ *     result.stem_nitrogen = value
  *     try:
  */
   __pyx_tuple__101 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_83); if (unlikely(!__pyx_tuple__101)) __PYX_ERR(1, 199, __pyx_L1_error)
@@ -31834,10 +31943,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__101);
 
   /* "FromPyStructUtility":204
- *         value = obj['pollination_switch']
+ *         value = obj['ginning_percent']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")             # <<<<<<<<<<<<<<
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'ginning_percent'")             # <<<<<<<<<<<<<<
+ *     result.ginning_percent = value
  *     try:
  */
   __pyx_tuple__102 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_84); if (unlikely(!__pyx_tuple__102)) __PYX_ERR(1, 204, __pyx_L1_error)
@@ -31845,10 +31954,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__102);
 
   /* "FromPyStructUtility":209
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")             # <<<<<<<<<<<<<<
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")             # <<<<<<<<<<<<<<
+ *     result.pollination_switch = value
  *     try:
  */
   __pyx_tuple__103 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_85); if (unlikely(!__pyx_tuple__103)) __PYX_ERR(1, 209, __pyx_L1_error)
@@ -31856,10 +31965,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__103);
 
   /* "FromPyStructUtility":214
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'hours'")             # <<<<<<<<<<<<<<
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")             # <<<<<<<<<<<<<<
+ *     result.vegetative_branches = value
  *     try:
  */
   __pyx_tuple__104 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_86); if (unlikely(!__pyx_tuple__104)) __PYX_ERR(1, 214, __pyx_L1_error)
@@ -31867,15 +31976,26 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__104);
 
   /* "FromPyStructUtility":219
+ *         value = obj['hours']
+ *     except KeyError:
+ *         raise ValueError("No value specified for struct attribute 'hours'")             # <<<<<<<<<<<<<<
+ *     result.hours = value
+ *     try:
+ */
+  __pyx_tuple__105 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_87); if (unlikely(!__pyx_tuple__105)) __PYX_ERR(1, 219, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__105);
+  __Pyx_GIVEREF(__pyx_tuple__105);
+
+  /* "FromPyStructUtility":224
  *         value = obj['soil']
  *     except KeyError:
  *         raise ValueError("No value specified for struct attribute 'soil'")             # <<<<<<<<<<<<<<
  *     result.soil = value
  *     return result
  */
-  __pyx_tuple__105 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_87); if (unlikely(!__pyx_tuple__105)) __PYX_ERR(1, 219, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__105);
-  __Pyx_GIVEREF(__pyx_tuple__105);
+  __pyx_tuple__106 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_88); if (unlikely(!__pyx_tuple__106)) __PYX_ERR(1, 224, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__106);
+  __Pyx_GIVEREF(__pyx_tuple__106);
 
   /* "_cotton2k/simulation.pyx":273
  * cdef class FruitingBranch:
@@ -31884,9 +32004,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *     def __init__(self, _branch):
  */
-  __pyx_tuple__106 = PyTuple_Pack(3, __pyx_n_u_delay_for_new_node, __pyx_n_u_main_stem_leaf, __pyx_n_u_nodes); if (unlikely(!__pyx_tuple__106)) __PYX_ERR(0, 273, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__106);
-  __Pyx_GIVEREF(__pyx_tuple__106);
+  __pyx_tuple__107 = PyTuple_Pack(3, __pyx_n_u_delay_for_new_node, __pyx_n_u_main_stem_leaf, __pyx_n_u_nodes); if (unlikely(!__pyx_tuple__107)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__107);
+  __Pyx_GIVEREF(__pyx_tuple__107);
 
   /* "_cotton2k/simulation.pyx":312
  *     cdef cState _state
@@ -31895,19 +32015,19 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         "plant_weight",
  *         "lint_yield",
  */
-  __pyx_tuple__107 = PyTuple_Pack(11, __pyx_n_u_plant_height, __pyx_n_u_plant_weight, __pyx_n_u_lint_yield, __pyx_n_u_number_of_squares, __pyx_n_u_number_of_green_bolls, __pyx_n_u_number_of_open_bolls, __pyx_n_u_leaf_area_index, __pyx_n_u_ginning_percent, __pyx_n_u_vegetative_branches, __pyx_n_u_hours, __pyx_n_u_soil); if (unlikely(!__pyx_tuple__107)) __PYX_ERR(0, 312, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__107);
-  __Pyx_GIVEREF(__pyx_tuple__107);
+  __pyx_tuple__108 = PyTuple_Pack(11, __pyx_n_u_plant_height, __pyx_n_u_plant_weight, __pyx_n_u_lint_yield, __pyx_n_u_number_of_squares, __pyx_n_u_number_of_green_bolls, __pyx_n_u_number_of_open_bolls, __pyx_n_u_leaf_area_index, __pyx_n_u_ginning_percent, __pyx_n_u_vegetative_branches, __pyx_n_u_hours, __pyx_n_u_soil); if (unlikely(!__pyx_tuple__108)) __PYX_ERR(0, 312, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__108);
+  __Pyx_GIVEREF(__pyx_tuple__108);
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_SoilInit(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_tuple__108 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__108)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__108);
-  __Pyx_GIVEREF(__pyx_tuple__108);
-  __pyx_codeobj__109 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__108, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_SoilInit, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__109)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_tuple__109 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__109)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__109);
+  __Pyx_GIVEREF(__pyx_tuple__109);
+  __pyx_codeobj__110 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__109, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_SoilInit, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__110)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -32339,7 +32459,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def __init__(self, _branch):
  */
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_FruitingBranch->tp_dict, __pyx_n_s_slots, __pyx_tuple__106) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_FruitingBranch->tp_dict, __pyx_n_s_slots, __pyx_tuple__107) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
   PyType_Modified(__pyx_ptype_9_cotton2k_10simulation_FruitingBranch);
 
   /* "_cotton2k/simulation.pyx":312
@@ -32349,7 +32469,7 @@ if (!__Pyx_RefNanny) {
  *         "plant_weight",
  *         "lint_yield",
  */
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_State->tp_dict, __pyx_n_s_slots, __pyx_tuple__107) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_9_cotton2k_10simulation_State->tp_dict, __pyx_n_s_slots, __pyx_tuple__108) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
   PyType_Modified(__pyx_ptype_9_cotton2k_10simulation_State);
 
   /* "(tree fragment)":1
@@ -34974,7 +35094,7 @@ static PyObject* __pyx_convert__to_py_Soil(Soil s) {
 static PyObject* __pyx_convert__to_py_State(State s) {
   PyObject* res;
   PyObject* member;
-  res = __Pyx_PyDict_NewPresized(41); if (unlikely(!res)) return NULL;
+  res = __Pyx_PyDict_NewPresized(42); if (unlikely(!res)) return NULL;
   member = __Pyx_PyInt_From_unsigned_int(s.daynum); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_n_s_daynum, member) < 0)) goto bad;
   Py_DECREF(member);
@@ -35019,6 +35139,9 @@ static PyObject* __pyx_convert__to_py_State(State s) {
   Py_DECREF(member);
   member = PyFloat_FromDouble(s.plant_weight); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_n_s_plant_weight, member) < 0)) goto bad;
+  Py_DECREF(member);
+  member = PyFloat_FromDouble(s.stem_weight); if (unlikely(!member)) goto bad;
+  if (unlikely(PyDict_SetItem(res, __pyx_n_s_stem_weight, member) < 0)) goto bad;
   Py_DECREF(member);
   member = PyFloat_FromDouble(s.runoff); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_n_s_runoff, member) < 0)) goto bad;

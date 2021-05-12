@@ -69,7 +69,6 @@ void InitializeGlobal()
     TotalLeafWeight = 0.20;
     TotalPetioleWeight = 0;
     TotalSquareWeight = 0;
-    TotalStemWeight = 0.2;
 
     WaterTableLayer = 1000;
 //

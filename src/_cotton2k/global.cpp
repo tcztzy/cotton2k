@@ -189,7 +189,6 @@ double
     TotalSoilUreaN,                   // total urea in profile, mg N per slab.
     TotalSoilWater,                   // total water in the soil profile, mm.
     TotalSquareWeight,                // total weight of squares, g per plant
-    TotalStemWeight,                  // total stem weight, g per plant.
     tstbd[10][10],                    // input bulk density in the impedance table, g cm-3.
     VarPar[61],                       // array of cultivar specific constant parameters.
     VolNh4NContent[maxl][maxk],       // volumetric ammonium nitrogen content of a soil cell, mg N cm-3.
