@@ -90,7 +90,7 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
 //        PetioleNConc.
 //
 //     The following global variable are set here:
-//        AbscisedLeafWeight, AgeOfPreFruNode, CumPlantNLoss, LeafAreaPreFru,
+//        AbscisedLeafWeight, CumPlantNLoss, LeafAreaPreFru,
 //        LeafNitrogen, LeafWeightPreFru, NumAbscisedLeaves, PetioleNitrogen,
 //        PetioleWeightPreFru, TotalPetioleWeight.
 //
@@ -103,14 +103,14 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
     for (int j = 0; j < NumPreFruNodes; j++)
     {
         if (FirstSquare > 0)
-            AgeOfPreFruNode[j] += DayInc;
+            state.age_of_pre_fruiting_nodes[j] += DayInc;
         //     The leaf on this node is abscised if its age has reached
         //  droplf, and if there is a leaf here, and if LeafAreaIndex is not too small:
         //     Update state.leaf_area, AbscisedLeafWeight, state.leaf_weight, TotalPetioleWeight,
         //  LeafNitrogen, CumPlantNLoss.
         //     Assign zero to LeafAreaPreFru, PetioleWeightPreFru and LeafWeightPreFru of this leaf.
         //     If a defoliation was applied, add 1 to the counter NumAbscisedLeaves.
-        if (AgeOfPreFruNode[j] >= droplf && LeafAreaPreFru[j] > 0 && state.leaf_area_index > 0.1)
+        if (state.age_of_pre_fruiting_nodes[j] >= droplf && LeafAreaPreFru[j] > 0 && state.leaf_area_index > 0.1)
         {
             state.leaf_area -= LeafAreaPreFru[j];
             state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];

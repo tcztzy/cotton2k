@@ -34,7 +34,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
 //           r = smax * c * p * exp(-c * pow(t,p)) * pow(t, (p-1))
 //
 //     The following global variables are referenced here:
-//        AgeOfPreFruNode, LeafAreaNodes,
+//        LeafAreaNodes,
 //        LeafAreaMainStem, LeafAreaPreFru, NumFruitBranches, NumNodes, NumPreFruNodes,
 //        NumVegBranches, VarPar, WaterStress.
 //     The following global variables are set here:
@@ -85,7 +85,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
             if (smax < VarPar[4])
                 smax = VarPar[4];
             c = vpotlf[7] + vpotlf[8] * jp1 * (jp1 - vpotlf[9]);
-            rate = smax * c * p * exp(-c * pow(AgeOfPreFruNode[j], p)) * pow(AgeOfPreFruNode[j], (p - 1));
+            rate = smax * c * p * exp(-c * pow(state.age_of_pre_fruiting_nodes[j], p)) * pow(state.age_of_pre_fruiting_nodes[j], (p - 1));
             //     Growth rate is modified by water stress and a function of average temperature.
             //     Compute potential growth of leaf area, leaf weight and petiole
             //  weight for leaf on node j. Add leaf weight potential growth to PotGroAllLeaves.

@@ -172,7 +172,7 @@ void PreFruitingNode(State &state, double stemNRatio)
 //     The following global variables are referenced here:
 //        DayInc, LeafWeightAreaRatio, VarPar.
 //     The following global variable are set here:
-//        AgeOfPreFruNode, LeafAreaPreFru, LeafNitrogen, LeafWeightPreFru, NumPreFruNodes.
+//        LeafAreaPreFru, LeafNitrogen, LeafWeightPreFru, NumPreFruNodes.
 //     The following argument is used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
 //
@@ -181,12 +181,12 @@ void PreFruitingNode(State &state, double stemNRatio)
     const double MaxAgePreFrNode = 66; // maximum age of a prefruiting node (constant)
                                        //     When the age of the last prefruiting node exceeds MaxAgePreFrNode,
                                        //  this function is not activated.
-    if (AgeOfPreFruNode[NumPreFruNodes - 1] > MaxAgePreFrNode)
+    if (state.age_of_pre_fruiting_nodes[NumPreFruNodes - 1] > MaxAgePreFrNode)
         return;
     //      Loop over all existing prefruiting nodes.
     //      Increment the age of each prefruiting node in physiological days.
     for (int j = 0; j < NumPreFruNodes; j++)
-        AgeOfPreFruNode[j] += state.day_inc;
+        state.age_of_pre_fruiting_nodes[j] += state.day_inc;
     //      For the last prefruiting node (if there are less than 9
     //  prefruiting nodes): The period (timeToNextPreFruNode) until the formation of the next
     //  node is VarPar(31), but it is modified for the first three nodes. If
@@ -203,7 +203,7 @@ void PreFruitingNode(State &state, double stemNRatio)
     else if (NumPreFruNodes == 3)
         timeToNextPreFruNode *= VarPar[33];
     //
-    if (AgeOfPreFruNode[NumPreFruNodes - 1] >= timeToNextPreFruNode)
+    if (state.age_of_pre_fruiting_nodes[NumPreFruNodes - 1] >= timeToNextPreFruNode)
     {
         NumPreFruNodes++;
         LeafAreaPreFru[NumPreFruNodes - 1] = VarPar[34];

@@ -144,6 +144,9 @@ void initialize_state0(State &state0, uint32_t day_start) {
     state0.root_nitrogen_concentration = .026;
     state0.stem_nitrogen = 0.0072;
     state0.ginning_percent = 0;
+    for (int i = 0; i < 9; i++) {
+        state0.age_of_pre_fruiting_nodes[i] = 0;
+    }
     for (int k = 0; k < 3; k++)
     {
         state0.vegetative_branches[k].number_of_fruiting_branches = 0;

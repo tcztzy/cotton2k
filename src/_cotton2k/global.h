@@ -59,7 +59,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     TotalPetioleWeight, TotalRootWeight, TotalSoilNh4N,
     TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight;
 
-extern double AbscissionLag[20], AgeOfPreFruNode[9], airdr[9],
+extern double AbscissionLag[20], airdr[9],
     alpha[9], vanGenuchtenBeta[9], BulkDensity[9],
     ClayVolumeFraction[maxl], CultivationDepth[5],
     DefoliantAppRate[5], DelayNewFruBranch[3], ElCondSatSoil[20],
