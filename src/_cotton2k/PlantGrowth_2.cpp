@@ -35,7 +35,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
 //
 //     The following global variables are referenced here:
 //        LeafAreaNodes,
-//        LeafAreaMainStem, LeafAreaPreFru, NumFruitBranches, NumNodes, NumPreFruNodes,
+//        LeafAreaMainStem, LeafAreaPreFru, NumFruitBranches, NumNodes,
 //        NumVegBranches, VarPar, WaterStress.
 //     The following global variables are set here:
 //        LeafWeightAreaRatio, PotGroAllLeaves, PotGroAllPetioles,
@@ -70,7 +70,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
     double rate;                             // growth rate of area of a leaf.
                                              //     Compute the potential growth rate of prefruiting leaves.
                                              //  smax and c are functions of prefruiting node number.
-    for (int j = 0; j < NumPreFruNodes; j++) // loop by prefruiting node.
+    for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++) // loop by prefruiting node.
     {
         if (LeafAreaPreFru[j] <= 0)
         {
@@ -99,7 +99,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
                 PotGroAllPetioles += PotGroPetioleWeightPreFru[j];
             } // rate
         }     // LeafAreaPreFru
-    }         // NumPreFruNodes
+    }         // state.number_of_pre_fruiting_nodes
               //     denfac is the effect of plant density on leaf growth rate.
     double denfac = 1 - vpotlf[12] * (1 - density_factor);
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches

@@ -289,7 +289,7 @@ void ActualLeafGrowth(State &state)
 //  cotton plants. It is called from PlantGrowth().
 //
 //     The following global and file scope variables are referenced here:
-//       NumFruitBranches, NumNodes, NumPreFruNodes, NumVegBranches, PotGroLeafAreaNodes,
+//       NumFruitBranches, NumNodes, NumVegBranches, PotGroLeafAreaNodes,
 //       PotGroLeafAreaMainStem, PotGroLeafWeightNodes, PotGroPetioleWeightNodes,
 //       PotGroLeafWeightMainStem, PotGroPetioleWeightMainStem, PotGroLeafAreaPreFru,
 //       PotGroLeafWeightPreFru, PotGroPetioleWeightPreFru, vratio.
@@ -305,7 +305,7 @@ void ActualLeafGrowth(State &state)
     //  (PetioleWeightPreFru) for each prefruiting node leaf.
     //     Compute total leaf weight (state.leaf_weight), total petiole
     //  weight (PetioleWeightNodes), and state.leaf_area.
-    for (int j = 0; j < NumPreFruNodes; j++) // loop by prefruiting node.
+    for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++) // loop by prefruiting node.
     {
         LeafWeightPreFru[j] += PotGroLeafWeightPreFru[j] * vratio;
         state.leaf_weight += LeafWeightPreFru[j];

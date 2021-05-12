@@ -46,7 +46,6 @@ int inrim,       // number of input bulk-density data points for the impedance c
     NumAbscisedLeaves,   // number of leaves, per plant, lost by abscission.
     NumIrrigations,      // number of irrigations.
     NumNitApps,          // number of applications of nitrogen fertilizer.
-    NumPreFruNodes,      // number of prefruiting nodes, per plant.
     NumSheddingTags,     // number of 'box-car' units used for moving values in arrays defining fruit shedding
     // (AbscissionLag, ShedByCarbonStress, ShedByNitrogenStress and ShedByWaterStress).
     NumWaterTableData; // number of water table level input data.

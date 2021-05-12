@@ -279,8 +279,7 @@ double PetioleNitrateN(State &state)
 //     This function computes the ratio of NO3 nitrogen to total N in the petioles.
 //  It is called from NitrogenSupply() and PlantNitrogenContent().
 //     The following global variables are referenced here:
-//       LeafAge, NumFruitBranches, NumNodes,
-//       NumPreFruNodes, NumVegBranches.
+//       LeafAge, NumFruitBranches, NumNodes, NumVegBranches.
 {
     //     The following constant parameters are used:
     const double p1 = 0.96;  //  the maximum ratio (of NO3 to total N in petioles).
@@ -292,7 +291,7 @@ double PetioleNitrateN(State &state)
     double spetno3 = 0;      // sum of petno3r.
     double petno3r;          // ratio of NO3 to total N in an individual petiole.
                              //     Loop of prefruiting node leaves.
-    for (int j = 0; j < NumPreFruNodes; j++)
+    for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++)
     {
         petno3r = p1 - state.age_of_pre_fruiting_nodes[j] * p2;
         if (petno3r < p3)
@@ -300,7 +299,7 @@ double PetioleNitrateN(State &state)
         spetno3 += petno3r;
     }
     //     Loop of all the other leaves, with the same computations.
-    int numl = NumPreFruNodes; // number of petioles computed.
+    int numl = state.number_of_pre_fruiting_nodes; // number of petioles computed.
     int nbrch;                 // number of fruiting branches on a vegetative stem.
     int nnid;                  // number of fruiting nodes on a fruiting branch.
     for (int k = 0; k < state.number_of_vegetative_branches; k++)

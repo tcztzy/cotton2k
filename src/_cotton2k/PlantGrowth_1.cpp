@@ -117,7 +117,7 @@ void LeafWaterPotential(State &state, double row_space)
 //
 //     The following global variables are referenced here:
 //       AverageSoilPsi, vanGenuchtenBeta, dl, Kday, LeafAge, NumFruitBranches,
-//       NumNodes, NumPreFruNodes, NumVegBranches,
+//       NumNodes, NumVegBranches,
 //       pi, PlantHeight, PoreSpace, ReferenceETP, RootColNumLeft, RootColNumRight,
 //       RootWtCapblUptake, SaturatedHydCond, SoilPsi, thad, thts, VolWaterContent, wk.
 //     The following global variables are set here:
@@ -202,7 +202,7 @@ void LeafWaterPotential(State &state, double row_space)
                                              // is executed for all the leaves of the plant.
     int numl = 0;                            // number of leaves.
     double sumrl = 0;                        // sum of leaf resistances for all the plant.
-    for (int j = 0; j < NumPreFruNodes; j++) // loop prefruiting nodes
+    for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++) // loop prefruiting nodes
     {
         numl++;
         sumrl += LeafResistance(state.age_of_pre_fruiting_nodes[j]);
@@ -456,7 +456,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     double agetop; // average physiological age of top three nodes.
     agetop = (state.vegetative_branches[0].fruiting_branches[l].nodes[0].age + state.vegetative_branches[0].fruiting_branches[l1].nodes[0].age + state.vegetative_branches[0].fruiting_branches[l2].nodes[0].age) / 3;
     if (sim.day_topping <= 0 || state.daynum < sim.day_topping)
-        state.plant_height += AddPlantHeight(denf2, state.day_inc, NumPreFruNodes, state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage, state.age_of_pre_fruiting_nodes[NumPreFruNodes - 1], state.age_of_pre_fruiting_nodes[NumPreFruNodes - 2], agetop, state.water_stress_stem, state.carbon_stress, state.nitrogen_stress_vegetative, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+        state.plant_height += AddPlantHeight(denf2, state.day_inc, state.number_of_pre_fruiting_nodes, state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage, state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 1], state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 2], agetop, state.water_stress_stem, state.carbon_stress, state.nitrogen_stress_vegetative, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
 }

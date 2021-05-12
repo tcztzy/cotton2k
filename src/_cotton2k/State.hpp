@@ -85,6 +85,7 @@ typedef struct State
     double average_temperature;                 // average daily temperature, C, for 24 hours.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     double age_of_pre_fruiting_nodes[9];        // age of each prefruiting node, physiological days.
+    int number_of_pre_fruiting_nodes;           // number of prefruiting nodes, per plant.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];
     Soil soil;

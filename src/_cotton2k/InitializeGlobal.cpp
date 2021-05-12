@@ -38,7 +38,6 @@ void InitializeGlobal()
     MineralizedOrganicN = 0;
 
     NumAbscisedLeaves = 0;
-    NumPreFruNodes = 1;
     NumSheddingTags = 0;
     NumWaterTableData = 0;
     NStressFruiting = 1;

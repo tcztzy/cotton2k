@@ -86,8 +86,7 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
 //  leaves. It is called from function LeafAbscission().
 //
 //     The following global variables are referenced here:
-//        DayInc, FirstSquare, LeafAreaIndex, LeafNConc, NumPreFruNodes,
-//        PetioleNConc.
+//        DayInc, FirstSquare, LeafAreaIndex, LeafNConc, PetioleNConc.
 //
 //     The following global variable are set here:
 //        AbscisedLeafWeight, CumPlantNLoss, LeafAreaPreFru,
@@ -100,7 +99,7 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
 {
     //     Loop over all prefruiting nodes. If it is after first square,
     //  node age is updated here.
-    for (int j = 0; j < NumPreFruNodes; j++)
+    for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++)
     {
         if (FirstSquare > 0)
             state.age_of_pre_fruiting_nodes[j] += DayInc;
@@ -225,7 +224,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
 //     It is called from function LeafAbscission().
 //
 //     The following global variables are referenced here:
-//        LeafNConc, NumPreFruNodes, PercentDefoliation,
+//        LeafNConc, PercentDefoliation,
 //        PetioleNConc.
 //
 //     The following global variable are set here:
@@ -239,7 +238,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
     //  prefruiting nodes, they will be shed at this stage.
     if (state.daynum == day_defoliate)
     {
-        for (int j = 0; j < NumPreFruNodes; j++)
+        for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++)
         {
             if (LeafAreaPreFru[j] > 0)
             {
