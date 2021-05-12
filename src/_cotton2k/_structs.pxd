@@ -131,6 +131,7 @@ cdef extern from "State.hpp":
         double root_nitrogen_concentration
         double stem_nitrogen
         double ginning_percent
+        double average_temperature
         bool_t pollination_switch
         cVegetativeBranch vegetative_branches[3]
         Hour hours[24]

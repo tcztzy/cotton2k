@@ -27201,7 +27201,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
  *     result.ginning_percent = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['pollination_switch']
+ *         value = obj['average_temperature']
  */
   __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 210, __pyx_L1_error)
   __pyx_v_result.ginning_percent = __pyx_t_11;
@@ -27210,7 +27210,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
  *     result.ginning_percent = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['pollination_switch']
+ *         value = obj['average_temperature']
  *     except KeyError:
  */
   {
@@ -27225,11 +27225,11 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       /* "FromPyStructUtility":212
  *     result.ginning_percent = value
  *     try:
- *         value = obj['pollination_switch']             # <<<<<<<<<<<<<<
+ *         value = obj['average_temperature']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *         raise ValueError("No value specified for struct attribute 'average_temperature'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_pollination_switch); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 212, __pyx_L316_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_average_temperature); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 212, __pyx_L316_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
@@ -27238,7 +27238,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
  *     result.ginning_percent = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['pollination_switch']
+ *         value = obj['average_temperature']
  *     except KeyError:
  */
     }
@@ -27254,10 +27254,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":213
  *     try:
- *         value = obj['pollination_switch']
+ *         value = obj['average_temperature']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'average_temperature'")
+ *     result.average_temperature = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27268,13 +27268,13 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":214
- *         value = obj['pollination_switch']
+ *         value = obj['average_temperature']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")             # <<<<<<<<<<<<<<
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'average_temperature'")             # <<<<<<<<<<<<<<
+ *     result.average_temperature = value
  *     try:
  */
-      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__104, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 214, __pyx_L318_except_error)
+      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 214, __pyx_L318_except_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_Raise(__pyx_t_9, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -27287,7 +27287,7 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
  *         raise ValueError("No value specified for struct attribute 'ginning_percent'")
  *     result.ginning_percent = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['pollination_switch']
+ *         value = obj['average_temperature']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -27300,19 +27300,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":215
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'average_temperature'")
+ *     result.average_temperature = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  */
-  __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_12 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 215, __pyx_L1_error)
-  __pyx_v_result.pollination_switch = __pyx_t_12;
+  __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_v_value); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 215, __pyx_L1_error)
+  __pyx_v_result.average_temperature = __pyx_t_11;
 
   /* "FromPyStructUtility":216
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'average_temperature'")
+ *     result.average_temperature = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
  */
   {
@@ -27325,22 +27325,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":217
- *     result.pollination_switch = value
+ *     result.average_temperature = value
  *     try:
- *         value = obj['vegetative_branches']             # <<<<<<<<<<<<<<
+ *         value = obj['pollination_switch']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_vegetative_branches); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 217, __pyx_L324_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_pollination_switch); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 217, __pyx_L324_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":216
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'average_temperature'")
+ *     result.average_temperature = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
  */
     }
@@ -27356,10 +27356,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":218
  *     try:
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27370,13 +27370,13 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":219
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")             # <<<<<<<<<<<<<<
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")             # <<<<<<<<<<<<<<
+ *     result.pollination_switch = value
  *     try:
  */
-      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__105, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 219, __pyx_L326_except_error)
+      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__104, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 219, __pyx_L326_except_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_Raise(__pyx_t_9, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -27386,10 +27386,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L326_except_error:;
 
     /* "FromPyStructUtility":216
- *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
- *     result.pollination_switch = value
+ *         raise ValueError("No value specified for struct attribute 'average_temperature'")
+ *     result.average_temperature = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['vegetative_branches']
+ *         value = obj['pollination_switch']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -27402,19 +27402,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":220
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  */
-  if (unlikely(__Pyx_carray_from_py_VegetativeBranch(__pyx_v_value, __pyx_t_13, 3) < 0)) __PYX_ERR(1, 220, __pyx_L1_error)
-  memcpy(&(__pyx_v_result.vegetative_branches[0]), __pyx_t_13, sizeof(__pyx_v_result.vegetative_branches[0]) * (3));
+  __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_v_value); if (unlikely((__pyx_t_12 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 220, __pyx_L1_error)
+  __pyx_v_result.pollination_switch = __pyx_t_12;
 
   /* "FromPyStructUtility":221
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
  */
   {
@@ -27427,22 +27427,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":222
- *     result.vegetative_branches = value
+ *     result.pollination_switch = value
  *     try:
- *         value = obj['hours']             # <<<<<<<<<<<<<<
+ *         value = obj['vegetative_branches']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'hours'")
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
  */
-      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_hours); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 222, __pyx_L332_error)
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_vegetative_branches); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 222, __pyx_L332_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
       __pyx_t_8 = 0;
 
       /* "FromPyStructUtility":221
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
  */
     }
@@ -27458,10 +27458,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":223
  *     try:
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27472,13 +27472,13 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_2);
 
       /* "FromPyStructUtility":224
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'hours'")             # <<<<<<<<<<<<<<
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")             # <<<<<<<<<<<<<<
+ *     result.vegetative_branches = value
  *     try:
  */
-      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__106, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 224, __pyx_L334_except_error)
+      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__105, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 224, __pyx_L334_except_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_Raise(__pyx_t_9, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -27488,10 +27488,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L334_except_error:;
 
     /* "FromPyStructUtility":221
- *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
- *     result.vegetative_branches = value
+ *         raise ValueError("No value specified for struct attribute 'pollination_switch'")
+ *     result.pollination_switch = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['hours']
+ *         value = obj['vegetative_branches']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_5);
@@ -27504,19 +27504,19 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":225
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value             # <<<<<<<<<<<<<<
  *     try:
- *         value = obj['soil']
+ *         value = obj['hours']
  */
-  if (unlikely(__Pyx_carray_from_py_Hour(__pyx_v_value, __pyx_t_14, 24) < 0)) __PYX_ERR(1, 225, __pyx_L1_error)
-  memcpy(&(__pyx_v_result.hours[0]), __pyx_t_14, sizeof(__pyx_v_result.hours[0]) * (24));
+  if (unlikely(__Pyx_carray_from_py_VegetativeBranch(__pyx_v_value, __pyx_t_13, 3) < 0)) __PYX_ERR(1, 225, __pyx_L1_error)
+  memcpy(&(__pyx_v_result.vegetative_branches[0]), __pyx_t_13, sizeof(__pyx_v_result.vegetative_branches[0]) * (3));
 
   /* "FromPyStructUtility":226
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
  */
   {
@@ -27529,22 +27529,22 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     /*try:*/ {
 
       /* "FromPyStructUtility":227
- *     result.hours = value
+ *     result.vegetative_branches = value
  *     try:
- *         value = obj['soil']             # <<<<<<<<<<<<<<
+ *         value = obj['hours']             # <<<<<<<<<<<<<<
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'soil'")
+ *         raise ValueError("No value specified for struct attribute 'hours'")
  */
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_soil); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 227, __pyx_L340_error)
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_hours); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 227, __pyx_L340_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_2);
       __pyx_t_2 = 0;
 
       /* "FromPyStructUtility":226
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
  */
     }
@@ -27560,10 +27560,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
     /* "FromPyStructUtility":228
  *     try:
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:             # <<<<<<<<<<<<<<
- *         raise ValueError("No value specified for struct attribute 'soil'")
- *     result.soil = value
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
  */
     __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_6) {
@@ -27574,13 +27574,13 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
       __Pyx_GOTREF(__pyx_t_8);
 
       /* "FromPyStructUtility":229
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
- *         raise ValueError("No value specified for struct attribute 'soil'")             # <<<<<<<<<<<<<<
- *     result.soil = value
- *     return result
+ *         raise ValueError("No value specified for struct attribute 'hours'")             # <<<<<<<<<<<<<<
+ *     result.hours = value
+ *     try:
  */
-      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__107, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 229, __pyx_L342_except_error)
+      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__106, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 229, __pyx_L342_except_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_Raise(__pyx_t_9, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -27590,10 +27590,10 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
     __pyx_L342_except_error:;
 
     /* "FromPyStructUtility":226
- *         raise ValueError("No value specified for struct attribute 'hours'")
- *     result.hours = value
+ *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")
+ *     result.vegetative_branches = value
  *     try:             # <<<<<<<<<<<<<<
- *         value = obj['soil']
+ *         value = obj['hours']
  *     except KeyError:
  */
     __Pyx_XGIVEREF(__pyx_t_3);
@@ -27606,15 +27606,117 @@ static State __pyx_convert__from_py_State(PyObject *__pyx_v_obj) {
 
   /* "FromPyStructUtility":230
  *     except KeyError:
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value             # <<<<<<<<<<<<<<
+ *     try:
+ *         value = obj['soil']
+ */
+  if (unlikely(__Pyx_carray_from_py_Hour(__pyx_v_value, __pyx_t_14, 24) < 0)) __PYX_ERR(1, 230, __pyx_L1_error)
+  memcpy(&(__pyx_v_result.hours[0]), __pyx_t_14, sizeof(__pyx_v_result.hours[0]) * (24));
+
+  /* "FromPyStructUtility":231
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
+ *     try:             # <<<<<<<<<<<<<<
+ *         value = obj['soil']
+ *     except KeyError:
+ */
+  {
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ExceptionSave(&__pyx_t_5, &__pyx_t_4, &__pyx_t_3);
+    __Pyx_XGOTREF(__pyx_t_5);
+    __Pyx_XGOTREF(__pyx_t_4);
+    __Pyx_XGOTREF(__pyx_t_3);
+    /*try:*/ {
+
+      /* "FromPyStructUtility":232
+ *     result.hours = value
+ *     try:
+ *         value = obj['soil']             # <<<<<<<<<<<<<<
+ *     except KeyError:
+ *         raise ValueError("No value specified for struct attribute 'soil'")
+ */
+      __pyx_t_8 = __Pyx_PyObject_Dict_GetItem(__pyx_v_obj, __pyx_n_s_soil); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 232, __pyx_L348_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
+      __pyx_t_8 = 0;
+
+      /* "FromPyStructUtility":231
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
+ *     try:             # <<<<<<<<<<<<<<
+ *         value = obj['soil']
+ *     except KeyError:
+ */
+    }
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    goto __pyx_L353_try_end;
+    __pyx_L348_error:;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+
+    /* "FromPyStructUtility":233
+ *     try:
+ *         value = obj['soil']
+ *     except KeyError:             # <<<<<<<<<<<<<<
+ *         raise ValueError("No value specified for struct attribute 'soil'")
+ *     result.soil = value
+ */
+    __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
+    if (__pyx_t_6) {
+      __Pyx_AddTraceback("FromPyStructUtility.__pyx_convert__from_py_State", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      if (__Pyx_GetException(&__pyx_t_8, &__pyx_t_7, &__pyx_t_2) < 0) __PYX_ERR(1, 233, __pyx_L350_except_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_GOTREF(__pyx_t_7);
+      __Pyx_GOTREF(__pyx_t_2);
+
+      /* "FromPyStructUtility":234
+ *         value = obj['soil']
+ *     except KeyError:
+ *         raise ValueError("No value specified for struct attribute 'soil'")             # <<<<<<<<<<<<<<
+ *     result.soil = value
+ *     return result
+ */
+      __pyx_t_9 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__107, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 234, __pyx_L350_except_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_Raise(__pyx_t_9, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __PYX_ERR(1, 234, __pyx_L350_except_error)
+    }
+    goto __pyx_L350_except_error;
+    __pyx_L350_except_error:;
+
+    /* "FromPyStructUtility":231
+ *         raise ValueError("No value specified for struct attribute 'hours'")
+ *     result.hours = value
+ *     try:             # <<<<<<<<<<<<<<
+ *         value = obj['soil']
+ *     except KeyError:
+ */
+    __Pyx_XGIVEREF(__pyx_t_5);
+    __Pyx_XGIVEREF(__pyx_t_4);
+    __Pyx_XGIVEREF(__pyx_t_3);
+    __Pyx_ExceptionReset(__pyx_t_5, __pyx_t_4, __pyx_t_3);
+    goto __pyx_L1_error;
+    __pyx_L353_try_end:;
+  }
+
+  /* "FromPyStructUtility":235
+ *     except KeyError:
  *         raise ValueError("No value specified for struct attribute 'soil'")
  *     result.soil = value             # <<<<<<<<<<<<<<
  *     return result
  * 
  */
-  __pyx_t_15 = __pyx_convert__from_py_Soil(__pyx_v_value); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 230, __pyx_L1_error)
+  __pyx_t_15 = __pyx_convert__from_py_Soil(__pyx_v_value); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 235, __pyx_L1_error)
   __pyx_v_result.soil = __pyx_t_15;
 
-  /* "FromPyStructUtility":231
+  /* "FromPyStructUtility":236
  *         raise ValueError("No value specified for struct attribute 'soil'")
  *     result.soil = value
  *     return result             # <<<<<<<<<<<<<<
@@ -32073,47 +32175,47 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__103);
   __Pyx_GIVEREF(__pyx_tuple__103);
 
-  /* "FromPyStructUtility":214
+  /* "FromPyStructUtility":219
  *         value = obj['pollination_switch']
  *     except KeyError:
  *         raise ValueError("No value specified for struct attribute 'pollination_switch'")             # <<<<<<<<<<<<<<
  *     result.pollination_switch = value
  *     try:
  */
-  __pyx_tuple__104 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_86); if (unlikely(!__pyx_tuple__104)) __PYX_ERR(1, 214, __pyx_L1_error)
+  __pyx_tuple__104 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_86); if (unlikely(!__pyx_tuple__104)) __PYX_ERR(1, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__104);
   __Pyx_GIVEREF(__pyx_tuple__104);
 
-  /* "FromPyStructUtility":219
+  /* "FromPyStructUtility":224
  *         value = obj['vegetative_branches']
  *     except KeyError:
  *         raise ValueError("No value specified for struct attribute 'vegetative_branches'")             # <<<<<<<<<<<<<<
  *     result.vegetative_branches = value
  *     try:
  */
-  __pyx_tuple__105 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_87); if (unlikely(!__pyx_tuple__105)) __PYX_ERR(1, 219, __pyx_L1_error)
+  __pyx_tuple__105 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_87); if (unlikely(!__pyx_tuple__105)) __PYX_ERR(1, 224, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__105);
   __Pyx_GIVEREF(__pyx_tuple__105);
 
-  /* "FromPyStructUtility":224
+  /* "FromPyStructUtility":229
  *         value = obj['hours']
  *     except KeyError:
  *         raise ValueError("No value specified for struct attribute 'hours'")             # <<<<<<<<<<<<<<
  *     result.hours = value
  *     try:
  */
-  __pyx_tuple__106 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_88); if (unlikely(!__pyx_tuple__106)) __PYX_ERR(1, 224, __pyx_L1_error)
+  __pyx_tuple__106 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_88); if (unlikely(!__pyx_tuple__106)) __PYX_ERR(1, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__106);
   __Pyx_GIVEREF(__pyx_tuple__106);
 
-  /* "FromPyStructUtility":229
+  /* "FromPyStructUtility":234
  *         value = obj['soil']
  *     except KeyError:
  *         raise ValueError("No value specified for struct attribute 'soil'")             # <<<<<<<<<<<<<<
  *     result.soil = value
  *     return result
  */
-  __pyx_tuple__107 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_89); if (unlikely(!__pyx_tuple__107)) __PYX_ERR(1, 229, __pyx_L1_error)
+  __pyx_tuple__107 = PyTuple_Pack(1, __pyx_kp_s_No_value_specified_for_struct_at_89); if (unlikely(!__pyx_tuple__107)) __PYX_ERR(1, 234, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__107);
   __Pyx_GIVEREF(__pyx_tuple__107);
 
@@ -35214,7 +35316,7 @@ static PyObject* __pyx_convert__to_py_Soil(Soil s) {
 static PyObject* __pyx_convert__to_py_State(State s) {
   PyObject* res;
   PyObject* member;
-  res = __Pyx_PyDict_NewPresized(43); if (unlikely(!res)) return NULL;
+  res = __Pyx_PyDict_NewPresized(44); if (unlikely(!res)) return NULL;
   member = __Pyx_PyInt_From_unsigned_int(s.daynum); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_n_s_daynum, member) < 0)) goto bad;
   Py_DECREF(member);
@@ -35331,6 +35433,9 @@ static PyObject* __pyx_convert__to_py_State(State s) {
   Py_DECREF(member);
   member = PyFloat_FromDouble(s.ginning_percent); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_n_s_ginning_percent, member) < 0)) goto bad;
+  Py_DECREF(member);
+  member = PyFloat_FromDouble(s.average_temperature); if (unlikely(!member)) goto bad;
+  if (unlikely(PyDict_SetItem(res, __pyx_n_s_average_temperature, member) < 0)) goto bad;
   Py_DECREF(member);
   member = __Pyx_PyBool_FromLong(s.pollination_switch); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_n_s_pollination_switch, member) < 0)) goto bad;

@@ -37,7 +37,7 @@ extern unsigned int ncurve;// number of input soil-moisture curves in the impeda
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth,
     ActualSquareGrowth, ActualStemGrowth,
-    AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
+    AverageLwp, AverageLwpMin, AverageSoilPsi,
     BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
     CarbonAllocatedForRootGrowth, conmax,
     CottonWeightGreenBolls, CottonWeightOpenBolls, CumFertilizerN,

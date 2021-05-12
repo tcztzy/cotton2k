@@ -80,6 +80,7 @@ typedef struct State
     double root_nitrogen_concentration;         // average nitrogen concentration in roots.
     double stem_nitrogen;                       // total stem nitrogen, g per plant
     double ginning_percent;
+    double average_temperature;                 // average daily temperature, C, for 24 hours.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];
     Hour hours[24];

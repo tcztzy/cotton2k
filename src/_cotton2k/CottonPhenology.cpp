@@ -109,7 +109,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
                                   //  formation of prefruiting nodes.
     if (sim.first_square <= 0)
     {
-        DaysTo1stSqare = DaysToFirstSquare(state.daynum, sim.day_emerge, AvrgDailyTemp, state.water_stress, state.nitrogen_stress_vegetative, VarPar[30]);
+        DaysTo1stSqare = DaysToFirstSquare(state.daynum, sim.day_emerge, state.average_temperature, state.water_stress, state.nitrogen_stress_vegetative, VarPar[30]);
         PreFruitingNode(state, stemNRatio);
         //      When first square is formed, FirstSquare is assigned the day of year.
         //  Function CreateFirstSquare() is called for formation of first square.
@@ -220,7 +220,7 @@ void PreFruitingNode(State &state, double stemNRatio)
 void CreateFirstSquare(State &state, double stemNRatio)
 //     This function initiates the first square. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//        AvrgDailyTemp, Kday, LeafWeightAreaRatio, VarPar.
+//        Kday, LeafWeightAreaRatio, VarPar.
 //     The following global variable are set here:
 //        AbscisedLeafWeight, AvrgNodeTemper, CumPlantNLoss, FirstSquare, FruitFraction,
 //        FruitGrowthRatio, FruitingCode, LeafAreaNodes, LeafNitrogen, LeafWeightNodes,
@@ -246,7 +246,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     state.vegetative_branches[0].number_of_fruiting_branches = 1;
     state.vegetative_branches[0].fruiting_branches[0].number_of_fruiting_nodes = 1;
     FruitGrowthRatio = 1;
-    site.average_temperature = AvrgDailyTemp;
+    site.average_temperature = state.average_temperature;
     //     It is assumed that the cotyledons are dropped at time of first square. compute changes
     //  in AbscisedLeafWeight, TotalLeafWeight, LeafNitrogen and CumPlantNLoss caused
     //  by the abscission of the cotyledons.
@@ -262,7 +262,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
 //     This function decides whether a new vegetative branch is to be added, and
 //  then forms it. It is called from CottonPhenology().
 //     The following global variables are referenced here:
-//        AgeOfSite, LeafWeightAreaRatio, AvrgDailyTemp, VarPar.
+//        AgeOfSite, LeafWeightAreaRatio, VarPar.
 //     The following global variable are set here:
 //        AvrgNodeTemper, FruitFraction, FruitingCode, LeafAreaMainStem, LeafAreaNodes,
 //        LeafNitrogen, LeafWeightMainStem, LeafWeightNodes, NumFruitBranches, NumNodes,
@@ -312,7 +312,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     state.stem_nitrogen -= addlfn;
     //      Assign the initial value of the average temperature of the first site.
     //      Define initial NumFruitBranches and NumNodes for the new vegetative branch.
-    site.average_temperature = AvrgDailyTemp;
+    site.average_temperature = state.average_temperature;
     state.vegetative_branches[state.number_of_vegetative_branches - 1].number_of_fruiting_branches = 1;
     state.vegetative_branches[state.number_of_vegetative_branches - 1].fruiting_branches[0].number_of_fruiting_nodes = 1;
 }
@@ -322,7 +322,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
 //     This function decides if a new fruiting branch is to be added to a vegetative
 //  branch, and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//  AdjAddMSNodesRate, AgeOfSite, LeafWeightAreaRatio, AvrgDailyTemp,
+//  AdjAddMSNodesRate, AgeOfSite, LeafWeightAreaRatio,
 //  VarPar, WaterStress.
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewFruBranch, FruitFraction, FruitingCode, LeafAreaMainStem,
@@ -386,7 +386,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     LeafNitrogen += addlfn;
     state.stem_nitrogen -= addlfn;
     //      Begin computing AvrgNodeTemper of the new node and assign zero to DelayNewFruBranch.
-    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].average_temperature = AvrgDailyTemp;
+    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].average_temperature = state.average_temperature;
     DelayNewFruBranch[k] = 0;
 }
 
@@ -395,7 +395,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
 //     Function AddFruitingNode() decides if a new node is to be added to a fruiting branch,
 //  and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//  AdjAddSitesRate, AgeOfSite, AvrgDailyTemp, LeafWeightAreaRatio,
+//  AdjAddSitesRate, AgeOfSite, LeafWeightAreaRatio,
 //  VarPar, WaterStress,
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewNode, FruitFraction, FruitingCode, LeafAreaNodes, LeafWeightNodes,
@@ -449,7 +449,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     LeafNitrogen += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio;
     state.stem_nitrogen -= state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio;
     //     Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.
-    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].average_temperature = AvrgDailyTemp;
+    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].average_temperature = state.average_temperature;
     state.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0;
 }
 
@@ -458,7 +458,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //     Function SimulateFruitingSite() simulates the development of each fruiting site.
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//        AvrgDailyTemp, CottonWeightGreenBolls,
+//        CottonWeightGreenBolls,
 //        Kday, LeafAreaIndex,
 //        NumFruitBranches, NStressFruiting, WaterStress, VarPar.
 //     The following global variable are set here:
@@ -524,7 +524,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     if (ageinc < vfrsite[7])
         ageinc = vfrsite[7];
     //     Compute average temperature of this site since formation.
-    site.average_temperature = (site.average_temperature * site.age + AvrgDailyTemp * ageinc) / (site.age + ageinc);
+    site.average_temperature = (site.average_temperature * site.age + state.average_temperature * ageinc) / (site.age + ageinc);
     //     Update the age of this node, AgeOfSite(k,l,m), by adding ageinc.
     site.age += ageinc;
     //     The following is executed if this node is a square (FruitingCode =  1):
@@ -535,7 +535,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     {
         if (site.age >= vfrsite[8])
         {
-            boltmp[k][l][m] = AvrgDailyTemp;
+            boltmp[k][l][m] = state.average_temperature;
             site.boll.age = state.day_inc;
             site.stage = Stage::YoungGreenBoll;
             NewBollFormation(state, state.vegetative_branches[k].fruiting_branches[l].nodes[m]);
@@ -564,7 +564,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
             dum = 1;
         double dagebol; // added physiological age of boll on this day.
         dagebol = state.day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - NStressFruiting);
-        boltmp[k][l][m] = (boltmp[k][l][m] * site.boll.age + AvrgDailyTemp * dagebol) / (site.boll.age + dagebol);
+        boltmp[k][l][m] = (boltmp[k][l][m] * site.boll.age + state.average_temperature * dagebol) / (site.boll.age + dagebol);
         site.boll.age += dagebol;
     }
     //     If this node is a young green boll (FruitingCode = 7):

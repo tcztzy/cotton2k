@@ -377,7 +377,7 @@ void Defoliate(Simulation &sim, uint32_t u)
 //  applied on the cotton. It is called from SimulateThisDay().
 //
 //     The following global variables are referenced here:
-//       AvrgDailyTemp, Date, LeafAreaIndex, LightIntercept,
+//       LeafAreaIndex, LightIntercept,
 //       NumGreenBolls, NumOpenBolls, LwpMin.
 //
 //     The following global variables are set here:
@@ -466,7 +466,7 @@ void Defoliate(Simulation &sim, uint32_t u)
         if (DefoliationDate[i] > 0 && state.daynum > sim.day_defoliate)
         {
             double dum = -LwpMin * 10; // value of LwpMin in bars.
-            PercentDefoliation = p1 + p2 * AvrgDailyTemp + p3 * tdfkgh + p4 * (state.daynum - sim.day_defoliate) + p5 * dum - p6 * dum * dum + p7 * AvrgDailyTemp * tdfkgh * (state.daynum - sim.day_defoliate) * dum;
+            PercentDefoliation = p1 + p2 * state.average_temperature + p3 * tdfkgh + p4 * (state.daynum - sim.day_defoliate) + p5 * dum - p6 * dum * dum + p7 * state.average_temperature * tdfkgh * (state.daynum - sim.day_defoliate) * dum;
             if (PercentDefoliation < 0)
                 PercentDefoliation = 0;
             double perdmax = 40; // maximum possible percent of defoliation.

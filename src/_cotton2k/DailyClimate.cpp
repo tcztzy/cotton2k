@@ -124,7 +124,7 @@ void DayClim(Simulation &sim, uint32_t u)
         hour.wind_speed = daywnd(ti, sim.climate[u].Wind, t1, t2, t3, wnytf);
     }
     //     Compute average daily temperature, using function AverageAirTemperatures.
-    AverageAirTemperatures(state.hours, AvrgDailyTemp, DayTimeTemp, NightTimeTemp);
+    AverageAirTemperatures(state.hours, state.average_temperature, DayTimeTemp, NightTimeTemp);
     //     Compute potential evapotranspiration.
     EvapoTranspiration(state, sim.latitude, sim.elevation, declination, tmpisr, SitePar[7]);
 }
