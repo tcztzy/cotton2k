@@ -25,7 +25,7 @@ extern "C"
 }
 
 // PlantGrowth_2
-void PotentialLeafGrowth(State &);
+void PotentialLeafGrowth(State &, double);
 
 void PotentialFruitGrowth(State &, const double &);
 
@@ -371,7 +371,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 {
     State &state = sim.states[u];
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
-    PotentialLeafGrowth(state);
+    PotentialLeafGrowth(state, sim.density_factor);
     //     If it is after first square, call PotentialFruitGrowth() to compute potential
     //  growth rate of squares and bolls.
     if (state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage::NotYetFormed)
@@ -386,7 +386,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
                                                           //     Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
                                                           //  The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
                                                           //  Stem growth is also affected by water stress (WaterStressStem). PotGroStem is limited by (maxstmgr * PerPlantArea) g per plant per day.
-    PotGroStem = PotentialStemGrowth(stemnew, Kday, state.vegetative_branches[0].fruiting_branches[2].nodes[0].stage, DensityFactor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * state.day_inc * state.water_stress_stem;
+    PotGroStem = PotentialStemGrowth(stemnew, Kday, state.vegetative_branches[0].fruiting_branches[2].nodes[0].stage, sim.density_factor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * state.day_inc * state.water_stress_stem;
     double maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
     if (PotGroStem > maxstmgr * PerPlantArea)
         PotGroStem = maxstmgr * PerPlantArea;
@@ -443,7 +443,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     if (z1 > 1)
         z1 = 1;
     double denf2; // effect of plant density on plant growth in height.
-    denf2 = 1 + z1 * (DensityFactor - 1);
+    denf2 = 1 + z1 * (sim.density_factor - 1);
     //     Call AddPlantHeight to compute PlantHeight.
     int l, l1, l2; // node numbers of top three nodes.
     l = state.vegetative_branches[0].number_of_fruiting_branches - 1;

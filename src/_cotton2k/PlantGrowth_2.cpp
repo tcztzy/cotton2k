@@ -20,7 +20,7 @@ extern "C"
 }
 
 //////////////////////////
-void PotentialLeafGrowth(State &state)
+void PotentialLeafGrowth(State &state, double density_factor)
 //     This function simulates the potential growth of leaves of cotton plants.
 //  It is called from PlantGrowth(). It calls function TemperatureOnLeafGrowthRate().
 //
@@ -34,7 +34,7 @@ void PotentialLeafGrowth(State &state)
 //           r = smax * c * p * exp(-c * pow(t,p)) * pow(t, (p-1))
 //
 //     The following global variables are referenced here:
-//        AgeOfPreFruNode, AvrgDailyTemp, DensityFactor, LeafAreaNodes,
+//        AgeOfPreFruNode, AvrgDailyTemp, LeafAreaNodes,
 //        LeafAreaMainStem, LeafAreaPreFru, NumFruitBranches, NumNodes, NumPreFruNodes,
 //        NumVegBranches, VarPar, WaterStress.
 //     The following global variables are set here:
@@ -101,7 +101,7 @@ void PotentialLeafGrowth(State &state)
         }     // LeafAreaPreFru
     }         // NumPreFruNodes
               //     denfac is the effect of plant density on leaf growth rate.
-    double denfac = 1 - vpotlf[12] * (1 - DensityFactor);
+    double denfac = 1 - vpotlf[12] * (1 - density_factor);
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
     {
         for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++) // loop of fruiting branches

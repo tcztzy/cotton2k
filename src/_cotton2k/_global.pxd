@@ -38,7 +38,6 @@ cdef extern from "global.h":
     double ReserveC
     double PlantRowLocation
     double PerPlantArea
-    double DensityFactor
     double RatioImplicit
     double conmax
     double airdr[9]

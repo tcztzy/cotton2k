@@ -31,9 +31,9 @@ void CreateFirstSquare(State &, double);
 
 void AddVegetativeBranch(State &, double, double, double);
 
-void AddFruitingBranch(State &, int, double, double);
+void AddFruitingBranch(State &, int, double, double, double);
 
-void AddFruitingNode(State &, int, int, double, double);
+void AddFruitingNode(State &, int, int, double, double, double);
 
 void SimulateFruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
 
@@ -64,7 +64,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
 //  AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(),
 //  LeafAbscission(), FruitingSitesAbscission().
 //     The following global variables are referenced here:
-//        CarbonStress, DensityFactor, Kday, NumFruitBranches,
+//        CarbonStress, Kday, NumFruitBranches,
 //        NumNodes, NumVegBranches, PerPlantArea, VarPar.
 //     The following global variable are set here:
 //        FirstSquare, NumFruitSites.
@@ -135,9 +135,9 @@ void CottonPhenology(Simulation &sim, uint32_t u)
     if (state.number_of_vegetative_branches == 2 && PerPlantArea >= vpheno[6])
         AddVegetativeBranch(state, delayVegByCStress, stemNRatio, DaysTo1stSqare);
     //     The maximum number of nodes per fruiting branch (nidmax) is
-    //  affected by plant density. It is computed as a function of DensityFactor.
+    //  affected by plant density. It is computed as a function of density_factor.
     int nidmax; // maximum number of nodes per fruiting branch.
-    nidmax = (int)(vpheno[7] * DensityFactor + 0.5);
+    nidmax = (int)(vpheno[7] * sim.density_factor + 0.5);
     if (nidmax > 5)
         nidmax = 5;
     //     Start loop over all existing vegetative branches.
@@ -146,13 +146,13 @@ void CottonPhenology(Simulation &sim, uint32_t u)
     for (int k = 0; k < state.number_of_vegetative_branches; k++)
     {
         if (state.vegetative_branches[k].number_of_fruiting_branches < 30)
-            AddFruitingBranch(state, k, delayVegByCStress, stemNRatio);
+            AddFruitingBranch(state, k, delayVegByCStress, stemNRatio, sim.density_factor);
         //     Loop over all existing fruiting branches, and call AddFruitingNode() to
         //  decide if a new node on this fruiting branch is to be added.
         for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
         {
             if (state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax)
-                AddFruitingNode(state, k, l, delayFrtByCStress, stemNRatio);
+                AddFruitingNode(state, k, l, delayFrtByCStress, stemNRatio, sim.density_factor);
             //     Loop over all existing fruiting nodes, and call SimulateFruitingSite() to
             //  simulate the condition of each fruiting node.
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)
@@ -318,11 +318,11 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingBranch(State &state, int k, double delayVegByCStress, double stemNRatio)
+void AddFruitingBranch(State &state, int k, double delayVegByCStress, double stemNRatio, double density_factor)
 //     This function decides if a new fruiting branch is to be added to a vegetative
 //  branch, and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//  AdjAddMSNodesRate, AgeOfSite, DensityFactor, LeafWeightAreaRatio, AvrgDailyTemp,
+//  AdjAddMSNodesRate, AgeOfSite, LeafWeightAreaRatio, AvrgDailyTemp,
 //  VarPar, WaterStress.
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewFruBranch, FruitFraction, FruitingCode, LeafAreaMainStem,
@@ -355,7 +355,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     double TimeToNextFruBranch = VarPar[35] + tav * (vfrtbr[3] + tav * (vfrtbr[4] + tav * vfrtbr[5]));
     if (k > 0)
         TimeToNextFruBranch = TimeToNextFruBranch * vfrtbr[6];
-    TimeToNextFruBranch = TimeToNextFruBranch * (1 + vfrtbr[7] * (1 - DensityFactor)) + DelayNewFruBranch[k];
+    TimeToNextFruBranch = TimeToNextFruBranch * (1 + vfrtbr[7] * (1 - density_factor)) + DelayNewFruBranch[k];
     //     Check if the the age of the last fruiting branch exceeds TimeToNextFruBranch. If so, form the new fruiting branch:
     if (state.vegetative_branches[k].fruiting_branches[nbrch].nodes[0].age < TimeToNextFruBranch)
         return;
@@ -391,11 +391,11 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, double stemNRatio)
+void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, double stemNRatio, double density_factor)
 //     Function AddFruitingNode() decides if a new node is to be added to a fruiting branch,
 //  and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//  AdjAddSitesRate, AgeOfSite, AvrgDailyTemp, DensityFactor, LeafWeightAreaRatio,
+//  AdjAddSitesRate, AgeOfSite, AvrgDailyTemp, LeafWeightAreaRatio,
 //  VarPar, WaterStress,
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewNode, FruitFraction, FruitingCode, LeafAreaNodes, LeafWeightNodes,
@@ -425,7 +425,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     //  adjusted for age in physiological days. It is modified for plant density.
     double TimeToNextFruNode; // time, in physiological days, for the next node on the fruiting branch to be formed
     TimeToNextFruNode = VarPar[36] + tav * (vfrtnod[3] + tav * (vfrtnod[4] + tav * vfrtnod[5]));
-    TimeToNextFruNode = TimeToNextFruNode * (1 + VarPar[37] * (1 - DensityFactor)) + state.vegetative_branches[k].fruiting_branches[l].delay_for_new_node;
+    TimeToNextFruNode = TimeToNextFruNode * (1 + VarPar[37] * (1 - density_factor)) + state.vegetative_branches[k].fruiting_branches[l].delay_for_new_node;
     //     Check if the the age of the last node on the fruiting branch exceeds TimeToNextFruNode.
     //  If so, form the new node:
     if (state.vegetative_branches[k].fruiting_branches[l].nodes[nnid].age < TimeToNextFruNode)
