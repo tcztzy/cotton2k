@@ -128,7 +128,6 @@ double
     NStressFruiting,                  // nitrogen stress limiting fruit development.
     NStressRoots,                     // nitrogen stress limiting root development.
     PercentDefoliation,               // percentage of leaves abscised as a result of defoliant application.
-    PerPlantArea,                     // average soil surface area per plant, dm2.
     PetioleNitrogen,                  // total petiole nitrogen, g per plant.
     PetioleNO3NConc,                  // average nitrate nitrogen concentration in petioles.
     PetioleWeightPreFru[9],           // weight of prefruiting node petioles, g.

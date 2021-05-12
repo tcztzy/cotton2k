@@ -225,7 +225,7 @@ static void InitializeRootData(Simulation & sim)
 //  by ReadInput(). it is executed once at the beginning of the simulation.
 //
 //     Global or file scope variables referenced:
-//        dl, PlantRowColumn, nk, nl, PerPlantArea.
+//        dl, PlantRowColumn, nk, nl.
 //     Global or file scope variables set:
 //        ActualRootGrowth[maxl][maxk], DepthLastRootLayer,
 //	      LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots, NumRootAgeGroups,
@@ -266,7 +266,7 @@ static void InitializeRootData(Simulation & sim)
             sim.states[0].soil.layers[l].number_of_right_columns_with_root = 0;
         }
     }
-    init_root_data(sim.states[0].soil.cells, sim.plant_row_column, 0.01 * sim.row_space / PerPlantArea);
+    init_root_data(sim.states[0].soil.cells, sim.plant_row_column, 0.01 * sim.row_space / sim.per_plant_area);
 //     Start loop for all soil layers containing roots.
     DepthLastRootLayer = 0;
     TotalRootWeight = 0;
@@ -276,7 +276,7 @@ static void InitializeRootData(Simulation & sim)
 //  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
             for (int i = 0; i < 3; i++) {
-                TotalRootWeight += sim.states[0].soil.cells[l][k].root.weight[i] * 100 / sim.row_space * PerPlantArea;
+                TotalRootWeight += sim.states[0].soil.cells[l][k].root.weight[i] * 100 / sim.row_space * sim.per_plant_area;
             }
         }
     }

@@ -40,22 +40,22 @@ cdef void InitializeGrid(cSimulation &sim):
     This function initializes the soil grid variables. It is executed once at the beginning of the simulation. It is called from ReadInput().
 
     The following global or file-scope variables are set here:
-    dl, nk, nl, PerPlantArea, PlantPopulation,
+    dl, nk, nl, PlantPopulation,
     PlantRowColumn, PlantRowLocation, RowSpace, wk.
 
     The following global variables are referenced here:
     PlantsPerM, SkipRowWidth, VarPar, maxk, maxl."""
     # PlantRowLocation is the distance from edge of slab, cm, of the plant row.
-    global PlantRowLocation, PlantPopulation, PerPlantArea, nl, nk, SkipRowWidth, PlantsPerM
+    global PlantRowLocation, PlantPopulation, nl, nk, SkipRowWidth, PlantsPerM
     PlantRowLocation = 0.5 * sim.row_space
     if (SkipRowWidth > 1):
         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
         sim.row_space = 0.5 * (sim.row_space + SkipRowWidth)  # actual width of the soil slab (cm)
         PlantRowLocation = 0.5 * SkipRowWidth
-    # Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
+    # Compute PlantPopulation - number of plants per hectar, and per_plant_area - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
     PlantPopulation = PlantsPerM / sim.row_space * 1000000
-    PerPlantArea = 1000000 / PlantPopulation
+    sim.per_plant_area = 1000000 / PlantPopulation
     sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))
     # Define the numbers of rows and columns in the soil slab (nl, nk).
     # Define the depth, in cm, of consecutive nl layers.

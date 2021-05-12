@@ -35,7 +35,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
 //
 //     The following global variables are referenced here:
 //        NumFruitBranches, NumVegBranches,
-//        PerPlantArea, TotalLeafArea, TotalLeafWeight.
+//        TotalLeafArea, TotalLeafWeight.
 //
 //     The following global variables are set here:
 //        AbscisedLeafWeight, LeafAreaIndex, ReserveC.
@@ -76,7 +76,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
         }
     }
     //     Compute the resulting LeafAreaIndex but do not let it get too small.
-    state.leaf_area_index = TotalLeafArea / PerPlantArea;
+    state.leaf_area_index = TotalLeafArea / sim.per_plant_area;
     if (state.leaf_area_index < 0.0001)
         state.leaf_area_index = 0.0001;
 }

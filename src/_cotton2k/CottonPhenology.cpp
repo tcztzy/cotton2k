@@ -65,7 +65,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
 //  LeafAbscission(), FruitingSitesAbscission().
 //     The following global variables are referenced here:
 //        CarbonStress, Kday, NumFruitBranches,
-//        NumNodes, NumVegBranches, PerPlantArea, VarPar.
+//        NumNodes, NumVegBranches, VarPar.
 //     The following global variable are set here:
 //        FirstSquare, NumFruitSites.
 //
@@ -129,10 +129,10 @@ void CottonPhenology(Simulation &sim, uint32_t u)
     //     If there are only one or two vegetative branches, and if plant
     //  population allows it, call AddVegetativeBranch() to decide if a new vegetative
     //  branch is to be added. Note that dense plant populations (large
-    //  PerPlantArea) prevent new vegetative branch formation.
-    if (state.number_of_vegetative_branches == 1 && PerPlantArea >= vpheno[5])
+    //  per_plant_area) prevent new vegetative branch formation.
+    if (state.number_of_vegetative_branches == 1 && sim.per_plant_area >= vpheno[5])
         AddVegetativeBranch(state, delayVegByCStress, stemNRatio, DaysTo1stSqare);
-    if (state.number_of_vegetative_branches == 2 && PerPlantArea >= vpheno[6])
+    if (state.number_of_vegetative_branches == 2 && sim.per_plant_area >= vpheno[6])
         AddVegetativeBranch(state, delayVegByCStress, stemNRatio, DaysTo1stSqare);
     //     The maximum number of nodes per fruiting branch (nidmax) is
     //  affected by plant density. It is computed as a function of density_factor.

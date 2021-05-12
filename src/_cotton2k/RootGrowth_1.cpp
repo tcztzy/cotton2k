@@ -45,7 +45,7 @@ double RootDeath(SoilCell &, int, int, double);
 
 double RootCultivation(SoilCell[40][20], int, double, double, double);
 
-void RootSummation(State &, const int &, double);
+void RootSummation(State &, int, double, double);
 
 //////////////////////////////////////////////////
 //                   THE COTTON ROOT SUB-MODEL.
@@ -83,7 +83,7 @@ void RootSummation(State &, const int &, double);
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, int NumLayersWithRoots)
+double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, int NumLayersWithRoots, double per_plant_area)
 //     This function calculates the potential root growth rate.  The return value
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(),
@@ -91,7 +91,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, in
 //
 //     The following global variables are referenced here:
 //       NumRootAgeGroups, nk,
-//       PerPlantArea, PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg,
+//       PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg,
 //       VolNo3NContent, VolWaterContent.
 //     The following global variables are set here:    PotGroRoots, RootGroFactor
 {
@@ -166,7 +166,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, in
                 //  the soil moisture function SoilWaterOnRootGrowth().
                 //     Potential root growth PotGroRoots(l,k) in each cell is computed as a
                 //  product of rtwtcg, rgfac, the temperature function temprg, and
-                //  RootGroFactor(l,k). It is also multiplied by PerPlantArea / 19.6, for the effect
+                //  RootGroFactor(l,k). It is also multiplied by per_plant_area / 19.6, for the effect
                 //  of plant population density on root growth: it is made comparable
                 //  to a population of 5 plants per m in 38" rows.
                 //     The sum of the potential growth for the whole slab is computed
@@ -181,7 +181,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, in
                     minres = rtrdn;
                 double rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k]);
                 soil_cells[l][k].root.growth_factor = rtpsi * minres;
-                soil_cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * soil_cells[l][k].root.growth_factor * PerPlantArea / 19.6;
+                soil_cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * soil_cells[l][k].root.growth_factor * per_plant_area / 19.6;
                 sumpdr += soil_cells[l][k].root.potential_growth;
             } // if RootAge
         }     // end loop l & k
@@ -267,7 +267,7 @@ void ComputeActualRootGrowth(Simulation &sim, uint32_t u, double sumpdr, int Num
 //     The following global variables are referenced here:
 //       CarbonAllocatedForRootGrowth, cgind, CultivationDate, Daynum, DepthLastRootLayer,
 //       dl, ExtraCarbon, LateralRootFlag, LastTaprootLayer, nk, nl, NumLayersWithRoots,
-//       NumRootAgeGroups, PerPlantArea, PlantRowColumn, PotGroRoots, RootAge,
+//       NumRootAgeGroups, PlantRowColumn, PotGroRoots, RootAge,
 //       RootNConc, RowSpace, TapRootLength, wk.
 //     The following global variables are set here:
 //       ActualRootGrowth, CumPlantNLoss, DailyRootLoss,
@@ -301,13 +301,13 @@ void ComputeActualRootGrowth(Simulation &sim, uint32_t u, double sumpdr, int Num
     //  growth, this will be stored in pavail. Otherwise, zero is assigned to pavail.
     if (sumpdr <= 0)
     {
-        pavail += CarbonAllocatedForRootGrowth * 0.01 * sim.row_space / PerPlantArea;
+        pavail += CarbonAllocatedForRootGrowth * 0.01 * sim.row_space / sim.per_plant_area;
         return;
     }
     double actgf; // actual growth factor (ratio of available C to potential growth).
                   //     The ratio of available C to potential root growth (actgf) is calculated.
                   //  pavail (if not zero) is used here, and zeroed after being used.
-    actgf = (pavail + CarbonAllocatedForRootGrowth * 0.01 * sim.row_space / PerPlantArea) / sumpdr;
+    actgf = (pavail + CarbonAllocatedForRootGrowth * 0.01 * sim.row_space / sim.per_plant_area) / sumpdr;
     pavail = 0;
     //
     for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
@@ -322,7 +322,7 @@ void ComputeActualRootGrowth(Simulation &sim, uint32_t u, double sumpdr, int Num
     {
         double availt; // available carbon for taproot growth, in g dry matter per slab.
                        //  ExtraCarbon is converted to availt (g dry matter per slab).
-        availt = state.extra_carbon * 0.01 * sim.row_space / PerPlantArea;
+        availt = state.extra_carbon * 0.01 * sim.row_space / sim.per_plant_area;
         double sdl = TapRootLength - DepthLastRootLayer;
         ;                     // distance from the tip of the taproot, cm.
         double tpwt[maxl][2]; // proportionality factors for allocating added dry matter among taproot soil cells.
@@ -420,11 +420,11 @@ void ComputeActualRootGrowth(Simulation &sim, uint32_t u, double sumpdr, int Num
         if (CultivationDate[j] == state.daynum)
             DailyRootLoss = RootCultivation(state.soil.cells, NumRootAgeGroups, CultivationDepth[j], DailyRootLoss, sim.row_space);
     //     Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
-    DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / sim.row_space;
+    DailyRootLoss = DailyRootLoss * 100. * sim.per_plant_area / sim.row_space;
     RootWeightLoss += DailyRootLoss;
     // Adjust RootNitrogen (root N content) for loss by death of roots.
     RootNitrogen -= DailyRootLoss * state.root_nitrogen_concentration;
     state.cumulative_nitrogen_loss += DailyRootLoss * state.root_nitrogen_concentration;
     // Call function RootSummation().
-    RootSummation(sim.states[u], NumRootAgeGroups, sim.row_space);
+    RootSummation(sim.states[u], NumRootAgeGroups, sim.row_space, sim.per_plant_area);
 }

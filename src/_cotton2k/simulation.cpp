@@ -2724,7 +2724,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
 
   /* "_cotton2k/simulation.pyx":50
  *     # PlantRowLocation is the distance from edge of slab, cm, of the plant row.
- *     global PlantRowLocation, PlantPopulation, PerPlantArea, nl, nk, SkipRowWidth, PlantsPerM
+ *     global PlantRowLocation, PlantPopulation, nl, nk, SkipRowWidth, PlantsPerM
  *     PlantRowLocation = 0.5 * sim.row_space             # <<<<<<<<<<<<<<
  *     if (SkipRowWidth > 1):
  *         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
@@ -2732,7 +2732,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   PlantRowLocation = (0.5 * __pyx_v_sim.row_space);
 
   /* "_cotton2k/simulation.pyx":51
- *     global PlantRowLocation, PlantPopulation, PerPlantArea, nl, nk, SkipRowWidth, PlantsPerM
+ *     global PlantRowLocation, PlantPopulation, nl, nk, SkipRowWidth, PlantsPerM
  *     PlantRowLocation = 0.5 * sim.row_space
  *     if (SkipRowWidth > 1):             # <<<<<<<<<<<<<<
  *         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
@@ -2746,7 +2746,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  *         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
  *         sim.row_space = 0.5 * (sim.row_space + SkipRowWidth)  # actual width of the soil slab (cm)             # <<<<<<<<<<<<<<
  *         PlantRowLocation = 0.5 * SkipRowWidth
- *     # Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
+ *     # Compute PlantPopulation - number of plants per hectar, and per_plant_area - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
  */
     __pyx_v_sim.row_space = (0.5 * (__pyx_v_sim.row_space + __pyx_v_9_cotton2k_10simulation_SkipRowWidth));
 
@@ -2754,13 +2754,13 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  *         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
  *         sim.row_space = 0.5 * (sim.row_space + SkipRowWidth)  # actual width of the soil slab (cm)
  *         PlantRowLocation = 0.5 * SkipRowWidth             # <<<<<<<<<<<<<<
- *     # Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
+ *     # Compute PlantPopulation - number of plants per hectar, and per_plant_area - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
  *     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
  */
     PlantRowLocation = (0.5 * __pyx_v_9_cotton2k_10simulation_SkipRowWidth);
 
     /* "_cotton2k/simulation.pyx":51
- *     global PlantRowLocation, PlantPopulation, PerPlantArea, nl, nk, SkipRowWidth, PlantsPerM
+ *     global PlantRowLocation, PlantPopulation, nl, nk, SkipRowWidth, PlantsPerM
  *     PlantRowLocation = 0.5 * sim.row_space
  *     if (SkipRowWidth > 1):             # <<<<<<<<<<<<<<
  *         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
@@ -2769,10 +2769,10 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   }
 
   /* "_cotton2k/simulation.pyx":57
- *     # Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
+ *     # Compute PlantPopulation - number of plants per hectar, and per_plant_area - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
  *     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000             # <<<<<<<<<<<<<<
- *     PerPlantArea = 1000000 / PlantPopulation
+ *     sim.per_plant_area = 1000000 / PlantPopulation
  *     sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))
  */
   if (unlikely(__pyx_v_sim.row_space == 0)) {
@@ -2784,7 +2784,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   /* "_cotton2k/simulation.pyx":58
  *     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000
- *     PerPlantArea = 1000000 / PlantPopulation             # <<<<<<<<<<<<<<
+ *     sim.per_plant_area = 1000000 / PlantPopulation             # <<<<<<<<<<<<<<
  *     sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))
  *     # Define the numbers of rows and columns in the soil slab (nl, nk).
  */
@@ -2792,11 +2792,11 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
     __PYX_ERR(0, 58, __pyx_L1_error)
   }
-  PerPlantArea = (1000000.0 / PlantPopulation);
+  __pyx_v_sim.per_plant_area = (1000000.0 / PlantPopulation);
 
   /* "_cotton2k/simulation.pyx":59
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000
- *     PerPlantArea = 1000000 / PlantPopulation
+ *     sim.per_plant_area = 1000000 / PlantPopulation
  *     sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))             # <<<<<<<<<<<<<<
  *     # Define the numbers of rows and columns in the soil slab (nl, nk).
  *     # Define the depth, in cm, of consecutive nl layers.

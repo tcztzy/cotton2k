@@ -37,7 +37,6 @@ cdef extern from "global.h":
     double TotalLeafWeight
     double ReserveC
     double PlantRowLocation
-    double PerPlantArea
     double RatioImplicit
     double conmax
     double airdr[9]

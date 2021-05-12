@@ -166,6 +166,7 @@ cdef extern from "Simulation.hpp":
         double longitude
         double elevation
         double row_space
+        double per_plant_area
         double density_factor
         unsigned int plant_row_column
         cState *states

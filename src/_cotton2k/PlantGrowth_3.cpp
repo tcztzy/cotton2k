@@ -16,12 +16,12 @@ using namespace std;
 
 double vratio; // ratio of carbohydrates supplied to leaf and petiole growth to their requirements.
 //////////////////////////////////////////////////
-void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpet, double &cdroot)
+void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpet, double &cdroot, double per_plant_area)
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
 //        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots,
-//        PerPlantArea, PotGroAllBolls, PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles,
+//        PotGroAllBolls, PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles,
 //        PotGroAllRoots, PotGroAllSquares, PotGroStem, TotalLeafWeight,
 //        WaterStress.
 //     The following global and file scope variables are set here:
@@ -141,7 +141,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
                           //  on data from Avi Ben-Porath's PhD thesis.
                           //     ratio is modified (calibrated) by vchbal[11].
             ratio = vchbal[8] + vchbal[9] * exp(-vchbal[10] * (state.stem_weight + TotalLeafWeight + TotalPetioleWeight) *
-                                                PerPlantArea);
+                                                per_plant_area);
             ratio = ratio * vchbal[11];
             //     rtmax is the proportion of remaining available carbohydrates that can be supplied to
             //  root growth. This is increased by water stress.

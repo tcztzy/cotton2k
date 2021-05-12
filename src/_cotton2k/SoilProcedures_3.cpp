@@ -19,7 +19,7 @@ extern "C"{
     double PsiOnTranspiration(double);
 }
 
-void NitrogenUptake(SoilCell &, int, int, double, double);
+void NitrogenUptake(SoilCell &, int, int, double, double, double);
 
 void WaterBalance(double[], double[], double [], int);
 
@@ -164,14 +164,14 @@ void WaterUptake(Simulation &sim, unsigned int u)
                 if (uptk[l][k] > 0) {
                     double reqnc; // proportional allocation of TotalRequiredN to each cell
                     reqnc = state.total_required_nitrogen * uptk[l][k] / sumep;
-                    NitrogenUptake(state.soil.cells[l][k], l, k, reqnc, sim.row_space);
+                    NitrogenUptake(state.soil.cells[l][k], l, k, reqnc, sim.row_space, sim.per_plant_area);
                 } // end if uptk
             } // end loop k & l
     } // end if sumep
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_space)
+void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_space, double per_plant_area)
 //     The function NitrogenUptake() computes the uptake of nitrate and ammonium N
 //  from a soil cell. It is called by WaterUptake().
 //     The arguments of this function are:
@@ -179,7 +179,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //        reqnc - maximum N uptake (proportional to total N
 //                required for plant growth), g N per plant.
 //     Global variables referenced:
-//       PerPlantArea, dl, VolWaterContent, wk
+//       dl, VolWaterContent, wk
 //     The following global variables are set here:
 //       SupplyNH4N, SupplyNO3N, VolNh4NContent, VolNo3NContent
 {
@@ -190,7 +190,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
     const double p1 = 100, p2 = 5; // constant parameters for computing AmmonNDissolved.
 //
     double coeff; // coefficient used to convert g per plant to mg cm-3 units.
-    coeff = 10 * row_space / (PerPlantArea * dl(l) * wk(k, row_space));
+    coeff = 10 * row_space / (per_plant_area * dl(l) * wk(k, row_space));
 //     A Michaelis-Menten procedure is used to compute the rate of nitrate uptake from
 //  each cell. The maximum possible amount of uptake is reqnc (g N per plant), and
 //  the half of this rate occurs when the nitrate concentration in the soil solution is

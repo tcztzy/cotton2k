@@ -30,7 +30,7 @@ void PotentialLeafGrowth(State &, double);
 void PotentialFruitGrowth(State &, const double &);
 
 // PlantGrowth_3
-void DryMatterBalance(State &, double &, double &, double &, double &);
+void DryMatterBalance(State &, double &, double &, double &, double &, double);
 
 void ActualFruitGrowth(State &);
 
@@ -248,7 +248,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
 //       BurrWeightOpenBolls, CottonWeightOpenBolls, DayLength,
-//       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept, PerPlantArea,
+//       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept,
 //       PlantWeight, ptsred, StemWeight, TotalLeafWeight.
 //     The following global variables are set here:
 //       CumNetPhotosynth, NetPhotosynthesis.
@@ -306,10 +306,10 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     double pstand; // gross photosynthesis for a non-stressed full canopy.
     pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136);
     //     Convert it to gross photosynthesis per plant (pplant), using
-    //  PerPlantArea and corrections for light interception by canopy, ambient CO2
+    //  per_plant_area and corrections for light interception by canopy, ambient CO2
     //  concentration, water stress and low N in the leaves.
     double pplant; // actual gross photosynthetic rate, g per plant per day.
-    pplant = 0.001 * pstand * LightIntercept * PerPlantArea * ptsred * pnetcor * ptnfac;
+    pplant = 0.001 * pstand * LightIntercept * sim.per_plant_area * ptsred * pnetcor * ptnfac;
     //     Compute the photorespiration factor (rsubl) as a linear
     //  function af average day time temperature.
     double rsubl = 0.0032125 + 0.0066875 * DayTimeTemp; // photorespiration factor.
@@ -363,7 +363,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 //
 //     The following global variables are referenced here:
 //        ActualStemGrowth, DayInc, FirstSquare, FruitingCode, Kday,
-//        PerPlantArea, RowSpace, WaterStressStem.
+//        RowSpace, WaterStressStem.
 //
 //     The following global variables are set here:
 //        LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
@@ -385,22 +385,22 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     double stemnew = state.stem_weight - StemWeight[kkday]; // dry weight of active stem tissue.
                                                           //     Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
                                                           //  The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
-                                                          //  Stem growth is also affected by water stress (WaterStressStem). PotGroStem is limited by (maxstmgr * PerPlantArea) g per plant per day.
+                                                          //  Stem growth is also affected by water stress (WaterStressStem). PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
     PotGroStem = PotentialStemGrowth(stemnew, Kday, state.vegetative_branches[0].fruiting_branches[2].nodes[0].stage, sim.density_factor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * state.day_inc * state.water_stress_stem;
     double maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
-    if (PotGroStem > maxstmgr * PerPlantArea)
-        PotGroStem = maxstmgr * PerPlantArea;
+    if (PotGroStem > maxstmgr * sim.per_plant_area)
+        PotGroStem = maxstmgr * sim.per_plant_area;
     //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
     double sumpdr; // total potential growth rate of roots in g per slab. this is
     // computed in PotentialRootGrowth() and used in ActualRootGrowth().
-    sumpdr = PotentialRootGrowth(state.soil.cells, NumRootAgeGroups, state.soil.number_of_layers_with_root);
+    sumpdr = PotentialRootGrowth(state.soil.cells, NumRootAgeGroups, state.soil.number_of_layers_with_root, sim.per_plant_area);
     //     Total potential growth rate of roots is converted from g per
     //  slab (sumpdr) to g per plant (PotGroAllRoots).
-    PotGroAllRoots = sumpdr * 100 * PerPlantArea / sim.row_space;
-    //     Limit PotGroAllRoots to (maxrtgr*PerPlantArea) g per plant per day.
+    PotGroAllRoots = sumpdr * 100 * sim.per_plant_area / sim.row_space;
+    //     Limit PotGroAllRoots to (maxrtgr* per_plant_area) g per plant per day.
     double maxrtgr = 0.045; // maximum possible potential root growth, g dm-2 day-1.
-    if (PotGroAllRoots > maxrtgr * PerPlantArea)
-        PotGroAllRoots = maxrtgr * PerPlantArea;
+    if (PotGroAllRoots > maxrtgr * sim.per_plant_area)
+        PotGroAllRoots = maxrtgr * sim.per_plant_area;
     //     Call DryMatterBalance() to compute carbon balance, allocation of carbon to
     //  plant parts, and carbon stress. DryMatterBalance() also computes and returns the
     //  values of the following arguments:
@@ -409,7 +409,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //     cdroot is carbohydrate requirement for root growth, g per plant per day.
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
     double cdstem, cdleaf, cdpet, cdroot;
-    DryMatterBalance(state ,cdstem, cdleaf, cdpet, cdroot);
+    DryMatterBalance(state ,cdstem, cdleaf, cdpet, cdroot, sim.per_plant_area);
     //     If it is after first square, call ActualFruitGrowth() to compute actual
     //  growth rate of squares and bolls.
     if (state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage::NotYetFormed)
@@ -430,7 +430,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     TotalPetioleWeight = 0;
     //     Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
     ActualLeafGrowth(state);
-    state.leaf_area_index = TotalLeafArea / PerPlantArea;
+    state.leaf_area_index = TotalLeafArea / sim.per_plant_area;
     //     Add ActualStemGrowth to state.stem_weight, and define StemWeight(Kday) for this day.
     state.stem_weight += ActualStemGrowth;
     StemWeight[Kday] = state.stem_weight;
