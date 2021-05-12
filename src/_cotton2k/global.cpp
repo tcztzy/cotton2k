@@ -105,7 +105,6 @@ double
     impede[10][10],                   // input table of soil impedance to root growth
     InitialTotalSoilWater,            // initial total soil water in the profile, mm.
     IrrigationDepth,                  // depth of predicted irrigation, cm.
-    LeafAreaPreFru[9],                // area of prefruiting node leaves, dm2.
     LeafNitrogen,                     // total leaf nitrogen, g per plant.
     LeafWeightAreaRatio,              // temperature dependent factor for converting leaf area to leaf weight during the day, g dm-1.
     LeafWeightPreFru[9],              // weight of prefruiting node leaves, g.

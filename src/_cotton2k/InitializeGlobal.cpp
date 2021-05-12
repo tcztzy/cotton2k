@@ -81,7 +81,6 @@ void InitializeGlobal()
     }
 //
     for (int i = 0; i < 9; i++) {
-        LeafAreaPreFru[i] = 0;
         PotGroLeafAreaPreFru[i] = 0;
         PotGroLeafWeightPreFru[i] = 0;
         PotGroPetioleWeightPreFru[i] = 0;

@@ -89,7 +89,7 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
 //        DayInc, FirstSquare, LeafAreaIndex, LeafNConc, PetioleNConc.
 //
 //     The following global variable are set here:
-//        AbscisedLeafWeight, CumPlantNLoss, LeafAreaPreFru,
+//        AbscisedLeafWeight, CumPlantNLoss,
 //        LeafNitrogen, LeafWeightPreFru, NumAbscisedLeaves, PetioleNitrogen,
 //        PetioleWeightPreFru, TotalPetioleWeight.
 //
@@ -107,18 +107,18 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
         //  droplf, and if there is a leaf here, and if LeafAreaIndex is not too small:
         //     Update state.leaf_area, AbscisedLeafWeight, state.leaf_weight, TotalPetioleWeight,
         //  LeafNitrogen, CumPlantNLoss.
-        //     Assign zero to LeafAreaPreFru, PetioleWeightPreFru and LeafWeightPreFru of this leaf.
+        //     Assign zero to state.leaf_area_pre_fruiting, PetioleWeightPreFru and LeafWeightPreFru of this leaf.
         //     If a defoliation was applied, add 1 to the counter NumAbscisedLeaves.
-        if (state.age_of_pre_fruiting_nodes[j] >= droplf && LeafAreaPreFru[j] > 0 && state.leaf_area_index > 0.1)
+        if (state.age_of_pre_fruiting_nodes[j] >= droplf && state.leaf_area_pre_fruiting[j] > 0 && state.leaf_area_index > 0.1)
         {
-            state.leaf_area -= LeafAreaPreFru[j];
+            state.leaf_area -= state.leaf_area_pre_fruiting[j];
             state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
             state.leaf_weight -= LeafWeightPreFru[j];
             TotalPetioleWeight -= PetioleWeightPreFru[j];
             LeafNitrogen -= LeafWeightPreFru[j] * state.leaf_nitrogen_concentration;
             PetioleNitrogen -= PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
             state.cumulative_nitrogen_loss += LeafWeightPreFru[j] * state.leaf_nitrogen_concentration + PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
-            LeafAreaPreFru[j] = 0;
+            state.leaf_area_pre_fruiting[j] = 0;
             LeafWeightPreFru[j] = 0;
             PetioleWeightPreFru[j] = 0;
             if (day_defoliate > 0 && Daynum > day_defoliate) // if defoliation has been applied
@@ -228,7 +228,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
 //        PetioleNConc.
 //
 //     The following global variable are set here:
-//        AbscisedLeafWeight, CumPlantNLoss, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru,
+//        AbscisedLeafWeight, CumPlantNLoss, LeafAreaMainStem, LeafAreaNodes,
 //        LeafNitrogen, LeafWeightMainStem, LeafWeightNodes, LeafWeightPreFru, NumAbscisedLeaves,
 //        PetioleNitrogen, PetioleWeightMainStem, PetioleWeightNodes, PetioleWeightPreFru,
 //        TotalPetioleWeight.
@@ -240,10 +240,10 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
     {
         for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++)
         {
-            if (LeafAreaPreFru[j] > 0)
+            if (state.leaf_area_pre_fruiting[j] > 0)
             {
-                state.leaf_area -= LeafAreaPreFru[j];
-                LeafAreaPreFru[j] = 0;
+                state.leaf_area -= state.leaf_area_pre_fruiting[j];
+                state.leaf_area_pre_fruiting[j] = 0;
                 state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
                 state.leaf_weight -= LeafWeightPreFru[j];
                 TotalPetioleWeight -= PetioleWeightPreFru[j];
@@ -252,7 +252,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
                 state.cumulative_nitrogen_loss += LeafWeightPreFru[j] * state.leaf_nitrogen_concentration + PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
                 LeafWeightPreFru[j] = 0;
                 PetioleWeightPreFru[j] = 0;
-            } //  if LeafAreaPreFru
+            } //  if state.leaf_area_pre_fruiting
         }     //  for j
     }         //  if Daynum
               //     When this is after the first day of defoliation - count the

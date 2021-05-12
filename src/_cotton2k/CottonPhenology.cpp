@@ -172,7 +172,7 @@ void PreFruitingNode(State &state, double stemNRatio)
 //     The following global variables are referenced here:
 //        DayInc, LeafWeightAreaRatio, VarPar.
 //     The following global variable are set here:
-//        LeafAreaPreFru, LeafNitrogen, LeafWeightPreFru.
+//        LeafNitrogen, LeafWeightPreFru.
 //     The following argument is used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
 //
@@ -206,8 +206,8 @@ void PreFruitingNode(State &state, double stemNRatio)
     if (state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 1] >= timeToNextPreFruNode)
     {
         state.number_of_pre_fruiting_nodes++;
-        LeafAreaPreFru[state.number_of_pre_fruiting_nodes - 1] = VarPar[34];
-        LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] = LeafAreaPreFru[state.number_of_pre_fruiting_nodes - 1] * LeafWeightAreaRatio;
+        state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] = VarPar[34];
+        LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] = state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * LeafWeightAreaRatio;
         state.leaf_weight += LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1];
         state.stem_weight -= LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1];
         LeafNitrogen += LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;

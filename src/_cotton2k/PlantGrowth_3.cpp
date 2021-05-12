@@ -294,13 +294,13 @@ void ActualLeafGrowth(State &state)
 //       PotGroLeafWeightMainStem, PotGroPetioleWeightMainStem, PotGroLeafAreaPreFru,
 //       PotGroLeafWeightPreFru, PotGroPetioleWeightPreFru, vratio.
 //     The following global variables are set here:
-//       LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafWeightMainStem,
+//       LeafAreaMainStem, LeafAreaNodes, LeafWeightMainStem,
 //       LeafWeightNodes, LeafWeightPreFru, PetioleWeightMainStem, PetioleWeightNodes,
 //       PetioleWeightPreFru, TotalPetioleWeight, .
 {
     //     Loop for all prefruiting node leaves. Added dry weight to each leaf is
     //  proportional to PotGroLeafWeightPreFru. Update leaf weight (LeafWeightPreFru) and
-    //  leaf area (LeafAreaPreFru) for each prefruiting node leaf. added dry weight to
+    //  leaf area (state.leaf_area_pre_fruiting) for each prefruiting node leaf. added dry weight to
     //  each petiole is proportional to PotGroPetioleWeightPreFru. update petiole weight
     //  (PetioleWeightPreFru) for each prefruiting node leaf.
     //     Compute total leaf weight (state.leaf_weight), total petiole
@@ -311,8 +311,8 @@ void ActualLeafGrowth(State &state)
         state.leaf_weight += LeafWeightPreFru[j];
         PetioleWeightPreFru[j] += PotGroPetioleWeightPreFru[j] * vratio;
         TotalPetioleWeight += PetioleWeightPreFru[j];
-        LeafAreaPreFru[j] += PotGroLeafAreaPreFru[j] * vratio;
-        state.leaf_area += LeafAreaPreFru[j];
+        state.leaf_area_pre_fruiting[j] += PotGroLeafAreaPreFru[j] * vratio;
+        state.leaf_area += state.leaf_area_pre_fruiting[j];
     }
     //     Loop for all fruiting branches on each vegetative branch, to
     //  compute actual growth of mainstem leaves.
