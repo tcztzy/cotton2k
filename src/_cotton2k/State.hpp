@@ -71,6 +71,7 @@ typedef struct State
     double number_of_green_bolls;               // average number of retained green bolls, per plant.
     double number_of_open_bolls;                // number of open bolls, per plant.
     double nitrogen_stress;                     // the average nitrogen stress coefficient for vegetative and reproductive organs
+    double nitrogen_stress_vegetative;          // nitrogen stress limiting vegetative development.
     double total_required_nitrogen;             // total nitrogen required for plant growth, g per plant.
     double leaf_area_index;                     // Leaf area index
     double leaf_nitrogen_concentration;         // average nitrogen concentration in leaves.

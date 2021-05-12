@@ -456,7 +456,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     double agetop; // average physiological age of top three nodes.
     agetop = (state.vegetative_branches[0].fruiting_branches[l].nodes[0].age + state.vegetative_branches[0].fruiting_branches[l1].nodes[0].age + state.vegetative_branches[0].fruiting_branches[l2].nodes[0].age) / 3;
     if (sim.day_topping <= 0 || state.daynum < sim.day_topping)
-        state.plant_height += AddPlantHeight(denf2, state.day_inc, NumPreFruNodes, state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage, AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, state.water_stress_stem, state.carbon_stress, NStressVeg, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+        state.plant_height += AddPlantHeight(denf2, state.day_inc, NumPreFruNodes, state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage, AgeOfPreFruNode[NumPreFruNodes - 1], AgeOfPreFruNode[NumPreFruNodes - 2], agetop, state.water_stress_stem, state.carbon_stress, state.nitrogen_stress_vegetative, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
 }

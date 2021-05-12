@@ -64,7 +64,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
 //  AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(),
 //  LeafAbscission(), FruitingSitesAbscission().
 //     The following global variables are referenced here:
-//        CarbonStress, DensityFactor, Kday, NStressVeg, NumFruitBranches,
+//        CarbonStress, DensityFactor, Kday, NumFruitBranches,
 //        NumNodes, NumVegBranches, PerPlantArea, VarPar.
 //     The following global variable are set here:
 //        FirstSquare, NumFruitSites.
@@ -82,7 +82,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
     //     Compute the phenological delays:
     //     PhenDelayByNStress, the delay caused by nitrogen stress, is assumed to be
     //  a function of the vegetative nitrogen stress..
-    PhenDelayByNStress = vpheno[0] * (1 - NStressVeg); // a file-scope variable
+    PhenDelayByNStress = vpheno[0] * (1 - state.nitrogen_stress_vegetative); // a file-scope variable
     if (PhenDelayByNStress > 1)
         PhenDelayByNStress = 1;
     else if (PhenDelayByNStress < 0)
@@ -109,7 +109,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
                                   //  formation of prefruiting nodes.
     if (sim.first_square <= 0)
     {
-        DaysTo1stSqare = DaysToFirstSquare(state.daynum, sim.day_emerge, AvrgDailyTemp, state.water_stress, NStressVeg, VarPar[30]);
+        DaysTo1stSqare = DaysToFirstSquare(state.daynum, sim.day_emerge, AvrgDailyTemp, state.water_stress, state.nitrogen_stress_vegetative, VarPar[30]);
         PreFruitingNode(state, stemNRatio);
         //      When first square is formed, FirstSquare is assigned the day of year.
         //  Function CreateFirstSquare() is called for formation of first square.
@@ -460,7 +460,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //     The following global variables are referenced here:
 //        AvrgDailyTemp, CottonWeightGreenBolls,
 //        Kday, LeafAreaIndex,
-//        NStressVeg, NumFruitBranches, NStressFruiting, WaterStress, VarPar.
+//        NumFruitBranches, NStressFruiting, WaterStress, VarPar.
 //     The following global variable are set here:
 //        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight,
 //        FirstBloom, FruitingCode, LeafAge, NumFruitSites,
@@ -495,7 +495,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
                      //  by adding the physiological age of this day, the effect of water
                      //  and nitrogen stresses (agefac).
     double agefac;   // effect of water and nitrogen stresses on leaf aging.
-    agefac = (1 - WaterStress) * vfrsite[0] + (1 - NStressVeg) * vfrsite[1];
+    agefac = (1 - WaterStress) * vfrsite[0] + (1 - state.nitrogen_stress_vegetative) * vfrsite[1];
     site.leaf.age += state.day_inc + agefac;
     //  After the application of defoliation, add the effect of defoliation on leaf age.
     if (sim.day_defoliate > 0 && state.daynum > sim.day_defoliate)

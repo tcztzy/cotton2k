@@ -43,7 +43,6 @@ void InitializeGlobal()
     NumWaterTableData = 0;
     NStressFruiting = 1;
     NStressRoots = 1;
-    NStressVeg = 1;
 
     PercentDefoliation = 0;
     PetioleNitrogen = 0;

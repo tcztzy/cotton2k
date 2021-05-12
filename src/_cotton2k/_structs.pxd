@@ -122,6 +122,7 @@ cdef extern from "State.hpp":
         double number_of_green_bolls
         double number_of_open_bolls
         double nitrogen_stress
+        double nitrogen_stress_vegetative
         double total_required_nitrogen
         double leaf_area_index
         double leaf_nitrogen_concentration

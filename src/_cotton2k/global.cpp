@@ -128,7 +128,6 @@ double
     NO3FlowFraction[maxl],            // fraction of nitrate that can move to the next layer.
     NStressFruiting,                  // nitrogen stress limiting fruit development.
     NStressRoots,                     // nitrogen stress limiting root development.
-    NStressVeg,                       // nitrogen stress limiting vegetative development.
     PercentDefoliation,               // percentage of leaves abscised as a result of defoliant application.
     PerPlantArea,                     // average soil surface area per plant, dm2.
     PetioleNitrogen,                  // total petiole nitrogen, g per plant.

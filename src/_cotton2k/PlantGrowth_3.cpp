@@ -20,7 +20,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
-//        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots, NStressVeg,
+//        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots,
 //        PerPlantArea, PotGroAllBolls, PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles,
 //        PotGroAllRoots, PotGroAllSquares, PotGroStem, TotalLeafWeight,
 //        WaterStress.
@@ -38,13 +38,13 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
     double cdboll; // carbohydrate requirement for boll and burr growth, g per plant per day.
     cdboll = (PotGroAllBolls + PotGroAllBurrs) * (NStressFruiting + vchbal[0]) / (vchbal[0] + 1);
     //     cdleaf is carbohydrate requirement for leaf growth, g per plant per day.
-    cdleaf = PotGroAllLeaves * (NStressVeg + vchbal[1]) / (vchbal[1] + 1);
+    cdleaf = PotGroAllLeaves * (state.nitrogen_stress_vegetative + vchbal[1]) / (vchbal[1] + 1);
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.
-    cdstem = PotGroStem * (NStressVeg + vchbal[2]) / (vchbal[2] + 1);
+    cdstem = PotGroStem * (state.nitrogen_stress_vegetative + vchbal[2]) / (vchbal[2] + 1);
     //     cdroot is carbohydrate requirement for root growth, g per plant per day.
     cdroot = PotGroAllRoots * (NStressRoots + vchbal[3]) / (vchbal[3] + 1);
     //     cdpet is carbohydrate requirement for petiole growth, g per plant per day.
-    cdpet = PotGroAllPetioles * (NStressVeg + vchbal[14]) / (vchbal[14] + 1);
+    cdpet = PotGroAllPetioles * (state.nitrogen_stress_vegetative + vchbal[14]) / (vchbal[14] + 1);
     double cdsum; // total carbohydrate requirement for plant growth, g per plant per day.
     cdsum = cdstem + cdleaf + cdpet + cdroot + cdsqar + cdboll;
     double cpool; // total available carbohydrates for growth (cpool, g per plant).
