@@ -74,6 +74,8 @@ typedef struct State
     double nitrogen_stress_vegetative;          // nitrogen stress limiting vegetative development.
     double total_required_nitrogen;             // total nitrogen required for plant growth, g per plant.
     double leaf_area_index;                     // Leaf area index
+    double leaf_area;
+    double leaf_weight;
     double leaf_nitrogen_concentration;         // average nitrogen concentration in leaves.
     double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
     double seed_nitrogen_concentration;         // average nitrogen concentration in seeds.

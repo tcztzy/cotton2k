@@ -35,7 +35,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
 //
 //     The following global variables are referenced here:
 //        NumFruitBranches, NumVegBranches,
-//        TotalLeafArea, TotalLeafWeight.
+//        TotalLeafArea.
 //
 //     The following global variables are set here:
 //        AbscisedLeafWeight, LeafAreaIndex, ReserveC.
@@ -68,7 +68,7 @@ void LeafAbscission(Simulation &sim, uint32_t u)
     {
         double resmax;          // maximum possible amount of reserve C in the leaves.
         double resratio = 0.20; // maximum possible ratio of reserve C to leaf dry weight.
-        resmax = resratio * TotalLeafWeight;
+        resmax = resratio * state.leaf_weight;
         if (ReserveC > resmax)
         {
             state.abscised_leaf_weight += ReserveC - resmax;
@@ -93,7 +93,7 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
 //     The following global variable are set here:
 //        AbscisedLeafWeight, AgeOfPreFruNode, CumPlantNLoss, LeafAreaPreFru,
 //        LeafNitrogen, LeafWeightPreFru, NumAbscisedLeaves, PetioleNitrogen,
-//        PetioleWeightPreFru, TotalLeafArea, TotalLeafWeight, TotalPetioleWeight.
+//        PetioleWeightPreFru, TotalLeafArea, TotalPetioleWeight.
 //
 //     The following  argument is used in this function:
 //        droplf - leaf age until it is abscised.
@@ -107,7 +107,7 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
             AgeOfPreFruNode[j] += DayInc;
         //     The leaf on this node is abscised if its age has reached
         //  droplf, and if there is a leaf here, and if LeafAreaIndex is not too small:
-        //     Update TotalLeafArea, AbscisedLeafWeight, TotalLeafWeight, TotalPetioleWeight,
+        //     Update TotalLeafArea, AbscisedLeafWeight, state.leaf_weight, TotalPetioleWeight,
         //  LeafNitrogen, CumPlantNLoss.
         //     Assign zero to LeafAreaPreFru, PetioleWeightPreFru and LeafWeightPreFru of this leaf.
         //     If a defoliation was applied, add 1 to the counter NumAbscisedLeaves.
@@ -115,7 +115,7 @@ void PreFruitLeafAbscission(State &state, double droplf, unsigned int Daynum, un
         {
             TotalLeafArea -= LeafAreaPreFru[j];
             state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
-            TotalLeafWeight -= LeafWeightPreFru[j];
+            state.leaf_weight -= LeafWeightPreFru[j];
             TotalPetioleWeight -= PetioleWeightPreFru[j];
             LeafNitrogen -= LeafWeightPreFru[j] * state.leaf_nitrogen_concentration;
             PetioleNitrogen -= PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
@@ -142,7 +142,7 @@ void MainStemLeafAbscission(State &state, int k, int l, double droplf, unsigned 
 //     The following global variable are set here:
 //        AbscisedLeafWeight, CumPlantNLoss, LeafAreaMainStem, LeafNitrogen,
 //        LeafWeightMainStem, NumAbscisedLeaves, PetioleWeightMainStem,
-//        PetioleNitrogen, TotalLeafArea, TotalLeafWeight, TotalPetioleWeight.
+//        PetioleNitrogen, TotalLeafArea, TotalPetioleWeight.
 //
 //     The following arguments are used in this function:
 //        droplf - leaf age until it is abscised.
@@ -151,7 +151,7 @@ void MainStemLeafAbscission(State &state, int k, int l, double droplf, unsigned 
 {
     //     The leaf on this main stem node is abscised if its age has reached droplf,
     //  and if there is a leaf here, and if LeafAreaIndex is not too small:
-    //     Update TotalLeafArea, AbscisedLeafWeight, TotalLeafWeight, TotalPetioleWeight,
+    //     Update TotalLeafArea, AbscisedLeafWeight, state.leaf_weight, TotalPetioleWeight,
     //  LeafNitrogen, CumPlantNLoss.
     //     Assign zero to LeafAreaMainStem, PetioleWeightMainStem and LeafWeightMainStem of this leaf.
     //     If this is after defoliation, add 1 to the counter NumAbscisedLeaves.
@@ -159,7 +159,7 @@ void MainStemLeafAbscission(State &state, int k, int l, double droplf, unsigned 
     if (state.vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age > droplf && main_stem_leaf.leaf_area > 0 && state.leaf_area_index > 0.1)
     {
         state.abscised_leaf_weight += main_stem_leaf.leaf_weight + main_stem_leaf.petiole_weight;
-        TotalLeafWeight -= main_stem_leaf.leaf_weight;
+        state.leaf_weight -= main_stem_leaf.leaf_weight;
         TotalPetioleWeight -= main_stem_leaf.petiole_weight;
         LeafNitrogen -= main_stem_leaf.leaf_weight * state.leaf_nitrogen_concentration;
         PetioleNitrogen -= main_stem_leaf.petiole_weight * state.petiole_nitrogen_concentration;
@@ -188,7 +188,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, u
 //     The following global variables are set here:
 //        AbscisedLeafWeight, CumPlantNLoss, LeafAreaNodes, LeafNitrogen, LeafWeightNodes,
 //        NumAbscisedLeaves, PetioleNitrogen, PetioleWeightNodes,
-//        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight.
+//        TotalLeafArea, TotalPetioleWeight.
 //
 //     The following arguments are used in this function:
 //        droplf - leaf age until it is abscised.
@@ -198,7 +198,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, u
 {
     //     The leaf on this fruiting node is abscised if its age has reached droplf, and
     //  if there is a leaf here, and if LeafAreaIndex is not too small:
-    //     Update TotalLeafArea, AbscisedLeafWeight, TotalLeafWeight, TotalPetioleWeight,
+    //     Update TotalLeafArea, AbscisedLeafWeight, state.leaf_weight, TotalPetioleWeight,
     //  LeafNitrogen, CumPlantNLoss,
     //     Assign zero to LeafAreaNodes, PetioleWeightNodes and LeafWeightNodes of this leaf.
     //     If this is after defoliation, add 1 to the NumAbscisedLeaves.
@@ -206,7 +206,7 @@ void FruitNodeLeafAbscission(State &state, int k, int l, int m, double droplf, u
     if (site.leaf.age >= droplf && site.leaf.area > 0 && state.leaf_area_index > 0.1)
     {
         state.abscised_leaf_weight += site.leaf.weight + site.petiole.weight;
-        TotalLeafWeight -= site.leaf.weight;
+        state.leaf_weight -= site.leaf.weight;
         TotalPetioleWeight -= site.petiole.weight;
         LeafNitrogen -= site.leaf.weight * state.leaf_nitrogen_concentration;
         PetioleNitrogen -= site.petiole.weight * state.petiole_nitrogen_concentration;
@@ -233,7 +233,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
 //        AbscisedLeafWeight, CumPlantNLoss, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru,
 //        LeafNitrogen, LeafWeightMainStem, LeafWeightNodes, LeafWeightPreFru, NumAbscisedLeaves,
 //        PetioleNitrogen, PetioleWeightMainStem, PetioleWeightNodes, PetioleWeightPreFru,
-//        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight.
+//        TotalLeafArea, TotalPetioleWeight.
 //
 {
     //     When this is the first day of defoliation - if there are any leaves left on the
@@ -247,7 +247,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
                 TotalLeafArea -= LeafAreaPreFru[j];
                 LeafAreaPreFru[j] = 0;
                 state.abscised_leaf_weight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
-                TotalLeafWeight -= LeafWeightPreFru[j];
+                state.leaf_weight -= LeafWeightPreFru[j];
                 TotalPetioleWeight -= PetioleWeightPreFru[j];
                 LeafNitrogen -= LeafWeightPreFru[j] * state.leaf_nitrogen_concentration;
                 PetioleNitrogen -= PetioleWeightPreFru[j] * state.petiole_nitrogen_concentration;
@@ -312,7 +312,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
             {
                 MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[l].main_stem_leaf;
                 state.abscised_leaf_weight += main_stem_leaf.leaf_weight + main_stem_leaf.petiole_weight;
-                TotalLeafWeight -= main_stem_leaf.leaf_weight;
+                state.leaf_weight -= main_stem_leaf.leaf_weight;
                 TotalPetioleWeight -= main_stem_leaf.petiole_weight;
                 LeafNitrogen -= main_stem_leaf.leaf_weight * state.leaf_nitrogen_concentration;
                 PetioleNitrogen -= main_stem_leaf.petiole_weight * state.petiole_nitrogen_concentration;
@@ -325,7 +325,7 @@ void DefoliationLeafAbscission(State &state, unsigned int day_defoliate)
             else // leaves on fruit nodes
             {
                 state.abscised_leaf_weight += site.leaf.weight + site.petiole.weight;
-                TotalLeafWeight -= site.leaf.weight;
+                state.leaf_weight -= site.leaf.weight;
                 TotalPetioleWeight -= site.petiole.weight;
                 LeafNitrogen -= site.leaf.weight * state.leaf_nitrogen_concentration;
                 PetioleNitrogen -= site.petiole.weight * state.petiole_nitrogen_concentration;

@@ -65,7 +65,6 @@ void InitializeGlobal()
     TotalActualLeafGrowth = 0;
     TotalActualPetioleGrowth = 0;
     TotalLeafArea = 0;
-    TotalLeafWeight = 0.20;
     TotalPetioleWeight = 0;
     TotalSquareWeight = 0;
 

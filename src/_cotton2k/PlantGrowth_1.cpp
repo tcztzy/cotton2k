@@ -249,7 +249,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
 //     The following global and file scope variables are referenced here:
 //       BurrWeightOpenBolls, CottonWeightOpenBolls, DayLength,
 //       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept,
-//       PlantWeight, ptsred, StemWeight, TotalLeafWeight.
+//       PlantWeight, ptsred, StemWeight.
 //     The following global variables are set here:
 //       CumNetPhotosynth, NetPhotosynthesis.
 {
@@ -269,7 +269,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     //  are derived from data of the Carbon Dioxide Information Analysis Center (CDIAC).
     //
     //     Exit the function and end simulation if there are no leaves.
-    if (TotalLeafWeight <= 0)
+    if (state.leaf_weight <= 0)
         throw SimulationEnd();
     //     If this is the first time the function is executed, get the ambient CO2 correction.
     static double AmbientCO2Factor; // correction factor for ambient CO2 in air
@@ -367,7 +367,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 //
 //     The following global variables are set here:
 //        LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
-//        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight.
+//        TotalLeafArea, TotalPetioleWeight.
 {
     State &state = sim.states[u];
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
@@ -414,17 +414,17 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //  growth rate of squares and bolls.
     if (state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage::NotYetFormed)
         ActualFruitGrowth(state);
-    //     Initialize TotalLeafWeight. It is assumed that cotyledons fall off
+    //     Initialize state.leaf_weight. It is assumed that cotyledons fall off
     //  at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
     if (sim.first_square > 0)
     {
-        TotalLeafWeight = 0;
+        state.leaf_weight = 0;
         TotalLeafArea = 0;
     }
     else
     {
         double cotylwt = 0.20; // weight of cotyledons dry matter.
-        TotalLeafWeight = cotylwt;
+        state.leaf_weight = cotylwt;
         TotalLeafArea = 0.6 * cotylwt;
     }
     TotalPetioleWeight = 0;

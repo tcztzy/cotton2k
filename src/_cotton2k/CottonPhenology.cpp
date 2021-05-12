@@ -172,8 +172,7 @@ void PreFruitingNode(State &state, double stemNRatio)
 //     The following global variables are referenced here:
 //        DayInc, LeafWeightAreaRatio, VarPar.
 //     The following global variable are set here:
-//        AgeOfPreFruNode, LeafAreaPreFru, LeafNitrogen, LeafWeightPreFru, NumPreFruNodes,
-//        TotalLeafWeight.
+//        AgeOfPreFruNode, LeafAreaPreFru, LeafNitrogen, LeafWeightPreFru, NumPreFruNodes.
 //     The following argument is used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
 //
@@ -209,7 +208,7 @@ void PreFruitingNode(State &state, double stemNRatio)
         NumPreFruNodes++;
         LeafAreaPreFru[NumPreFruNodes - 1] = VarPar[34];
         LeafWeightPreFru[NumPreFruNodes - 1] = LeafAreaPreFru[NumPreFruNodes - 1] * LeafWeightAreaRatio;
-        TotalLeafWeight += LeafWeightPreFru[NumPreFruNodes - 1];
+        state.leaf_weight += LeafWeightPreFru[NumPreFruNodes - 1];
         state.stem_weight -= LeafWeightPreFru[NumPreFruNodes - 1];
         LeafNitrogen += LeafWeightPreFru[NumPreFruNodes - 1] * stemNRatio;
         state.stem_nitrogen -= LeafWeightPreFru[NumPreFruNodes - 1] * stemNRatio;
@@ -224,7 +223,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
 //     The following global variable are set here:
 //        AbscisedLeafWeight, AvrgNodeTemper, CumPlantNLoss, FirstSquare, FruitFraction,
 //        FruitGrowthRatio, FruitingCode, LeafAreaNodes, LeafNitrogen, LeafWeightNodes,
-//        NumFruitBranches, NumNodes, TotalLeafWeight.
+//        NumFruitBranches, NumNodes.
 //     Argument used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
 //
@@ -239,7 +238,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
     site.leaf.area = VarPar[34];
     site.leaf.weight = VarPar[34] * LeafWeightAreaRatio;
     state.stem_weight -= site.leaf.weight;
-    TotalLeafWeight += site.leaf.weight;
+    state.leaf_weight += site.leaf.weight;
     LeafNitrogen += site.leaf.weight * stemNRatio;
     state.stem_nitrogen -= site.leaf.weight * stemNRatio;
     //      Define the initial values of NumFruitBranches, NumNodes, FruitGrowthRatio, and AvrgNodeTemper.
@@ -248,13 +247,13 @@ void CreateFirstSquare(State &state, double stemNRatio)
     FruitGrowthRatio = 1;
     site.average_temperature = state.average_temperature;
     //     It is assumed that the cotyledons are dropped at time of first square. compute changes
-    //  in AbscisedLeafWeight, TotalLeafWeight, LeafNitrogen and CumPlantNLoss caused
+    //  in AbscisedLeafWeight, state.leaf_weight, LeafNitrogen and CumPlantNLoss caused
     //  by the abscission of the cotyledons.
     double cotylwt = 0.20; // cotylwt is the leaf weight of the cotyledons.
     state.abscised_leaf_weight += cotylwt;
-    TotalLeafWeight -= cotylwt;
-    state.cumulative_nitrogen_loss += cotylwt * LeafNitrogen / TotalLeafWeight;
-    LeafNitrogen -= cotylwt * LeafNitrogen / TotalLeafWeight;
+    state.leaf_weight -= cotylwt;
+    state.cumulative_nitrogen_loss += cotylwt * LeafNitrogen / state.leaf_weight;
+    LeafNitrogen -= cotylwt * LeafNitrogen / state.leaf_weight;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +265,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
 //     The following global variable are set here:
 //        AvrgNodeTemper, FruitFraction, FruitingCode, LeafAreaMainStem, LeafAreaNodes,
 //        LeafNitrogen, LeafWeightMainStem, LeafWeightNodes, NumFruitBranches, NumNodes,
-//        NumVegBranches, TotalLeafWeight.
+//        NumVegBranches.
 //     Arguments used in this function:
 //        delayVegByCStress - delay in formation of new fruiting branches caused by carbohydrate stress.
 //        stemNRatio - the ratio of N to dry matter in the stems.
@@ -305,7 +304,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
     //      The initial mass and nitrogen in the new leaves are
     //  substracted from the stem.
     state.stem_weight -= site.leaf.weight + main_stem_leaf.leaf_weight;
-    TotalLeafWeight += site.leaf.weight + main_stem_leaf.leaf_weight;
+    state.leaf_weight += site.leaf.weight + main_stem_leaf.leaf_weight;
     double addlfn; // nitrogen moved to new leaves from stem.
     addlfn = (site.leaf.weight + main_stem_leaf.leaf_weight) * stemNRatio;
     LeafNitrogen += addlfn;
@@ -327,7 +326,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewFruBranch, FruitFraction, FruitingCode, LeafAreaMainStem,
 //        LeafAreaNodes, LeafNitrogen, LeafWeightMainStem, LeafWeightNodes, NumFruitBranches,
-//        NumNodes, TotalLeafWeight.
+//        NumNodes.
 //     The following arguments are used in this function:
 //        delayVegByCStress - delay in formation of new fruiting branches caused by
 //                 carbohydrate stress.
@@ -380,7 +379,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
     main_stem_leaf.leaf_area = VarPar[34];
     main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * LeafWeightAreaRatio;
     state.stem_weight -= main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight;
-    TotalLeafWeight += main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight;
+    state.leaf_weight += main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight;
     // addlfn is the nitrogen added to new leaves from stem.
     double addlfn = (main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight) * stemNRatio;
     LeafNitrogen += addlfn;
@@ -399,7 +398,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
 //  VarPar, WaterStress,
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewNode, FruitFraction, FruitingCode, LeafAreaNodes, LeafWeightNodes,
-//        NumNodes, LeafNitrogen, TotalLeafWeight.
+//        NumNodes, LeafNitrogen.
 //     The following arguments are used in this function:
 //        delayFrtByCStress - delay caused by carbohydrate and nitrogen stresses.
 //        k, l - indices of this vegetative branch and fruiting branch.
@@ -445,7 +444,7 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
     state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.area = VarPar[34];
     state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight = VarPar[34] * LeafWeightAreaRatio;
     state.stem_weight -= state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight;
-    TotalLeafWeight += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight;
+    state.leaf_weight += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight;
     LeafNitrogen += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio;
     state.stem_nitrogen -= state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio;
     //     Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.

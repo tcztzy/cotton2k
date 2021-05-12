@@ -191,7 +191,7 @@ void NitrogenSupply(State &state)
 //
 //     The following global variables are referenced here:
 //       BurrWeightGreenBolls, Kday, reqtot, SupplyNH4N, SupplyNO3N,
-//       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight.
+//       TotalPetioleWeight, TotalRootWeight.
 //     The following global and file scope variables are set here:
 //       burres, BurrNitrogen, LeafNitrogen, leafrs, npool, PetioleNitrogen, petrs,
 //       RootNitrogen, rootrs, stemrs, uptn, xtran.
@@ -229,7 +229,7 @@ void NitrogenSupply(State &state)
         //  of the nitrogen content exceeding a minimum N content in it.
         //     The N reserves in leaves, petioles, stems, roots and burrs of
         //  green bolls are computed, and their N content updated.
-        leafrs = (LeafNitrogen - vlfnmin * TotalLeafWeight) * MobilizNFractionLeaves;
+        leafrs = (LeafNitrogen - vlfnmin * state.leaf_weight) * MobilizNFractionLeaves;
         if (leafrs < 0)
             leafrs = 0;
         LeafNitrogen -= leafrs;
@@ -429,7 +429,7 @@ void ExtraNitrogenAllocation(State &state)
 //
 //     The following global and file scope variables are referenced here:
 //       burres, BurrWeightGreenBolls, leafrs, petrs, rootrs, stemrs,
-//       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, xtran.
+//       TotalPetioleWeight, TotalRootWeight, xtran.
 //     The following global variables are set here:
 //       BurrNitrogen, PetioleNitrogen, RootNitrogen, LeafNitrogen.
 {
@@ -455,8 +455,8 @@ void ExtraNitrogenAllocation(State &state)
         //     If there are no reserves, allocate xtran in proportion to the dry
         //  weights in each of these organs.
         double vegwt; // weight of vegetative plant parts, plus burrs.
-        vegwt = TotalLeafWeight + TotalPetioleWeight + state.stem_weight + TotalRootWeight + BurrWeightGreenBolls;
-        addlfn = xtran * TotalLeafWeight / vegwt;
+        vegwt = state.leaf_weight + TotalPetioleWeight + state.stem_weight + TotalRootWeight + BurrWeightGreenBolls;
+        addlfn = xtran * state.leaf_weight / vegwt;
         addpetn = xtran * TotalPetioleWeight / vegwt;
         addstm = xtran * state.stem_weight / vegwt;
         addrt = xtran * TotalRootWeight / vegwt;
@@ -481,7 +481,7 @@ void PlantNitrogenContent(State &state)
 //     The following global variables are referenced here:
 //       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls,
 //       CottonWeightOpenBolls, Gintot, LeafNitrogen, PetioleNitrogen, RootNitrogen,
-//       SeedNitrogen, SquareNitrogen, TotalLeafWeight, TotalPetioleWeight,
+//       SeedNitrogen, SquareNitrogen, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
@@ -490,8 +490,8 @@ void PlantNitrogenContent(State &state)
     //     The following constant parameter is used:
     const double seedratio = 0.64;
     //     Compute N concentration in plant organs as the ratio of N content to weight of dry matter.
-    if (TotalLeafWeight > 0.00001)
-        state.leaf_nitrogen_concentration = LeafNitrogen / TotalLeafWeight;
+    if (state.leaf_weight > 0.00001)
+        state.leaf_nitrogen_concentration = LeafNitrogen / state.leaf_weight;
     if (TotalPetioleWeight > 0.00001)
     {
         state.petiole_nitrogen_concentration = PetioleNitrogen / TotalPetioleWeight;
@@ -576,7 +576,7 @@ void NitrogenUptakeRequirement(State &state)
 //     The following global variables are referenced here:
 //       BurrNConc, BurrWeightGreenBolls, CottonWeightGreenBolls, Kday,
 //       LeafNConc, PetioleNConc, reqtot, RootNConc, SeedNConc, SquareNConc,
-//       StemNConc, StemWeight, TotalLeafWeight, TotalPetioleWeight,
+//       StemNConc, StemWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
 {
     //     The following constant parameters are used:
@@ -595,7 +595,7 @@ void NitrogenUptakeRequirement(State &state)
     //  required for supplying necessary functions in other active plant tissues.
     //    Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
     if (state.leaf_nitrogen_concentration < vnreqlef)
-        state.total_required_nitrogen += TotalLeafWeight * (vnreqlef - state.leaf_nitrogen_concentration);
+        state.total_required_nitrogen += state.leaf_weight * (vnreqlef - state.leaf_nitrogen_concentration);
     if (state.petiole_nitrogen_concentration < vnreqpet)
         state.total_required_nitrogen += TotalPetioleWeight * (vnreqpet - state.petiole_nitrogen_concentration);
     //    The active stem tissue is the stem formed during the last voldstm

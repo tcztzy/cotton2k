@@ -22,8 +22,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
 //     The following global variables are referenced here:
 //        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots,
 //        PotGroAllBolls, PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles,
-//        PotGroAllRoots, PotGroAllSquares, PotGroStem, TotalLeafWeight,
-//        WaterStress.
+//        PotGroAllRoots, PotGroAllSquares, PotGroStem, WaterStress.
 //     The following global and file scope variables are set here:
 //        ActualStemGrowth, CarbonAllocatedForRootGrowth, CarbonStress, ExtraCarbon,
 //        FruitGrowthRatio, ReserveC, TotalActualLeafGrowth, TotalActualPetioleGrowth, vratio.
@@ -140,7 +139,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
                           //  weight of vegetative shoot (stem + leaves). This equation is based
                           //  on data from Avi Ben-Porath's PhD thesis.
                           //     ratio is modified (calibrated) by vchbal[11].
-            ratio = vchbal[8] + vchbal[9] * exp(-vchbal[10] * (state.stem_weight + TotalLeafWeight + TotalPetioleWeight) *
+            ratio = vchbal[8] + vchbal[9] * exp(-vchbal[10] * (state.stem_weight + state.leaf_weight + TotalPetioleWeight) *
                                                 per_plant_area);
             ratio = ratio * vchbal[11];
             //     rtmax is the proportion of remaining available carbohydrates that can be supplied to
@@ -203,7 +202,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
     ReserveC = ReserveC + NetPhotosynthesis - (ActualStemGrowth + TotalActualLeafGrowth + TotalActualPetioleGrowth + CarbonAllocatedForRootGrowth + pdboll + pdsq);
     double resmax; // maximum possible amount of carbohydrate reserves that can be stored in the leaves.
                    //     resmax is a fraction (vchbal[4])) of leaf weight. Excessive reserves are defined as xtrac2.
-    resmax = vchbal[4] * TotalLeafWeight;
+    resmax = vchbal[4] * state.leaf_weight;
     if (ReserveC > resmax)
     {
         xtrac2 = ReserveC - resmax;
@@ -297,19 +296,19 @@ void ActualLeafGrowth(State &state)
 //     The following global variables are set here:
 //       LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafWeightMainStem,
 //       LeafWeightNodes, LeafWeightPreFru, PetioleWeightMainStem, PetioleWeightNodes,
-//       PetioleWeightPreFru, TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, .
+//       PetioleWeightPreFru, TotalLeafArea, TotalPetioleWeight, .
 {
     //     Loop for all prefruiting node leaves. Added dry weight to each leaf is
     //  proportional to PotGroLeafWeightPreFru. Update leaf weight (LeafWeightPreFru) and
     //  leaf area (LeafAreaPreFru) for each prefruiting node leaf. added dry weight to
     //  each petiole is proportional to PotGroPetioleWeightPreFru. update petiole weight
     //  (PetioleWeightPreFru) for each prefruiting node leaf.
-    //     Compute total leaf weight (TotalLeafWeight), total petiole
+    //     Compute total leaf weight (state.leaf_weight), total petiole
     //  weight (PetioleWeightNodes), and TotalLeafArea.
     for (int j = 0; j < NumPreFruNodes; j++) // loop by prefruiting node.
     {
         LeafWeightPreFru[j] += PotGroLeafWeightPreFru[j] * vratio;
-        TotalLeafWeight += LeafWeightPreFru[j];
+        state.leaf_weight += LeafWeightPreFru[j];
         PetioleWeightPreFru[j] += PotGroPetioleWeightPreFru[j] * vratio;
         TotalPetioleWeight += PetioleWeightPreFru[j];
         LeafAreaPreFru[j] += PotGroLeafAreaPreFru[j] * vratio;
@@ -322,14 +321,14 @@ void ActualLeafGrowth(State &state)
     //  and added area to each leaf is proportional to PotGroLeafAreaMainStem.
     //     Update leaf weight (LeafWeightMainStem), petiole weight (PetioleWeightMainStem)
     //  and leaf area(LeafAreaMainStem) for each main stem node leaf.
-    //     Update the total leaf weight (TotalLeafWeight), total
+    //     Update the total leaf weight (state.leaf_weight), total
     //  petiole weight (TotalPetioleWeight) and total area (TotalLeafArea).
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
         for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++) // loop of fruiting branches
         {
             MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[l].main_stem_leaf;
             main_stem_leaf.leaf_weight += main_stem_leaf.potential_growth_for_leaf_weight * vratio;
-            TotalLeafWeight += main_stem_leaf.leaf_weight;
+            state.leaf_weight += main_stem_leaf.leaf_weight;
             main_stem_leaf.petiole_weight += main_stem_leaf.potential_growth_for_petiole_weight * vratio;
             TotalPetioleWeight += main_stem_leaf.petiole_weight;
             main_stem_leaf.leaf_area += main_stem_leaf.potential_growth_for_leaf_area * vratio;
@@ -341,13 +340,13 @@ void ActualLeafGrowth(State &state)
             //  and added area to each leaf is proportional to PotGroLeafAreaNodes.
             //  Update leaf weight (LeafWeightNodes), petiole weight (PetioleWeightNodes) and leaf area
             //  (LeafAreaNodes) for each fruiting node leaf.
-            //     Compute total leaf weight (TotalLeafWeight), total petiole weight
+            //     Compute total leaf weight (state.leaf_weight), total petiole weight
             //  (PetioleWeightNodes) and total area (TotalLeafArea).
             for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++) // loop of nodes on a fruiting branch
             {
                 FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
                 site.leaf.weight += site.leaf.potential_growth * LeafWeightAreaRatio * vratio;
-                TotalLeafWeight += site.leaf.weight;
+                state.leaf_weight += site.leaf.weight;
                 site.petiole.weight += site.petiole.potential_growth * vratio;
                 TotalPetioleWeight += site.petiole.weight;
                 site.leaf.area += site.leaf.potential_growth * vratio;
@@ -363,12 +362,12 @@ void CheckDryMatterBal(State &state)
 //     The following global variables are referenced here:
 //       AbscisedLeafWeight, BloomWeightLoss, BurrWeightGreenBolls, BurrWeightOpenBolls,
 //       CottonWeightGreenBolls, CottonWeightOpenBolls, CumNetPhotosynth, GreenBollsLost, Kday,
-//       ReserveC, RootWeightLoss, TotalLeafWeight, TotalPetioleWeight,
+//       ReserveC, RootWeightLoss, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
 //     The following global variable is set here:     PlantWeight.
 {
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    state.plant_weight = TotalRootWeight + state.stem_weight + CottonWeightGreenBolls + BurrWeightGreenBolls + TotalLeafWeight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
+    state.plant_weight = TotalRootWeight + state.stem_weight + CottonWeightGreenBolls + BurrWeightGreenBolls + state.leaf_weight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
 }
 
 //////////////////////////
