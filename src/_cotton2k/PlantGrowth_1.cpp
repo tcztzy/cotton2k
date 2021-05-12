@@ -367,7 +367,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 //
 //     The following global variables are set here:
 //        LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
-//        TotalLeafArea, TotalPetioleWeight.
+//        TotalPetioleWeight.
 {
     State &state = sim.states[u];
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
@@ -415,22 +415,22 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     if (state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage::NotYetFormed)
         ActualFruitGrowth(state);
     //     Initialize state.leaf_weight. It is assumed that cotyledons fall off
-    //  at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
+    //  at time of first square. Also initialize state.leaf_area and TotalPetioleWeight.
     if (sim.first_square > 0)
     {
         state.leaf_weight = 0;
-        TotalLeafArea = 0;
+        state.leaf_area = 0;
     }
     else
     {
         double cotylwt = 0.20; // weight of cotyledons dry matter.
         state.leaf_weight = cotylwt;
-        TotalLeafArea = 0.6 * cotylwt;
+        state.leaf_area = 0.6 * cotylwt;
     }
     TotalPetioleWeight = 0;
     //     Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
     ActualLeafGrowth(state);
-    state.leaf_area_index = TotalLeafArea / sim.per_plant_area;
+    state.leaf_area_index = state.leaf_area / sim.per_plant_area;
     //     Add ActualStemGrowth to state.stem_weight, and define StemWeight(Kday) for this day.
     state.stem_weight += ActualStemGrowth;
     StemWeight[Kday] = state.stem_weight;

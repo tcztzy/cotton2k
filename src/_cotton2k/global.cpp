@@ -175,7 +175,6 @@ double
     thts[maxl],                       // saturated volumetric water content of each soil layer, cm3 cm-3.
     TotalActualLeafGrowth,            // actual growth rate of all the leaves, g plant-1 day-1.
     TotalActualPetioleGrowth,         // actual growth rate of all the petioles, g plant-1 day-1.
-    TotalLeafArea,                    // total leaf area, dm2 per plant.
     TotalPetioleWeight,               // total petiole weight, g per plant.
     TotalRootWeight,                  // total dry weight of the roots, g per plant.
     TotalSoilNh4N,                    // total ammonium in profile, mg N per slab.
