@@ -76,6 +76,7 @@ typedef struct State
     double petiole_nitrogen_concentration;      // average nitrogen concentration in petioles.
     double seed_nitrogen_concentration;         // average nitrogen concentration in seeds.
     double root_nitrogen_concentration;         // average nitrogen concentration in roots.
+    double stem_nitrogen;                       // total stem nitrogen, g per plant
     double ginning_percent;
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     VegetativeBranch vegetative_branches[3];

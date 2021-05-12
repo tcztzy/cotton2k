@@ -168,7 +168,6 @@ double
     SquareNConc,                      // average concentration of nitrogen in the squares.
     SquareNitrogen,                   // total nitrogen in the squares, g per plant
     StemNConc,                        // ratio of stem nitrogen to dry matter.
-    StemNitrogen,                     // total stem nitrogen, g per plant
     StemWeight[365],                  // stem weight added at each day, g per plant.
     SumNO3N90,                        // sum of soil nitrate n, 0-90 cm depth, in kg/ha.
     SupplyNH4N,                       // uptake of ammonia N by the plant from the soil, mg N per slab per day.

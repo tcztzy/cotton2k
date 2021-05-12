@@ -54,7 +54,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem,
     RatioImplicit, ReserveC, RootNitrogen, RootWeightLoss,
     SeedNitrogen, SoilNitrogenLoss, SquareNConc,
-    SquareNitrogen, StemNConc, StemNitrogen, SumNO3N90, SupplyNH4N, SupplyNO3N,
+    SquareNitrogen, StemNConc, SumNO3N90, SupplyNH4N, SupplyNO3N,
     TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafArea,
     TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalSoilNh4N,
     TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight, TotalStemWeight;

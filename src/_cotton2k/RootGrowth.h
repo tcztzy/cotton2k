@@ -2,6 +2,6 @@
 #include <cinttypes>
 #include "Simulation.hpp"
 
-double PotentialRootGrowth(SoilCell[40][20], const int &, const int &);
+double PotentialRootGrowth(SoilCell[40][20], int, int);
 
-void ComputeActualRootGrowth(Simulation &, const uint32_t &, double, const int &);
+void ComputeActualRootGrowth(Simulation &, uint32_t, double, int);

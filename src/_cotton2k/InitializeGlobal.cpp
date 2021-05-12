@@ -59,7 +59,6 @@ void InitializeGlobal()
     SquareNConc = 0;
     SquareNitrogen = 0;
     StemNConc = 0.036;
-    StemNitrogen = 0.0072;
     SumNO3N90 = 0;
     SupplyNH4N = 0;
     SupplyNO3N = 0;

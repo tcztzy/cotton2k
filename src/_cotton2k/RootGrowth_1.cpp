@@ -83,7 +83,7 @@ void RootSummation(State &, const int &, double);
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 ///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(SoilCell soil_cells[40][20], const int &NumRootAgeGroups, const int &NumLayersWithRoots)
+double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, int NumLayersWithRoots)
 //     This function calculates the potential root growth rate.  The return value
 //  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from
 //  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(),
@@ -258,7 +258,7 @@ void RootImpedance()
 }
 
 //////////////////////////
-void ComputeActualRootGrowth(Simulation &sim, const uint32_t &u, double sumpdr, const int &NumRootAgeGroups)
+void ComputeActualRootGrowth(Simulation &sim, uint32_t u, double sumpdr, int NumRootAgeGroups)
 //     This function calculates the actual root growth rate. It is called from function
 //  PlantGrowth(). It calls the following functions:  InitiateLateralRoots(),
 //  LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(),

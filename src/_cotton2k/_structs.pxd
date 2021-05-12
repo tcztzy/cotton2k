@@ -127,6 +127,7 @@ cdef extern from "State.hpp":
         double petiole_nitrogen_concentration
         double seed_nitrogen_concentration
         double root_nitrogen_concentration
+        double stem_nitrogen
         double ginning_percent
         bool_t pollination_switch
         cVegetativeBranch vegetative_branches[3]

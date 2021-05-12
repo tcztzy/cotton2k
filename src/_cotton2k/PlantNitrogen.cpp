@@ -23,9 +23,9 @@ void NitrogenSupply(State &);
 
 double PetioleNitrateN(State &);
 
-void NitrogenAllocation();
+void NitrogenAllocation(State &);
 
-void ExtraNitrogenAllocation();
+void ExtraNitrogenAllocation(State &);
 
 void PlantNitrogenContent(State &);
 
@@ -81,7 +81,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //     The following global variables are referenced here:
 //       BurrNConc, BurrNitrogen, Kday, LeafNConc, LeafNitrogen,
 //       PetioleNConc, PetioleNConc, PetioleNO3NConc, PetioleNitrogen, RootNConc,
-//       RootNitrogen, SeedNConc, SeedNitrogen, SquareNitrogen, StemNConc, StemNitrogen.
+//       RootNitrogen, SeedNConc, SeedNitrogen, SquareNitrogen, StemNConc.
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs,
 //       rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm, stemrs, uptn, xtran.
@@ -112,9 +112,9 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
     //   The following subroutines are now called:
     NitrogenRequirement(state, state.daynum, sim.day_emerge, state.extra_carbon); //  computes the N requirements for growth.
     NitrogenSupply(state);                                                      //  computes the supply of N from uptake and reserves.
-    NitrogenAllocation();                                                                         //  computes the allocation of N in the plant.
+    NitrogenAllocation(state);                                                                         //  computes the allocation of N in the plant.
     if (xtran > 0)
-        ExtraNitrogenAllocation(); // computes the further allocation of N in the plant
+        ExtraNitrogenAllocation(state); // computes the further allocation of N in the plant
     PlantNitrogenContent(state);   // computes the concentrations of N in plant dry matter.
     GetNitrogenStress(state);           //  computes nitrogen stress factors.
     NitrogenUptakeRequirement(state);   // computes N requirements for uptake
@@ -194,7 +194,7 @@ void NitrogenSupply(State &state)
 //       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalStemWeight.
 //     The following global and file scope variables are set here:
 //       burres, BurrNitrogen, LeafNitrogen, leafrs, npool, PetioleNitrogen, petrs,
-//       RootNitrogen, rootrs, StemNitrogen, stemrs, uptn, xtran.
+//       RootNitrogen, rootrs, stemrs, uptn, xtran.
 {
     //     The following constant parameters are used:
     const double MobilizNFractionBurrs = 0.08;    //  fraction of N mobilizable for burrs
@@ -248,10 +248,10 @@ void NitrogenSupply(State &state)
         petrs = petrs1 + petrs2;
         PetioleNitrogen -= petrs;
         //  Stem N reserves.
-        stemrs = (StemNitrogen - vstmnmin * TotalStemWeight) * MobilizNFractionStemRoot;
+        stemrs = (state.stem_nitrogen - vstmnmin * TotalStemWeight) * MobilizNFractionStemRoot;
         if (stemrs < 0)
             stemrs = 0;
-        StemNitrogen -= stemrs;
+        state.stem_nitrogen -= stemrs;
         //  Root N reserves
         rootrs = (RootNitrogen - vrtnmin * TotalRootWeight) * MobilizNFractionStemRoot;
         if (rootrs < 0)
@@ -322,13 +322,13 @@ double PetioleNitrateN(State &state)
 }
 
 //////////////////////////////////////////////////
-void NitrogenAllocation()
+void NitrogenAllocation(State &state)
 //     This function computes the allocation of supplied nitrogen to
 //  the plant parts. It is called from PlantNitrogen().
 //
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, BurrNitrogen, LeafNitrogen, npool, PetioleNitrogen,
-//       RootNitrogen, SeedNitrogen, SquareNitrogen, StemNitrogen, xtran.
+//       RootNitrogen, SeedNitrogen, SquareNitrogen, xtran.
 //     The following global and file scope variables are referenced in this function:
 //       reqtot, rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm
 {
@@ -346,7 +346,7 @@ void NitrogenAllocation()
     {
         LeafNitrogen += rqnlef;
         PetioleNitrogen += rqnpet;
-        StemNitrogen += rqnstm;
+        state.stem_nitrogen += rqnstm;
         RootNitrogen += rqnrut;
         SquareNitrogen += rqnsqr;
         SeedNitrogen += rqnsed;
@@ -399,7 +399,7 @@ void NitrogenAllocation()
     if (rqnstm > 0)
     {
         useofn = std::min(vstmnmax * npool, rqnstm);
-        StemNitrogen += useofn;
+        state.stem_nitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
@@ -423,7 +423,7 @@ void NitrogenAllocation()
 }
 
 //////////////////////////
-void ExtraNitrogenAllocation()
+void ExtraNitrogenAllocation(State &state)
 //     This function computes the allocation of extra nitrogen to the plant
 //  parts. It is called from PlantNitrogen() if there is a non-zero xtran.
 //
@@ -431,7 +431,7 @@ void ExtraNitrogenAllocation()
 //       burres, BurrWeightGreenBolls, leafrs, petrs, rootrs, stemrs,
 //       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalStemWeight, xtran.
 //     The following global variables are set here:
-//       BurrNitrogen, PetioleNitrogen, RootNitrogen, LeafNitrogen, StemNitrogen.
+//       BurrNitrogen, PetioleNitrogen, RootNitrogen, LeafNitrogen.
 {
     //     If there are any N reserves in the plant, allocate remaining xtran in proportion to
     //  the N reserves in each of these organs. Note: all reserves are in g per plant units.
@@ -467,7 +467,7 @@ void ExtraNitrogenAllocation()
     //  seeds or squares).
     LeafNitrogen += addlfn;
     PetioleNitrogen += addpetn;
-    StemNitrogen += addstm;
+    state.stem_nitrogen += addstm;
     RootNitrogen += addrt;
     BurrNitrogen += addbur;
 }
@@ -481,7 +481,7 @@ void PlantNitrogenContent(State &state)
 //     The following global variables are referenced here:
 //       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls,
 //       CottonWeightOpenBolls, Gintot, LeafNitrogen, PetioleNitrogen, RootNitrogen,
-//       SeedNitrogen, SquareNitrogen, StemNitrogen, TotalLeafWeight, TotalPetioleWeight,
+//       SeedNitrogen, SquareNitrogen, TotalLeafWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
@@ -498,7 +498,7 @@ void PlantNitrogenContent(State &state)
         PetioleNO3NConc = state.petiole_nitrogen_concentration * PetioleNitrateN(state);
     }
     if (TotalStemWeight > 0)
-        StemNConc = StemNitrogen / TotalStemWeight;
+        StemNConc = state.stem_nitrogen / TotalStemWeight;
     if (TotalRootWeight > 0)
         state.root_nitrogen_concentration = RootNitrogen / TotalRootWeight;
     if (TotalSquareWeight > 0)
