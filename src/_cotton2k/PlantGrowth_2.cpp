@@ -20,7 +20,7 @@ extern "C"
 }
 
 //////////////////////////
-void PotentialLeafGrowth(State &state, double density_factor)
+void PotentialLeafGrowth(State &state, double density_factor, double VarPar[61])
 //     This function simulates the potential growth of leaves of cotton plants.
 //  It is called from PlantGrowth(). It calls function TemperatureOnLeafGrowthRate().
 //
@@ -36,7 +36,7 @@ void PotentialLeafGrowth(State &state, double density_factor)
 //     The following global variables are referenced here:
 //        LeafAreaNodes,
 //        LeafAreaMainStem, NumFruitBranches, NumNodes,
-//        NumVegBranches, VarPar, WaterStress.
+//        NumVegBranches, WaterStress.
 //     The following global variables are set here:
 //        PotGroAllLeaves, PotGroAllPetioles,
 //        PotGroLeafAreaMainStem, PotGroLeafAreaNodes,  PotGroLeafAreaPreFru,
@@ -180,13 +180,13 @@ void PotentialLeafGrowth(State &state, double density_factor)
 }
 
 ////////////////////////////////////////////////////////////////////////
-void PotentialFruitGrowth(State &state, const double &DayLength)
+void PotentialFruitGrowth(State &state, double DayLength, double VarPar[61])
 //     This function simulates the potential growth of fruiting sites of cotton plants.
 //  It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
 //
 //     The following gobal variables are referenced here:
 //        AgeOfBoll, AgeOfSite, DayLength, FruitingCode, FruitFraction, NumFruitBranches,
-//        NumNodes,  NumVegBranches, DayTimeTemp, NightTimeTemp, VarPar, WaterStress.
+//        NumNodes,  NumVegBranches, DayTimeTemp, NightTimeTemp, WaterStress.
 //     The following global variables are set here:
 //        PotGroAllBolls, PotGroAllBurrs, PotGroAllSquares, PotGroBolls, PotGroBurrs, PotGroSquares.
 {

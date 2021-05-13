@@ -21,6 +21,7 @@ typedef struct Simulation
     unsigned int first_bloom;               // Date (DOY) of first bloom.
     unsigned int first_square;              // Date of first square (DOY), if no squares have been formed, FirstSquare = 0.
     unsigned int plant_row_column;          // column number to the left of plant row location.
+    double cultivar_parameters[61];
     ClimateStruct climate[400];             // structure containing the following daily weather data:
                                             // int nDay =    day of year.
                                             // double Rad =  daily global radiation, in langleys.

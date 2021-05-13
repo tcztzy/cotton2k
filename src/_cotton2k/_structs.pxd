@@ -172,5 +172,6 @@ cdef extern from "Simulation.hpp":
         double density_factor
         unsigned int plant_row_column
         cState *states
+        double cultivar_parameters[61]
         ClimateStruct climate[400]
         Irrigation irrigation[150]

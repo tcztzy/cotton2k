@@ -25,9 +25,9 @@ extern "C"
 }
 
 // PlantGrowth_2
-void PotentialLeafGrowth(State &, double);
+void PotentialLeafGrowth(State &, double, double[61]);
 
-void PotentialFruitGrowth(State &, const double &);
+void PotentialFruitGrowth(State &, double, double[61]);
 
 // PlantGrowth_3
 void DryMatterBalance(State &, double &, double &, double &, double &, double);
@@ -371,11 +371,11 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
 {
     State &state = sim.states[u];
     //     Call PotentialLeafGrowth() to compute potential growth rate of leaves.
-    PotentialLeafGrowth(state, sim.density_factor);
+    PotentialLeafGrowth(state, sim.density_factor, sim.cultivar_parameters);
     //     If it is after first square, call PotentialFruitGrowth() to compute potential
     //  growth rate of squares and bolls.
     if (state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage::NotYetFormed)
-        PotentialFruitGrowth(state, DayLength);
+        PotentialFruitGrowth(state, DayLength, sim.cultivar_parameters);
     //     Active stem tissue (stemnew) is the difference between state.stem_weight
     //  and the value of StemWeight(kkday).
     int voldstm = 32;           // constant parameter (days for stem tissue to become "old")
@@ -386,7 +386,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
                                                           //     Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
                                                           //  The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
                                                           //  Stem growth is also affected by water stress (WaterStressStem). PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
-    PotGroStem = PotentialStemGrowth(stemnew, state.kday, state.vegetative_branches[0].fruiting_branches[2].nodes[0].stage, sim.density_factor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * state.day_inc * state.water_stress_stem;
+    PotGroStem = PotentialStemGrowth(stemnew, state.kday, state.vegetative_branches[0].fruiting_branches[2].nodes[0].stage, sim.density_factor, sim.cultivar_parameters[12], sim.cultivar_parameters[13], sim.cultivar_parameters[14], sim.cultivar_parameters[15], sim.cultivar_parameters[16], sim.cultivar_parameters[17], sim.cultivar_parameters[18]) * state.day_inc * state.water_stress_stem;
     double maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
     if (PotGroStem > maxstmgr * sim.per_plant_area)
         PotGroStem = maxstmgr * sim.per_plant_area;
@@ -456,7 +456,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     double agetop; // average physiological age of top three nodes.
     agetop = (state.vegetative_branches[0].fruiting_branches[l].nodes[0].age + state.vegetative_branches[0].fruiting_branches[l1].nodes[0].age + state.vegetative_branches[0].fruiting_branches[l2].nodes[0].age) / 3;
     if (sim.day_topping <= 0 || state.daynum < sim.day_topping)
-        state.plant_height += AddPlantHeight(denf2, state.day_inc, state.number_of_pre_fruiting_nodes, state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage, state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 1], state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 2], agetop, state.water_stress_stem, state.carbon_stress, state.nitrogen_stress_vegetative, VarPar[19], VarPar[20], VarPar[21], VarPar[22], VarPar[23], VarPar[24], VarPar[25], VarPar[26]);
+        state.plant_height += AddPlantHeight(denf2, state.day_inc, state.number_of_pre_fruiting_nodes, state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage, state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 1], state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 2], agetop, state.water_stress_stem, state.carbon_stress, state.nitrogen_stress_vegetative, sim.cultivar_parameters[19], sim.cultivar_parameters[20], sim.cultivar_parameters[21], sim.cultivar_parameters[22], sim.cultivar_parameters[23], sim.cultivar_parameters[24], sim.cultivar_parameters[25], sim.cultivar_parameters[26]);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sim, u, sumpdr, NumRootAgeGroups);
 }

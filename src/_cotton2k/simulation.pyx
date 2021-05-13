@@ -45,7 +45,7 @@ cdef void InitializeGrid(cSimulation &sim):
     PlantRowColumn, PlantRowLocation, RowSpace, wk.
 
     The following global variables are referenced here:
-    PlantsPerM, SkipRowWidth, VarPar, maxk, maxl."""
+    PlantsPerM, SkipRowWidth, maxk, maxl."""
     # PlantRowLocation is the distance from edge of slab, cm, of the plant row.
     global PlantRowLocation, PlantPopulation, nl, nk, SkipRowWidth, PlantsPerM
     PlantRowLocation = 0.5 * sim.row_space
@@ -57,7 +57,7 @@ cdef void InitializeGrid(cSimulation &sim):
     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
     PlantPopulation = PlantsPerM / sim.row_space * 1000000
     sim.per_plant_area = 1000000 / PlantPopulation
-    sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))
+    sim.density_factor = exp(sim.cultivar_parameters[1] * (5 - PlantPopulation / 10000))
     # Define the numbers of rows and columns in the soil slab (nl, nk).
     # Define the depth, in cm, of consecutive nl layers.
     # NOTE: maxl and maxk are defined as constants in file "global.h".
@@ -509,12 +509,12 @@ cdef class Simulation:
 
     @property
     def cultivar_parameters(self):
-        return VarPar
+        return self._sim.cultivar_parameters
 
     @cultivar_parameters.setter
     def cultivar_parameters(self, parameters):
         for i, p in enumerate(parameters):
-            VarPar[i + 1] = p
+            self._sim.cultivar_parameters[i + 1] = p
 
     @property
     def row_space(self):

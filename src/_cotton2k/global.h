@@ -74,7 +74,7 @@ extern double AbscissionLag[20], airdr[9],
     ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk],
     SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], StemWeight[365],
     thad[maxl], thetar[maxl], thetas[9], thts[maxl], tstbd[10][10],
-    VarPar[61], VolNh4NContent[maxl][maxk], VolUreaNContent[maxl][maxk],
+    VolNh4NContent[maxl][maxk], VolUreaNContent[maxl][maxk],
     VolWaterContent[maxl][maxk];
 
 void InitializeGlobal();

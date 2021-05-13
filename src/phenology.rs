@@ -11,8 +11,6 @@ extern "C" fn DaysToFirstSquare(
 ) -> f64
 //     This function computes and returns tsq1, the number of days from emergence to first
 //  square. It is called from CottonPhenology().
-//     The following global variables are referenced here:
-//        AvrgDailyTemp, Kday, NStressVeg, VarPar, WaterStress.
 //
 {
     //     The following constant parameters are used:

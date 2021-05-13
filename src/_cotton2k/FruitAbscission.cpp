@@ -15,7 +15,7 @@
 
 using namespace std;
 
-double SiteAbscissionRatio(State &, int, int, int, int);
+double SiteAbscissionRatio(State &, int, int, int, int, double[61]);
 
 void SquareAbscission(State &, FruitingSite &, double);
 
@@ -34,7 +34,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //
 //     The following global variables are referenced here:
 //  CarbonStress, DayInc, FruitingCode, ginp, Gintot, Kday, NitrogenStress,
-//  NumFruitBranches, NumNodes, NumVegBranches, VarPar, WaterStress.
+//  NumFruitBranches, NumNodes, NumVegBranches, WaterStress.
 //
 //     The following global variable are set here:
 //  AbscissionLag, NumSheddingTags, ShedByCarbonStress, ShedByNitrogenStress, ShedByWaterStress.
@@ -57,16 +57,16 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
         }
 //     Calculate shedding intensity: The shedding intensity due to stresses of this day is assigned
 //  to the first members of the arrays ShedByCarbonStress, ShedByNitrogenStress, and ShedByWaterStress.
-    if (state.carbon_stress < VarPar[43])
-        ShedByCarbonStress[0] = (VarPar[43] - state.carbon_stress) / VarPar[43];
+    if (state.carbon_stress < sim.cultivar_parameters[43])
+        ShedByCarbonStress[0] = (sim.cultivar_parameters[43] - state.carbon_stress) / sim.cultivar_parameters[43];
     else
         ShedByCarbonStress[0] = 0;
     if (state.nitrogen_stress < vabsfr[1])
         ShedByNitrogenStress[0] = (vabsfr[1] - state.nitrogen_stress) / vabsfr[1];
     else
         ShedByNitrogenStress[0] = 0;
-    if (state.water_stress < VarPar[44])
-        ShedByWaterStress[0] = (VarPar[44] - state.water_stress) / VarPar[44];
+    if (state.water_stress < sim.cultivar_parameters[44])
+        ShedByWaterStress[0] = (sim.cultivar_parameters[44] - state.water_stress) / sim.cultivar_parameters[44];
     else
         ShedByWaterStress[0] = 0;
 //     Assign 0.01 to the first member of AbscissionLag.
@@ -99,7 +99,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                         FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
                         if (site.stage == Stage::Square || site.stage == Stage::YoungGreenBoll || site.stage == Stage::GreenBoll) {
                             double abscissionRatio; // ratio of abscission for a fruiting site.
-                            abscissionRatio = SiteAbscissionRatio(state, k, l, m, lt);
+                            abscissionRatio = SiteAbscissionRatio(state, k, l, m, lt, sim.cultivar_parameters);
                             if (abscissionRatio > 0) {
                                 if (site.stage == Stage::Square)
                                     SquareAbscission(state, site, abscissionRatio);
@@ -125,7 +125,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 }
 
 /////////////////////////
-double SiteAbscissionRatio(State &state, int k, int l, int m, int lt)
+double SiteAbscissionRatio(State &state, int k, int l, int m, int lt, double VarPar[61])
 //     This function computes and returns the probability of abscission of a single
 //  site (k, l, m). It is called from function FruitingSitesAbscission().
 //

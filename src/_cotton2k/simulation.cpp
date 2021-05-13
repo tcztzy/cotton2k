@@ -2416,8 +2416,8 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation___get_
 static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9elevation_2__set__(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters___get__(CYTHON_UNUSED struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self); /* proto */
 static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__set__(CYTHON_UNUSED struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self, PyObject *__pyx_v_parameters); /* proto */
-static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters___get__(CYTHON_UNUSED struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self); /* proto */
-static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2__set__(CYTHON_UNUSED struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self, PyObject *__pyx_v_parameters); /* proto */
+static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters___get__(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self); /* proto */
+static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2__set__(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self, PyObject *__pyx_v_parameters); /* proto */
 static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space___get__(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self); /* proto */
 static int __pyx_pf_9_cotton2k_10simulation_10Simulation_9row_space_2__set__(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_14skip_row_width___get__(CYTHON_UNUSED struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self); /* proto */
@@ -2788,7 +2788,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  *     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000             # <<<<<<<<<<<<<<
  *     sim.per_plant_area = 1000000 / PlantPopulation
- *     sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))
+ *     sim.density_factor = exp(sim.cultivar_parameters[1] * (5 - PlantPopulation / 10000))
  */
   if (unlikely(__pyx_v_sim.row_space == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
@@ -2800,7 +2800,7 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
  *     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000
  *     sim.per_plant_area = 1000000 / PlantPopulation             # <<<<<<<<<<<<<<
- *     sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))
+ *     sim.density_factor = exp(sim.cultivar_parameters[1] * (5 - PlantPopulation / 10000))
  *     # Define the numbers of rows and columns in the soil slab (nl, nk).
  */
   if (unlikely(PlantPopulation == 0)) {
@@ -2812,11 +2812,11 @@ static void __pyx_f_9_cotton2k_10simulation_InitializeGrid(Simulation &__pyx_v_s
   /* "_cotton2k/simulation.pyx":60
  *     PlantPopulation = PlantsPerM / sim.row_space * 1000000
  *     sim.per_plant_area = 1000000 / PlantPopulation
- *     sim.density_factor = exp(VarPar[1] * (5 - PlantPopulation / 10000))             # <<<<<<<<<<<<<<
+ *     sim.density_factor = exp(sim.cultivar_parameters[1] * (5 - PlantPopulation / 10000))             # <<<<<<<<<<<<<<
  *     # Define the numbers of rows and columns in the soil slab (nl, nk).
  *     # Define the depth, in cm, of consecutive nl layers.
  */
-  __pyx_v_sim.density_factor = exp(((VarPar[1]) * (5.0 - (PlantPopulation / 10000.0))));
+  __pyx_v_sim.density_factor = exp(((__pyx_v_sim.cultivar_parameters[1]) * (5.0 - (PlantPopulation / 10000.0))));
 
   /* "_cotton2k/simulation.pyx":64
  *     # Define the depth, in cm, of consecutive nl layers.
@@ -11243,7 +11243,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_15site_parameters_2__se
  * 
  *     @property
  *     def cultivar_parameters(self):             # <<<<<<<<<<<<<<
- *         return VarPar
+ *         return self._sim.cultivar_parameters
  * 
  */
 
@@ -11260,7 +11260,7 @@ static PyObject *__pyx_pw_9_cotton2k_10simulation_10Simulation_19cultivar_parame
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters___get__(CYTHON_UNUSED struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self) {
+static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters___get__(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -11272,12 +11272,12 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parame
   /* "_cotton2k/simulation.pyx":512
  *     @property
  *     def cultivar_parameters(self):
- *         return VarPar             # <<<<<<<<<<<<<<
+ *         return self._sim.cultivar_parameters             # <<<<<<<<<<<<<<
  * 
  *     @cultivar_parameters.setter
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_carray_to_py_double(VarPar, 61); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 512, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_carray_to_py_double(__pyx_v_self->_sim.cultivar_parameters, 61); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 512, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11287,7 +11287,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parame
  * 
  *     @property
  *     def cultivar_parameters(self):             # <<<<<<<<<<<<<<
- *         return VarPar
+ *         return self._sim.cultivar_parameters
  * 
  */
 
@@ -11307,7 +11307,7 @@ static PyObject *__pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parame
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):             # <<<<<<<<<<<<<<
  *         for i, p in enumerate(parameters):
- *             VarPar[i + 1] = p
+ *             self._sim.cultivar_parameters[i + 1] = p
  */
 
 /* Python wrapper */
@@ -11323,7 +11323,7 @@ static int __pyx_pw_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_3
   return __pyx_r;
 }
 
-static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2__set__(CYTHON_UNUSED struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self, PyObject *__pyx_v_parameters) {
+static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2__set__(struct __pyx_obj_9_cotton2k_10simulation_Simulation *__pyx_v_self, PyObject *__pyx_v_parameters) {
   PyObject *__pyx_v_i = NULL;
   PyObject *__pyx_v_p = NULL;
   int __pyx_r;
@@ -11344,7 +11344,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):
  *         for i, p in enumerate(parameters):             # <<<<<<<<<<<<<<
- *             VarPar[i + 1] = p
+ *             self._sim.cultivar_parameters[i + 1] = p
  * 
  */
   __Pyx_INCREF(__pyx_int_0);
@@ -11401,7 +11401,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
     /* "_cotton2k/simulation.pyx":517
  *     def cultivar_parameters(self, parameters):
  *         for i, p in enumerate(parameters):
- *             VarPar[i + 1] = p             # <<<<<<<<<<<<<<
+ *             self._sim.cultivar_parameters[i + 1] = p             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
@@ -11410,13 +11410,13 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_t_5); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 517, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    (VarPar[__pyx_t_7]) = __pyx_t_6;
+    (__pyx_v_self->_sim.cultivar_parameters[__pyx_t_7]) = __pyx_t_6;
 
     /* "_cotton2k/simulation.pyx":516
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):
  *         for i, p in enumerate(parameters):             # <<<<<<<<<<<<<<
- *             VarPar[i + 1] = p
+ *             self._sim.cultivar_parameters[i + 1] = p
  * 
  */
   }
@@ -11428,7 +11428,7 @@ static int __pyx_pf_9_cotton2k_10simulation_10Simulation_19cultivar_parameters_2
  *     @cultivar_parameters.setter
  *     def cultivar_parameters(self, parameters):             # <<<<<<<<<<<<<<
  *         for i, p in enumerate(parameters):
- *             VarPar[i + 1] = p
+ *             self._sim.cultivar_parameters[i + 1] = p
  */
 
   /* function exit code */

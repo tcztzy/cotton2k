@@ -3,6 +3,12 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
+        "depends": [
+            "src/_cotton2k/global.h"
+        ],
+        "include_dirs": [
+            "src/_cotton2k"
+        ],
         "language": "c++",
         "name": "_cotton2k.soil_impedance",
         "sources": [
