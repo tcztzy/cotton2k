@@ -149,6 +149,7 @@ void initialize_state0(State &state0, uint32_t day_start) {
     for (int i = 0; i < 9; i++) {
         state0.age_of_pre_fruiting_nodes[i] = 0;
         state0.leaf_area_pre_fruiting[i] = 0;
+        state0.leaf_weight_pre_fruiting[i] = 0;
     }
     for (int k = 0; k < 3; k++)
     {

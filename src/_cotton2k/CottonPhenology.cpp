@@ -171,8 +171,6 @@ void PreFruitingNode(State &state, double stemNRatio)
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
 //        DayInc, VarPar.
-//     The following global variable are set here:
-//        LeafWeightPreFru.
 //     The following argument is used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
 //
@@ -207,11 +205,11 @@ void PreFruitingNode(State &state, double stemNRatio)
     {
         state.number_of_pre_fruiting_nodes++;
         state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] = VarPar[34];
-        LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] = state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * state.leaf_weight_area_ratio;
-        state.leaf_weight += LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1];
-        state.stem_weight -= LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1];
-        state.leaf_nitrogen += LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
-        state.stem_nitrogen -= LeafWeightPreFru[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
+        state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] = state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * state.leaf_weight_area_ratio;
+        state.leaf_weight += state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1];
+        state.stem_weight -= state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1];
+        state.leaf_nitrogen += state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
+        state.stem_nitrogen -= state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
     }
 }
 

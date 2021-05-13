@@ -83,7 +83,6 @@ void InitializeGlobal()
         PotGroLeafAreaPreFru[i] = 0;
         PotGroLeafWeightPreFru[i] = 0;
         PotGroPetioleWeightPreFru[i] = 0;
-        LeafWeightPreFru[i] = 0;
         PetioleWeightPreFru[i] = 0;
     }
 //
