@@ -27,7 +27,6 @@ cdef extern from "global.h":
     double tstbd[10][10]
     double impede[10][10]
     double SitePar[21]
-    double PlantPopulation
     double TotalSoilNo3N
     double TotalSoilNh4N
     double TotalSoilUreaN

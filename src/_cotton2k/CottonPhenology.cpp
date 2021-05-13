@@ -642,7 +642,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //  from green to dehissed (open) boll. It is called from SimulateFruitingSite().
 //     The following global variables are referenced here:
 //        AgeOfBoll, BollWeight, BurrWeight, FruitFraction,
-//        LeafAreaIndex, PlantPopulation, VarPar
+//        LeafAreaIndex, VarPar
 //     The following global variable are set here:
 //        BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls, CottonWeightOpenBolls,
 //        FibLength, FruitingCode, FibStrength, ginp, Gintot, NumOpenBolls, LintYield.
@@ -703,7 +703,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     Gintot = (Gintot * state.number_of_open_bolls + ginp * site.fraction) /
              (state.number_of_open_bolls + site.fraction);
     //     Cumulative lint yield (LintYield) is computed in kg per ha.
-    state.lint_yield += ginp * site.boll.weight * PlantPopulation * .001;
+    state.lint_yield += ginp * site.boll.weight * sim.plant_population * .001;
     //     Note: computation of fiber properties is as in GOSSYM, it is
     //  not used in COTTON2K, and it has not been tested. It is included here
     //  for compatibility, and it may be developed in future versions.

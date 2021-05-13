@@ -121,7 +121,6 @@ double
     PetioleNitrogen,                  // total petiole nitrogen, g per plant.
     PetioleNO3NConc,                  // average nitrate nitrogen concentration in petioles.
     PetioleWeightPreFru[9],           // weight of prefruiting node petioles, g.
-    PlantPopulation,                  // plant population, plants per hectar.
     PlantRowLocation,                 // distance of plant row from slab edge, cm.
     PoreSpace[maxl],                  // pore space of soil, volume fraction.
     PotGroAllBolls,                   // sum of potential growth rates of seedcotton in all bolls, g plant-1 day-1.

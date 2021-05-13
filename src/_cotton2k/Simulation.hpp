@@ -16,6 +16,7 @@ typedef struct Simulation
     double longitude;                       // degree
     double elevation;                       // meter
     double row_space;                       // average row spacing, cm.
+    double plant_population;                // plant population, plants per hectar.
     double per_plant_area;                  // average soil surface area per plant, dm2
     double density_factor;                  // empirical plant density factor.
     unsigned int first_bloom;               // Date (DOY) of first bloom.
