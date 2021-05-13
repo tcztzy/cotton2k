@@ -93,7 +93,6 @@ double
     FieldCapacity[maxl],              // volumetric water content of soil at field capacity for each soil layer, cm3 cm-3.
     FoliageTemp[maxk],                // average foliage temperature (oK).
     FreshOrganicNitrogen[maxl][maxk], // N in fresh organic matter in a soil cell, mg cm-3.
-    FruitGrowthRatio,                 // ratio between actual and potential square and boll growth.
     gh2oc[10],                        // input gravimetric soil water content, g g-1, in the soil mechanical impedance table. values have been read from the soil impedance file.
     ginp,                             // ginning percentage of an individual boll.
     Gintot,                           // weighted average ginning percentage of all open bolls.

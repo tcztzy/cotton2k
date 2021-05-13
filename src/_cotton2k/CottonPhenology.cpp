@@ -220,7 +220,7 @@ void CreateFirstSquare(State &state, double stemNRatio)
 //        Kday, VarPar.
 //     The following global variable are set here:
 //        AbscisedLeafWeight, AvrgNodeTemper, CumPlantNLoss, FirstSquare, FruitFraction,
-//        FruitGrowthRatio, FruitingCode, LeafAreaNodes, LeafWeightNodes,
+//        FruitingCode, LeafAreaNodes, LeafWeightNodes,
 //        NumFruitBranches, NumNodes.
 //     Argument used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
@@ -239,10 +239,10 @@ void CreateFirstSquare(State &state, double stemNRatio)
     state.leaf_weight += site.leaf.weight;
     state.leaf_nitrogen += site.leaf.weight * stemNRatio;
     state.stem_nitrogen -= site.leaf.weight * stemNRatio;
-    //      Define the initial values of NumFruitBranches, NumNodes, FruitGrowthRatio, and AvrgNodeTemper.
+    //      Define the initial values of NumFruitBranches, NumNodes, state.fruit_growth_ratio, and AvrgNodeTemper.
     state.vegetative_branches[0].number_of_fruiting_branches = 1;
     state.vegetative_branches[0].fruiting_branches[0].number_of_fruiting_nodes = 1;
-    FruitGrowthRatio = 1;
+    state.fruit_growth_ratio = 1;
     site.average_temperature = state.average_temperature;
     //     It is assumed that the cotyledons are dropped at time of first square. compute changes
     //  in AbscisedLeafWeight, state.leaf_weight, state.leaf_nitrogen and CumPlantNLoss caused

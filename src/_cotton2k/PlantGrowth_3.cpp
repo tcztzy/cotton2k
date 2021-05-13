@@ -25,7 +25,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
 //        PotGroAllRoots, PotGroAllSquares, PotGroStem, WaterStress.
 //     The following global and file scope variables are set here:
 //        ActualStemGrowth, CarbonAllocatedForRootGrowth, CarbonStress, ExtraCarbon,
-//        FruitGrowthRatio, ReserveC, TotalActualLeafGrowth, TotalActualPetioleGrowth, vratio.
+//        ReserveC, TotalActualLeafGrowth, TotalActualPetioleGrowth, vratio.
 {
     //     The following constant parameters are used:
     const double vchbal[15] = {6.0, 2.5, 1.0, 5.0, 0.20, 0.80, 0.48, 0.40,
@@ -212,12 +212,12 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
         xtrac2 = 0;
     //     ExtraCarbon is computed as total excessive carbohydrates.
     state.extra_carbon = xtrac1 + xtrac2;
-    //     Compute FruitGrowthRatio as the ratio of carbohydrates supplied to
+    //     Compute state.fruit_growth_ratio as the ratio of carbohydrates supplied to
     //  square and boll growth to their carbohydrate requirements.
     if ((PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs) > 0)
-        FruitGrowthRatio = (pdsq + pdboll) / (PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs);
+        state.fruit_growth_ratio = (pdsq + pdboll) / (PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs);
     else
-        FruitGrowthRatio = 1;
+        state.fruit_growth_ratio = 1;
     //     Compute vratio as the ratio of carbohydrates supplied to leaf
     //  and petiole growth to their carbohydrate requirements.
     if ((PotGroAllLeaves + PotGroAllPetioles) > 0)
@@ -232,7 +232,7 @@ void ActualFruitGrowth(State &state)
 //  bolls of cotton plants. It is called from PlantGrowth().
 //
 //     The following global variables are referenced here:
-//        FruitingCode, FruitGrowthRatio, NumFruitBranches, NumNodes, NumVegBranches,
+//        FruitingCode, NumFruitBranches, NumNodes, NumVegBranches,
 //        PotGroBolls, PotGroBurrs, PotGroSquares.
 //
 //     The following global variables are set here:
@@ -259,7 +259,7 @@ void ActualFruitGrowth(State &state)
                 //  weight to squares (ActualSquareGrowth), and total weight of squares (TotalSquareWeight).
                 if (site.stage == Stage::Square)
                 {
-                    double dwsq = site.square.potential_growth * FruitGrowthRatio; // dry weight added to square.
+                    double dwsq = site.square.potential_growth * state.fruit_growth_ratio; // dry weight added to square.
 
                     site.square.weight += dwsq;
                     ActualSquareGrowth += dwsq;
@@ -270,12 +270,12 @@ void ActualFruitGrowth(State &state)
                 if (site.stage == Stage::GreenBoll || site.stage == Stage::YoungGreenBoll)
                 {
                     double dwboll; // dry weight added to seedcotton in a boll.
-                    dwboll = site.boll.potential_growth * FruitGrowthRatio;
+                    dwboll = site.boll.potential_growth * state.fruit_growth_ratio;
                     site.boll.weight += dwboll;
                     ActualBollGrowth += dwboll;
                     CottonWeightGreenBolls += site.boll.weight;
                     double dwburr; // dry weight added to the burrs in a boll.
-                    dwburr = site.burr.potential_growth * FruitGrowthRatio;
+                    dwburr = site.burr.potential_growth * state.fruit_growth_ratio;
                     site.burr.weight += dwburr;
                     ActualBurrGrowth += dwburr;
                     BurrWeightGreenBolls += site.burr.weight;

@@ -84,6 +84,7 @@ typedef struct State
     double seed_nitrogen_concentration;         // average nitrogen concentration in seeds.
     double root_nitrogen_concentration;         // average nitrogen concentration in roots.
     double stem_nitrogen;                       // total stem nitrogen, g per plant
+    double fruit_growth_ratio;                  // ratio between actual and potential square and boll growth.
     double ginning_percent;
     double average_temperature;                 // average daily temperature, C, for 24 hours.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
