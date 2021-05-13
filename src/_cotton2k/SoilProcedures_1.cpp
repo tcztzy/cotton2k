@@ -186,7 +186,7 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
 //       dl, LightIntercept, LocationColumnDrip, LocationLayerDrip,
 //       NFertilizer, nk, nl, NumNitApps, wk.
 //     The following global variables are set here:
-//       CumFertilizerN, LeafNitrogen, VolNh4NContent, VolNo3NContent, VolUreaNContent.
+//       CumFertilizerN, VolNh4NContent, VolNo3NContent, VolUreaNContent.
 {
     State &state = sim.states[u];
     const double ferc = 0.01; //  constant used to convert kgs per ha to mg cm-2
@@ -232,8 +232,8 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
             else if (NFertilizer[i].mthfrt == 2)
             {
                 //     It is assumed that 70% of the amount of ammonium or urea intercepted by the canopy
-                //  is added to the leaf N content (LeafNitrogen).
-                LeafNitrogen += 0.70 * LightIntercept * (NFertilizer[i].amtamm + NFertilizer[i].amtura) * 1000 / PlantPopulation;
+                //  is added to the leaf N content (state.leaf_nitrogen).
+                state.leaf_nitrogen += 0.70 * LightIntercept * (NFertilizer[i].amtamm + NFertilizer[i].amtura) * 1000 / PlantPopulation;
                 //     The amount not intercepted by the canopy is added to the soil. If the fertilizer is
                 //  nitrate, it is assumed that all of it is added to the upper soil layer.
                 //     Update nitrogen contents of the upper layer.

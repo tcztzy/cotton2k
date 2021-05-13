@@ -105,7 +105,6 @@ double
     impede[10][10],                   // input table of soil impedance to root growth
     InitialTotalSoilWater,            // initial total soil water in the profile, mm.
     IrrigationDepth,                  // depth of predicted irrigation, cm.
-    LeafNitrogen,                     // total leaf nitrogen, g per plant.
     LeafWeightPreFru[9],              // weight of prefruiting node leaves, g.
     LevelsOfWaterTable[20],           // water table level input data (cm below soil surface).
     LightIntercept,                   // ratio of light interception by plant canopy.

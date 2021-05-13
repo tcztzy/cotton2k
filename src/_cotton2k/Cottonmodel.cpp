@@ -131,6 +131,7 @@ void initialize_state0(State &state0, uint32_t day_start) {
     state0.leaf_area_index = 0.001;
     state0.leaf_area = 0;
     state0.leaf_weight = 0.20;
+    state0.leaf_nitrogen = 0.0112;
     state0.number_of_vegetative_branches = 1;
     state0.number_of_squares = 0;
     state0.number_of_green_bolls = 0;

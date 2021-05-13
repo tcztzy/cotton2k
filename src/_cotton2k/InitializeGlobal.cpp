@@ -32,7 +32,6 @@ void InitializeGlobal()
     GreenBollsLost = 0;
 
     LastIrrigation = 0;
-    LeafNitrogen = 0.0112;
 
     MaxIrrigation = 0;
     MineralizedOrganicN = 0;
