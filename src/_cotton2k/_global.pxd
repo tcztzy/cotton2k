@@ -18,7 +18,6 @@ cdef extern from "global.h":
     unsigned int ncurve
     int inrim
     int isw
-    int Kday
     int LastDayWeatherData
     const int maxl
     const int maxk

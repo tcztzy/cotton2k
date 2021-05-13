@@ -16,7 +16,8 @@ cdef extern from "Cottonmodel.h":
 
 
 cdef void initialize_switch(cSimulation &sim):
-    global isw, Kday
+    global isw
+    cdef cState state0 = sim.states[0]
     # If the date of emergence has not been given, emergence will be simulated
     # by the model. In this case, isw = 0, and a check is performed to make
     # sure that the date of planting has been given.
@@ -30,7 +31,7 @@ cdef void initialize_switch(cSimulation &sim):
         isw = 1
     else:
         isw = 2
-        Kday = 1
+        state0.kday = 1
 
 cdef double SkipRowWidth  # the smaller distance between skip rows, cm
 cdef double PlantsPerM  # average number of plants pre meter of row.

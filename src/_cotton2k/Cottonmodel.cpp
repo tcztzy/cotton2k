@@ -74,11 +74,11 @@ void SimulateThisDay(Simulation &sim, uint32_t u)
     double rracol[20]; // the relative radiation received by a soil column, as affected by shading by plant canopy.
     // days from emergence
     if (sim.day_emerge <= 0)
-        Kday = 0;
+        state.kday = 0;
     else
-        Kday = sim.day_start - sim.day_emerge + u + 1;
-    if (Kday < 0)
-        Kday = 0;
+        state.kday = sim.day_start - sim.day_emerge + u + 1;
+    if (state.kday < 0)
+        state.kday = 0;
     //     The following functions are executed each day (also before emergence).
     ColumnShading(state, rracol, sim.day_emerge, sim.row_space, sim.plant_row_column); // computes light interception and soil shading.
     DayClim(sim, u);                                                                   // computes climate variables for today.
@@ -105,7 +105,7 @@ void SimulateThisDay(Simulation &sim, uint32_t u)
     //     Check if the date to stop simulation has been reached, or if this is the last day
     //  with available weather data. Simulation will also stop when no leaves remain on the plant.
     //
-    if (state.daynum >= LastDayWeatherData || (Kday > 10 && state.leaf_area_index < 0.0002))
+    if (state.daynum >= LastDayWeatherData || (state.kday > 10 && state.leaf_area_index < 0.0002))
         throw SimulationEnd();
 }
 

@@ -278,7 +278,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         state.actual_soil_evaporation /= sim.row_space;
     }
     sim.states[u].cumulative_evaporation += state.actual_soil_evaporation;
-    if (Kday > 0)
+    if (state.kday > 0)
     {
         Scratch21[u].es = es;
     }

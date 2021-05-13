@@ -388,7 +388,7 @@ void PredictEmergence(Simulation &sim, unsigned int u, int hour)
 //     The following global variables are referenced here:
 //       dl, iyear, PlantRowColumn, nl, SoilPsi, SoilTemp.
 //     The following global variables are set here:
-//       isw, Kday.
+//       isw.
 //
 {
     const double dpl = 5;           // depth of planting, cm (assumed 5).
@@ -495,6 +495,6 @@ void PredictEmergence(Simulation &sim, unsigned int u, int hour)
     {
         isw = 2;
         sim.day_emerge = sim.day_start + u;
-        Kday = 1;
+        sim.states[u].kday = 1;
     }
 }

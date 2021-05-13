@@ -24,7 +24,7 @@ typedef struct NitrogenFertilizer
 extern NitrogenFertilizer NFertilizer[150];
 ////    Integers    ////
 extern int DayStartPredIrrig, DayStopPredIrrig,
-    inrim, IrrigMethod, isw, Kday,
+    inrim, IrrigMethod, isw,
     LastDayWeatherData, LastIrrigation, LastTaprootLayer,
     LocationColumnDrip, LocationLayerDrip,
     MainStemNodes, MinDaysBetweenIrrig,

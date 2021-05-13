@@ -114,7 +114,7 @@ void CottonPhenology(Simulation &sim, uint32_t u)
         PreFruitingNode(state, stemNRatio);
         //      When first square is formed, FirstSquare is assigned the day of year.
         //  Function CreateFirstSquare() is called for formation of first square.
-        if (Kday >= (int)DaysTo1stSqare)
+        if (state.kday >= (int)DaysTo1stSqare)
         {
             sim.first_square = state.daynum;
             CreateFirstSquare(state, stemNRatio);
@@ -554,7 +554,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     if (site.boll.weight > 0)
     {
         double dum; // effect of leaf area index on boll temperature and age.
-        if (state.leaf_area_index <= vfrsite[11] && Kday > 100)
+        if (state.leaf_area_index <= vfrsite[11] && state.kday > 100)
             dum = vfrsite[12] - vfrsite[13] * state.leaf_area_index;
         else
             dum = 1;

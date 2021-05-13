@@ -66,7 +66,7 @@ void Stress(Simulation &sim, unsigned int u)
     LwpMinX[0] = LwpMin;
     LwpX[0] = LwpMin + LwpMax;
     //     No stress effects before 5th day after emergence.
-    if (Kday < 5)
+    if (state.kday < 5)
     {
         ptsred = 1;
         state.water_stress_stem = 1;
@@ -134,7 +134,7 @@ void LeafWaterPotential(State &state, double row_space)
                             -0.15, -1.70, -3.5, 0.1e-9, 0.025, 0.80};
     //     Leaf water potential is not computed during 10 days after
     //  emergence. Constant values are assumed for this period.
-    if (Kday <= 10)
+    if (state.kday <= 10)
     {
         LwpMax = psiln0;
         LwpMin = psild0;
@@ -322,7 +322,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     //  weight, minus the old stems and the dry tissue of opened bolls.
     double oldstmwt; // weight of old stems.
     int voldstm = 32;
-    int kkday = Kday - voldstm; // day of least recent actively growing stems.
+    int kkday = state.kday - voldstm; // day of least recent actively growing stems.
     if (kkday < 1)
         oldstmwt = 0;
     else
@@ -379,14 +379,14 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     //     Active stem tissue (stemnew) is the difference between state.stem_weight
     //  and the value of StemWeight(kkday).
     int voldstm = 32;           // constant parameter (days for stem tissue to become "old")
-    int kkday = Kday - voldstm; // age of young stem tissue
+    int kkday = state.kday - voldstm; // age of young stem tissue
     if (kkday < 1)
         kkday = 1;
     double stemnew = state.stem_weight - StemWeight[kkday]; // dry weight of active stem tissue.
                                                           //     Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
                                                           //  The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
                                                           //  Stem growth is also affected by water stress (WaterStressStem). PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
-    PotGroStem = PotentialStemGrowth(stemnew, Kday, state.vegetative_branches[0].fruiting_branches[2].nodes[0].stage, sim.density_factor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * state.day_inc * state.water_stress_stem;
+    PotGroStem = PotentialStemGrowth(stemnew, state.kday, state.vegetative_branches[0].fruiting_branches[2].nodes[0].stage, sim.density_factor, VarPar[12], VarPar[13], VarPar[14], VarPar[15], VarPar[16], VarPar[17], VarPar[18]) * state.day_inc * state.water_stress_stem;
     double maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
     if (PotGroStem > maxstmgr * sim.per_plant_area)
         PotGroStem = maxstmgr * sim.per_plant_area;
@@ -433,7 +433,7 @@ void PlantGrowth(Simulation &sim, const uint32_t &u, const int &NumRootAgeGroups
     state.leaf_area_index = state.leaf_area / sim.per_plant_area;
     //     Add ActualStemGrowth to state.stem_weight, and define StemWeight(Kday) for this day.
     state.stem_weight += ActualStemGrowth;
-    StemWeight[Kday] = state.stem_weight;
+    StemWeight[state.kday] = state.stem_weight;
     //     Plant density affects growth in height of tall plants.
     double htdenf = 55; // minimum plant height for plant density affecting growth in height.
     double z1;          // intermediate variable to compute denf2.

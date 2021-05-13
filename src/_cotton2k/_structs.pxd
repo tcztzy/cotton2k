@@ -93,6 +93,7 @@ cdef extern from "State.hpp":
         cFruitingBranch fruiting_branches[30]
     ctypedef struct cState "State":
         unsigned int daynum
+        unsigned int kday
         double day_inc
         double lint_yield
         double bloom_weight_loss

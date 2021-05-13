@@ -29,7 +29,6 @@ int inrim,       // number of input bulk-density data points for the impedance c
     // 0 = one dimensional (no horizontal flux) - used to predict emergence when emergence date is not known;
     // 1 = one dimensional - used before emergence when emergence date is given;
     // 2 = two dimensional - used after emergence.
-    Kday,                  // number of days since emergence.
     LastDayWeatherData,    // last date (DOY) with weather data.
     LastIrrigation,        // date (Doy) of last irrigation (for prediction).
     LastTaprootLayer,      // last soil layer with taproot.

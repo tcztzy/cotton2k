@@ -601,7 +601,7 @@ void NitrogenUptakeRequirement(State &state)
     //  days (32 calendar days). add stem requirement to TotalRequiredN.
     double grstmwt; // weight of actively growing stems.
     int kkday;      // day (from emergence) of oldest actively growing stem tissue.
-    kkday = Kday - voldstm;
+    kkday = state.kday - voldstm;
     if (kkday < 1)
         grstmwt = state.stem_weight;
     else
