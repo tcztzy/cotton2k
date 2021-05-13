@@ -85,7 +85,6 @@ double
     dclay,                            // aggregation factor for clay in water.
     DeepSoilTemperature,              // boundary soil temperature of deepest layer (K)
     DefoliantAppRate[5],              // rate of defoliant application in pints per acre.
-    DelayNewFruBranch[3],             // cumulative effect of stresses on delaying the formation of a new fruiting branch.
     DepthLastRootLayer,               // the depth to the end of the last layer with roots (cm).
     dsand,                            // aggregation factor for sand in water.
     ElCondSatSoil[20],                // electrical conductivity of saturated soil extract (mmho/cm)

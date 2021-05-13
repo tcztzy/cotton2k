@@ -66,7 +66,6 @@ void InitializeGlobal()
     WaterTableLayer = 1000;
 //
     for (int i = 0; i < 3; i++) {
-        DelayNewFruBranch[i] = 0;
         LwpMinX[i] = 0;
         LwpX[i] = 0;
     }

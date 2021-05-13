@@ -45,6 +45,7 @@ void BollOpening(Simulation &, uint32_t, int, int, int, double);
 double FibLength;          // fiber length
 double FibStrength;        // fiber strength
 double PhenDelayByNStress; // phenological delay caused by vegetative nitrogen stress.
+double DelayNewFruBranch[3] = {0, 0, 0}; // cumulative effect of stresses on delaying the formation of a new fruiting branch.
 //////////////////////////////////////////////////
 //      The following documentation describes the implementation of
 //  the simulation of the cotton plant phenology and the abscission of
