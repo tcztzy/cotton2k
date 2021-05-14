@@ -24,7 +24,6 @@ void InitializeGlobal()
     CumWaterAdded = 0;
     CumWaterDrained = 0;
 
-    ginp = 0.35;
     Gintot = 0.35;
     GreenBollsLost = 0;
 

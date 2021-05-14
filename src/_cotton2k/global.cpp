@@ -91,7 +91,6 @@ double
     FoliageTemp[maxk],                // average foliage temperature (oK).
     FreshOrganicNitrogen[maxl][maxk], // N in fresh organic matter in a soil cell, mg cm-3.
     gh2oc[10],                        // input gravimetric soil water content, g g-1, in the soil mechanical impedance table. values have been read from the soil impedance file.
-    ginp,                             // ginning percentage of an individual boll.
     Gintot,                           // weighted average ginning percentage of all open bolls.
     GreenBollsLost,                   // cumulative loss of green bolls, due to abscission, g per plant.
     HeatCapacitySoilSolid[maxl],      // heat capacity of the solid phase of the soil.

@@ -33,7 +33,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //	SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //
 //     The following global variables are referenced here:
-//  CarbonStress, DayInc, FruitingCode, ginp, Gintot, Kday, NitrogenStress,
+//  CarbonStress, DayInc, FruitingCode, Gintot, Kday, NitrogenStress,
 //  NumFruitBranches, NumNodes, NumVegBranches, WaterStress.
 //
 //     The following global variable are set here:
@@ -90,7 +90,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
             if (Gintot > 0)
                 gin1 = Gintot;
             else
-                gin1 = ginp;
+                gin1 = state.ginning_percent;
 //      Start loop over all possible fruiting sites. The abscission functions
 //  will be called for sites that are squares or green bolls.
             for (int k = 0; k < state.number_of_vegetative_branches; k++)

@@ -639,7 +639,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //        LeafAreaIndex, VarPar
 //     The following global variable are set here:
 //        BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightOpenBolls,
-//        FibLength, FruitingCode, FibStrength, ginp, Gintot, NumOpenBolls, LintYield.
+//        FibLength, FruitingCode, FibStrength, Gintot, NumOpenBolls, LintYield.
 //     The following arguments are used in this function:
 //        k, l, m - indices of vegetative branch, fruiting branch, and
 //                  node on fruiting branch for this site.
@@ -692,12 +692,11 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     //     Compute the ginning percentage as a function of boll temperature.
     //     Compute the average ginning percentage of all the bolls opened
     //  until now (Gintot).
-    ginp = (sim.cultivar_parameters[41] - sim.cultivar_parameters[42] * atn) / 100;
-    state.ginning_percent = ginp;
-    Gintot = (Gintot * state.number_of_open_bolls + ginp * site.fraction) /
+    state.ginning_percent = (sim.cultivar_parameters[41] - sim.cultivar_parameters[42] * atn) / 100;
+    Gintot = (Gintot * state.number_of_open_bolls + state.ginning_percent * site.fraction) /
              (state.number_of_open_bolls + site.fraction);
     //     Cumulative lint yield (LintYield) is computed in kg per ha.
-    state.lint_yield += ginp * site.boll.weight * sim.plant_population * .001;
+    state.lint_yield += state.ginning_percent * site.boll.weight * sim.plant_population * .001;
     //     Note: computation of fiber properties is as in GOSSYM, it is
     //  not used in COTTON2K, and it has not been tested. It is included here
     //  for compatibility, and it may be developed in future versions.
