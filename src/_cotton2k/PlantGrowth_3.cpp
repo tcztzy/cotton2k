@@ -20,7 +20,7 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
 //     This function computes the cotton plant dry matter (carbon) balance, its allocation to
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
-//        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots,
+//        NetPhotosynthesis, NStressRoots,
 //        PotGroAllBolls, PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles,
 //        PotGroAllRoots, PotGroAllSquares, PotGroStem, WaterStress.
 //     The following global and file scope variables are set here:
@@ -33,9 +33,9 @@ void DryMatterBalance(State &state, double &cdstem, double &cdleaf, double &cdpe
     //     Assign values for carbohydrate requirements for growth of stems, roots, leaves, petioles,
     //  squares and bolls. Potential growth of all plant parts is modified by nitrogen stresses.
     double cdsqar; // carbohydrate requirement for square growth, g per plant per day.
-    cdsqar = PotGroAllSquares * (NStressFruiting + vchbal[0]) / (vchbal[0] + 1);
+    cdsqar = PotGroAllSquares * (state.nitrogen_stress_fruiting + vchbal[0]) / (vchbal[0] + 1);
     double cdboll; // carbohydrate requirement for boll and burr growth, g per plant per day.
-    cdboll = (PotGroAllBolls + PotGroAllBurrs) * (NStressFruiting + vchbal[0]) / (vchbal[0] + 1);
+    cdboll = (PotGroAllBolls + PotGroAllBurrs) * (state.nitrogen_stress_fruiting + vchbal[0]) / (vchbal[0] + 1);
     //     cdleaf is carbohydrate requirement for leaf growth, g per plant per day.
     cdleaf = PotGroAllLeaves * (state.nitrogen_stress_vegetative + vchbal[1]) / (vchbal[1] + 1);
     //     cdstem is carbohydrate requirement for stem growth, g per plant per day.

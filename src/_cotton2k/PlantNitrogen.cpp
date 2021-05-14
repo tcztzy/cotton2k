@@ -516,27 +516,27 @@ void GetNitrogenStress(State &state)
 //     This function computes the nitrogen stress factors. It is called from PlantNitrogen().
 //
 //     The following global variables are set here:
-//       NStressFruiting, NStressRoots, NitrogenStress.
+//       NNStressRoots.
 //     The following file scope variables are referenced in this function:
 //       addnf, addnr, addnv, reqf, reqv, rqnrut
 {
     //     Set the default values for the nitrogen stress coefficients to 1.
     state.nitrogen_stress_vegetative = 1;
     NStressRoots = 1;
-    NStressFruiting = 1;
+    state.nitrogen_stress_fruiting = 1;
     state.nitrogen_stress = 1;
-    //     Compute the nitrogen stress coefficients. NStressFruiting is the ratio of
+    //     Compute the nitrogen stress coefficients. state.nitrogen_stress_fruiting is the ratio of
     //  N added actually to the fruits, to their N requirements. state.nitrogen_stress_vegetative is the
     //  same for vegetative shoot growth, and NStressRoots for roots. Also, an average
     //  stress coefficient for vegetative and reproductive organs is computed as NitrogenStress.
     //     Each stress coefficient has a value between 0 and 1.
     if (reqf > 0)
     {
-        NStressFruiting = addnf / reqf;
-        if (NStressFruiting > 1)
-            NStressFruiting = 1;
-        if (NStressFruiting < 0)
-            NStressFruiting = 0;
+        state.nitrogen_stress_fruiting = addnf / reqf;
+        if (state.nitrogen_stress_fruiting > 1)
+            state.nitrogen_stress_fruiting = 1;
+        if (state.nitrogen_stress_fruiting < 0)
+            state.nitrogen_stress_fruiting = 0;
     }
     if (reqv > 0)
     {

@@ -453,8 +453,6 @@ void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, doubl
 void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &WaterStress)
 //     Function SimulateFruitingSite() simulates the development of each fruiting site.
 //  It is called from function CottonPhenology().
-//     The following global variables are referenced here:
-//        NumFruitBranches, NStressFruiting, WaterStress.
 //     The following global variable are set here:
 //        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight,
 //        FirstBloom, FruitingCode, LeafAge, NumFruitSites,
@@ -548,7 +546,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     //  If leaf area index is low, dum is calculated as an intermediate
     //  variable. It is used to increase boll temperature and to accelerate
     //  boll aging when leaf cover is decreased. Boll age is also modified
-    //  by nitrogen stress (NStressFruiting).
+    //  by nitrogen stress (state.nitrogen_stress_fruiting).
     if (site.boll.weight > 0)
     {
         double dum; // effect of leaf area index on boll temperature and age.
@@ -557,7 +555,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
         else
             dum = 1;
         double dagebol; // added physiological age of boll on this day.
-        dagebol = state.day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - NStressFruiting);
+        dagebol = state.day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - state.nitrogen_stress_fruiting);
         boltmp[k][l][m] = (boltmp[k][l][m] * site.boll.age + state.average_temperature * dagebol) / (site.boll.age + dagebol);
         site.boll.age += dagebol;
     }
