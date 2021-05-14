@@ -33,7 +33,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
 //	SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //
 //     The following global variables are referenced here:
-//  CarbonStress, DayInc, FruitingCode, Gintot, Kday, NitrogenStress,
+//  CarbonStress, DayInc, FruitingCode, Kday, NitrogenStress,
 //  NumFruitBranches, NumNodes, NumVegBranches, WaterStress.
 //
 //     The following global variable are set here:
@@ -86,11 +86,6 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
     int idecr = 0; // decrease in NumSheddingTags after shedding has been executed.
     for (int lt = 0; lt < NumSheddingTags; lt++) {
         if (AbscissionLag[lt] >= vabsfr[4] || lt >= 20) {
-            double gin1;
-            if (Gintot > 0)
-                gin1 = Gintot;
-            else
-                gin1 = state.ginning_percent;
 //      Start loop over all possible fruiting sites. The abscission functions
 //  will be called for sites that are squares or green bolls.
             for (int k = 0; k < state.number_of_vegetative_branches; k++)
@@ -104,7 +99,7 @@ void FruitingSitesAbscission(Simulation &sim, uint32_t u)
                                 if (site.stage == Stage::Square)
                                     SquareAbscission(state, site, abscissionRatio);
                                 else
-                                    BollAbscission(state, site, abscissionRatio, gin1);
+                                    BollAbscission(state, site, abscissionRatio, state.ginning_percent > 0 ? state.ginning_percent : site.ginning_percent);
                             }
                         }
                     }

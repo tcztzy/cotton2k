@@ -91,7 +91,7 @@ typedef struct State
     double square_nitrogen;                     // total nitrogen in the squares, g per plant
     double stem_nitrogen;                       // total stem nitrogen, g per plant
     double fruit_growth_ratio;                  // ratio between actual and potential square and boll growth.
-    double ginning_percent;
+    double ginning_percent;                     // weighted average ginning percentage of all open bolls.
     double average_temperature;                 // average daily temperature, C, for 24 hours.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     double age_of_pre_fruiting_nodes[9];        // age of each prefruiting node, physiological days.

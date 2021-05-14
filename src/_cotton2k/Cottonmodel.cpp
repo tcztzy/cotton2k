@@ -166,7 +166,7 @@ void initialize_state0(State &state0, uint32_t day_start) {
             state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0;
             state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = {0, 0, 0, 0, 0, 0};
             for (int m = 0; m < 5; m++)
-                state0.vegetative_branches[k].fruiting_branches[l].nodes[m] = {0, 0, 0, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
+                state0.vegetative_branches[k].fruiting_branches[l].nodes[m] = {0, 0, 0, 0.35, Stage::NotYetFormed, {0, 0, 0, 0}, {0, 0}, {0, 0, 0}, {0, 0}, {0, 0}};
         }
     }
 }
