@@ -206,8 +206,6 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 //  at site (k, l, m). It is called from function FruitingSitesAbscission()
 //  if this site is a square.
 //
-//     The following global variable is referenced here:   SquareNConc
-//
 //     The following global variable are set here:
 //   BloomWeightLoss, CumPlantNLoss, FruitingCode, FruitFraction, SquareNitrogen,
 //   SquareWeight, TotalSquareWeight.
@@ -221,8 +219,8 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 //  of this site. Update SquareNitrogen, CumPlantNLoss, SquareWeight[k][l][m], BloomWeightLoss,
 //  TotalSquareWeight, and FruitFraction[k][l][m].
     double wtlos = site.square.weight * abscissionRatio; // weight lost by shedding at this site.
-    SquareNitrogen -= wtlos * SquareNConc;
-    state.cumulative_nitrogen_loss += wtlos * SquareNConc;
+    SquareNitrogen -= wtlos * state.square_nitrogen_concentration;
+    state.cumulative_nitrogen_loss += wtlos * state.square_nitrogen_concentration;
     site.square.weight -= wtlos;
     state.bloom_weight_loss += wtlos;
     TotalSquareWeight -= wtlos;
@@ -232,8 +230,8 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 //  and assign 5 to FruitingCode.
     if (site.fraction <= 0.001) {
         site.fraction = 0;
-        SquareNitrogen -= site.square.weight * SquareNConc;
-        state.cumulative_nitrogen_loss += site.square.weight * SquareNConc;
+        SquareNitrogen -= site.square.weight * state.square_nitrogen_concentration;
+        state.cumulative_nitrogen_loss += site.square.weight * state.square_nitrogen_concentration;
         state.bloom_weight_loss += site.square.weight;
         TotalSquareWeight -= site.square.weight;
         site.square.weight = 0;

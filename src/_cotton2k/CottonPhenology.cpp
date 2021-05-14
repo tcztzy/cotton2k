@@ -578,8 +578,6 @@ void NewBollFormation(State &state, FruitingSite &site)
 //     Function NewBollFormation() simulates the formation of a new boll at a
 //   fruiting site. It is called from function SimulateFruitingSite().
 //
-//     The following global variables are referenced here:
-//        bPollinSwitch, SquareNConc
 //     The following global variable are set here:
 //        BloomWeightLoss, BollWeight, BurrNitrogen, BurrWeight,
 //        BurrWeightGreenBolls, CumPlantNLoss, FruitFraction, FruitingCode,
@@ -614,7 +612,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     state.bloom_weight_loss += site.square.weight - bolinit;
     //
     double sqr1n; // the nitrogen content of one square before flowering.
-    sqr1n = SquareNConc * site.square.weight;
+    sqr1n = state.square_nitrogen_concentration * site.square.weight;
     SquareNitrogen -= sqr1n;
     state.cumulative_nitrogen_loss += sqr1n * (1 - vnewboll[0]);
     sqr1n = sqr1n * vnewboll[0];

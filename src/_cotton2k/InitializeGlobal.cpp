@@ -48,7 +48,6 @@ void InitializeGlobal()
 
     SeedNitrogen = 0;
     SoilNitrogenLoss = 0;
-    SquareNConc = 0;
     SquareNitrogen = 0;
     StemNConc = 0.036;
     SumNO3N90 = 0;
