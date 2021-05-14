@@ -126,8 +126,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
 //
 //     The following global variables are referenced here:
 //       ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth,
-//       CarbonAllocatedForRootGrowth, CottonWeightGreenBolls,
-//       ExtraCarbon, Kday,
+//       CarbonAllocatedForRootGrowth,
 //       SeedNitrogen, TotalActualLeafGrowth, TotalActualPetioleGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, PetioleNO3NConc, reqf, reqtot, reqv, rqnbur,
@@ -166,11 +165,11 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
     rqnsed1 = ActualBollGrowth * seedratio * seedcn0;                //   for seed growth
                                                                      //     The N required for replenishing the N content of existing seed
                                                                      //  tissue (rqnsed2) is added to seed growth requirement.
-    if (CottonWeightGreenBolls > ActualBollGrowth)
+    if (state.green_bolls_weight > ActualBollGrowth)
     {
         double rseedn; // existing ratio of N to dry matter in the seeds.
-        rseedn = SeedNitrogen / ((CottonWeightGreenBolls - ActualBollGrowth) * seedratio);
-        rqnsed2 = (CottonWeightGreenBolls - ActualBollGrowth) * seedratio * (seedcn1 - rseedn);
+        rseedn = SeedNitrogen / ((state.green_bolls_weight - ActualBollGrowth) * seedratio);
+        rqnsed2 = (state.green_bolls_weight - ActualBollGrowth) * seedratio * (seedcn1 - rseedn);
         if (rqnsed2 < 0)
             rqnsed2 = 0;
     }
@@ -478,7 +477,7 @@ void PlantNitrogenContent(State &state)
 //  function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls,
+//       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
 //       CottonWeightOpenBolls, Gintot, PetioleNitrogen, RootNitrogen,
 //       SeedNitrogen, SquareNitrogen, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
@@ -503,7 +502,7 @@ void PlantNitrogenContent(State &state)
     if (TotalSquareWeight > 0)
         SquareNConc = SquareNitrogen / TotalSquareWeight;
     double xxseed; // weight of seeds in green and mature bolls.
-    xxseed = CottonWeightOpenBolls * (1 - Gintot) + CottonWeightGreenBolls * seedratio;
+    xxseed = CottonWeightOpenBolls * (1 - Gintot) + state.green_bolls_weight * seedratio;
     if (xxseed > 0)
         state.seed_nitrogen_concentration = SeedNitrogen / xxseed;
     double xxbur; // weight of burrs in green and mature bolls.
@@ -573,7 +572,7 @@ void NitrogenUptakeRequirement(State &state)
 //
 //     The following global variables is set here:      TotalRequiredN
 //     The following global variables are referenced here:
-//       BurrNConc, BurrWeightGreenBolls, CottonWeightGreenBolls, Kday,
+//       BurrNConc, BurrWeightGreenBolls,
 //       LeafNConc, PetioleNConc, reqtot, RootNConc, SeedNConc, SquareNConc,
 //       StemNConc, StemWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
@@ -615,7 +614,7 @@ void NitrogenUptakeRequirement(State &state)
     if (SquareNConc < vnreqsqr)
         state.total_required_nitrogen += TotalSquareWeight * (vnreqsqr - SquareNConc);
     if (state.seed_nitrogen_concentration < seedcn1)
-        state.total_required_nitrogen += CottonWeightGreenBolls * seedratio * (seedcn1 - state.seed_nitrogen_concentration);
+        state.total_required_nitrogen += state.green_bolls_weight * seedratio * (seedcn1 - state.seed_nitrogen_concentration);
     if (BurrNConc < vnreqbur)
         state.total_required_nitrogen += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
 }

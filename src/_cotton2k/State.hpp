@@ -58,6 +58,7 @@ typedef struct State
     double plant_height;
     double plant_weight;
     double stem_weight; // total stem weight, g per plant.
+    double green_bolls_weight; // total weight of seedcotton in green bolls, g plant-1.
     double runoff;
     double solar_noon;
     double net_radiation;                       // daily total net radiation, W m-2.

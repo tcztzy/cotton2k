@@ -72,7 +72,6 @@ double
     CarbonAllocatedForRootGrowth,     // available carbon allocated for root growth, g per plant.
     ClayVolumeFraction[maxl],         // fraction by volume of clay in the soil.
     conmax,                           // the maximum value for non-dimensional hydraulic conductivity
-    CottonWeightGreenBolls,           // total weight of seedcotton in green bolls, g plant-1.
     CottonWeightOpenBolls,            // total weight of seedcotton in open bolls, g per plant.
     CultivationDepth[5],              // depth of cultivation, in cm.
     CumFertilizerN,                   // cumulative amount of inorganic nitrogen applied in fertilizer, mg N per slab.

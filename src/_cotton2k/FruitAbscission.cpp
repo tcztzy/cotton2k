@@ -251,7 +251,7 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //   BurrNConc, SeedNConc
 //
 //     The following global variable are set here:
-//   BollWeight, BurrNitrogen, BurrWeight, BurrWeightGreenBolls, CottonWeightGreenBolls,
+//   BollWeight, BurrNitrogen, BurrWeight, BurrWeightGreenBolls,
 //   CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost, SeedNitrogen,
 //
 //     The following arguments are used in this function:
@@ -260,21 +260,21 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //        k, l, m - location of this site on the plant
 //
 {
-//     Update SeedNitrogen, BurrNitrogen, CumPlantNLoss, GreenBollsLost, CottonWeightGreenBolls, BurrWeightGreenBolls,
+//     Update SeedNitrogen, BurrNitrogen, CumPlantNLoss, GreenBollsLost, state.green_bolls_weight, BurrWeightGreenBolls,
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and FruitFraction[k][l][m].
     SeedNitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * state.seed_nitrogen_concentration;
     BurrNitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
     state.cumulative_nitrogen_loss += site.boll.weight * abscissionRatio * (1. - gin1) * state.seed_nitrogen_concentration;
     state.cumulative_nitrogen_loss += site.burr.weight * abscissionRatio * BurrNConc;
     GreenBollsLost += (site.boll.weight + site.burr.weight) * abscissionRatio;
-    CottonWeightGreenBolls -= site.boll.weight * abscissionRatio;
+    state.green_bolls_weight -= site.boll.weight * abscissionRatio;
     BurrWeightGreenBolls -= site.burr.weight * abscissionRatio;
     site.boll.weight -= site.boll.weight * abscissionRatio;
     site.burr.weight -= site.burr.weight * abscissionRatio;
     site.fraction -= site.fraction * abscissionRatio;
 //
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, update SeedNitrogen,
-//  BurrNitrogen, CumPlantNLoss, CottonWeightGreenBolls, BurrWeightGreenBolls, GreenBollsLost,
+//  BurrNitrogen, CumPlantNLoss, state.green_bolls_weight, BurrWeightGreenBolls, GreenBollsLost,
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and assign 4 to FruitingCode.
 //
     if (site.fraction <= 0.001) {
@@ -284,7 +284,7 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
         state.cumulative_nitrogen_loss += site.boll.weight * (1 - gin1) * state.seed_nitrogen_concentration;
         state.cumulative_nitrogen_loss += site.burr.weight * BurrNConc;
         site.fraction = 0;
-        CottonWeightGreenBolls -= site.boll.weight;
+        state.green_bolls_weight -= site.boll.weight;
         BurrWeightGreenBolls -= site.burr.weight;
         GreenBollsLost += site.boll.weight + site.burr.weight;
         site.boll.weight = 0;

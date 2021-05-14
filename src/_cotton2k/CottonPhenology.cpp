@@ -454,9 +454,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //     Function SimulateFruitingSite() simulates the development of each fruiting site.
 //  It is called from function CottonPhenology().
 //     The following global variables are referenced here:
-//        CottonWeightGreenBolls,
-//        Kday, LeafAreaIndex,
-//        NumFruitBranches, NStressFruiting, WaterStress, VarPar.
+//        NumFruitBranches, NStressFruiting, WaterStress.
 //     The following global variable are set here:
 //        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight,
 //        FirstBloom, FruitingCode, LeafAge, NumFruitSites,
@@ -536,7 +534,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
             site.stage = Stage::YoungGreenBoll;
             NewBollFormation(state, state.vegetative_branches[k].fruiting_branches[l].nodes[m]);
             //     If this is the first flower, define FirstBloom.
-            if (CottonWeightGreenBolls > 0 && sim.first_bloom <= 1)
+            if (state.green_bolls_weight > 0 && sim.first_bloom <= 1)
                 sim.first_bloom = state.daynum;
             //     Determine node of most recent white flower.
             if (k == 0 && m == 0)
@@ -585,7 +583,7 @@ void NewBollFormation(State &state, FruitingSite &site)
 //     The following global variables are referenced here:
 //        bPollinSwitch, SquareNConc
 //     The following global variable are set here:
-//        BloomWeightLoss, BollWeight, BurrNitrogen, BurrWeight, CottonWeightGreenBolls,
+//        BloomWeightLoss, BollWeight, BurrNitrogen, BurrWeight,
 //        BurrWeightGreenBolls, CumPlantNLoss, FruitFraction, FruitingCode,
 //        SeedNitrogen, SquareNitrogen, SquareWeight, TotalSquareWeight.
 //     The following arguments are used:
@@ -609,7 +607,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     //  will be a fraction of the square weight, and the rest will be added
     //  to BloomWeightLoss. 80% of the initial weight will be in the burr.
     //     The nitrogen in the square is partitioned in the same proportions. The nitrogen
-    //  that was in the square is transferred to the burrs. Update CottonWeightGreenBolls,
+    //  that was in the square is transferred to the burrs. Update state.green_bolls_weight,
     //  BurrWeightGreenBolls and TotalSquareWeight. assign zero to SquareWeight at this site.
     double bolinit; // initial weight of boll after flowering.
     bolinit = vnewboll[0] * site.square.weight;
@@ -630,7 +628,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     SeedNitrogen += seed1n;
     BurrNitrogen += sqr1n - seed1n;
     //
-    CottonWeightGreenBolls += site.boll.weight;
+    state.green_bolls_weight += site.boll.weight;
     BurrWeightGreenBolls += site.burr.weight;
     TotalSquareWeight -= site.square.weight;
     site.square.weight = 0;
@@ -644,7 +642,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //        AgeOfBoll, BollWeight, BurrWeight, FruitFraction,
 //        LeafAreaIndex, VarPar
 //     The following global variable are set here:
-//        BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightGreenBolls, CottonWeightOpenBolls,
+//        BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightOpenBolls,
 //        FibLength, FruitingCode, FibStrength, ginp, Gintot, NumOpenBolls, LintYield.
 //     The following arguments are used in this function:
 //        k, l, m - indices of vegetative branch, fruiting branch, and
@@ -689,11 +687,11 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
         return;
     //     If green boll is old enough (AgeOfBoll greater than dehiss), make
     //  it an open boll, set FruitingCode to 3, and update CottonWeightOpenBolls, BurrWeightOpenBolls,
-    //  CottonWeightGreenBolls, BurrWeightGreenBolls.
+    //  state.green_bolls_weight, BurrWeightGreenBolls.
     site.stage = Stage::MatureBoll;
     CottonWeightOpenBolls += site.boll.weight;
     BurrWeightOpenBolls += site.burr.weight;
-    CottonWeightGreenBolls -= site.boll.weight;
+    state.green_bolls_weight -= site.boll.weight;
     BurrWeightGreenBolls -= site.burr.weight;
     //     Compute the ginning percentage as a function of boll temperature.
     //     Compute the average ginning percentage of all the bolls opened

@@ -17,7 +17,6 @@ void InitializeGlobal()
     BurrWeightOpenBolls = 0;
 
     CarbonAllocatedForRootGrowth = 0;
-    CottonWeightGreenBolls = 0;
     CottonWeightOpenBolls = 0;
     CumFertilizerN = 0;
     CumNetPhotosynth = 0;
