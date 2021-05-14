@@ -140,6 +140,7 @@ void initialize_state0(State &state0, uint32_t day_start) {
     state0.nitrogen_stress = 1;
     state0.nitrogen_stress_vegetative = 1;
     state0.nitrogen_stress_fruiting = 1;
+    state0.nitrogen_stress_root = 1;
     state0.total_required_nitrogen = 0;
     state0.leaf_nitrogen_concentration = .056;
     state0.petiole_nitrogen_concentration = 0;

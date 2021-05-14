@@ -114,7 +114,6 @@ double
     NetPhotosynthesis,                // net photosynthetic rate, g per plant per day.
     NightTimeTemp,                    // average night-time temperature, C.
     NO3FlowFraction[maxl],            // fraction of nitrate that can move to the next layer.
-    NStressRoots,                     // nitrogen stress limiting root development.
     PercentDefoliation,               // percentage of leaves abscised as a result of defoliant application.
     PetioleNitrogen,                  // total petiole nitrogen, g per plant.
     PetioleNO3NConc,                  // average nitrate nitrogen concentration in petioles.

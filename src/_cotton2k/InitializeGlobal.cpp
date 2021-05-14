@@ -36,7 +36,6 @@ void InitializeGlobal()
     NumAbscisedLeaves = 0;
     NumSheddingTags = 0;
     NumWaterTableData = 0;
-    NStressRoots = 1;
 
     PercentDefoliation = 0;
     PetioleNitrogen = 0;
