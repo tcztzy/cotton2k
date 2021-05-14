@@ -81,7 +81,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //     The following global variables are referenced here:
 //       BurrNConc, BurrNitrogen, Kday, LeafNConc,
 //       PetioleNConc, PetioleNConc, PetioleNO3NConc, PetioleNitrogen, RootNConc,
-//       RootNitrogen, SeedNConc, SeedNitrogen, SquareNitrogen, StemNConc.
+//       RootNitrogen, SeedNConc, SeedNitrogen, StemNConc.
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs,
 //       rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm, stemrs, uptn, xtran.
@@ -326,7 +326,7 @@ void NitrogenAllocation(State &state)
 //
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, BurrNitrogen, npool, PetioleNitrogen,
-//       RootNitrogen, SeedNitrogen, SquareNitrogen, xtran.
+//       RootNitrogen, SeedNitrogen, xtran.
 //     The following global and file scope variables are referenced in this function:
 //       reqtot, rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm
 {
@@ -346,7 +346,7 @@ void NitrogenAllocation(State &state)
         PetioleNitrogen += rqnpet;
         state.stem_nitrogen += rqnstm;
         RootNitrogen += rqnrut;
-        SquareNitrogen += rqnsqr;
+        state.square_nitrogen += rqnsqr;
         SeedNitrogen += rqnsed;
         BurrNitrogen += rqnbur;
         addnv = rqnlef + rqnstm + rqnpet;
@@ -380,7 +380,7 @@ void NitrogenAllocation(State &state)
     if (rqnsqr > 0)
     {
         useofn = std::min(vsqrnmax * npool, rqnsqr);
-        SquareNitrogen += useofn;
+        state.square_nitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
     }
@@ -479,7 +479,7 @@ void PlantNitrogenContent(State &state)
 //     The following global variables are referenced here:
 //       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
 //       CottonWeightOpenBolls, Gintot, PetioleNitrogen, RootNitrogen,
-//       SeedNitrogen, SquareNitrogen, TotalPetioleWeight,
+//       SeedNitrogen, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
@@ -500,7 +500,7 @@ void PlantNitrogenContent(State &state)
     if (TotalRootWeight > 0)
         state.root_nitrogen_concentration = RootNitrogen / TotalRootWeight;
     if (TotalSquareWeight > 0)
-        state.square_nitrogen_concentration = SquareNitrogen / TotalSquareWeight;
+        state.square_nitrogen_concentration = state.square_nitrogen / TotalSquareWeight;
     double xxseed; // weight of seeds in green and mature bolls.
     xxseed = CottonWeightOpenBolls * (1 - Gintot) + state.green_bolls_weight * seedratio;
     if (xxseed > 0)

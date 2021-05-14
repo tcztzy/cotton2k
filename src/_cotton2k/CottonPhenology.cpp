@@ -581,7 +581,7 @@ void NewBollFormation(State &state, FruitingSite &site)
 //     The following global variable are set here:
 //        BloomWeightLoss, BollWeight, BurrNitrogen, BurrWeight,
 //        BurrWeightGreenBolls, CumPlantNLoss, FruitFraction, FruitingCode,
-//        SeedNitrogen, SquareNitrogen, SquareWeight, TotalSquareWeight.
+//        SeedNitrogen, SquareWeight, TotalSquareWeight.
 //     The following arguments are used:
 //        k, l, m - indices of vegetative branch, fruiting branch, and
 //                  node on fruiting branch for this site.
@@ -613,7 +613,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     //
     double sqr1n; // the nitrogen content of one square before flowering.
     sqr1n = state.square_nitrogen_concentration * site.square.weight;
-    SquareNitrogen -= sqr1n;
+    state.square_nitrogen -= sqr1n;
     state.cumulative_nitrogen_loss += sqr1n * (1 - vnewboll[0]);
     sqr1n = sqr1n * vnewboll[0];
     //
