@@ -44,7 +44,6 @@ void InitializeGlobal()
     RootNitrogen = 0.0052;
     RootWeightLoss = 0;
 
-    SeedNitrogen = 0;
     SoilNitrogenLoss = 0;
     StemNConc = 0.036;
     SumNO3N90 = 0;

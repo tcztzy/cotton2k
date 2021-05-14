@@ -137,7 +137,6 @@ double
     RootWeightLoss,                   // total cumulative weight of sloughed roots, g per plant.
     SandVolumeFraction[maxl],         // fraction by volume of sand plus silt in the soil.
     SaturatedHydCond[9],              // saturated hydraulic conductivity, cm per day.
-    SeedNitrogen,                     // total seed nitrogen, g per plant.
     ShedByCarbonStress[20],           // the effect of carbohydrate stress on shedding
     ShedByNitrogenStress[20],         // the effect of nitrogen stress on shedding.
     ShedByWaterStress[20],            // the effect of moisture stress on shedding.

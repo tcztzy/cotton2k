@@ -581,7 +581,7 @@ void NewBollFormation(State &state, FruitingSite &site)
 //     The following global variable are set here:
 //        BloomWeightLoss, BollWeight, BurrNitrogen, BurrWeight,
 //        BurrWeightGreenBolls, CumPlantNLoss, FruitFraction, FruitingCode,
-//        SeedNitrogen, SquareWeight, TotalSquareWeight.
+//        SquareWeight, TotalSquareWeight.
 //     The following arguments are used:
 //        k, l, m - indices of vegetative branch, fruiting branch, and
 //                  node on fruiting branch for this site.
@@ -621,7 +621,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     seed1n = site.boll.weight * seedratio * vnewboll[1];
     if (seed1n > sqr1n)
         seed1n = sqr1n;
-    SeedNitrogen += seed1n;
+    state.seed_nitrogen += seed1n;
     BurrNitrogen += sqr1n - seed1n;
     //
     state.green_bolls_weight += site.boll.weight;

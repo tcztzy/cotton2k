@@ -145,6 +145,7 @@ void initialize_state0(State &state0, uint32_t day_start) {
     state0.leaf_nitrogen_concentration = .056;
     state0.petiole_nitrogen_concentration = 0;
     state0.seed_nitrogen_concentration = 0;
+    state0.seed_nitrogen = 0;
     state0.root_nitrogen_concentration = .026;
     state0.square_nitrogen_concentration = 0;
     state0.square_nitrogen = 0;
