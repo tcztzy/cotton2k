@@ -478,7 +478,7 @@ void PlantNitrogenContent(State &state)
 //
 //     The following global variables are referenced here:
 //       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
-//       CottonWeightOpenBolls, PetioleNitrogen, RootNitrogen,
+//       PetioleNitrogen, RootNitrogen,
 //       TotalPetioleWeight, TotalRootWeight, TotalSquareWeight.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
@@ -501,7 +501,7 @@ void PlantNitrogenContent(State &state)
     if (TotalSquareWeight > 0)
         state.square_nitrogen_concentration = state.square_nitrogen / TotalSquareWeight;
     double xxseed; // weight of seeds in green and mature bolls.
-    xxseed = CottonWeightOpenBolls * (1 - state.ginning_percent) + state.green_bolls_weight * seedratio;
+    xxseed = state.open_bolls_weight * (1 - state.ginning_percent) + state.green_bolls_weight * seedratio;
     if (xxseed > 0)
         state.seed_nitrogen_concentration = state.seed_nitrogen / xxseed;
     double xxbur; // weight of burrs in green and mature bolls.

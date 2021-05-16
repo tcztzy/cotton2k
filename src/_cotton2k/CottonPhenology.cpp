@@ -638,7 +638,7 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //        AgeOfBoll, BollWeight, BurrWeight, FruitFraction,
 //        LeafAreaIndex, VarPar
 //     The following global variable are set here:
-//        BurrWeightGreenBolls, BurrWeightOpenBolls, CottonWeightOpenBolls,
+//        BurrWeightGreenBolls, BurrWeightOpenBolls, state.open_bolls_weight,
 //        FibLength, FruitingCode, FibStrength, NumOpenBolls, LintYield.
 //     The following arguments are used in this function:
 //        k, l, m - indices of vegetative branch, fruiting branch, and
@@ -682,10 +682,10 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     if (site.boll.age < dehiss)
         return;
     //     If green boll is old enough (AgeOfBoll greater than dehiss), make
-    //  it an open boll, set FruitingCode to 3, and update CottonWeightOpenBolls, BurrWeightOpenBolls,
+    //  it an open boll, set FruitingCode to 3, and update state.open_bolls_weight, BurrWeightOpenBolls,
     //  state.green_bolls_weight, BurrWeightGreenBolls.
     site.stage = Stage::MatureBoll;
-    CottonWeightOpenBolls += site.boll.weight;
+    state.open_bolls_weight += site.boll.weight;
     BurrWeightOpenBolls += site.burr.weight;
     state.green_bolls_weight -= site.boll.weight;
     BurrWeightGreenBolls -= site.burr.weight;

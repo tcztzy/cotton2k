@@ -361,13 +361,13 @@ void CheckDryMatterBal(State &state)
 //  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
 //     The following global variables are referenced here:
 //       AbscisedLeafWeight, BloomWeightLoss, BurrWeightGreenBolls, BurrWeightOpenBolls,
-//       CCottonWeightOpenBolls, CumNetPhotosynth, GreenBollsLost, Kday,
+//       CumNetPhotosynth, GreenBollsLost, Kday,
 //       ReserveC, RootWeightLoss, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
 //     The following global variable is set here:     PlantWeight.
 {
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + BurrWeightGreenBolls + state.leaf_weight + TotalPetioleWeight + TotalSquareWeight + CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
+    state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + BurrWeightGreenBolls + state.leaf_weight + TotalPetioleWeight + TotalSquareWeight + state.open_bolls_weight + BurrWeightOpenBolls + ReserveC;
 }
 
 //////////////////////////
