@@ -12,7 +12,6 @@ void InitializeGlobal()
     AverageLwpMin = 0;
 
     BurrNConc = 0;
-    BurrNitrogen = 0;
     BurrWeightGreenBolls = 0;
     BurrWeightOpenBolls = 0;
 

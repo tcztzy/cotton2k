@@ -66,7 +66,6 @@ double
     vanGenuchtenBeta[9],              // parameter of the Van Genuchten equation.
     BulkDensity[9],                   // bulk density of soil in a horizon, g cm-3.
     BurrNConc,                        // average nitrogen concentration in burrs.
-    BurrNitrogen,                     // nitrogen in burrs, g per plant.
     BurrWeightGreenBolls,             // total weight of burrs in green bolls, g plant-1.
     BurrWeightOpenBolls,              // total weight of burrs in open bolls, g per plant.
     CarbonAllocatedForRootGrowth,     // available carbon allocated for root growth, g per plant.

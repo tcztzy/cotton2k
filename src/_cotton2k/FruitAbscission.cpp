@@ -244,7 +244,7 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //   BurrNConc, SeedNConc
 //
 //     The following global variable are set here:
-//   BollWeight, BurrNitrogen, BurrWeight, BurrWeightGreenBolls,
+//   BollWeight, BurrWeight, BurrWeightGreenBolls,
 //   CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost,
 //
 //     The following arguments are used in this function:
@@ -253,10 +253,10 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //        k, l, m - location of this site on the plant
 //
 {
-//     Update state.seed_nitrogen, BurrNitrogen, CumPlantNLoss, GreenBollsLost, state.green_bolls_weight, BurrWeightGreenBolls,
+//     Update state.seed_nitrogen, state.burr_nitrogen, CumPlantNLoss, GreenBollsLost, state.green_bolls_weight, BurrWeightGreenBolls,
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and FruitFraction[k][l][m].
     state.seed_nitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * state.seed_nitrogen_concentration;
-    BurrNitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
+    state.burr_nitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
     state.cumulative_nitrogen_loss += site.boll.weight * abscissionRatio * (1. - gin1) * state.seed_nitrogen_concentration;
     state.cumulative_nitrogen_loss += site.burr.weight * abscissionRatio * BurrNConc;
     GreenBollsLost += (site.boll.weight + site.burr.weight) * abscissionRatio;
@@ -267,13 +267,13 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
     site.fraction -= site.fraction * abscissionRatio;
 //
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, update state.seed_nitrogen,
-//  BurrNitrogen, CumPlantNLoss, state.green_bolls_weight, BurrWeightGreenBolls, GreenBollsLost,
+//  state.burr_nitrogen, CumPlantNLoss, state.green_bolls_weight, BurrWeightGreenBolls, GreenBollsLost,
 //  BollWeight[k][l][m], BurrWeight[k][l][m], and assign 4 to FruitingCode.
 //
     if (site.fraction <= 0.001) {
         site.stage = Stage::AbscisedAsBoll;
         state.seed_nitrogen -= site.boll.weight * (1 - gin1) * state.seed_nitrogen_concentration;
-        BurrNitrogen -= site.burr.weight * BurrNConc;
+        state.burr_nitrogen -= site.burr.weight * BurrNConc;
         state.cumulative_nitrogen_loss += site.boll.weight * (1 - gin1) * state.seed_nitrogen_concentration;
         state.cumulative_nitrogen_loss += site.burr.weight * BurrNConc;
         site.fraction = 0;

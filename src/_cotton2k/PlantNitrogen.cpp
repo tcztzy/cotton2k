@@ -79,7 +79,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //       ExtraNitrogenAllocation(), PlantNitrogenContent(), GetNitrogenStress(),
 //       NitrogenUptakeRequirement().
 //     The following global variables are referenced here:
-//       BurrNConc, BurrNitrogen, Kday, LeafNConc,
+//       BurrNConc, Kday, LeafNConc,
 //       PetioleNConc, PetioleNConc, PetioleNO3NConc, PetioleNitrogen, RootNConc,
 //       RootNitrogen, SeedNConc, StemNConc.
 //     The following global and file scope variables are set here:
@@ -192,7 +192,7 @@ void NitrogenSupply(State &state)
 //       BurrWeightGreenBolls, Kday, reqtot, SupplyNH4N, SupplyNO3N,
 //       TotalPetioleWeight, TotalRootWeight.
 //     The following global and file scope variables are set here:
-//       burres, BurrNitrogen, leafrs, npool, PetioleNitrogen, petrs,
+//       burres, leafrs, npool, PetioleNitrogen, petrs,
 //       RootNitrogen, rootrs, stemrs, uptn, xtran.
 {
     //     The following constant parameters are used:
@@ -259,10 +259,10 @@ void NitrogenSupply(State &state)
         //  Burr N reserves
         if (BurrWeightGreenBolls > 0)
         {
-            burres = (BurrNitrogen - vburnmin * BurrWeightGreenBolls) * MobilizNFractionBurrs;
+            burres = (state.burr_nitrogen - vburnmin * BurrWeightGreenBolls) * MobilizNFractionBurrs;
             if (burres < 0)
                 burres = 0;
-            BurrNitrogen -= burres;
+            state.burr_nitrogen -= burres;
         }
         else
             burres = 0;
@@ -325,7 +325,7 @@ void NitrogenAllocation(State &state)
 //  the plant parts. It is called from PlantNitrogen().
 //
 //     The following global and file scope variables are set here:
-//       addnf, addnr, addnv, BurrNitrogen, npool, PetioleNitrogen,
+//       addnf, addnr, addnv, npool, PetioleNitrogen,
 //       RootNitrogen, xtran.
 //     The following global and file scope variables are referenced in this function:
 //       reqtot, rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm
@@ -348,7 +348,7 @@ void NitrogenAllocation(State &state)
         RootNitrogen += rqnrut;
         state.square_nitrogen += rqnsqr;
         state.seed_nitrogen += rqnsed;
-        BurrNitrogen += rqnbur;
+        state.burr_nitrogen += rqnbur;
         addnv = rqnlef + rqnstm + rqnpet;
         addnf = rqnsqr + rqnsed + rqnbur;
         addnr = rqnrut;
@@ -373,7 +373,7 @@ void NitrogenAllocation(State &state)
     if (rqnbur > 0)
     {
         useofn = std::min(vburnmax * npool, rqnbur);
-        BurrNitrogen += useofn;
+        state.burr_nitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
     }
@@ -429,7 +429,7 @@ void ExtraNitrogenAllocation(State &state)
 //       burres, BurrWeightGreenBolls, leafrs, petrs, rootrs, stemrs,
 //       TotalPetioleWeight, TotalRootWeight, xtran.
 //     The following global variables are set here:
-//       BurrNitrogen, PetioleNitrogen, RootNitrogen.
+//       PetioleNitrogen, RootNitrogen.
 {
     //     If there are any N reserves in the plant, allocate remaining xtran in proportion to
     //  the N reserves in each of these organs. Note: all reserves are in g per plant units.
@@ -467,7 +467,7 @@ void ExtraNitrogenAllocation(State &state)
     PetioleNitrogen += addpetn;
     state.stem_nitrogen += addstm;
     RootNitrogen += addrt;
-    BurrNitrogen += addbur;
+    state.burr_nitrogen += addbur;
 }
 
 //////////////////////////
@@ -477,7 +477,7 @@ void PlantNitrogenContent(State &state)
 //  function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
+//       BurrWeightGreenBolls, BurrWeightOpenBolls,
 //       PetioleNitrogen, RootNitrogen,
 //       TotalPetioleWeight, TotalRootWeight, TotalSquareWeight.
 //     The following global variables are set here:
@@ -507,7 +507,7 @@ void PlantNitrogenContent(State &state)
     double xxbur; // weight of burrs in green and mature bolls.
     xxbur = BurrWeightOpenBolls + BurrWeightGreenBolls;
     if (xxbur > 0)
-        BurrNConc = BurrNitrogen / xxbur;
+        BurrNConc = state.burr_nitrogen / xxbur;
 }
 
 //////////////////////////

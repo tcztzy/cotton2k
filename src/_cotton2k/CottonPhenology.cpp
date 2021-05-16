@@ -579,7 +579,7 @@ void NewBollFormation(State &state, FruitingSite &site)
 //   fruiting site. It is called from function SimulateFruitingSite().
 //
 //     The following global variable are set here:
-//        BloomWeightLoss, BollWeight, BurrNitrogen, BurrWeight,
+//        BloomWeightLoss, BollWeight, BurrWeight,
 //        BurrWeightGreenBolls, CumPlantNLoss, FruitFraction, FruitingCode,
 //        SquareWeight, TotalSquareWeight.
 //     The following arguments are used:
@@ -622,7 +622,7 @@ void NewBollFormation(State &state, FruitingSite &site)
     if (seed1n > sqr1n)
         seed1n = sqr1n;
     state.seed_nitrogen += seed1n;
-    BurrNitrogen += sqr1n - seed1n;
+    state.burr_nitrogen += sqr1n - seed1n;
     //
     state.green_bolls_weight += site.boll.weight;
     BurrWeightGreenBolls += site.burr.weight;
