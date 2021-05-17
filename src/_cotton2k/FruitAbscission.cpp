@@ -244,8 +244,7 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //   BurrNConc, SeedNConc
 //
 //     The following global variable are set here:
-//   BollWeight, BurrWeight,
-//   CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost,
+//   BollWeight, CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost,
 //
 //     The following arguments are used in this function:
 //        abscissionRatio - ratio of abscission of a fruiting site.
@@ -254,7 +253,7 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //
 {
 //     Update state.seed_nitrogen, state.burr_nitrogen, CumPlantNLoss, GreenBollsLost, state.green_bolls_weight, state.green_bolls_burr_weight,
-//  BollWeight[k][l][m], BurrWeight[k][l][m], and FruitFraction[k][l][m].
+//  BollWeight[k][l][m], state.site[k][l][m].burr.weight, and FruitFraction[k][l][m].
     state.seed_nitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * state.seed_nitrogen_concentration;
     state.burr_nitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
     state.cumulative_nitrogen_loss += site.boll.weight * abscissionRatio * (1. - gin1) * state.seed_nitrogen_concentration;
@@ -268,7 +267,7 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, update state.seed_nitrogen,
 //  state.burr_nitrogen, CumPlantNLoss, state.green_bolls_weight, state.green_bolls_burr_weight, GreenBollsLost,
-//  BollWeight[k][l][m], BurrWeight[k][l][m], and assign 4 to FruitingCode.
+//  BollWeight[k][l][m], state.site[k][l][m].burr.weight, and assign 4 to FruitingCode.
 //
     if (site.fraction <= 0.001) {
         site.stage = Stage::AbscisedAsBoll;

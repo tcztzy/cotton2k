@@ -247,8 +247,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
 //     This function simulates the net photosynthesis of cotton  plants. It is called
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
-//       BurrWeightOpenBolls, DayLength,
-//       DayTimeTemp, iyear, Kday, LeafNConc, LightIntercept,
+//       DayLength, DayTimeTemp, LeafNConc, LightIntercept,
 //       PlantWeight, ptsred, StemWeight.
 //     The following global variables are set here:
 //       CumNetPhotosynth, NetPhotosynthesis.
@@ -328,7 +327,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     else
         oldstmwt = StemWeight[kkday];
     double bmain; // maintenance respiration, g per plant per day.
-    bmain = (state.plant_weight - state.open_bolls_weight - BurrWeightOpenBolls - oldstmwt) * rsubo;
+    bmain = (state.plant_weight - state.open_bolls_weight - state.open_bolls_burr_weight - oldstmwt) * rsubo;
     //     Net photosynthesis is computed by substracting photo-respiration and maintenance
     //  respiration from the gross rate of photosynthesis. To avoid computational problems,
     //  make sure that pts is positive and non-zero.

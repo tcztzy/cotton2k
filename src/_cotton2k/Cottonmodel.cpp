@@ -120,6 +120,7 @@ void initialize_state0(State &state0, uint32_t day_start) {
     state0.green_bolls_weight = 0;
     state0.green_bolls_burr_weight = 0;
     state0.open_bolls_weight = 0;
+    state0.open_bolls_burr_weight = 0;
     state0.bloom_weight_loss = 0;
     state0.abscised_fruit_sites = 0;
     state0.abscised_leaf_weight = 0;

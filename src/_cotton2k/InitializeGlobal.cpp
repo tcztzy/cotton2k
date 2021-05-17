@@ -12,7 +12,6 @@ void InitializeGlobal()
     AverageLwpMin = 0;
 
     BurrNConc = 0;
-    BurrWeightOpenBolls = 0;
 
     CarbonAllocatedForRootGrowth = 0;
     CumFertilizerN = 0;

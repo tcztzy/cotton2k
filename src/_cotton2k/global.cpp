@@ -66,7 +66,6 @@ double
     vanGenuchtenBeta[9],              // parameter of the Van Genuchten equation.
     BulkDensity[9],                   // bulk density of soil in a horizon, g cm-3.
     BurrNConc,                        // average nitrogen concentration in burrs.
-    BurrWeightOpenBolls,              // total weight of burrs in open bolls, g per plant.
     CarbonAllocatedForRootGrowth,     // available carbon allocated for root growth, g per plant.
     ClayVolumeFraction[maxl],         // fraction by volume of clay in the soil.
     conmax,                           // the maximum value for non-dimensional hydraulic conductivity

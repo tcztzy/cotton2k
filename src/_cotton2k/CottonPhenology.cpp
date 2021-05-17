@@ -454,7 +454,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
 //     Function SimulateFruitingSite() simulates the development of each fruiting site.
 //  It is called from function CottonPhenology().
 //     The following global variable are set here:
-//        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight, BurrWeight,
+//        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight,
 //        FirstBloom, FruitingCode, LeafAge, NumFruitSites,
 //     The following arguments are used in this function:
 //        k, l, m - indices of vegetative branch, fruiting branch, and
@@ -579,7 +579,7 @@ void NewBollFormation(State &state, FruitingSite &site)
 //   fruiting site. It is called from function SimulateFruitingSite().
 //
 //     The following global variable are set here:
-//        BloomWeightLoss, BollWeight, BurrWeight,
+//        BloomWeightLoss, BollWeight,
 //        CumPlantNLoss, FruitFraction, FruitingCode,
 //        SquareWeight, TotalSquareWeight.
 //     The following arguments are used:
@@ -599,7 +599,7 @@ void NewBollFormation(State &state, FruitingSite &site)
         site.square.weight = 0;
         return;
     }
-    //     The initial weight of the new boll (BollWeight) and new burr (BurrWeight)
+    //     The initial weight of the new boll (BollWeight) and new burr (state.burr_weight)
     //  will be a fraction of the square weight, and the rest will be added
     //  to BloomWeightLoss. 80% of the initial weight will be in the burr.
     //     The nitrogen in the square is partitioned in the same proportions. The nitrogen
@@ -635,10 +635,9 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //     Function BollOpening() simulates the transition of each fruiting site
 //  from green to dehissed (open) boll. It is called from SimulateFruitingSite().
 //     The following global variables are referenced here:
-//        AgeOfBoll, BollWeight, BurrWeight, FruitFraction,
+//        AgeOfBoll, BollWeight, FruitFraction,
 //        LeafAreaIndex, VarPar
 //     The following global variable are set here:
-//        BurrWeightOpenBolls, state.open_bolls_weight,
 //        FibLength, FruitingCode, FibStrength, NumOpenBolls, LintYield.
 //     The following arguments are used in this function:
 //        k, l, m - indices of vegetative branch, fruiting branch, and
@@ -682,11 +681,11 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     if (site.boll.age < dehiss)
         return;
     //     If green boll is old enough (AgeOfBoll greater than dehiss), make
-    //  it an open boll, set FruitingCode to 3, and update state.open_bolls_weight, BurrWeightOpenBolls,
+    //  it an open boll, set FruitingCode to 3, and update state.open_bolls_weight, state.open_bolls_burr_weight,
     //  state.green_bolls_weight, state.green_bolls_burr_weight.
     site.stage = Stage::MatureBoll;
     state.open_bolls_weight += site.boll.weight;
-    BurrWeightOpenBolls += site.burr.weight;
+    state.open_bolls_burr_weight += site.burr.weight;
     state.green_bolls_weight -= site.boll.weight;
     state.green_bolls_burr_weight -= site.burr.weight;
     //     Compute the ginning percentage as a function of boll temperature.

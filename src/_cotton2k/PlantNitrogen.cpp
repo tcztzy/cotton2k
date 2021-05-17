@@ -477,7 +477,6 @@ void PlantNitrogenContent(State &state)
 //  function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       BurrWeightOpenBolls,
 //       PetioleNitrogen, RootNitrogen,
 //       TotalPetioleWeight, TotalRootWeight, TotalSquareWeight.
 //     The following global variables are set here:
@@ -505,7 +504,7 @@ void PlantNitrogenContent(State &state)
     if (xxseed > 0)
         state.seed_nitrogen_concentration = state.seed_nitrogen / xxseed;
     double xxbur; // weight of burrs in green and mature bolls.
-    xxbur = BurrWeightOpenBolls + state.green_bolls_burr_weight;
+    xxbur = state.open_bolls_burr_weight + state.green_bolls_burr_weight;
     if (xxbur > 0)
         BurrNConc = state.burr_nitrogen / xxbur;
 }
