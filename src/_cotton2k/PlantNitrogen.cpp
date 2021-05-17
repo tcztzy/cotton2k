@@ -189,7 +189,7 @@ void NitrogenSupply(State &state)
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       BurrWeightGreenBolls, Kday, reqtot, SupplyNH4N, SupplyNO3N,
+//       reqtot, SupplyNH4N, SupplyNO3N,
 //       TotalPetioleWeight, TotalRootWeight.
 //     The following global and file scope variables are set here:
 //       burres, leafrs, npool, PetioleNitrogen, petrs,
@@ -257,9 +257,9 @@ void NitrogenSupply(State &state)
             rootrs = 0;
         RootNitrogen -= rootrs;
         //  Burr N reserves
-        if (BurrWeightGreenBolls > 0)
+        if (state.green_bolls_burr_weight > 0)
         {
-            burres = (state.burr_nitrogen - vburnmin * BurrWeightGreenBolls) * MobilizNFractionBurrs;
+            burres = (state.burr_nitrogen - vburnmin * state.green_bolls_burr_weight) * MobilizNFractionBurrs;
             if (burres < 0)
                 burres = 0;
             state.burr_nitrogen -= burres;
@@ -426,7 +426,7 @@ void ExtraNitrogenAllocation(State &state)
 //  parts. It is called from PlantNitrogen() if there is a non-zero xtran.
 //
 //     The following global and file scope variables are referenced here:
-//       burres, BurrWeightGreenBolls, leafrs, petrs, rootrs, stemrs,
+//       burres, leafrs, petrs, rootrs, stemrs,
 //       TotalPetioleWeight, TotalRootWeight, xtran.
 //     The following global variables are set here:
 //       PetioleNitrogen, RootNitrogen.
@@ -453,12 +453,12 @@ void ExtraNitrogenAllocation(State &state)
         //     If there are no reserves, allocate xtran in proportion to the dry
         //  weights in each of these organs.
         double vegwt; // weight of vegetative plant parts, plus burrs.
-        vegwt = state.leaf_weight + TotalPetioleWeight + state.stem_weight + TotalRootWeight + BurrWeightGreenBolls;
+        vegwt = state.leaf_weight + TotalPetioleWeight + state.stem_weight + TotalRootWeight + state.green_bolls_burr_weight;
         addlfn = xtran * state.leaf_weight / vegwt;
         addpetn = xtran * TotalPetioleWeight / vegwt;
         addstm = xtran * state.stem_weight / vegwt;
         addrt = xtran * TotalRootWeight / vegwt;
-        addbur = xtran * BurrWeightGreenBolls / vegwt;
+        addbur = xtran * state.green_bolls_burr_weight / vegwt;
     }
     //     Update N content in these plant parts. Note that at this stage of
     //  nitrogen allocation, only vegetative parts and burrs are updated (not
@@ -477,7 +477,7 @@ void PlantNitrogenContent(State &state)
 //  function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       BurrWeightGreenBolls, BurrWeightOpenBolls,
+//       BurrWeightOpenBolls,
 //       PetioleNitrogen, RootNitrogen,
 //       TotalPetioleWeight, TotalRootWeight, TotalSquareWeight.
 //     The following global variables are set here:
@@ -505,7 +505,7 @@ void PlantNitrogenContent(State &state)
     if (xxseed > 0)
         state.seed_nitrogen_concentration = state.seed_nitrogen / xxseed;
     double xxbur; // weight of burrs in green and mature bolls.
-    xxbur = BurrWeightOpenBolls + BurrWeightGreenBolls;
+    xxbur = BurrWeightOpenBolls + state.green_bolls_burr_weight;
     if (xxbur > 0)
         BurrNConc = state.burr_nitrogen / xxbur;
 }
@@ -568,8 +568,7 @@ void NitrogenUptakeRequirement(State &state)
 //
 //     The following global variables is set here:      TotalRequiredN
 //     The following global variables are referenced here:
-//       BurrNConc, BurrWeightGreenBolls,
-//       LeafNConc, PetioleNConc, reqtot,
+//       BurrNConc, LeafNConc, PetioleNConc, reqtot,
 //       StemNConc, StemWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
 {
@@ -612,5 +611,5 @@ void NitrogenUptakeRequirement(State &state)
     if (state.seed_nitrogen_concentration < seedcn1)
         state.total_required_nitrogen += state.green_bolls_weight * seedratio * (seedcn1 - state.seed_nitrogen_concentration);
     if (BurrNConc < vnreqbur)
-        state.total_required_nitrogen += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
+        state.total_required_nitrogen += state.green_bolls_burr_weight * (vnreqbur - BurrNConc);
 }

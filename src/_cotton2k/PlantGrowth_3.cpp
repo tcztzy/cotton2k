@@ -237,13 +237,13 @@ void ActualFruitGrowth(State &state)
 //
 //     The following global variables are set here:
 //        ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, BollWeight, BurrWeight,
-//        BurrWeightGreenBolls, SquareWeight, TotalSquareWeight.
+//        SquareWeight, TotalSquareWeight.
 //
 {
     //     Assign zero to all the sums to be computed.
     TotalSquareWeight = 0;
     state.green_bolls_weight = 0;
-    BurrWeightGreenBolls = 0;
+    state.green_bolls_burr_weight = 0;
     ActualSquareGrowth = 0;
     ActualBollGrowth = 0;
     ActualBurrGrowth = 0;
@@ -278,7 +278,7 @@ void ActualFruitGrowth(State &state)
                     dwburr = site.burr.potential_growth * state.fruit_growth_ratio;
                     site.burr.weight += dwburr;
                     ActualBurrGrowth += dwburr;
-                    BurrWeightGreenBolls += site.burr.weight;
+                    state.green_bolls_burr_weight += site.burr.weight;
                 }
             }
 }
@@ -360,14 +360,14 @@ void CheckDryMatterBal(State &state)
 //     This function checks the dry matter balances in the cotton model, for diagnostic
 //  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
 //     The following global variables are referenced here:
-//       AbscisedLeafWeight, BloomWeightLoss, BurrWeightGreenBolls, BurrWeightOpenBolls,
+//       AbscisedLeafWeight, BloomWeightLoss, BurrWeightOpenBolls,
 //       CumNetPhotosynth, GreenBollsLost, Kday,
 //       ReserveC, RootWeightLoss, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight.
 //     The following global variable is set here:     PlantWeight.
 {
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + BurrWeightGreenBolls + state.leaf_weight + TotalPetioleWeight + TotalSquareWeight + state.open_bolls_weight + BurrWeightOpenBolls + ReserveC;
+    state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + TotalPetioleWeight + TotalSquareWeight + state.open_bolls_weight + BurrWeightOpenBolls + ReserveC;
 }
 
 //////////////////////////
