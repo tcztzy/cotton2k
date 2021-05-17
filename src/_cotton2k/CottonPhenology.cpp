@@ -14,7 +14,6 @@
 //
 #include <algorithm>
 #include <cmath>
-#include "global.h"
 #include "LeafAbscission.h"
 #include "FruitAbscission.h"
 
