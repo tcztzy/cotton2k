@@ -49,7 +49,6 @@ void InitializeGlobal()
     TotalActualLeafGrowth = 0;
     TotalActualPetioleGrowth = 0;
     TotalPetioleWeight = 0;
-    TotalSquareWeight = 0;
 
     WaterTableLayer = 1000;
 //

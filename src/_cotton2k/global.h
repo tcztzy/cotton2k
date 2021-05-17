@@ -53,7 +53,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     StemNConc, SumNO3N90, SupplyNH4N, SupplyNO3N,
     TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth,
     TotalPetioleWeight, TotalRootWeight, TotalSoilNh4N,
-    TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater, TotalSquareWeight;
+    TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater;
 
 extern double AbscissionLag[20], airdr[9],
     alpha[9], vanGenuchtenBeta[9], BulkDensity[9],

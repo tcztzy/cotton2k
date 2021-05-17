@@ -202,8 +202,7 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 //  if this site is a square.
 //
 //     The following global variable are set here:
-//   BloomWeightLoss, CumPlantNLoss, FruitingCode, FruitFraction,
-//   SquareWeight, TotalSquareWeight.
+//   BloomWeightLoss, CumPlantNLoss, FruitingCode, FruitFraction.
 //
 //     The following arguments are used in this function:
 //        abscissionRatio - ratio of abscission of a fruiting site.
@@ -212,23 +211,23 @@ void SquareAbscission(State &state, FruitingSite &site, double abscissionRatio)
 {
 //     Compute the square weight lost by shedding (wtlos) as a proportion of SquareWeight
 //  of this site. Update state.square_nitrogen, CumPlantNLoss, SquareWeight[k][l][m], BloomWeightLoss,
-//  TotalSquareWeight, and FruitFraction[k][l][m].
+//  state.square_weight and FruitFraction[k][l][m].
     double wtlos = site.square.weight * abscissionRatio; // weight lost by shedding at this site.
     state.square_nitrogen -= wtlos * state.square_nitrogen_concentration;
     state.cumulative_nitrogen_loss += wtlos * state.square_nitrogen_concentration;
     site.square.weight -= wtlos;
     state.bloom_weight_loss += wtlos;
-    TotalSquareWeight -= wtlos;
+    state.square_weight -= wtlos;
     site.fraction *= (1 - abscissionRatio);
 //     If FruitFraction[k][l][m] is less than 0.001 make it zero, and update
-//  state.square_nitrogen, CumPlantNLoss, BloomWeightLoss, TotalSquareWeight, SquareWeight[k][l][m],
+//  state.square_nitrogen, CumPlantNLoss, BloomWeightLoss, state.square_weight, SquareWeight[k][l][m],
 //  and assign 5 to FruitingCode.
     if (site.fraction <= 0.001) {
         site.fraction = 0;
         state.square_nitrogen -= site.square.weight * state.square_nitrogen_concentration;
         state.cumulative_nitrogen_loss += site.square.weight * state.square_nitrogen_concentration;
         state.bloom_weight_loss += site.square.weight;
-        TotalSquareWeight -= site.square.weight;
+        state.square_weight -= site.square.weight;
         site.square.weight = 0;
         site.stage = Stage::AbscisedAsSquare;
     }

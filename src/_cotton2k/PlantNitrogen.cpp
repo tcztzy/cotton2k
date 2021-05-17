@@ -478,7 +478,7 @@ void PlantNitrogenContent(State &state)
 //
 //     The following global variables are referenced here:
 //       PetioleNitrogen, RootNitrogen,
-//       TotalPetioleWeight, TotalRootWeight, TotalSquareWeight.
+//       TotalPetioleWeight, TotalRootWeight.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
 //       SeedNConc, StemNConc.
@@ -497,8 +497,8 @@ void PlantNitrogenContent(State &state)
         StemNConc = state.stem_nitrogen / state.stem_weight;
     if (TotalRootWeight > 0)
         state.root_nitrogen_concentration = RootNitrogen / TotalRootWeight;
-    if (TotalSquareWeight > 0)
-        state.square_nitrogen_concentration = state.square_nitrogen / TotalSquareWeight;
+    if (state.square_weight > 0)
+        state.square_nitrogen_concentration = state.square_nitrogen / state.square_weight;
     double xxseed; // weight of seeds in green and mature bolls.
     xxseed = state.open_bolls_weight * (1 - state.ginning_percent) + state.green_bolls_weight * seedratio;
     if (xxseed > 0)
@@ -569,7 +569,7 @@ void NitrogenUptakeRequirement(State &state)
 //     The following global variables are referenced here:
 //       BurrNConc, LeafNConc, PetioleNConc, reqtot,
 //       StemNConc, StemWeight, TotalPetioleWeight,
-//       TotalRootWeight, TotalSquareWeight.
+//       TotalRootWeight.
 {
     //     The following constant parameters are used:
     const double seedcn1 = .045;   //   further requirement for existing seed tissue.
@@ -606,7 +606,7 @@ void NitrogenUptakeRequirement(State &state)
     if (state.root_nitrogen_concentration < vnreqrt)
         state.total_required_nitrogen += TotalRootWeight * (vnreqrt - state.root_nitrogen_concentration);
     if (state.square_nitrogen_concentration < vnreqsqr)
-        state.total_required_nitrogen += TotalSquareWeight * (vnreqsqr - state.square_nitrogen_concentration);
+        state.total_required_nitrogen += state.square_weight * (vnreqsqr - state.square_nitrogen_concentration);
     if (state.seed_nitrogen_concentration < seedcn1)
         state.total_required_nitrogen += state.green_bolls_weight * seedratio * (seedcn1 - state.seed_nitrogen_concentration);
     if (BurrNConc < vnreqbur)

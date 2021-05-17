@@ -237,11 +237,11 @@ void ActualFruitGrowth(State &state)
 //
 //     The following global variables are set here:
 //        ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, BollWeight,
-//        SquareWeight, TotalSquareWeight.
+//        SquareWeight.
 //
 {
     //     Assign zero to all the sums to be computed.
-    TotalSquareWeight = 0;
+    state.square_weight = 0;
     state.green_bolls_weight = 0;
     state.green_bolls_burr_weight = 0;
     ActualSquareGrowth = 0;
@@ -256,14 +256,14 @@ void ActualFruitGrowth(State &state)
                 //     If this site is a square, the actual dry weight added to it
                 //  (dwsq) is proportional to its potential growth.
                 //     Update the weight of this square (SquareWeight), sum of today's added dry
-                //  weight to squares (ActualSquareGrowth), and total weight of squares (TotalSquareWeight).
+                //  weight to squares (ActualSquareGrowth), and total weight of squares (state.square_weight).
                 if (site.stage == Stage::Square)
                 {
                     double dwsq = site.square.potential_growth * state.fruit_growth_ratio; // dry weight added to square.
 
                     site.square.weight += dwsq;
                     ActualSquareGrowth += dwsq;
-                    TotalSquareWeight += site.square.weight;
+                    state.square_weight += site.square.weight;
                 }
                 //     If this site is a green boll, the actual dry weight added to seedcotton and burrs
                 //  is proportional to their respective potential growth.
@@ -363,11 +363,11 @@ void CheckDryMatterBal(State &state)
 //       AbscisedLeafWeight, BloomWeightLoss,
 //       CumNetPhotosynth, GreenBollsLost, Kday,
 //       ReserveC, RootWeightLoss, TotalPetioleWeight,
-//       TotalRootWeight, TotalSquareWeight.
+//       TotalRootWeight.
 //     The following global variable is set here:     PlantWeight.
 {
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + TotalPetioleWeight + TotalSquareWeight + state.open_bolls_weight + state.open_bolls_burr_weight + ReserveC;
+    state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + TotalPetioleWeight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + ReserveC;
 }
 
 //////////////////////////
