@@ -56,6 +56,7 @@ cdef extern from "FruitingSite.h":
         double age
         double fraction
         double average_temperature
+        double ginning_percent
         Stage stage
         Leaf leaf
         SquareStruct square
@@ -109,6 +110,11 @@ cdef extern from "State.hpp":
         double plant_height
         double plant_weight
         double stem_weight
+        double square_weight
+        double green_bolls_weight
+        double green_bolls_burr_weight
+        double open_bolls_weight
+        double open_bolls_burr_weight
         double runoff
         double solar_noon
         double net_radiation
@@ -124,16 +130,32 @@ cdef extern from "State.hpp":
         double number_of_open_bolls
         double nitrogen_stress
         double nitrogen_stress_vegetative
+        double nitrogen_stress_fruiting
+        double nitrogen_stress_root
         double total_required_nitrogen
         double leaf_area_index
+        double leaf_area
+        double leaf_weight
+        double leaf_weight_pre_fruiting[9]
+        double leaf_weight_area_ratio
         double leaf_nitrogen_concentration
+        double leaf_nitrogen
         double petiole_nitrogen_concentration
         double seed_nitrogen_concentration
+        double seed_nitrogen
         double root_nitrogen_concentration
+        double square_nitrogen_concentration
+        double burr_nitrogen
+        double square_nitrogen
         double stem_nitrogen
+        double fruit_growth_ratio
         double ginning_percent
         double average_temperature
         bool_t pollination_switch
+        double age_of_pre_fruiting_nodes[9]
+        int number_of_pre_fruiting_nodes
+        double leaf_area_pre_fruiting[9]
+        double delay_for_new_branch[3]
         cVegetativeBranch vegetative_branches[3]
         Hour hours[24]
         cSoil soil

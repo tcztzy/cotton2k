@@ -8,8 +8,4 @@
 #include <cstdint>
 #include "Simulation.hpp"
 
-void DailySimulation(Simulation &);
-
 void SimulateThisDay(Simulation &, uint32_t);
-
-void initialize_state0(State &, uint32_t);

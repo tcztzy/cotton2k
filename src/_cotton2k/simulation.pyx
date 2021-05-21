@@ -2,6 +2,7 @@
 # cython: language_level=3
 from libc.stdlib cimport malloc
 from libc.math cimport exp
+from libc.stdint cimport uint32_t
 
 from datetime import datetime, date
 
@@ -12,7 +13,117 @@ from _cotton2k._io cimport *
 from _cotton2k.utils import date2doy
 
 cdef extern from "Cottonmodel.h":
-    void DailySimulation(cSimulation &)
+    void SimulateThisDay(cSimulation &, uint32_t) except +
+
+
+cdef CopyState(cSimulation &sim, uint32_t i):
+    cdef cState state = sim.states[i]
+    state.daynum = sim.day_start + i + 1
+    sim.states[i + 1] = state
+
+
+cdef DailySimulation(cSimulation &sim):
+    cdef cState state0 = sim.states[0]
+    state0.daynum = sim.day_start
+    state0.lint_yield = 0
+    state0.soil.number_of_layers_with_root = 7
+    state0.plant_height = 4.0
+    state0.plant_weight = 0
+    state0.stem_weight = 0.2
+    state0.square_weight = 0
+    state0.green_bolls_weight = 0
+    state0.green_bolls_burr_weight = 0
+    state0.open_bolls_weight = 0
+    state0.open_bolls_burr_weight = 0
+    state0.bloom_weight_loss = 0
+    state0.abscised_fruit_sites = 0
+    state0.abscised_leaf_weight = 0
+    state0.cumulative_nitrogen_loss = 0
+    state0.cumulative_transpiration = 0
+    state0.cumulative_evaporation = 0
+    state0.applied_water = 0
+    state0.water_stress = 1
+    state0.water_stress_stem = 1
+    state0.carbon_stress = 1
+    state0.extra_carbon = 0
+    state0.leaf_area_index = 0.001
+    state0.leaf_area = 0
+    state0.leaf_weight = 0.20
+    state0.leaf_nitrogen = 0.0112
+    state0.number_of_vegetative_branches = 1
+    state0.number_of_squares = 0
+    state0.number_of_green_bolls = 0
+    state0.number_of_open_bolls = 0
+    state0.nitrogen_stress = 1
+    state0.nitrogen_stress_vegetative = 1
+    state0.nitrogen_stress_fruiting = 1
+    state0.nitrogen_stress_root = 1
+    state0.total_required_nitrogen = 0
+    state0.leaf_nitrogen_concentration = .056
+    state0.petiole_nitrogen_concentration = 0
+    state0.seed_nitrogen_concentration = 0
+    state0.burr_nitrogen = 0
+    state0.seed_nitrogen = 0
+    state0.root_nitrogen_concentration = .026
+    state0.square_nitrogen_concentration = 0
+    state0.square_nitrogen = 0
+    state0.stem_nitrogen = 0.0072
+    state0.fruit_growth_ratio = 1
+    state0.ginning_percent = 0.35
+    state0.number_of_pre_fruiting_nodes = 1
+    for i in range(9):
+        state0.age_of_pre_fruiting_nodes[i] = 0
+        state0.leaf_area_pre_fruiting[i] = 0
+        state0.leaf_weight_pre_fruiting[i] = 0
+    for k in range(3):
+        state0.vegetative_branches[k].number_of_fruiting_branches = 0
+        for l in range(30):
+            state0.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 0
+            state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0
+            state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = dict(
+                leaf_area=0,
+                leaf_weight=0,
+                petiole_weight=0,
+                potential_growth_for_leaf_area=0,
+                potential_growth_for_leaf_weight=0,
+                potential_growth_for_petiole_weight=0,
+            )
+            for m in range(5):
+                state0.vegetative_branches[k].fruiting_branches[l].nodes[m] = dict(
+                    age=0,
+                    fraction=0,
+                    average_temperature=0,
+                    ginning_percent=0.35,
+                    stage=Stage.NotYetFormed,
+                    leaf=dict(
+                        age=0,
+                        potential_growth=0,
+                        area=0,
+                        weight=0,
+                    ),
+                    square=dict(
+                        potential_growth=0,
+                        weight=0,
+                    ),
+                    boll=dict(
+                        age=0,
+                        potential_growth=0,
+                        weight=0,
+                    ),
+                    burr=dict(
+                        potential_growth=0,
+                        weight=0,
+                    ),
+                    petiole=dict(
+                        potential_growth=0,
+                        weight=0,
+                    ),
+                )
+    sim.states[0] = state0
+    for i in range(sim.day_finish - sim.day_start + 1):
+        SimulateThisDay(sim, i)
+        if i < sim.day_finish - sim.day_start:
+            CopyState(sim, i)
 
 
 cdef void initialize_switch(cSimulation &sim):
