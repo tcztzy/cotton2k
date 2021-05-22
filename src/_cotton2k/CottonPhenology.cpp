@@ -41,6 +41,7 @@ void NewBollFormation(State &, FruitingSite &);
 void BollOpening(Simulation &, uint32_t, int, int, int, double);
 
 //   Declaration of file-scope variables:
+double DaysTo1stSqare; // number of days from emergence to 1st square
 double FibLength;          // fiber length
 double FibStrength;        // fiber strength
 double PhenDelayByNStress; // phenological delay caused by vegetative nitrogen stress.
@@ -101,12 +102,10 @@ void CottonPhenology(Simulation &sim, uint32_t u)
         delayFrtByCStress = sim.cultivar_parameters[29];
     if (delayFrtByCStress < 0)
         delayFrtByCStress = 0;
-    //
-    static double DaysTo1stSqare; // number of days from emergence to 1st square
-                                  //      The following section is executed if the first square has not yet been
-                                  //  formed. Function DaysToFirstSquare() is called to compute the  number of days
-                                  //  to 1st square, and function PreFruitingNode() is called to simulate the
-                                  //  formation of prefruiting nodes.
+    //      The following section is executed if the first square has not yet been
+    //  formed. Function DaysToFirstSquare() is called to compute the  number of days
+    //  to 1st square, and function PreFruitingNode() is called to simulate the
+    //  formation of prefruiting nodes.
     if (sim.first_square <= 0)
     {
         DaysTo1stSqare = DaysToFirstSquare(state.daynum, sim.day_emerge, state.average_temperature, state.water_stress, state.nitrogen_stress_vegetative, sim.cultivar_parameters[30]);
