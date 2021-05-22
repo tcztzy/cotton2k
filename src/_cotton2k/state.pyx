@@ -1,8 +1,5 @@
 # distutils: language=c++
 # cython: language_level=3
-from _cotton2k._structs cimport cState, cFruitingBranch, cVegetativeBranch
-
-
 cdef class FruitingBranch:
     cdef cFruitingBranch _branch
     __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")
