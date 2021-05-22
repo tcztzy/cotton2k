@@ -17,7 +17,6 @@ from _cotton2k._global cimport (
     RatioImplicit,
     SaturatedHydCond,
     SitePar,
-    SlabLoc,
     airdr,
     alpha,
     conmax,
@@ -26,10 +25,8 @@ from _cotton2k._global cimport (
     maxl,
     nk,
     nl,
-    tdewest,
     thetas,
     vanGenuchtenBeta,
-    wk,
 )
 from _cotton2k.climate cimport ClimateStruct
 from _cotton2k.fruiting_site cimport Stage

@@ -2,6 +2,7 @@
 # cython: language_level=3
 from datetime import datetime, date
 
+from _cotton2k.rs cimport SlabLoc, tdewest, wk
 from _cotton2k.utils import date2doy
 from _cotton2k.state import State
 
@@ -177,11 +178,11 @@ cdef void InitializeGrid(cSimulation &sim):
     This function initializes the soil grid variables. It is executed once at the beginning of the simulation. It is called from ReadInput().
 
     The following global or file-scope variables are set here:
-    dl, nk, nl,
-    PlantRowColumn, PlantRowLocation, RowSpace, wk.
+    nk, nl.
 
     The following global variables are referenced here:
-    PlantsPerM, SkipRowWidth, maxk, maxl."""
+    maxk, maxl.
+    """
     # PlantRowLocation is the distance from edge of slab, cm, of the plant row.
     global PlantRowLocation, nl, nk, SkipRowWidth, PlantsPerM
     PlantRowLocation = 0.5 * sim.row_space
