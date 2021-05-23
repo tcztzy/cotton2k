@@ -12,39 +12,32 @@ class SimulationEnd(RuntimeError):
 
 cdef void SimulateThisDay(cSimulation &sim, uint32_t u):
     global isw
-    cdef cState state = sim.states[u]
     cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
-    if sim.day_emerge <= 0:
-        state.kday = 0
+    if sim.day_emerge > 0 and sim.day_start + u >= sim.day_emerge:
+        sim.states[u].kday = sim.day_start - sim.day_emerge + u + 1
     else:
-        state.kday = sim.day_start - sim.day_emerge + u + 1
-    if state.kday < 0:
-        state.kday = 0
+        sim.states[u].kday = 0
     # The following functions are executed each day (also before emergence).
-    ColumnShading(state, rracol, sim.day_emerge, sim.row_space, sim.plant_row_column)  # computes light interception and soil shading.
-    sim.states[u] = state
+    ColumnShading(sim.states[u], rracol, sim.day_emerge, sim.row_space, sim.plant_row_column)  # computes light interception and soil shading.
     DayClim(sim, u)  # computes climate variables for today.
     SoilTemperature(sim, u, rracol)  # executes all modules of soil and canopy temperature.
     SoilProcedures(sim, u)  # executes all other soil processes.
     SoilNitrogen(sim, u)  # computes nitrogen transformations in the soil.
-    state = sim.states[u]
-    SoilSum(state, sim.row_space)  # computes totals of water and N in the soil.
+    SoilSum(sim.states[u], sim.row_space)  # computes totals of water and N in the soil.
     # The following is executed each day after plant emergence:
-    if state.daynum >= sim.day_emerge and isw > 0:
+    if sim.states[u].daynum >= sim.day_emerge and isw > 0:
         # If this day is after emergence, assign to isw the value of 2.
         isw = 2
-        state.day_inc = PhysiologicalAge(state.hours)  # physiological days increment for this day. computes physiological age
-        sim.states[u] = state
+        sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours)  # physiological days increment for this day. computes physiological age
         Defoliate(sim, u)  # effects of defoliants applied.
         Stress(sim, u)  # computes water stress factors.
-        GetNetPhotosynthesis(sim, u, state.day_length)  # computes net photosynthesis.
-        PlantGrowth(sim, u, 3, state.day_length)  # executes all modules of plant growth.
+        GetNetPhotosynthesis(sim, u, sim.states[u].day_length)  # computes net photosynthesis.
+        PlantGrowth(sim, u, 3, sim.states[u].day_length)  # executes all modules of plant growth.
         CottonPhenology(sim, u)  # executes all modules of plant phenology.
         PlantNitrogen(sim, u)  # computes plant nitrogen allocation.
         CheckDryMatterBal(sim.states[u]) # checks plant dry matter balance.
     # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
-    state = sim.states[u]
-    if state.daynum >= LastDayWeatherData or (state.kday > 10 and state.leaf_area_index < 0.0002):
+    if sim.states[u].daynum >= LastDayWeatherData or (sim.states[u].kday > 10 and sim.states[u].leaf_area_index < 0.0002):
         raise SimulationEnd
 
 
@@ -174,7 +167,7 @@ cdef void initialize_switch(cSimulation &sim):
         isw = 1
     else:
         isw = 2
-        state0.kday = 1
+        sim.states[0].kday = 1
 
 cdef double SkipRowWidth  # the smaller distance between skip rows, cm
 cdef double PlantsPerM  # average number of plants pre meter of row.
