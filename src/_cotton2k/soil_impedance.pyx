@@ -1,6 +1,6 @@
 # distutils: language=c++
 # cython: language_level=3
-from _cotton2k._global cimport (
+from _cotton2k.cxx cimport (
     gh2oc,
     tstbd,
     impede,

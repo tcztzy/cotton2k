@@ -1,8 +1,6 @@
-from libc.stdlib cimport malloc
-from libc.math cimport exp
 from libc.stdint cimport uint32_t
 
-from _cotton2k._global cimport (
+from _cotton2k.cxx cimport (
     BulkDensity,
     DefoliantAppRate,
     DefoliationDate,
@@ -27,36 +25,10 @@ from _cotton2k._global cimport (
     nl,
     thetas,
     vanGenuchtenBeta,
+    cSimulation,
 )
-from _cotton2k.climate cimport ClimateStruct
 from _cotton2k.fruiting_site cimport Stage
-from _cotton2k.irrigation cimport Irrigation
 from _cotton2k.state cimport cState, Hour
-
-cdef extern from "Simulation.hpp":
-    ctypedef struct cSimulation "Simulation":
-        int year
-        unsigned int day_emerge
-        unsigned int day_start
-        unsigned int day_finish
-        unsigned int day_plant
-        unsigned int day_topping
-        unsigned int day_defoliate
-        double latitude
-        double longitude
-        double elevation
-        double row_space
-        double plant_population
-        double per_plant_area
-        double density_factor
-        unsigned int first_bloom
-        unsigned int first_square
-        unsigned int plant_row_column
-        double cultivar_parameters[61]
-        ClimateStruct climate[400]
-        Irrigation irrigation[150]
-        cState *states
-
 
 cdef extern from "CottonPhenology.h":
     void CottonPhenology(cSimulation &, uint32_t)
