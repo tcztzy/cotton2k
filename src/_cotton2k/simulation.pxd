@@ -36,9 +36,9 @@ from _cotton2k.state cimport cState, Hour
 cdef extern from "Simulation.hpp":
     ctypedef struct cSimulation "Simulation":
         int year
+        unsigned int day_emerge
         unsigned int day_start
         unsigned int day_finish
-        unsigned int day_emerge
         unsigned int day_plant
         unsigned int day_topping
         unsigned int day_defoliate
@@ -49,11 +49,13 @@ cdef extern from "Simulation.hpp":
         double plant_population
         double per_plant_area
         double density_factor
+        unsigned int first_bloom
+        unsigned int first_square
         unsigned int plant_row_column
-        cState *states
         double cultivar_parameters[61]
         ClimateStruct climate[400]
         Irrigation irrigation[150]
+        cState *states
 
 
 cdef extern from "CottonPhenology.h":
