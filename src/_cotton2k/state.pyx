@@ -63,7 +63,7 @@ cdef class State:
 
     @daynum.setter
     def daynum(self, value):
-        self._state.daynum
+        self._state.daynum = value
 
     @property
     def plant_height(self):
