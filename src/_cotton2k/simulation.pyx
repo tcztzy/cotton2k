@@ -8,9 +8,8 @@ from .cxx cimport cSimulation
 from .climate cimport ClimateStruct
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, wk
-from .state cimport cState
+from .state cimport cState, cVegetativeBranch, cFruitingBranch
 from _cotton2k.utils import date2doy
-from _cotton2k.state import State
 
 
 class SimulationEnd(RuntimeError):
@@ -411,6 +410,75 @@ cdef read_agricultural_input(cSimulation &sim, inputs):
             DefoliationMethod[idef] = i.get("method", 0)
             idef += 1
 
+cdef class FruitingBranch:
+    cdef cFruitingBranch _branch
+    __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")
+
+    def __init__(self, _branch):
+        self._branch = _branch
+
+    @property
+    def delay_for_new_node(self):
+        return self._branch.delay_for_new_node
+
+    @property
+    def main_stem_leaf(self):
+        return self._branch.main_stem_leaf
+
+    @property
+    def nodes(self):
+        return [self._branch.nodes[i] for i in range(self._branch.number_of_fruiting_nodes)]
+
+    def __iter__(self):
+        for attr in self.__slots__:
+            yield attr, getattr(self, attr)
+
+
+cdef class VegetativeBranch:
+    cdef cVegetativeBranch _branch
+
+    def __init__(self, _branch):
+        self._branch = _branch
+
+    @property
+    def fruiting_branches(self):
+        return [FruitingBranch(self._branch.fruiting_branches[i]) for i in range(self._branch.number_of_fruiting_branches)]
+
+    def __iter__(self):
+        yield "fruiting_branches", self.fruiting_branches
+
+
+cdef class State:
+    cdef cState *state
+
+    def keys(self):
+        return dict(self.state[0]).keys()
+
+    def __getattr__(self, item):
+        state = dict(self.state[0])
+        return state[item]
+
+    def __setattr__(self, key, value):
+        state = dict(self.state[0])
+        state[key] = value
+        self.state[0] = state
+
+    def __getitem__(self, item):
+        return self.__getattr__(item)
+
+    @staticmethod
+    cdef State from_ptr(cState *_ptr):
+        """Factory function to create WrapperClass objects from
+        given my_c_struct pointer.
+
+        Setting ``owner`` flag to ``True`` causes
+        the extension type to ``free`` the structure pointed to by ``_ptr``
+        when the wrapper object is deallocated."""
+        # Call to __new__ bypasses __init__ constructor
+        cdef State state = State.__new__(State)
+        state.state = _ptr
+        return state
+
 
 cdef class Simulation:
     cdef cSimulation _sim
@@ -539,7 +607,11 @@ cdef class Simulation:
 
     @property
     def states(self):
-        return [State(state) for state in self._sim.states[:self._sim.day_finish - self._sim.day_start + 1]]
+        return [self.state(i) for i in range(self._sim.day_finish - self._sim.day_start + 1)]
+
+    cdef state(self, i):
+        cdef State state = State.from_ptr(&self._sim.states[i])
+        return state
 
     @property
     def climate(self):

@@ -63,7 +63,7 @@ class Cotton2KJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, (State, VegetativeBranch, FruitingBranch)):
             return dict(o)
-        return super.default(o)
+        return super().default(o)
 
 
 def write_output(sim: Simulation, path: Optional[Path] = None) -> str:
