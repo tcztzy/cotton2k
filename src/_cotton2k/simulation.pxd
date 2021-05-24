@@ -1,6 +1,6 @@
 from libc.stdint cimport uint32_t
 
-from _cotton2k.cxx cimport (
+from .cxx cimport (
     BulkDensity,
     DefoliantAppRate,
     DefoliationDate,
@@ -27,8 +27,8 @@ from _cotton2k.cxx cimport (
     vanGenuchtenBeta,
     cSimulation,
 )
-from _cotton2k.fruiting_site cimport Stage
-from _cotton2k.state cimport cState, Hour
+from .fruiting_site cimport Stage
+from .state cimport cState, Hour
 
 cdef extern from "CottonPhenology.h":
     void CottonPhenology(cSimulation &, uint32_t)

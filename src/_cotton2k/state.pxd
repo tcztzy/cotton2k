@@ -1,6 +1,6 @@
 from libcpp cimport bool as bool_t
-from _cotton2k.fruiting_site cimport FruitingSite
-from _cotton2k.soil cimport cSoil
+from .fruiting_site cimport FruitingSite
+from .soil cimport cSoil
 
 cdef extern from "State.hpp":
     ctypedef struct Hour:

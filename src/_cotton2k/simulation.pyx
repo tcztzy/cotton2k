@@ -4,13 +4,13 @@ from libc.stdlib cimport malloc
 from libc.math cimport exp
 from datetime import datetime, date
 
-from _cotton2k.cxx cimport cSimulation
-from _cotton2k.climate cimport ClimateStruct
-from _cotton2k.irrigation cimport Irrigation
-from _cotton2k.rs cimport SlabLoc, tdewest, wk
+from .cxx cimport cSimulation
+from .climate cimport ClimateStruct
+from .irrigation cimport Irrigation
+from .rs cimport SlabLoc, tdewest, wk
+from .state cimport cState
 from _cotton2k.utils import date2doy
 from _cotton2k.state import State
-from _cotton2k.state cimport cState
 
 
 class SimulationEnd(RuntimeError):

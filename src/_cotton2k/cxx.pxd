@@ -1,6 +1,6 @@
-from _cotton2k.climate cimport ClimateStruct
-from _cotton2k.irrigation cimport Irrigation
-from _cotton2k.state cimport cState
+from .climate cimport ClimateStruct
+from .irrigation cimport Irrigation
+from .state cimport cState
 
 cdef extern from "Simulation.hpp":
     ctypedef struct cSimulation "Simulation":
