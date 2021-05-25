@@ -39,7 +39,7 @@ void ActualLeafGrowth(State &);
 double ptsred; // The effect of moisture stress on the photosynthetic rate
 
 /////////////////////////////////////////////////////////////////////////
-void Stress(Simulation &sim, unsigned int u)
+void Stress(State &state, double row_space)
 //     This function computes the water stress variables affecting
 // the cotton plants. It is called by SimulateThisDay() and calls LeafWaterPotential().
 //
@@ -49,11 +49,10 @@ void Stress(Simulation &sim, unsigned int u)
 //        AverageLwp, AverageLwpMin, LwpMinX, LwpX, ptsred, WaterStress, WaterStressStem.
 //
 {
-    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double vstrs[9] = {-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05};
     //     Call LeafWaterPotential() to compute leaf water potentials.
-    LeafWaterPotential(sim.states[u], sim.row_space);
+    LeafWaterPotential(state, row_space);
     //     The running averages, for the last three days, are computed:
     //  AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
     AverageLwpMin += (LwpMin - LwpMinX[2]) / 3;

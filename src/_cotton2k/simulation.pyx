@@ -36,7 +36,7 @@ cdef void SimulateThisDay(cSimulation &sim, uint32_t u):
         isw = 2
         sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours)  # physiological days increment for this day. computes physiological age
         Defoliate(sim, u)  # effects of defoliants applied.
-        Stress(sim, u)  # computes water stress factors.
+        Stress(sim.states[u], sim.row_space)  # computes water stress factors.
         GetNetPhotosynthesis(sim, u, sim.states[u].day_length)  # computes net photosynthesis.
         PlantGrowth(sim, u, 3, sim.states[u].day_length)  # executes all modules of plant growth.
         CottonPhenology(sim, u)  # executes all modules of plant phenology.

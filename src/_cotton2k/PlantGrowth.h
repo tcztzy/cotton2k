@@ -10,7 +10,7 @@ extern "C"
     double PhysiologicalAge(Hour[24]);
 }
 
-void Stress(Simulation &, unsigned int);
+void Stress(State &, double);
 
 void GetNetPhotosynthesis(Simulation &, uint32_t, const double &);
 
