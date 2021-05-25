@@ -32,6 +32,6 @@ typedef struct Simulation
                                             // double Rain = daily rainfall, mm.
                                             // double Wind = daily wind run, km.
     Irrigation irrigation[150];
-    State *states;
+    State states[200];
 } Simulation;
 #endif

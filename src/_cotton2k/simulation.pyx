@@ -634,7 +634,6 @@ cdef class Simulation:
         """This is the main function for reading input."""
         InitializeGlobal()
         initialize_switch(self._sim)
-        self._sim.states = <cState *> malloc(sizeof(cState) * (self._sim.day_finish - self._sim.day_start + 1))
         InitializeGrid(self._sim)
         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
         InitializeSoilData(self._sim, lyrsol)

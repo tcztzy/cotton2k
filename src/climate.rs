@@ -161,7 +161,7 @@ extern "C" fn clearskyemiss(vp: f64, tk: f64) -> f64
 fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64
 // Input arguments:
 //   radihr = hourly global radiation in W m-2 .
-//   isr = hourly extraterrestrial radiation in W m-2 . 
+//   isr = hourly extraterrestrial radiation in W m-2 .
 //   cosz = cosine of sun angle from zenith.
 {
     let p1 = 1.333; //    p1, p2, p3 are constant parameters.
@@ -232,7 +232,7 @@ extern "C" fn daywnd(ti: f64, wind: f64, t1: f64, t2: f64, t3: f64, wnytf: f64) 
 
 #[no_mangle]
 extern "C" fn tdewest(maxt: f64, site5: f64, site6: f64) -> f64
-//     This function estimates the approximate daily average dewpoint temperature when 
+//     This function estimates the approximate daily average dewpoint temperature when
 //  it is not available. It is called by ReadClimateData().
 //     Global variables referenced: SitePar[5] and SitePar[6]
 //     Argument used:  maxt = maximum temperature of this day.
@@ -274,8 +274,8 @@ fn clcor(
 //  clear or partly cloudy sky (rasi >= 0.375) and when the sun is at
 //  least 10 degrees above the horizon.
 //     Evening, night and early morning cloud type correction is temporarily
-//  assigned 0. It is later assigned the values of first or 
-// last non-zero values (in the calling routine). 
+//  assigned 0. It is later assigned the values of first or
+// last non-zero values (in the calling routine).
 //
 //      Reference:
 //      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
@@ -525,7 +525,7 @@ extern "C" fn AverageAirTemperatures(
 /// 1. The time of minimum daily temperature is at sunrise.
 /// 2. The time of maximum daily temperature is SitePar[8] hours after solar
 ///    noon.
-///  
+///
 /// Many models assume a sinusoidal curve of the temperature during the day,
 /// but actual data deviate from the sinusoidal curve in the following
 /// characteristic way: a faster increase right after sunrise, a near plateau
@@ -608,10 +608,7 @@ extern "C" fn daytmp(
 //  Global variables used:
 //     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
 {
-    let states = unsafe {
-        std::slice::from_raw_parts_mut(sim.states, (sim.day_finish - sim.day_start + 1) as usize)
-    };
-    let state = &mut states[u as usize];
+    let state = sim.states[u as usize];
     let tkk = 15f64; // The temperature increase at which the sensible heat flux is
                      //  doubled, in comparison with the situation without buoyancy.
     let tcoef = 4f64; // time coefficient for the exponential part of the equation.

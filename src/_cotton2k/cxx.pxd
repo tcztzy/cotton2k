@@ -24,7 +24,7 @@ cdef extern from "Simulation.hpp":
         double cultivar_parameters[61]
         ClimateStruct climate[400]
         Irrigation irrigation[150]
-        cState *states
+        cState states[200]
 
 cdef extern from "global.h":
     ctypedef struct NitrogenFertilizer:
