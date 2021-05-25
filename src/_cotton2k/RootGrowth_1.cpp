@@ -31,7 +31,7 @@ extern "C"
 
 void RedistRootNewGrowth(State &, int, int, double, double, unsigned int);
 
-void TapRootGrowth(Simulation &, uint32_t, const int &);
+void TapRootGrowth(State &, int, unsigned int);
 
 void InitiateLateralRoots();
 
@@ -391,7 +391,7 @@ void ComputeActualRootGrowth(Simulation &sim, uint32_t u, double sumpdr, int Num
     //     Call function TapRootGrowth() for taproot elongation, if the taproot
     //  has not already reached the bottom of the slab.
     if (LastTaprootLayer < nl - 1 || TapRootLength < DepthLastRootLayer)
-        TapRootGrowth(sim, u, NumRootAgeGroups);
+        TapRootGrowth(sim.states[u], NumRootAgeGroups, sim.plant_row_column);
     //     Call functions for growth of lateral roots
     InitiateLateralRoots();
     for (int l = 0; l < LastTaprootLayer; l++)

@@ -138,7 +138,7 @@ void RedistRootNewGrowth(State &state, int l, int k, double addwt, double row_sp
 }
 
 //////////////////////////////
-void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
+void TapRootGrowth(State &state, int NumRootAgeGroups, unsigned int plant_row_column)
 //     This function computes the elongation of the taproot. It is
 //  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
 //
@@ -149,7 +149,6 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
 //       DepthLastRootLayer, LastTaprootLayer, NumLayersWithRoots, RootAge,
 //       RootColNumLeft, RootColNumRight, RootWeight, TapRootLength.
 {
-    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double p1 = 0.10;                // constant parameter.
     const double rtapr = 4;                // potential growth rate of the taproot, cm/day.
@@ -157,19 +156,19 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
                                            //  of the supply of carbon to the roots. This elongation occurs in the
                                            //  two columns of the slab where the plant is located.
                                            //     Tap root elongation does not occur in water logged soil (water table).
-    int klocp1 = sim.plant_row_column + 1; // the second column in which taproot growth occurs.
-    if (VolWaterContent[LastTaprootLayer][sim.plant_row_column] >= PoreSpace[LastTaprootLayer] || VolWaterContent[LastTaprootLayer][klocp1] >= PoreSpace[LastTaprootLayer])
+    int klocp1 = plant_row_column + 1; // the second column in which taproot growth occurs.
+    if (VolWaterContent[LastTaprootLayer][plant_row_column] >= PoreSpace[LastTaprootLayer] || VolWaterContent[LastTaprootLayer][klocp1] >= PoreSpace[LastTaprootLayer])
         return;
     //     Average soil resistance (avres) is computed at the root tip.
     // avres = average value of RootGroFactor for the two soil cells at the tip of the taproot.
-    double avres = 0.5 * (state.soil.cells[LastTaprootLayer][sim.plant_row_column].root.growth_factor + state.soil.cells[LastTaprootLayer][klocp1].root.growth_factor);
+    double avres = 0.5 * (state.soil.cells[LastTaprootLayer][plant_row_column].root.growth_factor + state.soil.cells[LastTaprootLayer][klocp1].root.growth_factor);
     //     It is assumed that a linear empirical function of avres controls the rate of
     //  taproot elongation. The potential elongation rate of the taproot is also modified by
     //  soil temperature (SoilTemOnRootGrowth function), soil resistance, and soil
     //  moisture near the root tip.
     //     Actual growth is added to the taproot length TapRootLength.
     double stday; // daily average soil temperature (C) at root tip.
-    stday = 0.5 * (SoilTempDailyAvrg[LastTaprootLayer][sim.plant_row_column] + SoilTempDailyAvrg[LastTaprootLayer][klocp1]) - 273.161;
+    stday = 0.5 * (SoilTempDailyAvrg[LastTaprootLayer][plant_row_column] + SoilTempDailyAvrg[LastTaprootLayer][klocp1]) - 273.161;
     double addtaprt; // added taproot length, cm
     addtaprt = rtapr * (1 - p1 + avres * p1) * SoilTemOnRootGrowth(stday);
     TapRootLength += addtaprt;
@@ -193,13 +192,13 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
             state.soil.number_of_layers_with_root = nl;
     }
     if (state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root == 0 ||
-        state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root > sim.plant_row_column)
-        state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root = sim.plant_row_column;
+        state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root > plant_row_column)
+        state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root = plant_row_column;
     if (state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root == 0 ||
         state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root < klocp1)
         state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root = klocp1;
     //     RootAge is initialized for these soil cells.
-    state.soil.cells[LastTaprootLayer][sim.plant_row_column].root.age = 0.01;
+    state.soil.cells[LastTaprootLayer][plant_row_column].root.age = 0.01;
     state.soil.cells[LastTaprootLayer][klocp1].root.age = 0.01;
     //     Some of the mass of class 1 roots is transferred downwards to
     //  the new cells. The transferred mass is proportional to 2 cm of
@@ -210,11 +209,11 @@ void TapRootGrowth(Simulation &sim, uint32_t u, const int &NumRootAgeGroups)
         double tran; // root mass transferred to the cell below when the elongating taproot
         // reaches a new soil layer.
         // first column
-        tran = state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] * 2 / dl(LastTaprootLayer - 1);
-        if (tran > 0.5 * state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i])
-            tran = 0.5 * state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i];
-        state.soil.cells[LastTaprootLayer][sim.plant_row_column].root.weight[i] += tran;
-        state.soil.cells[LastTaprootLayer - 1][sim.plant_row_column].root.weight[i] -= tran;
+        tran = state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i] * 2 / dl(LastTaprootLayer - 1);
+        if (tran > 0.5 * state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i])
+            tran = 0.5 * state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i];
+        state.soil.cells[LastTaprootLayer][plant_row_column].root.weight[i] += tran;
+        state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i] -= tran;
         // second column
         tran = state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i] * 2 / dl(LastTaprootLayer - 1);
         if (tran > 0.5 * state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i])
