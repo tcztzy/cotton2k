@@ -180,7 +180,7 @@ void PotentialLeafGrowth(State &state, double density_factor, double VarPar[61])
 }
 
 ////////////////////////////////////////////////////////////////////////
-void PotentialFruitGrowth(State &state, double DayLength, double VarPar[61])
+void PotentialFruitGrowth(State &state, double VarPar[61])
 //     This function simulates the potential growth of fruiting sites of cotton plants.
 //  It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
 //
@@ -196,7 +196,7 @@ void PotentialFruitGrowth(State &state, double DayLength, double VarPar[61])
     // TemperatureOnFruitGrowthRate() is used (with parameters derived from GOSSYM), for day time
     // and night time temperatures, weighted by day and night lengths.
     double tfrt; // the effect of temperature on rate of boll, burr or square growth.
-    tfrt = (DayLength * TemperatureOnFruitGrowthRate(DayTimeTemp) + (24 - DayLength) * TemperatureOnFruitGrowthRate(NightTimeTemp)) / 24;
+    tfrt = (state.day_length * TemperatureOnFruitGrowthRate(DayTimeTemp) + (24 - state.day_length) * TemperatureOnFruitGrowthRate(NightTimeTemp)) / 24;
     //     Assign zero to sums of potential growth of squares, bolls and burrs.
     PotGroAllSquares = 0;
     PotGroAllBolls = 0;

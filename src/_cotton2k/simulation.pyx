@@ -38,7 +38,7 @@ cdef void SimulateThisDay(cSimulation &sim, uint32_t u):
         Defoliate(sim, u)  # effects of defoliants applied.
         Stress(sim.states[u], sim.row_space)  # computes water stress factors.
         GetNetPhotosynthesis(sim, u, sim.states[u].day_length)  # computes net photosynthesis.
-        PlantGrowth(sim, u, 3, sim.states[u].day_length)  # executes all modules of plant growth.
+        PlantGrowth(sim.states[u], sim.density_factor, sim.per_plant_area, sim.row_space, sim.cultivar_parameters, 3, sim.day_emerge, sim.day_topping, sim.first_square, sim.plant_row_column)  # executes all modules of plant growth.
         CottonPhenology(sim, u)  # executes all modules of plant phenology.
         PlantNitrogen(sim, u)  # computes plant nitrogen allocation.
         CheckDryMatterBal(sim.states[u]) # checks plant dry matter balance.

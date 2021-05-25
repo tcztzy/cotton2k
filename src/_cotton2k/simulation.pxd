@@ -57,7 +57,7 @@ cdef extern from "PlantGrowth.h":
     void Defoliate(cSimulation &, uint32_t)
     void GetNetPhotosynthesis(cSimulation &, uint32_t, const double &)
     double PhysiologicalAge(Hour[24])
-    void PlantGrowth(cSimulation &, const uint32_t &, const int &, const double &)
+    void PlantGrowth(cState &, double, double, double, double[61], int, unsigned int, unsigned int, unsigned int, unsigned int)
     void Stress(cState &, double)
 
 cdef extern from "PlantNitrogen.h":

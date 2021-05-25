@@ -248,7 +248,7 @@ void InitiateLateralRoots()
 }
 
 //////////////////////////////
-void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups)
+void LateralRootGrowthLeft(State &state, int l, int NumRootAgeGroups, unsigned int plant_row_column, double row_space)
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the left. It is called from ActualRootGrowth().
 //     It calls function SoilTemOnRootGrowth().
@@ -260,7 +260,6 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
 //       RootAge, RootColNumLeft, RootWeight.
 //     The argument used:     l - layer number in the soil slab.
 {
-    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double p1 = 0.10;   // constant parameter.
     const double rlatr = 3.6; // potential growth rate of lateral roots, cm/day.
@@ -269,17 +268,17 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
     //     On its initiation, lateral root length is assumed to be equal to the
     //  width of a soil column soil cell at the location of the taproot.
     if (rlat1[l] <= 0)
-        rlat1[l] = wk(sim.plant_row_column, sim.row_space);
+        rlat1[l] = wk(plant_row_column, row_space);
     double stday; // daily average soil temperature (C) at root tip.
-    stday = SoilTempDailyAvrg[l][sim.plant_row_column] - 273.161;
+    stday = SoilTempDailyAvrg[l][plant_row_column] - 273.161;
     double temprg; // the effect of soil temperature on root growth.
     temprg = SoilTemOnRootGrowth(stday);
     //     Define the column with the tip of this lateral root (ktip)
     int ktip = 0;     // column with the tips of the laterals to the left
     double sumwk = 0; // summation of columns width
-    for (int k = sim.plant_row_column; k >= 0; k--)
+    for (int k = plant_row_column; k >= 0; k--)
     {
-        sumwk += wk(k, sim.row_space);
+        sumwk += wk(k, row_space);
         if (sumwk >= rlat1[l])
         {
             ktip = k;
@@ -316,7 +315,7 @@ void LateralRootGrowthLeft(Simulation &sim, uint32_t u, int l, const int &NumRoo
 }
 
 //////////////////////////////
-void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRootAgeGroups)
+void LateralRootGrowthRight(State &state, int l, int NumRootAgeGroups, unsigned int plant_row_column, double row_space)
 //     This function computes the elongation of the lateral roots
 //  in a soil layer(l) to the right. It is called from ActualRootGrowth().
 //     It calls function SoilTemOnRootGrowth().
@@ -328,7 +327,6 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
 //  RootAge, RootColNumRight, RootWeight.
 //     The argument used:      l - layer number in the soil slab.
 {
-    State &state = sim.states[u];
     //     The following constant parameters are used:
     const double p1 = 0.10;   // constant parameter.
     const double rlatr = 3.6; // potential growth rate of lateral roots, cm/day.
@@ -336,9 +334,9 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
     // soil cell, when a lateral root grows into it.
     //     On its initiation, lateral root length is assumed to be equal to the width
     //  of a soil column soil cell at the location of the taproot.
-    int klocp1 = sim.plant_row_column + 1;
+    int klocp1 = plant_row_column + 1;
     if (rlat2[l] <= 0)
-        rlat2[l] = wk(klocp1, sim.row_space);
+        rlat2[l] = wk(klocp1, row_space);
     double stday; // daily average soil temperature (C) at root tip.
     stday = SoilTempDailyAvrg[l][klocp1] - 273.161;
     double temprg; // the effect of soil temperature on root growth.
@@ -348,7 +346,7 @@ void LateralRootGrowthRight(Simulation &sim, uint32_t u, int l, const int &NumRo
     double sumwk = 0;
     for (int k = klocp1; k < nk; k++)
     {
-        sumwk += wk(k, sim.row_space);
+        sumwk += wk(k, row_space);
         if (sumwk >= rlat2[l])
         {
             ktip = k;
