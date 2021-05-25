@@ -29,7 +29,7 @@ extern "C"
     double SoilMechanicResistance(double);
 }
 
-void RedistRootNewGrowth(Simulation &, uint32_t, int, int, double);
+void RedistRootNewGrowth(State &, int, int, double, double, unsigned int);
 
 void TapRootGrowth(Simulation &, uint32_t, const int &);
 
@@ -359,7 +359,7 @@ void ComputeActualRootGrowth(Simulation &sim, uint32_t u, double sumpdr, int Num
                     rtconc += state.soil.cells[l][k].root.weight[i] * cgind[i];
                 rtconc = rtconc / (dl(l) * wk(k, sim.row_space));
                 if (rtconc > rtminc)
-                    RedistRootNewGrowth(sim, u, l, k, adwr1[l][k]);
+                    RedistRootNewGrowth(state, l, k, adwr1[l][k], sim.row_space, sim.plant_row_column);
                 else
                     state.soil.cells[l][k].root.actual_growth += adwr1[l][k];
             }

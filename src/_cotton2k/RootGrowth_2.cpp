@@ -25,7 +25,7 @@ extern "C"
 }
 
 //////////////////////////////////////////////////
-void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt)
+void RedistRootNewGrowth(State &state, int l, int k, double addwt, double row_space, unsigned int plant_row_column)
 //     This function computes the redistribution of new growth of
 //  roots into adjacent soil cells. It is called from ActualRootGrowth().
 //     Redistribution is affected by the factors rgfdn, rgfsd, rgfup.
@@ -43,7 +43,6 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
 //       ActualRootGrowth, DepthLastRootLayer, LastTaprootLayer,
 //       RootAge, RootColNumLeft, RootColNumRight, TapRootLength.
 {
-    State &state = sim.states[u];
     //     The following constant parameters are used. These are relative factors for root growth
     // to adjoining cells, downwards, sideways, and upwards, respectively. These factors are
     // relative to the volume of the soil cell from which growth originates.
@@ -81,7 +80,7 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
     double efacr; // as efac1 for the cell to the right of this cell.
     double efacu; // as efac1 for the cell above this cell.
     double srwp;  // sum of all efac values.
-    efac1 = dl(l) * wk(k, sim.row_space) * state.soil.cells[l][k].root.growth_factor;
+    efac1 = dl(l) * wk(k, row_space) * state.soil.cells[l][k].root.growth_factor;
     efacl = rgfsd * state.soil.cells[l][km1].root.growth_factor;
     efacr = rgfsd * state.soil.cells[l][kp1].root.growth_factor;
     efacu = rgfup * state.soil.cells[lm1][k].root.growth_factor;
@@ -91,7 +90,7 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
     //  same soil soil cell, and execution of this function is ended.
     if (srwp < 1e-10)
     {
-        sim.states[u].soil.cells[l][k].root.actual_growth = addwt;
+        state.soil.cells[l][k].root.actual_growth = addwt;
         return;
     }
     //     Allocate the added dry matter to this and the adjoining
@@ -121,7 +120,7 @@ void RedistRootNewGrowth(Simulation &sim, uint32_t u, int l, int k, double addwt
     }
     //     If this is in the location of the taproot, and the roots reach a new soil layer,
     //  update the taproot parameters TapRootLength, DepthLastRootLayer, and LastTaprootLayer.
-    if (k == sim.plant_row_column || k == sim.plant_row_column + 1)
+    if (k == plant_row_column || k == plant_row_column + 1)
         if (lp1 > LastTaprootLayer && efacd > 0)
         {
             TapRootLength = DepthLastRootLayer + 0.01;
