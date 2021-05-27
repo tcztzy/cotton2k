@@ -55,17 +55,17 @@ void WaterUptake(Simulation &sim, unsigned int u)
 //     It calls PsiOnTranspiration(), psiq(), PsiOsmotic().
 //
 //     The following global variables are referenced:
-//  dl, LightIntercept, nk, nl, NumLayersWithRoots, ReferenceTransp, RootColNumLeft,
-//  RootColNumRight, SoilHorizonNum, thetar, TotalRequiredN, wk.
+//  nk, nl, NumLayersWithRoots, ReferenceTransp, RootColNumLeft,
+//  RootColNumRight, SoilHorizonNum, thetar, TotalRequiredN.
 //     The following global variables are set:
 //  ActualTranspiration, SoilPsi, VolWaterContent.
 {
     State &state = sim.states[u];
     // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate.
     double LightInter1; // modified light interception factor by canopy
-    LightInter1 = LightIntercept * 1.55 - 0.32;
-    if (LightInter1 < LightIntercept)
-        LightInter1 = LightIntercept;
+    LightInter1 = state.light_interception * 1.55 - 0.32;
+    if (LightInter1 < state.light_interception)
+        LightInter1 = state.light_interception;
     if (LightInter1 > 1)
         LightInter1 = 1;
 

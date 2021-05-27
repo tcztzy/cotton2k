@@ -183,8 +183,8 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
 //  of application. It is called from SoilProcedures().
 //
 //     The following global variables are referenced here:
-//       dl, LightIntercept, LocationColumnDrip, LocationLayerDrip,
-//       NFertilizer, nk, nl, NumNitApps, wk.
+//       LocationColumnDrip, LocationLayerDrip,
+//       NFertilizer, nk, nl, NumNitApps.
 //     The following global variables are set here:
 //       CumFertilizerN, VolNh4NContent, VolNo3NContent, VolUreaNContent.
 {
@@ -233,15 +233,15 @@ void ApplyFertilizer(Simulation &sim, unsigned int u)
             {
                 //     It is assumed that 70% of the amount of ammonium or urea intercepted by the canopy
                 //  is added to the leaf N content (state.leaf_nitrogen).
-                state.leaf_nitrogen += 0.70 * LightIntercept * (NFertilizer[i].amtamm + NFertilizer[i].amtura) * 1000 / sim.plant_population;
+                state.leaf_nitrogen += 0.70 * state.light_interception * (NFertilizer[i].amtamm + NFertilizer[i].amtura) * 1000 / sim.plant_population;
                 //     The amount not intercepted by the canopy is added to the soil. If the fertilizer is
                 //  nitrate, it is assumed that all of it is added to the upper soil layer.
                 //     Update nitrogen contents of the upper layer.
                 for (int k = 0; k < nk; k++)
                 {
-                    VolNh4NContent[0][k] += NFertilizer[i].amtamm * (1 - 0.70 * LightIntercept) * ferc / dl(0);
+                    VolNh4NContent[0][k] += NFertilizer[i].amtamm * (1 - 0.70 * state.light_interception) * ferc / dl(0);
                     state.soil.cells[0][k].nitrate_nitrogen_content += NFertilizer[i].amtnit * ferc / dl(0);
-                    VolUreaNContent[0][k] += NFertilizer[i].amtura * (1 - 0.70 * LightIntercept) * ferc / dl(0);
+                    VolUreaNContent[0][k] += NFertilizer[i].amtura * (1 - 0.70 * state.light_interception) * ferc / dl(0);
                 }
             }
             //     If this is a SIDE-DRESSING of N fertilizer:

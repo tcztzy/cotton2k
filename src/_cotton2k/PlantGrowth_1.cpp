@@ -246,7 +246,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
 //     This function simulates the net photosynthesis of cotton  plants. It is called
 // daily by SimulateThisDay(). This is essentially the routine of GOSSYM with minor changes.
 //     The following global and file scope variables are referenced here:
-//       DayLength, DayTimeTemp, LeafNConc, LightIntercept,
+//       DayLength, DayTimeTemp, LeafNConc,
 //       PlantWeight, ptsred, StemWeight.
 //     The following global variables are set here:
 //       CumNetPhotosynth, NetPhotosynthesis.
@@ -307,7 +307,7 @@ void GetNetPhotosynthesis(Simulation &sim, uint32_t u, const double &DayLength) 
     //  per_plant_area and corrections for light interception by canopy, ambient CO2
     //  concentration, water stress and low N in the leaves.
     double pplant; // actual gross photosynthetic rate, g per plant per day.
-    pplant = 0.001 * pstand * LightIntercept * sim.per_plant_area * ptsred * pnetcor * ptnfac;
+    pplant = 0.001 * pstand * state.light_interception * sim.per_plant_area * ptsred * pnetcor * ptnfac;
     //     Compute the photorespiration factor (rsubl) as a linear
     //  function af average day time temperature.
     double rsubl = 0.0032125 + 0.0066875 * DayTimeTemp; // photorespiration factor.

@@ -376,8 +376,7 @@ void Defoliate(Simulation &sim, uint32_t u)
 //  applied on the cotton. It is called from SimulateThisDay().
 //
 //     The following global variables are referenced here:
-//       LeafAreaIndex, LightIntercept,
-//       NumGreenBolls, NumOpenBolls, LwpMin.
+//       LwpMin.
 //
 //     The following global variables are set here:
 //       DefoliantAppRate, DefoliationDate, DefoliationMethod, PercentDefoliation.
@@ -453,7 +452,7 @@ void Defoliate(Simulation &sim, uint32_t u)
                 if (DefoliationMethod[i] == 0)
                     defkgh += DefoliantAppRate[i] * 0.95 * 1.12085 * 0.75;
                 else
-                    defkgh += DefoliantAppRate[i] * LightIntercept * 1.12085 * 0.75;
+                    defkgh += DefoliantAppRate[i] * state.light_interception * 1.12085 * 0.75;
                 tdfkgh += defkgh;
             }
         } // Daynum

@@ -71,6 +71,7 @@ typedef struct State
     double cumulative_transpiration;            // cumulative transpiration, mm.
     double actual_soil_evaporation;             // actual evaporation from soil surface, mm day-1.
     double cumulative_evaporation;              // cumulative evaporation from soil surface, mm.
+    double light_interception;                  // ratio of light interception by plant canopy.
     unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.
     unsigned int number_of_fruiting_sites;      // total number of fruiting sites per plant.
     double number_of_squares;                   // number of squares per plant.

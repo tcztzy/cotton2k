@@ -96,7 +96,6 @@ double
     InitialTotalSoilWater,            // initial total soil water in the profile, mm.
     IrrigationDepth,                  // depth of predicted irrigation, cm.
     LevelsOfWaterTable[20],           // water table level input data (cm below soil surface).
-    LightIntercept,                   // ratio of light interception by plant canopy.
     LwpMax,                           // maximum (dawn) leaf water potential, MPa.
     LwpMin,                           // minimum (noon) leaf water potential, MPa.
     LwpMinX[3],                       // array of values of LwpMin for the last 3 days.

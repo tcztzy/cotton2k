@@ -28,13 +28,12 @@ void ColumnShading(State &state, double rracol[20], double day_emerge, double ro
 //
 //     The following global variables are referenced here:
 //       isw, LeafAreaIndex, PlantHeight, PlantRowColumn, nk.
-//     The following global variables are set here:    LightIntercept, rracol.
 {
-    //     Before emergence: no light interception and no shading. LightIntercept is
+    //     Before emergence: no light interception and no shading. state.light_interception is
     //  assigned zero, and the rracol array is assigned 1.
     if (state.daynum < day_emerge || isw <= 0 || day_emerge <= 0)
     {
-        LightIntercept = 0;
+        state.light_interception = 0;
         for (int k = 0; k < nk; k++)
             rracol[k] = 1;
         return;
@@ -58,19 +57,19 @@ void ColumnShading(State &state, double rracol[20], double day_emerge, double ro
         //     If the leaf area index is greater than 0.5, lfint is computed as an exponential
         //  function of LeafAreaIndex.
         lfint = 1 - exp(0.07 - 1.16 * state.leaf_area_index);
-    //     If lfint is greater then zint, LightIntercept is their average value.
+    //     If lfint is greater then zint, state.light_interception is their average value.
     //  Otherwise, if the LeafAreaIndex is decreasing, it is lfint. Else it is zint.
     if (lfint > zint)
-        LightIntercept = 0.5 * (zint + lfint);
+        state.light_interception = 0.5 * (zint + lfint);
     else if (state.leaf_area_index < lmax)
-        LightIntercept = lfint;
+        state.light_interception = lfint;
     else
-        LightIntercept = zint;
-    //     The value of LightIntercept is between zero and one.
-    if (LightIntercept < 0)
-        LightIntercept = 0;
-    if (LightIntercept > 1)
-        LightIntercept = 1;
+        state.light_interception = zint;
+    //     The value of state.light_interception is between zero and one.
+    if (state.light_interception < 0)
+        state.light_interception = 0;
+    if (state.light_interception > 1)
+        state.light_interception = 1;
     //     Loop of soil columns.
     double sw = 0; // sum of column widths
     double sw0;    // sum of column widths up to location of plant row.
@@ -94,7 +93,7 @@ void ColumnShading(State &state, double rracol[20], double day_emerge, double ro
             sw1 = sw - sw0 - wk(k, row_space) / 2;
             k0 = k;
         }
-        //     Relative shading is computed as a function of sw1 and plant height, modified by LightIntercept.
+        //     Relative shading is computed as a function of sw1 and plant height, modified by state.light_interception.
         //  rracol is the fraction of radiation received by a soil column. Iys minimum value is 0.05 .
         double shade; // relative shading of a soil column.
         if (sw1 >= state.plant_height)
@@ -102,8 +101,8 @@ void ColumnShading(State &state, double rracol[20], double day_emerge, double ro
         else
         {
             shade = 1 - (sw1 / state.plant_height) * (sw1 / state.plant_height);
-            if (LightIntercept < zint && state.leaf_area_index < lmax)
-                shade = shade * LightIntercept / zint;
+            if (state.light_interception < zint && state.leaf_area_index < lmax)
+                shade = shade * state.light_interception / zint;
         }
         rracol[k0] = 1 - shade;
         if (rracol[k0] < 0.05)
