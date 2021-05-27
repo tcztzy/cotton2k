@@ -16,7 +16,7 @@ class SimulationEnd(RuntimeError):
     pass
 
 
-cdef void SimulateThisDay(cSimulation &sim, uint32_t u):
+cdef void SimulateThisDay(cSimulation & sim, uint32_t u):
     global isw
     cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
     if sim.day_emerge > 0 and sim.day_start + u >= sim.day_emerge:
@@ -24,9 +24,11 @@ cdef void SimulateThisDay(cSimulation &sim, uint32_t u):
     else:
         sim.states[u].kday = 0
     # The following functions are executed each day (also before emergence).
-    ColumnShading(sim.states[u], rracol, sim.day_emerge, sim.row_space, sim.plant_row_column)  # computes light interception and soil shading.
+    ColumnShading(sim.states[u], rracol, sim.day_emerge, sim.row_space,
+                  sim.plant_row_column)  # computes light interception and soil shading.
     DayClim(sim, u)  # computes climate variables for today.
-    SoilTemperature(sim, u, rracol)  # executes all modules of soil and canopy temperature.
+    SoilTemperature(sim, u,
+                    rracol)  # executes all modules of soil and canopy temperature.
     SoilProcedures(sim, u)  # executes all other soil processes.
     SoilNitrogen(sim, u)  # computes nitrogen transformations in the soil.
     SoilSum(sim.states[u], sim.row_space)  # computes totals of water and N in the soil.
@@ -34,26 +36,30 @@ cdef void SimulateThisDay(cSimulation &sim, uint32_t u):
     if sim.states[u].daynum >= sim.day_emerge and isw > 0:
         # If this day is after emergence, assign to isw the value of 2.
         isw = 2
-        sim.states[u].day_inc = PhysiologicalAge(sim.states[u].hours)  # physiological days increment for this day. computes physiological age
+        sim.states[u].day_inc = PhysiologicalAge(sim.states[
+                                                     u].hours)  # physiological days increment for this day. computes physiological age
         Defoliate(sim, u)  # effects of defoliants applied.
         Stress(sim.states[u], sim.row_space)  # computes water stress factors.
-        GetNetPhotosynthesis(sim, u, sim.states[u].day_length)  # computes net photosynthesis.
-        PlantGrowth(sim.states[u], sim.density_factor, sim.per_plant_area, sim.row_space, sim.cultivar_parameters, 3, sim.day_emerge, sim.day_topping, sim.first_square, sim.plant_row_column)  # executes all modules of plant growth.
+        GetNetPhotosynthesis(sim, u,
+                             sim.states[u].day_length)  # computes net photosynthesis.
+        PlantGrowth(sim.states[u], sim.density_factor, sim.per_plant_area,
+                    sim.row_space, sim.cultivar_parameters, 3, sim.day_emerge,
+                    sim.day_topping, sim.first_square,
+                    sim.plant_row_column)  # executes all modules of plant growth.
         CottonPhenology(sim, u)  # executes all modules of plant phenology.
         PlantNitrogen(sim, u)  # computes plant nitrogen allocation.
-        CheckDryMatterBal(sim.states[u]) # checks plant dry matter balance.
+        CheckDryMatterBal(sim.states[u])  # checks plant dry matter balance.
     # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
-    if sim.states[u].daynum >= LastDayWeatherData or (sim.states[u].kday > 10 and sim.states[u].leaf_area_index < 0.0002):
+    if sim.states[u].daynum >= LastDayWeatherData or (
+            sim.states[u].kday > 10 and sim.states[u].leaf_area_index < 0.0002):
         raise SimulationEnd
 
-
-cdef CopyState(cSimulation &sim, uint32_t i):
+cdef CopyState(cSimulation & sim, uint32_t i):
     cdef cState state = sim.states[i]
     state.daynum = sim.day_start + i + 1
     sim.states[i + 1] = state
 
-
-cdef DailySimulation(cSimulation &sim):
+cdef DailySimulation(cSimulation & sim):
     cdef cState state0 = sim.states[0]
     state0.daynum = sim.day_start
     state0.lint_yield = 0
@@ -109,7 +115,8 @@ cdef DailySimulation(cSimulation &sim):
     for k in range(3):
         state0.vegetative_branches[k].number_of_fruiting_branches = 0
         for l in range(30):
-            state0.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 0
+            state0.vegetative_branches[k].fruiting_branches[
+                l].number_of_fruiting_nodes = 0
             state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0
             state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = dict(
                 leaf_area=0,
@@ -156,8 +163,7 @@ cdef DailySimulation(cSimulation &sim):
         if i < sim.day_finish - sim.day_start:
             CopyState(sim, i)
 
-
-cdef void initialize_switch(cSimulation &sim):
+cdef void initialize_switch(cSimulation & sim):
     global isw
     cdef cState state0 = sim.states[0]
     # If the date of emergence has not been given, emergence will be simulated
@@ -165,7 +171,8 @@ cdef void initialize_switch(cSimulation &sim):
     # sure that the date of planting has been given.
     if sim.day_emerge <= 0:
         if sim.day_plant <= 0:
-            raise Exception(" planting date or emergence date must be given in the profile file !!")
+            raise Exception(
+                " planting date or emergence date must be given in the profile file !!")
         isw = 0
     # If the date of emergence has been given in the input: isw = 1 if
     # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
@@ -178,7 +185,7 @@ cdef void initialize_switch(cSimulation &sim):
 cdef double SkipRowWidth  # the smaller distance between skip rows, cm
 cdef double PlantsPerM  # average number of plants pre meter of row.
 
-cdef void InitializeGrid(cSimulation &sim):
+cdef void InitializeGrid(cSimulation & sim):
     """
     This function initializes the soil grid variables. It is executed once at the beginning of the simulation. It is called from ReadInput().
 
@@ -193,13 +200,15 @@ cdef void InitializeGrid(cSimulation &sim):
     PlantRowLocation = 0.5 * sim.row_space
     if (SkipRowWidth > 1):
         # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
-        sim.row_space = 0.5 * (sim.row_space + SkipRowWidth)  # actual width of the soil slab (cm)
+        sim.row_space = 0.5 * (
+                    sim.row_space + SkipRowWidth)  # actual width of the soil slab (cm)
         PlantRowLocation = 0.5 * SkipRowWidth
     # Compute sim.plant_population - number of plants per hectar, and per_plant_area - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
     # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
     sim.plant_population = PlantsPerM / sim.row_space * 1000000
     sim.per_plant_area = 1000000 / sim.plant_population
-    sim.density_factor = exp(sim.cultivar_parameters[1] * (5 - sim.plant_population / 10000))
+    sim.density_factor = exp(
+        sim.cultivar_parameters[1] * (5 - sim.plant_population / 10000))
     # Define the numbers of rows and columns in the soil slab (nl, nk).
     # Define the depth, in cm, of consecutive nl layers.
     # NOTE: maxl and maxk are defined as constants in file "global.h".
@@ -217,7 +226,6 @@ cdef void InitializeGrid(cSimulation &sim):
                 sim.plant_row_column = k - 1
             else:
                 sim.plant_row_column = k
-
 
 cdef class SoilInit:
     cdef unsigned int number_of_layers
@@ -303,7 +311,6 @@ cdef class SoilInit:
             pclay[i] = layer["clay"]
             psand[i] = layer["sand"]
 
-
 cdef class Climate:
     cdef ClimateStruct *climate
     cdef unsigned int start_day
@@ -323,7 +330,9 @@ cdef class Climate:
             self.climate[i].Tmin = daily_climate["min"]
             self.climate[i].Wind = daily_climate["wind"]
             self.climate[i].Rain = daily_climate["rain"]
-            self.climate[i].Tdew = daily_climate.get("dewpoint", tdewest(daily_climate["max"], SitePar[5], SitePar[6]))
+            self.climate[i].Tdew = daily_climate.get("dewpoint",
+                                                     tdewest(daily_climate["max"],
+                                                             SitePar[5], SitePar[6]))
 
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -365,8 +374,7 @@ cdef class Climate:
         else:
             raise StopIteration
 
-
-cdef read_agricultural_input(cSimulation &sim, inputs):
+cdef read_agricultural_input(cSimulation & sim, inputs):
     global NumNitApps, NumIrrigations
     NumNitApps = 0
     idef = 0
@@ -392,8 +400,10 @@ cdef read_agricultural_input(cSimulation &sim, inputs):
             nf.amtnit = i.get("nitrate", 0)
             nf.amtura = i.get("urea", 0)
             nf.mthfrt = i.get("method", 0)
-            isdhrz = i.get("drip_horizontal_place", 0)  # horizontal placement of DRIP, cm from left edge of soil slab.
-            isddph = i.get("drip_depth", 0)  # vertical placement of DRIP, cm from soil surface.
+            isdhrz = i.get("drip_horizontal_place",
+                           0)  # horizontal placement of DRIP, cm from left edge of soil slab.
+            isddph = i.get("drip_depth",
+                           0)  # vertical placement of DRIP, cm from soil surface.
             if nf.mthfrt == 1 or nf.mthfrt == 3:
                 nf.ksdr = SlabLoc(isdhrz, sim.row_space)
                 nf.lsdr = SlabLoc(isddph, 0)
@@ -427,12 +437,12 @@ cdef class FruitingBranch:
 
     @property
     def nodes(self):
-        return [self._branch.nodes[i] for i in range(self._branch.number_of_fruiting_nodes)]
+        return [self._branch.nodes[i] for i in
+                range(self._branch.number_of_fruiting_nodes)]
 
     def __iter__(self):
         for attr in self.__slots__:
             yield attr, getattr(self, attr)
-
 
 cdef class VegetativeBranch:
     cdef cVegetativeBranch _branch
@@ -442,11 +452,11 @@ cdef class VegetativeBranch:
 
     @property
     def fruiting_branches(self):
-        return [FruitingBranch(self._branch.fruiting_branches[i]) for i in range(self._branch.number_of_fruiting_branches)]
+        return [FruitingBranch(self._branch.fruiting_branches[i]) for i in
+                range(self._branch.number_of_fruiting_branches)]
 
     def __iter__(self):
         yield "fruiting_branches", self.fruiting_branches
-
 
 cdef class State:
     cdef cState *state
@@ -478,7 +488,6 @@ cdef class State:
         cdef State state = State.__new__(State)
         state.state = _ptr
         return state
-
 
 cdef class Simulation:
     cdef cSimulation _sim
@@ -607,7 +616,8 @@ cdef class Simulation:
 
     @property
     def states(self):
-        return [self.state(i) for i in range(self._sim.day_finish - self._sim.day_start + 1)]
+        return [self.state(i) for i in
+                range(self._sim.day_finish - self._sim.day_start + 1)]
 
     cdef state(self, i):
         cdef State state = State.from_ptr(&self._sim.states[i])

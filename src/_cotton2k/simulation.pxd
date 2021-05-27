@@ -1,31 +1,31 @@
 from libc.stdint cimport uint32_t
 
 from .cxx cimport (
-    BulkDensity,
-    DefoliantAppRate,
-    DefoliationDate,
-    DefoliationMethod,
-    InitializeGlobal,
-    LastDayWeatherData,
-    NFertilizer,
-    NitrogenFertilizer,
-    NumIrrigations,
-    NumNitApps,
-    PlantRowLocation,
-    RatioImplicit,
-    SaturatedHydCond,
-    SitePar,
-    airdr,
-    alpha,
-    conmax,
-    isw,
-    maxk,
-    maxl,
-    nk,
-    nl,
-    thetas,
-    vanGenuchtenBeta,
-    cSimulation,
+BulkDensity,
+DefoliantAppRate,
+DefoliationDate,
+DefoliationMethod,
+InitializeGlobal,
+LastDayWeatherData,
+NFertilizer,
+NitrogenFertilizer,
+NumIrrigations,
+NumNitApps,
+PlantRowLocation,
+RatioImplicit,
+SaturatedHydCond,
+SitePar,
+airdr,
+alpha,
+conmax,
+isw,
+maxk,
+maxl,
+nk,
+nl,
+thetas,
+vanGenuchtenBeta,
+cSimulation,
 )
 from .fruiting_site cimport Stage
 from .state cimport cState, Hour
@@ -57,7 +57,8 @@ cdef extern from "PlantGrowth.h":
     void Defoliate(cSimulation &, uint32_t)
     void GetNetPhotosynthesis(cSimulation &, uint32_t, const double &)
     double PhysiologicalAge(Hour[24])
-    void PlantGrowth(cState &, double, double, double, double[61], int, unsigned int, unsigned int, unsigned int, unsigned int)
+    void PlantGrowth(cState &, double, double, double, double[61], int, unsigned int,
+                     unsigned int, unsigned int, unsigned int)
     void Stress(cState &, double)
 
 cdef extern from "PlantNitrogen.h":
