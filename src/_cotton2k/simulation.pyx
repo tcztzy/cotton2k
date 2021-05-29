@@ -16,152 +16,11 @@ class SimulationEnd(RuntimeError):
     pass
 
 
-cdef void SimulateThisDay(cSimulation & sim, uint32_t u):
-    global isw
-    cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
-    if 0 < sim.day_emerge <= sim.day_start + u:
-        sim.states[u].kday = sim.day_start - sim.day_emerge + u + 1
-    else:
-        sim.states[u].kday = 0
-    # The following functions are executed each day (also before emergence).
-    ColumnShading(sim.states[u], rracol, sim.day_emerge, sim.row_space,
-                  sim.plant_row_column)  # computes light interception and soil shading.
-    DayClim(sim, u)  # computes climate variables for today.
-    SoilTemperature(sim, u,
-                    rracol)  # executes all modules of soil and canopy temperature.
-    SoilProcedures(sim, u)  # executes all other soil processes.
-    SoilNitrogen(sim, u)  # computes nitrogen transformations in the soil.
-    SoilSum(sim.states[u], sim.row_space)  # computes totals of water and N in the soil.
-    # The following is executed each day after plant emergence:
-    if sim.states[u].daynum >= sim.day_emerge and isw > 0:
-        # If this day is after emergence, assign to isw the value of 2.
-        isw = 2
-        sim.states[u].day_inc = PhysiologicalAge(sim.states[
-                                                     u].hours)  # physiological days increment for this day. computes physiological age
-        Defoliate(sim, u)  # effects of defoliants applied.
-        Stress(sim.states[u], sim.row_space)  # computes water stress factors.
-        GetNetPhotosynthesis(sim, u,
-                             sim.states[u].day_length)  # computes net photosynthesis.
-        PlantGrowth(sim.states[u], sim.density_factor, sim.per_plant_area,
-                    sim.row_space, sim.cultivar_parameters, 3, sim.day_emerge,
-                    sim.day_topping, sim.first_square,
-                    sim.plant_row_column)  # executes all modules of plant growth.
-        CottonPhenology(sim, u)  # executes all modules of plant phenology.
-        PlantNitrogen(sim, u)  # computes plant nitrogen allocation.
-        CheckDryMatterBal(sim.states[u])  # checks plant dry matter balance.
-    # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
-    if sim.states[u].daynum >= LastDayWeatherData or (
-            sim.states[u].kday > 10 and sim.states[u].leaf_area_index < 0.0002):
-        raise SimulationEnd
 
 cdef CopyState(cSimulation & sim, uint32_t i):
     cdef cState state = sim.states[i]
     state.daynum = sim.day_start + i + 1
     sim.states[i + 1] = state
-
-cdef DailySimulation(cSimulation & sim):
-    cdef cState state0 = sim.states[0]
-    state0.daynum = sim.day_start
-    state0.lint_yield = 0
-    state0.soil.number_of_layers_with_root = 7
-    state0.plant_height = 4.0
-    state0.plant_weight = 0
-    state0.stem_weight = 0.2
-    state0.square_weight = 0
-    state0.green_bolls_weight = 0
-    state0.green_bolls_burr_weight = 0
-    state0.open_bolls_weight = 0
-    state0.open_bolls_burr_weight = 0
-    state0.bloom_weight_loss = 0
-    state0.abscised_fruit_sites = 0
-    state0.abscised_leaf_weight = 0
-    state0.cumulative_nitrogen_loss = 0
-    state0.cumulative_transpiration = 0
-    state0.cumulative_evaporation = 0
-    state0.applied_water = 0
-    state0.water_stress = 1
-    state0.water_stress_stem = 1
-    state0.carbon_stress = 1
-    state0.extra_carbon = 0
-    state0.leaf_area_index = 0.001
-    state0.leaf_area = 0
-    state0.leaf_weight = 0.20
-    state0.leaf_nitrogen = 0.0112
-    state0.number_of_vegetative_branches = 1
-    state0.number_of_squares = 0
-    state0.number_of_green_bolls = 0
-    state0.number_of_open_bolls = 0
-    state0.nitrogen_stress = 1
-    state0.nitrogen_stress_vegetative = 1
-    state0.nitrogen_stress_fruiting = 1
-    state0.nitrogen_stress_root = 1
-    state0.total_required_nitrogen = 0
-    state0.leaf_nitrogen_concentration = .056
-    state0.petiole_nitrogen_concentration = 0
-    state0.seed_nitrogen_concentration = 0
-    state0.burr_nitrogen = 0
-    state0.seed_nitrogen = 0
-    state0.root_nitrogen_concentration = .026
-    state0.square_nitrogen_concentration = 0
-    state0.square_nitrogen = 0
-    state0.stem_nitrogen = 0.0072
-    state0.fruit_growth_ratio = 1
-    state0.ginning_percent = 0.35
-    state0.number_of_pre_fruiting_nodes = 1
-    for i in range(9):
-        state0.age_of_pre_fruiting_nodes[i] = 0
-        state0.leaf_area_pre_fruiting[i] = 0
-        state0.leaf_weight_pre_fruiting[i] = 0
-    for k in range(3):
-        state0.vegetative_branches[k].number_of_fruiting_branches = 0
-        for l in range(30):
-            state0.vegetative_branches[k].fruiting_branches[
-                l].number_of_fruiting_nodes = 0
-            state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0
-            state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = dict(
-                leaf_area=0,
-                leaf_weight=0,
-                petiole_weight=0,
-                potential_growth_for_leaf_area=0,
-                potential_growth_for_leaf_weight=0,
-                potential_growth_for_petiole_weight=0,
-            )
-            for m in range(5):
-                state0.vegetative_branches[k].fruiting_branches[l].nodes[m] = dict(
-                    age=0,
-                    fraction=0,
-                    average_temperature=0,
-                    ginning_percent=0.35,
-                    stage=Stage.NotYetFormed,
-                    leaf=dict(
-                        age=0,
-                        potential_growth=0,
-                        area=0,
-                        weight=0,
-                    ),
-                    square=dict(
-                        potential_growth=0,
-                        weight=0,
-                    ),
-                    boll=dict(
-                        age=0,
-                        potential_growth=0,
-                        weight=0,
-                    ),
-                    burr=dict(
-                        potential_growth=0,
-                        weight=0,
-                    ),
-                    petiole=dict(
-                        potential_growth=0,
-                        weight=0,
-                    ),
-                )
-    sim.states[0] = state0
-    for i in range(sim.day_finish - sim.day_start + 1):
-        SimulateThisDay(sim, i)
-        if i < sim.day_finish - sim.day_start:
-            CopyState(sim, i)
 
 cdef void initialize_switch(cSimulation & sim):
     global isw
@@ -619,7 +478,7 @@ cdef class Simulation:
         return [self.state(i) for i in
                 range(self._sim.day_finish - self._sim.day_start + 1)]
 
-    cdef state(self, i):
+    cdef cState state(self, i):
         cdef State state = State.from_ptr(&self._sim.states[i])
         return state
 
@@ -638,7 +497,152 @@ cdef class Simulation:
             self._sim.climate[i].Tdew = daily_climate["dewpoint"]
 
     def run(self):
-        DailySimulation(self._sim)
+        self._simulate()
+
+    def _init_state(self):
+        cdef cState state0 = self.state(0)
+        state0.daynum = self._sim.day_start
+        state0.lint_yield = 0
+        state0.soil.number_of_layers_with_root = 7
+        state0.plant_height = 4.0
+        state0.plant_weight = 0
+        state0.stem_weight = 0.2
+        state0.square_weight = 0
+        state0.green_bolls_weight = 0
+        state0.green_bolls_burr_weight = 0
+        state0.open_bolls_weight = 0
+        state0.open_bolls_burr_weight = 0
+        state0.bloom_weight_loss = 0
+        state0.abscised_fruit_sites = 0
+        state0.abscised_leaf_weight = 0
+        state0.cumulative_nitrogen_loss = 0
+        state0.cumulative_transpiration = 0
+        state0.cumulative_evaporation = 0
+        state0.applied_water = 0
+        state0.water_stress = 1
+        state0.water_stress_stem = 1
+        state0.carbon_stress = 1
+        state0.extra_carbon = 0
+        state0.leaf_area_index = 0.001
+        state0.leaf_area = 0
+        state0.leaf_weight = 0.20
+        state0.leaf_nitrogen = 0.0112
+        state0.number_of_vegetative_branches = 1
+        state0.number_of_squares = 0
+        state0.number_of_green_bolls = 0
+        state0.number_of_open_bolls = 0
+        state0.nitrogen_stress = 1
+        state0.nitrogen_stress_vegetative = 1
+        state0.nitrogen_stress_fruiting = 1
+        state0.nitrogen_stress_root = 1
+        state0.total_required_nitrogen = 0
+        state0.leaf_nitrogen_concentration = .056
+        state0.petiole_nitrogen_concentration = 0
+        state0.seed_nitrogen_concentration = 0
+        state0.burr_nitrogen = 0
+        state0.seed_nitrogen = 0
+        state0.root_nitrogen_concentration = .026
+        state0.square_nitrogen_concentration = 0
+        state0.square_nitrogen = 0
+        state0.stem_nitrogen = 0.0072
+        state0.fruit_growth_ratio = 1
+        state0.ginning_percent = 0.35
+        state0.number_of_pre_fruiting_nodes = 1
+        for i in range(9):
+            state0.age_of_pre_fruiting_nodes[i] = 0
+            state0.leaf_area_pre_fruiting[i] = 0
+            state0.leaf_weight_pre_fruiting[i] = 0
+        for k in range(3):
+            state0.vegetative_branches[k].number_of_fruiting_branches = 0
+            for l in range(30):
+                state0.vegetative_branches[k].fruiting_branches[
+                    l].number_of_fruiting_nodes = 0
+                state0.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0
+                state0.vegetative_branches[k].fruiting_branches[l].main_stem_leaf = dict(
+                    leaf_area=0,
+                    leaf_weight=0,
+                    petiole_weight=0,
+                    potential_growth_for_leaf_area=0,
+                    potential_growth_for_leaf_weight=0,
+                    potential_growth_for_petiole_weight=0,
+                )
+                for m in range(5):
+                    state0.vegetative_branches[k].fruiting_branches[l].nodes[m] = dict(
+                        age=0,
+                        fraction=0,
+                        average_temperature=0,
+                        ginning_percent=0.35,
+                        stage=Stage.NotYetFormed,
+                        leaf=dict(
+                            age=0,
+                            potential_growth=0,
+                            area=0,
+                            weight=0,
+                        ),
+                        square=dict(
+                            potential_growth=0,
+                            weight=0,
+                        ),
+                        boll=dict(
+                            age=0,
+                            potential_growth=0,
+                            weight=0,
+                        ),
+                        burr=dict(
+                            potential_growth=0,
+                            weight=0,
+                        ),
+                        petiole=dict(
+                            potential_growth=0,
+                            weight=0,
+                        ),
+                    )
+        self._sim.states[0] = state0
+
+    def _simulate(self):
+        self._init_state()
+        for i in range(self._sim.day_finish - self._sim.day_start + 1):
+            self._simulate_this_day(i)
+            if i < self._sim.day_finish - self._sim.day_start:
+                CopyState(self._sim, i)
+
+    cdef void _simulate_this_day(self, uint32_t u):
+        global isw
+        cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
+        if 0 < self._sim.day_emerge <= self._sim.day_start + u:
+            self._sim.states[u].kday = self._sim.day_start - self._sim.day_emerge + u + 1
+        else:
+            self._sim.states[u].kday = 0
+        # The following functions are executed each day (also before emergence).
+        ColumnShading(self._sim.states[u], rracol, self._sim.day_emerge, self._sim.row_space,
+                      self._sim.plant_row_column)  # computes light interception and soil shading.
+        DayClim(self._sim, u)  # computes climate variables for today.
+        SoilTemperature(self._sim, u,
+                        rracol)  # executes all modules of soil and canopy temperature.
+        SoilProcedures(self._sim, u)  # executes all other soil processes.
+        SoilNitrogen(self._sim, u)  # computes nitrogen transformations in the soil.
+        SoilSum(self._sim.states[u], self._sim.row_space)  # computes totals of water and N in the soil.
+        # The following is executed each day after plant emergence:
+        if self._sim.states[u].daynum >= self._sim.day_emerge and isw > 0:
+            # If this day is after emergence, assign to isw the value of 2.
+            isw = 2
+            self._sim.states[u].day_inc = PhysiologicalAge(self._sim.states[
+                                                         u].hours)  # physiological days increment for this day. computes physiological age
+            Defoliate(self._sim, u)  # effects of defoliants applied.
+            Stress(self._sim.states[u], self._sim.row_space)  # computes water stress factors.
+            GetNetPhotosynthesis(self._sim, u,
+                                 self._sim.states[u].day_length)  # computes net photosynthesis.
+            PlantGrowth(self._sim.states[u], self._sim.density_factor, self._sim.per_plant_area,
+                        self._sim.row_space, self._sim.cultivar_parameters, 3, self._sim.day_emerge,
+                        self._sim.day_topping, self._sim.first_square,
+                        self._sim.plant_row_column)  # executes all modules of plant growth.
+            CottonPhenology(self._sim, u)  # executes all modules of plant phenology.
+            PlantNitrogen(self._sim, u)  # computes plant nitrogen allocation.
+            CheckDryMatterBal(self._sim.states[u])  # checks plant dry matter balance.
+        # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
+        if self._sim.states[u].daynum >= LastDayWeatherData or (
+                self._sim.states[u].kday > 10 and self._sim.states[u].leaf_area_index < 0.0002):
+            raise SimulationEnd
 
     def read_input(self, lyrsol, **kwargs):
         """This is the main function for reading input."""
