@@ -19,7 +19,7 @@ class SimulationEnd(RuntimeError):
 cdef void SimulateThisDay(cSimulation & sim, uint32_t u):
     global isw
     cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
-    if sim.day_emerge > 0 and sim.day_start + u >= sim.day_emerge:
+    if 0 < sim.day_emerge <= sim.day_start + u:
         sim.states[u].kday = sim.day_start - sim.day_emerge + u + 1
     else:
         sim.states[u].kday = 0
