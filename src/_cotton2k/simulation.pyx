@@ -488,13 +488,18 @@ cdef class Simulation:
 
     @climate.setter
     def climate(self, climate):
+        alias = {
+            "radiation": "Rad",
+            "max": "Tmax",
+            "min": "Tmin",
+            "wind": "Wind",
+            "rain": "Rain",
+            "dewpoint": "Tdew",
+        }
         for i, daily_climate in enumerate(climate):
-            self._sim.climate[i].Rad = daily_climate["radiation"]
-            self._sim.climate[i].Tmax = daily_climate["max"]
-            self._sim.climate[i].Tmin = daily_climate["min"]
-            self._sim.climate[i].Wind = daily_climate["wind"]
-            self._sim.climate[i].Rain = daily_climate["rain"]
-            self._sim.climate[i].Tdew = daily_climate["dewpoint"]
+            self._sim.climate[i] = {
+                alias[k]: v for k, v in daily_climate.items()
+            }
 
     def run(self):
         self._simulate()
