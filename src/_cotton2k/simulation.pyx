@@ -502,6 +502,7 @@ cdef class Simulation:
             }
 
     def run(self):
+        self._init_state()
         self._simulate()
 
     def _init_state(self):
@@ -605,7 +606,6 @@ cdef class Simulation:
         self._sim.states[0] = state0
 
     def _simulate(self):
-        self._init_state()
         for i in range(self._sim.day_finish - self._sim.day_start + 1):
             self._simulate_this_day(i)
             if i < self._sim.day_finish - self._sim.day_start:
