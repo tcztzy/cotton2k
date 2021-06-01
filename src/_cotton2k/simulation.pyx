@@ -41,9 +41,6 @@ cdef void initialize_switch(cSimulation & sim):
         isw = 2
         sim.states[0].kday = 1
 
-cdef double SkipRowWidth  # the smaller distance between skip rows, cm
-cdef double PlantsPerM  # average number of plants pre meter of row.
-
 cdef class SoilInit:
     cdef unsigned int number_of_layers
     def __init__(self, initial, hydrology, layer_depth=None):
@@ -308,6 +305,8 @@ cdef class State:
 
 cdef class Simulation:
     cdef cSimulation _sim
+    cdef public skip_row_width  # the smaller distance between skip rows, cm
+    cdef public plants_per_meter  # average number of plants pre meter of row.
 
     def _doy2date(self, j):
         try:
@@ -412,24 +411,6 @@ cdef class Simulation:
     @row_space.setter
     def row_space(self, value):
         self._sim.row_space = value or 0
-
-    @property
-    def skip_row_width(self):
-        return SkipRowWidth
-
-    @skip_row_width.setter
-    def skip_row_width(self, value):
-        global SkipRowWidth
-        SkipRowWidth = value or 0
-
-    @property
-    def plants_per_meter(self):
-        return PlantsPerM
-
-    @plants_per_meter.setter
-    def plants_per_meter(self, value):
-        global PlantsPerM
-        PlantsPerM = value or 0
 
     @property
     def states(self):
@@ -618,16 +599,16 @@ cdef class Simulation:
         maxk, maxl.
         """
         # PlantRowLocation is the distance from edge of slab, cm, of the plant row.
-        global PlantRowLocation, nl, nk, SkipRowWidth, PlantsPerM
+        global PlantRowLocation, nl, nk
         PlantRowLocation = 0.5 * self.row_space
-        if (SkipRowWidth > 1):
+        if self.skip_row_width > 1:
             # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
             self.row_space = 0.5 * (
-                    self.row_space + SkipRowWidth)  # actual width of the soil slab (cm)
-            PlantRowLocation = 0.5 * SkipRowWidth
+                    self.row_space + self.skip_row_width)  # actual width of the soil slab (cm)
+            PlantRowLocation = 0.5 * self.skip_row_width
         # Compute sim.plant_population - number of plants per hectar, and per_plant_area - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
         # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
-        self._sim.plant_population = PlantsPerM / self.row_space * 1000000
+        self._sim.plant_population = self.plants_per_meter / self.row_space * 1000000
         self._sim.per_plant_area = 1000000 / self._sim.plant_population
         self._sim.density_factor = exp(
             self._sim.cultivar_parameters[1] * (5 - self._sim.plant_population / 10000))
