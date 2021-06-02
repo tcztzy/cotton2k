@@ -65,6 +65,7 @@ cdef extern from "State.hpp":
         double cumulative_transpiration
         double actual_soil_evaporation
         double cumulative_evaporation
+        double light_interception
         unsigned int number_of_vegetative_branches
         unsigned int number_of_fruiting_sites
         double number_of_squares
