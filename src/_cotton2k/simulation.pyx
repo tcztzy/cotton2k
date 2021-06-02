@@ -442,7 +442,10 @@ cdef class Simulation:
 
     def run(self):
         self._init_state()
-        self._simulate()
+        try:
+            self._simulate()
+        except RuntimeError:
+            pass
 
     def _init_state(self):
         cdef cState state0 = self.state(0)
@@ -550,11 +553,11 @@ cdef class Simulation:
             if i < self._sim.day_finish - self._sim.day_start:
                 CopyState(self._sim, i)
 
-    cdef void _simulate_this_day(self, uint32_t u):
+    def _simulate_this_day(self, u):
         global isw
         cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
-            self._sim.states[u].kday = self._sim.day_start - self._sim.day_emerge + u + 1
+            self._sim.states[u].kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
         else:
             self._sim.states[u].kday = 0
         # The following functions are executed each day (also before emergence).
