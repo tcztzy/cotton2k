@@ -28,11 +28,11 @@ with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
 
 
 def read_input(path: Union[Path, str, dict]) -> Simulation:
-    sim = Simulation()
     if isinstance(path, dict):
         kwargs = path
     else:
         kwargs = json.loads(Path(path).read_text())
+    sim = Simulation(kwargs.get("version", 0x0400))
     for attr in [
         "start_date",
         "stop_date",

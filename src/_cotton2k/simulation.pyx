@@ -305,7 +305,8 @@ cdef class State:
 
 cdef class Simulation:
     cdef cSimulation _sim
-    cdef double relative_radiation_received_by_a_soil_column[20]
+    cdef public unsigned int version
+    cdef double relative_radiation_received_by_a_soil_column[20] # the relative radiation received by a soil column, as affected by shading by plant canopy.
     cdef double max_leaf_area_index
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
@@ -315,6 +316,9 @@ cdef class Simulation:
             return datetime.strptime(f"{self.year} {j}", "%Y %j").date()
         except:
             return
+
+    def __init__(self, version=0x0400):
+        self.version = version
 
     @property
     def year(self):
@@ -601,7 +605,6 @@ cdef class Simulation:
 
     def _simulate_this_day(self, u):
         global isw
-        cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
             self._sim.states[u].kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
         else:
