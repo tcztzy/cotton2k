@@ -562,21 +562,24 @@ cdef class Simulation:
 
     def _calc_light_interception(self, u):
         cdef cState state = self._sim.states[u]
-        if state.leaf_area_index > self.max_leaf_area_index:
-            self.max_leaf_area_index = state.leaf_area_index
-        zint = 1.0756 * state.plant_height / self.row_space
-        lfint = 0.80 * state.leaf_area_index if state.leaf_area_index <= 0.5 else 1 - exp(0.07 - 1.16 * state.leaf_area_index)
-        if lfint > zint:
-            light_interception = (zint + lfint) / 2
-        elif state.leaf_area_index < self.max_leaf_area_index:
-            light_interception = lfint
+        if self.version < 0x0500:
+            if state.leaf_area_index > self.max_leaf_area_index:
+                self.max_leaf_area_index = state.leaf_area_index
+            zint = 1.0756 * state.plant_height / self.row_space
+            lfint = 0.80 * state.leaf_area_index if state.leaf_area_index <= 0.5 else 1 - exp(0.07 - 1.16 * state.leaf_area_index)
+            if lfint > zint:
+                light_interception = (zint + lfint) / 2
+            elif state.leaf_area_index < self.max_leaf_area_index:
+                light_interception = lfint
+            else:
+                light_interception = zint
+            if light_interception > 1:
+                light_interception = 1
+            if light_interception < 0:
+                light_interception = 0
+            self._sim.states[u].light_interception = light_interception
         else:
-            light_interception = zint
-        if light_interception > 1:
-            light_interception = 1
-        if light_interception < 0:
-            light_interception = 0
-        self._sim.states[u].light_interception = light_interception
+            self._sim.states[u].light_interception = 1 - exp(-1.16 * state.leaf_area_index)
 
     def _column_shading(self, u):
         cdef cState state = self._sim.states[u]
