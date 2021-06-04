@@ -305,8 +305,10 @@ cdef class State:
 
 cdef class Simulation:
     cdef cSimulation _sim
-    cdef public skip_row_width  # the smaller distance between skip rows, cm
-    cdef public plants_per_meter  # average number of plants pre meter of row.
+    cdef double relative_radiation_received_by_a_soil_column[20]
+    cdef double max_leaf_area_index
+    cdef public double skip_row_width  # the smaller distance between skip rows, cm
+    cdef public double plants_per_meter  # average number of plants pre meter of row.
 
     def _doy2date(self, j):
         try:
@@ -553,6 +555,50 @@ cdef class Simulation:
             if i < self._sim.day_finish - self._sim.day_start:
                 CopyState(self._sim, i)
 
+    def _column_shading(self, u):
+        cdef cState state = self._sim.states[u]
+        if state.daynum < self._sim.day_emerge or isw <= 0 or self._sim.day_emerge <= 0:
+            self._sim.states[u].light_interception = 0
+            self.relative_radiation_received_by_a_soil_column = [1] * 20
+            return
+        if state.daynum <= self._sim.day_emerge:
+            self.max_leaf_area_index = 0
+        elif state.leaf_area_index > self.max_leaf_area_index:
+            self.max_leaf_area_index = state.leaf_area_index
+        zint = 1.0756 * state.plant_height / self.row_space
+        lfint = 0.80 * state.leaf_area_index if state.leaf_area_index <= 0.5 else 1 - exp(0.07 - 1.16 * state.leaf_area_index)
+        if lfint > zint:
+            self._sim.states[u].light_interception = (zint + lfint) / 2
+        elif state.leaf_area_index < self.max_leaf_area_index:
+            self._sim.states[u].light_interception = lfint
+        else:
+            self._sim.states[u].light_interception = zint
+        if self._sim.states[u].light_interception > 1:
+            self._sim.states[u].light_interception = 1
+        if self._sim.states[u].light_interception < 0:
+            self._sim.states[u].light_interception = 0
+
+        sw = 0
+        for k in range(nk):
+            if k <= self._sim.plant_row_column:
+                j = self._sim.plant_row_column - k
+                sw += wk(j, self.row_space)
+                sw0 = sw
+                sw1 = sw - wk(j, self.row_space) / 2
+                k0 = j
+            else:
+                sw += wk(k, self.row_space)
+                sw1 = sw - sw0 - wk(k, self.row_space) / 2
+                k0 = k
+            shade = 0
+            if sw1 < state.plant_height:
+                shade = 1 - (sw1 / state.plant_height) * (sw1 / state.plant_height)
+                if self._sim.states[u].light_interception < zint and state.leaf_area_index < self.max_leaf_area_index:
+                    shade *= self._sim.states[u].light_interception / zint
+            self.relative_radiation_received_by_a_soil_column[k0] = 1 - shade
+            if self.relative_radiation_received_by_a_soil_column[k0] < 0.05:
+                self.relative_radiation_received_by_a_soil_column[k0] = 0.05
+
     def _simulate_this_day(self, u):
         global isw
         cdef double rracol[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
@@ -561,11 +607,10 @@ cdef class Simulation:
         else:
             self._sim.states[u].kday = 0
         # The following functions are executed each day (also before emergence).
-        ColumnShading(self._sim.states[u], rracol, self._sim.day_emerge, self._sim.row_space,
-                      self._sim.plant_row_column)  # computes light interception and soil shading.
+        self._column_shading(u)
         DayClim(self._sim, u)  # computes climate variables for today.
         SoilTemperature(self._sim, u,
-                        rracol)  # executes all modules of soil and canopy temperature.
+                        self.relative_radiation_received_by_a_soil_column)  # executes all modules of soil and canopy temperature.
         SoilProcedures(self._sim, u)  # executes all other soil processes.
         SoilNitrogen(self._sim, u)  # computes nitrogen transformations in the soil.
         SoilSum(self._sim.states[u], self._sim.row_space)  # computes totals of water and N in the soil.

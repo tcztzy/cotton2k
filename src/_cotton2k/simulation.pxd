@@ -72,5 +72,4 @@ cdef extern from "SoilProcedures.h":
     void SoilSum(cState &, double)
 
 cdef extern from "SoilTemperature.h":
-    void ColumnShading(cState &, double[20], double, double, unsigned int)
     void SoilTemperature(cSimulation &, uint32_t, double[20])
