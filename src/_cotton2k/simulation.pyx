@@ -319,6 +319,7 @@ cdef class Simulation:
 
     def __init__(self, version=0x0400):
         self.version = version
+        self.max_leaf_area_index = 0.001
 
     @property
     def year(self):
@@ -559,29 +560,27 @@ cdef class Simulation:
             if i < self._sim.day_finish - self._sim.day_start:
                 CopyState(self._sim, i)
 
-    def _column_shading(self, u):
+    def _calc_light_interception(self, u):
         cdef cState state = self._sim.states[u]
-        if state.daynum < self._sim.day_emerge or isw <= 0 or self._sim.day_emerge <= 0:
-            self._sim.states[u].light_interception = 0
-            self.relative_radiation_received_by_a_soil_column = [1] * 20
-            return
-        if state.daynum <= self._sim.day_emerge:
-            self.max_leaf_area_index = 0
-        elif state.leaf_area_index > self.max_leaf_area_index:
+        if state.leaf_area_index > self.max_leaf_area_index:
             self.max_leaf_area_index = state.leaf_area_index
         zint = 1.0756 * state.plant_height / self.row_space
         lfint = 0.80 * state.leaf_area_index if state.leaf_area_index <= 0.5 else 1 - exp(0.07 - 1.16 * state.leaf_area_index)
         if lfint > zint:
-            self._sim.states[u].light_interception = (zint + lfint) / 2
+            light_interception = (zint + lfint) / 2
         elif state.leaf_area_index < self.max_leaf_area_index:
-            self._sim.states[u].light_interception = lfint
+            light_interception = lfint
         else:
-            self._sim.states[u].light_interception = zint
-        if self._sim.states[u].light_interception > 1:
-            self._sim.states[u].light_interception = 1
-        if self._sim.states[u].light_interception < 0:
-            self._sim.states[u].light_interception = 0
+            light_interception = zint
+        if light_interception > 1:
+            light_interception = 1
+        if light_interception < 0:
+            light_interception = 0
+        self._sim.states[u].light_interception = light_interception
 
+    def _column_shading(self, u):
+        cdef cState state = self._sim.states[u]
+        zint = 1.0756 * state.plant_height / self.row_space
         sw = 0
         for k in range(nk):
             if k <= self._sim.plant_row_column:
@@ -597,8 +596,8 @@ cdef class Simulation:
             shade = 0
             if sw1 < state.plant_height:
                 shade = 1 - (sw1 / state.plant_height) * (sw1 / state.plant_height)
-                if self._sim.states[u].light_interception < zint and state.leaf_area_index < self.max_leaf_area_index:
-                    shade *= self._sim.states[u].light_interception / zint
+                if state.light_interception < zint and state.leaf_area_index < self.max_leaf_area_index:
+                    shade *= state.light_interception / zint
             self.relative_radiation_received_by_a_soil_column[k0] = 1 - shade
             if self.relative_radiation_received_by_a_soil_column[k0] < 0.05:
                 self.relative_radiation_received_by_a_soil_column[k0] = 0.05
@@ -607,10 +606,13 @@ cdef class Simulation:
         global isw
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
             self._sim.states[u].kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
+            self._calc_light_interception(u)
+            self._column_shading(u)
         else:
             self._sim.states[u].kday = 0
+            self._sim.states[u].light_interception = 0
+            self.relative_radiation_received_by_a_soil_column = [1] * 20
         # The following functions are executed each day (also before emergence).
-        self._column_shading(u)
         DayClim(self._sim, u)  # computes climate variables for today.
         SoilTemperature(self._sim, u,
                         self.relative_radiation_received_by_a_soil_column)  # executes all modules of soil and canopy temperature.
