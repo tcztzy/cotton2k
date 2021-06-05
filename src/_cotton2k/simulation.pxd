@@ -33,9 +33,6 @@ from .state cimport cState, Hour
 cdef extern from "CottonPhenology.h":
     void CottonPhenology(cSimulation &, uint32_t)
 
-cdef extern from "DailyClimate.h":
-    void DayClim(cSimulation &, uint32_t u)
-
 cdef extern from "GettingInput_2.cpp":
     void InitializeSoilTemperature()
     void InitializeSoilData(cSimulation &, unsigned int)

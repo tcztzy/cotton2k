@@ -63,6 +63,10 @@ cdef extern from "global.h":
     double SaturatedHydCond[9]
     double BulkDensity[9]
     double DefoliantAppRate[5]
+    double SandVolumeFraction[40]
+    double ClayVolumeFraction[40]
+    double DayTimeTemp
+    double NightTimeTemp
     int DefoliationDate[5]
     int DefoliationMethod[5]
     NitrogenFertilizer NFertilizer[150]

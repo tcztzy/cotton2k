@@ -3,18 +3,25 @@
 from libc.stdlib cimport malloc
 from libc.math cimport exp
 from datetime import datetime, date
+from math import sin, cos, acos, sqrt, pi
 
-from .cxx cimport cSimulation
+from .cxx cimport cSimulation, SandVolumeFraction, ClayVolumeFraction, DayTimeTemp, NightTimeTemp
 from .climate cimport ClimateStruct
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, wk
+from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, ComputeDayLength
 from .state cimport cState, cVegetativeBranch, cFruitingBranch
 from _cotton2k.utils import date2doy
 
 
+cdef extern:
+    double daytmp(cSimulation &, uint32_t, double, double, uint32_t, double, double);
+    void AverageAirTemperatures(Hour[24], double &, double &, double &);
+    double tdewhour(cSimulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double);
+    double SimulateRunoff(cSimulation &, uint32_t, double, double, uint32_t);
+    void EvapoTranspiration(cState &, double, double, double, double, double);
+
 class SimulationEnd(RuntimeError):
     pass
-
 
 
 cdef CopyState(cSimulation & sim, uint32_t i):
@@ -306,7 +313,7 @@ cdef class State:
 cdef class Simulation:
     cdef cSimulation _sim
     cdef public unsigned int version
-    cdef double relative_radiation_received_by_a_soil_column[20] # the relative radiation received by a soil column, as affected by shading by plant canopy.
+    cdef double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
     cdef double max_leaf_area_index
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
@@ -566,7 +573,8 @@ cdef class Simulation:
             if state.leaf_area_index > self.max_leaf_area_index:
                 self.max_leaf_area_index = state.leaf_area_index
             zint = 1.0756 * state.plant_height / self.row_space
-            lfint = 0.80 * state.leaf_area_index if state.leaf_area_index <= 0.5 else 1 - exp(0.07 - 1.16 * state.leaf_area_index)
+            lfint = 0.80 * state.leaf_area_index if state.leaf_area_index <= 0.5 else 1 - exp(
+                0.07 - 1.16 * state.leaf_area_index)
             if lfint > zint:
                 light_interception = (zint + lfint) / 2
             elif state.leaf_area_index < self.max_leaf_area_index:
@@ -605,6 +613,71 @@ cdef class Simulation:
             if self.relative_radiation_received_by_a_soil_column[k0] < 0.05:
                 self.relative_radiation_received_by_a_soil_column[k0] = 0.05
 
+    def _daily_climate(self, u):
+        cdef double declination  # daily declination angle, in radians
+        cdef double sunr  # time of sunrise, hours.
+        cdef double suns  # time of sunset, hours.
+        cdef double tmpisr  # extraterrestrial radiation, \frac{W}{m^2}
+        ComputeDayLength(self._sim.states[u].daynum, self.year, self.latitude, self.longitude, declination, tmpisr,
+                         self._sim.states[u].solar_noon, self._sim.states[u].day_length, sunr, suns)
+
+        cdef double xlat = self.latitude * pi / 180  # latitude converted to radians.
+        cdef double cd = cos(xlat) * cos(declination)  # amplitude of the sine of the solar height.
+        cdef double sd = sin(xlat) * sin(declination)  # seasonal offset of the sine of the solar height.
+        # The computation of the daily integral of global radiation (from sunrise to sunset) is based on Spitters et al. (1986).
+        cdef double c11 = 0.4  # constant parameter
+        cdef double radsum
+        if abs(sd / cd) >= 1:
+            radsum = 0
+        else:
+            # dsbe is the integral of sinb * (1 + c11 * sinb) from sunrise to sunset.
+            dsbe = acos(-sd / cd) * 24 / pi * (sd + c11 * sd * sd + 0.5 * c11 * cd * cd) + 12 * (
+                        cd * (2 + 3 * c11 * sd)) * sqrt(1 - (sd / cd) * (sd / cd)) / pi
+            # The daily radiation integral is computed for later use in function Radiation.
+            # Daily radiation intedral is converted from langleys to Watt m - 2, and divided by dsbe.
+            # 11.630287 = 1000000 / 3600 / 23.884
+            radsum = self._sim.climate[u].Rad * 11.630287 / dsbe
+        cdef double rainToday
+        rainToday = self._sim.climate[u].Rain  # the amount of rain today, mm
+        # Set 'pollination switch' for rainy days (as in GOSSYM).
+        self._sim.states[u].pollination_switch = rainToday < 2.5
+        # Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
+        # Note: this is modified from the original GOSSYM - RRUNOFF routine. It is called here for rainfall only, but it is not activated when irrigation is applied.
+        cdef double runoffToday = 0  # amount of runoff today, mm
+        if rainToday >= 2.0:
+            runoffToday = SimulateRunoff(self._sim, u, SandVolumeFraction[0], ClayVolumeFraction[0], NumIrrigations)
+            if runoffToday < rainToday:
+                rainToday -= runoffToday
+            else:
+                rainToday = 0
+            self._sim.climate[u].Rain = rainToday
+        self._sim.states[u].runoff = runoffToday
+        # Parameters for the daily wind function are now computed:
+        cdef double t1 = sunr + SitePar[1]  # the hour at which wind begins to blow (SitePar(1) hours after sunrise).
+        cdef double t2 = self._sim.states[u].solar_noon + SitePar[
+            2]  # the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
+        cdef double t3 = suns + SitePar[3]  # the hour at which wind stops to blow (SitePar(3) hours after sunset).
+        cdef double wnytf = SitePar[4]  # used for estimating night time wind (from time t3 to time t1 next day).
+
+        for ihr in range(24):
+            ti = ihr + 0.5
+            sinb = sd + cd * cos(pi * (ti - self._sim.states[u].solar_noon) / 12)
+            self._sim.states[u].hours[ihr].radiation = dayrad(ti, radsum, sinb, c11)
+            self._sim.states[u].hours[ihr].temperature = daytmp(self._sim, u, ti, SitePar[8], LastDayWeatherData, sunr,
+                                                                suns)
+            self._sim.states[u].hours[ihr].dew_point = tdewhour(self._sim, u, LastDayWeatherData, ti,
+                                                                self._sim.states[u].hours[ihr].temperature, sunr,
+                                                                self._sim.states[u].solar_noon, SitePar[8], SitePar[12],
+                                                                SitePar[13], SitePar[14])
+            self._sim.states[u].hours[ihr].humidity = dayrh(self._sim.states[u].hours[ihr].temperature,
+                                                            self._sim.states[u].hours[ihr].dew_point)
+            self._sim.states[u].hours[ihr].wind_speed = daywnd(ti, self._sim.climate[u].Wind, t1, t2, t3, wnytf)
+        # Compute average daily temperature, using function AverageAirTemperatures.
+        AverageAirTemperatures(self._sim.states[u].hours, self._sim.states[u].average_temperature, DayTimeTemp,
+                               NightTimeTemp)
+        # Compute potential evapotranspiration.
+        EvapoTranspiration(self._sim.states[u], self.latitude, self.elevation, declination, tmpisr, SitePar[7])
+
     def _simulate_this_day(self, u):
         global isw
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
@@ -616,7 +689,7 @@ cdef class Simulation:
             self._sim.states[u].light_interception = 0
             self.relative_radiation_received_by_a_soil_column = [1] * 20
         # The following functions are executed each day (also before emergence).
-        DayClim(self._sim, u)  # computes climate variables for today.
+        self._daily_climate(u)  # computes climate variables for today.
         SoilTemperature(self._sim, u,
                         self.relative_radiation_received_by_a_soil_column)  # executes all modules of soil and canopy temperature.
         SoilProcedures(self._sim, u)  # executes all other soil processes.
@@ -627,7 +700,7 @@ cdef class Simulation:
             # If this day is after emergence, assign to isw the value of 2.
             isw = 2
             self._sim.states[u].day_inc = PhysiologicalAge(self._sim.states[
-                                                         u].hours)  # physiological days increment for this day. computes physiological age
+                                                               u].hours)  # physiological days increment for this day. computes physiological age
             Defoliate(self._sim, u)  # effects of defoliants applied.
             Stress(self._sim.states[u], self._sim.row_space)  # computes water stress factors.
             GetNetPhotosynthesis(self._sim, u,

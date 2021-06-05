@@ -6,11 +6,16 @@
 //       SoilSurfaceBalance()
 //
 #include <cmath>
+#include "Simulation.hpp"
 #include "global.h"
-#include "DailyClimate.h"
+#include "exceptions.h"
 
 using namespace std;
-
+extern "C"
+{
+    double VaporPressure(double);
+    double clearskyemiss(double, double);
+}
 double SensibleHeatTransfer(double, double, double, double);
 
 void SoilSurfaceBalance(int, int, double, double, double, double, double, double &, double &, double &, double, double, const int &);
