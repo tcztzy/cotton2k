@@ -44,7 +44,7 @@ extern "C" fn TemperatureOnLeafGrowthRate(t: f64) -> f64 {
 /// This function computes and returns the resistance of leaves of cotton
 /// plants to transpiration. It is assumed to be a function of leaf age.
 /// It is called from LeafWaterPotential.
-/// 
+///
 /// The input argument (age) is leaf age in physiological days.
 #[no_mangle]
 extern "C" fn LeafResistance(age: f64) -> f64 {

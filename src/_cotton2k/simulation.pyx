@@ -8,9 +8,10 @@ from math import sin, cos, acos, sqrt, pi
 from .cxx cimport cSimulation, SandVolumeFraction, ClayVolumeFraction, DayTimeTemp, NightTimeTemp
 from .climate cimport ClimateStruct
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, ComputeDayLength
+from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd
 from .state cimport cState, cVegetativeBranch, cFruitingBranch
 from _cotton2k.utils import date2doy
+from _cotton2k.climate import compute_day_length
 
 
 cdef extern:
@@ -618,8 +619,13 @@ cdef class Simulation:
         cdef double sunr  # time of sunrise, hours.
         cdef double suns  # time of sunset, hours.
         cdef double tmpisr  # extraterrestrial radiation, \frac{W}{m^2}
-        ComputeDayLength(self._sim.states[u].daynum, self.year, self.latitude, self.longitude, declination, tmpisr,
-                         self._sim.states[u].solar_noon, self._sim.states[u].day_length, sunr, suns)
+        result = compute_day_length((self.latitude, self.longitude), self._doy2date(self._sim.states[u].daynum))
+        declination = result["declination"]
+        sunr = result["sunr"]
+        suns = result["suns"]
+        tmpisr = result["tmpisr"]
+        self._sim.states[u].solar_noon = result["solar_noon"]
+        self._sim.states[u].day_length = result["day_length"]
 
         cdef double xlat = self.latitude * pi / 180  # latitude converted to radians.
         cdef double cd = cos(xlat) * cos(declination)  # amplitude of the sine of the solar height.

@@ -5,7 +5,6 @@ cdef extern:
     double wk(unsigned int, double)
     double tdewest(double, double, double)
     int SlabLoc(int, double)
-    double dayrad(double, double, double, double);
-    double dayrh(double, double);
-    double daywnd(double, double, double, double, double, double);
-    void ComputeDayLength(uint32_t, int32_t, double, double, double &, double &, double &, double &, double &, double &) except +
+    double dayrad(double, double, double, double)
+    double dayrh(double, double)
+    double daywnd(double, double, double, double, double, double)

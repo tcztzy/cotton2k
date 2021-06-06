@@ -35,7 +35,7 @@ repos:
       hooks:
           - id: pytest-with-cov
             name: pytest
-            entry: pytest --cov=cotton2k
+            entry: pytest --cov=src
             language: system
             pass_filenames: false
             always_run: true

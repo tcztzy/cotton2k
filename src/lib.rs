@@ -5,12 +5,12 @@
 #[cfg(test)]
 mod tests;
 
+mod abscission;
 mod climate;
 mod fruit;
 mod leaf;
 mod phenology;
 mod physiology;
-mod abscission;
 mod root;
 mod soil;
 mod stem;
