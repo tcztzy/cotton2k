@@ -19,18 +19,18 @@ repos:
       rev: v5.7.0
       hooks:
           - id: isort
-            files: ^(src/cotton2k/|tests/|setup.py)
+            files: ^(src/_?cotton2k/|tests/|setup.py)
     - repo: https://github.com/pre-commit/mirrors-pylint
       rev: "v2.6.0"
       hooks:
           - id: pylint
             additional_dependencies: [pyenchant>=3.1.1, orjson]
-            files: ^src/cotton2k/
+            files: ^src/_?cotton2k/
     - repo: https://github.com/pre-commit/mirrors-mypy
       rev: v0.812
       hooks:
           - id: mypy
-            files: ^(src/cotton2k|tests)/
+            files: ^(src/_?cotton2k|tests)/
     - repo: local
       hooks:
           - id: pytest-with-cov
