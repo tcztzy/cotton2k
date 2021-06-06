@@ -2,6 +2,9 @@ from .climate cimport ClimateStruct
 from .irrigation cimport Irrigation
 from .state cimport cState
 
+cdef extern from "PlantGrowth.h":
+    void LeafWaterPotential(cState &, double)
+
 cdef extern from "Simulation.hpp":
     ctypedef struct cSimulation "Simulation":
         int year
@@ -65,6 +68,15 @@ cdef extern from "global.h":
     double DefoliantAppRate[5]
     double SandVolumeFraction[40]
     double ClayVolumeFraction[40]
+    double LwpMin
+    double LwpMinX[3]
+    double LwpMax
+    double LwpX[3]
+    double AverageLwp
+    double AverageLwpMin
+    double StemWeight[365]
+    double NetPhotosynthesis
+    double CumNetPhotosynth
     double DayTimeTemp
     double NightTimeTemp
     int DefoliationDate[5]

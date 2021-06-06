@@ -19,4 +19,4 @@ def test_read_input(empty_json, test_json):
 def test_write_output(sim: Simulation):
     output = json.loads(write_output(sim))
     assert len(output) == 181
-    assert abs(output[-1]["lint_yield"] - 2145.025187021033) < 10
+    assert abs(output[-1]["lint_yield"] - 2205.2232545129755) < 10

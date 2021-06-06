@@ -52,11 +52,9 @@ cdef extern from "GettingInput_2.cpp":
 cdef extern from "PlantGrowth.h":
     void CheckDryMatterBal(cState &)
     void Defoliate(cSimulation &, uint32_t)
-    void GetNetPhotosynthesis(cSimulation &, uint32_t, const double &)
     double PhysiologicalAge(Hour[24])
     void PlantGrowth(cState &, double, double, double, double[61], int, unsigned int,
                      unsigned int, unsigned int, unsigned int)
-    void Stress(cState &, double)
 
 cdef extern from "PlantNitrogen.h":
     void PlantNitrogen(cSimulation &, uint32_t)
