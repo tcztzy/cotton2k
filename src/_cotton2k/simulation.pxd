@@ -29,6 +29,7 @@ cSimulation,
 )
 from .fruiting_site cimport Stage
 from .state cimport cState, Hour
+from .soil cimport SoilCell
 
 cdef extern from "CottonPhenology.h":
     void CottonPhenology(cSimulation &, uint32_t)
@@ -53,11 +54,18 @@ cdef extern from "PlantGrowth.h":
     void CheckDryMatterBal(cState &)
     void Defoliate(cSimulation &, uint32_t)
     double PhysiologicalAge(Hour[24])
-    void PlantGrowth(cState &, double, double, double, double[61], int, unsigned int,
-                     unsigned int, unsigned int, unsigned int)
+    void PotentialLeafGrowth(cState &, double, double[61])
+    void PotentialFruitGrowth(cState &, double[61])
+    void DryMatterBalance(cState &, double &, double &, double &, double &, double)
+    void ActualFruitGrowth(cState &)
+    void ActualLeafGrowth(cState &)
 
 cdef extern from "PlantNitrogen.h":
     void PlantNitrogen(cSimulation &, uint32_t)
+
+cdef extern from "RootGrowth.h":
+    double PotentialRootGrowth(SoilCell[40][20], int, int, double)
+    void ComputeActualRootGrowth(cState &, double, double, double, int, unsigned int, unsigned int)
 
 cdef extern from "SoilNitrogen.h":
     void SoilNitrogen(cSimulation &, unsigned int)

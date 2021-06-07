@@ -68,6 +68,10 @@ cdef extern from "global.h":
     double DefoliantAppRate[5]
     double SandVolumeFraction[40]
     double ClayVolumeFraction[40]
+    double ActualStemGrowth
+    double PotGroStem
+    double PotGroAllRoots
+    double TotalPetioleWeight
     double LwpMin
     double LwpMinX[3]
     double LwpMax
