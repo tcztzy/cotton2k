@@ -83,6 +83,9 @@ cdef extern from "global.h":
     double CumNetPhotosynth
     double DayTimeTemp
     double NightTimeTemp
+    double PotGroAllSquares
+    double PotGroAllBolls
+    double PotGroAllBurrs
     int DefoliationDate[5]
     int DefoliationMethod[5]
     NitrogenFertilizer NFertilizer[150]

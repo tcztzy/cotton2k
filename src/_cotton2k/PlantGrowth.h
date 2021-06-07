@@ -20,8 +20,6 @@ void LeafWaterPotential(State &, double);
 
 void PotentialLeafGrowth(State &, double, double[61]);
 
-void PotentialFruitGrowth(State &, double[61]);
-
 void DryMatterBalance(State &, double &, double &, double &, double &, double);
 
 void ActualFruitGrowth(State &);

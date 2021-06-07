@@ -30,9 +30,12 @@ from .cxx cimport (
     PotGroStem,
     PotGroAllRoots,
     TotalPetioleWeight,
+    PotGroAllSquares,
+    PotGroAllBolls,
+    PotGroAllBurrs,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight
+from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate
 from .state cimport cState, cVegetativeBranch, cFruitingBranch
 
 
@@ -821,13 +824,91 @@ cdef class Simulation:
         # CumNetPhotosynth is the cumulative value of NetPhotosynthesis, from day of emergence.
         CumNetPhotosynth += NetPhotosynthesis
 
+    def _potential_fruit_growth(self, u):
+        """
+        This function simulates the potential growth of fruiting sites of cotton plants. It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
+
+        The following global variables are set here:
+            PotGroAllBolls, PotGroAllBurrs, PotGroAllSquares.
+
+        References:
+        Marani, A. 1979. Growth rate of cotton bolls and their components. Field Crops Res. 2:169-175.
+        Marani, A., Phene, C.J. and Cardon, G.E. 1992. CALGOS, a version of GOSSYM adapted for irrigated cotton.  III. leaf and boll growth routines. Beltwide Cotton Grow, Res. Conf. 1992:1361-1363.
+        """
+        global PotGroAllSquares, PotGroAllBolls, PotGroAllBurrs
+        # The constant parameters used:
+        cdef double[5] vpotfrt = [0.72, 0.30, 3.875, 0.125, 0.17]
+        # Compute tfrt for the effect of temperature on boll and burr growth rates. Function TemperatureOnFruitGrowthRate() is used (with parameters derived from GOSSYM), for day time and night time temperatures, weighted by day and night lengths.
+        cdef double tfrt  # the effect of temperature on rate of boll, burr or square growth.
+        tfrt = (self._sim.states[u].day_length * TemperatureOnFruitGrowthRate(DayTimeTemp) + (24 - self._sim.states[u].day_length) * TemperatureOnFruitGrowthRate(NightTimeTemp)) / 24;
+        # Assign zero to sums of potential growth of squares, bolls and burrs.
+        PotGroAllSquares = 0
+        PotGroAllBolls = 0
+        PotGroAllBurrs = 0
+        # Assign values for the boll growth equation parameters. These are cultivar - specific.
+        cdef double agemax = self.cultivar_parameters[9]  # maximum boll growth period (physiological days).
+        cdef double rbmax = self.cultivar_parameters[10]  # maximum rate of boll (seed and lint) growth, g per boll per physiological day.
+        cdef double wbmax = self.cultivar_parameters[11]  # maximum possible boll (seed and lint) weight, g per boll.
+        # Loop for all vegetative stems.
+        for k in range(self._sim.states[u].number_of_vegetative_branches):  # loop of vegetative stems
+            for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):  # loop of fruiting branches
+                for m in range(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes):  # loop for nodes on a fruiting branch
+                    # Calculate potential square growth for node (k,l,m).
+                    # Sum potential growth rates of squares as PotGroAllSquares.
+                    if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].stage == Stage.Square:
+                        # ratesqr is the rate of square growth, g per square per day.
+                        # The routine for this is derived from GOSSYM, and so are the parameters used.
+                        ratesqr = tfrt * vpotfrt[3] * exp(-vpotfrt[2] + vpotfrt[3] * self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].age)
+                        self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].square.potential_growth = ratesqr * self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].fraction
+                        PotGroAllSquares += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].square.potential_growth
+                    # Growth of seedcotton is simulated separately from the growth of burrs. The logistic function is used to simulate growth of seedcotton. The constants of this function for cultivar 'Acala-SJ2', are based on the data of Marani (1979); they are derived from calibration for other cultivars
+                    # agemax is the age of the boll (in physiological days after bloom) at the time when the boll growth rate is maximal.
+                    # rbmax is the potential maximum rate of boll growth (g seeds plus lint dry weight per physiological day) at this age.
+                    # wbmax is the maximum potential weight of seed plus lint (g dry weight per boll).
+                    # The auxiliary variable pex is computed as
+                    #    pex = exp(-4 * rbmax * (t - agemax) / wbmax)
+                    # where t is the physiological age of the boll after bloom (= agebol).
+                    # Boll weight (seed plus lint) at age T, according to the logistic function is:
+                    #    wbol = wbmax / (1 + pex)
+                    # and the potential boll growth rate at this age will be the derivative of this function:
+                    #    ratebol = 4 * rbmax * pex / (1. + pex)**2
+                    elif self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].stage == Stage.YoungGreenBoll or self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].stage == Stage.GreenBoll:
+                        # pex is an intermediate variable to compute boll growth.
+                        pex = exp(-4 * rbmax * (self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].boll.age - agemax) / wbmax)
+                        # ratebol is the rate of boll (seed and lint) growth, g per boll per day.
+                        ratebol = 4 * tfrt * rbmax * pex / (1 + pex) ** 2;
+                        # Potential growth rate of the burrs is assumed to be constant (vpotfrt[4] g dry weight per day) until the boll reaches its final volume. This occurs at the age of 22 physiological days in 'Acala-SJ2'. Both ratebol and ratebur are modified by temperature (tfrt) and ratebur is also affected by water stress (wfdb).
+                        # Compute wfdb for the effect of water stress on burr growth rate. wfdb is the effect of water stress on rate of burr growth.
+                        wfdb = vpotfrt[0] + vpotfrt[1] * self._sim.states[u].water_stress;
+                        if wfdb < 0:
+                            wfdb = 0
+                        if wfdb > 1:
+                            wfdb = 1
+                        ratebur = None  # rate of burr growth, g per boll per day.
+                        if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].boll.age >= 22:
+                            ratebur = 0
+                        else:
+                            ratebur = vpotfrt[4] * tfrt * wfdb
+                        # Potential boll (seeds and lint) growth rate (ratebol) and potential burr growth rate (ratebur) are multiplied by FruitFraction to compute PotGroBolls and PotGroBurrs for node (k,l,m).
+                        self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].boll.potential_growth = ratebol * self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].fraction
+                        self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].burr.potential_growth = ratebur * self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].fraction
+                        # Sum potential growth rates of bolls and burrs as PotGroAllBolls and PotGroAllBurrs, respectively.
+                        PotGroAllBolls += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].boll.potential_growth
+                        PotGroAllBurrs += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].burr.potential_growth
+
+                    # If these are not green bolls, their potential growth is 0. End loop.
+                    else:
+                        self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].boll.potential_growth = 0
+                        self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].burr.potential_growth = 0
+
+
     def _growth(self, u):
         global PotGroStem, PotGroAllRoots, TotalPetioleWeight
         # Call PotentialLeafGrowth() to compute potential growth rate of leaves.
         PotentialLeafGrowth(self._sim.states[u], self._sim.density_factor, self._sim.cultivar_parameters)
-        # If it is after first square, call PotentialFruitGrowth() to compute potential growth rate of squares and bolls.
+        # If it is after first square, call self._potential_fruit_growth(u) to compute potential growth rate of squares and bolls.
         if self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed:
-            PotentialFruitGrowth(self._sim.states[u], self._sim.cultivar_parameters)
+            self._potential_fruit_growth(u)
         # Active stem tissue(stemnew) is the difference between state.stem_weight and the value of StemWeight(kkday).
         cdef int voldstm = 32  # constant parameter(days for stem tissue to become "old")
         cdef int kkday = self._sim.states[u].kday - voldstm  # age of young stem tissue
