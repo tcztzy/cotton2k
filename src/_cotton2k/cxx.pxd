@@ -86,6 +86,11 @@ cdef extern from "global.h":
     double PotGroAllSquares
     double PotGroAllBolls
     double PotGroAllBurrs
+    double PotGroAllLeaves
+    double PotGroAllPetioles
+    double PotGroLeafAreaPreFru[9]
+    double PotGroLeafWeightPreFru[9]
+    double PotGroPetioleWeightPreFru[9]
     int DefoliationDate[5]
     int DefoliationMethod[5]
     NitrogenFertilizer NFertilizer[150]

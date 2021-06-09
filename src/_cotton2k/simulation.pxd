@@ -54,7 +54,6 @@ cdef extern from "PlantGrowth.h":
     void CheckDryMatterBal(cState &)
     void Defoliate(cSimulation &, uint32_t)
     double PhysiologicalAge(Hour[24])
-    void PotentialLeafGrowth(cState &, double, double[61])
     void DryMatterBalance(cState &, double &, double &, double &, double &, double)
     void ActualFruitGrowth(cState &)
     void ActualLeafGrowth(cState &)

@@ -13,3 +13,4 @@ cdef extern:
     double AddPlantHeight(double, double, uint32_t, Stage, double, double, double, double, double, double, double,
                           double, double, double, double, double, double, double)
     double TemperatureOnFruitGrowthRate(double)
+    double TemperatureOnLeafGrowthRate(double)
