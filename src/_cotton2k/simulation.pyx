@@ -45,13 +45,6 @@ from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, PotentialStemGrowt
 from .state cimport cState, cVegetativeBranch, cFruitingBranch
 
 
-cdef extern:
-    double daytmp(cSimulation &, uint32_t, double, double, uint32_t, double, double);
-    void AverageAirTemperatures(Hour[24], double &, double &, double &);
-    double tdewhour(cSimulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double);
-    double SimulateRunoff(cSimulation &, uint32_t, double, double, uint32_t);
-    void EvapoTranspiration(cState &, double, double, double, double, double);
-
 class SimulationEnd(RuntimeError):
     pass
 
@@ -352,6 +345,9 @@ cdef class Simulation:
     cdef double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
     cdef double max_leaf_area_index
     cdef double ptsred  # The effect of moisture stress on the photosynthetic rate
+    cdef double avtemp  # average temperature from day of emergence.
+    cdef double sumstrs  # cumulative effect of water and N stresses on date of first square.
+    cdef double DaysTo1stSqare   # number of days from emergence to 1st square
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
 
@@ -1123,6 +1119,92 @@ cdef class Simulation:
         ComputeActualRootGrowth(self._sim.states[u], sumpdr, self.row_space, self._sim.per_plant_area, 3, self._sim.day_emerge,
                                 self._sim.plant_row_column)
 
+    def _days_to_first_square(self, u):
+        state = self.state(u)
+        if state.daynum <= self._sim.day_emerge:
+            self.avtemp = state.average_temperature
+            self.sumstrs = 0
+        self.avtemp = ((state.daynum - self._sim.day_emerge) * self.avtemp + state.average_temperature) / (state.daynum - self._sim.day_emerge + 1)
+        if self.avtemp > 34:
+            self.avtemp = 34
+        self.sumstrs += 0.08 * (1 - state.water_stress) * 0.3 * (1 - state.nitrogen_stress_vegetative)
+        return (132.2 + self.avtemp * (-7 + self.avtemp * 0.125)) * self.cultivar_parameters[30] - self.sumstrs
+
+    def _phenology(self, u):
+        """
+        This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
+
+        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(), AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        """
+        # The following constant parameters are used:
+        cdef double[8] vpheno = [0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10]
+
+        cdef int nwfl = 0  # the node of the most recent white flower. Note: this variable is not used. It is kept for compatibility with previous versions, and may be use in future versions.
+        self._sim.states[u].number_of_fruiting_sites = 0
+        cdef double stemNRatio  # the ratio of N to dry matter in the stems.
+        stemNRatio = self._sim.states[u].stem_nitrogen / self._sim.states[u].stem_weight
+        # Compute the phenological delays:
+        # PhenDelayByNStress, the delay caused by nitrogen stress, is assumed to be a function of the vegetative nitrogen stress.
+        cdef double PhenDelayByNStress = vpheno[0] * (1 - self._sim.states[u].nitrogen_stress_vegetative)  # phenological delay caused by vegetative nitrogen stress.
+        if PhenDelayByNStress > 1:
+            PhenDelayByNStress = 1
+        elif PhenDelayByNStress < 0:
+            PhenDelayByNStress = 0
+
+        cdef double delayVegByCStress  # delay in formation of new fruiting branches caused by carbon stress.
+        delayVegByCStress = self._sim.cultivar_parameters[27] + self._sim.states[u].carbon_stress * (vpheno[3] + vpheno[4] * self._sim.states[u].carbon_stress)
+        if delayVegByCStress > 1:
+            delayVegByCStress = 1
+        elif delayVegByCStress < 0:
+            delayVegByCStress = 0
+
+        cdef double delayFrtByCStress  # delay in formation of new fruiting sites caused by carbon stress.
+        delayFrtByCStress = self.cultivar_parameters[28] + self._sim.states[u].carbon_stress * (vpheno[1] + vpheno[2] * self._sim.states[u].carbon_stress)
+        if delayFrtByCStress > self.cultivar_parameters[29]:
+            delayFrtByCStress = self.cultivar_parameters[29]
+        if delayFrtByCStress < 0:
+            delayFrtByCStress = 0
+        # The following section is executed if the first square has not yet been formed. Function DaysToFirstSquare() is called to compute the  number of days to 1st square, and function PreFruitingNode() is called to simulate the formation of prefruiting nodes.
+        if self._sim.first_square <= 0:
+            self.DaysTo1stSqare = self._days_to_first_square(u)
+            PreFruitingNode(self._sim.states[u], stemNRatio, self._sim.cultivar_parameters)
+            # When first square is formed, FirstSquare is assigned the day of year.
+            # Function CreateFirstSquare() is called for formation of first square.
+            if self._sim.states[u].kday >= <int>self.DaysTo1stSqare:
+                self._sim.first_square = self._sim.states[u].daynum
+                CreateFirstSquare(self._sim.states[u], stemNRatio, self._sim.cultivar_parameters)
+            # if a first square has not been formed, call LeafAbscission() and exit.
+            else:
+                LeafAbscission(self._sim, u)
+                return
+        # The following is executed after the appearance of the first square.
+        # If there are only one or two vegetative branches, and if plant population allows it, call AddVegetativeBranch() to decide if a new vegetative branch is to be added. Note that dense plant populations (large per_plant_area) prevent new vegetative branch formation.
+        if self._sim.states[u].number_of_vegetative_branches == 1 and self._sim.per_plant_area >= vpheno[5]:
+            AddVegetativeBranch(self._sim.states[u], delayVegByCStress, stemNRatio, self.DaysTo1stSqare, self._sim.cultivar_parameters, PhenDelayByNStress)
+        if self._sim.states[u].number_of_vegetative_branches == 2 and self._sim.per_plant_area >= vpheno[6]:
+            AddVegetativeBranch(self._sim.states[u], delayVegByCStress, stemNRatio, self.DaysTo1stSqare, self._sim.cultivar_parameters, PhenDelayByNStress)
+        # The maximum number of nodes per fruiting branch (nidmax) is affected by plant density. It is computed as a function of density_factor.
+        cdef int nidmax  # maximum number of nodes per fruiting branch.
+        nidmax = <int>(vpheno[7] * self._sim.density_factor + 0.5)
+        if nidmax > 5:
+            nidmax = 5
+        # Start loop over all existing vegetative branches.
+        # Call AddFruitingBranch() to decide if a new node (and a new fruiting branch) is to be added on this stem.
+        for k in range(self._sim.states[u].number_of_vegetative_branches):
+            if self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches < 30:
+                AddFruitingBranch(self._sim.states[u], k, delayVegByCStress, stemNRatio, self._sim.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
+            # Loop over all existing fruiting branches, and call AddFruitingNode() to decide if a new node on this fruiting branch is to be added.
+            for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
+                if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
+                    AddFruitingNode(self._sim.states[u], k, l, delayFrtByCStress, stemNRatio, self._sim.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
+                # Loop over all existing fruiting nodes, and call SimulateFruitingSite() to simulate the condition of each fruiting node.
+                for m in range(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes):
+                    SimulateFruitingSite(self._sim, u, k, l, m, nwfl, self._sim.states[u].water_stress)
+        # Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
+        FruitingSitesAbscission(self._sim, u)
+        # Call LeafAbscission() to simulate the abscission of leaves.
+        LeafAbscission(self._sim, u)
+
     def _simulate_this_day(self, u):
         global isw
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
@@ -1150,7 +1232,7 @@ cdef class Simulation:
             self._stress(u)  # computes water stress factors.
             self._get_net_photosynthesis(u)  # computes net photosynthesis.
             self._growth(u)  # executes all modules of plant growth.
-            CottonPhenology(self._sim, u)  # executes all modules of plant phenology.
+            self._phenology(u)  # executes all modules of plant phenology.
             PlantNitrogen(self._sim, u)  # computes plant nitrogen allocation.
             CheckDryMatterBal(self._sim.states[u])  # checks plant dry matter balance.
         # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.

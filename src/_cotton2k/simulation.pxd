@@ -31,8 +31,23 @@ from .fruiting_site cimport Stage
 from .state cimport cState, Hour
 from .soil cimport SoilCell
 
+cdef extern:
+    double daytmp(cSimulation &, uint32_t, double, double, uint32_t, double, double)
+    void AverageAirTemperatures(Hour[24], double &, double &, double &)
+    double tdewhour(cSimulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double)
+    double SimulateRunoff(cSimulation &, uint32_t, double, double, uint32_t)
+    void EvapoTranspiration(cState &, double, double, double, double, double)
+
 cdef extern from "CottonPhenology.h":
-    void CottonPhenology(cSimulation &, uint32_t)
+    void CreateFirstSquare(cState &, double, double[61])
+    void SimulateFruitingSite(cSimulation &, uint32_t, int, int, int, int &, const double &)
+    void AddFruitingNode(cState &, int, int, double, double, double, double[61], double)
+    void AddFruitingBranch(cState &, int, double, double, double, double[61], double)
+    void AddVegetativeBranch(cState &, double, double, double, double[61], double)
+    void PreFruitingNode(cState &, double, double[61])
+
+cdef extern from "FruitAbscission.h":
+    void FruitingSitesAbscission(cSimulation &, uint32_t)
 
 cdef extern from "GettingInput_2.cpp":
     void InitializeSoilTemperature()
@@ -49,6 +64,9 @@ cdef extern from "GettingInput_2.cpp":
     double pclay[9]
     double psand[9]
     double LayerDepth
+
+cdef extern from "LeafAbscission.h":
+    void LeafAbscission(cSimulation &, uint32_t)
 
 cdef extern from "PlantGrowth.h":
     void CheckDryMatterBal(cState &)

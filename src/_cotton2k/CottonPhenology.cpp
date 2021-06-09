@@ -19,32 +19,18 @@
 
 using namespace std;
 
-void PreFruitingNode(State &, double, double[61]);
-
 extern "C"
 {
     double DaysToFirstSquare(int, int, double, double, double, double);
 }
-
-void CreateFirstSquare(State &, double, double[61]);
-
-void AddVegetativeBranch(State &, double, double, double, double[61]);
-
-void AddFruitingBranch(State &, int, double, double, double, double[61]);
-
-void AddFruitingNode(State &, int, int, double, double, double, double[61]);
-
-void SimulateFruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
 
 void NewBollFormation(State &, FruitingSite &);
 
 void BollOpening(Simulation &, uint32_t, int, int, int, double);
 
 //   Declaration of file-scope variables:
-double DaysTo1stSqare; // number of days from emergence to 1st square
 double FibLength;          // fiber length
 double FibStrength;        // fiber strength
-double PhenDelayByNStress; // phenological delay caused by vegetative nitrogen stress.
 double DelayNewFruBranch[3] = {0, 0, 0}; // cumulative effect of stresses on delaying the formation of a new fruiting branch.
 //////////////////////////////////////////////////
 //      The following documentation describes the implementation of
@@ -57,113 +43,6 @@ double DelayNewFruBranch[3] = {0, 0, 0}; // cumulative effect of stresses on del
 //          === see file LeafAbscission.cpp
 //      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
-//////////////////////////////////////////////////
-void CottonPhenology(Simulation &sim, uint32_t u)
-//     This is is the main function for simulating events of phenology and abscission
-//  in the cotton plant. It is called each day from DailySimulation().
-//     CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), CreateFirstSquare(),
-//  AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(),
-//  LeafAbscission(), FruitingSitesAbscission().
-//     The following global variables are referenced here:
-//        CarbonStress, Kday, NumFruitBranches,
-//        NumNodes, NumVegBranches.
-//     The following global variable are set here:
-//        FirstSquare, NumFruitSites.
-//
-{
-    State &state = sim.states[u];
-    //     The following constant parameters are used:
-    double vpheno[8] = {0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10};
-    //
-    static int nwfl = 0; // the node of the most recent white flower. Note: this variable
-                         //  is not used. It is kept for compatibility with previous versions, and may be use in future versions.
-    state.number_of_fruiting_sites = 0;
-    double stemNRatio; // the ratio of N to dry matter in the stems.
-    stemNRatio = state.stem_nitrogen / state.stem_weight;
-    //     Compute the phenological delays:
-    //     PhenDelayByNStress, the delay caused by nitrogen stress, is assumed to be
-    //  a function of the vegetative nitrogen stress..
-    PhenDelayByNStress = vpheno[0] * (1 - state.nitrogen_stress_vegetative); // a file-scope variable
-    if (PhenDelayByNStress > 1)
-        PhenDelayByNStress = 1;
-    else if (PhenDelayByNStress < 0)
-        PhenDelayByNStress = 0;
-    //
-    double delayVegByCStress; // delay in formation of new fruiting branches caused by carbon stress.
-    delayVegByCStress = sim.cultivar_parameters[27] + state.carbon_stress * (vpheno[3] + vpheno[4] * state.carbon_stress);
-    if (delayVegByCStress > 1)
-        delayVegByCStress = 1;
-    else if (delayVegByCStress < 0)
-        delayVegByCStress = 0;
-    //
-    double delayFrtByCStress; // delay in formation of new fruiting sites caused by carbon stress.
-    delayFrtByCStress = sim.cultivar_parameters[28] + state.carbon_stress * (vpheno[1] + vpheno[2] * state.carbon_stress);
-    if (delayFrtByCStress > sim.cultivar_parameters[29])
-        delayFrtByCStress = sim.cultivar_parameters[29];
-    if (delayFrtByCStress < 0)
-        delayFrtByCStress = 0;
-    //      The following section is executed if the first square has not yet been
-    //  formed. Function DaysToFirstSquare() is called to compute the  number of days
-    //  to 1st square, and function PreFruitingNode() is called to simulate the
-    //  formation of prefruiting nodes.
-    if (sim.first_square <= 0)
-    {
-        DaysTo1stSqare = DaysToFirstSquare(state.daynum, sim.day_emerge, state.average_temperature, state.water_stress, state.nitrogen_stress_vegetative, sim.cultivar_parameters[30]);
-        PreFruitingNode(state, stemNRatio, sim.cultivar_parameters);
-        //      When first square is formed, FirstSquare is assigned the day of year.
-        //  Function CreateFirstSquare() is called for formation of first square.
-        if (state.kday >= (int)DaysTo1stSqare)
-        {
-            sim.first_square = state.daynum;
-            CreateFirstSquare(state, stemNRatio, sim.cultivar_parameters);
-        }
-        //      if a first square has not been formed, call LeafAbscission() and exit.
-        else
-        {
-            LeafAbscission(sim, u);
-            return;
-        }
-    }
-    //     The following is executed after the appearance of the first square.
-    //     If there are only one or two vegetative branches, and if plant
-    //  population allows it, call AddVegetativeBranch() to decide if a new vegetative
-    //  branch is to be added. Note that dense plant populations (large
-    //  per_plant_area) prevent new vegetative branch formation.
-    if (state.number_of_vegetative_branches == 1 && sim.per_plant_area >= vpheno[5])
-        AddVegetativeBranch(state, delayVegByCStress, stemNRatio, DaysTo1stSqare, sim.cultivar_parameters);
-    if (state.number_of_vegetative_branches == 2 && sim.per_plant_area >= vpheno[6])
-        AddVegetativeBranch(state, delayVegByCStress, stemNRatio, DaysTo1stSqare, sim.cultivar_parameters);
-    //     The maximum number of nodes per fruiting branch (nidmax) is
-    //  affected by plant density. It is computed as a function of density_factor.
-    int nidmax; // maximum number of nodes per fruiting branch.
-    nidmax = (int)(vpheno[7] * sim.density_factor + 0.5);
-    if (nidmax > 5)
-        nidmax = 5;
-    //     Start loop over all existing vegetative branches.
-    //     Call AddFruitingBranch() to decide if a new node (and a new fruiting
-    //  branch) is to be added on this stem.
-    for (int k = 0; k < state.number_of_vegetative_branches; k++)
-    {
-        if (state.vegetative_branches[k].number_of_fruiting_branches < 30)
-            AddFruitingBranch(state, k, delayVegByCStress, stemNRatio, sim.density_factor, sim.cultivar_parameters);
-        //     Loop over all existing fruiting branches, and call AddFruitingNode() to
-        //  decide if a new node on this fruiting branch is to be added.
-        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
-        {
-            if (state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax)
-                AddFruitingNode(state, k, l, delayFrtByCStress, stemNRatio, sim.density_factor, sim.cultivar_parameters);
-            //     Loop over all existing fruiting nodes, and call SimulateFruitingSite() to
-            //  simulate the condition of each fruiting node.
-            for (int m = 0; m < state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes; m++)
-                SimulateFruitingSite(sim, u, k, l, m, nwfl, state.water_stress);
-        }
-    }
-    //     Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
-    FruitingSitesAbscission(sim, u);
-    //     Call LeafAbscission() to simulate the abscission of leaves.
-    LeafAbscission(sim, u);
-}
-
 //////////////////////////
 void PreFruitingNode(State &state, double stemNRatio, double VarPar[61])
 //     This function checks if a new prefruiting node is to be added, and then sets it.
@@ -254,7 +133,7 @@ void CreateFirstSquare(State &state, double stemNRatio, double VarPar[61])
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRatio, double DaysTo1stSqare, double VarPar[61])
+void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRatio, double DaysTo1stSqare, double VarPar[61], double PhenDelayByNStress)
 //     This function decides whether a new vegetative branch is to be added, and
 //  then forms it. It is called from CottonPhenology().
 //     The following global variables are referenced here:
@@ -314,7 +193,7 @@ void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRat
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingBranch(State &state, int k, double delayVegByCStress, double stemNRatio, double density_factor, double VarPar[61])
+void AddFruitingBranch(State &state, int k, double delayVegByCStress, double stemNRatio, double density_factor, double VarPar[61], double PhenDelayByNStress)
 //     This function decides if a new fruiting branch is to be added to a vegetative
 //  branch, and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
@@ -386,7 +265,7 @@ void AddFruitingBranch(State &state, int k, double delayVegByCStress, double ste
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, double stemNRatio, double density_factor, double VarPar[61])
+void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, double stemNRatio, double density_factor, double VarPar[61], double PhenDelayByNStress)
 //     Function AddFruitingNode() decides if a new node is to be added to a fruiting branch,
 //  and forms it. It is called from function CottonPhenology().
 //     The following global variables are referenced here:
