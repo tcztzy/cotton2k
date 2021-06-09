@@ -7,6 +7,7 @@ from libc.math cimport exp
 from libc.stdlib cimport malloc
 
 from _cotton2k.climate import compute_day_length
+from _cotton2k.leaf import temperature_on_leaf_growth_rate
 from _cotton2k.photosynthesis import ambient_co2_factor
 from _cotton2k.utils import date2doy
 from .climate cimport ClimateStruct
@@ -40,7 +41,7 @@ from .cxx cimport (
     PotGroPetioleWeightPreFru,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, TemperatureOnLeafGrowthRate
+from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate
 from .state cimport cState, cVegetativeBranch, cFruitingBranch
 
 
@@ -912,7 +913,7 @@ cdef class Simulation:
 
     def _potential_leaf_growth(self, u):
         """
-        This function simulates the potential growth of leaves of cotton plants. It is called from PlantGrowth(). It calls function TemperatureOnLeafGrowthRate().
+        This function simulates the potential growth of leaves of cotton plants. It is called from self._growth(). It calls function temperature_on_leaf_growth_rate().
 
         The following monomolecular growth function is used :
             leaf area = smax * (1 - exp(-c * pow(t,p)))
@@ -961,7 +962,7 @@ cdef class Simulation:
                 # Compute potential growth of leaf area, leaf weight and petiole weight for leaf on node j. Add leaf weight potential growth to PotGroAllLeaves.
                 # Add potential growth of petiole weight to PotGroAllPetioles.
                 if rate >= 1e-12:
-                    PotGroLeafAreaPreFru[j] = rate * wstrlf * TemperatureOnLeafGrowthRate(self._sim.states[u].average_temperature)
+                    PotGroLeafAreaPreFru[j] = rate * wstrlf * temperature_on_leaf_growth_rate(self._sim.states[u].average_temperature)
                     PotGroLeafWeightPreFru[j] = PotGroLeafAreaPreFru[j] * self._sim.states[u].leaf_weight_area_ratio
                     PotGroPetioleWeightPreFru[j] = PotGroLeafAreaPreFru[j] * self._sim.states[u].leaf_weight_area_ratio * vpotlf[13]
                     PotGroAllLeaves += PotGroLeafWeightPreFru[j]
@@ -990,7 +991,7 @@ cdef class Simulation:
                         rate = smax * c * p * exp(-c * pow(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age, p)) * pow(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age, (p - 1))
                     # Add leaf and petiole weight potential growth to SPDWL and SPDWP.
                     if rate >= 1e-12:
-                        self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_area = rate * wstrlf * TemperatureOnLeafGrowthRate(self._sim.states[u].average_temperature)
+                        self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_area = rate * wstrlf * temperature_on_leaf_growth_rate(self._sim.states[u].average_temperature)
                         self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_weight = self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_area * self._sim.states[u].leaf_weight_area_ratio
                         self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_petiole_weight = self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_area * self._sim.states[u].leaf_weight_area_ratio * vpotlf[13]
                         PotGroAllLeaves += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_weight
@@ -1017,7 +1018,7 @@ cdef class Simulation:
                             rate = smax * c * p * exp(-c * pow(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.age, p)) * pow(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.age, (p - 1))
                         if rate >= 1e-12:
                             # Growth rate is modified by water stress. Potential growth is computed as a function of average temperature.
-                            self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth = rate * wstrlf * TemperatureOnLeafGrowthRate(self._sim.states[u].average_temperature)
+                            self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth = rate * wstrlf * temperature_on_leaf_growth_rate(self._sim.states[u].average_temperature)
                             self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth = self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * self._sim.states[u].leaf_weight_area_ratio * vpotlf[13]
                             PotGroAllLeaves += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * self._sim.states[u].leaf_weight_area_ratio
                             PotGroAllPetioles += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth
