@@ -16,7 +16,12 @@ def test_read_input(empty_json, test_json):
     read_input(test_json)
 
 
-def test_write_output(sim: Simulation):
-    output = json.loads(write_output(sim))
-    assert len(output) == 181
-    assert abs(output[-1]["lint_yield"] - 2205.2232545129755) < 10
+def test_write_output(sim: Simulation, test_json):
+    write_output(sim, test_json.parent, "alaer")
+    alaer = test_json.parent / "alaer"
+    assert alaer.exists()
+    files = list(alaer.glob("**/1984-09-28/index.json"))
+    assert len(files) == 1
+    with open(files[0]) as fp:
+        result = json.load(fp)
+        assert result["lint_yield"] == 2205.223254512975

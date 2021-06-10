@@ -13,11 +13,16 @@ __author__: str = meta["Author"]
 __license__: str = meta["License"]
 
 
-def run(profile_path: Union[Path, str, dict]):
+def run(
+    profile_path: Union[Path, str, dict], *, output: bool = False, name: str = "default"
+):
     sim = read_input(profile_path)
     sim.run()
-    if isinstance(profile_path, Path):
-        write_output(sim, profile_path.parent / (profile_path.stem + "-output.json"))
-    else:
-        return write_output(sim)
+    if output:
+        if isinstance(profile_path, dict):
+            output_dir = Path(".")
+        else:
+            output_dir = Path(profile_path).parent
+            name = Path(profile_path).stem
+        write_output(sim, output_dir, name)
     return sim
