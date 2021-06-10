@@ -5,6 +5,7 @@ from math import sin, cos, acos, sqrt, pi
 
 from libc.math cimport exp
 from libc.stdlib cimport malloc
+from libcpp cimport bool as bool_t
 
 from _cotton2k.climate import compute_day_length
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
@@ -348,6 +349,9 @@ cdef class Simulation:
     cdef double avtemp  # average temperature from day of emergence.
     cdef double sumstrs  # cumulative effect of water and N stresses on date of first square.
     cdef double DaysTo1stSqare   # number of days from emergence to 1st square
+    cdef double defkgh  # amount of defoliant applied, kg per ha
+    cdef double tdfkgh  # total cumulative amount of defoliant
+    cdef bool_t idsw  # switch indicating if predicted defoliation date was defined.
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
 
@@ -1204,6 +1208,69 @@ cdef class Simulation:
         # Call LeafAbscission() to simulate the abscission of leaves.
         LeafAbscission(self._sim, u)
 
+    def _defoliate(self, u):
+        """This function simulates the effects of defoliating chemicals applied on the cotton. It is called from SimulateThisDay()."""
+        global PercentDefoliation
+        cdef cState state = self._sim.states[u]
+        # constant parameters:
+        cdef double p1 = -50.0
+        cdef double p2 = 0.525
+        cdef double p3 = 7.06
+        cdef double p4 = 0.85
+        cdef double p5 = 2.48
+        cdef double p6 = 0.0374
+        cdef double p7 = 0.0020
+
+        # If this is first day set initial values of tdfkgh, defkgh to 0.
+        if state.daynum <= self._sim.day_emerge:
+            self.tdfkgh = 0
+            self.defkgh = 0
+            self.idsw = False
+        # Start a loop for five possible defoliant applications.
+        for i in range(5):
+            # If there are open bolls and defoliation prediction has been set, execute the following.
+            if state.number_of_open_bolls > 0 and DefoliantAppRate[i] <= -99.9:
+                # percentage of open bolls in total boll number
+                OpenRatio = <int>(100 * state.number_of_open_bolls / (state.number_of_open_bolls + state.number_of_green_bolls))
+                if i == 0 and not self.idsw:
+                    # If this is first defoliation - check the percentage of boll opening.
+                    # If it is after the defined date, or the percent boll opening is greater than the defined threshold - set defoliation date as this day and set a second prediction.
+                    if (state.daynum >= DefoliationDate[0] and DefoliationDate[0] > 0) or OpenRatio > DefoliationMethod[i]:
+                        self.idsw = True
+                        DefoliationDate[0] = state.daynum
+                        DefoliantAppRate[1] = -99.9
+                        if state.daynum < self._sim.day_defoliate or self._sim.day_defoliate <= 0:
+                            self._sim.day_defoliate = state.daynum
+                        DefoliationMethod[0] = 0
+                # If 10 days have passed since the last defoliation, and the leaf area index is still greater than 0.2, set another defoliation.
+                if i >= 1:
+                    if state.daynum == (DefoliationDate[i - 1] + 10) and state.leaf_area_index >= 0.2:
+                        DefoliationDate[i] = state.daynum
+                        if i < 4:
+                            DefoliantAppRate[i + 1] = -99.9
+                        DefoliationMethod[i] = 0
+            if state.daynum == DefoliationDate[i]:
+                # If it is a predicted defoliation, assign tdfkgh as 2.5 .
+                # Else, compute the amount intercepted by the plants in kg per ha (defkgh), and add it to tdfkgh.
+                if DefoliantAppRate[i] < -99:
+                    self.tdfkgh = 2.5
+                else:
+                    if DefoliationMethod[i] == 0:
+                        self.defkgh += DefoliantAppRate[i] * 0.95 * 1.12085 * 0.75
+                    else:
+                        self.defkgh += DefoliantAppRate[i] * state.light_interception * 1.12085 * 0.75
+                    self.tdfkgh += self.defkgh
+            # If this is after the first day of defoliant application, compute the percent of leaves to be defoliated (PercentDefoliation), as a function of average daily temperature, leaf water potential, days after first defoliation application, and tdfkgh. The regression equation is modified from the equation suggested in GOSSYM.
+            if DefoliationDate[i] > 0 and state.daynum > self._sim.day_defoliate:
+                dum = -LwpMin * 10  # value of LwpMin in bars.
+                PercentDefoliation = p1 + p2 * state.average_temperature + p3 * self.tdfkgh + p4 * (state.daynum - self._sim.day_defoliate) + p5 * dum - p6 * dum * dum + p7 * state.average_temperature * self.tdfkgh * (state.daynum - self._sim.day_defoliate) * dum
+                if PercentDefoliation < 0:
+                    PercentDefoliation = 0
+                perdmax = 40  # maximum possible percent of defoliation.
+                if PercentDefoliation > perdmax:
+                    PercentDefoliation = perdmax
+
+
     def _simulate_this_day(self, u):
         global isw
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
@@ -1227,7 +1294,7 @@ cdef class Simulation:
             isw = 2
             self._sim.states[u].day_inc = PhysiologicalAge(self._sim.states[
                                                                u].hours)  # physiological days increment for this day. computes physiological age
-            Defoliate(self._sim, u)  # effects of defoliants applied.
+            self._defoliate(u)  # effects of defoliants applied.
             self._stress(u)  # computes water stress factors.
             self._get_net_photosynthesis(u)  # computes net photosynthesis.
             self._growth(u)  # executes all modules of plant growth.

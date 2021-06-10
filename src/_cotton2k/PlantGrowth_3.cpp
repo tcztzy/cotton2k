@@ -5,7 +5,6 @@
 // ActualFruitGrowth()
 // ActualLeafGrowth()
 // CheckDryMatterBal()
-// Defoliate()
 //
 #include <cmath>
 #include <string>
@@ -368,108 +367,4 @@ void CheckDryMatterBal(State &state)
 {
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
     state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + TotalPetioleWeight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + ReserveC;
-}
-
-//////////////////////////
-void Defoliate(Simulation &sim, uint32_t u)
-//     This function simulates the effects of defoliating chemicals
-//  applied on the cotton. It is called from SimulateThisDay().
-//
-//     The following global variables are referenced here:
-//       LwpMin.
-//
-//     The following global variables are set here:
-//       DefoliantAppRate, DefoliationDate, DefoliationMethod, PercentDefoliation.
-//
-{
-    State &state = sim.states[u];
-    //        constant parameters:
-    const double p1 = -50.0;
-    const double p2 = 0.525;
-    const double p3 = 7.06;
-    const double p4 = 0.85;
-    const double p5 = 2.48;
-    const double p6 = 0.0374;
-    const double p7 = 0.0020;
-    //
-    static double defkgh; // amount of defoliant applied, kg per ha
-    static double tdfkgh; // total cumulative amount of defoliant
-    static int idsw;      // switch indicating if predicted defoliation date was defined.
-                          //     If this is first day set initial values of tdfkgh, defkgh and idsw to 0.
-    if (state.daynum <= sim.day_emerge)
-    {
-        tdfkgh = 0;
-        defkgh = 0;
-        idsw = 0;
-    }
-    //     Start a loop for five possible defoliant applications.
-    for (int i = 0; i < 5; i++)
-    {
-        //     If there are open bolls and defoliation prediction has been set, execute the following.
-        if (state.number_of_open_bolls > 0 && DefoliantAppRate[i] <= -99.9)
-        {
-            int OpenRatio; // percentage of open bolls in total boll number
-            OpenRatio = (int)(100 * state.number_of_open_bolls / (state.number_of_open_bolls + state.number_of_green_bolls));
-            if (i == 0 && idsw == 0)
-            {
-                //     If this is first defoliation - check the percentage of boll opening.
-                //     If it is after the defined date, or the percent boll opening is greater than the
-                //  defined threshold - set defoliation date as this day and set a second prediction.
-                if ((state.daynum >= DefoliationDate[i] && DefoliationDate[0] > 0) ||
-                    OpenRatio > DefoliationMethod[i])
-                {
-                    idsw = 1;
-                    DefoliationDate[i] = state.daynum;
-                    DefoliantAppRate[1] = -99.9;
-                    if (state.daynum < sim.day_defoliate || sim.day_defoliate <= 0)
-                        sim.day_defoliate = state.daynum;
-                    DefoliationMethod[i] = 0;
-                } // if Daynum
-            }     // if i, idsw
-                  //     If 10 days have passed since the last defoliation, and the
-                  //  leaf area index is still greater than 0.2, set another defoliation.
-            if (i >= 1)
-            {
-                if (state.daynum == (DefoliationDate[i - 1] + 10) && state.leaf_area_index >= 0.2)
-                {
-                    DefoliationDate[i] = state.daynum;
-                    if (i < 4)
-                        DefoliantAppRate[i + 1] = -99.9;
-                    DefoliationMethod[i] = 0;
-                } // if Daynum
-            }     // if i>=1
-        }         //  if NumOpenBolls
-                  //
-        if (state.daynum == DefoliationDate[i])
-        {
-            //     If it is a predicted defoliation, assign tdfkgh as 2.5 .
-            //     Else, compute the amount intercepted by the plants in kg per ha
-            //  (defkgh), and add it to tdfkgh.
-            if (DefoliantAppRate[i] < -99)
-                tdfkgh = 2.5;
-            else
-            {
-                if (DefoliationMethod[i] == 0)
-                    defkgh += DefoliantAppRate[i] * 0.95 * 1.12085 * 0.75;
-                else
-                    defkgh += DefoliantAppRate[i] * state.light_interception * 1.12085 * 0.75;
-                tdfkgh += defkgh;
-            }
-        } // Daynum
-          //     If this is after the first day of defoliant application, compute the
-          //  percent of leaves to be defoliated (PercentDefoliation), as a function of
-          //  average daily temperature, leaf water potential, days after first
-          //  defoliation application, and tdfkgh. The regression equation is
-          //  modified from the equation suggested in GOSSYM.
-        if (DefoliationDate[i] > 0 && state.daynum > sim.day_defoliate)
-        {
-            double dum = -LwpMin * 10; // value of LwpMin in bars.
-            PercentDefoliation = p1 + p2 * state.average_temperature + p3 * tdfkgh + p4 * (state.daynum - sim.day_defoliate) + p5 * dum - p6 * dum * dum + p7 * state.average_temperature * tdfkgh * (state.daynum - sim.day_defoliate) * dum;
-            if (PercentDefoliation < 0)
-                PercentDefoliation = 0;
-            double perdmax = 40; // maximum possible percent of defoliation.
-            if (PercentDefoliation > perdmax)
-                PercentDefoliation = perdmax;
-        } // if DefoliationDate
-    }     // loop i
 }

@@ -14,8 +14,6 @@ void PlantGrowth(State &state, double density_factor, double per_plant_area, dou
 
 void CheckDryMatterBal(State &);
 
-void Defoliate(Simulation &, uint32_t);
-
 void LeafWaterPotential(State &, double);
 
 void DryMatterBalance(State &, double &, double &, double &, double &, double);
