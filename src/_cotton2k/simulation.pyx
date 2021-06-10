@@ -464,9 +464,8 @@ cdef class Simulation:
         return [self.state(i) for i in
                 range(self._sim.day_finish - self._sim.day_start + 1)]
 
-    cdef cState state(self, i):
-        cdef State state = State.from_ptr(&self._sim.states[i])
-        return state
+    def state(self, i):
+        return State.from_ptr(&self._sim.states[i])
 
     @property
     def climate(self):
