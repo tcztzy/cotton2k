@@ -40,7 +40,6 @@ cdef extern:
     void EvapoTranspiration(cState &, double, double, double, double, double)
 
 cdef extern from "CottonPhenology.h":
-    void CreateFirstSquare(cState &, double, double[61])
     void SimulateFruitingSite(cSimulation &, uint32_t, int, int, int, int &, const double &)
     void AddFruitingNode(cState &, int, int, double, double, double, double[61], double)
     void AddFruitingBranch(cState &, int, double, double, double, double[61], double)

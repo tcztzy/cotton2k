@@ -4,7 +4,6 @@
 // CottonPhenology()
 // PreFruitingNode()
 // DaysToFirstSquare()
-// CreateFirstSquare()
 // AddVegetativeBranch()
 // AddFruitingBranch()
 // AddFruitingNode()
@@ -89,47 +88,6 @@ void PreFruitingNode(State &state, double stemNRatio, double VarPar[61])
         state.leaf_nitrogen += state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
         state.stem_nitrogen -= state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
     }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-void CreateFirstSquare(State &state, double stemNRatio, double VarPar[61])
-//     This function initiates the first square. It is called from function CottonPhenology().
-//     The following global variables are referenced here:
-//        Kday, VarPar.
-//     The following global variable are set here:
-//        AbscisedLeafWeight, AvrgNodeTemper, CumPlantNLoss, FirstSquare, FruitFraction,
-//        FruitingCode, LeafAreaNodes, LeafWeightNodes,
-//        NumFruitBranches, NumNodes.
-//     Argument used:
-//        stemNRatio - the ratio of N to dry matter in the stems.
-//
-{
-    FruitingSite &site = state.vegetative_branches[0].fruiting_branches[0].nodes[0];
-    //     FruitFraction and FruitingCode are assigned 1 for the first fruiting site.
-    site.stage = Stage::Square;
-    site.fraction = 1;
-    //     Initialize a new leaf at this position. define its initial weight and area.
-    //  VarPar[34] is the initial area of a new leaf. The mass and nitrogen of the new leaf
-    //  are substacted from the stem.
-    site.leaf.area = VarPar[34];
-    site.leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
-    state.stem_weight -= site.leaf.weight;
-    state.leaf_weight += site.leaf.weight;
-    state.leaf_nitrogen += site.leaf.weight * stemNRatio;
-    state.stem_nitrogen -= site.leaf.weight * stemNRatio;
-    //      Define the initial values of NumFruitBranches, NumNodes, state.fruit_growth_ratio, and AvrgNodeTemper.
-    state.vegetative_branches[0].number_of_fruiting_branches = 1;
-    state.vegetative_branches[0].fruiting_branches[0].number_of_fruiting_nodes = 1;
-    state.fruit_growth_ratio = 1;
-    site.average_temperature = state.average_temperature;
-    //     It is assumed that the cotyledons are dropped at time of first square. compute changes
-    //  in AbscisedLeafWeight, state.leaf_weight, state.leaf_nitrogen and CumPlantNLoss caused
-    //  by the abscission of the cotyledons.
-    double cotylwt = 0.20; // cotylwt is the leaf weight of the cotyledons.
-    state.abscised_leaf_weight += cotylwt;
-    state.leaf_weight -= cotylwt;
-    state.cumulative_nitrogen_loss += cotylwt * state.leaf_nitrogen / state.leaf_weight;
-    state.leaf_nitrogen -= cotylwt * state.leaf_nitrogen / state.leaf_weight;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

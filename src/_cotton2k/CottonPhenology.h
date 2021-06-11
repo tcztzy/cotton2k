@@ -10,6 +10,4 @@ void AddFruitingBranch(State &, int, double, double, double, double[61], double)
 
 void AddVegetativeBranch(State &, double, double, double, double[61], double);
 
-void CreateFirstSquare(State &, double, double[61]);
-
 void PreFruitingNode(State &, double, double[61]);
