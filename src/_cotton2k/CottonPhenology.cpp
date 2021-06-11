@@ -4,7 +4,6 @@
 // CottonPhenology()
 // PreFruitingNode()
 // DaysToFirstSquare()
-// AddFruitingBranch()
 // AddFruitingNode()
 // SimulateFruitingSite{}
 // NewBollFormation()
@@ -29,7 +28,6 @@ void BollOpening(Simulation &, uint32_t, int, int, int, double);
 //   Declaration of file-scope variables:
 double FibLength;          // fiber length
 double FibStrength;        // fiber strength
-double DelayNewFruBranch[3] = {0, 0, 0}; // cumulative effect of stresses on delaying the formation of a new fruiting branch.
 //////////////////////////////////////////////////
 //      The following documentation describes the implementation of
 //  the simulation of the cotton plant phenology and the abscission of
@@ -87,78 +85,6 @@ void PreFruitingNode(State &state, double stemNRatio, double VarPar[61])
         state.leaf_nitrogen += state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
         state.stem_nitrogen -= state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
     }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingBranch(State &state, int k, double delayVegByCStress, double stemNRatio, double density_factor, double VarPar[61], double PhenDelayByNStress)
-//     This function decides if a new fruiting branch is to be added to a vegetative
-//  branch, and forms it. It is called from function CottonPhenology().
-//     The following global variables are referenced here:
-//  AdjAddMSNodesRate, AgeOfSite, VarPar, WaterStress.
-//     The following global variable are set here:
-//        AvrgNodeTemper, DelayNewFruBranch, FruitFraction, FruitingCode, LeafAreaMainStem,
-//        LeafAreaNodes, LeafWeightMainStem, LeafWeightNodes, NumFruitBranches,
-//        NumNodes.
-//     The following arguments are used in this function:
-//        delayVegByCStress - delay in formation of new fruiting branches caused by
-//                 carbohydrate stress.
-//        k - index of this vegetative branch.
-//        stemNRatio - the ratio of N to dm in the stems.
-//
-{
-    //     The following constant parameters are used:
-    const double vfrtbr[8] = {0.8, 0.95, 33.0, 4.461, -0.1912, 0.00265, 1.8, -1.32};
-    //      Compute the cumulative delay for the appearance of the next caused by carbohydrate,
-    //  nitrogen, and water stresses.
-    DelayNewFruBranch[k] += delayVegByCStress + vfrtbr[0] * PhenDelayByNStress;
-    DelayNewFruBranch[k] += vfrtbr[1] * (1 - state.water_stress);
-    //     Define nbrch and compute TimeToNextFruBranch, the time (in physiological days) needed
-    //  for the formation of each successive fruiting branch, as a function of
-    //  the average temperature. This function is derived from data of K. R.
-    //  Reddy, CSRU, adjusted for age expressed in physiological days.  It
-    //  is different for the main stem (k = 0) than for the other vegetative
-    //  branches. TimeToNextFruNode is modified for plant density. Add DelayNewFruBranch to TimeToNextFruNode.
-    int nbrch = state.vegetative_branches[k].number_of_fruiting_branches - 1; // index of new fruiting branch on this vegetative branch.
-    double tav = state.vegetative_branches[k].fruiting_branches[nbrch].nodes[0].average_temperature;                 // modified average daily temperature.
-    if (tav > vfrtbr[2])
-        tav = vfrtbr[2];
-    //     TimeToNextFruBranch is the time, in physiological days, for the next fruiting branch to be formed.
-    double TimeToNextFruBranch = VarPar[35] + tav * (vfrtbr[3] + tav * (vfrtbr[4] + tav * vfrtbr[5]));
-    if (k > 0)
-        TimeToNextFruBranch = TimeToNextFruBranch * vfrtbr[6];
-    TimeToNextFruBranch = TimeToNextFruBranch * (1 + vfrtbr[7] * (1 - density_factor)) + DelayNewFruBranch[k];
-    //     Check if the the age of the last fruiting branch exceeds TimeToNextFruBranch. If so, form the new fruiting branch:
-    if (state.vegetative_branches[k].fruiting_branches[nbrch].nodes[0].age < TimeToNextFruBranch)
-        return;
-    //     Increment NumFruitBranches, define newbr, and assign 1 to NumNodes, FruitFraction and FruitingCode.
-    state.vegetative_branches[k].number_of_fruiting_branches++;
-    if (state.vegetative_branches[k].number_of_fruiting_branches > 30)
-    {
-        state.vegetative_branches[k].number_of_fruiting_branches = 30;
-        return;
-    }
-    int newbr; // the index number of the new fruiting branch on this vegetative branch, after a new branch has been added.
-    newbr = state.vegetative_branches[k].number_of_fruiting_branches - 1;
-    state.vegetative_branches[k].fruiting_branches[newbr].number_of_fruiting_nodes = 1;
-    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].fraction = 1;
-    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].stage = Stage::Square;
-    //     Initiate new leaves at the first node of the new fruiting branch, and at the
-    //  corresponding main stem node. The mass and nitrogen in the new leaves is substacted
-    //  from the stem.
-    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.area = VarPar[34];
-    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
-    MainStemLeaf &main_stem_leaf = state.vegetative_branches[k].fruiting_branches[newbr].main_stem_leaf;
-    main_stem_leaf.leaf_area = VarPar[34];
-    main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * state.leaf_weight_area_ratio;
-    state.stem_weight -= main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight;
-    state.leaf_weight += main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight;
-    // addlfn is the nitrogen added to new leaves from stem.
-    double addlfn = (main_stem_leaf.leaf_weight + state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].leaf.weight) * stemNRatio;
-    state.leaf_nitrogen += addlfn;
-    state.stem_nitrogen -= addlfn;
-    //      Begin computing AvrgNodeTemper of the new node and assign zero to DelayNewFruBranch.
-    state.vegetative_branches[k].fruiting_branches[newbr].nodes[0].average_temperature = state.average_temperature;
-    DelayNewFruBranch[k] = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

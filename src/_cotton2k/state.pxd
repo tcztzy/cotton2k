@@ -16,7 +16,7 @@ cdef extern from "State.hpp":
         double humidity
         double albedo
 
-    ctypedef struct MainStemLeaf:
+    ctypedef struct cMainStemLeaf "MainStemLeaf":
         double leaf_area
         double leaf_weight
         double petiole_weight
@@ -27,11 +27,12 @@ cdef extern from "State.hpp":
     ctypedef struct cFruitingBranch "FruitingBranch":
         unsigned int number_of_fruiting_nodes
         double delay_for_new_node
-        MainStemLeaf main_stem_leaf
+        cMainStemLeaf main_stem_leaf
         FruitingSite nodes[5]
 
     ctypedef struct cVegetativeBranch "VegetativeBranch":
         unsigned int number_of_fruiting_branches
+        double delay_for_new_fruiting_branch
         cFruitingBranch fruiting_branches[30]
 
     ctypedef struct cState "State":

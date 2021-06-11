@@ -43,7 +43,8 @@ from .cxx cimport (
 )
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate
-from .state cimport cState, cVegetativeBranch, cFruitingBranch
+from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf
+from .fruiting_site cimport FruitingSite, Leaf
 
 
 class SimulationEnd(RuntimeError):
@@ -267,43 +268,187 @@ cdef read_agricultural_input(cSimulation & sim, inputs):
             DefoliationMethod[idef] = i.get("method", 0)
             idef += 1
 
-cdef class FruitingBranch:
-    cdef cFruitingBranch _branch
-    __slots__ = ("delay_for_new_node", "main_stem_leaf", "nodes")
 
-    def __init__(self, _branch):
-        self._branch = _branch
+cdef class NodeLeaf:
+    cdef Leaf *_
+
+    @property
+    def area(self):
+        return self._[0].area
+
+    @area.setter
+    def area(self, value):
+        self._[0].area = value
+
+    @property
+    def weight(self):
+        return self._[0].weight
+
+    @weight.setter
+    def weight(self, value):
+        self._[0].weight = value
+
+    @staticmethod
+    cdef NodeLeaf from_ptr(Leaf *_ptr):
+        cdef NodeLeaf leaf = NodeLeaf.__new__(NodeLeaf)
+        leaf._ = _ptr
+        return leaf
+
+
+cdef class FruitingNode:
+    cdef FruitingSite *_
+
+    @property
+    def average_temperature(self):
+        return self._[0].average_temperature
+
+    @average_temperature.setter
+    def average_temperature(self, value):
+        self._[0].average_temperature = value
+
+    @property
+    def age(self):
+        return self._[0].age
+
+    @property
+    def fraction(self):
+        return self._[0].fraction
+
+    @fraction.setter
+    def fraction(self, value):
+        self._[0].fraction = value
+
+    @property
+    def leaf(self):
+        return NodeLeaf.from_ptr(&self._.leaf)
+
+    @property
+    def stage(self):
+        return self._[0].stage
+
+    @stage.setter
+    def stage(self, value):
+        self._[0].stage = value
+
+    @staticmethod
+    cdef FruitingNode from_ptr(FruitingSite *_ptr):
+        cdef FruitingNode node = FruitingNode.__new__(FruitingNode)
+        node._ = _ptr
+        return node
+
+
+cdef class MainStemLeaf:
+    cdef cMainStemLeaf *_leaf
+
+    @property
+    def area(self):
+        return self._leaf.leaf_area
+
+    @area.setter
+    def area(self, value):
+        self._leaf.leaf_area = value
+
+    @property
+    def weight(self):
+        return self._leaf.leaf_weight
+
+    @weight.setter
+    def weight(self, value):
+        self._leaf.leaf_weight = value
+
+    @staticmethod
+    cdef MainStemLeaf from_ptr(cMainStemLeaf *_ptr):
+        """Factory function to create WrapperClass objects from
+        given my_c_struct pointer.
+
+        Setting ``owner`` flag to ``True`` causes
+        the extension type to ``free`` the structure pointed to by ``_ptr``
+        when the wrapper object is deallocated."""
+        # Call to __new__ bypasses __init__ constructor
+        cdef MainStemLeaf main_stem_leaf = MainStemLeaf.__new__(MainStemLeaf)
+        main_stem_leaf._leaf = _ptr
+        return main_stem_leaf
+
+
+cdef class FruitingBranch:
+    cdef cFruitingBranch *_branch
+
+    @property
+    def number_of_fruiting_nodes(self):
+        return self._branch[0].number_of_fruiting_nodes
+
+    @number_of_fruiting_nodes.setter
+    def number_of_fruiting_nodes(self, value):
+        self._branch[0].number_of_fruiting_nodes = value
 
     @property
     def delay_for_new_node(self):
-        return self._branch.delay_for_new_node
+        return self._branch[0].delay_for_new_node
+
+    @delay_for_new_node.setter
+    def delay_for_new_node(self, value):
+        self._branch[0].delay_for_new_node = value
 
     @property
     def main_stem_leaf(self):
-        return self._branch.main_stem_leaf
+        return MainStemLeaf.from_ptr(&self._branch[0].main_stem_leaf)
 
     @property
     def nodes(self):
-        return [self._branch.nodes[i] for i in
+        return [FruitingNode.from_ptr(&self._branch.nodes[i]) for i in
                 range(self._branch.number_of_fruiting_nodes)]
 
-    def __iter__(self):
-        for attr in self.__slots__:
-            yield attr, getattr(self, attr)
+    @staticmethod
+    cdef FruitingBranch from_ptr(cFruitingBranch *_ptr):
+        """Factory function to create WrapperClass objects from
+        given my_c_struct pointer.
+
+        Setting ``owner`` flag to ``True`` causes
+        the extension type to ``free`` the structure pointed to by ``_ptr``
+        when the wrapper object is deallocated."""
+        # Call to __new__ bypasses __init__ constructor
+        cdef FruitingBranch fruiting_branch = FruitingBranch.__new__(FruitingBranch)
+        fruiting_branch._branch = _ptr
+        return fruiting_branch
+
 
 cdef class VegetativeBranch:
-    cdef cVegetativeBranch _branch
+    cdef cVegetativeBranch *_branch
 
-    def __init__(self, _branch):
-        self._branch = _branch
+    @property
+    def number_of_fruiting_branches(self):
+        return self._branch[0].number_of_fruiting_branches
+
+    @number_of_fruiting_branches.setter
+    def number_of_fruiting_branches(self, value):
+        self._branch[0].number_of_fruiting_branches = value
+
+    @property
+    def delay_for_new_fruiting_branch(self):
+        return self._branch[0].delay_for_new_fruiting_branch
+
+    @delay_for_new_fruiting_branch.setter
+    def delay_for_new_fruiting_branch(self, value):
+        self._branch[0].delay_for_new_fruiting_branch = value
 
     @property
     def fruiting_branches(self):
-        return [FruitingBranch(self._branch.fruiting_branches[i]) for i in
-                range(self._branch.number_of_fruiting_branches)]
+        return [FruitingBranch.from_ptr(&self._branch[0].fruiting_branches[i]) for i in
+                range(self._branch[0].number_of_fruiting_branches)]
 
-    def __iter__(self):
-        yield "fruiting_branches", self.fruiting_branches
+    @staticmethod
+    cdef VegetativeBranch from_ptr(cVegetativeBranch *_ptr):
+        """Factory function to create WrapperClass objects from
+        given my_c_struct pointer.
+
+        Setting ``owner`` flag to ``True`` causes
+        the extension type to ``free`` the structure pointed to by ``_ptr``
+        when the wrapper object is deallocated."""
+        # Call to __new__ bypasses __init__ constructor
+        cdef VegetativeBranch vegetative_branch = VegetativeBranch.__new__(VegetativeBranch)
+        vegetative_branch._branch = _ptr
+        return vegetative_branch
+
 
 cdef class State:
     cdef cState *state
@@ -339,6 +484,62 @@ cdef class State:
         cdef State state = State.__new__(State)
         state.state = _ptr
         return state
+
+    @property
+    def vegetative_branches(self):
+        return [VegetativeBranch.from_ptr(&self.state[0].vegetative_branches[k]) for k in range(self.number_of_vegetative_branches)]
+
+    def add_fruiting_branch(self, k, density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, time_to_new_fruiting_branch, new_node_initial_leaf_area):
+        """
+        This function decides if a new fruiting branch is to be added to a vegetative branch, and forms it. It is called from function CottonPhenology().
+        """
+        # The following constant parameters are used:
+        cdef double[8] vfrtbr = [0.8, 0.95, 33.0, 4.461, -0.1912, 0.00265, 1.8, -1.32]
+        # Compute the cumulative delay for the appearance of the next caused by carbohydrate, nitrogen, and water stresses.
+        vegetative_branch = self.vegetative_branches[k]
+        vegetative_branch.delay_for_new_fruiting_branch += delayVegByCStress + vfrtbr[0] * PhenDelayByNStress
+        vegetative_branch.delay_for_new_fruiting_branch += vfrtbr[1] * (1 - self.water_stress)
+        # Define nbrch and compute TimeToNextFruBranch, the time (in physiological days) needed for the formation of each successive fruiting branch, as a function of the average temperature. This function is derived from data of K. R. Reddy, CSRU, adjusted for age expressed in physiological days.
+        # It is different for the main stem (k = 0) than for the other vegetative branches. TimeToNextFruNode is modified for plant density. Add DelayNewFruBranch to TimeToNextFruNode.
+        last_fruiting_branch = vegetative_branch.fruiting_branches[-1]
+        cdef double tav = last_fruiting_branch.nodes[0].average_temperature  # modified average daily temperature.
+        if tav > vfrtbr[2]:
+            tav = vfrtbr[2]
+        # TimeToNextFruBranch is the time, in physiological days, for the next fruiting branch to be formed.
+        cdef double TimeToNextFruBranch = time_to_new_fruiting_branch + tav * (vfrtbr[3] + tav * (vfrtbr[4] + tav * vfrtbr[5]))
+        if k > 0:
+            TimeToNextFruBranch = TimeToNextFruBranch * vfrtbr[6]
+        TimeToNextFruBranch = TimeToNextFruBranch * (1 + vfrtbr[7] * (1 - density_factor)) + vegetative_branch.delay_for_new_fruiting_branch
+        # Check if the the age of the last fruiting branch exceeds TimeToNextFruBranch. If so, form the new fruiting branch:
+        if last_fruiting_branch.nodes[0].age < TimeToNextFruBranch:
+            return
+        # Increment NumFruitBranches, define newbr, and assign 1 to NumNodes, FruitFraction and FruitingCode.
+        vegetative_branch.number_of_fruiting_branches += 1
+        if vegetative_branch.number_of_fruiting_branches > 30:
+            vegetative_branch.number_of_fruiting_branches = 30
+            return
+        cdef int newbr  # the index number of the new fruiting branch on this vegetative branch, after a new branch has been added.
+        newbr = vegetative_branch.number_of_fruiting_branches - 1
+        new_branch = vegetative_branch.fruiting_branches[-1]
+        new_branch.number_of_fruiting_nodes = 1
+        new_node = new_branch.nodes[0]
+        new_node.fraction = 1
+        new_node.stage = Stage.Square
+        # Initiate new leaves at the first node of the new fruiting branch, and at the corresponding main stem node. The mass and nitrogen in the new leaves is substacted from the stem.
+        new_node.leaf.area = new_node_initial_leaf_area
+        new_node.leaf.weight = new_node_initial_leaf_area * self.leaf_weight_area_ratio
+        main_stem_leaf = new_branch.main_stem_leaf
+        main_stem_leaf.area = new_node_initial_leaf_area
+        main_stem_leaf.weight = main_stem_leaf.area * self.leaf_weight_area_ratio
+        self.stem_weight -= main_stem_leaf.weight + new_node.leaf.weight
+        self.leaf_weight += main_stem_leaf.weight + new_node.leaf.weight
+        # addlfn is the nitrogen added to new leaves from stem.
+        cdef double addlfn = (main_stem_leaf.weight + new_node.leaf.weight) * stemNRatio
+        self.leaf_nitrogen += addlfn
+        self.stem_nitrogen -= addlfn
+        # Begin computing AvrgNodeTemper of the new node and assign zero to DelayNewFruBranch.
+        new_node.average_temperature = self.average_temperature
+        vegetative_branch.delay_for_new_fruiting_branch = 0
 
 cdef class Simulation:
     cdef cSimulation _sim
@@ -1201,7 +1402,7 @@ cdef class Simulation:
         """
         This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
 
-        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), _create_first_square(), _add_vegetative_branch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), _create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
         """
         # The following constant parameters are used:
         cdef double[8] vpheno = [0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10]
@@ -1259,7 +1460,7 @@ cdef class Simulation:
         # Call AddFruitingBranch() to decide if a new node (and a new fruiting branch) is to be added on this stem.
         for k in range(self._sim.states[u].number_of_vegetative_branches):
             if self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches < 30:
-                AddFruitingBranch(self._sim.states[u], k, delayVegByCStress, stemNRatio, self._sim.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
+                self.state(u).add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34])
             # Loop over all existing fruiting branches, and call AddFruitingNode() to decide if a new node on this fruiting branch is to be added.
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
