@@ -1159,11 +1159,49 @@ cdef class Simulation:
         self._sim.states[u].cumulative_nitrogen_loss += cotylwt * self._sim.states[u].leaf_nitrogen / self._sim.states[u].leaf_weight
         self._sim.states[u].leaf_nitrogen -= cotylwt * self._sim.states[u].leaf_nitrogen / self._sim.states[u].leaf_weight
 
+    def _add_vegetative_branch(self, u, delayVegByCStress, stemNRatio, DaysTo1stSqare, PhenDelayByNStress):
+        """
+        This function decides whether a new vegetative branch is to be added, and then forms it. It is called from CottonPhenology().
+        """
+        if self._sim.states[u].number_of_vegetative_branches == 3:
+            return
+        # The following constant parameters are used:
+        cdef double[3] vpvegb = [13.39, -0.696, 0.012]
+        # TimeToNextVegBranch is computed as a function of this average temperature.
+        cdef double TimeToNextVegBranch  # time, in physiological days, for the next vegetative branch to be formed.
+        TimeToNextVegBranch = vpvegb[0] + self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].average_temperature * (vpvegb[1] + self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].average_temperature * vpvegb[2])
+        # Compare the age of the first fruiting site of the last formed vegetative branch with TimeToNextVegBranch plus DaysTo1stSqare and the delays caused by stresses, in order to decide if a new vegetative branch is to be formed.
+        if self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].age < TimeToNextVegBranch + delayVegByCStress + PhenDelayByNStress + DaysTo1stSqare:
+            return
+        # When a new vegetative branch is formed, increase NumVegBranches by 1.
+        self._sim.states[u].number_of_vegetative_branches += 1
+        # Assign 1 to FruitFraction and FruitingCode of the first site of this branch.
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].fraction = 1
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].stage = Stage.Square
+        # Add a new leaf to the first site of this branch.
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].leaf.area = self.cultivar_parameters[34]
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].leaf.weight = self.cultivar_parameters[34] * self._sim.states[u].leaf_weight_area_ratio
+        # Add a new mainstem leaf to the first node of this branch.
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf.leaf_area = self.cultivar_parameters[34]
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf.leaf_weight = self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf.leaf_area * self._sim.states[u].leaf_weight_area_ratio
+        # The initial mass and nitrogen in the new leaves are substracted from the stem.
+        self._sim.states[u].stem_weight -= self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].leaf.weight + self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf.leaf_weight
+        self._sim.states[u].leaf_weight += self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].leaf.weight + self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf.leaf_weight
+        cdef double addlfn  # nitrogen moved to new leaves from stem.
+        addlfn = (self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].leaf.weight + self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf.leaf_weight) * stemNRatio
+        self._sim.states[u].leaf_nitrogen += addlfn
+        self._sim.states[u].stem_nitrogen -= addlfn
+        # Assign the initial value of the average temperature of the first site.
+        # Define initial NumFruitBranches and NumNodes for the new vegetative branch.
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0].average_temperature = self._sim.states[u].average_temperature
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].number_of_fruiting_branches = 1
+        self._sim.states[u].vegetative_branches[self._sim.states[u].number_of_vegetative_branches - 1].fruiting_branches[0].number_of_fruiting_nodes = 1
+
     def _phenology(self, u):
         """
         This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
 
-        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), _create_first_square(), AddVegetativeBranch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), _create_first_square(), _add_vegetative_branch(), AddFruitingBranch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
         """
         # The following constant parameters are used:
         cdef double[8] vpheno = [0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10]
@@ -1207,11 +1245,11 @@ cdef class Simulation:
                 LeafAbscission(self._sim, u)
                 return
         # The following is executed after the appearance of the first square.
-        # If there are only one or two vegetative branches, and if plant population allows it, call AddVegetativeBranch() to decide if a new vegetative branch is to be added. Note that dense plant populations (large per_plant_area) prevent new vegetative branch formation.
+        # If there are only one or two vegetative branches, and if plant population allows it, call _add_vegetative_branch() to decide if a new vegetative branch is to be added. Note that dense plant populations (large per_plant_area) prevent new vegetative branch formation.
         if self._sim.states[u].number_of_vegetative_branches == 1 and self._sim.per_plant_area >= vpheno[5]:
-            AddVegetativeBranch(self._sim.states[u], delayVegByCStress, stemNRatio, self.DaysTo1stSqare, self._sim.cultivar_parameters, PhenDelayByNStress)
+            self._add_vegetative_branch(u, delayVegByCStress, stemNRatio, self.DaysTo1stSqare, PhenDelayByNStress)
         if self._sim.states[u].number_of_vegetative_branches == 2 and self._sim.per_plant_area >= vpheno[6]:
-            AddVegetativeBranch(self._sim.states[u], delayVegByCStress, stemNRatio, self.DaysTo1stSqare, self._sim.cultivar_parameters, PhenDelayByNStress)
+            self._add_vegetative_branch(u, delayVegByCStress, stemNRatio, self.DaysTo1stSqare, PhenDelayByNStress)
         # The maximum number of nodes per fruiting branch (nidmax) is affected by plant density. It is computed as a function of density_factor.
         cdef int nidmax  # maximum number of nodes per fruiting branch.
         nidmax = <int>(vpheno[7] * self._sim.density_factor + 0.5)

@@ -4,7 +4,6 @@
 // CottonPhenology()
 // PreFruitingNode()
 // DaysToFirstSquare()
-// AddVegetativeBranch()
 // AddFruitingBranch()
 // AddFruitingNode()
 // SimulateFruitingSite{}
@@ -88,66 +87,6 @@ void PreFruitingNode(State &state, double stemNRatio, double VarPar[61])
         state.leaf_nitrogen += state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
         state.stem_nitrogen -= state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-void AddVegetativeBranch(State &state, double delayVegByCStress, double stemNRatio, double DaysTo1stSqare, double VarPar[61], double PhenDelayByNStress)
-//     This function decides whether a new vegetative branch is to be added, and
-//  then forms it. It is called from CottonPhenology().
-//     The following global variables are referenced here:
-//        AgeOfSite.
-//     The following global variable are set here:
-//        AvrgNodeTemper, FruitFraction, FruitingCode, LeafAreaMainStem, LeafAreaNodes,
-//        LeafWeightMainStem, LeafWeightNodes, NumFruitBranches, NumNodes,
-//        NumVegBranches.
-//     Arguments used in this function:
-//        delayVegByCStress - delay in formation of new fruiting branches caused by carbohydrate stress.
-//        stemNRatio - the ratio of N to dry matter in the stems.
-//        DaysTo1stSqare - days to 1st square
-//
-{
-    //     The following constant parameters are used:
-    const double vpvegb[3] = {13.39, -0.696, 0.012};
-    //      TimeToNextVegBranch is computed as a function of this average temperature.
-    double TimeToNextVegBranch; // time, in physiological days, for the next vegetative branch to be formed.
-    FruitingSite &site = state.vegetative_branches[state.number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0];
-    TimeToNextVegBranch = vpvegb[0] + site.average_temperature * (vpvegb[1] + site.average_temperature * vpvegb[2]);
-    //      Compare the age of the first fruiting site of the last formed
-    //  vegetative branch with TimeToNextVegBranch plus DaysTo1stSqare and the delays caused by
-    //  stresses, in order to decide if a new vegetative branch is to be formed.
-    if (site.age < (TimeToNextVegBranch + delayVegByCStress + PhenDelayByNStress + DaysTo1stSqare))
-        return;
-    //      When a new vegetative branch is formed, increase NumVegBranches by 1.
-    state.number_of_vegetative_branches++;
-    if (state.number_of_vegetative_branches > 3)
-    {
-        state.number_of_vegetative_branches = 3;
-        return;
-    }
-    site = state.vegetative_branches[state.number_of_vegetative_branches - 1].fruiting_branches[0].nodes[0];
-    //      Assign 1 to FruitFraction and FruitingCode of the first site of this branch.
-    site.fraction = 1;
-    site.stage = Stage::Square;
-    //      Add a new leaf to the first site of this branch.
-    site.leaf.area = VarPar[34];
-    site.leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
-    //      Add a new mainstem leaf to the first node of this branch.
-    MainStemLeaf &main_stem_leaf = state.vegetative_branches[state.number_of_vegetative_branches - 1].fruiting_branches[0].main_stem_leaf;
-    main_stem_leaf.leaf_area = VarPar[34];
-    main_stem_leaf.leaf_weight = main_stem_leaf.leaf_area * state.leaf_weight_area_ratio;
-    //      The initial mass and nitrogen in the new leaves are
-    //  substracted from the stem.
-    state.stem_weight -= site.leaf.weight + main_stem_leaf.leaf_weight;
-    state.leaf_weight += site.leaf.weight + main_stem_leaf.leaf_weight;
-    double addlfn; // nitrogen moved to new leaves from stem.
-    addlfn = (site.leaf.weight + main_stem_leaf.leaf_weight) * stemNRatio;
-    state.leaf_nitrogen += addlfn;
-    state.stem_nitrogen -= addlfn;
-    //      Assign the initial value of the average temperature of the first site.
-    //      Define initial NumFruitBranches and NumNodes for the new vegetative branch.
-    site.average_temperature = state.average_temperature;
-    state.vegetative_branches[state.number_of_vegetative_branches - 1].number_of_fruiting_branches = 1;
-    state.vegetative_branches[state.number_of_vegetative_branches - 1].fruiting_branches[0].number_of_fruiting_nodes = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
