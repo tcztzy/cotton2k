@@ -1,7 +1,4 @@
 use super::root::*;
-use super::util::*;
-use std::slice;
-use std::str;
 
 fn approx_equal(a: f64, b: f64, decimal_places: u8) -> bool {
     let factor = 10.0f64.powi(decimal_places as i32);

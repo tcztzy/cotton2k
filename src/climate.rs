@@ -1,5 +1,4 @@
 use super::*;
-use chrono::prelude::*;
 use std::f64::consts::PI;
 
 /// Function dayrad() computes the hourly values of global radiation, in W m-2,

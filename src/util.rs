@@ -1,7 +1,3 @@
-use chrono::prelude::*;
-use chrono::Duration;
-use std::ffi::CStr;
-use std::os::raw::c_char;
 use std::slice;
 
 /// This function sorts an array of values by its value (larger is first)
