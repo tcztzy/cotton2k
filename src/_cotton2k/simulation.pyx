@@ -1050,7 +1050,7 @@ cdef class Simulation:
         cdef double[5] vpotfrt = [0.72, 0.30, 3.875, 0.125, 0.17]
         # Compute tfrt for the effect of temperature on boll and burr growth rates. Function TemperatureOnFruitGrowthRate() is used (with parameters derived from GOSSYM), for day time and night time temperatures, weighted by day and night lengths.
         cdef double tfrt  # the effect of temperature on rate of boll, burr or square growth.
-        tfrt = (self._sim.states[u].day_length * TemperatureOnFruitGrowthRate(DayTimeTemp) + (24 - self._sim.states[u].day_length) * TemperatureOnFruitGrowthRate(NightTimeTemp)) / 24;
+        tfrt = (self._sim.states[u].day_length * TemperatureOnFruitGrowthRate(DayTimeTemp) + (24 - self._sim.states[u].day_length) * TemperatureOnFruitGrowthRate(NightTimeTemp)) / 24
         # Assign zero to sums of potential growth of squares, bolls and burrs.
         PotGroAllSquares = 0
         PotGroAllBolls = 0
@@ -1086,10 +1086,10 @@ cdef class Simulation:
                         # pex is an intermediate variable to compute boll growth.
                         pex = exp(-4 * rbmax * (self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].boll.age - agemax) / wbmax)
                         # ratebol is the rate of boll (seed and lint) growth, g per boll per day.
-                        ratebol = 4 * tfrt * rbmax * pex / (1 + pex) ** 2;
+                        ratebol = 4 * tfrt * rbmax * pex / (1 + pex) ** 2
                         # Potential growth rate of the burrs is assumed to be constant (vpotfrt[4] g dry weight per day) until the boll reaches its final volume. This occurs at the age of 22 physiological days in 'Acala-SJ2'. Both ratebol and ratebur are modified by temperature (tfrt) and ratebur is also affected by water stress (wfdb).
                         # Compute wfdb for the effect of water stress on burr growth rate. wfdb is the effect of water stress on rate of burr growth.
-                        wfdb = vpotfrt[0] + vpotfrt[1] * self._sim.states[u].water_stress;
+                        wfdb = vpotfrt[0] + vpotfrt[1] * self._sim.states[u].water_stress
                         if wfdb < 0:
                             wfdb = 0
                         if wfdb > 1:
@@ -1262,7 +1262,7 @@ cdef class Simulation:
         # cdpet is carbohydrate requirement for petiole growth, g per plant per day.
         # cdroot is carbohydrate requirement for root growth, g per plant per day.
         # cdstem is carbohydrate requirement for stem growth, g per plant per day.
-        cdef double cdstem, cdleaf, cdpet, cdroot;
+        cdef double cdstem, cdleaf, cdpet, cdroot
         DryMatterBalance(self._sim.states[u], cdstem, cdleaf, cdpet, cdroot, self._sim.per_plant_area)
         # If it is after first square, call ActualFruitGrowth() to compute actual
         # growth rate of squares and bolls.
