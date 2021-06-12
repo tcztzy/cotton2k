@@ -93,7 +93,7 @@ class cotton2k_develop(develop):
 
 
 setup(
-    packages=["cotton2k"],
+    packages=["cotton2k", "_cotton2k"],
     package_dir={"": "src"},
     package_data={"cotton2k": ["*.json", "*.csv"]},
     ext_modules=extensions,
