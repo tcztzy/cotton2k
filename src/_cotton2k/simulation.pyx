@@ -338,23 +338,23 @@ cdef class FruitingNode:
 
 
 cdef class MainStemLeaf:
-    cdef cMainStemLeaf *_leaf
+    cdef cMainStemLeaf *_
 
     @property
     def area(self):
-        return self._leaf.leaf_area
+        return self._.leaf_area
 
     @area.setter
     def area(self, value):
-        self._leaf.leaf_area = value
+        self._.leaf_area = value
 
     @property
     def weight(self):
-        return self._leaf.leaf_weight
+        return self._.leaf_weight
 
     @weight.setter
     def weight(self, value):
-        self._leaf.leaf_weight = value
+        self._.leaf_weight = value
 
     @staticmethod
     cdef MainStemLeaf from_ptr(cMainStemLeaf *_ptr):
@@ -366,37 +366,37 @@ cdef class MainStemLeaf:
         when the wrapper object is deallocated."""
         # Call to __new__ bypasses __init__ constructor
         cdef MainStemLeaf main_stem_leaf = MainStemLeaf.__new__(MainStemLeaf)
-        main_stem_leaf._leaf = _ptr
+        main_stem_leaf._ = _ptr
         return main_stem_leaf
 
 
 cdef class FruitingBranch:
-    cdef cFruitingBranch *_branch
+    cdef cFruitingBranch *_
 
     @property
     def number_of_fruiting_nodes(self):
-        return self._branch[0].number_of_fruiting_nodes
+        return self._[0].number_of_fruiting_nodes
 
     @number_of_fruiting_nodes.setter
     def number_of_fruiting_nodes(self, value):
-        self._branch[0].number_of_fruiting_nodes = value
+        self._[0].number_of_fruiting_nodes = value
 
     @property
     def delay_for_new_node(self):
-        return self._branch[0].delay_for_new_node
+        return self._[0].delay_for_new_node
 
     @delay_for_new_node.setter
     def delay_for_new_node(self, value):
-        self._branch[0].delay_for_new_node = value
+        self._[0].delay_for_new_node = value
 
     @property
     def main_stem_leaf(self):
-        return MainStemLeaf.from_ptr(&self._branch[0].main_stem_leaf)
+        return MainStemLeaf.from_ptr(&self._[0].main_stem_leaf)
 
     @property
     def nodes(self):
-        return [FruitingNode.from_ptr(&self._branch.nodes[i]) for i in
-                range(self._branch.number_of_fruiting_nodes)]
+        return [FruitingNode.from_ptr(&self._.nodes[i]) for i in
+                range(self._.number_of_fruiting_nodes)]
 
     @staticmethod
     cdef FruitingBranch from_ptr(cFruitingBranch *_ptr):
@@ -408,33 +408,33 @@ cdef class FruitingBranch:
         when the wrapper object is deallocated."""
         # Call to __new__ bypasses __init__ constructor
         cdef FruitingBranch fruiting_branch = FruitingBranch.__new__(FruitingBranch)
-        fruiting_branch._branch = _ptr
+        fruiting_branch._ = _ptr
         return fruiting_branch
 
 
 cdef class VegetativeBranch:
-    cdef cVegetativeBranch *_branch
+    cdef cVegetativeBranch *_
 
     @property
     def number_of_fruiting_branches(self):
-        return self._branch[0].number_of_fruiting_branches
+        return self._[0].number_of_fruiting_branches
 
     @number_of_fruiting_branches.setter
     def number_of_fruiting_branches(self, value):
-        self._branch[0].number_of_fruiting_branches = value
+        self._[0].number_of_fruiting_branches = value
 
     @property
     def delay_for_new_fruiting_branch(self):
-        return self._branch[0].delay_for_new_fruiting_branch
+        return self._[0].delay_for_new_fruiting_branch
 
     @delay_for_new_fruiting_branch.setter
     def delay_for_new_fruiting_branch(self, value):
-        self._branch[0].delay_for_new_fruiting_branch = value
+        self._[0].delay_for_new_fruiting_branch = value
 
     @property
     def fruiting_branches(self):
-        return [FruitingBranch.from_ptr(&self._branch[0].fruiting_branches[i]) for i in
-                range(self._branch[0].number_of_fruiting_branches)]
+        return [FruitingBranch.from_ptr(&self._[0].fruiting_branches[i]) for i in
+                range(self._[0].number_of_fruiting_branches)]
 
     @staticmethod
     cdef VegetativeBranch from_ptr(cVegetativeBranch *_ptr):
@@ -446,24 +446,24 @@ cdef class VegetativeBranch:
         when the wrapper object is deallocated."""
         # Call to __new__ bypasses __init__ constructor
         cdef VegetativeBranch vegetative_branch = VegetativeBranch.__new__(VegetativeBranch)
-        vegetative_branch._branch = _ptr
+        vegetative_branch._ = _ptr
         return vegetative_branch
 
 
 cdef class State:
-    cdef cState *state
+    cdef cState *_
 
     def keys(self):
-        return dict(self.state[0]).keys()
+        return dict(self._[0]).keys()
 
     def __getattr__(self, item):
-        state = dict(self.state[0])
+        state = dict(self._[0])
         return state[item]
 
     def __setattr__(self, key, value):
-        state = dict(self.state[0])
+        state = dict(self._[0])
         state[key] = value
-        self.state[0] = state
+        self._[0] = state
 
     def __getitem__(self, item):
         return self.__getattr__(item)
@@ -482,12 +482,12 @@ cdef class State:
         when the wrapper object is deallocated."""
         # Call to __new__ bypasses __init__ constructor
         cdef State state = State.__new__(State)
-        state.state = _ptr
+        state._ = _ptr
         return state
 
     @property
     def vegetative_branches(self):
-        return [VegetativeBranch.from_ptr(&self.state[0].vegetative_branches[k]) for k in range(self.number_of_vegetative_branches)]
+        return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k]) for k in range(self.number_of_vegetative_branches)]
 
     def add_fruiting_branch(self, k, density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, time_to_new_fruiting_branch, new_node_initial_leaf_area):
         """
