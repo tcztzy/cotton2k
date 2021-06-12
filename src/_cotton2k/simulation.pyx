@@ -1536,13 +1536,14 @@ cdef class Simulation:
 
     def _simulate_this_day(self, u):
         global isw
+        state = self.state(u)
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
-            self._sim.states[u].kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
+            state.kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
             self._calc_light_interception(u)
             self._column_shading(u)
         else:
-            self._sim.states[u].kday = 0
-            self._sim.states[u].light_interception = 0
+            state.kday = 0
+            state.light_interception = 0
             self.relative_radiation_received_by_a_soil_column = [1] * 20
         # The following functions are executed each day (also before emergence).
         self._daily_climate(u)  # computes climate variables for today.
@@ -1552,11 +1553,10 @@ cdef class Simulation:
         SoilNitrogen(self._sim, u)  # computes nitrogen transformations in the soil.
         SoilSum(self._sim.states[u], self._sim.row_space)  # computes totals of water and N in the soil.
         # The following is executed each day after plant emergence:
-        if self._sim.states[u].daynum >= self._sim.day_emerge and isw > 0:
+        if state.daynum >= self._sim.day_emerge and isw > 0:
             # If this day is after emergence, assign to isw the value of 2.
             isw = 2
-            self._sim.states[u].day_inc = PhysiologicalAge(self._sim.states[
-                                                               u].hours)  # physiological days increment for this day. computes physiological age
+            state.day_inc = PhysiologicalAge(self._sim.states[u].hours)  # physiological days increment for this day. computes physiological age
             self._defoliate(u)  # effects of defoliants applied.
             self._stress(u)  # computes water stress factors.
             self._get_net_photosynthesis(u)  # computes net photosynthesis.
@@ -1565,8 +1565,7 @@ cdef class Simulation:
             PlantNitrogen(self._sim, u)  # computes plant nitrogen allocation.
             CheckDryMatterBal(self._sim.states[u])  # checks plant dry matter balance.
         # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
-        if self._sim.states[u].daynum >= LastDayWeatherData or (
-                self._sim.states[u].kday > 10 and self._sim.states[u].leaf_area_index < 0.0002):
+        if state.daynum >= LastDayWeatherData or (state.kday > 10 and state.leaf_area_index < 0.0002):
             raise SimulationEnd
 
     def _init_grid(self):
