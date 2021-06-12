@@ -468,10 +468,6 @@ cdef class State:
     def __getitem__(self, item):
         return self.__getattr__(item)
 
-    @property
-    def average_temperature(self):
-        return sum(hour["temperature"] for hour in self.hours) / 24
-
     @staticmethod
     cdef State from_ptr(cState *_ptr):
         """Factory function to create WrapperClass objects from
@@ -488,6 +484,33 @@ cdef class State:
     @property
     def vegetative_branches(self):
         return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k]) for k in range(self.number_of_vegetative_branches)]
+
+    def create_first_square(self, stemNRatio, first_square_leaf_area):
+        """
+        This function initiates the first square. It is called from function CottonPhenology().
+        """
+        # FruitFraction and FruitingCode are assigned 1 for the first fruiting site.
+        self.vegetative_branches[0].number_of_fruiting_branches = 1
+        self.vegetative_branches[0].fruiting_branches[0].number_of_fruiting_nodes = 1
+        first_node = self.vegetative_branches[0].fruiting_branches[0].nodes[0]
+        first_node.stage = Stage.Square
+        first_node.fraction = 1
+        # Initialize a new leaf at this position. define its initial weight and area. VarPar[34] is the initial area of a new leaf. The mass and nitrogen of the new leaf are substacted from the stem.
+        first_node.leaf.area = first_square_leaf_area
+        first_node.leaf.weight = first_square_leaf_area * self.leaf_weight_area_ratio
+        self.stem_weight -= first_node.leaf.weight
+        self.leaf_weight += first_node.leaf.weight
+        self.leaf_nitrogen += first_node.leaf.weight * stemNRatio
+        self.stem_nitrogen -= first_node.leaf.weight * stemNRatio
+        first_node.average_temperature = self.average_temperature
+        # Define the initial values of NumFruitBranches, NumNodes, state.fruit_growth_ratio, and AvrgNodeTemper.
+        self.fruit_growth_ratio = 1
+        # It is assumed that the cotyledons are dropped at time of first square. compute changes in AbscisedLeafWeight, state.leaf_weight, state.leaf_nitrogen and CumPlantNLoss caused by the abscission of the cotyledons.
+        cdef double cotylwt = 0.20  # cotylwt is the leaf weight of the cotyledons.
+        self.abscised_leaf_weight += cotylwt
+        self.leaf_weight -= cotylwt
+        self.cumulative_nitrogen_loss += cotylwt * self.leaf_nitrogen / self.leaf_weight
+        self.leaf_nitrogen -= cotylwt * self.leaf_nitrogen / self.leaf_weight
 
     def add_fruiting_branch(self, k, density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, time_to_new_fruiting_branch, new_node_initial_leaf_area):
         """
@@ -1334,32 +1357,6 @@ cdef class Simulation:
         self.sumstrs += 0.08 * (1 - state.water_stress) * 0.3 * (1 - state.nitrogen_stress_vegetative)
         return (132.2 + self.avtemp * (-7 + self.avtemp * 0.125)) * self.cultivar_parameters[30] - self.sumstrs
 
-    def _create_first_square(self, u, stemNRatio):
-        """
-        This function initiates the first square. It is called from function CottonPhenology().
-        """
-        # FruitFraction and FruitingCode are assigned 1 for the first fruiting site.
-        self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage = Stage.Square
-        self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].fraction = 1
-        # Initialize a new leaf at this position. define its initial weight and area. VarPar[34] is the initial area of a new leaf. The mass and nitrogen of the new leaf are substacted from the stem.
-        self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].leaf.area = self.cultivar_parameters[34]
-        self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].leaf.weight = self.cultivar_parameters[34] * self._sim.states[u].leaf_weight_area_ratio
-        self._sim.states[u].stem_weight -= self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].leaf.weight
-        self._sim.states[u].leaf_weight += self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].leaf.weight
-        self._sim.states[u].leaf_nitrogen += self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].leaf.weight * stemNRatio
-        self._sim.states[u].stem_nitrogen -= self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].leaf.weight * stemNRatio
-        # Define the initial values of NumFruitBranches, NumNodes, state.fruit_growth_ratio, and AvrgNodeTemper.
-        self._sim.states[u].vegetative_branches[0].number_of_fruiting_branches = 1
-        self._sim.states[u].vegetative_branches[0].fruiting_branches[0].number_of_fruiting_nodes = 1
-        self._sim.states[u].fruit_growth_ratio = 1
-        self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].average_temperature = self._sim.states[u].average_temperature
-        # It is assumed that the cotyledons are dropped at time of first square. compute changes in AbscisedLeafWeight, state.leaf_weight, state.leaf_nitrogen and CumPlantNLoss caused by the abscission of the cotyledons.
-        cdef double cotylwt = 0.20  # cotylwt is the leaf weight of the cotyledons.
-        self._sim.states[u].abscised_leaf_weight += cotylwt
-        self._sim.states[u].leaf_weight -= cotylwt
-        self._sim.states[u].cumulative_nitrogen_loss += cotylwt * self._sim.states[u].leaf_nitrogen / self._sim.states[u].leaf_weight
-        self._sim.states[u].leaf_nitrogen -= cotylwt * self._sim.states[u].leaf_nitrogen / self._sim.states[u].leaf_weight
-
     def _add_vegetative_branch(self, u, delayVegByCStress, stemNRatio, DaysTo1stSqare, PhenDelayByNStress):
         """
         This function decides whether a new vegetative branch is to be added, and then forms it. It is called from CottonPhenology().
@@ -1402,8 +1399,9 @@ cdef class Simulation:
         """
         This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
 
-        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), _create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
         """
+        state = self.state(u)
         # The following constant parameters are used:
         cdef double[8] vpheno = [0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10]
 
@@ -1437,10 +1435,10 @@ cdef class Simulation:
             self.DaysTo1stSqare = self._days_to_first_square(u)
             PreFruitingNode(self._sim.states[u], stemNRatio, self._sim.cultivar_parameters)
             # When first square is formed, FirstSquare is assigned the day of year.
-            # Function _create_first_square() is called for formation of first square.
-            if self._sim.states[u].kday >= <int>self.DaysTo1stSqare:
+            # Function create_first_square() is called for formation of first square.
+            if state.kday >= <int>self.DaysTo1stSqare:
                 self._sim.first_square = self._sim.states[u].daynum
-                self._create_first_square(u, stemNRatio)
+                state.create_first_square(stemNRatio, self.cultivar_parameters[34])
             # if a first square has not been formed, call LeafAbscission() and exit.
             else:
                 LeafAbscission(self._sim, u)
