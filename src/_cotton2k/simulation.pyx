@@ -1418,7 +1418,7 @@ cdef class Simulation:
             PhenDelayByNStress = 0
 
         cdef double delayVegByCStress  # delay in formation of new fruiting branches caused by carbon stress.
-        delayVegByCStress = self._sim.cultivar_parameters[27] + self._sim.states[u].carbon_stress * (vpheno[3] + vpheno[4] * self._sim.states[u].carbon_stress)
+        delayVegByCStress = self.cultivar_parameters[27] + self._sim.states[u].carbon_stress * (vpheno[3] + vpheno[4] * self._sim.states[u].carbon_stress)
         if delayVegByCStress > 1:
             delayVegByCStress = 1
         elif delayVegByCStress < 0:
@@ -1591,8 +1591,7 @@ cdef class Simulation:
         # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
         self._sim.plant_population = self.plants_per_meter / self.row_space * 1000000
         self._sim.per_plant_area = 1000000 / self._sim.plant_population
-        self._sim.density_factor = exp(
-            self._sim.cultivar_parameters[1] * (5 - self._sim.plant_population / 10000))
+        self._sim.density_factor = exp(self.cultivar_parameters[1] * (5 - self._sim.plant_population / 10000))
         # Define the numbers of rows and columns in the soil slab (nl, nk).
         # Define the depth, in cm, of consecutive nl layers.
         # NOTE: maxl and maxk are defined as constants in file "global.h".
