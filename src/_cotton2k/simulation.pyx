@@ -7,7 +7,7 @@ from libc.math cimport exp
 from libc.stdlib cimport malloc
 from libcpp cimport bool as bool_t
 
-from _cotton2k.climate import compute_day_length
+from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
 from _cotton2k.photosynthesis import ambient_co2_factor
 from _cotton2k.utils import date2doy
@@ -42,7 +42,7 @@ from .cxx cimport (
     PotGroPetioleWeightPreFru,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, wk, dayrad, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate
+from .rs cimport SlabLoc, tdewest, wk, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf
 from .fruiting_site cimport FruitingSite, Leaf
 
@@ -929,7 +929,7 @@ cdef class Simulation:
         for ihr in range(24):
             ti = ihr + 0.5
             sinb = sd + cd * cos(pi * (ti - self._sim.states[u].solar_noon) / 12)
-            self._sim.states[u].hours[ihr].radiation = dayrad(ti, radsum, sinb, c11)
+            self._sim.states[u].hours[ihr].radiation = radiation(radsum, sinb, c11)
             self._sim.states[u].hours[ihr].temperature = daytmp(self._sim, u, ti, SitePar[8], LastDayWeatherData, sunr,
                                                                 suns)
             self._sim.states[u].hours[ihr].dew_point = tdewhour(self._sim, u, LastDayWeatherData, ti,
