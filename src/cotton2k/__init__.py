@@ -13,16 +13,9 @@ __author__: str = meta["Author"]
 __license__: str = meta["License"]
 
 
-def run(
-    profile_path: Union[Path, str, dict], *, output: bool = False, name: str = "default"
-):
+def run(profile_path: Union[Path, str, dict], *, output: bool = False):
     sim = read_input(profile_path)
     sim.run()
     if output:
-        if isinstance(profile_path, dict):
-            output_dir = Path(".")
-        else:
-            output_dir = Path(profile_path).parent
-            name = Path(profile_path).stem
-        write_output(sim, output_dir, name)
+        write_output(sim)
     return sim

@@ -2,8 +2,13 @@
 import csv
 import datetime
 import json
+from operator import attrgetter
 from pathlib import Path
 from typing import Union
+
+from appdirs import user_data_dir
+from sqlalchemy import create_engine, inspect
+from sqlalchemy.orm import Session
 
 from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     Climate,
@@ -11,6 +16,11 @@ from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     SoilImpedance,
     SoilInit,
 )
+from cotton2k.models import Simulation as SimulationModel
+from cotton2k.models import State as StateModel
+
+DATA_DIR = user_data_dir("Cotton2K", "Tang Ziya")
+
 
 SOIL_IMPEDANCE = SoilImpedance()
 with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
@@ -57,64 +67,57 @@ def read_input(path: Union[Path, str, dict]) -> Simulation:
     return sim
 
 
-def write_output(  # pylint: disable=too-many-locals
-    sim: Simulation, output_dir: Path = Path("."), name: str = "default"
-) -> None:
-    path = (
-        output_dir
-        / name
-        / (
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            + f" v{sim.version // 0x100:x}.{sim.version % 0x100:x}"
-        )
+def prepare_database(engine_url):
+    engine = create_engine(engine_url)
+    for model in (SimulationModel, StateModel):
+        if not inspect(engine).has_table(model.__tablename__):
+            model.__table__.create(bind=engine, checkfirst=True)
+    session = Session(bind=engine)
+    return session
+
+
+def write_output(
+    simulation: Simulation,
+    engine_url: str = f"sqlite+pysqlite:///{DATA_DIR}/cotton2k.sqlite3",
+):
+    session = prepare_database(engine_url)
+    simulation_model = SimulationModel(
+        version=simulation.version, execute_time=datetime.datetime.now()
     )
-    if not path.exists():
-        path.mkdir(parents=True)
-    for state in sim.states:
-        doy = state["daynum"]
-        state_dir = path / datetime.datetime.strptime(
-            f"{sim.year} {doy}", "%Y %j"
-        ).strftime("%Y-%m-%d")
-        if not state_dir.exists():
-            state_dir.mkdir(parents=True)
-        vegetative_branches = state["vegetative_branches"]
-        with open(state_dir / "index.json", "w") as f:
-            json.dump(
-                {
-                    key: state[key]
-                    for key in state.keys()
-                    if "vegetative_branches" not in key
-                },
-                f,
-            )
-        for i in range(state["number_of_vegetative_branches"]):
-            vb_dir = state_dir / f"vegetative_branch{i}"
-            fruiting_branches = vegetative_branches[i]["fruiting_branches"]
-            if not vb_dir.exists():
-                vb_dir.mkdir(parents=True)
-            with open(vb_dir / "index.json", "w") as f:
-                json.dump(
-                    {
-                        key: vegetative_branches[i][key]
-                        for key in vegetative_branches[i]
-                        if "fruiting_branches" not in key
-                    },
-                    f,
+    session.add(simulation_model)
+    session.commit()
+    for state in simulation.states:
+        state_model = StateModel(
+            simulation_id=simulation_model.id,
+            date=datetime.datetime.strptime(
+                f"{simulation.year} {state.daynum}", "%Y %j"
+            ).date(),
+            **{
+                key: state[key]
+                for key in (
+                    "kday",
+                    "lint_yield",
+                    "ginning_percent",
+                    "plant_height",
+                    "plant_weight",
+                    "stem_weight",
+                    "square_weight",
+                    "green_bolls_weight",
+                    "open_bolls_weight",
+                    "leaf_weight",
+                    "leaf_area_index",
+                    "light_interception",
+                    "number_of_squares",
+                    "number_of_green_bolls",
+                    "number_of_open_bolls",
                 )
-            for j in range(vegetative_branches[i]["number_of_fruiting_branches"]):
-                fb_dir = vb_dir / f"fruiting_branch{j}"
-                if not fb_dir.exists():
-                    fb_dir.mkdir(parents=True)
-                with open(fb_dir / "index.json", "w") as f:
-                    json.dump(
-                        {
-                            key: fruiting_branches[j][key]
-                            for key in fruiting_branches[j]
-                            if "nodes" not in key
-                        },
-                        f,
-                    )
-                for k in range(fruiting_branches[j]["number_of_fruiting_nodes"]):
-                    fruiting_nodes = fruiting_branches[j]["nodes"]
-                    with open(fb_dir / f"node{k}.json", "w") as f:
-                        json.dump(fruiting_nodes[k], f)
+            },
+            number_of_fruiting_branches=sum(
+                map(
+                    attrgetter("number_of_fruiting_branches"), state.vegetative_branches
+                )
+            ),
+        )
+        session.add(state_model)
+        session.commit()
+    return session, simulation_model

@@ -1,11 +1,11 @@
 repos:
     - repo: https://github.com/psf/black
-      rev: 20.8b1
+      rev: 21.6b0
       hooks:
           - id: black
             args: [--safe, --quiet]
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v3.4.0
+      rev: v4.0.1
       hooks:
           - id: trailing-whitespace
             exclude: ^src/_cotton2k/.+\.cpp
@@ -16,20 +16,21 @@ repos:
             exclude: _pytest/(debugging|hookspec).py
             language_version: python3
     - repo: https://github.com/pre-commit/mirrors-isort
-      rev: v5.7.0
+      rev: v5.8.0
       hooks:
           - id: isort
             files: ^(src/_?cotton2k/|tests/|setup.py)
     - repo: https://github.com/pre-commit/mirrors-pylint
-      rev: "v2.6.0"
+      rev: v3.0.0a3
       hooks:
           - id: pylint
-            additional_dependencies: [pyenchant>=3.1.1, orjson]
+            additional_dependencies: [appdirs, pyenchant>=3.1.1, "sqlalchemy[mypy]"]
             files: ^src/_?cotton2k/
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v0.812
+      rev: v0.902
       hooks:
           - id: mypy
+            additional_dependencies: ["sqlalchemy[mypy]"]
             files: ^(src/_?cotton2k|tests)/
     - repo: local
       hooks:

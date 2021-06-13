@@ -45,3 +45,6 @@ branch = true
 
 [tool.coverage.report]
 fail_under = 95
+
+[tool.mypy]
+plugins = ["sqlalchemy.ext.mypy.plugin"]
