@@ -6,7 +6,6 @@ from operator import attrgetter
 from pathlib import Path
 from typing import Union
 
-from appdirs import user_data_dir
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import Session
 
@@ -18,9 +17,6 @@ from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
 )
 from cotton2k.models import Simulation as SimulationModel
 from cotton2k.models import State as StateModel
-
-DATA_DIR = user_data_dir("Cotton2K", "Tang Ziya")
-
 
 SOIL_IMPEDANCE = SoilImpedance()
 with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
@@ -78,7 +74,7 @@ def prepare_database(engine_url):
 
 def write_output(
     simulation: Simulation,
-    engine_url: str = f"sqlite+pysqlite:///{DATA_DIR}/cotton2k.sqlite3",
+    engine_url: str = "sqlite+pysqlite:///:memory:",
 ):
     session = prepare_database(engine_url)
     simulation_model = SimulationModel(
