@@ -14,7 +14,9 @@ try:
 
     from Cython.Build import build_ext, cythonize
 
-    extensions = cythonize("src/_cotton2k/*.pyx", nthreads=cpu_count())
+    extensions = cythonize(
+        "src/_cotton2k/*.pyx", nthreads=cpu_count() if os.name != "nt" else 0
+    )
 except ImportError:
     from pathlib import Path
 
