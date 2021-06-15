@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer
+from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
@@ -10,6 +10,7 @@ class Simulation(Model):  # pylint: disable=too-few-public-methods
     id = Column(Integer, primary_key=True)
     version = Column(Integer, default=0x0400)
     execute_time = Column(DateTime)
+    name = Column(String)
     states: list["State"] = relationship("State", backref=backref("simulations"))
 
 

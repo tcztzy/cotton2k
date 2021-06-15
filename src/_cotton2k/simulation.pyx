@@ -6,6 +6,7 @@ from math import sin, cos, acos, sqrt, pi
 from libc.math cimport exp
 from libc.stdlib cimport malloc
 from libcpp cimport bool as bool_t
+from libcpp.string cimport string
 
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
@@ -566,6 +567,7 @@ cdef class State:
 
 cdef class Simulation:
     cdef cSimulation _sim
+    cdef public string name
     cdef public unsigned int version
     cdef double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
     cdef double max_leaf_area_index
@@ -585,7 +587,8 @@ cdef class Simulation:
         except:
             return
 
-    def __init__(self, version=0x0400):
+    def __init__(self, name="default", version=0x0400):
+        self.name = name.encode("utf-8")
         self.version = version
         self.max_leaf_area_index = 0.001
 

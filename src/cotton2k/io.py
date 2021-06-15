@@ -36,7 +36,7 @@ def read_input(path: Union[Path, str, dict]) -> Simulation:
         kwargs = path
     else:
         kwargs = json.loads(Path(path).read_text())
-    sim = Simulation(kwargs.get("version", 0x0400))
+    sim = Simulation(kwargs.get("name", "default"), kwargs.get("version", 0x0400))
     for attr in [
         "start_date",
         "stop_date",
@@ -78,7 +78,9 @@ def write_output(
 ):
     session = prepare_database(engine_url)
     simulation_model = SimulationModel(
-        version=simulation.version, execute_time=datetime.datetime.now()
+        version=simulation.version,
+        execute_time=datetime.datetime.now(),
+        name=simulation.name,
     )
     session.add(simulation_model)
     session.commit()
