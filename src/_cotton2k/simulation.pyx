@@ -41,6 +41,7 @@ from .cxx cimport (
     PotGroLeafAreaPreFru,
     PotGroLeafWeightPreFru,
     PotGroPetioleWeightPreFru,
+    VolWaterContent,
 )
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, wk, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate
@@ -270,6 +271,28 @@ cdef read_agricultural_input(cSimulation & sim, inputs):
             idef += 1
 
 
+cdef class SoilCell:
+    cdef cSoilCell *_
+    cdef unsigned int l
+    cdef unsigned int k
+
+    @property
+    def water_content(self):
+        return VolWaterContent[self.l][self.k]
+
+    @water_content.setter
+    def water_content(self, value):
+        VolWaterContent[self.l][self.k] = value
+
+    @staticmethod
+    cdef SoilCell from_ptr(cSoilCell *_ptr, unsigned int l, unsigned int k):
+        cdef SoilCell cell = SoilCell.__new__(SoilCell)
+        cell._ = _ptr
+        cell.l = l
+        cell.k = k
+        return cell
+
+
 cdef class NodeLeaf:
     cdef Leaf *_
 
@@ -481,6 +504,14 @@ cdef class State:
         cdef State state = State.__new__(State)
         state._ = _ptr
         return state
+
+    @property
+    def soil_cells(self):
+        return [
+            [
+                SoilCell.from_ptr(&self._[0].soil.cells[l][k], l, k) for k in range(20)
+            ] for l in range(40)
+        ]
 
     @property
     def vegetative_branches(self):

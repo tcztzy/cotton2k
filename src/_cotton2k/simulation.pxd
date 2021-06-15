@@ -30,7 +30,7 @@ cSimulation,
 )
 from .fruiting_site cimport Stage
 from .state cimport cState, Hour
-from .soil cimport SoilCell
+from .soil cimport cSoilCell
 
 cdef extern:
     double daytmp(cSimulation &, uint32_t, double, double, uint32_t, double, double)
@@ -77,7 +77,7 @@ cdef extern from "PlantNitrogen.h":
     void PlantNitrogen(cSimulation &, uint32_t)
 
 cdef extern from "RootGrowth.h":
-    double PotentialRootGrowth(SoilCell[40][20], int, int, double)
+    double PotentialRootGrowth(cSoilCell[40][20], int, int, double)
     void ComputeActualRootGrowth(cState &, double, double, double, int, unsigned int, unsigned int)
 
 cdef extern from "SoilNitrogen.h":

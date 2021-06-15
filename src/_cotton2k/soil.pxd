@@ -7,7 +7,7 @@ cdef extern from "Soil.h":
         double weight_capable_uptake
         double weight[3]
 
-    ctypedef struct SoilCell:
+    ctypedef struct cSoilCell "SoilCell":
         double nitrate_nitrogen_content
         double fresh_organic_matter
         Root root
@@ -19,4 +19,4 @@ cdef extern from "Soil.h":
     ctypedef struct cSoil "Soil":
         unsigned int number_of_layers_with_root
         SoilLayer layers[40]
-        SoilCell cells[40][20]
+        cSoilCell cells[40][20]
