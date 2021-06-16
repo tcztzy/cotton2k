@@ -58,7 +58,7 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
 //
 //     The following global variables are referenced here:
 //       dl, FieldCapacity, nk, nl, SoilTempDailyAvrg,
-//       VolWaterContent, VolNh4NContent, VolNo3NContent, VolUreaNContent.
+//       VolNh4NContent, VolNo3NContent, VolUreaNContent.
 {
     static double depth[maxl]; // depth to the end of each layer.
 //     At start compute depth[l] as the depth to the bottom of each layer, cm.
@@ -81,7 +81,7 @@ void SoilNitrogen(Simulation &sim, unsigned int u)
 //     Denitrification() is called if there are enough water and nitrates in the
 //  soil cell. cparmin is the minimum temperature C for denitrification.
             const double cparmin = 5;
-            if (sim.states[u].soil.cells[l][k].nitrate_nitrogen_content > 0.001 && VolWaterContent[l][k] > FieldCapacity[l]
+            if (sim.states[u].soil.cells[l][k].nitrate_nitrogen_content > 0.001 && sim.states[u].soil.cells[l][k].water_content > FieldCapacity[l]
                 && SoilTempDailyAvrg[l][k] >= (cparmin + 273.161))
                 Denitrification(sim.states[u].soil.cells[l][k], l, k, sim.row_space);
         }
@@ -96,7 +96,7 @@ void UreaHydrolysis(SoilCell &soil_cell, int l, int k)
 //
 //     The following global variables are referenced here:
 //       BulkDensity, FieldCapacity, FreshOrganicMatter, HumusOrganicMatter,
-//       SoilHorizonNum, SoilTempDailyAvrg, thetar, thts, VolWaterContent.
+//       SoilHorizonNum, SoilTempDailyAvrg, thetar, thts.
 //     The following global variables are set here:
 //       VolNh4NContent, VolUreaNContent.
 //     The arguments (k, l) are soil column and layer numbers.
@@ -122,7 +122,7 @@ void UreaHydrolysis(SoilCell &soil_cell, int l, int k)
 //     Compute the effect of soil moisture using function SoilWaterEffect on the rate of urea
 //  hydrolysis. The constant swf1 is added to the soil moisture function for mineralization,
     double swf; // soil moisture effect on rate of urea hydrolysis.
-    swf = SoilWaterEffect(VolWaterContent[l][k], FieldCapacity[l], thetar[l], thts[l], 0.5) + swf1;
+    swf = SoilWaterEffect(soil_cell.water_content, FieldCapacity[l], thetar[l], thts[l], 0.5) + swf1;
     if (swf < 0)
         swf = 0;
     if (swf > 1)
@@ -221,7 +221,7 @@ void MineralizeNitrogen(SoilCell &soil_cell, int l, int k, const int &Daynum, co
 //
 // **  Mineralization of fresh organic matter **
 //     The effects of soil moisture (wf) and of soil temperature (tfac) are computed.
-    double wf = SoilWaterEffect(VolWaterContent[l][k], FieldCapacity[l], thetar[l], thts[l], 0.5);
+    double wf = SoilWaterEffect(soil_cell.water_content, FieldCapacity[l], thetar[l], thts[l], 0.5);
     double tfac = SoilTemperatureEffect(SoilTempDailyAvrg[l][k] - 273.161);
 //     The gross release of dry weight and of N from decomposition of fresh organic matter is computed.
     double grossReleaseN; // gross release of N from decomposition, mg/cm3
@@ -356,7 +356,7 @@ void Nitrification(SoilCell &soil_cell, int l, int k, double DepthOfLayer)
     if (tff < 0)
         tff = 0;
 //     Add the effects of NH4 in soil, soil water content, and depth of soil layer.
-    ratenit = ratenit * sanc * SoilWaterEffect(VolWaterContent[l][k], FieldCapacity[l], thetar[l], thts[l], 1) * pow(cpardepth, tff);
+    ratenit = ratenit * sanc * SoilWaterEffect(soil_cell.water_content, FieldCapacity[l], thetar[l], thts[l], 1) * pow(cpardepth, tff);
     if (ratenit < 0)
         ratenit = 0;
     if (ratenit > 0.10)
@@ -375,7 +375,7 @@ void Denitrification(SoilCell &soil_cell, int l, int k, double row_space)
 //     The procedure is based on the CERES routine, as documented by Godwin and Jones (1991).
 //
 //     The following global variables are referenced here:
-//       dl, FieldCapacity, HumusOrganicMatter, SoilTempDailyAvrg, thts, VolWaterContent, wk
+//       dl, FieldCapacity, HumusOrganicMatter, SoilTempDailyAvrg, thts
 //    The following global variables are set here:     SoilNitrogenLoss, VolNo3NContent
 {
 //    The following constant parameters are used:
@@ -394,7 +394,7 @@ void Denitrification(SoilCell &soil_cell, int l, int k, double row_space)
     cw = cpar01 + cpar02 * soilc;
 //     The effects of soil moisture (fw) and soil temperature (ft) are computed as 0 to 1 factors.
     double fw; // effect of soil moisture on denitrification rate.
-    fw = (VolWaterContent[l][k] - FieldCapacity[l]) / (thts[l] - FieldCapacity[l]);
+    fw = (soil_cell.water_content - FieldCapacity[l]) / (thts[l] - FieldCapacity[l]);
     if (fw < 0)
         fw = 0;
     double ft; // effect of soil temperature on denitrification rate.

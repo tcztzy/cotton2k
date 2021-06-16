@@ -32,7 +32,7 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
 //       alpha, ,vanGenuchtenBeta, DayStart, dl, ElCondSatSoilToday, nk, nl, PoreSpace,
 //       SoilHorizonNum, thad ,thts, WaterTableLayer, wk.
 //     The following global variables are set:
-//       CumWaterDrained, SoilPsi, VolNo3NContent, VolUreaNContent, VolWaterContent.
+//       CumWaterDrained, SoilPsi, VolNo3NContent, VolUreaNContent.
 {
     State &state = sim.states[u];
     static long numiter; // counter used for WaterFlux() calls.
@@ -49,8 +49,8 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
     for (int l = 0; l < nl; l++) {
         int j = SoilHorizonNum[l];  //  the soil horizon number
         for (int k = 0; k < nk; k++)
-            SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
-                            - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+            SoilPsi[l][k] = psiq(state.soil.cells[l][k].water_content, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
+                            - PsiOsmotic(state.soil.cells[l][k].water_content, thts[l], ElCondSatSoilToday);
     }
 //
     int nlx = nl; // The last layer without a water table.
@@ -59,8 +59,8 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
     int iv; //  direction indicator: iv = 1 for vertical flow in each column;
     //    iv = 0 for horizontal flow in each layer.
     double q01[40]; // one dimensional array of a layer or a column of previous
-    // values of VolWaterContent.
-    double q1[40];  // one dimensional array of a layer or a column of VolWaterContent.
+    // values of cell.water_content.
+    double q1[40];  // one dimensional array of a layer or a column of cell.water_content.
     double psi1[40];// one dimensional array of a layer or a column of SoilPsi.
     double nit[40]; // one dimensional array of a layer or a column of VolNo3NContent.
     double nur[40]; // one dimensional array of a layer or a column of VolUreaNContent.
@@ -68,14 +68,14 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
 //     VERTICAL FLOW in each column. the direction indicator iv is set to 1.
     iv = 1;
 //     Loop over all columns. Temporary one-dimensional arrays are defined for each column:
-//  assign the VolWaterContent[] values to temporary one-dimensional arrays q1 and q01. Assign
+//  assign the cell.water_content[] values to temporary one-dimensional arrays q1 and q01. Assign
 //  SoilPsi, VolNo3NContent and VolUreaNContent values to arrays psi1, nit and nur, respectively.
     for (int k = 0; k < nk; k++) {
         double _dl[40];
         for (int l = 0; l < nlx; l++) {
-            q1[l] = VolWaterContent[l][k];
-            q01[l] = VolWaterContent[l][k];
-            psi1[l] = SoilPsi[l][k] + PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+            q1[l] = state.soil.cells[l][k].water_content;
+            q01[l] = state.soil.cells[l][k].water_content;
+            psi1[l] = SoilPsi[l][k] + PsiOsmotic(state.soil.cells[l][k].water_content, thts[l], ElCondSatSoilToday);
             nit[l] = state.soil.cells[l][k].nitrate_nitrogen_content;
             nur[l] = VolUreaNContent[l][k];
             _dl[l] = dl(l);
@@ -85,12 +85,12 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
         WaterFlux(q1, psi1, _dl, thad, thts, PoreSpace, nlx, iv, 0, numiter);
         NitrogenFlow(nl, q01, q1, _dl, nit, nur);
 //     Reassign the updated values of q1, nit, nur and psi1 back to
-//  VolWaterContent, VolNo3NContent, VolUreaNContent and SoilPsi.
+//  cell.water_content, VolNo3NContent, VolUreaNContent and SoilPsi.
         for (int l = 0; l < nlx; l++) {
-            VolWaterContent[l][k] = q1[l];
+            state.soil.cells[l][k].water_content = q1[l];
             state.soil.cells[l][k].nitrate_nitrogen_content = nit[l];
             VolUreaNContent[l][k] = nur[l];
-            SoilPsi[l][k] = psi1[l] - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+            SoilPsi[l][k] = psi1[l] - PsiOsmotic(state.soil.cells[l][k].water_content, thts[l], ElCondSatSoilToday);
         } // end loop l
     } // end loop k
     double pp1[40]; // one dimensional array of a layer or a column of PP.
@@ -100,14 +100,14 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
 //     HORIZONTAL FLUX in each layer. The direction indicator iv is set to 0.
     iv = 0;
 //     Loop over all layers. Define the horizon number j for this layer. Temporary
-//  one-dimensional arrays are defined for each layer: assign the VolWaterContent values
+//  one-dimensional arrays are defined for each layer: assign the cell.water_content values
 //  to  q1 and q01. Assign SoilPsi, VolNo3NContent, VolUreaNContent, thad and thts values
 //  of the soil cells to arrays psi1, nit, nur, qr1 and qs1, respectively.
     for (int l = 0; l < nlx; l++) {
         for (int k = 0; k < nk; k++) {
-            q1[k] = VolWaterContent[l][k];
-            q01[k] = VolWaterContent[l][k];
-            psi1[k] = SoilPsi[l][k] + PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+            q1[k] = state.soil.cells[l][k].water_content;
+            q01[k] = state.soil.cells[l][k].water_content;
+            psi1[k] = SoilPsi[l][k] + PsiOsmotic(state.soil.cells[l][k].water_content, thts[l], ElCondSatSoilToday);
             qr1[k] = thad[l];
             qs1[k] = thts[l];
             pp1[k] = PoreSpace[l];
@@ -120,10 +120,10 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
         WaterFlux(q1, psi1, wk1, qr1, qs1, pp1, nk, iv, l, numiter);
         NitrogenFlow(nk, q01, q1, wk1, nit, nur);
 //     Reassign the updated values of q1, nit, nur and psi1 back to
-//  VolWaterContent, VolNo3NContent, VolUreaNContent and SoilPsi.
+//  cell.water_content, VolNo3NContent, VolUreaNContent and SoilPsi.
         for (int k = 0; k < nk; k++) {
-            VolWaterContent[l][k] = q1[k];
-            SoilPsi[l][k] = psi1[k] - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+            state.soil.cells[l][k].water_content = q1[k];
+            SoilPsi[l][k] = psi1[k] - PsiOsmotic(state.soil.cells[l][k].water_content, thts[l], ElCondSatSoilToday);
             state.soil.cells[l][k].nitrate_nitrogen_content = nit[k];
             VolUreaNContent[l][k] = nur[k];
         } // snd loop k
@@ -138,8 +138,8 @@ void CapillaryFlow(Simulation &sim, unsigned int u)
     for (int l = 0; l < nl; l++) {
         int j = SoilHorizonNum[l];
         for (int k = 0; k < nk; k++) {
-            SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
-                            - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+            SoilPsi[l][k] = psiq(state.soil.cells[l][k].water_content, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
+                            - PsiOsmotic(state.soil.cells[l][k].water_content, thts[l], ElCondSatSoilToday);
         }
     }
 }
@@ -153,12 +153,12 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
 //       dl, FieldCapacity, MaxWaterCapacity, nk, nl, NO3FlowFraction, PoreSpace,
 //       WaterTableLayer, wk
 //     The following global variables are set:
-//       SoilNitrogenLoss, VolNo3NContent, VolUreaNContent, VolWaterContent,
+//       SoilNitrogenLoss, VolNo3NContent, VolUreaNContent
 {
     int nlx = nl; // last soil layer for computing drainage.
     if (WaterTableLayer < nlx)
         nlx = WaterTableLayer;
-    double oldvh2oc[20]; // stores previous values of VolWaterContent.
+    double oldvh2oc[20]; // stores previous values of cell.water_content.
     double nitconc; // nitrate N concentration in the soil solution.
     double nurconc; // urea N concentration in the soil solution.
 //     The following is executed if this is not the bottom layer.
@@ -167,8 +167,8 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
 //  water content in array oldvh2oc.
         double avwl = 0;     // average water content in a soil layer
         for (int k = 0; k < nk; k++) {
-            avwl += VolWaterContent[l][k] * wk(k, row_space) / row_space;
-            oldvh2oc[k] = VolWaterContent[l][k];
+            avwl += soil_cells[l][k].water_content * wk(k, row_space) / row_space;
+            oldvh2oc[k] = soil_cells[l][k].water_content;
         }
 //     Upper limit of water content in free drainage..
         double uplimit = MaxWaterCapacity[l];
@@ -183,8 +183,8 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
 //     Water content of all soil cells in this layer will be uplimit. the amount (qmv)
 //  to be added to each cell of the next layer is computed (corrected for non uniform
 //  column widths). The water content in the next layer is computed.
-                VolWaterContent[l][k] = uplimit;
-                VolWaterContent[l + 1][k] += wmov * wk(k, row_space) * nk / row_space;
+                soil_cells[l][k].water_content = uplimit;
+                soil_cells[l + 1][k].water_content += wmov * wk(k, row_space) * nk / row_space;
 //     The concentrations of nitrate and urea N in the soil solution are
 //  computed and their amounts in this layer and in the next one are updated.
                 double qvout; // amount of water moving out of a cell.
@@ -196,8 +196,8 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
                     nurconc = VolUreaNContent[l][k] / oldvh2oc[k];
                     if (nurconc < 1.e-30)
                         nurconc = 0;
-                    soil_cells[l][k].nitrate_nitrogen_content = VolWaterContent[l][k] * nitconc;
-                    VolUreaNContent[l][k] = VolWaterContent[l][k] * nurconc;
+                    soil_cells[l][k].nitrate_nitrogen_content = soil_cells[l][k].water_content * nitconc;
+                    VolUreaNContent[l][k] = soil_cells[l][k].water_content * nurconc;
 //     Only a part ( NO3FlowFraction ) of N is moved with water draining.
                     double vno3mov; // amount of nitrate N moving out of a cell.
                     double vnurmov; // amount of urea N moving out of a cell.
@@ -214,18 +214,18 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
         else {
             for (int k = 0; k < nk; k++) {
 //  Check each soil cell if water content exceeds uplimit,
-                if (VolWaterContent[l][k] > uplimit) {
-                    wmov = VolWaterContent[l][k] - uplimit;
-                    VolWaterContent[l][k] = uplimit;
-                    VolWaterContent[l + 1][k] += wmov * dl(l) / dl(l + 1);
+                if (soil_cells[l][k].water_content > uplimit) {
+                    wmov = soil_cells[l][k].water_content - uplimit;
+                    soil_cells[l][k].water_content = uplimit;
+                    soil_cells[l + 1][k].water_content += wmov * dl(l) / dl(l + 1);
                     nitconc = soil_cells[l][k].nitrate_nitrogen_content / oldvh2oc[k];
                     if (nitconc < 1.e-30)
                         nitconc = 0;
                     nurconc = VolUreaNContent[l][k] / oldvh2oc[k];
                     if (nurconc < 1.e-30)
                         nurconc = 0;
-                    soil_cells[l][k].nitrate_nitrogen_content = VolWaterContent[l][k] * nitconc;
-                    VolUreaNContent[l][k] = VolWaterContent[l][k] * nurconc;
+                    soil_cells[l][k].nitrate_nitrogen_content = soil_cells[l][k].water_content * nitconc;
+                    VolUreaNContent[l][k] = soil_cells[l][k].water_content * nurconc;
 //
                     soil_cells[l + 1][k].nitrate_nitrogen_content += NO3FlowFraction[l] * wmov * nitconc * dl(l) / dl(l + 1);
                     VolUreaNContent[l + 1][k] += NO3FlowFraction[l] * wmov * nurconc * dl(l) / dl(l + 1);
@@ -243,8 +243,8 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
     double Drainage; // drainage of water out of the slab, cm3 (return value)
     Drainage = 0;
     for (int k = 0; k < nk; k++) {
-        if (VolWaterContent[nlx - 1][k] > MaxWaterCapacity[nlx - 1]) {
-            Drainage += (VolWaterContent[nlx - 1][k] - MaxWaterCapacity[nlx - 1]) * dl(nlx - 1) * wk(k, row_space);
+        if (soil_cells[nlx - 1][k].water_content > MaxWaterCapacity[nlx - 1]) {
+            Drainage += (soil_cells[nlx - 1][k].water_content - MaxWaterCapacity[nlx - 1]) * dl(nlx - 1) * wk(k, row_space);
             nitconc = soil_cells[nlx - 1][k].nitrate_nitrogen_content / oldvh2oc[k];
             if (nitconc < 1.e-30)
                 nitconc = 0;
@@ -253,7 +253,7 @@ double Drain(SoilCell soil_cells[40][20], double row_space)
                 nurconc = 0;
             double saven; //  intermediate variable for computing N loss.
             saven = (soil_cells[nlx - 1][k].nitrate_nitrogen_content + VolUreaNContent[nlx - 1][k]) * dl(nlx - 1) * wk(k, row_space);
-            VolWaterContent[nlx - 1][k] = MaxWaterCapacity[nlx - 1];
+            soil_cells[nlx - 1][k].water_content = MaxWaterCapacity[nlx - 1];
             soil_cells[nlx - 1][k].nitrate_nitrogen_content = nitconc * MaxWaterCapacity[nlx - 1];
             VolUreaNContent[nlx - 1][k] = nurconc * MaxWaterCapacity[nlx - 1];
             SoilNitrogenLoss +=
@@ -276,7 +276,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
 //       nk, nl, NO3FlowFraction, PoreSpace, wk
 //
 //     The following global variables are set:
-//       CumWaterDrained, SoilNitrogenLoss, VolWaterContent, VolNo3NContent, VolUreaNContent
+//       CumWaterDrained, SoilNitrogenLoss, VolNo3NContent, VolUreaNContent
 //
 {
     double dripw[40]; // amount of water applied, or going from one ring of
@@ -300,11 +300,11 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
     SoilCell &soil_cell = soil_cells[l0][k0];
 //     It is assumed that wetting cannot exceed MaxWaterCapacity of this cell. Compute
 //  h2odef, the amount of water needed to saturate this cell.
-    h2odef = (MaxWaterCapacity[l0] - VolWaterContent[l0][k0]) * dl(l0) * wk(k0, row_space);
-//      If maximum water capacity is not exceeded - update VolWaterContent of
+    h2odef = (MaxWaterCapacity[l0] - soil_cells[l0][k0].water_content) * dl(l0) * wk(k0, row_space);
+//      If maximum water capacity is not exceeded - update cell.water_content of
 //  this cell and exit the function.
     if (dripw[0] <= h2odef) {
-        VolWaterContent[l0][k0] += dripw[0] / (dl(l0) * wk(k0, row_space));
+        soil_cells[l0][k0].water_content += dripw[0] / (dl(l0) * wk(k0, row_space));
         return;
     }
 //      If maximum water capacity is exceeded - calculate the excess of water flowing out of
@@ -314,7 +314,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
 //      Compute the movement of nitrate N to the next ring
     double cnw = 0;  //  concentration of nitrate N in the outflowing water
     if (soil_cell.nitrate_nitrogen_content > 1.e-30) {
-        cnw = soil_cell.nitrate_nitrogen_content / (VolWaterContent[l0][k0] + dripw[0] / (dl(l0) * wk(k0, row_space)));
+        cnw = soil_cell.nitrate_nitrogen_content / (soil_cells[l0][k0].water_content + dripw[0] / (dl(l0) * wk(k0, row_space)));
 //     cnw is multiplied by dripw[1] to get dripn[1], the amount of nitrate N going out
 //  to the next ring of cells. It is assumed, however, that not more than a proportion
 //  (NO3FlowFraction) of the nitrate N in this cell can be removed in one iteration.
@@ -329,7 +329,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
 //     The movement of urea N to the next ring is computed similarly.
     double cuw = 0;  //  concentration of urea N in the outflowing water
     if (VolUreaNContent[l0][k0] > 1.e-30) {
-        cuw = VolUreaNContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl(l0) * wk(k0, row_space)));
+        cuw = VolUreaNContent[l0][k0] / (soil_cells[l0][k0].water_content + dripw[0] / (dl(l0) * wk(k0, row_space)));
         if ((cuw * MaxWaterCapacity[l0]) < (NO3FlowFraction[l0] * VolUreaNContent[l0][k0])) {
             dripu[1] = NO3FlowFraction[l0] * VolUreaNContent[l0][k0] * dl(l0) * wk(k0, row_space);
             VolUreaNContent[l0][k0] = (1 - NO3FlowFraction[l0]) * VolUreaNContent[l0][k0];
@@ -340,8 +340,8 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
     }
     double defcit[40][20]; // array of the difference between water capacity and
     // actual water content in each cell of the ring
-//     Set VolWaterContent of the cell in which the drip is located to MaxWaterCapacity.
-    VolWaterContent[l0][k0] = MaxWaterCapacity[l0];
+//     Set cell.water_content of the cell in which the drip is located to MaxWaterCapacity.
+    soil_cells[l0][k0].water_content = MaxWaterCapacity[l0];
 //     Loop of concentric rings of cells, starting from ring 1.
 //     Assign zero to the sums sv, st, sn, sn1, su and su1.
     for (int kr = 1; kr < maxl; kr++) {
@@ -364,16 +364,16 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
                 uplimit = MaxWaterCapacity[l];
             for (int k = 0; k < nk; k++) {
 //     Compute the sums sv, st, sn, sn1, su and su1 within the radius limits of this ring. The
-//  array defcit is the sum of difference between uplimit and VolWaterContent of each cell.
+//  array defcit is the sum of difference between uplimit and cell.water_content of each cell.
                 dist = CellDistance(l, k, l0, k0, row_space);
                 if (dist <= radius && dist > (radius - 6)) {
-                    sv += VolWaterContent[l][k] * dl(l) * wk(k, row_space);
+                    sv += soil_cells[l][k].water_content * dl(l) * wk(k, row_space);
                     st += uplimit * dl(l) * wk(k, row_space);
                     sn += soil_cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, row_space);
                     sn1 += soil_cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, row_space) * NO3FlowFraction[l];
                     su += VolUreaNContent[l][k] * dl(l) * wk(k, row_space);
                     su1 += VolUreaNContent[l][k] * dl(l) * wk(k, row_space) * NO3FlowFraction[l];
-                    defcit[l][k] = uplimit - VolWaterContent[l][k];
+                    defcit[l][k] = uplimit - soil_cells[l][k].water_content;
                 } else
                     defcit[l][k] = 0;
             } // end loop k
@@ -383,14 +383,14 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
 //     Test if the amount of incoming flow, dripw(kr), is greater than  h2odef.
         if (dripw[kr] <= h2odef) {
 //     In this case, this will be the last wetted ring.
-//     Update VolWaterContent in this ring, by wetting each cell in proportion
+//     Update cell.water_content in this ring, by wetting each cell in proportion
 //  to its defcit. Update VolNo3NContent and VolUreaNContent of the cells in this ring
 //  by the same proportion. this is executed for all the cells in the ring.
             for (int l = 1; l < nl; l++) {
                 for (int k = 0; k < nk; k++) {
                     dist = CellDistance(l, k, l0, k0, row_space);
                     if (dist <= radius && dist > (radius - 6)) {
-                        VolWaterContent[l][k] += dripw[kr] * defcit[l][k] / h2odef;
+                        soil_cells[l][k].water_content += dripw[kr] * defcit[l][k] / h2odef;
                         soil_cells[l][k].nitrate_nitrogen_content += dripn[kr] * defcit[l][k] / h2odef;
                         VolUreaNContent[l][k] += dripu[kr] * defcit[l][k] / h2odef;
                     }
@@ -425,7 +425,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
                 druout = dripu[kr] + xuloss;
             }
         }
-//     For all the cells in the ring, as in the 1st cell, saturate VolWaterContent to uplimit,
+//     For all the cells in the ring, as in the 1st cell, saturate cell.water_content to uplimit,
 //  and update VolNo3NContent and VolUreaNContent.
         for (int l = 1; l < nl; l++) {
             if (l >= WaterTableLayer)
@@ -436,7 +436,7 @@ void DripFlow(SoilCell soil_cells[40][20], double Drip, double row_space)
             for (int k = 0; k < nk; k++) {
                 dist = CellDistance(l, k, l0, k0, row_space);
                 if (dist <= radius && dist > (radius - 6)) {
-                    VolWaterContent[l][k] = uplimit;
+                    soil_cells[l][k].water_content = uplimit;
                     if (xnloss <= 0)
                         soil_cells[l][k].nitrate_nitrogen_content = uplimit * cnw;
                     else

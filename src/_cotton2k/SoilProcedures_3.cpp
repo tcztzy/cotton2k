@@ -34,11 +34,11 @@ void GravityFlow(SoilCell soil_cells[40][20], double applywat, double row_space)
 //     The following global variables are referenced:
 //       dl, nk.
 //     The following global variables are set:
-//       CumWaterDrained, VolWaterContent.
+//       CumWaterDrained.
 {
 //     Add the applied amount of water to the top soil cell of each column.
     for (int k = 0; k < nk; k++)
-        VolWaterContent[0][k] += 0.10 * applywat / dl(0);
+        soil_cells[0][k].water_content += 0.10 * applywat / dl(0);
 //     Call function Drain() to compute downflow of water.
     double WaterDrainedOut; // water drained out of the slab, mm.
     WaterDrainedOut = Drain(soil_cells, row_space);
@@ -58,7 +58,7 @@ void WaterUptake(Simulation &sim, unsigned int u)
 //  nk, nl, NumLayersWithRoots, ReferenceTransp, RootColNumLeft,
 //  RootColNumRight, SoilHorizonNum, thetar, TotalRequiredN.
 //     The following global variables are set:
-//  ActualTranspiration, SoilPsi, VolWaterContent.
+//  ActualTranspiration, SoilPsi.
 {
     State &state = sim.states[u];
     // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate.
@@ -96,8 +96,8 @@ void WaterUptake(Simulation &sim, unsigned int u)
             vh2hi = qpsi(-1, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j]);
             for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++) {
                 double redfac; // reduction factor for water uptake, caused by low levels of soil
-                // water, as a linear function of VolWaterContent, between vh2lo and vh2hi.
-                redfac = (VolWaterContent[l][k] - vh2lo) / (vh2hi - vh2lo);
+                // water, as a linear function of cell.water_content, between vh2lo and vh2hi.
+                redfac = (state.soil.cells[l][k].water_content - vh2lo) / (vh2hi - vh2lo);
                 if (redfac < 0)
                     redfac = 0;
                 if (redfac > 1)
@@ -111,17 +111,17 @@ void WaterUptake(Simulation &sim, unsigned int u)
         difupt = 0;
         for (int l = 0; l < state.soil.number_of_layers_with_root; l++)
             for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++)
-                if (upf[l][k] > 0 && VolWaterContent[l][k] > thetar[l]) {
+                if (upf[l][k] > 0 && state.soil.cells[l][k].water_content > thetar[l]) {
                     // The amount of water extracted from each cell is proportional to its 'uptake factor'.
                     double upth2o;  // transpiration from a soil cell, cm3 per day
                     upth2o = Transp * upf[l][k] / supf;
-                    // Update VolWaterContent cell, storing its previous value as vh2ocx.
-                    double vh2ocx; // previous value of VolWaterContent of this cell
-                    vh2ocx = VolWaterContent[l][k];
-                    VolWaterContent[l][k] -= upth2o / (dl(l) * wk(k, sim.row_space));
-                    // If the new value of VolWaterContent is less than the permanent wilting point, modify the value of upth2o so that VolWaterContent will be equal to it.
-                    if (VolWaterContent[l][k] < thetar[l]) {
-                        VolWaterContent[l][k] = thetar[l];
+                    // Update cell.water_content, storing its previous value as vh2ocx.
+                    double vh2ocx; // previous value of water_content of this cell
+                    vh2ocx = state.soil.cells[l][k].water_content;
+                    state.soil.cells[l][k].water_content -= upth2o / (dl(l) * wk(k, sim.row_space));
+                    // If the new value of cell.water_content is less than the permanent wilting point, modify the value of upth2o so that water_content will be equal to it.
+                    if (state.soil.cells[l][k].water_content < thetar[l]) {
+                        state.soil.cells[l][k].water_content = thetar[l];
                         double xupt;  // intermediate computation of upth2o
 
                         // Compute the difference due to this correction and add it to difupt.
@@ -146,8 +146,8 @@ void WaterUptake(Simulation &sim, unsigned int u)
     for (int l = 0; l < state.soil.number_of_layers_with_root; l++) {
         int j = SoilHorizonNum[l];
         for (int k = state.soil.layers[l].number_of_left_columns_with_root; k <= state.soil.layers[l].number_of_right_columns_with_root; k++)
-            SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
-                            - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+            SoilPsi[l][k] = psiq(state.soil.cells[l][k].water_content, thad[l], thts[l], alpha[j], vanGenuchtenBeta[j])
+                            - PsiOsmotic(state.soil.cells[l][k].water_content, thts[l], ElCondSatSoilToday);
     } // end l & k loops
 
     // compute ActualTranspiration as actual water transpired, in mm.
@@ -178,8 +178,6 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //        k, l - column and layer index of this cell.
 //        reqnc - maximum N uptake (proportional to total N
 //                required for plant growth), g N per plant.
-//     Global variables referenced:
-//       dl, VolWaterContent, wk
 //     The following global variables are set here:
 //       SupplyNH4N, SupplyNO3N, VolNh4NContent, VolNo3NContent
 {
@@ -200,7 +198,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
     if (soil_cell.nitrate_nitrogen_content > 0) {
         double upno3c; // uptake rate of nitrate, g N per plant per day
         upno3c = reqnc * soil_cell.nitrate_nitrogen_content
-                 / (halfn * VolWaterContent[l][k] + soil_cell.nitrate_nitrogen_content);
+                 / (halfn * soil_cell.water_content + soil_cell.nitrate_nitrogen_content);
         double upmax; // maximum possible uptake rate, mg N per soil cell per day
         upmax = cparupmax * soil_cell.nitrate_nitrogen_content;
 //     Make sure that uptake will not exceed upmax and update VolNo3NContent and upno3c.
@@ -217,8 +215,8 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //  fractions. The parameters p1 and p2 are used to compute the dissolved concentration,
 //  AmmonNDissolved, of ammoniumnitrogen. bb, cc, ee are intermediate values for computing.
     if (VolNh4NContent[l][k] > 0) {
-        double bb = p1 + p2 * VolWaterContent[l][k] - VolNh4NContent[l][k];
-        double cc = p2 * VolWaterContent[l][k] * VolNh4NContent[l][k];
+        double bb = p1 + p2 * soil_cell.water_content - VolNh4NContent[l][k];
+        double cc = p2 * soil_cell.water_content * VolNh4NContent[l][k];
         double ee = bb * bb + 4 * cc;
         if (ee < 0)
             ee = 0;
@@ -228,7 +226,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //  method, as for nitrate. upnh4c is added to the total uptake SupplyNH4N.
         if (AmmonNDissolved > 0) {
             double upnh4c; // uptake rate of ammonium, g N per plant per day
-            upnh4c = reqnc * AmmonNDissolved / (halfn * VolWaterContent[l][k] + AmmonNDissolved);
+            upnh4c = reqnc * AmmonNDissolved / (halfn * soil_cell.water_content + AmmonNDissolved);
             double upmax; // maximum possible uptake rate, mg N per soil cell per day
             upmax = cparupmax * VolNh4NContent[l][k];
             if ((coeff * upnh4c) < upmax)
@@ -501,8 +499,8 @@ void WaterBalance(double q1[], double qx[], double dd[], int nn)
 //        dd[] - one dimensional array of layer or column widths.
 //        nn - the number of cells in this layer or column.
 //        qx[] - one dimensional array of a layer or a column of the
-//               previous values of VolWaterContent.
-//        q1[] - one dimensional array of a layer or a column of VolWaterContent.
+//               previous values of cell.water_content.
+//        q1[] - one dimensional array of a layer or a column of cell.water_content.
 //
 {
     double dev = 0;  // Sum of differences of water amount in soil
@@ -530,8 +528,8 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
 //       nit[] - one dimensional array of a layer or a column of VolNo3NContent.
 //       nn - the number of cells in this layer or column.
 //       nur[] - one dimensional array of a layer or a column of VolUreaNContent.
-//       q01[] - one dimensional array of a layer or a column of the previous values of VolWaterContent.
-//       q1[] - one dimensional array of a layer or a column of VolWaterContent.
+//       q01[] - one dimensional array of a layer or a column of the previous values of cell.water_content.
+//       q1[] - one dimensional array of a layer or a column of cell.water_content.
 //
 {
 //     Zeroise very small values to prevent underflow.
@@ -593,7 +591,7 @@ void SoilSum(State &state, double row_space)
 //  urea (TotalSoilUreaN) and the sum of all mineral nitrogen forms (TotalSoilNitrogen).
 //
 //     The following global variables are referenced here:
-//       dl, nk, nl, RowSpace, VolWaterContent, VolNh4NContent, VolNo3NContent, VolUreaNContent, wk.
+//       dl, nk, nl, RowSpace, VolNh4NContent, VolNo3NContent, VolUreaNContent, wk.
 //     The following global variables are set here:
 //       TotalSoilNitrogen, TotalSoilWater, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN.
 {
@@ -607,7 +605,7 @@ void SoilSum(State &state, double row_space)
             TotalSoilNo3N += state.soil.cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, row_space);
             TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, row_space);
             TotalSoilUreaN += VolUreaNContent[l][k] * dl(l) * wk(k, row_space);
-            TotalSoilWater += VolWaterContent[l][k] * dl(l) * wk(k, row_space);
+            TotalSoilWater += state.soil.cells[l][k].water_content * dl(l) * wk(k, row_space);
         }
 //
     TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;

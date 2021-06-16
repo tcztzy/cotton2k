@@ -129,7 +129,7 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
 }
 
 ///////////////////////////////////////////////////////////////////
-void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0, double row_space)
+void SoilHeatFlux(State &state, double dlt, int iv, int nn, int layer, int n0, double row_space)
 //     This function computes heat flux in one direction between soil cells.
 //  It is called from SoilTemperature(), and calls ThermalCondSoil() and HeatBalance().
 //     Note: the units are: thermal conductivity = cal cm-1 s-1 oC-1;
@@ -138,7 +138,7 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0, double row_spac
 //                          ckx and cky are dimensionless;
 //
 //     The following global variables are referenced here:
-//       dl, HeatCapacitySoilSolid, maxl, PoreSpace, VolWaterContent, wk.
+//       dl, HeatCapacitySoilSolid, maxl, PoreSpace.
 //     The following global variable is set here:    SoilTemp.
 //     The following input arguments are used in this function:
 //       dlt - time (seconds) of one iteration.
@@ -161,13 +161,13 @@ void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0, double row_spac
         if (iv == 1)
         {
             l = i;
-            q1[i] = VolWaterContent[i][n0];
+            q1[i] = state.soil.cells[i][n0].water_content;
             ts1[i] = SoilTemp[i][n0];
             dz[i] = dl(i);
         }
         else
         {
-            q1[i] = VolWaterContent[n0][i];
+            q1[i] = state.soil.cells[n0][i].water_content;
             ts1[i] = SoilTemp[n0][i];
             dz[i] = wk(i, row_space);
         }

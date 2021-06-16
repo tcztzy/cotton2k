@@ -51,8 +51,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     The following global variables are referenced here:
 //       ActualTranspiration, Clim, DayStartPredIrrig, DayStopPredIrrig,
 //       dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk, nl, NumIrrigations,
-//       NumWaterTableData, SoilPsi, SupplyNH4N, SupplyNO3N,
-//       VolWaterContent, wk.
+//       NumWaterTableData, SoilPsi, SupplyNH4N, SupplyNO3N.
 //     The following global variables are set here:
 //       AverageSoilPsi, CumNitrogenUptake, CumTranspiration, CumWaterAdded, LocationColumnDrip,
 //       LocationLayerDrip, noitr.
@@ -494,7 +493,7 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
 //
 //     The following global variables are referenced here:
 //       DayStartPredIrrig, dl, IrrigationDepth, LastIrrigation, MaxWaterCapacity,
-//       MinDaysBetweenIrrig, nl, VolWaterContent, WaterStress, wk
+//       MinDaysBetweenIrrig, nl, WaterStress
 //     The following global variable is set here:       AppliedWater.
 //     The argument used: TargetStress
 {
@@ -536,7 +535,7 @@ void PredictSurfaceIrrigation(Simulation &sim, unsigned int u, double TargetStre
                         //  as the deficit to MaxWaterCapacity down to
                         //  this depth. RequiredWater is converted from cm3 per slab to mm.
                         double defcit;                                        // water content deficit to irrigation depth
-                        defcit = MaxWaterCapacity[l] - VolWaterContent[l][k]; // water content deficit
+                        defcit = MaxWaterCapacity[l] - state.soil.cells[l][k].water_content; // water content deficit
                         RequiredWater += dl(l) * wk(k, sim.row_space) * defcit;
                     }
                 state.applied_water = RequiredWater * 10 / sim.row_space;
@@ -559,7 +558,7 @@ double AveragePsi(const State &state, double row_space)
 //
 //     The following global variables are referenced here:
 //       airdr, alpha, vanGenuchtenBeta, dl, ElCondSatSoilToday, NumLayersWithRoots, RootColNumLeft,
-//       RootColNumRight, RootWtCapblUptake, SoilHorizonNum, thetas, VolWaterContent, wk.
+//       RootColNumRight, RootWtCapblUptake, SoilHorizonNum, thetas.
 {
     //     Constants used:
     const double vrcumin = 0.1e-9;
@@ -588,7 +587,7 @@ double AveragePsi(const State &state, double row_space)
                 //     Compute sumwat as the weighted sum of the water content, and psinum as the sum of
                 //  these weights. Weighting is by root weight capable of uptake, or if it exceeds a maximum
                 //  value (vrcumax) this maximum value is used for weighting.
-                sumwat[j] += VolWaterContent[l][k] * dl(l) * wk(k, row_space) * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
+                sumwat[j] += state.soil.cells[l][k].water_content * dl(l) * wk(k, row_space) * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
                 psinum[j] += dl(l) * wk(k, row_space) * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vrcumax);
             }
         }
@@ -628,7 +627,7 @@ void WaterTable(Simulation &sim, unsigned int u)
 //       nk, nl, NumWaterTableData, PoreSpace, MaxWaterCapacity, wk.
 //
 //     The following global variables are set here:
-//       ElCondSatSoilToday, WaterTableLayer, VolWaterContent.
+//       ElCondSatSoilToday, WaterTableLayer.
 //
 {
     if (NumWaterTableData <= 0)
@@ -661,25 +660,13 @@ void WaterTable(Simulation &sim, unsigned int u)
     }
     // check the water balance in the soil.
     for (int l = 0; l < nl; l++)
-    {
         if (l >= WaterTableLayer)
-        {
             for (int k = 0; k < nk; k++)
-            {
-                VolWaterContent[l][k] = PoreSpace[l];
-            }
-        }
+                sim.states[u].soil.cells[l][k].water_content = PoreSpace[l];
         else
-        {
             //     Make sure that (in case water table was lowered) water content is not
             //  higher than MaxWaterCapacity.
             for (int k = 0; k < nk; k++)
-            {
-                if (VolWaterContent[l][k] > MaxWaterCapacity[l])
-                {
-                    VolWaterContent[l][k] = MaxWaterCapacity[l];
-                }
-            }
-        }
-    }
+                if (sim.states[u].soil.cells[l][k].water_content > MaxWaterCapacity[l])
+                    sim.states[u].soil.cells[l][k].water_content = MaxWaterCapacity[l];
 }

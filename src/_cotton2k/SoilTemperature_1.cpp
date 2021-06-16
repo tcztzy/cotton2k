@@ -17,7 +17,7 @@ void SoilTemperatureInit(Simulation &);
 void EnergyBalance(Simulation &, uint32_t, int, int, double, double, const double &, double[20]);
 
 // SoilTemperature_3
-void SoilHeatFlux(double, int, int, int, int, double);
+void SoilHeatFlux(State &, double, int, int, int, int, double);
 
 void PredictEmergence(Simulation &, unsigned int, int);
 
@@ -34,7 +34,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
 //       ActualSoilEvaporation, CumEvaporation, DeepSoilTemperature, es, SoilTemp,
-//       SoilTempDailyAvrg, VolWaterContent,
+//       SoilTempDailyAvrg.
 {
     State &state = sim.states[u];
     if (u == 0)
@@ -100,13 +100,13 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
             double escol1k; // potential evaporation fron soil surface of a column, mm per hour.
             escol1k = hour.et1 * rracol[k] + hour.et2;
             es += escol1k * wk(k, sim.row_space);
-            //     Compute actual evaporation from soil surface. update VolWaterContent of
+            //     Compute actual evaporation from soil surface. update cell.water_content of
             //  the soil soil cell, and add to daily sum of actual evaporation.
-            double evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10 *
+            double evapmax = 0.9 * (state.soil.cells[0][k].water_content - thad[0]) * 10 *
                              dl(0); // maximum possible evaporatio from a soil cell near the surface.
             if (escol1k > evapmax)
                 escol1k = evapmax;
-            VolWaterContent[0][k] -= 0.1 * escol1k / dl(0);
+            state.soil.cells[0][k].water_content -= 0.1 * escol1k / dl(0);
             state.actual_soil_evaporation += escol1k * wk(k, sim.row_space);
             ess = escol1k / dlt;
             //     Call EnergyBalance to compute soil surface and canopy temperature.
@@ -121,16 +121,16 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
         double tsolav[maxl]; // hourly average soil temperature C, of a soil layer.
                              //     Loop over kk columns, and call SoilHeatFlux().
         for (int k = 0; k < kk; k++)
-            SoilHeatFlux(dlt, iv, nn, layer, k, sim.row_space);
+            SoilHeatFlux(state, dlt, iv, nn, layer, k, sim.row_space);
         //     If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the
-        //  value computed for the first column. Also, do the same for array memebers of VolWaterContent.
+        //  value computed for the first column. Also, do the same for array memebers of cell.water_content.
         if (isw <= 1)
             for (int l = 0; l < nl; l++)
                 for (int k = 1; k < nk; k++)
                 {
                     SoilTemp[l][k] = SoilTemp[l][0];
                     if (l == 0)
-                        VolWaterContent[l][k] = VolWaterContent[l][0];
+                        state.soil.cells[l][k].water_content = state.soil.cells[l][0].water_content;
                 }
         //
         //     Compute horizontal transport for each layer
@@ -144,7 +144,7 @@ void SoilTemperature(Simulation &sim, uint32_t u, double rracol[20])
             for (int l = 0; l < nl; l++)
             {
                 layer = l;
-                SoilHeatFlux(dlt, iv, nn, layer, l, sim.row_space);
+                SoilHeatFlux(state, dlt, iv, nn, layer, l, sim.row_space);
             }
         }
         //     Compute average temperature of soil layers, in degrees C.

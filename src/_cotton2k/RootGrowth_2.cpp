@@ -144,7 +144,7 @@ void TapRootGrowth(State &state, int NumRootAgeGroups, unsigned int plant_row_co
 //
 //     The following global variables are referenced here:
 //       dl, nl, NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
-//       SoilTempDailyAvrg, VolWaterContent.
+//       SoilTempDailyAvrg.
 //     The following global variables are set here:
 //       DepthLastRootLayer, LastTaprootLayer, NumLayersWithRoots, RootAge,
 //       RootColNumLeft, RootColNumRight, RootWeight, TapRootLength.
@@ -157,7 +157,7 @@ void TapRootGrowth(State &state, int NumRootAgeGroups, unsigned int plant_row_co
                                            //  two columns of the slab where the plant is located.
                                            //     Tap root elongation does not occur in water logged soil (water table).
     int klocp1 = plant_row_column + 1; // the second column in which taproot growth occurs.
-    if (VolWaterContent[LastTaprootLayer][plant_row_column] >= PoreSpace[LastTaprootLayer] || VolWaterContent[LastTaprootLayer][klocp1] >= PoreSpace[LastTaprootLayer])
+    if (state.soil.cells[LastTaprootLayer][plant_row_column].water_content >= PoreSpace[LastTaprootLayer] || state.soil.cells[LastTaprootLayer][klocp1].water_content >= PoreSpace[LastTaprootLayer])
         return;
     //     Average soil resistance (avres) is computed at the root tip.
     // avres = average value of RootGroFactor for the two soil cells at the tip of the taproot.
@@ -255,7 +255,7 @@ void LateralRootGrowthLeft(State &state, int l, int NumRootAgeGroups, unsigned i
 //
 //     The following global variables are referenced here:
 //       NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
-//       SoilTempDailyAvrg, VolWaterContent, wk.
+//       SoilTempDailyAvrg.
 //     The following global variables are set here:
 //       RootAge, RootColNumLeft, RootWeight.
 //     The argument used:     l - layer number in the soil slab.
@@ -289,7 +289,7 @@ void LateralRootGrowthLeft(State &state, int l, int NumRootAgeGroups, unsigned i
     //  growth rate (u) is modified by the soil temperature function,
     //  and the linearly modified effect of soil resistance (RootGroFactor).
     //     Lateral root elongation does not occur in water logged soil.
-    if (VolWaterContent[l][ktip] < PoreSpace[l])
+    if (state.soil.cells[l][ktip].water_content < PoreSpace[l])
     {
         rlat1[l] += rlatr * temprg * (1 - p1 + state.soil.cells[l][ktip].root.growth_factor * p1);
         //     If the lateral reaches a new soil soil cell: a proportion (tran) of
@@ -322,7 +322,7 @@ void LateralRootGrowthRight(State &state, int l, int NumRootAgeGroups, unsigned 
 //
 //     The following global variables are referenced here:
 //  nk, NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
-//  SoilTempDailyAvrg, VolWaterContent, wk.
+//  SoilTempDailyAvrg.
 //     The following global variables are set here:
 //  RootAge, RootColNumRight, RootWeight.
 //     The argument used:      l - layer number in the soil slab.
@@ -357,7 +357,7 @@ void LateralRootGrowthRight(State &state, int l, int NumRootAgeGroups, unsigned 
     //  growth rate is modified by the soil temperature function,
     //  and the linearly modified effect of soil resistance (RootGroFactor).
     //     Lateral root elongation does not occur in water logged soil.
-    if (VolWaterContent[l][ktip] < PoreSpace[l])
+    if (state.soil.cells[l][ktip].water_content < PoreSpace[l])
     {
         rlat2[l] += rlatr * temprg * (1 - p1 + state.soil.cells[l][ktip].root.growth_factor * p1);
         //     If the lateral reaches a new soil soil cell: a proportion (tran) of
@@ -431,7 +431,7 @@ double RootDeath(SoilCell &soil_cell, int l, int k, double DailyRootLoss)
     //  class 1. Root death rate is increased to the maximum value in soil saturated with water.
     //
     //     The following global variables are referenced here:
-    //       RootAge, PoreSpace, SoilPsi, VolWaterContent
+    //       RootAge, PoreSpace, SoilPsi
     //     The following global variables are set here:
     //       RootWeight, DailyRootLoss
     //     The arguments k, l - are column and layer numbers.
@@ -451,7 +451,7 @@ double RootDeath(SoilCell &soil_cell, int l, int k, double DailyRootLoss)
         {
             double dthfac; // the computed proportion of roots dying in each class.
             dthfac = dth[i];
-            if (VolWaterContent[l][k] >= PoreSpace[l])
+            if (soil_cell.water_content >= PoreSpace[l])
                 dthfac = dthmax;
             else
             {

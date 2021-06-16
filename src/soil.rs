@@ -182,11 +182,11 @@ extern "C" fn SoilWaterEffect(
     volumetric_water_content_saturated: f64,
     xx: f64,
 ) -> f64
-//     This function computes the effect of soil moisture on the rate of mineralization of 
+//     This function computes the effect of soil moisture on the rate of mineralization of
 //  organic mineralizable nitrogen, and on the rates of urea hydrolysis and nitrification.
 //     It is based on Godwin and Jones (1991).
 //     The following global variables are referenced:
-//       FieldCapacity, thetar, thts, VolWaterContent.
+//       FieldCapacity, thetar, thts, volumetric_water_content.
 //     The argument xx is 0.5 when used for mineralization and urea hydrolysis,
 //  or 1.0 when used for nitrification.
 //     l, k are layer and column of this cell.
@@ -246,7 +246,7 @@ extern "C" fn SoilMechanicResistance(rtimpdmin: f64) -> f64 {
 extern "C" fn form(c0: f64, d0: f64, g0: f64) -> f64
 // Arguments referenced:
 //   c0 - heat conductivity of first material
-//   d0 - heat conductivity of second material	
+//   d0 - heat conductivity of second material
 //   g0 - shape factor for these materials
 {
     (2f64 / (1f64 + (c0 / d0 - 1f64) * g0) + 1f64 / (1f64 + (c0 / d0 - 1f64) * (1f64 - 2f64 * g0)))

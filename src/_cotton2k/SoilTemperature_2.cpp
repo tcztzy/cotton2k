@@ -18,7 +18,7 @@ extern "C"
 }
 double SensibleHeatTransfer(double, double, double, double);
 
-void SoilSurfaceBalance(int, int, double, double, double, double, double, double &, double &, double &, double, double, const int &);
+void SoilSurfaceBalance(State &, int, int, double, double, double, double, double, double &, double &, double &, double, double);
 
 // SoilTemperature_3
 void CanopyBalance(int, int, double, double, double, double, double, double, double, double &, const int &);
@@ -42,7 +42,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, double ess, doub
 //       etp1 - actual transpiration rate (mm / sec).
 //     The following global variables are referenced here:
 //       AirTemp, albedo, CloudCoverRatio, CloudTypeCorr, FieldCapacity,
-//       PlantHeight, Radiation, RelativeHumidity, SitePar, thad, VolWaterContent, WindSpeed.
+//       PlantHeight, Radiation, RelativeHumidity, SitePar, thad, WindSpeed.
 //    The following global variables are set here:
 //       SoilTemp, FoliageTemp.
 {
@@ -60,13 +60,13 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, double ess, doub
     double so3 = SoilTemp[2][k];              // 3rd soil layer temperature, K
                                               //     Compute soil surface albedo (based on Horton and Chung, 1991):
     double ag;                                // albedo of the soil surface
-    if (VolWaterContent[0][k] <= thad[0])
+    if (sim.states[u].soil.cells[0][k].water_content <= thad[0])
         ag = SitePar[15];
-    else if (VolWaterContent[0][k] >= FieldCapacity[0])
+    else if (sim.states[u].soil.cells[0][k].water_content >= FieldCapacity[0])
         ag = SitePar[16];
     else
         ag = SitePar[16] +
-             (SitePar[15] - SitePar[16]) * (FieldCapacity[0] - VolWaterContent[0][k]) / (FieldCapacity[0] - thad[0]);
+             (SitePar[15] - SitePar[16]) * (FieldCapacity[0] - sim.states[u].soil.cells[0][k].water_content) / (FieldCapacity[0] - thad[0]);
     //  ****   SHORT WAVE RADIATION ENERGY BALANCE   ****
     //     Division by 41880 (= 698 * 60) converts from Joules per sq m to
     // langley (= calories per sq cm) Or: from Watt per sq m to langley per sec.
@@ -129,7 +129,7 @@ void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, double ess, doub
         rocp = 0.08471 / tafk;
         double hsg = rocp * varc; // multiplier for computing sensible heat transfer soil to air.
                                   //     Call SoilSurfaceBalance() for energy balance in soil surface / air interface.
-        SoilSurfaceBalance(ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, tv, sim.day_start + u);
+        SoilSurfaceBalance(sim.states[u], ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, tv);
         //
         if (sf >= 0.05)
         {
@@ -304,16 +304,13 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height, double w
 }
 
 /////////////////////////////////////////
-void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss, double sf,
-                        double hsg, double &so, double &so2, double &so3, double thet, double tv,
-                        const int &Daynum)
+void SoilSurfaceBalance(State &state, int ihr, int k, double ess, double rlzero, double rss, double sf,
+                        double hsg, double &so, double &so2, double &so3, double thet, double tv)
 //     This function is called from EnergyBalance(). It calls function ThermalCondSoil().
 //     It solves the energy balance equations at the soil surface, and
 //  computes the resulting temperature of the soil surface.
 //     Units for all energy fluxes are: cal cm-2 sec-1.
 //
-//     The following global variables are referenced here:
-//       dl, VolWaterContent.
 //     The following arguments are set in this function:
 //       so - temperature of soil surface.
 //       so2 - temperature of soil 2nd layer
@@ -358,9 +355,9 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss, d
         double rosoil1;                // heat conductivity of 1st soil layer in cal / (cm sec deg).
         double rosoil2;                // heat conductivity of 2nd soil layer in cal / (cm sec deg).
         double rosoil3;                // heat conductivity of 3rd soil layer in cal / (cm sec deg).
-        rosoil1 = ThermalCondSoil(VolWaterContent[0][k], so, 1);
-        rosoil2 = ThermalCondSoil(VolWaterContent[1][k], so2, 2);
-        rosoil3 = ThermalCondSoil(VolWaterContent[2][k], so3, 3);
+        rosoil1 = ThermalCondSoil(state.soil.cells[0][k].water_content, so, 1);
+        rosoil2 = ThermalCondSoil(state.soil.cells[1][k].water_content, so2, 2);
+        rosoil3 = ThermalCondSoil(state.soil.cells[2][k].water_content, so3, 3);
         //     Compute average rosoil between layers 1 to 3,and heat transfer from
         //  soil surface to 3rd soil layer.
         double rosoil; // multiplier for heat flux between 1st and 3rd soil layers.
@@ -393,7 +390,7 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss, d
         //     Compute derivative of bbsoil
         double sop001 = so + 0.001; // soil surface temperature plus 0.001
         double rosoil1p;            // heat conductivity of 1st soil layer for so+0.001
-        rosoil1p = ThermalCondSoil(VolWaterContent[0][k], sop001, 1);
+        rosoil1p = ThermalCondSoil(state.soil.cells[0][k].water_content, sop001, 1);
         double rosoilp; // rosoil for so+0.001
         rosoilp = (rosoil1p * dl(0) + rosoil2 * dl(1) + rosoil3 * dl(2)) / (dl(0) + dl(1) + dl(2)) / (.5 * dl(0) + dl(1) + .5 * dl(2));
         double drosoil = (rosoilp - rosoil) / 0.001;    // derivative of rosoil
@@ -436,7 +433,7 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss, d
       //     If (mon >= 50) send message on error and end simulation.
     string msg = " Infinite loop in SoilSurfaceBalance(). Abnormal stop!! \n";
     char C1[12];
-    sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
+    sprintf(C1, "%3d %3d %3d", state.daynum, ihr, k);
     msg += " Daynum, ihr, k = " + (string)C1 + "\n";
     sprintf(C1, "%10.3g", so);
     msg += " so      = " + (string)C1 + "\n";

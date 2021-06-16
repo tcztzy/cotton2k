@@ -18,7 +18,7 @@ using namespace std;
 
 const double cgind[3] = {1, 1, 0.10}; // the index for the capability of growth of class I roots (0 to 1).
 
-void RootImpedance();
+void RootImpedance(SoilCell[40][20]);
 
 extern "C"
 {
@@ -92,7 +92,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, in
 //     The following global variables are referenced here:
 //       NumRootAgeGroups, nk,
 //       PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg,
-//       VolNo3NContent, VolWaterContent.
+//       VolNo3NContent.
 //     The following global variables are set here:    PotGroRoots, RootGroFactor
 {
     //     The following constant parameter is used:
@@ -101,7 +101,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, in
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
             soil_cells[l][k].root.potential_growth = 0;
-    RootImpedance();
+    RootImpedance(soil_cells);
     double sumpdr = 0; // sum of potential root growth rate for the whole slab
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = 0; k < nk; k++)
@@ -157,7 +157,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, in
                     rtimpdmin = rtimpdlp1;
                 rtpct = SoilMechanicResistance(rtimpdmin);
                 double rtrdo; // effect of oxygen deficiency on root growth (returned from SoilAirOnRootGrowth).
-                rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], VolWaterContent[l][k]);
+                rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], soil_cells[l][k].water_content);
                 double rtrdn; // effect of nitrate deficiency on root growth (returned from SoilNitrateOnRootGrowth).
                 rtrdn = SoilNitrateOnRootGrowth(soil_cells[l][k].nitrate_nitrogen_content);
                 //     The root growth resistance factor RootGroFactor(l,k), which can take a
@@ -189,7 +189,7 @@ double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, in
 }
 
 //////////////////////////
-void RootImpedance()
+void RootImpedance(SoilCell soil_cells[40][20])
 //     This function calculates soil mechanical impedance to root growth, rtimpd(l,k),
 //  for all soil cells. It is called from PotentialRootGrowth(). The impedance is a function
 //  of bulk density and water content in each soil soil cell. No changes have been made
@@ -197,7 +197,7 @@ void RootImpedance()
 //
 //     The following global variables are referenced here:
 //  BulkDensity, gh2oc, impede, inrim, ncurve, nk, nl,
-//  SoilHorizonNum, tstbd, VolWaterContent.
+//  SoilHorizonNum, tstbd.
 //     The following global variables are set here:    RootImpede.
 {
     for (int l = 0; l < nl; l++)
@@ -220,7 +220,7 @@ void RootImpedance()
         //
         for (int k = 0; k < nk; k++)
         {
-            double Vh2o = VolWaterContent[l][k] / Bd;
+            double Vh2o = soil_cells[l][k].water_content / Bd;
             int ik;
             for (ik = 0; ik < ncurve; ik++)
             {

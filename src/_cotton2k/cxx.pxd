@@ -94,7 +94,6 @@ cdef extern from "global.h":
     int DefoliationDate[5]
     int DefoliationMethod[5]
     double PercentDefoliation
-    double VolWaterContent[40][20]
     NitrogenFertilizer NFertilizer[150]
     int NumNitApps
     int NumIrrigations

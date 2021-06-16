@@ -28,7 +28,7 @@ void LeafWaterPotential(State &state, double row_space)
 //       AverageSoilPsi, vanGenuchtenBeta, dl, Kday, LeafAge, NumFruitBranches,
 //       NumNodes, NumVegBranches,
 //       pi, PlantHeight, PoreSpace, ReferenceETP, RootColNumLeft, RootColNumRight,
-//       RootWtCapblUptake, SaturatedHydCond, SoilPsi, thad, thts, VolWaterContent, wk.
+//       RootWtCapblUptake, SaturatedHydCond, SoilPsi, thad, thts.
 //     The following global variables are set here:
 //       LwpMin, LwpMax.
 //
@@ -77,7 +77,7 @@ void LeafWaterPotential(State &state, double row_space)
                 else
                     rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k])) / cmg;
                 rrlsum += std::min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl;
-                vh2sum += VolWaterContent[l][k] * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
+                vh2sum += state.soil.cells[l][k].water_content * std::min(state.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]);
             }
         }
     //     Compute average root resistance (rroot) and average soil water content (vh2).

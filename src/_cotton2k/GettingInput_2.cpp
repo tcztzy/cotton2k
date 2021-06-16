@@ -46,7 +46,7 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
 //        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter, InitialTotalSoilWater,
 //        MaxWaterCapacity, NO3FlowFraction, PoreSpace, rnnh4, rnno3, SaturatedHydCond,
 //        SoilHorizonNum, thad, thetar, thetas, thts, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN,
-//        VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent
+//        VolNh4NContent, VolNo3NContent, VolUreaNContent
 {
     int j = 0; // horizon number
     double sumdl = 0; // depth to the bottom this layer (cm);
@@ -120,18 +120,18 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
             coeff = 1.6;
         NO3FlowFraction[l] = 1 / (1 + coeff * bdl[l] / MaxWaterCapacity[l]);
 //     Determine the corresponding 15 cm layer of the input file.
-//     Compute the initial volumetric water content (VolWaterContent) of each
+//     Compute the initial volumetric water content (cell.water_content) of each
 //  layer, and check that it will not be less than the air-dry value or
 //  more than pore space volume.
         j = (int) ((sumdl - 1) / LayerDepth);
         if (j > 13)
             j = 13;
         int n = SoilHorizonNum[l];
-        VolWaterContent[l][0] = FieldCapacity[l] * h2oint[j] / 100;
-        if (VolWaterContent[l][0] < airdr[n])
-            VolWaterContent[l][0] = airdr[n];
-        if (VolWaterContent[l][0] > PoreSpace[l])
-            VolWaterContent[l][0] = PoreSpace[l];
+        sim.states[0].soil.cells[l][0].water_content = FieldCapacity[l] * h2oint[j] / 100;
+        if (sim.states[0].soil.cells[l][0].water_content < airdr[n])
+            sim.states[0].soil.cells[l][0].water_content = airdr[n];
+        if (sim.states[0].soil.cells[l][0].water_content > PoreSpace[l])
+            sim.states[0].soil.cells[l][0].water_content = PoreSpace[l];
 //     Initial values of ammonium N (rnnh4, VolNh4NContent) and nitrate N
 //  (rnno3, VolNo3NContent) are converted from kgs per ha to mg / cm3 for each
 //  soil layer, after checking for minimal amounts.
@@ -157,7 +157,7 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
 //  in each layer, these values are now assigned to all the other columns.
     for (int l = 0; l < nl; l++)
         for (int k = 1; k < nk; k++) {
-            VolWaterContent[l][k] = VolWaterContent[l][0];
+            sim.states[0].soil.cells[l][k].water_content = sim.states[0].soil.cells[l][0].water_content;
             sim.states[0].soil.cells[l][k].nitrate_nitrogen_content = sim.states[0].soil.cells[l][0].nitrate_nitrogen_content;
             VolNh4NContent[l][k] = VolNh4NContent[l][0];
             sim.states[0].soil.cells[l][k].fresh_organic_matter = sim.states[0].soil.cells[l][0].fresh_organic_matter;
@@ -172,7 +172,7 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
 //
     for (int l = 0; l < nl; l++)
         for (int k = 0; k < nk; k++) {
-            InitialTotalSoilWater += VolWaterContent[l][k] * dl(l) * wk(k, sim.row_space);
+            InitialTotalSoilWater += sim.states[0].soil.cells[l][k].water_content * dl(l) * wk(k, sim.row_space);
             TotalSoilNo3N += sim.states[0].soil.cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, sim.row_space);
             TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, sim.row_space);
             VolUreaNContent[l][k] = 0;
