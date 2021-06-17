@@ -857,9 +857,7 @@ cdef class Simulation:
                 shade = 1 - (sw1 / state.plant_height) * (sw1 / state.plant_height)
                 if state.light_interception < zint and state.leaf_area_index < self.max_leaf_area_index:
                     shade *= state.light_interception / zint
-            self.relative_radiation_received_by_a_soil_column[k0] = 1 - shade
-            if self.relative_radiation_received_by_a_soil_column[k0] < 0.05:
-                self.relative_radiation_received_by_a_soil_column[k0] = 0.05
+            self.relative_radiation_received_by_a_soil_column[k0] = max(0.05, 1 - shade)
 
     def _daily_climate(self, u):
         cdef double declination  # daily declination angle, in radians
