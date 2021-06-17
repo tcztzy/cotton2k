@@ -1388,7 +1388,7 @@ cdef class Simulation:
         """
         This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
 
-        CottonPhenology() calls PreFruitingNode(), DaysToFirstSquare(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        CottonPhenology() calls PreFruitingNode(), _days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
         """
         state = self.state(u)
         # The following constant parameters are used:
@@ -1419,7 +1419,7 @@ cdef class Simulation:
             delayFrtByCStress = self.cultivar_parameters[29]
         if delayFrtByCStress < 0:
             delayFrtByCStress = 0
-        # The following section is executed if the first square has not yet been formed. Function DaysToFirstSquare() is called to compute the  number of days to 1st square, and function PreFruitingNode() is called to simulate the formation of prefruiting nodes.
+        # The following section is executed if the first square has not yet been formed. Function _days_to_first_square() is called to compute the  number of days to 1st square, and function PreFruitingNode() is called to simulate the formation of prefruiting nodes.
         if self._sim.first_square <= 0:
             self.DaysTo1stSqare = self._days_to_first_square(u)
             PreFruitingNode(self._sim.states[u], stemNRatio, self._sim.cultivar_parameters)

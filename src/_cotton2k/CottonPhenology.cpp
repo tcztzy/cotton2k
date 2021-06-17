@@ -3,7 +3,6 @@
 //   Functions in this file:
 // CottonPhenology()
 // PreFruitingNode()
-// DaysToFirstSquare()
 // AddFruitingNode()
 // SimulateFruitingSite{}
 // NewBollFormation()
@@ -15,11 +14,6 @@
 #include "FruitAbscission.h"
 
 using namespace std;
-
-extern "C"
-{
-    double DaysToFirstSquare(int, int, double, double, double, double);
-}
 
 void NewBollFormation(State &, FruitingSite &);
 
