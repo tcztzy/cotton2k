@@ -11,7 +11,7 @@ from libcpp.string cimport string
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
 from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
-from _cotton2k.utils import date2doy
+from _cotton2k.utils import date2doy, doy2date
 from .climate cimport ClimateStruct
 from .cxx cimport (
     cSimulation,
@@ -595,12 +595,6 @@ cdef class Simulation:
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
 
-    def _doy2date(self, j):
-        try:
-            return datetime.strptime(f"{self.year} {j}", "%Y %j").date()
-        except:
-            return
-
     def __init__(self, name="default", version=0x0400):
         self.name = name.encode("utf-8")
         self.version = version
@@ -616,7 +610,7 @@ cdef class Simulation:
 
     @property
     def start_date(self):
-        return self._doy2date(self._sim.day_start)
+        return doy2date(self.year, self._sim.day_start)
 
     @start_date.setter
     def start_date(self, d):
@@ -624,7 +618,7 @@ cdef class Simulation:
 
     @property
     def stop_date(self):
-        return self._doy2date(self._sim.day_finish)
+        return doy2date(self.year, self._sim.day_finish)
 
     @stop_date.setter
     def stop_date(self, d):
@@ -632,7 +626,7 @@ cdef class Simulation:
 
     @property
     def emerge_date(self):
-        return self._doy2date(self._sim.day_emerge)
+        return doy2date(self.year, self._sim.day_emerge)
 
     @emerge_date.setter
     def emerge_date(self, d):
@@ -640,7 +634,7 @@ cdef class Simulation:
 
     @property
     def plant_date(self):
-        return self._doy2date(self._sim.day_plant)
+        return doy2date(self.year, self._sim.day_plant)
 
     @plant_date.setter
     def plant_date(self, d):
@@ -648,7 +642,7 @@ cdef class Simulation:
 
     @property
     def topping_date(self):
-        return self._doy2date(self._sim.day_topping)
+        return doy2date(self.year, self._sim.day_topping)
 
     @topping_date.setter
     def topping_date(self, d):
@@ -874,7 +868,7 @@ cdef class Simulation:
         cdef double suns  # time of sunset, hours.
         cdef double tmpisr  # extraterrestrial radiation, \frac{W}{m^2}
         hour = timedelta(hours=1)
-        result = compute_day_length((self.latitude, self.longitude), self._doy2date(self._sim.states[u].daynum))
+        result = compute_day_length((self.latitude, self.longitude), doy2date(self.year, self._sim.states[u].daynum))
         declination = result["declination"]
         zero = result["sunr"].replace(hour=0, minute=0, second=0, microsecond=0)
         sunr = (result["sunr"] - zero) / hour
