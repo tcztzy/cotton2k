@@ -10,7 +10,7 @@ from libcpp.string cimport string
 
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
-from _cotton2k.photosynthesis import ambient_co2_factor
+from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
 from _cotton2k.utils import date2doy
 from .climate cimport ClimateStruct
 from .cxx cimport (
@@ -844,28 +844,6 @@ cdef class Simulation:
             if i < self._sim.day_finish - self._sim.day_start:
                 CopyState(self._sim, i)
 
-    def _calc_light_interception(self, u):
-        cdef cState state = self._sim.states[u]
-        if self.version < 0x0500:
-            if state.leaf_area_index > self.max_leaf_area_index:
-                self.max_leaf_area_index = state.leaf_area_index
-            zint = 1.0756 * state.plant_height / self.row_space
-            lfint = 0.80 * state.leaf_area_index if state.leaf_area_index <= 0.5 else 1 - exp(
-                0.07 - 1.16 * state.leaf_area_index)
-            if lfint > zint:
-                light_interception = (zint + lfint) / 2
-            elif state.leaf_area_index < self.max_leaf_area_index:
-                light_interception = lfint
-            else:
-                light_interception = zint
-            if light_interception > 1:
-                light_interception = 1
-            if light_interception < 0:
-                light_interception = 0
-            self._sim.states[u].light_interception = light_interception
-        else:
-            self._sim.states[u].light_interception = 1 - exp(-1.16 * state.leaf_area_index)
-
     def _column_shading(self, u):
         cdef cState state = self._sim.states[u]
         zint = 1.0756 * state.plant_height / self.row_space
@@ -1556,7 +1534,9 @@ cdef class Simulation:
         state = self.state(u)
         if 0 < self._sim.day_emerge <= self._sim.day_start + u:
             state.kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
-            self._calc_light_interception(u)
+            if state.leaf_area_index > self.max_leaf_area_index:
+                self.max_leaf_area_index = state.leaf_area_index
+            state.light_interception = compute_light_interception(state.leaf_area_index, self.max_leaf_area_index, state.plant_height, self.row_space)
             self._column_shading(u)
         else:
             state.kday = 0

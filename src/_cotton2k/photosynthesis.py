@@ -1,3 +1,5 @@
+from math import exp
+
 # parameters used to correct photosynthesis for ambient CO2 concentration.
 CO2_PARAMETERS = (
     1.0235,
@@ -57,3 +59,29 @@ def ambient_co2_factor(year):
     if year <= STOP_YEAR:
         return CO2_PARAMETERS[year - START_YEAR]
     return CO2_PARAMETERS[-1] + 0.004864 * (year - STOP_YEAR)
+
+
+def compute_light_interception(
+    leaf_area_index: float,
+    max_leaf_area_index: float,
+    plant_height: float,
+    row_space: float,
+    /,
+    *,
+    version: int = 0x0400,
+):
+    if version < 0x0500:
+        zint = 1.0756 * plant_height / row_space
+        lfint = (
+            0.80 * leaf_area_index
+            if leaf_area_index <= 0.5
+            else 1 - exp(0.07 - 1.16 * leaf_area_index)
+        )
+        if lfint > zint:
+            light_interception = (zint + lfint) / 2
+        elif leaf_area_index < max_leaf_area_index:
+            light_interception = lfint
+        else:
+            light_interception = zint
+        return light_interception if light_interception < 1 else 1
+    return 1 - exp(-1.16 * leaf_area_index)
