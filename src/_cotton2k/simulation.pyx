@@ -10,6 +10,7 @@ from libcpp.string cimport string
 
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
+from _cotton2k.phenology import days_to_first_square
 from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
 from _cotton2k.utils import date2doy, doy2date
 from .climate cimport ClimateStruct
@@ -586,8 +587,6 @@ cdef class Simulation:
     cdef double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
     cdef double max_leaf_area_index
     cdef double ptsred  # The effect of moisture stress on the photosynthetic rate
-    cdef double avtemp  # average temperature from day of emergence.
-    cdef double sumstrs  # cumulative effect of water and N stresses on date of first square.
     cdef double DaysTo1stSqare   # number of days from emergence to 1st square
     cdef double defkgh  # amount of defoliant applied, kg per ha
     cdef double tdfkgh  # total cumulative amount of defoliant
@@ -1335,17 +1334,6 @@ cdef class Simulation:
         ComputeActualRootGrowth(self._sim.states[u], sumpdr, self.row_space, self._sim.per_plant_area, 3, self._sim.day_emerge,
                                 self._sim.plant_row_column)
 
-    def _days_to_first_square(self, u):
-        state = self.state(u)
-        if state.daynum <= self._sim.day_emerge:
-            self.avtemp = state.average_temperature
-            self.sumstrs = 0
-        self.avtemp = ((state.daynum - self._sim.day_emerge) * self.avtemp + state.average_temperature) / (state.daynum - self._sim.day_emerge + 1)
-        if self.avtemp > 34:
-            self.avtemp = 34
-        self.sumstrs += 0.08 * (1 - state.water_stress) * 0.3 * (1 - state.nitrogen_stress_vegetative)
-        return (132.2 + self.avtemp * (-7 + self.avtemp * 0.125)) * self.cultivar_parameters[30] - self.sumstrs
-
     def _add_vegetative_branch(self, u, delayVegByCStress, stemNRatio, DaysTo1stSqare, PhenDelayByNStress):
         """
         This function decides whether a new vegetative branch is to be added, and then forms it. It is called from CottonPhenology().
@@ -1388,7 +1376,7 @@ cdef class Simulation:
         """
         This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
 
-        CottonPhenology() calls PreFruitingNode(), _days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        CottonPhenology() calls PreFruitingNode(), days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
         """
         state = self.state(u)
         # The following constant parameters are used:
@@ -1419,9 +1407,9 @@ cdef class Simulation:
             delayFrtByCStress = self.cultivar_parameters[29]
         if delayFrtByCStress < 0:
             delayFrtByCStress = 0
-        # The following section is executed if the first square has not yet been formed. Function _days_to_first_square() is called to compute the  number of days to 1st square, and function PreFruitingNode() is called to simulate the formation of prefruiting nodes.
+        # The following section is executed if the first square has not yet been formed. Function days_to_first_square() is called to compute the number of days to 1st square, and function PreFruitingNode() is called to simulate the formation of prefruiting nodes.
         if self._sim.first_square <= 0:
-            self.DaysTo1stSqare = self._days_to_first_square(u)
+            self.DaysTo1stSqare = days_to_first_square(state.average_temperature, state.water_stress, state.nitrogen_stress_vegetative, self.cultivar_parameters[30])
             PreFruitingNode(self._sim.states[u], stemNRatio, self._sim.cultivar_parameters)
             # When first square is formed, FirstSquare is assigned the day of year.
             # Function create_first_square() is called for formation of first square.
