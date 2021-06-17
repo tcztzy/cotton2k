@@ -65,6 +65,7 @@ cdef extern from "State.hpp":
         double net_radiation
         double evapotranspiration
         double actual_transpiration
+        double potential_evaporation
         double cumulative_transpiration
         double actual_soil_evaporation
         double cumulative_evaporation

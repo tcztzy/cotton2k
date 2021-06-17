@@ -13,7 +13,7 @@ const double pi = 3.14159;
 ////    Structures    ////
 typedef struct scratch
 {
-    double amitri, ep, es;
+    double amitri, ep;
 } scratch;
 extern scratch Scratch21[400];
 typedef struct NitrogenFertilizer

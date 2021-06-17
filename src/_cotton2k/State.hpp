@@ -72,6 +72,7 @@ typedef struct State
     double evapotranspiration;                  // daily sum of hourly reference evapotranspiration, mm per day.
     double actual_transpiration;                // actual transpiration from plants, mm day-1.
     double cumulative_transpiration;            // cumulative transpiration, mm.
+    double potential_evaporation;               //
     double actual_soil_evaporation;             // actual evaporation from soil surface, mm day-1.
     double cumulative_evaporation;              // cumulative evaporation from soil surface, mm.
     double light_interception;                  // ratio of light interception by plant canopy.

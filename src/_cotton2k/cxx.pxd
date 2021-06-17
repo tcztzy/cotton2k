@@ -67,6 +67,11 @@ cdef extern from "global.h":
     double DefoliantAppRate[5]
     double SandVolumeFraction[40]
     double ClayVolumeFraction[40]
+    double thad[40]
+    double FoliageTemp[20]
+    double SoilTempDailyAvrg[40][20]
+    double SoilTemp[40][20]
+    double DeepSoilTemperature
     double ActualStemGrowth
     double PotGroStem
     double PotGroAllRoots

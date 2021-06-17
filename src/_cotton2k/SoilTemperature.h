@@ -2,4 +2,10 @@
 #include <cinttypes>
 #include "Simulation.hpp"
 
-void SoilTemperature(Simulation &, uint32_t, double[20]);
+void SoilTemperatureInit(Simulation &);
+
+void PredictEmergence(Simulation &, unsigned int, int);
+
+void SoilHeatFlux(State &, double, int, int, int, int, double);
+
+void EnergyBalance(Simulation &, uint32_t, int, int, double, double, const double &, double[20]);

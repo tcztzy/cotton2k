@@ -2,6 +2,7 @@ from libc.stdint cimport uint32_t
 
 from .cxx cimport (
 BulkDensity,
+DeepSoilTemperature,
 DefoliantAppRate,
 DefoliationDate,
 DefoliationMethod,
@@ -16,6 +17,7 @@ PlantRowLocation,
 RatioImplicit,
 SaturatedHydCond,
 SitePar,
+SoilTemp,
 airdr,
 alpha,
 conmax,
@@ -24,6 +26,7 @@ maxk,
 maxl,
 nk,
 nl,
+thad,
 thetas,
 vanGenuchtenBeta,
 cSimulation,
@@ -88,4 +91,7 @@ cdef extern from "SoilProcedures.h":
     void SoilSum(cState &, double)
 
 cdef extern from "SoilTemperature.h":
-    void SoilTemperature(cSimulation &, uint32_t, double[20])
+    void SoilTemperatureInit(cSimulation &)
+    void PredictEmergence(cSimulation &, unsigned int, int)
+    void SoilHeatFlux(cState &, double, int, int, int, int, double)
+    void EnergyBalance(cSimulation &, uint32_t, int, int, double, double, const double &, double[20])
