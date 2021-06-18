@@ -46,7 +46,7 @@ from .cxx cimport (
     SoilTempDailyAvrg,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, dl, wk, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss
+from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf
 from .fruiting_site cimport FruitingSite, Leaf
 
@@ -599,6 +599,30 @@ def compute_incoming_long_wave_radiation(humidity: float, temperature: float, cl
     # incoming long wave radiation (ly / sec).
     rlzero = (ea0 * (1 - cloud_cov) + cloud_cov) * stefa1 * (temperature + 273.161) ** 4 - cloud_cor / 41880  # CloudTypeCorr converted from W m-2 to ly sec-1.
     return rlzero
+
+
+def dayrh(tt: float, tdew: float) -> float:
+    """Computes the hourly values of relative humidity, using the hourly air and dew point temperatures. It calls function `VaporPressure`
+
+    If the estimated dew point is higher than the actual air temperature, its value is taken as the air temperature (relative humidity 100%).
+
+    The relative humidity is calculated as the percentage ratio of the saturated vapor pressure at dew point temperature and the saturated vapor pressure at actual air temperature.
+
+    Reference:
+
+    Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling diurnal patterns of air temperature, radiation, wind speed and relative humidity by equations from daily characteristics. Agricultural Systems 51:377-393.
+    :param tt: air temperature C at this time of day.
+    :type tt: float
+    :param tdew: dew point temperature C at this time of day.
+    :type tdew: float
+    :return: relative humidity
+    :rtype: float
+    """
+    td = min(tt, tdew)  # the dew point temperature (C), is assumed to be tt if tt < tdew.
+    esvp = VaporPressure(tt)  # the saturated vapor pressure in the air (mbar).
+    vpa = VaporPressure(td)  # the actual vapor pressure in the air (mbar).
+    relative_humidity = 100 * vpa / esvp  # relative humidity at this time of day, %.
+    return min(100, max(1, relative_humidity))
 
 
 cdef class Simulation:

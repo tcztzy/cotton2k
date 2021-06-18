@@ -6,7 +6,6 @@ cdef extern:
     double wk(unsigned int, double)
     double tdewest(double, double, double)
     int SlabLoc(int, double)
-    double dayrh(double, double)
     double daywnd(double, double, double, double, double, double)
     double PotentialStemGrowth(double, int, Stage, double, double, double, double, double, double, double, double)
     double AddPlantHeight(double, double, uint32_t, Stage, double, double, double, double, double, double, double,
