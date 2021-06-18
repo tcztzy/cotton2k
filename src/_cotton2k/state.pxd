@@ -3,7 +3,7 @@ from .fruiting_site cimport FruitingSite
 from .soil cimport cSoil
 
 cdef extern from "State.hpp":
-    ctypedef struct Hour:
+    ctypedef struct cHour "Hour":
         double temperature
         double radiation
         double cloud_cov
@@ -104,5 +104,5 @@ cdef extern from "State.hpp":
         double leaf_area_pre_fruiting[9]
         double delay_for_new_branch[3]
         cVegetativeBranch vegetative_branches[3]
-        Hour hours[24]
+        cHour hours[24]
         cSoil soil

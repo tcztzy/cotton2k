@@ -33,12 +33,12 @@ vanGenuchtenBeta,
 cSimulation,
 )
 from .fruiting_site cimport Stage
-from .state cimport cState, Hour
+from .state cimport cState, cHour
 from .soil cimport cSoilCell
 
 cdef extern:
     double daytmp(cSimulation &, uint32_t, double, double, uint32_t, double, double)
-    void AverageAirTemperatures(Hour[24], double &, double &, double &)
+    void AverageAirTemperatures(cHour[24], double &, double &, double &)
     double tdewhour(cSimulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double)
     double SimulateRunoff(cSimulation &, uint32_t, double, double, uint32_t)
     void EvapoTranspiration(cState &, double, double, double, double, double)
@@ -72,7 +72,7 @@ cdef extern from "LeafAbscission.h":
 
 cdef extern from "PlantGrowth.h":
     void CheckDryMatterBal(cState &)
-    double PhysiologicalAge(Hour[24])
+    double PhysiologicalAge(cHour[24])
     void DryMatterBalance(cState &, double &, double &, double &, double &, double)
     void ActualFruitGrowth(cState &)
     void ActualLeafGrowth(cState &)

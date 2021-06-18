@@ -468,6 +468,23 @@ cdef class VegetativeBranch:
         return vegetative_branch
 
 
+cdef class Hour:
+    cdef cHour *_
+
+    @staticmethod
+    cdef Hour from_ptr(cHour *_ptr):
+        """Factory function to create WrapperClass objects from
+        given my_c_struct pointer.
+
+        Setting ``owner`` flag to ``True`` causes
+        the extension type to ``free`` the structure pointed to by ``_ptr``
+        when the wrapper object is deallocated."""
+        # Call to __new__ bypasses __init__ constructor
+        cdef Hour hour = Hour.__new__(Hour)
+        hour._ = _ptr
+        return hour
+
+
 cdef class State:
     cdef cState *_
     cdef public unsigned int year
@@ -508,6 +525,10 @@ cdef class State:
     @property
     def vegetative_branches(self):
         return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k]) for k in range(self.number_of_vegetative_branches)]
+
+    @property
+    def hours(self):
+        return (Hour.from_ptr(&self._[0].hours[i]) for i in range(24))
 
     def create_first_square(self, stemNRatio, first_square_leaf_area):
         """
