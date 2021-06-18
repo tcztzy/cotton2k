@@ -6,6 +6,7 @@ DeepSoilTemperature,
 DefoliantAppRate,
 DefoliationDate,
 DefoliationMethod,
+FieldCapacity,
 PercentDefoliation,
 InitializeGlobal,
 LastDayWeatherData,
@@ -94,4 +95,6 @@ cdef extern from "SoilTemperature.h":
     void SoilTemperatureInit(cSimulation &)
     void PredictEmergence(cSimulation &, unsigned int, int)
     void SoilHeatFlux(cState &, double, int, int, int, int, double)
-    void EnergyBalance(cSimulation &, uint32_t, int, int, double, double, const double &, double[20])
+    void CanopyBalance(int, int, double, double, double, double, double, double, double, double &, const int &)
+    void SoilSurfaceBalance(cState &, int, int, double, double, double, double, double, double &, double &, double &, double, double)
+    double SensibleHeatTransfer(double, double, double, double)

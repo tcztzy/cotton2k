@@ -1,7 +1,6 @@
 //  File SoilTemperature_2.cpp
 //
 //   List of functions in this file:
-//       EnergyBalance()
 //       SensibleHeatTransfer()
 //       SoilSurfaceBalance()
 //
@@ -11,151 +10,10 @@
 #include "exceptions.h"
 
 using namespace std;
-extern "C"
-{
-    double VaporPressure(double);
-    double clearskyemiss(double, double);
-}
-double SensibleHeatTransfer(double, double, double, double);
-
-void SoilSurfaceBalance(State &, int, int, double, double, double, double, double, double &, double &, double &, double, double);
 
 // SoilTemperature_3
-void CanopyBalance(int, int, double, double, double, double, double, double, double, double &, const int &);
 
 double ThermalCondSoil(double, double, int);
-
-//////////////////////////
-void EnergyBalance(Simulation &sim, uint32_t u, int ihr, int k, double ess, double etp1, const double &PlantHeight, double rracol[20])
-//     This function solves the energy balance equations at the soil surface, and at the
-//  foliage / atmosphere interface. It computes the resulting temperatures of the soil
-//  surface and the plant canopy.
-//     Units for all energy fluxes are: cal cm-2 sec-1.
-//     It is called from SoilTemperature(), on each hourly time step and for each soil column.
-//     It calls functions clearskyemiss(), VaporPressure(), SensibleHeatTransfer(),
-//  SoilSurfaceBalance() and CanopyBalance.()
-//
-//     The following arguments are used in this function:
-//       ihr - the time of day in hours.
-//       k - soil column number.
-//       ess - evaporation from surface of a soil column (mm / sec).
-//       etp1 - actual transpiration rate (mm / sec).
-//     The following global variables are referenced here:
-//       AirTemp, albedo, CloudCoverRatio, CloudTypeCorr, FieldCapacity,
-//       PlantHeight, Radiation, RelativeHumidity, SitePar, thad, WindSpeed.
-//    The following global variables are set here:
-//       SoilTemp, FoliageTemp.
-{
-    Hour &hour = sim.states[u].hours[ihr];
-    //     Constants used:
-    const double stefa1 = 1.38e-12; // Stefan-Boltsman constant.
-    const double wndfac = 0.60;     // Ratio of wind speed under partial canopy cover.
-    const double cswint = 0.75;     // proportion of short wave radiation (on fully
-    // shaded soil surface)intercepted by the canopy.
-    //     Set initial values
-    double sf = 1 - rracol[k];                // fraction of shaded soil area
-    double thet = hour.temperature + 273.161; // air temperature, K
-    double so = SoilTemp[0][k];               // soil surface temperature, K
-    double so2 = SoilTemp[1][k];              // 2nd soil layer temperature, K
-    double so3 = SoilTemp[2][k];              // 3rd soil layer temperature, K
-                                              //     Compute soil surface albedo (based on Horton and Chung, 1991):
-    double ag;                                // albedo of the soil surface
-    if (sim.states[u].soil.cells[0][k].water_content <= thad[0])
-        ag = SitePar[15];
-    else if (sim.states[u].soil.cells[0][k].water_content >= FieldCapacity[0])
-        ag = SitePar[16];
-    else
-        ag = SitePar[16] +
-             (SitePar[15] - SitePar[16]) * (FieldCapacity[0] - sim.states[u].soil.cells[0][k].water_content) / (FieldCapacity[0] - thad[0]);
-    //  ****   SHORT WAVE RADIATION ENERGY BALANCE   ****
-    //     Division by 41880 (= 698 * 60) converts from Joules per sq m to
-    // langley (= calories per sq cm) Or: from Watt per sq m to langley per sec.
-    double rzero = hour.radiation / 41880;   //short wave (global) radiation (ly / sec).
-    double rss0 = rzero * (1 - sf * cswint); //global radiation after passing through canopy
-    double rsup;                             // global radiation reflected up to the vegetation
-    double rss;                              // global radiation absorbed by soil surface
-    rss = rss0 * (1 - ag);                                                                                   // absorbed by soil surface
-    rsup = rss0 * ag;                                                                                        // reflected up from soil surface
-                                                                                                             //   ****   LONG WAVE RADIATION EMITTED FROM SKY    ****
-    double vp = 0.01 * hour.humidity * VaporPressure(hour.temperature);                                      //air vapor pressure, KPa.
-    double ea0 = clearskyemiss(vp, thet);                                                                    //sky emissivity from clear portions of the sky.
-    double rlzero;                                                                                           // incoming long wave radiation (ly / sec).
-    rlzero = (ea0 * (1 - hour.cloud_cov) + hour.cloud_cov) * stefa1 * pow(thet, 4) - hour.cloud_cor / 41880; // CloudTypeCorr converted from W m-2 to ly sec-1.
-                                                                                                             //
-                                                                                                             //     Set initial values of canopy temperature and air temperature in canopy.
-    double tv;                                                                                               // temperature of plant foliage (K)
-    double tafk;                                                                                             // temperature (K) of air inside the canopy.
-    if (sf < 0.05)                                                                                           // no vegetation
-    {
-        tv = thet;
-        tafk = thet;
-    }
-    //     Wind velocity in canopy is converted to cm / s.
-    double wndhr; // wind speed in cm /sec
-    wndhr = hour.wind_speed * 100;
-    double rocp; // air density * specific heat at constant pressure = 0.24 * 2 * 1013 / 5740
-    // divided by tafk.
-    double c2;      // multiplier for sensible heat transfer (at plant surface).
-    double rsv;     // global radiation absorbed by the vegetation
-    if (sf >= 0.05) // a shaded soil column
-    {
-        tv = FoliageTemp[k];                            // vegetation temperature
-                                                        //     Short wave radiation intercepted by the canopy:
-        rsv = rzero * (1 - hour.albedo) * sf * cswint   //  from above
-              + rsup * (1 - hour.albedo) * sf * cswint; //  reflected from soil surface
-                                                        //     Air temperature inside canopy is the average of soil, air, and plant temperatures,
-                                                        //  weighted by 0.1, 0.3, and 0.6, respectively.
-        tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
-        //
-        //     Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2
-        //  for sensible heat transfer: 2 sides of leaf plus stems and petioles.
-        double varcc;                                               // sensible heat transfer coefficient for soil
-        varcc = SensibleHeatTransfer(tv, tafk, PlantHeight, wndhr); // canopy to air
-        rocp = 0.08471 / tafk;
-        c2 = 2.2 * sf * rocp * varcc;
-    }
-    int menit = 0;     // counter of iteration number
-    double soold = so; // previous value of soil surface temperature
-    double tvold = tv; // previous value of vegetation temperature
-                       //     Starting iterations for soil and canopy energy balance
-    do
-    {
-        soold = so;
-        double wndcanp = (1 - sf * (1 - wndfac)) * wndhr; // estimated wind speed under canopy
-                                                          //     Call SensibleHeatTransfer() to compute sensible heat transfer for soil surface to air
-        tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
-        double varc; // sensible heat transfer coefficientS for soil
-        varc = SensibleHeatTransfer(so, tafk, 0, wndcanp);
-        rocp = 0.08471 / tafk;
-        double hsg = rocp * varc; // multiplier for computing sensible heat transfer soil to air.
-                                  //     Call SoilSurfaceBalance() for energy balance in soil surface / air interface.
-        SoilSurfaceBalance(sim.states[u], ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, tv);
-        //
-        if (sf >= 0.05)
-        {
-            //     This section executed for shaded columns only.
-            tvold = tv;
-            //     Compute canopy energy balance for shaded columns
-            CanopyBalance(ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tv, sim.day_start + u);
-            //     Increment the number of iterations.
-            menit++;
-            if (menit > 10)
-            {
-                //     The following is used to reduce fluctuations.
-                so = 0.5 * (so + soold);
-                tv = 0.5 * (tv + tvold);
-            }
-            if (menit > 30) // If more than 30 iterations are needed - stop simulation.
-                throw SimulationEnd();
-        } // end if sf
-    } while (fabs(tv - tvold) > 0.05 || fabs(so - soold) > 0.05);
-    //     After convergence - set global variables for the following temperatures:
-    if (sf >= 0.05)
-        FoliageTemp[k] = tv;
-    SoilTemp[0][k] = so;
-    SoilTemp[1][k] = so2;
-    SoilTemp[2][k] = so3;
-}
 
 /////////////////////////////////////////////////////////////////////////////
 double SensibleHeatTransfer(double tsf, double tenviron, double height, double wndcanp)

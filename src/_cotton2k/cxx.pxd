@@ -68,6 +68,7 @@ cdef extern from "global.h":
     double SandVolumeFraction[40]
     double ClayVolumeFraction[40]
     double thad[40]
+    double FieldCapacity[40]
     double FoliageTemp[20]
     double SoilTempDailyAvrg[40][20]
     double SoilTemp[40][20]

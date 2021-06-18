@@ -8,4 +8,8 @@ void PredictEmergence(Simulation &, unsigned int, int);
 
 void SoilHeatFlux(State &, double, int, int, int, int, double);
 
-void EnergyBalance(Simulation &, uint32_t, int, int, double, double, const double &, double[20]);
+void CanopyBalance(int, int, double, double, double, double, double, double, double, double &, const int &);
+
+void SoilSurfaceBalance(State &, int, int, double, double, double, double, double, double &, double &, double &, double, double);
+
+double SensibleHeatTransfer(double, double, double, double);

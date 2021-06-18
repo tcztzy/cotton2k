@@ -12,6 +12,7 @@ from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
 from _cotton2k.phenology import days_to_first_square
 from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
+from _cotton2k.soil import compute_soil_surface_albedo, compute_incoming_short_wave_radiation
 from _cotton2k.utils import date2doy, doy2date
 from .climate cimport ClimateStruct
 from .cxx cimport (
@@ -45,7 +46,7 @@ from .cxx cimport (
     SoilTempDailyAvrg,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, dl, wk, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate
+from .rs cimport SlabLoc, tdewest, dl, wk, dayrh, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf
 from .fruiting_site cimport FruitingSite, Leaf
 
@@ -589,6 +590,17 @@ cdef class State:
         new_node.average_temperature = self.average_temperature
         vegetative_branch.delay_for_new_fruiting_branch = 0
 
+
+def compute_incoming_long_wave_radiation(humidity: float, temperature: float, cloud_cov: float, cloud_cor: float) -> float:
+    """LONG WAVE RADIATION EMITTED FROM SKY"""
+    stefa1 = 1.38e-12  # Stefan-Boltsman constant.
+    vp = 0.01 * humidity * VaporPressure(temperature)  # air vapor pressure, KPa.
+    ea0 = clearskyemiss(vp, temperature + 273.161)  # sky emissivity from clear portions of the sky.
+    # incoming long wave radiation (ly / sec).
+    rlzero = (ea0 * (1 - cloud_cov) + cloud_cov) * stefa1 * (temperature + 273.161) ** 4 - cloud_cor / 41880  # CloudTypeCorr converted from W m-2 to ly sec-1.
+    return rlzero
+
+
 cdef class Simulation:
     cdef cSimulation _sim
     cdef public unsigned int profile_id
@@ -849,12 +861,104 @@ cdef class Simulation:
             if i < self._sim.day_finish - self._sim.day_start:
                 CopyState(self._sim, i)
 
+    def _energy_balance(self, u, ihr, k, ess, etp1):
+        """
+        This function solves the energy balance equations at the soil surface, and at the foliage / atmosphere interface. It computes the resulting temperatures of the soil surface and the plant canopy.
+
+        Units for all energy fluxes are: cal cm-2 sec-1.
+        It is called from SoilTemperature(), on each hourly time step and for each soil column.
+        It calls functions clearskyemiss(), VaporPressure(), SensibleHeatTransfer(), SoilSurfaceBalance() and CanopyBalance.()
+
+        :param ihr: the time of day in hours.
+        :param k: soil column number.
+        :param ess: evaporation from surface of a soil column (mm / sec).
+        :param etp1: actual transpiration rate (mm / sec).
+        :param sf: fraction of shaded soil area
+        """
+        # Constants used:
+        cdef double wndfac = 0.60  # Ratio of wind speed under partial canopy cover.
+        cdef double cswint = 0.75  # proportion of short wave radiation (on fully shaded soil surface) intercepted by the canopy.
+        # Set initial values
+        cdef double sf = 1 - self.relative_radiation_received_by_a_soil_column[k]
+        cdef double thet = self._sim.states[u].hours[ihr].temperature + 273.161  # air temperature, K
+        cdef double so = SoilTemp[0][k]  # soil surface temperature, K
+        cdef double so2 = SoilTemp[1][k]  # 2nd soil layer temperature, K
+        cdef double so3 = SoilTemp[2][k]  # 3rd soil layer temperature, K
+        # Compute soil surface albedo (based on Horton and Chung, 1991):
+        ag = compute_soil_surface_albedo(self._sim.states[u].soil.cells[0][k].water_content, FieldCapacity[0], thad[0], SitePar[15], SitePar[16])
+
+        rzero, rss, rsup = compute_incoming_short_wave_radiation(self._sim.states[u].hours[ihr].radiation, sf * cswint, ag)
+        rlzero = compute_incoming_long_wave_radiation(self._sim.states[u].hours[ihr].humidity, self._sim.states[u].hours[ihr].temperature, self._sim.states[u].hours[ihr].cloud_cov, self._sim.states[u].hours[ihr].cloud_cor)
+
+        # Set initial values of canopy temperature and air temperature in canopy.
+        cdef double tv  # temperature of plant foliage (K)
+        cdef double tafk  # temperature (K) of air inside the canopy.
+        if sf < 0.05:  # no vegetation
+            tv = thet
+            tafk = thet
+        # Wind velocity in canopy is converted to cm / s.
+        cdef double wndhr  # wind speed in cm /sec
+        wndhr = self._sim.states[u].hours[ihr].wind_speed * 100
+        cdef double rocp  # air density * specific heat at constant pressure = 0.24 * 2 * 1013 / 5740
+        # divided by tafk.
+        cdef double c2  # multiplier for sensible heat transfer (at plant surface).
+        cdef double rsv  # global radiation absorbed by the vegetation
+        if sf >= 0.05:  # a shaded soil column
+            tv = FoliageTemp[k]  # vegetation temperature
+            # Short wave radiation intercepted by the canopy:
+            rsv = (
+                    rzero * (1 - self._sim.states[u].hours[ihr].albedo) * sf * cswint  # from above
+                    + rsup * (1 - self._sim.states[u].hours[ihr].albedo) * sf * cswint  # reflected from soil surface
+            )
+            # Air temperature inside canopy is the average of soil, air, and plant temperatures, weighted by 0.1, 0.3, and 0.6, respectively.
+            tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv)
+
+            # Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2 for sensible heat transfer: 2 sides of leaf plus stems and petioles.
+            # sensible heat transfer coefficient for soil
+            varcc = SensibleHeatTransfer(tv, tafk, self._sim.states[u].plant_height, wndhr)  # canopy to air
+            rocp = 0.08471 / tafk
+            c2 = 2.2 * sf * rocp * varcc
+        cdef double soold = so  # previous value of soil surface temperature
+        cdef double tvold = tv  # previous value of vegetation temperature
+        # Starting iterations for soil and canopy energy balance
+        for menit in range(30):
+            soold = so
+            wndcanp = (1 - sf * (1 - wndfac)) * wndhr  # estimated wind speed under canopy
+            # Call SensibleHeatTransfer() to compute sensible heat transfer for soil surface to air
+            tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv)
+            # sensible heat transfer coefficientS for soil
+            varc = SensibleHeatTransfer(so, tafk, 0, wndcanp)
+            rocp = 0.08471 / tafk
+            hsg = rocp * varc  # multiplier for computing sensible heat transfer soil to air.
+            # Call SoilSurfaceBalance() for energy balance in soil surface / air interface.
+            SoilSurfaceBalance(self._sim.states[u], ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, tv)
+
+            if sf >= 0.05:
+                # This section executed for shaded columns only.
+                tvold = tv
+                # Compute canopy energy balance for shaded columns
+                CanopyBalance(ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tv, self._sim.day_start + u)
+                if menit >= 10:
+                    # The following is used to reduce fluctuations.
+                    so = (so + soold) / 2
+                    tv = (tv + tvold) / 2
+            if abs(tv - tvold) <= 0.05 and abs(so - soold) <= 0.05:
+                break
+        else:
+            raise SimulationEnd  # If more than 30 iterations are needed - stop simulation.
+        # After convergence - set global variables for the following temperatures:
+        if sf >= 0.05:
+            FoliageTemp[k] = tv
+        SoilTemp[0][k] = so
+        SoilTemp[1][k] = so2
+        SoilTemp[2][k] = so3
+
     def _soil_temperature(self, u):
         """
         This is the main part of the soil temperature sub-model.
         It is called daily from self._simulate_this_day.
         It calls the following functions:
-        EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
+        _energy_balance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
 
         References:
 
@@ -955,7 +1059,7 @@ cdef class Simulation:
                 SoilTemp[nl - 1][k] = DeepSoilTemperature
                 # Compute transpiration from each column, weighted by its relative shading.
                 etp1 = 0  # actual hourly transpiration (mm s-1) for a column.
-                if (shadeav > 0.000001):
+                if shadeav > 0.000001:
                     etp1 = etp0 * (1 - self.relative_radiation_received_by_a_soil_column[k]) / shadeav
                 ess = 0  # evaporation rate from surface of a soil column (mm / sec).
                 # The potential evaporation rate (escol1k) from a column is the sum of the radiation component of the Penman equation(es1hour), multiplied by the relative radiation reaching this column, and the wind and vapor deficit component of the Penman equation (es2hour).
@@ -968,8 +1072,8 @@ cdef class Simulation:
                 self._sim.states[u].soil.cells[0][k].water_content -= 0.1 * escol1k / dl(0)
                 self._sim.states[u].actual_soil_evaporation += escol1k * wk(k, self.row_space)
                 ess = escol1k / dlt
-                # Call EnergyBalance to compute soil surface and canopy temperature.
-                EnergyBalance(self._sim, u, ihr, k, ess, etp1, self._sim.states[u].plant_height, self.relative_radiation_received_by_a_soil_column)
+                # Call self._energy_balance to compute soil surface and canopy temperature.
+                self._energy_balance(u, ihr, k, ess, etp1)
             # Compute soil temperature flux in the vertical direction.
             # Assign iv = 1, layer = 0, nn = nl.
             iv = 1  # indicates vertical (=1) or horizontal (=0) flux.
