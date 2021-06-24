@@ -582,7 +582,7 @@ cdef class State:
 
 cdef class Simulation:
     cdef cSimulation _sim
-    cdef public string name
+    cdef public unsigned int profile_id
     cdef public unsigned int version
     cdef double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
     cdef double max_leaf_area_index
@@ -594,8 +594,8 @@ cdef class Simulation:
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
 
-    def __init__(self, name="default", version=0x0400):
-        self.name = name.encode("utf-8")
+    def __init__(self, profile_id=0, version=0x0400):
+        self.profile_id = profile_id
         self.version = version
         self.max_leaf_area_index = 0.001
 

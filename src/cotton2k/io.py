@@ -15,8 +15,13 @@ from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     SoilImpedance,
     SoilInit,
 )
+from cotton2k.models import AgronomyOperation, AgronomyOperationType
+from cotton2k.models import Climate as ClimateModel
+from cotton2k.models import Cultivar, Profile
 from cotton2k.models import Simulation as SimulationModel
+from cotton2k.models import Site, Soil, SoilHydrology
 from cotton2k.models import State as StateModel
+from cotton2k.models import association_table
 
 SOIL_IMPEDANCE = SoilImpedance()
 with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
@@ -31,12 +36,124 @@ with open(Path(__file__).parent / "soil_imp.csv") as csvfile:
     )
 
 
-def read_input(path: Union[Path, str, dict]) -> Simulation:
-    if isinstance(path, dict):
+def prepare_database(engine_url):
+    engine = create_engine(engine_url)
+    for model in (
+        AgronomyOperation,
+        ClimateModel,
+        Cultivar,
+        Profile,
+        Soil,
+        SoilHydrology,
+        SimulationModel,
+        Site,
+        StateModel,
+    ):
+        if not inspect(engine).has_table(model.__tablename__):
+            model.__table__.create(bind=engine, checkfirst=True)
+    if not inspect(engine).has_table("profile_agronomy_operation"):
+        association_table.create(bind=engine, checkfirst=True)
+    return engine
+
+
+def read_input(path: Union[Path, str, dict, Profile], session=None) -> Simulation:
+    # pylint: disable=line-too-long
+    if isinstance(path, Profile):
+        profile = path
+        topping = (
+            session.query(AgronomyOperation)
+            .filter(AgronomyOperation.profiles.any(Profile.id == profile.id))  # type: ignore
+            .filter(
+                AgronomyOperation.profiles.any(  # type: ignore
+                    AgronomyOperation.type == AgronomyOperationType.topping
+                )
+            )
+            .one_or_none()
+        )
+        plant = (
+            session.query(AgronomyOperation)
+            .filter(AgronomyOperation.profiles.any(Profile.id == profile.id))  # type: ignore
+            .filter(
+                AgronomyOperation.profiles.any(  # type: ignore
+                    AgronomyOperation.type == AgronomyOperationType.planting
+                )
+            )
+            .one()
+        )
+        kwargs = {
+            "id": profile.id,
+            "start_date": profile.start_date,
+            "stop_date": profile.stop_date,
+            "emerge_date": profile.emerge_date,
+            "plant_date": plant.date,
+            "latitude": profile.site.latitude,
+            "longitude": profile.site.longitude,
+            "elevation": profile.site.elevation,
+            "site_parameters": [
+                attrgetter(f"param{i + 1:0>2}")(profile.site) for i in range(16)
+            ],
+            "cultivar_parameters": [
+                attrgetter(f"param{i + 1:0>2}")(profile.cultivar) for i in range(50)
+            ],
+            "row_space": plant.planting_row_width,
+            "skip_row_width": plant.planting_skip_row_width,
+            "plants_per_meter": plant.planting_plants_per_meter,
+            "soil": {
+                "initial": [
+                    {
+                        "ammonium_nitrogen": layer.ammonium_nitrogen,
+                        "nitrate_nitrogen": layer.nitrate_nitrogen,
+                        "organic_matter": layer.organic_matter,
+                        "water": layer.water,
+                    }
+                    for layer in session.query(Soil)
+                    .where(Site.id == profile.site.id)
+                    .order_by(Soil.depth)
+                ],
+                "hydrology": {
+                    "ratio_implicit": profile.site.soil_implicit_solution_ratio,
+                    "max_conductivity": profile.site.max_conductivity,
+                    "field_capacity_water_potential": profile.site.field_capacity_water_potential,
+                    "immediate_drainage_water_potential": profile.site.immediate_drainage_water_potential,
+                    "layers": [
+                        {
+                            "depth": layer.depth,
+                            "air_dry": layer.air_dry_water_content,
+                            "theta": layer.saturated_water_content,
+                            "alpha": layer.alpha,
+                            "beta": layer.beta,
+                            "saturated_hydraulic_conductivity": layer.saturated_hydraulic_conductivity,
+                            "field_capacity_hydraulic_conductivity": layer.field_capacity_hydraulic_conductivity,
+                            "bulk_density": layer.bulk_density,
+                            "clay": layer.clay,
+                            "sand": layer.sand,
+                        }
+                        for layer in session.query(SoilHydrology)
+                        .where(Site.id == profile.site.id)
+                        .order_by(SoilHydrology.depth)
+                    ],
+                },
+            },
+            "climate_start_date": profile.start_date,
+            "climate": [
+                {
+                    "min": c.min_temperature,
+                    "max": c.max_temperature,
+                    "rain": c.precipitation,
+                    "wind": c.wind_speed,
+                    "radiation": c.radiation,
+                    "dewpoint": c.dewpoint,
+                }
+                for c in profile.site.climate
+            ],
+        }
+        if topping is not None:
+            kwargs["topping_date"] = topping.date
+    elif isinstance(path, dict):
         kwargs = path
     else:
         kwargs = json.loads(Path(path).read_text())
-    sim = Simulation(kwargs.get("name", "default"), kwargs.get("version", 0x0400))
+    sim = Simulation(kwargs.get("id", 0), kwargs.get("version", 0x0400))
     for attr in [
         "start_date",
         "stop_date",
@@ -55,7 +172,14 @@ def read_input(path: Union[Path, str, dict]) -> Simulation:
         if attr in kwargs:
             setattr(sim, attr, kwargs.get(attr))
     soil = SoilInit(**kwargs.get("soil", {}))
-    sim.year = int(kwargs["start_date"][:4])
+    start_date = kwargs["start_date"]
+    if not isinstance(start_date, (datetime.date, str)):
+        raise ValueError
+    sim.year = (
+        start_date.year
+        if isinstance(start_date, datetime.date)
+        else int(start_date[:4])
+    )
     sim.read_input(lyrsol=soil.lyrsol, **kwargs)
     sim.climate = Climate(kwargs.get("climate_start_date", 0), kwargs.get("climate"))[
         sim.start_date :
@@ -63,24 +187,21 @@ def read_input(path: Union[Path, str, dict]) -> Simulation:
     return sim
 
 
-def prepare_database(engine_url):
-    engine = create_engine(engine_url)
-    for model in (SimulationModel, StateModel):
-        if not inspect(engine).has_table(model.__tablename__):
-            model.__table__.create(bind=engine, checkfirst=True)
-    session = Session(bind=engine)
-    return session
-
-
 def write_output(
     simulation: Simulation,
     engine_url: str = "sqlite+pysqlite:///:memory:",
+    session=None,
+    start_at=None,
+    execute_time=None,
 ):
-    session = prepare_database(engine_url)
+    engine = prepare_database(engine_url)
+    if session is None:
+        session = Session(engine)
     simulation_model = SimulationModel(
         version=simulation.version,
-        execute_time=datetime.datetime.now(),
-        name=simulation.name,
+        start_at=start_at,
+        execute_time=execute_time,
+        profile_id=simulation.profile_id or None,
     )
     session.add(simulation_model)
     session.commit()
