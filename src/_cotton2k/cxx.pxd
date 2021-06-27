@@ -70,7 +70,6 @@ cdef extern from "global.h":
     double ActualStemGrowth
     double PotGroStem
     double PotGroAllRoots
-    double TotalPetioleWeight
     double LwpMin
     double LwpMinX[3]
     double LwpMax

@@ -51,8 +51,7 @@ extern double ActualBollGrowth, ActualBurrGrowth,
     PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem,
     RatioImplicit, ReserveC, RootNitrogen, RootWeightLoss, SoilNitrogenLoss,
     StemNConc, SumNO3N90, SupplyNH4N, SupplyNO3N,
-    TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth,
-    TotalPetioleWeight, TotalSoilNh4N,
+    TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalSoilNh4N,
     TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater;
 
 extern double AbscissionLag[20], airdr[9],

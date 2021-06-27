@@ -33,7 +33,6 @@ from .cxx cimport (
     ActualStemGrowth,
     PotGroStem,
     PotGroAllRoots,
-    TotalPetioleWeight,
     PotGroAllSquares,
     PotGroAllBolls,
     PotGroAllBurrs,
@@ -739,7 +738,7 @@ cdef class Simulation:
         state0.plant_height = 4.0
         state0.plant_weight = 0
         state0.stem_weight = 0.2
-        state0.root_weight = 0
+        state0.petiole_weight = 0
         state0.square_weight = 0
         state0.green_bolls_weight = 0
         state0.green_bolls_burr_weight = 0
@@ -1234,7 +1233,7 @@ cdef class Simulation:
                             PotGroAllPetioles += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth
 
     def _growth(self, u):
-        global PotGroStem, PotGroAllRoots, TotalPetioleWeight
+        global PotGroStem, PotGroAllRoots
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
         self._potential_leaf_growth(u)
         # If it is after first square, call self._potential_fruit_growth(u) to compute potential growth rate of squares and bolls.
@@ -1278,7 +1277,7 @@ cdef class Simulation:
         # growth rate of squares and bolls.
         if self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed:
             ActualFruitGrowth(self._sim.states[u])
-        # Initialize state.leaf_weight.It is assumed that cotyledons fall off at time of first square.Also initialize state.leaf_area and TotalPetioleWeight.
+        # Initialize state.leaf_weight.It is assumed that cotyledons fall off at time of first square.Also initialize state.leaf_area and state.petiole_weight.
         if self._sim.first_square > 0:
             self._sim.states[u].leaf_weight = 0
             self._sim.states[u].leaf_area = 0
@@ -1286,7 +1285,7 @@ cdef class Simulation:
             cotylwt = 0.20  # weight of cotyledons dry matter.
             self._sim.states[u].leaf_weight = cotylwt
             self._sim.states[u].leaf_area = 0.6 * cotylwt
-        TotalPetioleWeight = 0
+        self._sim.states[u].petiole_weight = 0
         # Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
         ActualLeafGrowth(self._sim.states[u])
         self._sim.states[u].leaf_area_index = self._sim.states[u].leaf_area / self._sim.per_plant_area
