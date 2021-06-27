@@ -190,7 +190,7 @@ void NitrogenSupply(State &state)
 //
 //     The following global variables are referenced here:
 //       reqtot, SupplyNH4N, SupplyNO3N,
-//       TotalPetioleWeight, TotalRootWeight.
+//       TotalPetioleWeight.
 //     The following global and file scope variables are set here:
 //       burres, leafrs, npool, PetioleNitrogen, petrs,
 //       RootNitrogen, rootrs, stemrs, uptn, xtran.
@@ -252,7 +252,7 @@ void NitrogenSupply(State &state)
             stemrs = 0;
         state.stem_nitrogen -= stemrs;
         //  Root N reserves
-        rootrs = (RootNitrogen - vrtnmin * TotalRootWeight) * MobilizNFractionStemRoot;
+        rootrs = (RootNitrogen - vrtnmin * state.root_weight) * MobilizNFractionStemRoot;
         if (rootrs < 0)
             rootrs = 0;
         RootNitrogen -= rootrs;
@@ -427,7 +427,7 @@ void ExtraNitrogenAllocation(State &state)
 //
 //     The following global and file scope variables are referenced here:
 //       burres, leafrs, petrs, rootrs, stemrs,
-//       TotalPetioleWeight, TotalRootWeight, xtran.
+//       TotalPetioleWeight, xtran.
 //     The following global variables are set here:
 //       PetioleNitrogen, RootNitrogen.
 {
@@ -453,11 +453,11 @@ void ExtraNitrogenAllocation(State &state)
         //     If there are no reserves, allocate xtran in proportion to the dry
         //  weights in each of these organs.
         double vegwt; // weight of vegetative plant parts, plus burrs.
-        vegwt = state.leaf_weight + TotalPetioleWeight + state.stem_weight + TotalRootWeight + state.green_bolls_burr_weight;
+        vegwt = state.leaf_weight + TotalPetioleWeight + state.stem_weight + state.root_weight + state.green_bolls_burr_weight;
         addlfn = xtran * state.leaf_weight / vegwt;
         addpetn = xtran * TotalPetioleWeight / vegwt;
         addstm = xtran * state.stem_weight / vegwt;
-        addrt = xtran * TotalRootWeight / vegwt;
+        addrt = xtran * state.root_weight / vegwt;
         addbur = xtran * state.green_bolls_burr_weight / vegwt;
     }
     //     Update N content in these plant parts. Note that at this stage of
@@ -478,7 +478,7 @@ void PlantNitrogenContent(State &state)
 //
 //     The following global variables are referenced here:
 //       PetioleNitrogen, RootNitrogen,
-//       TotalPetioleWeight, TotalRootWeight.
+//       TotalPetioleWeight.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
 //       SeedNConc, StemNConc.
@@ -495,8 +495,8 @@ void PlantNitrogenContent(State &state)
     }
     if (state.stem_weight > 0)
         StemNConc = state.stem_nitrogen / state.stem_weight;
-    if (TotalRootWeight > 0)
-        state.root_nitrogen_concentration = RootNitrogen / TotalRootWeight;
+    if (state.root_weight > 0)
+        state.root_nitrogen_concentration = RootNitrogen / state.root_weight;
     if (state.square_weight > 0)
         state.square_nitrogen_concentration = state.square_nitrogen / state.square_weight;
     double xxseed; // weight of seeds in green and mature bolls.
@@ -568,8 +568,7 @@ void NitrogenUptakeRequirement(State &state)
 //     The following global variables is set here:      TotalRequiredN
 //     The following global variables are referenced here:
 //       BurrNConc, LeafNConc, PetioleNConc, reqtot,
-//       StemNConc, StemWeight, TotalPetioleWeight,
-//       TotalRootWeight.
+//       StemNConc, StemWeight, TotalPetioleWeight.
 {
     //     The following constant parameters are used:
     const double seedcn1 = .045;   //   further requirement for existing seed tissue.
@@ -604,7 +603,7 @@ void NitrogenUptakeRequirement(State &state)
     //     Compute nitrogen uptake requirement for existing tissues of roots,
     //  squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
     if (state.root_nitrogen_concentration < vnreqrt)
-        state.total_required_nitrogen += TotalRootWeight * (vnreqrt - state.root_nitrogen_concentration);
+        state.total_required_nitrogen += state.root_weight * (vnreqrt - state.root_nitrogen_concentration);
     if (state.square_nitrogen_concentration < vnreqsqr)
         state.total_required_nitrogen += state.square_weight * (vnreqsqr - state.square_nitrogen_concentration);
     if (state.seed_nitrogen_concentration < seedcn1)

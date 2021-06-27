@@ -231,7 +231,7 @@ static void InitializeRootData(Simulation & sim)
 //	      LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots, NumRootAgeGroups,
 //        PotGroRoots[maxl][maxk], RootAge[maxl][maxk], RootColNumLeft[maxl],
 //        RootColNumRight[maxl], RootGroFactor[maxl][maxk], RootWeight[maxl][maxk][3],
-//        TapRootLength, TotalRootWeight.
+//        TapRootLength.
 //
 {
 //     The parameters of the root model are defined for each root class:
@@ -269,14 +269,14 @@ static void InitializeRootData(Simulation & sim)
     init_root_data(sim.states[0].soil.cells, sim.plant_row_column, 0.01 * sim.row_space / sim.per_plant_area);
 //     Start loop for all soil layers containing roots.
     DepthLastRootLayer = 0;
-    TotalRootWeight = 0;
+    sim.states[0].root_weight = 0;
     for (int l = 0; l < 7; l++) {
         DepthLastRootLayer += dl(l); //compute total depth to the last layer with roots (DepthLastRootLayer).
 //     For each soil soil cell with roots, compute total root weight
-//  per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
+//  per plant, and convert RootWeight from g per plant to g per cell.
         for (int k = 0; k < nk; k++) {
             for (int i = 0; i < 3; i++) {
-                TotalRootWeight += sim.states[0].soil.cells[l][k].root.weight[i] * 100 / sim.row_space * sim.per_plant_area;
+                sim.states[0].root_weight += sim.states[0].soil.cells[l][k].root.weight[i] * 100 / sim.row_space * sim.per_plant_area;
             }
         }
     }

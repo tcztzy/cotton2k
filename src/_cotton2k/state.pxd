@@ -53,6 +53,7 @@ cdef extern from "State.hpp":
         double plant_height
         double plant_weight
         double stem_weight
+        double root_weight
         double square_weight
         double green_bolls_weight
         double green_bolls_burr_weight

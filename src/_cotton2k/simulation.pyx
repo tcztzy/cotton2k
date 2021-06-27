@@ -739,6 +739,7 @@ cdef class Simulation:
         state0.plant_height = 4.0
         state0.plant_weight = 0
         state0.stem_weight = 0.2
+        state0.root_weight = 0
         state0.square_weight = 0
         state0.green_bolls_weight = 0
         state0.green_bolls_burr_weight = 0

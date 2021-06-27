@@ -361,10 +361,9 @@ void CheckDryMatterBal(State &state)
 //     The following global variables are referenced here:
 //       AbscisedLeafWeight, BloomWeightLoss,
 //       CumNetPhotosynth, GreenBollsLost, Kday,
-//       ReserveC, RootWeightLoss, TotalPetioleWeight,
-//       TotalRootWeight.
+//       ReserveC, RootWeightLoss, TotalPetioleWeight.
 //     The following global variable is set here:     PlantWeight.
 {
     //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    state.plant_weight = TotalRootWeight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + TotalPetioleWeight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + ReserveC;
+    state.plant_weight = state.root_weight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + TotalPetioleWeight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + ReserveC;
 }
