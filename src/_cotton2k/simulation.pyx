@@ -467,9 +467,14 @@ cdef class VegetativeBranch:
 
 cdef class State:
     cdef cState *_
+    cdef public unsigned int year
 
     def keys(self):
         return dict(self._[0]).keys()
+
+    @property
+    def date(self):
+        return doy2date(self.year, self._[0].daynum)
 
     def __getattr__(self, item):
         state = dict(self._[0])
@@ -484,7 +489,7 @@ cdef class State:
         return self.__getattr__(item)
 
     @staticmethod
-    cdef State from_ptr(cState *_ptr):
+    cdef State from_ptr(cState *_ptr, unsigned int year):
         """Factory function to create WrapperClass objects from
         given my_c_struct pointer.
 
@@ -494,6 +499,7 @@ cdef class State:
         # Call to __new__ bypasses __init__ constructor
         cdef State state = State.__new__(State)
         state._ = _ptr
+        state.year = year
         return state
 
     @property
@@ -527,10 +533,12 @@ cdef class State:
         self.cumulative_nitrogen_loss += cotylwt * self.leaf_nitrogen / self.leaf_weight
         self.leaf_nitrogen -= cotylwt * self.leaf_nitrogen / self.leaf_weight
 
-    def add_fruiting_branch(self, k, density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, time_to_new_fruiting_branch, new_node_initial_leaf_area):
+    def add_fruiting_branch(self, k, density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, time_to_new_fruiting_branch, new_node_initial_leaf_area, topping_date=None):
         """
         This function decides if a new fruiting branch is to be added to a vegetative branch, and forms it. It is called from function CottonPhenology().
         """
+        if topping_date is not None and self.date >= topping_date:
+            return
         # The following constant parameters are used:
         cdef double[8] vfrtbr = [0.8, 0.95, 33.0, 4.461, -0.1912, 0.00265, 1.8, -1.32]
         # Compute the cumulative delay for the appearance of the next caused by carbohydrate, nitrogen, and water stresses.
@@ -702,7 +710,7 @@ cdef class Simulation:
                 range(self._sim.day_finish - self._sim.day_start + 1)]
 
     def state(self, i):
-        return State.from_ptr(&self._sim.states[i])
+        return State.from_ptr(&self._sim.states[i], self.year)
 
     @property
     def climate(self):
@@ -1433,7 +1441,7 @@ cdef class Simulation:
         # Call AddFruitingBranch() to decide if a new node (and a new fruiting branch) is to be added on this stem.
         for k in range(self._sim.states[u].number_of_vegetative_branches):
             if self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches < 30:
-                self.state(u).add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34])
+                self.state(u).add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
             # Loop over all existing fruiting branches, and call AddFruitingNode() to decide if a new node on this fruiting branch is to be added.
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
