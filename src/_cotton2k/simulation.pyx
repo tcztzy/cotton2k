@@ -648,7 +648,9 @@ cdef class Simulation:
 
     @property
     def topping_date(self):
-        return doy2date(self.year, self._sim.day_topping)
+        if self.version >= 0x500:
+            return doy2date(self.year, self._sim.day_topping)
+        return None
 
     @topping_date.setter
     def topping_date(self, d):
@@ -1323,7 +1325,7 @@ cdef class Simulation:
         agetop = (self._sim.states[u].vegetative_branches[0].fruiting_branches[l].nodes[0].age +
                   self._sim.states[u].vegetative_branches[0].fruiting_branches[l1].nodes[0].age +
                   self._sim.states[u].vegetative_branches[0].fruiting_branches[l2].nodes[0].age) / 3
-        if self._sim.day_topping <= 0 or self._sim.states[u].daynum < self._sim.day_topping:
+        if self.version < 0x500 or self._sim.day_topping <= 0 or self._sim.states[u].daynum < self._sim.day_topping:
             self._sim.states[u].plant_height += AddPlantHeight(denf2, self._sim.states[u].day_inc, self._sim.states[u].number_of_pre_fruiting_nodes,
                                                  self._sim.states[u].vegetative_branches[0].fruiting_branches[1].nodes[0].stage,
                                                  self._sim.states[u].age_of_pre_fruiting_nodes[
@@ -1524,7 +1526,7 @@ cdef class Simulation:
             state.kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
             if state.leaf_area_index > self.max_leaf_area_index:
                 self.max_leaf_area_index = state.leaf_area_index
-            state.light_interception = compute_light_interception(state.leaf_area_index, self.max_leaf_area_index, state.plant_height, self.row_space)
+            state.light_interception = compute_light_interception(state.leaf_area_index, self.max_leaf_area_index, state.plant_height, self.row_space, version=self.version)
             self._column_shading(u)
         else:
             state.kday = 0
