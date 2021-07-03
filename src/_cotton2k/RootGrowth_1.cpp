@@ -3,11 +3,6 @@
 //   functions in this file:
 // PotentialRootGrowth()
 // RootImpedance()
-// SoilTemOnRootGrowth()
-// SoilMechanicResistance()
-// SoilAirOnRootGrowth()
-// SoilNitrateOnRootGrowth()
-// SoilWaterOnRootGrowth()
 // ComputeActualRootGrowth()
 //
 #include "global.h"
@@ -15,19 +10,6 @@
 #include "Simulation.hpp"
 
 using namespace std;
-
-const double cgind[3] = {1, 1, 0.10}; // the index for the capability of growth of class I roots (0 to 1).
-
-void RootImpedance(SoilCell[40][20]);
-
-extern "C"
-{
-    double SoilTemOnRootGrowth(double);
-    double SoilAirOnRootGrowth(double, double, double);
-    double SoilNitrateOnRootGrowth(double);
-    double SoilWaterOnRootGrowth(double);
-    double SoilMechanicResistance(double);
-}
 
 void RedistRootNewGrowth(State &, int, int, double, double, unsigned int);
 
@@ -82,112 +64,6 @@ void RootSummation(State &, int, double, double);
 //  SoilNitrateOnRootGrowth(), SoilTemOnRootGrowth(), SoilWaterOnRootGrowth().
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
-///////////////////////////////////////////////////////////////////////////////////
-double PotentialRootGrowth(SoilCell soil_cells[40][20], int NumRootAgeGroups, int NumLayersWithRoots, double per_plant_area)
-//     This function calculates the potential root growth rate.  The return value
-//  is the sum of potential root growth rates for the whole slab (sumpdr).It is called from
-//  PlantGrowth(). It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(),
-//  SoilMechanicResistance(), SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
-//
-//     The following global variables are referenced here:
-//       NumRootAgeGroups, nk,
-//       PoreSpace, RootAge, RootWeight. SoilPsi, SoilTempDailyAvrg,
-//       VolNo3NContent.
-//     The following global variables are set here:    PotGroRoots, RootGroFactor
-{
-    //     The following constant parameter is used:
-    const double rgfac = 0.36; // potential relative growth rate of the roots (g/g/day).
-                               //     Initialize to zero the PotGroRoots array.
-    for (int l = 0; l < NumLayersWithRoots; l++)
-        for (int k = 0; k < nk; k++)
-            soil_cells[l][k].root.potential_growth = 0;
-    RootImpedance(soil_cells);
-    double sumpdr = 0; // sum of potential root growth rate for the whole slab
-    for (int l = 0; l < NumLayersWithRoots; l++)
-        for (int k = 0; k < nk; k++)
-        {
-            //     Check if this soil cell contains roots (if RootAge is greater
-            //  than 0), and execute the following if this is true.
-            //     In each soil cell with roots, the root weight capable of growth rtwtcg is computed as
-            //  the sum of RootWeight[l][k][i] * cgind[i] for all root classes.
-            if (soil_cells[l][k].root.age > 0)
-            {
-                double rtwtcg = 0; // root weight capable of growth in a soil soil cell.
-                for (int i = 0; i < NumRootAgeGroups; i++)
-                    rtwtcg += soil_cells[l][k].root.weight[i] * cgind[i];
-                //     Compute the temperature factor for root growth by calling function
-                //  SoilTemOnRootGrowth() for this layer.
-                double stday; // soil temperature, C, this day's average for this cell.
-                stday = SoilTempDailyAvrg[l][k] - 273.161;
-                double temprg; // effect of soil temperature on root growth.
-                temprg = SoilTemOnRootGrowth(stday);
-                //     Compute soil mechanical resistance for each soil cell by
-                //  calling SoilMechanicResistance{}, the effect of soil aeration on root growth by
-                //  calling SoilAirOnRootGrowth(), and the effect of soil nitrate on root growth
-                //  by calling SoilNitrateOnRootGrowth().
-                double rtpct; // effect of soil mechanical resistance on root growth (returned from SoilMechanicResistance).
-                //
-                int lp1;         // layer below l.
-                if (l == nl - 1) // last layer
-                    lp1 = l;
-                else
-                    lp1 = l + 1;
-                //
-                int km1, kp1;    // columns to the left and to the right of k.
-                if (k == nk - 1) // last column
-                    kp1 = k;
-                else
-                    kp1 = k + 1;
-                //
-                if (k == 0) // first column
-                    km1 = 0;
-                else
-                    km1 = k - 1;
-                //
-                double rtimpd0 = RootImpede[l][k];
-                double rtimpdkm1 = RootImpede[l][km1];
-                double rtimpdkp1 = RootImpede[l][kp1];
-                double rtimpdlp1 = RootImpede[lp1][k];
-                double rtimpdmin = rtimpd0; // minimum value of rtimpd
-                if (rtimpdkm1 < rtimpdmin)
-                    rtimpdmin = rtimpdkm1;
-                if (rtimpdkp1 < rtimpdmin)
-                    rtimpdmin = rtimpdkp1;
-                if (rtimpdlp1 < rtimpdmin)
-                    rtimpdmin = rtimpdlp1;
-                rtpct = SoilMechanicResistance(rtimpdmin);
-                double rtrdo; // effect of oxygen deficiency on root growth (returned from SoilAirOnRootGrowth).
-                rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], soil_cells[l][k].water_content);
-                double rtrdn; // effect of nitrate deficiency on root growth (returned from SoilNitrateOnRootGrowth).
-                rtrdn = SoilNitrateOnRootGrowth(soil_cells[l][k].nitrate_nitrogen_content);
-                //     The root growth resistance factor RootGroFactor(l,k), which can take a
-                //  value between 0 and 1, is computed as the minimum of these
-                //  resistance factors. It is further modified by multiplying it by
-                //  the soil moisture function SoilWaterOnRootGrowth().
-                //     Potential root growth PotGroRoots(l,k) in each cell is computed as a
-                //  product of rtwtcg, rgfac, the temperature function temprg, and
-                //  RootGroFactor(l,k). It is also multiplied by per_plant_area / 19.6, for the effect
-                //  of plant population density on root growth: it is made comparable
-                //  to a population of 5 plants per m in 38" rows.
-                //     The sum of the potential growth for the whole slab is computed
-                //  as sumpdr.
-                double minres;
-                if (rtpct < rtrdo) {
-                    minres = rtpct;
-                } else {
-                    minres = rtrdo;
-                }
-                if (rtrdn < minres)
-                    minres = rtrdn;
-                double rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k]);
-                soil_cells[l][k].root.growth_factor = rtpsi * minres;
-                soil_cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * soil_cells[l][k].root.growth_factor * per_plant_area / 19.6;
-                sumpdr += soil_cells[l][k].root.potential_growth;
-            } // if RootAge
-        }     // end loop l & k
-    return sumpdr;
-}
-
 //////////////////////////
 void RootImpedance(SoilCell soil_cells[40][20])
 //     This function calculates soil mechanical impedance to root growth, rtimpd(l,k),
@@ -277,6 +153,7 @@ void ComputeActualRootGrowth(State &state, double sumpdr, double row_space, doub
 {
     //     The following constant parameters are used:
     //     The index for the relative partitioning of root mass produced by new growth to class i.
+    const double cgind[3] = {1, 1, 0.10}; // the index for the capability of growth of class I roots (0 to 1).
     const double RootGrowthIndex[3] = {1.0, 0.0, 0.0};
     const double rtminc = 0.0000001; // the threshold ratio of root mass capable of growth
     // to soil cell volume (g/cm3); when this threshold is reached, a

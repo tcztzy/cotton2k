@@ -83,6 +83,7 @@ cdef extern from "PlantNitrogen.h":
 cdef extern from "RootGrowth.h":
     double PotentialRootGrowth(cSoilCell[40][20], int, int, double)
     void ComputeActualRootGrowth(cState &, double, double, double, int, unsigned int, unsigned int)
+    void RootImpedance(cSoilCell[40][20])
 
 cdef extern from "SoilNitrogen.h":
     void SoilNitrogen(cSimulation &, unsigned int)

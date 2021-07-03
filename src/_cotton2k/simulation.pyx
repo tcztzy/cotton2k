@@ -44,9 +44,12 @@ from .cxx cimport (
     PotGroLeafWeightPreFru,
     PotGroPetioleWeightPreFru,
     SoilTempDailyAvrg,
+    PoreSpace,
+    SoilPsi,
+    RootImpede,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss
+from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilWaterOnRootGrowth, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf
 from .fruiting_site cimport FruitingSite, Leaf
 
@@ -611,6 +614,61 @@ cdef class State:
         new_node.average_temperature = self.average_temperature
         vegetative_branch.delay_for_new_fruiting_branch = 0
 
+    def potential_root_growth(self, NumRootAgeGroups, NumLayersWithRoots, per_plant_area):
+        """
+        This function calculates the potential root growth rate.
+        The return value is the sum of potential root growth rates for the whole slab (sumpdr).
+        It is called from PlantGrowth().
+        It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), SoilMechanicResistance(), SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
+        """
+        # The following constant parameter is used:
+        cdef double rgfac = 0.36  # potential relative growth rate of the roots (g/g/day).
+        cdef double[3] cgind = [1, 1, 0.10]  # the index for the capability of growth of class I roots (0 to 1).
+        # Initialize to zero the PotGroRoots array.
+        for l in range(NumLayersWithRoots):
+            for k in range(nk):
+                self._[0].soil.cells[l][k].root.potential_growth = 0
+        RootImpedance(self._[0].soil.cells)
+        cdef double sumpdr = 0  # sum of potential root growth rate for the whole slab
+        for l in range(NumLayersWithRoots):
+            for k in range(nk):
+                # Check if this soil cell contains roots (if RootAge is greater than 0), and execute the following if this is true.
+                # In each soil cell with roots, the root weight capable of growth rtwtcg is computed as the sum of RootWeight[l][k][i] * cgind[i] for all root classes.
+                if self._[0].soil.cells[l][k].root.age > 0:
+                    rtwtcg = 0  # root weight capable of growth in a soil soil cell.
+                    for i in range(NumRootAgeGroups):
+                        rtwtcg += self._[0].soil.cells[l][k].root.weight[i] * cgind[i]
+                    # Compute the temperature factor for root growth by calling function SoilTemOnRootGrowth() for this layer.
+                    stday = SoilTempDailyAvrg[l][k] - 273.161  # soil temperature, C, this day's average for this cell.
+                    temprg = SoilTemOnRootGrowth(stday)  # effect of soil temperature on root growth.
+                    # Compute soil mechanical resistance for each soil cell by calling SoilMechanicResistance{}, the effect of soil aeration on root growth by calling SoilAirOnRootGrowth(), and the effect of soil nitrate on root growth by calling SoilNitrateOnRootGrowth().
+                    rtpct # effect of soil mechanical resistance on root growth (returned from SoilMechanicResistance).
+
+                    lp1 = l if l == nl - 1 else l + 1  # layer below l.
+
+                    # columns to the left and to the right of k.
+                    kp1 = min(k + 1, nk)
+                    km1 = max(k - 1, 0)
+
+                    rtimpd0 = RootImpede[l][k]
+                    rtimpdkm1 = RootImpede[l][km1]
+                    rtimpdkp1 = RootImpede[l][kp1]
+                    rtimpdlp1 = RootImpede[lp1][k]
+                    rtimpdmin = min(rtimpd0, rtimpdkm1, rtimpdkp1, rtimpdlp1)  # minimum value of rtimpd
+                    rtpct = SoilMechanicResistance(rtimpdmin)
+                    # effect of oxygen deficiency on root growth (returned from SoilAirOnRootGrowth).
+                    rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], self._[0].soil.cells[l][k].water_content)
+                    # effect of nitrate deficiency on root growth (returned from SoilNitrateOnRootGrowth).
+                    rtrdn = SoilNitrateOnRootGrowth(self._[0].soil.cells[l][k].nitrate_nitrogen_content)
+                    # The root growth resistance factor RootGroFactor(l,k), which can take a value between 0 and 1, is computed as the minimum of these resistance factors. It is further modified by multiplying it by the soil moisture function SoilWaterOnRootGrowth().
+                    # Potential root growth PotGroRoots(l,k) in each cell is computed as a product of rtwtcg, rgfac, the temperature function temprg, and RootGroFactor(l,k). It is also multiplied by per_plant_area / 19.6, for the effect of plant population density on root growth: it is made comparable to a population of 5 plants per m in 38" rows.
+                    # The sum of the potential growth for the whole slab is computed as sumpdr.
+                    minres = min(rtrdo, rtpct, rtrdn)
+                    rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k])
+                    self._[0].soil.cells[l][k].root.growth_factor = rtpsi * minres
+                    self._[0].soil.cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * self._[0].soil.cells[l][k].root.growth_factor * per_plant_area / 19.6
+                    sumpdr += self._[0].soil.cells[l][k].root.potential_growth
+        return sumpdr
 
 def compute_incoming_long_wave_radiation(humidity: float, temperature: float, cloud_cov: float, cloud_cor: float) -> float:
     """LONG WAVE RADIATION EMITTED FROM SKY"""
@@ -1599,8 +1657,7 @@ cdef class Simulation:
             PotGroStem = maxstmgr * self._sim.per_plant_area
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
         cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
-        sumpdr = PotentialRootGrowth(self._sim.states[u].soil.cells, 3, self._sim.states[u].soil.number_of_layers_with_root,
-                                 self._sim.per_plant_area)
+        sumpdr = State.from_ptr(&self._sim.states[u], self.year).potential_root_growth(3, self._sim.states[u].soil.number_of_layers_with_root, self._sim.per_plant_area)
         # Total potential growth rate of roots is converted from g per slab(sumpdr) to g per plant(PotGroAllRoots).
         PotGroAllRoots = sumpdr * 100 * self._sim.per_plant_area / self.row_space
         # Limit PotGroAllRoots to(maxrtgr * per_plant_area) g per plant per day.

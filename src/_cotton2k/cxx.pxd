@@ -101,3 +101,6 @@ cdef extern from "global.h":
     NitrogenFertilizer NFertilizer[150]
     int NumNitApps
     int NumIrrigations
+    double PoreSpace[40]
+    double SoilPsi[40][20]
+    double RootImpede[40][20]
