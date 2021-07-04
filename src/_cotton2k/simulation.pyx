@@ -12,7 +12,7 @@ from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
 from _cotton2k.phenology import days_to_first_square
 from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
-from _cotton2k.soil import compute_soil_surface_albedo, compute_incoming_short_wave_radiation
+from _cotton2k.soil import compute_soil_surface_albedo, compute_incoming_short_wave_radiation, root_psi
 from _cotton2k.utils import date2doy, doy2date
 from .climate cimport ClimateStruct
 from .cxx cimport (
@@ -49,7 +49,7 @@ from .cxx cimport (
     RootImpede,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilWaterOnRootGrowth, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
+from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf
 from .fruiting_site cimport FruitingSite, Leaf
 
@@ -619,7 +619,7 @@ cdef class State:
         This function calculates the potential root growth rate.
         The return value is the sum of potential root growth rates for the whole slab (sumpdr).
         It is called from PlantGrowth().
-        It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), SoilMechanicResistance(), SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
+        It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), SoilMechanicResistance(), SoilTemOnRootGrowth() and root_psi().
         """
         # The following constant parameter is used:
         cdef double rgfac = 0.36  # potential relative growth rate of the roots (g/g/day).
@@ -660,12 +660,10 @@ cdef class State:
                     rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], self._[0].soil.cells[l][k].water_content)
                     # effect of nitrate deficiency on root growth (returned from SoilNitrateOnRootGrowth).
                     rtrdn = SoilNitrateOnRootGrowth(self._[0].soil.cells[l][k].nitrate_nitrogen_content)
-                    # The root growth resistance factor RootGroFactor(l,k), which can take a value between 0 and 1, is computed as the minimum of these resistance factors. It is further modified by multiplying it by the soil moisture function SoilWaterOnRootGrowth().
+                    # The root growth resistance factor RootGroFactor(l,k), which can take a value between 0 and 1, is computed as the minimum of these resistance factors. It is further modified by multiplying it by the soil moisture function root_psi().
                     # Potential root growth PotGroRoots(l,k) in each cell is computed as a product of rtwtcg, rgfac, the temperature function temprg, and RootGroFactor(l,k). It is also multiplied by per_plant_area / 19.6, for the effect of plant population density on root growth: it is made comparable to a population of 5 plants per m in 38" rows.
                     # The sum of the potential growth for the whole slab is computed as sumpdr.
-                    minres = min(rtrdo, rtpct, rtrdn)
-                    rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k])
-                    self._[0].soil.cells[l][k].root.growth_factor = rtpsi * minres
+                    self._[0].soil.cells[l][k].root.growth_factor = root_psi(SoilPsi[l][k]) * min(rtrdo, rtpct, rtrdn)
                     self._[0].soil.cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * self._[0].soil.cells[l][k].root.growth_factor * per_plant_area / 19.6
                     sumpdr += self._[0].soil.cells[l][k].root.potential_growth
         return sumpdr

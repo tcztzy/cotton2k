@@ -61,7 +61,7 @@ void RootSummation(State &, int, double, double);
 //  at the start of the simulation (see their code in file gettinginput_2.cpp) .
 //     PotentialRootGrowth() and ActualRootGrowth() are called each day from PlantGrowth().
 //     PotentialRootGrowth() calls RootImpedance(), SoilMechanicResistance(), SoilAirOnRootGrowth(),
-//  SoilNitrateOnRootGrowth(), SoilTemOnRootGrowth(), SoilWaterOnRootGrowth().
+//  SoilNitrateOnRootGrowth(), SoilTemOnRootGrowth().
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 //////////////////////////

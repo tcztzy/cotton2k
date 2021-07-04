@@ -44,3 +44,20 @@ def compute_incoming_short_wave_radiation(
         1 - intercepted_short_wave_radiation
     )  # global radiation after passing through canopy
     return rzero, rss0 * (1 - albedo), rss0 * albedo
+
+
+def root_psi(soil_psi: float) -> float:
+    """This function returns the effect of soil moisture in cell_{l,k} on cotton root
+    potential growth rate. It is called from PotentialRootGrowth() and uses the matric
+    potential of this cell.
+
+    It is assumed that almost no root growth occurs when the soil is dryer than -p1
+    (-20 bars), and root growth rate is maximum at a matric potential of -4 bars
+    (p2 - p1) or wetter.
+
+    Effect of soil moisture on root growth (the return value).
+
+    root_psi is computed here as an empirical third degree function, with values
+    between 0.02 and 1.
+    """
+    return min(max(((20.0 + soil_psi) / 16.0) ** 3, 0.02), 1)

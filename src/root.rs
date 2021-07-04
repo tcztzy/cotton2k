@@ -43,25 +43,6 @@ extern "C" fn SoilNitrateOnRootGrowth(vno3clk: f64) -> f64
     1f64
 }
 
-/// This function returns the effect of soil  moisture in cell l,k on cotton root potential
-/// growth rate. It is called from PotentialRootGrowth() and uses the matric potential of this cell.
-#[no_mangle]
-extern "C" fn SoilWaterOnRootGrowth(psislk: f64) -> f64
-// The following argument is used:
-//   psislk - soil water potential (bars) of this cell.
-{
-    // It is assumed that almost no root growth occurs when the soil is dryer than -p1 (-20 bars), and root growth rate is maximum at a matric potential of -4 bars (p2 - p1) or wetter.
-    // effect of soil moisture on root growth (the return value). smf is computed here as an empirical third degree function, with values between 0.02 and 1.
-    let smf = ((20. + psislk) / 16.).powi(3);
-    if smf < 0.02 {
-        0.02
-    } else if smf > 1f64 {
-        1f64
-    } else {
-        smf
-    }
-}
-
 /// This function is called from PotentialRootGrowth(), TapRootGrowth() and
 /// LateralRootGrowth(). It computes the effects of soil temperature on the rate
 /// growth. It is essentially based on the usage of GOSSYM, but relative values
@@ -74,9 +55,9 @@ extern "C" fn SoilWaterOnRootGrowth(psislk: f64) -> f64
 /// The following argument is used:
 ///
 /// t - Soil temperature (C), daily average.
-///       
+///
 /// The parameters used are p1, p2, p3, with the following results:
-/// t =      14    16    18    20    22    24    26    28    30   
+/// t =      14    16    18    20    22    24    26    28    30
 /// trf =  .053  .261  .443  .600  .731  .837  .917  .971  1.00
 ///
 #[no_mangle]

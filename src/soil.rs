@@ -217,7 +217,7 @@ extern "C" fn SoilWaterEffect(
 /// resistance is computed as an empirical function of bulk density and water content.
 /// It should be noted, however, that this empirical function is based on data for one type
 /// of soil only, and its applicability for other soil types is questionable. The effect of soil
-/// moisture is only indirectly reflected in this function. A new module (SoilWaterOnRootGrowth)
+/// moisture is only indirectly reflected in this function. A new module (root_psi)
 /// has therefore been added in COTTON2K to simulate an additional direct effect of soil
 /// moisture on root growth.
 ///

@@ -13,7 +13,6 @@ cdef extern:
     double TemperatureOnFruitGrowthRate(double)
     double VaporPressure(double)
     double clearskyemiss(double, double)
-    double SoilWaterOnRootGrowth(double)
     double SoilNitrateOnRootGrowth(double)
     double SoilAirOnRootGrowth(double, double, double)
     double SoilMechanicResistance(double)
