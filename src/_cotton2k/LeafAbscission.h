@@ -3,4 +3,8 @@
 #include <cstdint>
 #include "Simulation.hpp"
 
-void LeafAbscission(Simulation &, uint32_t);
+void PreFruitLeafAbscission(State &, double, unsigned int, unsigned int, unsigned int, double);
+
+void MainStemLeafAbscission(State &, int, int, double, unsigned int, unsigned int);
+
+void DefoliationLeafAbscission(State &, unsigned int);

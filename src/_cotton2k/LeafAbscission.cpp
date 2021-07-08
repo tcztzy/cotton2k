@@ -14,70 +14,11 @@
 
 using namespace std;
 
-void PreFruitLeafAbscission(State &, double, unsigned int, unsigned int, unsigned int, double);
-
-void MainStemLeafAbscission(State &, int, int, double, unsigned int, unsigned int);
-
 void FruitNodeLeafAbscission(State &, int, int, int, double, unsigned int, unsigned int);
-
-void DefoliationLeafAbscission(State &, unsigned int);
 
 extern "C"
 {
     void SortArray(size_t, double[], int32_t *, int32_t *, int32_t *);
-}
-//////////////////////////////////////////////////
-void LeafAbscission(Simulation &sim, uint32_t u)
-//     This function simulates leaf abscission. It is called from
-//  CottonPhenology(). It calls the following functions:
-//        FruitNodeLeafAbscission(), MainStemLeafAbscission(),
-//        PreFruitLeafAbscission(), DefoliationLeafAbscission().
-//
-//     The following global variables are referenced here:
-//        NumFruitBranches, NumVegBranches.
-//
-//     The following global variables are set here:
-//        AbscisedLeafWeight, LeafAreaIndex, ReserveC.
-//
-{
-    State &state = sim.states[u];
-    //     If there are almost no leaves, this routine is not executed.
-    if (state.leaf_area_index <= 0.0001)
-        return;
-    //     Compute droplf as a function of LeafAreaIndex.
-    const double vdrop1 = 140, vdrop2 = 1; // constant parameters to compute droplf.
-    double droplf;                         // leaf age until its abscission.
-    droplf = vdrop1 - vdrop2 * state.leaf_area_index;
-    //     Call PreFruitLeafAbscission() to simulate the physiological abscission of
-    //  prefruiting node leaves.
-    PreFruitLeafAbscission(state, droplf, state.daynum, sim.first_square, sim.day_defoliate, state.day_inc);
-    //     Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission()
-    //  for each fruiting branch to simulate the physiological abscission of the other leaves.
-    for (int k = 0; k < state.number_of_vegetative_branches; k++)
-    {
-        for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)
-            MainStemLeafAbscission(state, k, l, droplf, state.daynum, sim.day_defoliate);
-    }
-    //     Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
-    if (sim.day_defoliate > 0 && state.daynum >= sim.day_defoliate)
-        DefoliationLeafAbscission(state, sim.day_defoliate);
-    //     If the reserves in the leaf are too high, add the lost reserves
-    //  to AbscisedLeafWeight and adjust ReserveC.
-    if (ReserveC > 0)
-    {
-        double resmax;          // maximum possible amount of reserve C in the leaves.
-        double resratio = 0.20; // maximum possible ratio of reserve C to leaf dry weight.
-        resmax = resratio * state.leaf_weight;
-        if (ReserveC > resmax)
-        {
-            state.abscised_leaf_weight += ReserveC - resmax;
-            ReserveC = resmax;
-        }
-    }
-    //     Compute the resulting LeafAreaIndex but do not let it get too small.
-    state.leaf_area_index = state.leaf_area / sim.per_plant_area;
-    if (state.leaf_area_index < 0.0001)
-        state.leaf_area_index = 0.0001;
 }
 
 /////////////////////////

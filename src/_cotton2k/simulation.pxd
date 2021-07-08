@@ -68,7 +68,9 @@ cdef extern from "GettingInput_2.cpp":
     double LayerDepth
 
 cdef extern from "LeafAbscission.h":
-    void LeafAbscission(cSimulation &, uint32_t)
+    void PreFruitLeafAbscission(cState &, double, unsigned int, unsigned int, unsigned int, double)
+    void MainStemLeafAbscission(cState &, int, int, double, unsigned int, unsigned int)
+    void DefoliationLeafAbscission(cState &, unsigned int)
 
 cdef extern from "PlantGrowth.h":
     void CheckDryMatterBal(cState &)

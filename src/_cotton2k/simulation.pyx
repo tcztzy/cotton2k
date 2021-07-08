@@ -47,6 +47,7 @@ from .cxx cimport (
     PoreSpace,
     SoilPsi,
     RootImpede,
+    ReserveC,
 )
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
@@ -668,6 +669,33 @@ cdef class State:
                     sumpdr += self._[0].soil.cells[l][k].root.potential_growth
         return sumpdr
 
+    def leaf_abscission(self, per_plant_area, first_square_date, defoliate_date):
+        global ReserveC
+        # If there are almost no leaves, this routine is not executed.
+        if self.leaf_area_index <= 0.0001:
+            return
+        # Compute droplf as a function of LeafAreaIndex.
+        droplf = 140 - self.leaf_area_index  # leaf age until its abscission.
+        # Call PreFruitLeafAbscission() to simulate the physiological abscission of prefruiting node leaves.
+        PreFruitLeafAbscission(self._[0], droplf, self.daynum, date2doy(first_square_date), date2doy(defoliate_date), self.day_inc)
+        # Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission() for each fruiting branch to simulate the physiological abscission of the other leaves.
+        for k in range(self.number_of_vegetative_branches):
+            for l in range(self.vegetative_branches[k].number_of_fruiting_branches):
+                MainStemLeafAbscission(self._[0], k, l, droplf, self.daynum, date2doy(defoliate_date))
+        # Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
+        if date2doy(defoliate_date) > 0 and self.daynum >= date2doy(defoliate_date):
+            DefoliationLeafAbscission(self._[0], date2doy(defoliate_date))
+        # If the reserves in the leaf are too high, add the lost reserves to AbscisedLeafWeight and adjust ReserveC.
+        if ReserveC > 0:
+            # maximum possible amount of reserve C in the leaves.
+            resmax = 0.2 * self.leaf_weight
+            if ReserveC > resmax:
+                self.abscised_leaf_weight += ReserveC - resmax
+                ReserveC = resmax
+        # Compute the resulting LeafAreaIndex but do not let it get too small.
+        self.leaf_area_index = max(0.0001, self.leaf_area / per_plant_area)
+
+
 def compute_incoming_long_wave_radiation(humidity: float, temperature: float, cloud_cov: float, cloud_cor: float) -> float:
     """LONG WAVE RADIATION EMITTED FROM SKY"""
     stefa1 = 1.38e-12  # Stefan-Boltsman constant.
@@ -820,6 +848,22 @@ cdef class Simulation:
     @row_space.setter
     def row_space(self, value):
         self._sim.row_space = value or 0
+
+    @property
+    def first_square_date(self):
+        return doy2date(self.year, self._sim.first_square)
+
+    @first_square_date.setter
+    def first_square_date(self, value):
+        self._sim.first_square = date2doy(value)
+
+    @property
+    def defoliate_date(self):
+        return doy2date(self.year, self._sim.day_defoliate)
+
+    @defoliate_date.setter
+    def defoliate_date(self, value):
+        self._sim.day_defoliate = date2doy(value)
 
     @property
     def states(self):
@@ -1812,7 +1856,7 @@ cdef class Simulation:
                 state.create_first_square(stemNRatio, self.cultivar_parameters[34])
             # if a first square has not been formed, call LeafAbscission() and exit.
             else:
-                LeafAbscission(self._sim, u)
+                state.leaf_abscission(self._sim.per_plant_area, self.first_square_date, self.defoliate_date)
                 return
         # The following is executed after the appearance of the first square.
         # If there are only one or two vegetative branches, and if plant population allows it, call _add_vegetative_branch() to decide if a new vegetative branch is to be added. Note that dense plant populations (large per_plant_area) prevent new vegetative branch formation.
@@ -1840,7 +1884,7 @@ cdef class Simulation:
         # Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
         FruitingSitesAbscission(self._sim, u)
         # Call LeafAbscission() to simulate the abscission of leaves.
-        LeafAbscission(self._sim, u)
+        state.leaf_abscission(self._sim.per_plant_area, self.first_square_date, self.defoliate_date)
 
     def _defoliate(self, u):
         """This function simulates the effects of defoliating chemicals applied on the cotton. It is called from SimulateThisDay()."""
