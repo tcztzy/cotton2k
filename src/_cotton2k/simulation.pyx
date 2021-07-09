@@ -492,6 +492,7 @@ cdef class Hour:
 cdef class State:
     cdef cState *_
     cdef public unsigned int year
+    cdef public unsigned int version
 
     def keys(self):
         return dict(self._[0]).keys()
@@ -513,7 +514,7 @@ cdef class State:
         return self.__getattr__(item)
 
     @staticmethod
-    cdef State from_ptr(cState *_ptr, unsigned int year):
+    cdef State from_ptr(cState *_ptr, unsigned int year, unsigned int version):
         """Factory function to create WrapperClass objects from
         given my_c_struct pointer.
 
@@ -524,6 +525,7 @@ cdef class State:
         cdef State state = State.__new__(State)
         state._ = _ptr
         state.year = year
+        state.version = version
         return state
 
     @property
@@ -623,7 +625,7 @@ cdef class State:
         It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), SoilMechanicResistance(), SoilTemOnRootGrowth() and root_psi().
         """
         # The following constant parameter is used:
-        cdef double rgfac = 0.36  # potential relative growth rate of the roots (g/g/day).
+        cdef double rgfac = 0.36 if self.version < 0x500 else 0.2  # potential relative growth rate of the roots (g/g/day).
         cdef double[3] cgind = [1, 1, 0.10]  # the index for the capability of growth of class I roots (0 to 1).
         # Initialize to zero the PotGroRoots array.
         for l in range(NumLayersWithRoots):
@@ -675,7 +677,9 @@ cdef class State:
         if self.leaf_area_index <= 0.0001:
             return
         # Compute droplf as a function of LeafAreaIndex.
-        droplf = 140 - self.leaf_area_index  # leaf age until its abscission.
+        p0 = 140 if self.version < 0x500 else 100
+        p1 = -1
+        droplf = p0 + p1 * self.leaf_area_index  # leaf age until its abscission.
         # Call PreFruitLeafAbscission() to simulate the physiological abscission of prefruiting node leaves.
         PreFruitLeafAbscission(self._[0], droplf, self.daynum, date2doy(first_square_date), date2doy(defoliate_date), self.day_inc)
         # Loop for all vegetative branches and fruiting branches, and call MainStemLeafAbscission() for each fruiting branch to simulate the physiological abscission of the other leaves.
@@ -871,7 +875,7 @@ cdef class Simulation:
                 range(self._sim.day_finish - self._sim.day_start + 1)]
 
     def state(self, i):
-        return State.from_ptr(&self._sim.states[i], self.year)
+        return State.from_ptr(&self._sim.states[i], self.year, self.version)
 
     @property
     def climate(self):
@@ -1699,7 +1703,7 @@ cdef class Simulation:
             PotGroStem = maxstmgr * self._sim.per_plant_area
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
         cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
-        sumpdr = State.from_ptr(&self._sim.states[u], self.year).potential_root_growth(3, self._sim.states[u].soil.number_of_layers_with_root, self._sim.per_plant_area)
+        sumpdr = State.from_ptr(&self._sim.states[u], self.year, self.version).potential_root_growth(3, self._sim.states[u].soil.number_of_layers_with_root, self._sim.per_plant_area)
         # Total potential growth rate of roots is converted from g per slab(sumpdr) to g per plant(PotGroAllRoots).
         PotGroAllRoots = sumpdr * 100 * self._sim.per_plant_area / self.row_space
         # Limit PotGroAllRoots to(maxrtgr * per_plant_area) g per plant per day.
