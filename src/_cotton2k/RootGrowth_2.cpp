@@ -8,7 +8,6 @@
 // LateralRootGrowthRight()
 // RootAging()
 // RootDeath()
-// RootCultivation()
 // RootSummation()
 //
 #include <cstdint>

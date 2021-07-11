@@ -8,6 +8,8 @@ from libc.stdlib cimport malloc
 from libcpp cimport bool as bool_t
 from libcpp.string cimport string
 
+import numpy as np
+
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate
 from _cotton2k.phenology import days_to_first_square
@@ -48,6 +50,15 @@ from .cxx cimport (
     SoilPsi,
     RootImpede,
     ReserveC,
+    CultivationDepth,
+    CultivationDate,
+    LateralRootFlag,
+    LastTaprootLayer,
+    DepthLastRootLayer,
+    TapRootLength,
+    CarbonAllocatedForRootGrowth,
+    RootNitrogen,
+    RootWeightLoss,
 )
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
@@ -488,11 +499,14 @@ cdef class Hour:
         hour._ = _ptr
         return hour
 
+cdef double[3] cgind = [1, 1, 0.10]  # the index for the capability of growth of class I roots (0 to 1).
+
 
 cdef class State:
     cdef cState *_
     cdef public unsigned int year
     cdef public unsigned int version
+    cdef double pavail  # residual available carbon for root growth from previous day.
 
     def keys(self):
         return dict(self._[0]).keys()
@@ -626,7 +640,6 @@ cdef class State:
         """
         # The following constant parameter is used:
         cdef double rgfac = 0.36 if self.version < 0x500 else 0.2  # potential relative growth rate of the roots (g/g/day).
-        cdef double[3] cgind = [1, 1, 0.10]  # the index for the capability of growth of class I roots (0 to 1).
         # Initialize to zero the PotGroRoots array.
         for l in range(NumLayersWithRoots):
             for k in range(nk):
@@ -670,6 +683,114 @@ cdef class State:
                     self._[0].soil.cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * self._[0].soil.cells[l][k].root.growth_factor * per_plant_area / 19.6
                     sumpdr += self._[0].soil.cells[l][k].root.potential_growth
         return sumpdr
+
+    def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column):
+        # The following constant parameters are used:
+        # The index for the relative partitioning of root mass produced by new growth to class i.
+        global RootNitrogen, RootWeightLoss
+        cdef double[3] RootGrowthIndex = [1.0, 0.0, 0.0]
+        cdef double rtminc = 0.0000001  # the threshold ratio of root mass capable of growth
+        # to soil cell volume (g/cm3); when this threshold is reached, a part of root growth in this cell may be extended to adjoining cells.
+        # Assign zero to pavail if this is the day of emergence.
+        if self.daynum <= day_emerge:
+            self.pavail = 0
+        adwr1 = np.zeros((40, 20), dtype=np.float64)  # actual growth rate from roots existing in this soil cell.
+        # Assign zero to the arrays of actual root growth rate.
+        for l in range(nl):
+            for k in range(nk):
+                self._[0].soil.cells[l][k].root.actual_growth = 0
+        # The amount of carbon allocated for root growth is calculated from CarbonAllocatedForRootGrowth, converted to g dry matter per slab, and added to previously allocated carbon that has not been used for growth (pavail). if there is no potential root growth, this will be stored in pavail. Otherwise, zero is assigned to pavail.
+        if sumpdr <= 0:
+            self.pavail += CarbonAllocatedForRootGrowth * 0.01 * row_space / per_plant_area
+            return
+        cdef double actgf  # actual growth factor (ratio of available C to potential growth).
+        # The ratio of available C to potential root growth (actgf) is calculated. pavail (if not zero) is used here, and zeroed after being used.
+        actgf = (self.pavail + CarbonAllocatedForRootGrowth * 0.01 * row_space / per_plant_area) / sumpdr
+        self.pavail = 0
+
+        for l in range(self._[0].soil.number_of_layers_with_root):
+            for k in range(nk):
+                # adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
+                if self._[0].soil.cells[l][k].root.age > 0:
+                    adwr1[l][k] = self._[0].soil.cells[l][k].root.potential_growth * actgf
+        # If extra carbon is available, it is assumed to be added to the taproot.
+        if self.extra_carbon > 0:
+            # available carbon for taproot growth, in g dry matter per slab.
+            # ExtraCarbon is converted to availt (g dry matter per slab).
+            availt = self.extra_carbon * 0.01 * row_space / per_plant_area
+            sdl = TapRootLength - DepthLastRootLayer
+            # distance from the tip of the taproot, cm.
+            tpwt = np.zeros((40, 2))  # proportionality factors for allocating added dry matter among taproot soil cells.
+            sumwt = 0  # sum of the tpwt array.
+            # Extra Carbon (availt) is added to soil cells with roots in the columns immediately to the left and to the right of the location of the plant row.
+            for l in reversed(range(LastTaprootLayer + 1)):
+                # The weighting factors for allocating the carbon (tpwt) are proportional to the volume of each soil cell and its distance (sdl) from the tip of the taproot.
+                sdl += dl(l)
+                tpwt[l][0] = sdl * dl(l) * wk(plant_row_column, row_space)
+                tpwt[l][1] = sdl * dl(l) * wk(plant_row_column + 1, row_space)
+                sumwt += tpwt[l][0] + tpwt[l][1]
+            # The proportional amount of mass is added to the mass of the last (inactive) root class in each soil cell.
+            for l in range(LastTaprootLayer + 1):
+                self._[0].soil.cells[l][plant_row_column].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][0] / sumwt
+                self._[0].soil.cells[l][plant_row_column + 1].root.weight[NumRootAgeGroups - 1] += availt * tpwt[l][1] / sumwt
+        # Check each cell if the ratio of root weight capable of growth to cell volume (rtconc) exceeds the threshold rtminc, and call RedistRootNewGrowth() for this cell.
+        # Otherwise, all new growth is contained in the same cell, and the actual growth in this cell, ActualRootGrowth(l,k) will be equal to adwr1(l,k).
+        for l in range(nl):
+            for k in range(nk):
+                if self._[0].soil.cells[l][k].root.age > 0:
+                    rtconc = 0  # ratio of root weight capable of growth to cell volume.
+                    for i in range(NumRootAgeGroups):
+                        rtconc += self._[0].soil.cells[l][k].root.weight[i] * cgind[i]
+                    rtconc = rtconc / (dl(l) * wk(k, row_space))
+                    if rtconc > rtminc:
+                        RedistRootNewGrowth(self._[0], l, k, adwr1[l][k], row_space, plant_row_column)
+                    else:
+                        self._[0].soil.cells[l][k].root.actual_growth += adwr1[l][k]
+        # The new actual growth ActualRootGrowth(l,k) in each cell is partitioned among the root classes in it in proportion to the parameters RootGrowthIndex(i), and the previous values of RootWeight(k,l,i), and added to RootWeight(k,l,i).
+        sumind = 0  # sum of the growth index for all classes in a cell.
+        for i in range(NumRootAgeGroups):
+            sumind += RootGrowthIndex[i]
+
+        for l in range(self._[0].soil.number_of_layers_with_root):
+            for k in range(nk):
+                if self._[0].soil.cells[l][k].root.age > 0:
+                    sumgr = 0  # sum of growth index multiplied by root weight, for all classes in a cell.
+                    for i in range(NumRootAgeGroups):
+                        sumgr += RootGrowthIndex[i] * self._[0].soil.cells[l][k].root.weight[i]
+                    for i in range(NumRootAgeGroups):
+                        if sumgr > 0:
+                            self._[0].soil.cells[l][k].root.weight[i] += self._[0].soil.cells[l][k].root.actual_growth * RootGrowthIndex[i] * self._[0].soil.cells[l][k].root.weight[i] / sumgr
+                        else:
+                            self._[0].soil.cells[l][k].root.weight[i] += self._[0].soil.cells[l][k].root.actual_growth * RootGrowthIndex[i] / sumind
+        # Call function TapRootGrowth() for taproot elongation, if the taproot has not already reached the bottom of the slab.
+        if LastTaprootLayer < nl - 1 or TapRootLength < DepthLastRootLayer:
+            TapRootGrowth(self._[0], NumRootAgeGroups, plant_row_column)
+        # Call functions for growth of lateral roots
+        InitiateLateralRoots()
+        for l in range(LastTaprootLayer):
+            if LateralRootFlag[l] == 2:
+                LateralRootGrowthLeft(self._[0], l, NumRootAgeGroups, plant_row_column, row_space)
+                LateralRootGrowthRight(self._[0], l, NumRootAgeGroups, plant_row_column, row_space)
+        # Initialize DailyRootLoss (weight of sloughed roots) for this day.
+        cdef double DailyRootLoss = 0  # total weight of sloughed roots, g per plant per day.
+        for l in range(self._[0].soil.number_of_layers_with_root):
+            for k in range(nk):
+                # Check RootAge to determine if this soil cell contains roots, and then compute root aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
+                if self._[0].soil.cells[l][k].root.age > 0:
+                    RootAging(self._[0].soil.cells[l][k], l, k)
+                    DailyRootLoss = RootDeath(self._[0].soil.cells[l][k], l, k, DailyRootLoss)
+        # Check if cultivation is executed in this day and call RootCultivation().
+        for j in range(5):
+            if CultivationDate[j] == self.daynum:
+                DailyRootLoss = RootCultivation(self._[0].soil.cells, NumRootAgeGroups, CultivationDepth[j], DailyRootLoss, row_space)
+        # Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
+        DailyRootLoss = DailyRootLoss * 100. * per_plant_area / row_space
+        RootWeightLoss += DailyRootLoss
+        # Adjust RootNitrogen (root N content) for loss by death of roots.
+        RootNitrogen -= DailyRootLoss * self.root_nitrogen_concentration
+        self.cumulative_nitrogen_loss += DailyRootLoss * self.root_nitrogen_concentration
+        # Call function RootSummation().
+        RootSummation(self._[0], NumRootAgeGroups, row_space, per_plant_area)
 
     def leaf_abscission(self, per_plant_area, first_square_date, defoliate_date):
         global ReserveC
@@ -1678,6 +1799,7 @@ cdef class Simulation:
                             PotGroAllPetioles += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth
 
     def _growth(self, u):
+        state = self.state(u)
         global PotGroStem, PotGroAllRoots
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
         self._potential_leaf_growth(u)
@@ -1773,8 +1895,7 @@ cdef class Simulation:
                                                  self.cultivar_parameters[24], self.cultivar_parameters[25],
                                                  self.cultivar_parameters[26])
         # Call ActualRootGrowth() to compute actual root growth.
-        ComputeActualRootGrowth(self._sim.states[u], sumpdr, self.row_space, self._sim.per_plant_area, 3, self._sim.day_emerge,
-                                self._sim.plant_row_column)
+        state.compute_actual_root_growth(sumpdr, self.row_space, self._sim.per_plant_area, 3, self._sim.day_emerge, self._sim.plant_row_column)
 
     def _add_vegetative_branch(self, u, delayVegByCStress, stemNRatio, DaysTo1stSqare, PhenDelayByNStress):
         """

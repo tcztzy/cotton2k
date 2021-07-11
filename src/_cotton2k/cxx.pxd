@@ -104,3 +104,12 @@ cdef extern from "global.h":
     double PoreSpace[40]
     double SoilPsi[40][20]
     double RootImpede[40][20]
+    double CultivationDepth[5]
+    int CultivationDate[5]
+    int LateralRootFlag[40]
+    int LastTaprootLayer
+    double DepthLastRootLayer
+    double TapRootLength
+    double CarbonAllocatedForRootGrowth
+    double RootNitrogen
+    double RootWeightLoss

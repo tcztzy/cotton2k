@@ -2,8 +2,22 @@
 #include <cinttypes>
 #include "Simulation.hpp"
 
-double PotentialRootGrowth(SoilCell[40][20], int, int, double);
-
-void ComputeActualRootGrowth(State &state, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column);
+void RootSummation(State &state, int NumRootAgeGroups, double row_space, double per_plant_area);
 
 void RootImpedance(SoilCell[40][20]);
+
+double RootCultivation(SoilCell[40][20], int, double, double, double);
+
+double RootDeath(SoilCell &, int, int, double);
+
+void RootAging(SoilCell &, int, int);
+
+void LateralRootGrowthLeft(State &, int, int, unsigned int, double);
+
+void LateralRootGrowthRight(State &, int, int, unsigned int, double);
+
+void InitiateLateralRoots();
+
+void TapRootGrowth(State &, int, unsigned int);
+
+void RedistRootNewGrowth(State &, int, int, double, double, unsigned int);
