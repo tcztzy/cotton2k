@@ -34,7 +34,7 @@ cSimulation,
 )
 from .fruiting_site cimport Stage
 from .state cimport cState, cHour
-from .soil cimport cSoilCell
+from .soil cimport cSoilCell, cSoil
 
 cdef extern:
     double daytmp(cSimulation &, uint32_t, double, double, uint32_t, double, double)
