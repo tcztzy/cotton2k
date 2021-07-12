@@ -92,7 +92,6 @@ cdef extern from "RootGrowth.h":
     void LateralRootGrowthRight(cState &, int, int, unsigned int, double)
     void InitiateLateralRoots()
     void TapRootGrowth(cState &, int, unsigned int)
-    void RedistRootNewGrowth(cState &, int, int, double, double, unsigned int)
 
 cdef extern from "SoilNitrogen.h":
     void SoilNitrogen(cSimulation &, unsigned int)
