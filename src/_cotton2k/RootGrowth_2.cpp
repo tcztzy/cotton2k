@@ -1,7 +1,6 @@
 //  RootGrowth_2.cpp
 //
 //   functions in this file:
-// TapRootGrowth()
 // InitiateLateralRoots()
 // LateralRootGrowthLeft()
 // LateralRootGrowthRight()
@@ -20,92 +19,6 @@ using namespace std;
 extern "C"
 {
     double SoilTemOnRootGrowth(double);
-}
-
-//////////////////////////////
-void TapRootGrowth(State &state, int NumRootAgeGroups, unsigned int plant_row_column)
-//     This function computes the elongation of the taproot. It is
-//  called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
-//
-//     The following global variables are referenced here:
-//       dl, nl, NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
-//       SoilTempDailyAvrg.
-//     The following global variables are set here:
-//       DepthLastRootLayer, LastTaprootLayer, NumLayersWithRoots, RootAge,
-//       RootColNumLeft, RootColNumRight, RootWeight, TapRootLength.
-{
-    //     The following constant parameters are used:
-    const double p1 = 0.10;                // constant parameter.
-    const double rtapr = 4;                // potential growth rate of the taproot, cm/day.
-                                           //     It is assumed that taproot elongation takes place irrespective
-                                           //  of the supply of carbon to the roots. This elongation occurs in the
-                                           //  two columns of the slab where the plant is located.
-                                           //     Tap root elongation does not occur in water logged soil (water table).
-    int klocp1 = plant_row_column + 1; // the second column in which taproot growth occurs.
-    if (state.soil.cells[LastTaprootLayer][plant_row_column].water_content >= PoreSpace[LastTaprootLayer] || state.soil.cells[LastTaprootLayer][klocp1].water_content >= PoreSpace[LastTaprootLayer])
-        return;
-    //     Average soil resistance (avres) is computed at the root tip.
-    // avres = average value of RootGroFactor for the two soil cells at the tip of the taproot.
-    double avres = 0.5 * (state.soil.cells[LastTaprootLayer][plant_row_column].root.growth_factor + state.soil.cells[LastTaprootLayer][klocp1].root.growth_factor);
-    //     It is assumed that a linear empirical function of avres controls the rate of
-    //  taproot elongation. The potential elongation rate of the taproot is also modified by
-    //  soil temperature (SoilTemOnRootGrowth function), soil resistance, and soil
-    //  moisture near the root tip.
-    //     Actual growth is added to the taproot length TapRootLength.
-    double stday; // daily average soil temperature (C) at root tip.
-    stday = 0.5 * (SoilTempDailyAvrg[LastTaprootLayer][plant_row_column] + SoilTempDailyAvrg[LastTaprootLayer][klocp1]) - 273.161;
-    double addtaprt; // added taproot length, cm
-    addtaprt = rtapr * (1 - p1 + avres * p1) * SoilTemOnRootGrowth(stday);
-    TapRootLength += addtaprt;
-    //     DepthLastRootLayer, the depth (in cm) to the end of the last layer with
-    //  roots, is used to check if the taproot reaches a new soil layer.
-    //  When the new value of TapRootLength is greater than DepthLastRootLayer - it means that the
-    //  roots penetrate to a new soil layer. In this case, and if this
-    //  is not the last layer in the slab, the following is executed:
-    //     LastTaprootLayer and DepthLastRootLayer are incremented. If this is a new layer with
-    //  roots, NumLayersWithRoots is also redefined and two soil cells of the new layer
-    //  are defined as containing roots (by initializing RootColNumLeft and RootColNumRight).
-    if (LastTaprootLayer > nl - 2 || TapRootLength <= DepthLastRootLayer)
-        return;
-    //     The following is executed when the taproot reaches a new soil layer.
-    LastTaprootLayer++;
-    DepthLastRootLayer += dl(LastTaprootLayer);
-    if (LastTaprootLayer > state.soil.number_of_layers_with_root - 1)
-    {
-        state.soil.number_of_layers_with_root = LastTaprootLayer + 1;
-        if (state.soil.number_of_layers_with_root > nl)
-            state.soil.number_of_layers_with_root = nl;
-    }
-    if (state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root == 0 ||
-        state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root > plant_row_column)
-        state.soil.layers[LastTaprootLayer].number_of_left_columns_with_root = plant_row_column;
-    if (state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root == 0 ||
-        state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root < klocp1)
-        state.soil.layers[LastTaprootLayer].number_of_right_columns_with_root = klocp1;
-    //     RootAge is initialized for these soil cells.
-    state.soil.cells[LastTaprootLayer][plant_row_column].root.age = 0.01;
-    state.soil.cells[LastTaprootLayer][klocp1].root.age = 0.01;
-    //     Some of the mass of class 1 roots is transferred downwards to
-    //  the new cells. The transferred mass is proportional to 2 cm of
-    //  layer width, but it is not more than half the existing mass in the
-    //  last layer.
-    for (int i = 0; i < NumRootAgeGroups; i++)
-    {
-        double tran; // root mass transferred to the cell below when the elongating taproot
-        // reaches a new soil layer.
-        // first column
-        tran = state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i] * 2 / dl(LastTaprootLayer - 1);
-        if (tran > 0.5 * state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i])
-            tran = 0.5 * state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i];
-        state.soil.cells[LastTaprootLayer][plant_row_column].root.weight[i] += tran;
-        state.soil.cells[LastTaprootLayer - 1][plant_row_column].root.weight[i] -= tran;
-        // second column
-        tran = state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i] * 2 / dl(LastTaprootLayer - 1);
-        if (tran > 0.5 * state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i])
-            tran = 0.5 * state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i];
-        state.soil.cells[LastTaprootLayer][klocp1].root.weight[i] += tran;
-        state.soil.cells[LastTaprootLayer - 1][klocp1].root.weight[i] -= tran;
-    }
 }
 
 //////////////////////////////

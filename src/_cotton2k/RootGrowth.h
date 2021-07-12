@@ -17,5 +17,3 @@ void LateralRootGrowthLeft(State &, int, int, unsigned int, double);
 void LateralRootGrowthRight(State &, int, int, unsigned int, double);
 
 void InitiateLateralRoots();
-
-void TapRootGrowth(State &, int, unsigned int);
