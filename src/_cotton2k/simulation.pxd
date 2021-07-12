@@ -54,7 +54,6 @@ cdef extern from "FruitAbscission.h":
 cdef extern from "GettingInput_2.cpp":
     void InitializeSoilTemperature()
     void InitializeSoilData(cSimulation &, unsigned int)
-    void InitializeRootData(cSimulation &)
     double rnnh4[14]
     double rnno3[14]
     double oma[14]

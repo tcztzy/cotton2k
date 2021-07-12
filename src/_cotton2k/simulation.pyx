@@ -94,6 +94,94 @@ cdef void initialize_switch(cSimulation & sim):
         isw = 2
         sim.states[0].kday = 1
 
+
+cdef void init_root_data(cSoilCell soil_cells[40][20], uint32_t plant_row_column, double mul):
+    for l in range(40):
+        for k in range(20):
+            soil_cells[l][k].root = {
+                "potential_growth": 0,
+                "growth_factor": 1,
+                "actual_growth": 0,
+                "age": 0,
+                "weight_capable_uptake": 0,
+            }
+            soil_cells[l][k].root.weight[0] = 0
+            soil_cells[l][k].root.weight[1] = 0
+            soil_cells[l][k].root.weight[2] = 0
+    # FIXME: I consider the value is incorrect
+    soil_cells[0][plant_row_column - 1].root.weight[0] = 0.0020 * mul;
+    soil_cells[0][plant_row_column].root.weight[0] = 0.0070 * mul;
+    soil_cells[0][plant_row_column + 1].root.weight[0] = 0.0070 * mul;
+    soil_cells[0][plant_row_column + 2].root.weight[0] = 0.0020 * mul;
+    soil_cells[1][plant_row_column - 1].root.weight[0] = 0.0040 * mul;
+    soil_cells[1][plant_row_column].root.weight[0] = 0.0140 * mul;
+    soil_cells[1][plant_row_column + 1].root.weight[0] = 0.0140 * mul;
+    soil_cells[1][plant_row_column + 2].root.weight[0] = 0.0040 * mul;
+    soil_cells[2][plant_row_column - 1].root.weight[0] = 0.0060 * mul;
+    soil_cells[2][plant_row_column].root.weight[0] = 0.0210 * mul;
+    soil_cells[2][plant_row_column + 1].root.weight[0] = 0.0210 * mul;
+    soil_cells[2][plant_row_column + 2].root.weight[0] = 0.0060 * mul;
+    soil_cells[3][plant_row_column].root.weight[0] = 0.0200 * mul;
+    soil_cells[3][plant_row_column + 1].root.weight[0] = 0.0200 * mul;
+    soil_cells[4][plant_row_column].root.weight[0] = 0.0150 * mul;
+    soil_cells[4][plant_row_column + 1].root.weight[0] = 0.0150 * mul;
+    soil_cells[5][plant_row_column].root.weight[0] = 0.0100 * mul;
+    soil_cells[5][plant_row_column + 1].root.weight[0] = 0.0100 * mul;
+    soil_cells[6][plant_row_column].root.weight[0] = 0.0050 * mul;
+    soil_cells[6][plant_row_column + 1].root.weight[0] = 0.0050 * mul;
+    for l in range(3):
+        for k in range(plant_row_column - 1, plant_row_column + 3):
+            soil_cells[l][k].root.age = 0.01
+    for l in range(3, 7):
+        soil_cells[l][plant_row_column].root.age = 0.01
+        soil_cells[l][plant_row_column + 1].root.age = 0.01
+
+
+cdef void InitializeRootData(cSimulation & sim):
+    """ This function initializes the root submodel parameters and variables."""
+    global LastTaprootLayer, DepthLastRootLayer
+    # The parameters of the root model are defined for each root class:
+    # grind(i), cuind(i), thtrn(i), trn(i), thdth(i), dth(i).
+    cdef double rlint = 10  # Vertical interval, in cm, along the taproot, for initiating lateral roots.
+    cdef int ll = 1  # Counter for layers with lateral roots.
+    cdef double sumdl = 0  # Distance from soil surface to the middle of a soil layer.
+    for l in range(nl):
+        # Using the value of rlint (interval between lateral roots), the layers from which lateral roots may be initiated are now computed.
+        # LateralRootFlag[l] is assigned a value of 1 for these layers.
+        LateralRootFlag[l] = 0;
+        if l > 0:
+            sumdl += 0.5 * dl(l - 1)
+        sumdl += 0.5 * dl(l)
+        if sumdl >= ll * rlint:
+            LateralRootFlag[l] = 1
+            ll += 1
+    # All the state variables of the root system are initialized to zero.
+    for l in range(nl):
+        if l < 3:
+            sim.states[0].soil.layers[l].number_of_left_columns_with_root = sim.plant_row_column - 1
+            sim.states[0].soil.layers[l].number_of_right_columns_with_root = sim.plant_row_column + 2
+        elif l < 7:
+            sim.states[0].soil.layers[l].number_of_left_columns_with_root = sim.plant_row_column
+            sim.states[0].soil.layers[l].number_of_right_columns_with_root = sim.plant_row_column + 1
+        else:
+            sim.states[0].soil.layers[l].number_of_left_columns_with_root = 0
+            sim.states[0].soil.layers[l].number_of_right_columns_with_root = 0
+
+    init_root_data(sim.states[0].soil.cells, sim.plant_row_column, 0.01 * sim.row_space / sim.per_plant_area)
+    # Start loop for all soil layers containing roots.
+    DepthLastRootLayer = 0
+    sim.states[0].root_weight = 0
+    for l in range(7):
+        DepthLastRootLayer += dl(l)  # compute total depth to the last layer with roots (DepthLastRootLayer).
+        # For each soil soil cell with roots, compute total root weight per plant, and convert RootWeight from g per plant to g per cell.
+        for k in range(nk):
+            for i in range(3):
+                sim.states[0].root_weight += sim.states[0].soil.cells[l][k].root.weight[i] * 100 / sim.row_space * sim.per_plant_area
+    # Initial value of taproot length, TapRootLength, is computed to the middle of the last layer with roots. The last soil layer with taproot, LastTaprootLayer, is defined.
+    cdef int NumLayersWithRoots = 7
+    TapRootLength = (DepthLastRootLayer - 0.5 * dl(NumLayersWithRoots - 1))
+    LastTaprootLayer = 6
+
 cdef class SoilInit:
     cdef unsigned int number_of_layers
     def __init__(self, initial, hydrology, layer_depth=None):
