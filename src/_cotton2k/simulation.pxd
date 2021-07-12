@@ -87,7 +87,6 @@ cdef extern from "RootGrowth.h":
     void RootImpedance(cSoilCell[40][20])
     double RootCultivation(cSoilCell[40][20], int, double, double, double)
     double RootDeath(cSoilCell &, int, int, double)
-    void RootAging(cSoilCell &, int, int)
     void LateralRootGrowthLeft(cState &, int, int, unsigned int, double)
     void LateralRootGrowthRight(cState &, int, int, unsigned int, double)
     void InitiateLateralRoots()

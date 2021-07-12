@@ -301,6 +301,26 @@ cdef class SoilCell:
         cell.k = k
         return cell
 
+    cdef root_aging(self):
+        """This function is called from ActualRootGrowth(). It updates the variable celage(l,k) for the age of roots in each soil cell containing roots. When root age reaches a threshold thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion transformed is trn(i).
+
+        It has been adapted from the code of GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell (whereas the time from emergence was used in GOSSYM). Note: only 3 root age groups are assumed here."""
+        # The following constant parameters are used:
+        cdef double[2] thtrn = [20.0, 40.0]  # the time threshold, from the initial
+        # penetration of roots to a soil cell, after which some of the root mass of class i may be transferred into the next class (i+1).
+        cdef double[2] trn = [0.0060, 0.0050]  # the daily proportion of this transfer.
+
+        cdef double stday  # daily average soil temperature (c) of soil cell.
+        stday = SoilTempDailyAvrg[self.l][self.k] - 273.161
+        self._[0].root.age += SoilTemOnRootGrowth(stday)
+
+        for i in range(2):
+            if self._[0].root.age > thtrn[i]:
+                # root mass transferred from one class to the next.
+                xtr = trn[i] * self._[0].root.weight[i]
+                self._[0].root.weight[i + 1] += xtr
+                self._[0].root.weight[i] -= xtr
+
 
 cdef class NodeLeaf:
     cdef Leaf *_
@@ -1358,7 +1378,7 @@ cdef class State:
             for k in range(nk):
                 # Check RootAge to determine if this soil cell contains roots, and then compute root aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
                 if self._[0].soil.cells[l][k].root.age > 0:
-                    RootAging(self._[0].soil.cells[l][k], l, k)
+                    SoilCell.from_ptr(&self._[0].soil.cells[l][k], l, k).root_aging()
                     DailyRootLoss = RootDeath(self._[0].soil.cells[l][k], l, k, DailyRootLoss)
         # Check if cultivation is executed in this day and call RootCultivation().
         for j in range(5):
