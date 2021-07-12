@@ -59,6 +59,7 @@ from .cxx cimport (
     CarbonAllocatedForRootGrowth,
     RootNitrogen,
     RootWeightLoss,
+    SoilHorizonNum,
 )
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
@@ -109,26 +110,26 @@ cdef void init_root_data(cSoilCell soil_cells[40][20], uint32_t plant_row_column
             soil_cells[l][k].root.weight[1] = 0
             soil_cells[l][k].root.weight[2] = 0
     # FIXME: I consider the value is incorrect
-    soil_cells[0][plant_row_column - 1].root.weight[0] = 0.0020 * mul;
-    soil_cells[0][plant_row_column].root.weight[0] = 0.0070 * mul;
-    soil_cells[0][plant_row_column + 1].root.weight[0] = 0.0070 * mul;
-    soil_cells[0][plant_row_column + 2].root.weight[0] = 0.0020 * mul;
-    soil_cells[1][plant_row_column - 1].root.weight[0] = 0.0040 * mul;
-    soil_cells[1][plant_row_column].root.weight[0] = 0.0140 * mul;
-    soil_cells[1][plant_row_column + 1].root.weight[0] = 0.0140 * mul;
-    soil_cells[1][plant_row_column + 2].root.weight[0] = 0.0040 * mul;
-    soil_cells[2][plant_row_column - 1].root.weight[0] = 0.0060 * mul;
-    soil_cells[2][plant_row_column].root.weight[0] = 0.0210 * mul;
-    soil_cells[2][plant_row_column + 1].root.weight[0] = 0.0210 * mul;
-    soil_cells[2][plant_row_column + 2].root.weight[0] = 0.0060 * mul;
-    soil_cells[3][plant_row_column].root.weight[0] = 0.0200 * mul;
-    soil_cells[3][plant_row_column + 1].root.weight[0] = 0.0200 * mul;
-    soil_cells[4][plant_row_column].root.weight[0] = 0.0150 * mul;
-    soil_cells[4][plant_row_column + 1].root.weight[0] = 0.0150 * mul;
-    soil_cells[5][plant_row_column].root.weight[0] = 0.0100 * mul;
-    soil_cells[5][plant_row_column + 1].root.weight[0] = 0.0100 * mul;
-    soil_cells[6][plant_row_column].root.weight[0] = 0.0050 * mul;
-    soil_cells[6][plant_row_column + 1].root.weight[0] = 0.0050 * mul;
+    soil_cells[0][plant_row_column - 1].root.weight[0] = 0.0020 * mul
+    soil_cells[0][plant_row_column].root.weight[0] = 0.0070 * mul
+    soil_cells[0][plant_row_column + 1].root.weight[0] = 0.0070 * mul
+    soil_cells[0][plant_row_column + 2].root.weight[0] = 0.0020 * mul
+    soil_cells[1][plant_row_column - 1].root.weight[0] = 0.0040 * mul
+    soil_cells[1][plant_row_column].root.weight[0] = 0.0140 * mul
+    soil_cells[1][plant_row_column + 1].root.weight[0] = 0.0140 * mul
+    soil_cells[1][plant_row_column + 2].root.weight[0] = 0.0040 * mul
+    soil_cells[2][plant_row_column - 1].root.weight[0] = 0.0060 * mul
+    soil_cells[2][plant_row_column].root.weight[0] = 0.0210 * mul
+    soil_cells[2][plant_row_column + 1].root.weight[0] = 0.0210 * mul
+    soil_cells[2][plant_row_column + 2].root.weight[0] = 0.0060 * mul
+    soil_cells[3][plant_row_column].root.weight[0] = 0.0200 * mul
+    soil_cells[3][plant_row_column + 1].root.weight[0] = 0.0200 * mul
+    soil_cells[4][plant_row_column].root.weight[0] = 0.0150 * mul
+    soil_cells[4][plant_row_column + 1].root.weight[0] = 0.0150 * mul
+    soil_cells[5][plant_row_column].root.weight[0] = 0.0100 * mul
+    soil_cells[5][plant_row_column + 1].root.weight[0] = 0.0100 * mul
+    soil_cells[6][plant_row_column].root.weight[0] = 0.0050 * mul
+    soil_cells[6][plant_row_column + 1].root.weight[0] = 0.0050 * mul
     for l in range(3):
         for k in range(plant_row_column - 1, plant_row_column + 3):
             soil_cells[l][k].root.age = 0.01
@@ -148,7 +149,7 @@ cdef void InitializeRootData(cSimulation & sim):
     for l in range(nl):
         # Using the value of rlint (interval between lateral roots), the layers from which lateral roots may be initiated are now computed.
         # LateralRootFlag[l] is assigned a value of 1 for these layers.
-        LateralRootFlag[l] = 0;
+        LateralRootFlag[l] = 0
         if l > 0:
             sumdl += 0.5 * dl(l - 1)
         sumdl += 0.5 * dl(l)
@@ -389,7 +390,7 @@ cdef class SoilCell:
         cell.k = k
         return cell
 
-    cdef root_aging(self):
+    def root_aging(self):
         """This function is called from ActualRootGrowth(). It updates the variable celage(l,k) for the age of roots in each soil cell containing roots. When root age reaches a threshold thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion transformed is trn(i).
 
         It has been adapted from the code of GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell (whereas the time from emergence was used in GOSSYM). Note: only 3 root age groups are assumed here."""
@@ -609,6 +610,30 @@ cdef class Hour:
 
 cdef double[3] cgind = [1, 1, 0.10]  # the index for the capability of growth of class I roots (0 to 1).
 
+cdef double gh2oc[10]  # input gravimetric soil water content, g g-1, in the soil mechanical impedance table. values have been read from the soil impedance file.
+cdef double tstbd[10][10]  # input bulk density in the impedance table, g cm-3.
+cdef double impede[10][10]  # input table of soil impedance to root growth
+cdef int inrim  # number of input bulk-density data points for the impedance curve
+cdef unsigned int ncurve  # number of input soil-moisture curves in the impedance table.
+
+
+cdef class SoilImpedance:
+    @property
+    def curves(self):
+        global gh2oc, tstbd, impede, inrim, ncurve
+        return {gh2oc[i]: {tstbd[j][i]: impede[j][i] for j in range(inrim)} for i in
+                range(ncurve)}
+
+    @curves.setter
+    def curves(self, impedance_table):
+        global gh2oc, tstbd, impede, inrim, ncurve
+        ncurve = len(impedance_table)
+        inrim = len(impedance_table[0])
+        for i, row in enumerate(impedance_table):
+            gh2oc[i] = row.pop("water")
+            for j, pair in enumerate(sorted(row.items())):
+                tstbd[j][i], impede[j][i] = pair
+
 
 cdef class Soil:
     cdef cSoil *_
@@ -626,6 +651,43 @@ cdef class Soil:
         cdef Soil soil = Soil.__new__(Soil)
         soil._ = _ptr
         return soil
+
+    def root_impedance(self):
+        """This function calculates soil mechanical impedance to root growth, rtimpd(l,k), for all soil cells. It is called from PotentialRootGrowth(). The impedance is a function of bulk density and water content in each soil soil cell. No changes have been made in the original GOSSYM code."""
+        global gh2oc, tstbd, impede, inrim, ncurve
+        for l in range(nl):
+            j = SoilHorizonNum[l]
+            Bd = BulkDensity[j]  # bulk density for this layer
+
+            for jj in range(inrim):
+                if Bd <= tstbd[jj][0]:
+                    break
+            j1 = jj
+            if j1 > inrim - 1:
+                j1 = inrim - 1
+            j0 = max(0, jj - 1)
+
+            for k in range(nk):
+                Vh2o = self._[0].cells[l][k].water_content / Bd
+                for ik in range(ncurve):
+                    if Vh2o <= gh2oc[ik]:
+                        break
+                i1 = min(ncurve - 1, ik)
+                i0 = max(0, ik - 1)
+
+                if j1 == 0:
+                    if i1 == 0 or Vh2o <= gh2oc[i1]:
+                        RootImpede[l][k] = impede[j1][i1]
+                    else:
+                        RootImpede[l][k] = impede[j1][i0] - (impede[j1][i0] - impede[j1][i1]) * (Vh2o - gh2oc[i0]) / (gh2oc[i1] - gh2oc[i0])
+                else:
+                    if i1 == 0 or Vh2o <= gh2oc[i1]:
+                        RootImpede[l][k] = impede[j0][i1] - (impede[j0][i1] - impede[j1][i1]) * (tstbd[j0][i1] - Bd) / (tstbd[j0][i1] - tstbd[j1][i1])
+                    else:
+                        temp1 = impede[j0][i1] - (impede[j0][i1] - impede[j1][i1]) * (tstbd[j0][i1] - Bd) / (tstbd[j0][i1] - tstbd[j1][i1])
+                        temp2 = impede[j0][i0] - (impede[j0][i0] - impede[j1][i1]) * (tstbd[j0][i0] - Bd) / (tstbd[j0][i0] - tstbd[j1][i0])
+                        RootImpede[l][k] = temp2 + (temp1 - temp2) * (Vh2o - gh2oc[i0]) / (gh2oc[i1] - gh2oc[i0])
+
 
 
 cdef class State:
@@ -1260,7 +1322,7 @@ cdef class State:
         for l in range(NumLayersWithRoots):
             for k in range(nk):
                 self._[0].soil.cells[l][k].root.potential_growth = 0
-        RootImpedance(self._[0].soil.cells)
+        self.soil.root_impedance()
         cdef double sumpdr = 0  # sum of potential root growth rate for the whole slab
         for l in range(NumLayersWithRoots):
             for k in range(nk):

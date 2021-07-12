@@ -13,8 +13,6 @@ struct NitrogenFertilizer NFertilizer[150]; // nitrogen fertilizer application i
 //
 // Integer variables:
 //
-unsigned int ncurve;
-
 int CultivationDate[5],     // Dates (DOY) of cultivatrion.
     DayStartPredIrrig,      // Date (DOY) for starting predicted irrigation.
     DayStopPredIrrig,       // Date (DOY) for stopping predicted irrigation.
@@ -23,8 +21,7 @@ int CultivationDate[5],     // Dates (DOY) of cultivatrion.
     DefoliationMethod[5];   // code number of method of application of defoliants:
 // 0 = 'banded'; 1 = 'sprinkler'; 2 = 'broaddcast'.
 
-int inrim,       // number of input bulk-density data points for the impedance curve
-    IrrigMethod, // method of predicted irrigation.
+int IrrigMethod, // method of predicted irrigation.
     isw,         // switch affecting the method of computing soil temperature.
     // 0 = one dimensional (no horizontal flux) - used to predict emergence when emergence date is not known;
     // 1 = one dimensional - used before emergence when emergence date is given;
@@ -86,13 +83,11 @@ double
     FieldCapacity[maxl],              // volumetric water content of soil at field capacity for each soil layer, cm3 cm-3.
     FoliageTemp[maxk],                // average foliage temperature (oK).
     FreshOrganicNitrogen[maxl][maxk], // N in fresh organic matter in a soil cell, mg cm-3.
-    gh2oc[10],                        // input gravimetric soil water content, g g-1, in the soil mechanical impedance table. values have been read from the soil impedance file.
     GreenBollsLost,                   // cumulative loss of green bolls, due to abscission, g per plant.
     HeatCapacitySoilSolid[maxl],      // heat capacity of the solid phase of the soil.
     HeatCondDrySoil[maxl],            // the heat conductivity of dry soil.
     HumusNitrogen[maxl][maxk],        // N in stable humic fraction material in a soil cells, mg/cm3.
     HumusOrganicMatter[maxl][maxk],   // humus fraction of soil organic matter, mg/cm3.
-    impede[10][10],                   // input table of soil impedance to root growth
     InitialTotalSoilWater,            // initial total soil water in the profile, mm.
     IrrigationDepth,                  // depth of predicted irrigation, cm.
     LevelsOfWaterTable[20],           // water table level input data (cm below soil surface).
@@ -157,6 +152,5 @@ double
     TotalSoilNo3N,                    // total nitrate in profile, mg N per slab.
     TotalSoilUreaN,                   // total urea in profile, mg N per slab.
     TotalSoilWater,                   // total water in the soil profile, mm.
-    tstbd[10][10],                    // input bulk density in the impedance table, g cm-3.
     VolNh4NContent[maxl][maxk],       // volumetric ammonium nitrogen content of a soil cell, mg N cm-3.
     VolUreaNContent[maxl][maxk];      // volumetric urea nitrogen content of a soil cell, mg N cm-3.

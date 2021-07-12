@@ -39,17 +39,12 @@ cdef extern from "global.h":
         double amtnit
         double amtura
     void InitializeGlobal()
-    unsigned int ncurve
-    int inrim
     int isw
     int LastDayWeatherData
     const int maxl
     const int maxk
     int nl
     int nk
-    double gh2oc[10]
-    double tstbd[10][10]
-    double impede[10][10]
     double SitePar[21]
     double TotalSoilNo3N
     double TotalSoilNh4N
@@ -113,3 +108,4 @@ cdef extern from "global.h":
     double CarbonAllocatedForRootGrowth
     double RootNitrogen
     double RootWeightLoss
+    int SoilHorizonNum[40]

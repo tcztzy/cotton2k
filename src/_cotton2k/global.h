@@ -24,7 +24,7 @@ typedef struct NitrogenFertilizer
 extern NitrogenFertilizer NFertilizer[150];
 ////    Integers    ////
 extern int DayStartPredIrrig, DayStopPredIrrig,
-    inrim, IrrigMethod, isw,
+    IrrigMethod, isw,
     LastDayWeatherData, LastIrrigation, LastTaprootLayer,
     LocationColumnDrip, LocationLayerDrip,
     MainStemNodes, MinDaysBetweenIrrig,
@@ -33,7 +33,6 @@ extern int DayStartPredIrrig, DayStopPredIrrig,
     NumSheddingTags, NumWaterTableData, WaterTableLayer;
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
     LateralRootFlag[maxl], SoilHorizonNum[maxl];
-extern unsigned int ncurve;// number of input soil-moisture curves in the impedance table.
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth,
     ActualSquareGrowth, ActualStemGrowth,
@@ -59,9 +58,9 @@ extern double AbscissionLag[20], airdr[9],
     ClayVolumeFraction[maxl], CultivationDepth[5],
     DefoliantAppRate[5], ElCondSatSoil[20],
     FieldCapacity[maxl], FoliageTemp[maxk],
-    FreshOrganicNitrogen[maxl][maxk], gh2oc[10],
+    FreshOrganicNitrogen[maxl][maxk],
     HeatCapacitySoilSolid[maxl], HeatCondDrySoil[maxl], HumusNitrogen[maxl][maxk],
-    HumusOrganicMatter[maxl][maxk],impede[10][10],
+    HumusOrganicMatter[maxl][maxk],
     LevelsOfWaterTable[20], LwpMinX[3], LwpX[3],
     MarginalWaterContent[maxl], MaxWaterCapacity[maxl],
     NO3FlowFraction[maxl], PetioleWeightPreFru[9], PoreSpace[maxl],
@@ -69,7 +68,7 @@ extern double AbscissionLag[20], airdr[9],
     RootImpede[maxl][maxk], SandVolumeFraction[maxl], SaturatedHydCond[9], ShedByCarbonStress[20],
     ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk],
     SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], StemWeight[365],
-    thad[maxl], thetar[maxl], thetas[9], thts[maxl], tstbd[10][10],
+    thad[maxl], thetar[maxl], thetas[9], thts[maxl],
     VolNh4NContent[maxl][maxk], VolUreaNContent[maxl][maxk];
 
 void InitializeGlobal();
