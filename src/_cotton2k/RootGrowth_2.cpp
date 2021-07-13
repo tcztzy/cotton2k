@@ -4,7 +4,6 @@
 // InitiateLateralRoots()
 // LateralRootGrowthLeft()
 // LateralRootGrowthRight()
-// RootSummation()
 //
 #include <cstdint>
 #include <cmath>
@@ -86,24 +85,4 @@ double RootCultivation(SoilCell soil_cells[40][20], int NumRootAgeGroups, double
         }
     }
     return DailyRootLoss;
-}
-
-//////////////////////////////
-void RootSummation(State &state, int NumRootAgeGroups, double row_space, double per_plant_area)
-//     This function has been added for compatibility with GOSSYM root routines.
-//  It is called from ActualRootGrowth(). It summarizes root data, in a form ready
-//  for output or plotting. Sums of root weights for cells, for age groups and for
-//  the total slab are calculated. state.root_weight is calculated in g per plant.
-//
-//     The following global variables are referenced here:
-//  dl, Kday, nk, nl, NumRootAgeGroups,
-//  RootWeight, RootWtCapblUptake, RowSpace, wk
-{
-    //     Compute the total root weight (of all age classes) for all soil cells as
-    double roots = 0; // total weight of roots of all classes, g per slab.
-    for (int l = 0; l < nl; l++)
-        for (int k = 0; k < nk; k++)
-            roots += accumulate(state.soil.cells[l][k].root.weight, state.soil.cells[l][k].root.weight + NumRootAgeGroups, double(0));
-    //     Convert total root weight from g per slab to g per plant.
-    state.root_weight = roots * 100 * per_plant_area / row_space;
 }

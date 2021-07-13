@@ -37,8 +37,6 @@
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 
-void RootSummation(State &state, int NumRootAgeGroups, double row_space, double per_plant_area);
-
 double RootCultivation(SoilCell[40][20], int, double, double, double);
 
 void InitiateLateralRoots();

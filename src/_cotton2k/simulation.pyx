@@ -863,6 +863,14 @@ cdef class State:
         self._[0].open_bolls_burr_weight = value
 
     @property
+    def root_weight(self):
+        return self._[0].root_weight
+
+    @root_weight.setter
+    def root_weight(self, value):
+        self._[0].root_weight = value
+
+    @property
     def bloom_weight_loss(self):
         return self._[0].bloom_weight_loss
 
@@ -1560,6 +1568,18 @@ cdef class State:
         if kp1 > self._[0].soil.layers[l].number_of_right_columns_with_root:
             self._[0].soil.layers[l].number_of_right_columns_with_root = kp1
 
+    def root_summation(self, int NumRootAgeGroups, double row_space, double per_plant_area):
+        """This function has been added for compatibility with GOSSYM root routines. It summarizes root data, in a form ready for output or plotting.
+
+        Sums of root weights for cells, for age groups and for the total slab are calculated. state.root_weight is calculated in g per plant."""
+        # Compute the total root weight (of all age classes) for all soil cells as
+        cdef double roots = 0  # total weight of roots of all classes, g per slab.
+        for l in range(nl):
+            for k in range(nk):
+                roots += sum(self._[0].soil.cells[l][k].root.weight)
+        # Convert total root weight from g per slab to g per plant.
+        self.root_weight = roots * 100 * per_plant_area / row_space
+
     def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column):
         # The following constant parameters are used:
         # The index for the relative partitioning of root mass produced by new growth to class i.
@@ -1667,7 +1687,7 @@ cdef class State:
         RootNitrogen -= DailyRootLoss * self.root_nitrogen_concentration
         self.cumulative_nitrogen_loss += DailyRootLoss * self.root_nitrogen_concentration
         # Call function RootSummation().
-        RootSummation(self._[0], NumRootAgeGroups, row_space, per_plant_area)
+        self.root_summation(NumRootAgeGroups, row_space, per_plant_area)
 
     def leaf_abscission(self, per_plant_area, first_square_date, defoliate_date):
         global ReserveC
