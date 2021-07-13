@@ -102,7 +102,6 @@ cdef void init_root_data(cSoilCell soil_cells[40][20], uint32_t plant_row_column
             soil_cells[l][k].root = {
                 "potential_growth": 0,
                 "growth_factor": 1,
-                "actual_growth": 0,
                 "age": 0,
                 "weight_capable_uptake": 0,
             }
@@ -736,6 +735,7 @@ cdef class State:
     cdef double pavail  # residual available carbon for root growth from previous day.
     rlat1 = np.zeros(40, dtype=np.float64)  # lateral root length (cm) to the left of the tap root
     rlat2 = np.zeros(40, dtype=np.float64)   # lateral root length (cm) to the right of the tap root
+    actual_root_growth = np.zeros((40, 20), dtype=np.float64)
 
     def keys(self):
         return dict(self._[0]).keys()
@@ -1532,14 +1532,14 @@ cdef class State:
         srwp = efac1 + efacl + efacr + efacu + efacd
         # If srwp is very small, all the added weight will be in the same soil soil cell, and execution of this function is ended.
         if srwp < 1e-10:
-            self._[0].soil.cells[l][k].root.actual_growth = addwt
+            self.actual_root_growth[l][k] = addwt
             return
         # Allocate the added dry matter to this and the adjoining soil cells in proportion to the EFAC factors.
-        self._[0].soil.cells[l][k].root.actual_growth += addwt * efac1 / srwp
-        self._[0].soil.cells[l][km1].root.actual_growth += addwt * efacl / srwp
-        self._[0].soil.cells[l][kp1].root.actual_growth += addwt * efacr / srwp
-        self._[0].soil.cells[lm1][k].root.actual_growth += addwt * efacu / srwp
-        self._[0].soil.cells[lp1][k].root.actual_growth += addwt * efacd / srwp
+        self.actual_root_growth[l][k] += addwt * efac1 / srwp
+        self.actual_root_growth[l][km1] += addwt * efacl / srwp
+        self.actual_root_growth[l][kp1] += addwt * efacr / srwp
+        self.actual_root_growth[lm1][k] += addwt * efacu / srwp
+        self.actual_root_growth[lp1][k] += addwt * efacd / srwp
         # If roots are growing into new soil soil cells, initialize their RootAge to 0.01.
         if self._[0].soil.cells[l][km1].root.age == 0:
             self._[0].soil.cells[l][km1].root.age = 0.01
@@ -1592,9 +1592,7 @@ cdef class State:
             self.pavail = 0
         adwr1 = np.zeros((40, 20), dtype=np.float64)  # actual growth rate from roots existing in this soil cell.
         # Assign zero to the arrays of actual root growth rate.
-        for l in range(nl):
-            for k in range(nk):
-                self._[0].soil.cells[l][k].root.actual_growth = 0
+        self.actual_root_growth[:,:] = 0
         # The amount of carbon allocated for root growth is calculated from CarbonAllocatedForRootGrowth, converted to g dry matter per slab, and added to previously allocated carbon that has not been used for growth (pavail). if there is no potential root growth, this will be stored in pavail. Otherwise, zero is assigned to pavail.
         if sumpdr <= 0:
             self.pavail += CarbonAllocatedForRootGrowth * 0.01 * row_space / per_plant_area
@@ -1641,7 +1639,7 @@ cdef class State:
                     if rtconc > rtminc:
                         self.redist_root_new_growth(l, k, adwr1[l][k], row_space, plant_row_column)
                     else:
-                        self._[0].soil.cells[l][k].root.actual_growth += adwr1[l][k]
+                        self.actual_root_growth[l][k] += adwr1[l][k]
         # The new actual growth ActualRootGrowth(l,k) in each cell is partitioned among the root classes in it in proportion to the parameters RootGrowthIndex(i), and the previous values of RootWeight(k,l,i), and added to RootWeight(k,l,i).
         sumind = 0  # sum of the growth index for all classes in a cell.
         for i in range(NumRootAgeGroups):
@@ -1655,9 +1653,9 @@ cdef class State:
                         sumgr += RootGrowthIndex[i] * self._[0].soil.cells[l][k].root.weight[i]
                     for i in range(NumRootAgeGroups):
                         if sumgr > 0:
-                            self._[0].soil.cells[l][k].root.weight[i] += self._[0].soil.cells[l][k].root.actual_growth * RootGrowthIndex[i] * self._[0].soil.cells[l][k].root.weight[i] / sumgr
+                            self._[0].soil.cells[l][k].root.weight[i] += self.actual_root_growth[l][k] * RootGrowthIndex[i] * self._[0].soil.cells[l][k].root.weight[i] / sumgr
                         else:
-                            self._[0].soil.cells[l][k].root.weight[i] += self._[0].soil.cells[l][k].root.actual_growth * RootGrowthIndex[i] / sumind
+                            self._[0].soil.cells[l][k].root.weight[i] += self.actual_root_growth[l][k] * RootGrowthIndex[i] / sumind
         # Call function TapRootGrowth() for taproot elongation, if the taproot has not already reached the bottom of the slab.
         if LastTaprootLayer < nl - 1 or TapRootLength < DepthLastRootLayer:
             self.tap_root_growth(NumRootAgeGroups, plant_row_column)
