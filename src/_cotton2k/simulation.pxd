@@ -84,7 +84,6 @@ cdef extern from "PlantNitrogen.h":
 cdef extern from "RootGrowth.h":
     void RootSummation(cState &, int, double, double)
     double RootCultivation(cSoilCell[40][20], int, double, double, double)
-    double RootDeath(cSoilCell &, int, int, double)
     void LateralRootGrowthLeft(cState &, int, int, unsigned int, double)
     void LateralRootGrowthRight(cState &, int, int, unsigned int, double)
     void InitiateLateralRoots()

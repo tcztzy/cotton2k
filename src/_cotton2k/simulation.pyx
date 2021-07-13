@@ -390,6 +390,14 @@ cdef class SoilCell:
         cell.k = k
         return cell
 
+    @property
+    def water_content(self):
+        return self._[0].water_content
+
+    @water_content.setter
+    def water_content(self, value):
+        self._[0].water_content = value
+
     def root_aging(self):
         """This function is called from ActualRootGrowth(). It updates the variable celage(l,k) for the age of roots in each soil cell containing roots. When root age reaches a threshold thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion transformed is trn(i).
 
@@ -410,6 +418,37 @@ cdef class SoilCell:
                 self._[0].root.weight[i + 1] += xtr
                 self._[0].root.weight[i] -= xtr
 
+    def root_death(self):
+        """This function computes the death of root tissue in each soil cell containing roots.
+
+        When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i dies. The mass of dead roots is added to DailyRootLoss.
+
+        It has been adapted from GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell.
+
+        It is assumed that root death rate is greater in dry soil, for all root classes except class 1. Root death rate is increased to the maximum value in soil saturated with water.
+        """
+        cdef double aa = 0.008  # a parameter in the equation for computing dthfac.
+        cdef double[3] dth = [0.0001, 0.0002, 0.0001]  # the daily proportion of death of root tissue.
+        cdef double dthmax = 0.10  # a parameter in the equation for computing dthfac.
+        cdef double psi0 = -14.5  # a parameter in the equation for computing dthfac.
+        cdef double[3] thdth = [30.0, 50.0, 100.0]  # the time threshold, from the initial
+        # penetration of roots to a soil cell, after which death of root tissue of class i may occur.
+
+        result = 0
+        for i in range(3):
+            if self._[0].root.age > thdth[i]:
+                # the computed proportion of roots dying in each class.
+                dthfac = dth[i]
+                if self.water_content >= PoreSpace[self.l]:
+                    dthfac = dthmax
+                else:
+                    if i <= 1 and SoilPsi[self.l][self.k] <= psi0:
+                        dthfac += aa * (psi0 - SoilPsi[self.l][self.k])
+                    if dthfac > dthmax:
+                        dthfac = dthmax
+                result += self._[0].root.weight[i] * dthfac
+                self._[0].root.weight[i] -= self._[0].root.weight[i] * dthfac
+        return result
 
 cdef class NodeLeaf:
     cdef Leaf *_
@@ -1528,8 +1567,9 @@ cdef class State:
             for k in range(nk):
                 # Check RootAge to determine if this soil cell contains roots, and then compute root aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
                 if self._[0].soil.cells[l][k].root.age > 0:
-                    SoilCell.from_ptr(&self._[0].soil.cells[l][k], l, k).root_aging()
-                    DailyRootLoss = RootDeath(self._[0].soil.cells[l][k], l, k, DailyRootLoss)
+                    soil_cell = SoilCell.from_ptr(&self._[0].soil.cells[l][k], l, k)
+                    soil_cell.root_aging()
+                    DailyRootLoss += soil_cell.root_death()
         # Check if cultivation is executed in this day and call RootCultivation().
         for j in range(5):
             if CultivationDate[j] == self.daynum:
