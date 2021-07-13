@@ -2,7 +2,6 @@
 #define SOIL_TYPE
 typedef struct RootStruct
 {
-    double potential_growth; // potential root growth in a soil cell (g per day).
     double growth_factor;    // root growth correction factor in a soil cell (0 to 1).
     double age;
     double weight_capable_uptake; // root weight capable of uptake, in g per soil cell.

@@ -100,7 +100,6 @@ cdef void init_root_data(cSoilCell soil_cells[40][20], uint32_t plant_row_column
     for l in range(40):
         for k in range(20):
             soil_cells[l][k].root = {
-                "potential_growth": 0,
                 "growth_factor": 1,
                 "age": 0,
                 "weight_capable_uptake": 0,
@@ -736,6 +735,7 @@ cdef class State:
     rlat1 = np.zeros(40, dtype=np.float64)  # lateral root length (cm) to the left of the tap root
     rlat2 = np.zeros(40, dtype=np.float64)   # lateral root length (cm) to the right of the tap root
     actual_root_growth = np.zeros((40, 20), dtype=np.float64)
+    root_potential_growth = np.zeros((40, 20), dtype=np.float64)  # potential root growth in a soil cell (g per day).
 
     def keys(self):
         return dict(self._[0]).keys()
@@ -1452,9 +1452,7 @@ cdef class State:
         # The following constant parameter is used:
         cdef double rgfac = 0.36 if self.version < 0x500 else 0.2  # potential relative growth rate of the roots (g/g/day).
         # Initialize to zero the PotGroRoots array.
-        for l in range(NumLayersWithRoots):
-            for k in range(nk):
-                self._[0].soil.cells[l][k].root.potential_growth = 0
+        self.root_potential_growth[:NumLayersWithRoots:, :] = 0
         self.soil.root_impedance()
         cdef double sumpdr = 0  # sum of potential root growth rate for the whole slab
         for l in range(NumLayersWithRoots):
@@ -1491,8 +1489,8 @@ cdef class State:
                     # Potential root growth PotGroRoots(l,k) in each cell is computed as a product of rtwtcg, rgfac, the temperature function temprg, and RootGroFactor(l,k). It is also multiplied by per_plant_area / 19.6, for the effect of plant population density on root growth: it is made comparable to a population of 5 plants per m in 38" rows.
                     # The sum of the potential growth for the whole slab is computed as sumpdr.
                     self._[0].soil.cells[l][k].root.growth_factor = root_psi(SoilPsi[l][k]) * min(rtrdo, rtpct, rtrdn)
-                    self._[0].soil.cells[l][k].root.potential_growth = rtwtcg * rgfac * temprg * self._[0].soil.cells[l][k].root.growth_factor * per_plant_area / 19.6
-                    sumpdr += self._[0].soil.cells[l][k].root.potential_growth
+                    self.root_potential_growth[l][k] = rtwtcg * rgfac * temprg * self._[0].soil.cells[l][k].root.growth_factor * per_plant_area / 19.6
+                    sumpdr += self.root_potential_growth[l][k]
         return sumpdr
 
     def redist_root_new_growth(self, int l, int k, double addwt, double row_space, unsigned int plant_row_column):
@@ -1606,7 +1604,7 @@ cdef class State:
             for k in range(nk):
                 # adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
                 if self._[0].soil.cells[l][k].root.age > 0:
-                    adwr1[l][k] = self._[0].soil.cells[l][k].root.potential_growth * actgf
+                    adwr1[l][k] = self.root_potential_growth[l][k] * actgf
         # If extra carbon is available, it is assumed to be added to the taproot.
         if self.extra_carbon > 0:
             # available carbon for taproot growth, in g dry matter per slab.
