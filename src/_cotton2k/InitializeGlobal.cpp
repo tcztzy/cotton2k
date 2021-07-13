@@ -84,8 +84,6 @@ void InitializeGlobal()
     }
 //
     for (int l = 0; l < maxl; l++) {
-        rlat1[l] = 0;
-        rlat2[l] = 0;
         for (int k = 0; k < maxk; k++) {
             RootImpede[l][k] = 0;
         }

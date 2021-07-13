@@ -734,6 +734,8 @@ cdef class State:
     cdef public unsigned int year
     cdef public unsigned int version
     cdef double pavail  # residual available carbon for root growth from previous day.
+    rlat1 = np.zeros(40, dtype=np.float64)  # lateral root length (cm) to the left of the tap root
+    rlat2 = np.zeros(40, dtype=np.float64)   # lateral root length (cm) to the right of the tap root
 
     def keys(self):
         return dict(self._[0]).keys()
@@ -1269,13 +1271,13 @@ cdef class State:
                 self._[0].soil.number_of_layers_with_root = nl
         if (self._[0].soil.layers[LastTaprootLayer].number_of_left_columns_with_root == 0 or
             self._[0].soil.layers[LastTaprootLayer].number_of_left_columns_with_root > plant_row_column):
-            self._[0].soil.layers[LastTaprootLayer].number_of_left_columns_with_root = plant_row_column;
+            self._[0].soil.layers[LastTaprootLayer].number_of_left_columns_with_root = plant_row_column
         if (self._[0].soil.layers[LastTaprootLayer].number_of_right_columns_with_root == 0 or
             self._[0].soil.layers[LastTaprootLayer].number_of_right_columns_with_root < klocp1):
             self._[0].soil.layers[LastTaprootLayer].number_of_right_columns_with_root = klocp1
         # RootAge is initialized for these soil cells.
-        self._[0].soil.cells[LastTaprootLayer][plant_row_column].root.age = 0.01;
-        self._[0].soil.cells[LastTaprootLayer][klocp1].root.age = 0.01;
+        self._[0].soil.cells[LastTaprootLayer][plant_row_column].root.age = 0.01
+        self._[0].soil.cells[LastTaprootLayer][klocp1].root.age = 0.01
         # Some of the mass of class 1 roots is transferred downwards to the new cells.
         # The transferred mass is proportional to 2 cm of layer width, but it is not more than half the existing mass in the last layer.
         for i in range(NumRootAgeGroups):
@@ -1347,6 +1349,90 @@ cdef class State:
         # Begin computing AvrgNodeTemper of the new node and assign zero to DelayNewFruBranch.
         new_node.average_temperature = self.average_temperature
         vegetative_branch.delay_for_new_fruiting_branch = 0
+
+    def lateral_root_growth_left(self, int l, int NumRootAgeGroups, unsigned int plant_row_column, double row_space):
+        """This function computes the elongation of the lateral roots in a soil layer(l) to the left."""
+        # The following constant parameters are used:
+        cdef double p1 = 0.10  # constant parameter.
+        cdef double rlatr = 3.6  # potential growth rate of lateral roots, cm/day.
+        cdef double rtran = 0.2  # the ratio of root mass transferred to a new soil
+        # soil cell, when a lateral root grows into it.
+        # On its initiation, lateral root length is assumed to be equal to the width of a soil column soil cell at the location of the taproot.
+        if self.rlat1[l] <= 0:
+            self.rlat1[l] = wk(plant_row_column, row_space)
+        cdef double stday  # daily average soil temperature (C) at root tip.
+        stday = SoilTempDailyAvrg[l][plant_row_column] - 273.161
+        cdef double temprg  # the effect of soil temperature on root growth.
+        temprg = SoilTemOnRootGrowth(stday)
+        # Define the column with the tip of this lateral root (ktip)
+        cdef int ktip = 0  # column with the tips of the laterals to the left
+        cdef double sumwk = 0  # summation of columns width
+        for k in reversed(range(plant_row_column + 1)):
+            sumwk += wk(k, row_space)
+            if sumwk >= self.rlat1[l]:
+                ktip = k
+                break
+        # Compute growth of the lateral root to the left.
+        # Potential growth rate (u) is modified by the soil temperature function,
+        # and the linearly modified effect of soil resistance (RootGroFactor).
+        # Lateral root elongation does not occur in water logged soil.
+        if self._[0].soil.cells[l][ktip].water_content < PoreSpace[l]:
+            self.rlat1[l] += rlatr * temprg * (1 - p1 + self._[0].soil.cells[l][ktip].root.growth_factor * p1)
+            # If the lateral reaches a new soil soil cell: a proportion (tran) of mass of roots is transferred to the new soil cell.
+            if self.rlat1[l] > sumwk and ktip > 0:
+                # column into which the tip of the lateral grows to left.
+                newktip = ktip - 1;
+                for i in range(NumRootAgeGroups):
+                    tran = self._[0].soil.cells[l][ktip].root.weight[i] * rtran
+                    self._[0].soil.cells[l][ktip].root.weight[i] -= tran
+                    self._[0].soil.cells[l][newktip].root.weight[i] += tran
+                # RootAge is initialized for this soil cell.
+                # RootColNumLeft of this layer idefi
+                if self._[0].soil.cells[l][newktip].root.age == 0:
+                    self._[0].soil.cells[l][newktip].root.age = 0.01
+                if newktip < self._[0].soil.layers[l].number_of_left_columns_with_root:
+                    self._[0].soil.layers[l].number_of_left_columns_with_root = newktip
+
+    def lateral_root_growth_right(self, int l, int NumRootAgeGroups, unsigned int plant_row_column, double row_space):
+        # The following constant parameters are used:
+        cdef double p1 = 0.10  # constant parameter.
+        cdef double rlatr = 3.6  # potential growth rate of lateral roots, cm/day.
+        cdef double rtran = 0.2  # the ratio of root mass transferred to a new soil
+        # soil cell, when a lateral root grows into it.
+        # On its initiation, lateral root length is assumed to be equal to the width of a soil column soil cell at the location of the taproot.
+        cdef int klocp1 = plant_row_column + 1
+        if self.rlat2[l] <= 0:
+            self.rlat2[l] = wk(klocp1, row_space)
+        cdef double stday  # daily average soil temperature (C) at root tip.
+        stday = SoilTempDailyAvrg[l][klocp1] - 273.161
+        cdef double temprg  # the effect of soil temperature on root growth.
+        temprg = SoilTemOnRootGrowth(stday)
+        # define the column with the tip of this lateral root (ktip)
+        cdef int ktip = 0  # column with the tips of the laterals to the right
+        cdef double sumwk = 0
+        for k in range(klocp1, nk):
+            sumwk += wk(k, row_space)
+            if sumwk >= self.rlat2[l]:
+                ktip = k
+                break
+        # Compute growth of the lateral root to the right. Potential growth rate is modified by the soil temperature function, and the linearly modified effect of soil resistance (RootGroFactor).
+        # Lateral root elongation does not occur in water logged soil.
+        if self._[0].soil.cells[l][ktip].water_content < PoreSpace[l]:
+            self.rlat2[l] += rlatr * temprg * (1 - p1 + self._[0].soil.cells[l][ktip].root.growth_factor * p1)
+            # If the lateral reaches a new soil soil cell: a proportion (tran) of mass of roots is transferred to the new soil cell.
+            if self.rlat2[l] > sumwk and ktip < nk - 1:
+                # column into which the tip of the lateral grows to left.
+                newktip = ktip + 1  # column into which the tip of the lateral grows to left.
+                for i in range(NumRootAgeGroups):
+                    tran = self._[0].soil.cells[l][ktip].root.weight[i] * rtran
+                    self._[0].soil.cells[l][ktip].root.weight[i] -= tran
+                    self._[0].soil.cells[l][newktip].root.weight[i] += tran
+                # RootAge is initialized for this soil cell.
+                # RootColNumLeft of this layer is redefined.
+                if self._[0].soil.cells[l][newktip].root.age == 0:
+                    self._[0].soil.cells[l][newktip].root.age = 0.01
+                if newktip > self._[0].soil.layers[l].number_of_right_columns_with_root:
+                    self._[0].soil.layers[l].number_of_right_columns_with_root = newktip
 
     def potential_root_growth(self, NumRootAgeGroups, NumLayersWithRoots, per_plant_area):
         """
@@ -1559,8 +1645,8 @@ cdef class State:
         InitiateLateralRoots()
         for l in range(LastTaprootLayer):
             if LateralRootFlag[l] == 2:
-                LateralRootGrowthLeft(self._[0], l, NumRootAgeGroups, plant_row_column, row_space)
-                LateralRootGrowthRight(self._[0], l, NumRootAgeGroups, plant_row_column, row_space)
+                self.lateral_root_growth_left(l, NumRootAgeGroups, plant_row_column, row_space)
+                self.lateral_root_growth_right(l, NumRootAgeGroups, plant_row_column, row_space)
         # Initialize DailyRootLoss (weight of sloughed roots) for this day.
         cdef double DailyRootLoss = 0  # total weight of sloughed roots, g per plant per day.
         for l in range(self._[0].soil.number_of_layers_with_root):

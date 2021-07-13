@@ -41,8 +41,4 @@ void RootSummation(State &state, int NumRootAgeGroups, double row_space, double 
 
 double RootCultivation(SoilCell[40][20], int, double, double, double);
 
-void LateralRootGrowthLeft(State &, int, int, unsigned int, double);
-
-void LateralRootGrowthRight(State &, int, int, unsigned int, double);
-
 void InitiateLateralRoots();

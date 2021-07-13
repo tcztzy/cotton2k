@@ -120,8 +120,6 @@ double
     PotGroStem,                       // potential growth rate of stems, g plant-1 day-1.
     RatioImplicit,                    // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
     ReserveC,                         // reserve carbohydrates in leaves, g per plant.
-    rlat1[maxl],                      // lateral root length (cm) to the left of the tap root
-    rlat2[maxl],                      // lateral root length (cm) to the right of the tap root
     RootImpede[maxl][maxk],           // root mechanical impedance for a soil cell, kg cm-2.
     RootNitrogen,                     // total root nitrogen, g per plant.
     RootWeightLoss,                   // total cumulative weight of sloughed roots, g per plant.
