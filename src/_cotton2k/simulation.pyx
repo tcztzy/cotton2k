@@ -311,58 +311,6 @@ cdef class SoilCell:
     def water_content(self, value):
         self._[0].water_content = value
 
-    def root_aging(self):
-        """This function is called from ActualRootGrowth(). It updates the variable celage(l,k) for the age of roots in each soil cell containing roots. When root age reaches a threshold thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion transformed is trn(i).
-
-        It has been adapted from the code of GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell (whereas the time from emergence was used in GOSSYM). Note: only 3 root age groups are assumed here."""
-        # The following constant parameters are used:
-        cdef double[2] thtrn = [20.0, 40.0]  # the time threshold, from the initial
-        # penetration of roots to a soil cell, after which some of the root mass of class i may be transferred into the next class (i+1).
-        cdef double[2] trn = [0.0060, 0.0050]  # the daily proportion of this transfer.
-
-        cdef double stday  # daily average soil temperature (c) of soil cell.
-        stday = SoilTempDailyAvrg[self.l][self.k] - 273.161
-        self._[0].root.age += SoilTemOnRootGrowth(stday)
-
-        for i in range(2):
-            if self._[0].root.age > thtrn[i]:
-                # root mass transferred from one class to the next.
-                xtr = trn[i] * self._[0].root.weight[i]
-                self._[0].root.weight[i + 1] += xtr
-                self._[0].root.weight[i] -= xtr
-
-    def root_death(self):
-        """This function computes the death of root tissue in each soil cell containing roots.
-
-        When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i dies. The mass of dead roots is added to DailyRootLoss.
-
-        It has been adapted from GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell.
-
-        It is assumed that root death rate is greater in dry soil, for all root classes except class 1. Root death rate is increased to the maximum value in soil saturated with water.
-        """
-        cdef double aa = 0.008  # a parameter in the equation for computing dthfac.
-        cdef double[3] dth = [0.0001, 0.0002, 0.0001]  # the daily proportion of death of root tissue.
-        cdef double dthmax = 0.10  # a parameter in the equation for computing dthfac.
-        cdef double psi0 = -14.5  # a parameter in the equation for computing dthfac.
-        cdef double[3] thdth = [30.0, 50.0, 100.0]  # the time threshold, from the initial
-        # penetration of roots to a soil cell, after which death of root tissue of class i may occur.
-
-        result = 0
-        for i in range(3):
-            if self._[0].root.age > thdth[i]:
-                # the computed proportion of roots dying in each class.
-                dthfac = dth[i]
-                if self.water_content >= PoreSpace[self.l]:
-                    dthfac = dthmax
-                else:
-                    if i <= 1 and SoilPsi[self.l][self.k] <= psi0:
-                        dthfac += aa * (psi0 - SoilPsi[self.l][self.k])
-                    if dthfac > dthmax:
-                        dthfac = dthmax
-                result += self._[0].root.weight[i] * dthfac
-                self._[0].root.weight[i] -= self._[0].root.weight[i] * dthfac
-        return result
-
 cdef class NodeLeaf:
     cdef Leaf *_
 
@@ -651,6 +599,7 @@ cdef class State:
     rlat2 = np.zeros(40, dtype=np.float64)   # lateral root length (cm) to the right of the tap root
     actual_root_growth = np.zeros((40, 20), dtype=np.float64)
     root_potential_growth = np.zeros((40, 20), dtype=np.float64)  # potential root growth in a soil cell (g per day).
+    root_age = np.zeros((40, 20), dtype=np.float64)
 
     def keys(self):
         return dict(self._[0]).keys()
@@ -1163,7 +1112,6 @@ cdef class State:
             for k in range(20):
                 self._[0].soil.cells[l][k].root = {
                     "growth_factor": 1,
-                    "age": 0,
                     "weight_capable_uptake": 0,
                 }
                 self._[0].soil.cells[l][k].root.weight[0] = 0
@@ -1192,10 +1140,62 @@ cdef class State:
         self._[0].soil.cells[6][plant_row_column + 1].root.weight[0] = 0.0050 * mul
         for l in range(3):
             for k in range(plant_row_column - 1, plant_row_column + 3):
-                self._[0].soil.cells[l][k].root.age = 0.01
+                self.root_age[l][k] = 0.01
         for l in range(3, 7):
-            self._[0].soil.cells[l][plant_row_column].root.age = 0.01
-            self._[0].soil.cells[l][plant_row_column + 1].root.age = 0.01
+            self.root_age[l][plant_row_column] = 0.01
+            self.root_age[l][plant_row_column + 1] = 0.01
+
+    def root_aging(self, l, k):
+        """This function is called from ActualRootGrowth(). It updates the variable celage(l,k) for the age of roots in each soil cell containing roots. When root age reaches a threshold thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion transformed is trn(i).
+
+        It has been adapted from the code of GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell (whereas the time from emergence was used in GOSSYM). Note: only 3 root age groups are assumed here."""
+        # The following constant parameters are used:
+        cdef double[2] thtrn = [20.0, 40.0]  # the time threshold, from the initial
+        # penetration of roots to a soil cell, after which some of the root mass of class i may be transferred into the next class (i+1).
+        cdef double[2] trn = [0.0060, 0.0050]  # the daily proportion of this transfer.
+
+        cdef double stday  # daily average soil temperature (c) of soil cell.
+        stday = SoilTempDailyAvrg[l][k] - 273.161
+        self.root_age[l][k] += SoilTemOnRootGrowth(stday)
+
+        for i in range(2):
+            if self.root_age[l][k] > thtrn[i]:
+                # root mass transferred from one class to the next.
+                xtr = trn[i] * self._[0].soil.cells[l][k].root.weight[i]
+                self._[0].soil.cells[l][k].root.weight[i + 1] += xtr
+                self._[0].soil.cells[l][k].root.weight[i] -= xtr
+
+    def root_death(self, l, k):
+        """This function computes the death of root tissue in each soil cell containing roots.
+
+        When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i dies. The mass of dead roots is added to DailyRootLoss.
+
+        It has been adapted from GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell.
+
+        It is assumed that root death rate is greater in dry soil, for all root classes except class 1. Root death rate is increased to the maximum value in soil saturated with water.
+        """
+        cdef double aa = 0.008  # a parameter in the equation for computing dthfac.
+        cdef double[3] dth = [0.0001, 0.0002, 0.0001]  # the daily proportion of death of root tissue.
+        cdef double dthmax = 0.10  # a parameter in the equation for computing dthfac.
+        cdef double psi0 = -14.5  # a parameter in the equation for computing dthfac.
+        cdef double[3] thdth = [30.0, 50.0, 100.0]  # the time threshold, from the initial
+        # penetration of roots to a soil cell, after which death of root tissue of class i may occur.
+
+        result = 0
+        for i in range(3):
+            if self.root_age[l][k] > thdth[i]:
+                # the computed proportion of roots dying in each class.
+                dthfac = dth[i]
+                if self._[0].soil.cells[l][k].water_content >= PoreSpace[l]:
+                    dthfac = dthmax
+                else:
+                    if i <= 1 and SoilPsi[l][k] <= psi0:
+                        dthfac += aa * (psi0 - SoilPsi[l][k])
+                    if dthfac > dthmax:
+                        dthfac = dthmax
+                result += self._[0].soil.cells[l][k].root.weight[i] * dthfac
+                self._[0].soil.cells[l][k].root.weight[i] -= self._[0].soil.cells[l][k].root.weight[i] * dthfac
+        return result
 
     def tap_root_growth(self, int NumRootAgeGroups, unsigned int plant_row_column):
         """This function computes the elongation of the taproot."""
@@ -1238,8 +1238,8 @@ cdef class State:
             self._[0].soil.layers[LastTaprootLayer].number_of_right_columns_with_root < klocp1):
             self._[0].soil.layers[LastTaprootLayer].number_of_right_columns_with_root = klocp1
         # RootAge is initialized for these soil cells.
-        self._[0].soil.cells[LastTaprootLayer][plant_row_column].root.age = 0.01
-        self._[0].soil.cells[LastTaprootLayer][klocp1].root.age = 0.01
+        self.root_age[LastTaprootLayer][plant_row_column] = 0.01
+        self.root_age[LastTaprootLayer][klocp1] = 0.01
         # Some of the mass of class 1 roots is transferred downwards to the new cells.
         # The transferred mass is proportional to 2 cm of layer width, but it is not more than half the existing mass in the last layer.
         for i in range(NumRootAgeGroups):
@@ -1350,8 +1350,8 @@ cdef class State:
                     self._[0].soil.cells[l][newktip].root.weight[i] += tran
                 # RootAge is initialized for this soil cell.
                 # RootColNumLeft of this layer idefi
-                if self._[0].soil.cells[l][newktip].root.age == 0:
-                    self._[0].soil.cells[l][newktip].root.age = 0.01
+                if self.root_age[l][newktip] == 0:
+                    self.root_age[l][newktip] = 0.01
                 if newktip < self._[0].soil.layers[l].number_of_left_columns_with_root:
                     self._[0].soil.layers[l].number_of_left_columns_with_root = newktip
 
@@ -1391,8 +1391,8 @@ cdef class State:
                     self._[0].soil.cells[l][newktip].root.weight[i] += tran
                 # RootAge is initialized for this soil cell.
                 # RootColNumLeft of this layer is redefined.
-                if self._[0].soil.cells[l][newktip].root.age == 0:
-                    self._[0].soil.cells[l][newktip].root.age = 0.01
+                if self.root_age[l][newktip] == 0:
+                    self.root_age[l][newktip] = 0.01
                 if newktip > self._[0].soil.layers[l].number_of_right_columns_with_root:
                     self._[0].soil.layers[l].number_of_right_columns_with_root = newktip
 
@@ -1413,7 +1413,7 @@ cdef class State:
             for k in range(nk):
                 # Check if this soil cell contains roots (if RootAge is greater than 0), and execute the following if this is true.
                 # In each soil cell with roots, the root weight capable of growth rtwtcg is computed as the sum of RootWeight[l][k][i] * cgind[i] for all root classes.
-                if self._[0].soil.cells[l][k].root.age > 0:
+                if self.root_age[l][k] > 0:
                     rtwtcg = 0  # root weight capable of growth in a soil soil cell.
                     for i in range(NumRootAgeGroups):
                         rtwtcg += self._[0].soil.cells[l][k].root.weight[i] * cgind[i]
@@ -1493,15 +1493,15 @@ cdef class State:
         self.actual_root_growth[lm1][k] += addwt * efacu / srwp
         self.actual_root_growth[lp1][k] += addwt * efacd / srwp
         # If roots are growing into new soil soil cells, initialize their RootAge to 0.01.
-        if self._[0].soil.cells[l][km1].root.age == 0:
-            self._[0].soil.cells[l][km1].root.age = 0.01
-        if self._[0].soil.cells[l][kp1].root.age == 0:
-            self._[0].soil.cells[l][kp1].root.age = 0.01
-        if self._[0].soil.cells[lm1][k].root.age == 0:
-            self._[0].soil.cells[lm1][k].root.age = 0.01
+        if self.root_age[l][km1] == 0:
+            self.root_age[l][km1] = 0.01
+        if self.root_age[l][kp1] == 0:
+            self.root_age[l][kp1] = 0.01
+        if self.root_age[lm1][k] == 0:
+            self.root_age[lm1][k] = 0.01
         # If this new compartmment is in a new layer with roots, also initialize its RootColNumLeft and RootColNumRight values.
-        if self._[0].soil.cells[lp1][k].root.age == 0 and efacd > 0:
-            self._[0].soil.cells[lp1][k].root.age = 0.01
+        if self.root_age[lp1][k] == 0 and efacd > 0:
+            self.root_age[lp1][k] = 0.01
             if self._[0].soil.layers[lp1].number_of_left_columns_with_root == 0 or k < self._[0].soil.layers[lp1].number_of_left_columns_with_root:
                 self._[0].soil.layers[lp1].number_of_left_columns_with_root = k
             if self._[0].soil.layers[lp1].number_of_right_columns_with_root == 0 or k > self._[0].soil.layers[lp1].number_of_right_columns_with_root:
@@ -1557,7 +1557,7 @@ cdef class State:
         for l in range(self._[0].soil.number_of_layers_with_root):
             for k in range(nk):
                 # adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
-                if self._[0].soil.cells[l][k].root.age > 0:
+                if self.root_age[l][k] > 0:
                     adwr1[l][k] = self.root_potential_growth[l][k] * actgf
         # If extra carbon is available, it is assumed to be added to the taproot.
         if self.extra_carbon > 0:
@@ -1583,7 +1583,7 @@ cdef class State:
         # Otherwise, all new growth is contained in the same cell, and the actual growth in this cell, ActualRootGrowth(l,k) will be equal to adwr1(l,k).
         for l in range(nl):
             for k in range(nk):
-                if self._[0].soil.cells[l][k].root.age > 0:
+                if self.root_age[l][k] > 0:
                     rtconc = 0  # ratio of root weight capable of growth to cell volume.
                     for i in range(NumRootAgeGroups):
                         rtconc += self._[0].soil.cells[l][k].root.weight[i] * cgind[i]
@@ -1599,7 +1599,7 @@ cdef class State:
 
         for l in range(self._[0].soil.number_of_layers_with_root):
             for k in range(nk):
-                if self._[0].soil.cells[l][k].root.age > 0:
+                if self.root_age[l][k] > 0:
                     sumgr = 0  # sum of growth index multiplied by root weight, for all classes in a cell.
                     for i in range(NumRootAgeGroups):
                         sumgr += RootGrowthIndex[i] * self._[0].soil.cells[l][k].root.weight[i]
@@ -1622,10 +1622,9 @@ cdef class State:
         for l in range(self._[0].soil.number_of_layers_with_root):
             for k in range(nk):
                 # Check RootAge to determine if this soil cell contains roots, and then compute root aging and root death by calling RootAging() and RootDeath() for each soil cell with roots.
-                if self._[0].soil.cells[l][k].root.age > 0:
-                    soil_cell = SoilCell.from_ptr(&self._[0].soil.cells[l][k], l, k)
-                    soil_cell.root_aging()
-                    DailyRootLoss += soil_cell.root_death()
+                if self.root_age[l][k] > 0:
+                    self.root_aging(l, k)
+                    DailyRootLoss += self.root_death(l, k)
         # Check if cultivation is executed in this day and call RootCultivation().
         for j in range(5):
             if CultivationDate[j] == self.daynum:

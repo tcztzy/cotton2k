@@ -1,7 +1,6 @@
 cdef extern from "Soil.h":
     ctypedef struct Root:
         double growth_factor
-        double age
         double weight_capable_uptake
         double weight[3]
 
