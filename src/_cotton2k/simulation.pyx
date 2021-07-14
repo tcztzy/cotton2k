@@ -537,6 +537,7 @@ cdef class SoilImpedance:
 
 cdef class Soil:
     cdef cSoil *_
+    cells = np.empty((40, 20), dtype=object)
 
     @property
     def number_of_layers_with_root(self):
@@ -550,6 +551,9 @@ cdef class Soil:
     cdef Soil from_ptr(cSoil *_ptr):
         cdef Soil soil = Soil.__new__(Soil)
         soil._ = _ptr
+        for l in range(40):
+            for k in range(20):
+                soil.cells[l][k] = SoilCell.from_ptr(&_ptr.cells[l][k], l, k)
         return soil
 
     def root_impedance(self):
@@ -602,7 +606,19 @@ cdef class State:
     root_age = np.zeros((40, 20), dtype=np.float64)
 
     def keys(self):
-        return dict(self._[0]).keys()
+        return [
+            "lint_yield",
+            "ginning_percent",
+            "leaf_area_index",
+            "light_interception",
+            "plant_height",
+            *(org + "_weight" for org in ("plant", "stem", "leaf", "root", "petiole", "square", "green_bolls", "open_bolls")),
+            "evapotranspiration",
+            "actual_transpiration",
+            "actual_soil_evaporation",
+            *("number_of_" + org for org in ("squares", "green_bolls", "open_bolls")),
+            "vegetative_branches",
+        ]
 
     @property
     def daynum(self):
@@ -1049,6 +1065,30 @@ cdef class State:
     @property
     def leaf_weight_pre_fruiting(self):
         return self._[0].leaf_weight_pre_fruiting
+
+    @property
+    def evapotranspiration(self):
+        return self._[0].evapotranspiration
+
+    @evapotranspiration.setter
+    def evapotranspiration(self, value):
+        self._[0].evapotranspiration = value
+
+    @property
+    def actual_transpiration(self):
+        return self._[0].actual_transpiration
+
+    @actual_transpiration.setter
+    def actual_transpiration(self, value):
+        self._[0].actual_transpiration = value
+
+    @property
+    def actual_soil_evaporation(self):
+        return self._[0].actual_soil_evaporation
+
+    @actual_soil_evaporation.setter
+    def actual_soil_evaporation(self, value):
+        self._[0].actual_soil_evaporation = value
 
     @property
     def soil(self):
@@ -1531,6 +1571,8 @@ cdef class State:
                 roots += sum(self._[0].soil.cells[l][k].root.weight)
         # Convert total root weight from g per slab to g per plant.
         self.root_weight = roots * 100 * per_plant_area / row_space
+        if self.version >= 0x500:
+            self.root_weight /= 10
 
     def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column):
         # The following constant parameters are used:
