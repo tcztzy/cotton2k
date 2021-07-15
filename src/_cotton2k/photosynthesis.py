@@ -84,4 +84,5 @@ def compute_light_interception(
         else:
             light_interception = zint
         return light_interception if light_interception < 1 else 1
-    return 1 - exp(-1.16 * leaf_area_index)
+    param = max(1.16, -0.1 * plant_height + 8)
+    return 1 - exp(-param * leaf_area_index)

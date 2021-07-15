@@ -2637,6 +2637,7 @@ cdef class Simulation:
         # The following constant parameters. are used in this function:
         cdef double p = 1.6  # parameter of the leaf growth rate equation.
         cdef double[14] vpotlf = [3.0, 0.95, 1.2, 13.5, -0.62143, 0.109365, 0.00137566, 0.025, 0.00005, 30., 0.02, 0.001, 2.50, 0.18]
+        max_smax = 1 if self.version >= 0x500 else float("inf")
         # Calculate water stress reduction factor for leaf growth rate (wstrlf). This has been empirically calibrated in COTTON2K.
         cdef double wstrlf = self._sim.states[u].water_stress * (1 + vpotlf[0] * (2 - self._sim.states[u].water_stress)) - vpotlf[0]
         if wstrlf < 0.05:
@@ -2662,9 +2663,7 @@ cdef class Simulation:
                 PotGroPetioleWeightPreFru[j] = 0
             else:
                 jp1 = j + 1
-                smax = jp1 * (self.cultivar_parameters[2] - self.cultivar_parameters[3] * jp1)
-                if smax < self.cultivar_parameters[4]:
-                    smax = self.cultivar_parameters[4]
+                smax = min(max_smax, max(self.cultivar_parameters[4], jp1 * (self.cultivar_parameters[2] - self.cultivar_parameters[3] * jp1)))
                 c = vpotlf[7] + vpotlf[8] * jp1 * (jp1 - vpotlf[9])
                 rate = smax * c * p * exp(-c * pow(self._sim.states[u].age_of_pre_fruiting_nodes[j], p)) * pow(self._sim.states[u].age_of_pre_fruiting_nodes[j], (p - 1))
                 # Growth rate is modified by water stress and a function of average temperature.
@@ -2689,10 +2688,8 @@ cdef class Simulation:
                     self._sim.states[u].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_petiole_weight = 0
                 else:
                     lp1 = l + 1
-                    smax = self.cultivar_parameters[5] + self.cultivar_parameters[6] * lp1 * (self.cultivar_parameters[7] - lp1)
-                    smax = smax * denfac
-                    if smax < self.cultivar_parameters[4]:
-                        smax = self.cultivar_parameters[4]
+                    smax = denfac * (self.cultivar_parameters[5] + self.cultivar_parameters[6] * lp1 * (self.cultivar_parameters[7] - lp1))
+                    smax = min(max_smax, max(self.cultivar_parameters[4], smax))
                     c = vpotlf[10] + lp1 * vpotlf[11]
                     if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age > 70:
                         rate = 0
@@ -2718,7 +2715,7 @@ cdef class Simulation:
                     else:
                         mp1 = m + 1
                         # smax and c are reduced as a function of node number on this fruiting branch.
-                        smax = smaxx * (1 - self.cultivar_parameters[8] * mp1)
+                        smax = min(max_smax, smaxx * (1 - self.cultivar_parameters[8] * mp1))
                         c = cc * (1 - self.cultivar_parameters[8] * mp1)
                         # Compute potential growth for the leaves on fruiting branches.
                         if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.age > 70:
@@ -2755,8 +2752,7 @@ cdef class Simulation:
                                      self.cultivar_parameters[15], self.cultivar_parameters[16], self.cultivar_parameters[17],
                                      self.cultivar_parameters[18]) * self._sim.states[u].day_inc * self._sim.states[u].water_stress_stem
         cdef double maxstmgr = 0.067  # maximum posible potential stem growth, g dm - 2 day - 1.
-        if PotGroStem > maxstmgr * self._sim.per_plant_area:
-            PotGroStem = maxstmgr * self._sim.per_plant_area
+        PotGroStem = min(maxstmgr * self._sim.per_plant_area, PotGroStem)
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
         cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
         sumpdr = State.from_ptr(&self._sim.states[u], self.year, self.version).potential_root_growth(3, self._sim.states[u].soil.number_of_layers_with_root, self._sim.per_plant_area)
@@ -2764,8 +2760,7 @@ cdef class Simulation:
         PotGroAllRoots = sumpdr * 100 * self._sim.per_plant_area / self.row_space
         # Limit PotGroAllRoots to(maxrtgr * per_plant_area) g per plant per day.
         cdef double maxrtgr = 0.045  # maximum possible potential root growth, g dm - 2 day - 1.
-        if PotGroAllRoots > maxrtgr * self._sim.per_plant_area:
-            PotGroAllRoots = maxrtgr * self._sim.per_plant_area
+        PotGroAllRoots = min(maxrtgr * self._sim.per_plant_area, PotGroAllRoots)
         # Call DryMatterBalance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress.DryMatterBalance() also computes and returns the values of the following arguments:
         # cdleaf is carbohydrate requirement for leaf growth, g per plant per day.
         # cdpet is carbohydrate requirement for petiole growth, g per plant per day.
