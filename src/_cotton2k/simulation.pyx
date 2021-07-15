@@ -1123,6 +1123,37 @@ cdef class State:
     def hours(self):
         return (Hour.from_ptr(&self._[0].hours[i]) for i in range(24))
 
+    def pre_fruiting_node(self, stemNRatio, time_to_next_pre_fruiting_node, time_factor_for_first_two_pre_fruiting_nodes, time_factor_for_third_pre_fruiting_node, initial_pre_fruiting_nodes_leaf_area):
+        """This function checks if a new prefruiting node is to be added, and then sets it."""
+        # The following constant parameter is used:
+        cdef double MaxAgePreFrNode = 66  # maximum age of a prefruiting node (constant)
+        # When the age of the last prefruiting node exceeds MaxAgePreFrNode, this function is not activated.
+        if self._[0].age_of_pre_fruiting_nodes[self.number_of_pre_fruiting_nodes - 1] > MaxAgePreFrNode:
+            return;
+        # Loop over all existing prefruiting nodes.
+        # Increment the age of each prefruiting node in physiological days.
+        for j in range(self.number_of_pre_fruiting_nodes):
+            self._[0].age_of_pre_fruiting_nodes[j] += self.day_inc
+        # For the last prefruiting node (if there are less than 9 prefruiting nodes):
+        # The period (timeToNextPreFruNode) until the formation of the next node is VarPar(31), but it is modified for the first three nodes.
+        # If the physiological age of the last prefruiting node is more than timeToNextPreFruNode, form a new prefruiting node - increase state.number_of_pre_fruiting_nodes, assign the initial average temperature for the new node, and initiate a new leaf on this node.
+        if self.number_of_pre_fruiting_nodes >= 9:
+            return
+        # time, in physiological days, for the next prefruiting node to be formed.
+        if self.number_of_pre_fruiting_nodes <= 2:
+            time_to_next_pre_fruiting_node *= time_factor_for_first_two_pre_fruiting_nodes
+        elif self.number_of_pre_fruiting_nodes == 3:
+            time_to_next_pre_fruiting_node *= time_factor_for_third_pre_fruiting_node
+
+        if self._[0].age_of_pre_fruiting_nodes[self.number_of_pre_fruiting_nodes - 1] >= time_to_next_pre_fruiting_node:
+            self.number_of_pre_fruiting_nodes += 1
+            self._[0].leaf_area_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] = initial_pre_fruiting_nodes_leaf_area
+            self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] = self._[0].leaf_area_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * self.leaf_weight_area_ratio
+            self.leaf_weight += self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1]
+            self.stem_weight -= self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1]
+            self.leaf_nitrogen += self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * stemNRatio
+            self.stem_nitrogen -= self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * stemNRatio
+
     def actual_leaf_growth(self, vratio):
         """This function simulates the actual growth of leaves of cotton plants. It is called from PlantGrowth()."""
         # Loop for all prefruiting node leaves. Added dry weight to each leaf is proportional to PotGroLeafWeightPreFru. Update leaf weight (state.leaf_weight_pre_fruiting) and leaf area (state.leaf_area_pre_fruiting) for each prefruiting node leaf. added dry weight to each petiole is proportional to PotGroPetioleWeightPreFru. update petiole weight (PetioleWeightPreFru) for each prefruiting node leaf.
@@ -3079,7 +3110,7 @@ cdef class Simulation:
         # The following section is executed if the first square has not yet been formed. Function days_to_first_square() is called to compute the number of days to 1st square, and function PreFruitingNode() is called to simulate the formation of prefruiting nodes.
         if self._sim.first_square <= 0:
             self.DaysTo1stSqare = days_to_first_square(state.average_temperature, state.water_stress, state.nitrogen_stress_vegetative, self.cultivar_parameters[30])
-            PreFruitingNode(self._sim.states[u], stemNRatio, self._sim.cultivar_parameters)
+            state.pre_fruiting_node(stemNRatio, *self.cultivar_parameters[31:35])
             # When first square is formed, FirstSquare is assigned the day of year.
             # Function create_first_square() is called for formation of first square.
             if state.kday >= <int>self.DaysTo1stSqare:

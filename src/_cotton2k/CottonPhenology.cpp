@@ -2,7 +2,6 @@
 //
 //   Functions in this file:
 // CottonPhenology()
-// PreFruitingNode()
 // AddFruitingNode()
 // SimulateFruitingSite{}
 // NewBollFormation()
@@ -34,53 +33,6 @@ double FibStrength;        // fiber strength
 //      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////
-void PreFruitingNode(State &state, double stemNRatio, double VarPar[61])
-//     This function checks if a new prefruiting node is to be added, and then sets it.
-//  It is called from function CottonPhenology().
-//     The following global variables are referenced here:
-//        DayInc.
-//     The following argument is used:
-//        stemNRatio - the ratio of N to dry matter in the stems.
-//
-{
-    //     The following constant parameter is used:
-    const double MaxAgePreFrNode = 66; // maximum age of a prefruiting node (constant)
-                                       //     When the age of the last prefruiting node exceeds MaxAgePreFrNode,
-                                       //  this function is not activated.
-    if (state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 1] > MaxAgePreFrNode)
-        return;
-    //      Loop over all existing prefruiting nodes.
-    //      Increment the age of each prefruiting node in physiological days.
-    for (int j = 0; j < state.number_of_pre_fruiting_nodes; j++)
-        state.age_of_pre_fruiting_nodes[j] += state.day_inc;
-    //      For the last prefruiting node (if there are less than 9
-    //  prefruiting nodes): The period (timeToNextPreFruNode) until the formation of the next
-    //  node is VarPar(31), but it is modified for the first three nodes. If
-    //  the physiological age of the last prefruiting node is more than timeToNextPreFruNode,
-    //  form a new prefruiting node - increase state.number_of_pre_fruiting_nodes, assign the initial
-    //  average temperature for the new node, and initiate a new leaf on
-    //  this node.
-    if (state.number_of_pre_fruiting_nodes >= 9)
-        return;
-    double timeToNextPreFruNode; // time, in physiological days, for the next prefruiting node to be formed.
-    timeToNextPreFruNode = VarPar[31];
-    if (state.number_of_pre_fruiting_nodes <= 2)
-        timeToNextPreFruNode *= VarPar[32];
-    else if (state.number_of_pre_fruiting_nodes == 3)
-        timeToNextPreFruNode *= VarPar[33];
-    //
-    if (state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 1] >= timeToNextPreFruNode)
-    {
-        state.number_of_pre_fruiting_nodes++;
-        state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] = VarPar[34];
-        state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] = state.leaf_area_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * state.leaf_weight_area_ratio;
-        state.leaf_weight += state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1];
-        state.stem_weight -= state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1];
-        state.leaf_nitrogen += state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
-        state.stem_nitrogen -= state.leaf_weight_pre_fruiting[state.number_of_pre_fruiting_nodes - 1] * stemNRatio;
-    }
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, double stemNRatio, double density_factor, double VarPar[61], double PhenDelayByNStress)
 //     Function AddFruitingNode() decides if a new node is to be added to a fruiting branch,
