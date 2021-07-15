@@ -45,7 +45,6 @@ cdef extern:
 
 cdef extern from "CottonPhenology.h":
     void SimulateFruitingSite(cSimulation &, uint32_t, int, int, int, int &, const double &)
-    void AddFruitingNode(cState &, int, int, double, double, double, double[61], double)
 
 cdef extern from "FruitAbscission.h":
     void FruitingSitesAbscission(cSimulation &, uint32_t)

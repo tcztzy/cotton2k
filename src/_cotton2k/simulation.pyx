@@ -1154,6 +1154,43 @@ cdef class State:
             self.leaf_nitrogen += self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * stemNRatio
             self.stem_nitrogen -= self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * stemNRatio
 
+    cdef add_fruiting_node(self, int k, int l, double delayFrtByCStress, double stemNRatio, double density_factor, double VarPar[61], double PhenDelayByNStress):
+        """Decide if a new node is to be added to a fruiting branch, and forms it. It is called from function CottonPhenology()."""
+        # The following constant parameters are used:
+        cdef double[6] vfrtnod = [1.32, 0.90, 33.0, 7.6725, -0.3297, 0.004657]
+        # Compute the cumulative delay for the appearance of the next node on the fruiting branch, caused by carbohydrate, nitrogen, and water stresses.
+        self._[0].vegetative_branches[k].fruiting_branches[l].delay_for_new_node += delayFrtByCStress + vfrtnod[0] * PhenDelayByNStress
+        self._[0].vegetative_branches[k].fruiting_branches[l].delay_for_new_node += vfrtnod[1] * (1 - self.water_stress)
+        # Define nnid, and compute the average temperature of the last node of this fruiting branch, from the time it was formed.
+        cdef int nnid = self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes - 1  # the number of the last node on this fruiting branche.
+        cdef double tav = min(self._[0].vegetative_branches[k].fruiting_branches[l].nodes[nnid].average_temperature, vfrtnod[2])  # modified daily average temperature.
+        # Compute TimeToNextFruNode, the time (in physiological days) needed for the formation of each successive node on the fruiting branch. This is a function of temperature, derived from data of K. R. Reddy, CSRU, adjusted for age in physiological days. It is modified for plant density.
+        cdef double TimeToNextFruNode  # time, in physiological days, for the next node on the fruiting branch to be formed
+        TimeToNextFruNode = VarPar[36] + tav * (vfrtnod[3] + tav * (vfrtnod[4] + tav * vfrtnod[5]))
+        TimeToNextFruNode = TimeToNextFruNode * (1 + VarPar[37] * (1 - density_factor)) + self._[0].vegetative_branches[k].fruiting_branches[l].delay_for_new_node
+        # Check if the the age of the last node on the fruiting branch exceeds TimeToNextFruNode.
+        # If so, form the new node:
+        if self._[0].vegetative_branches[k].fruiting_branches[l].nodes[nnid].age < TimeToNextFruNode:
+            return
+        # Increment NumNodes, define newnod, and assign 1 to FruitFraction and FruitingCode.
+        self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes += 1
+        if self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes > 5:
+            self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 5
+            return
+        cdef int newnod = nnid + 1  # the number of the new node on this fruiting branche.
+        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].fraction = 1
+        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].stage = Stage.Square
+        # Initiate a new leaf at the new node. The mass and nitrogen in the new leaf is substacted from the stem.
+        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.area = VarPar[34]
+        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight = VarPar[34] * self.leaf_weight_area_ratio
+        self.stem_weight -= self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight
+        self.leaf_weight += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight
+        self.leaf_nitrogen += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio
+        self.stem_nitrogen -= self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio
+        # Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.
+        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].average_temperature = self.average_temperature
+        self._[0].vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0
+
     def actual_leaf_growth(self, vratio):
         """This function simulates the actual growth of leaves of cotton plants. It is called from PlantGrowth()."""
         # Loop for all prefruiting node leaves. Added dry weight to each leaf is proportional to PotGroLeafWeightPreFru. Update leaf weight (state.leaf_weight_pre_fruiting) and leaf area (state.leaf_area_pre_fruiting) for each prefruiting node leaf. added dry weight to each petiole is proportional to PotGroPetioleWeightPreFru. update petiole weight (PetioleWeightPreFru) for each prefruiting node leaf.
@@ -3076,7 +3113,7 @@ cdef class Simulation:
         """
         This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
 
-        CottonPhenology() calls PreFruitingNode(), days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), AddFruitingNode(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        CottonPhenology() calls PreFruitingNode(), days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), add_fruiting_node(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
         """
         state = self.state(u)
         # The following constant parameters are used:
@@ -3136,10 +3173,10 @@ cdef class Simulation:
         for k in range(self._sim.states[u].number_of_vegetative_branches):
             if self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches < 30:
                 self.state(u).add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
-            # Loop over all existing fruiting branches, and call AddFruitingNode() to decide if a new node on this fruiting branch is to be added.
+            # Loop over all existing fruiting branches, and call add_fruiting_node() to decide if a new node on this fruiting branch is to be added.
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
-                    AddFruitingNode(self._sim.states[u], k, l, delayFrtByCStress, stemNRatio, self._sim.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
+                    state.add_fruiting_node(k, l, delayFrtByCStress, stemNRatio, self._sim.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
                 # Loop over all existing fruiting nodes, and call SimulateFruitingSite() to simulate the condition of each fruiting node.
                 for m in range(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes):
                     SimulateFruitingSite(self._sim, u, k, l, m, nwfl, self._sim.states[u].water_stress)

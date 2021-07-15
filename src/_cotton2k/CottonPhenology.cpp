@@ -2,7 +2,6 @@
 //
 //   Functions in this file:
 // CottonPhenology()
-// AddFruitingNode()
 // SimulateFruitingSite{}
 // NewBollFormation()
 // BollOpening()
@@ -33,68 +32,6 @@ double FibStrength;        // fiber strength
 //      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-void AddFruitingNode(State &state, int k, int l, double delayFrtByCStress, double stemNRatio, double density_factor, double VarPar[61], double PhenDelayByNStress)
-//     Function AddFruitingNode() decides if a new node is to be added to a fruiting branch,
-//  and forms it. It is called from function CottonPhenology().
-//     The following global variables are referenced here:
-//  AdjAddSitesRate, AgeOfSite, WaterStress,
-//     The following global variable are set here:
-//        AvrgNodeTemper, DelayNewNode, FruitFraction, FruitingCode, LeafAreaNodes, LeafWeightNodes,
-//        NumNodes.
-//     The following arguments are used in this function:
-//        delayFrtByCStress - delay caused by carbohydrate and nitrogen stresses.
-//        k, l - indices of this vegetative branch and fruiting branch.
-//        stemNRatio - the ratio of n to dm in the stems.
-//
-{
-    //     The following constant parameters are used:
-    const double vfrtnod[6] = {1.32, 0.90, 33.0, 7.6725, -0.3297, 0.004657};
-    //      Compute the cumulative delay for the appearance of the next
-    //  node on the fruiting branch, caused by carbohydrate, nitrogen, and
-    //  water stresses.
-    state.vegetative_branches[k].fruiting_branches[l].delay_for_new_node += delayFrtByCStress + vfrtnod[0] * PhenDelayByNStress;
-    state.vegetative_branches[k].fruiting_branches[l].delay_for_new_node += vfrtnod[1] * (1 - state.water_stress);
-    //     Define nnid, and compute the average temperature of the last
-    //  node of this fruiting branch, from the time it was formed.
-    int nnid = state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes - 1;     // the number of the last node on this fruiting branche.
-    double tav = state.vegetative_branches[k].fruiting_branches[l].nodes[nnid].average_temperature; // modified daily average temperature.
-    if (tav > vfrtnod[2])
-        tav = vfrtnod[2];
-    //     Compute TimeToNextFruNode, the time (in physiological days) needed for the
-    //  formation of each successive node on the fruiting branch. This is
-    //  a function of temperature, derived from data of K. R. Reddy, CSRU,
-    //  adjusted for age in physiological days. It is modified for plant density.
-    double TimeToNextFruNode; // time, in physiological days, for the next node on the fruiting branch to be formed
-    TimeToNextFruNode = VarPar[36] + tav * (vfrtnod[3] + tav * (vfrtnod[4] + tav * vfrtnod[5]));
-    TimeToNextFruNode = TimeToNextFruNode * (1 + VarPar[37] * (1 - density_factor)) + state.vegetative_branches[k].fruiting_branches[l].delay_for_new_node;
-    //     Check if the the age of the last node on the fruiting branch exceeds TimeToNextFruNode.
-    //  If so, form the new node:
-    if (state.vegetative_branches[k].fruiting_branches[l].nodes[nnid].age < TimeToNextFruNode)
-        return;
-    //     Increment NumNodes, define newnod, and assign 1 to FruitFraction and FruitingCode.
-    state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes++;
-    if (state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes > 5)
-    {
-        state.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 5;
-        return;
-    }
-    int newnod = nnid + 1; // the number of the new node on this fruiting branche.
-    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].fraction = 1;
-    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].stage = Stage::Square;
-    //     Initiate a new leaf at the new node. The mass and nitrogen in
-    //  the new leaf is substacted from the stem.
-    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.area = VarPar[34];
-    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight = VarPar[34] * state.leaf_weight_area_ratio;
-    state.stem_weight -= state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight;
-    state.leaf_weight += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight;
-    state.leaf_nitrogen += state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio;
-    state.stem_nitrogen -= state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio;
-    //     Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.
-    state.vegetative_branches[k].fruiting_branches[l].nodes[newnod].average_temperature = state.average_temperature;
-    state.vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0;
-}
-
 //////////////////////////////////////////////////
 void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &WaterStress)
 //     Function SimulateFruitingSite() simulates the development of each fruiting site.
