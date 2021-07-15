@@ -60,6 +60,9 @@ from .cxx cimport (
     RootNitrogen,
     RootWeightLoss,
     SoilHorizonNum,
+    TotalActualLeafGrowth,
+    TotalActualPetioleGrowth,
+    PetioleWeightPreFru,
 )
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
@@ -1119,6 +1122,181 @@ cdef class State:
     @property
     def hours(self):
         return (Hour.from_ptr(&self._[0].hours[i]) for i in range(24))
+
+    def actual_leaf_growth(self, vratio):
+        """This function simulates the actual growth of leaves of cotton plants. It is called from PlantGrowth()."""
+        # Loop for all prefruiting node leaves. Added dry weight to each leaf is proportional to PotGroLeafWeightPreFru. Update leaf weight (state.leaf_weight_pre_fruiting) and leaf area (state.leaf_area_pre_fruiting) for each prefruiting node leaf. added dry weight to each petiole is proportional to PotGroPetioleWeightPreFru. update petiole weight (PetioleWeightPreFru) for each prefruiting node leaf.
+        # Compute total leaf weight (state.leaf_weight), total petiole weight (PetioleWeightNodes), and state.leaf_area.
+        for j in range(self.number_of_pre_fruiting_nodes): # loop by prefruiting node.
+            self._[0].leaf_weight_pre_fruiting[j] += PotGroLeafWeightPreFru[j] * vratio
+            self.leaf_weight += self._[0].leaf_weight_pre_fruiting[j]
+            PetioleWeightPreFru[j] += PotGroPetioleWeightPreFru[j] * vratio
+            self.petiole_weight += PetioleWeightPreFru[j]
+            self._[0].leaf_area_pre_fruiting[j] += PotGroLeafAreaPreFru[j] * vratio
+            self.leaf_area += self._[0].leaf_area_pre_fruiting[j]
+        # Loop for all fruiting branches on each vegetative branch, to compute actual growth of mainstem leaves.
+        # Added dry weight to each leaf is proportional to PotGroLeafWeightMainStem, added dry weight to each petiole is proportional to PotGroPetioleWeightMainStem, and added area to each leaf is proportional to PotGroLeafAreaMainStem.
+        # Update leaf weight (LeafWeightMainStem), petiole weight (PetioleWeightMainStem) and leaf area(LeafAreaMainStem) for each main stem node leaf.
+        # Update the total leaf weight (state.leaf_weight), total petiole weight (state.petiole_weight) and total area (state.leaf_area).
+        for k in range(self.number_of_vegetative_branches):  # loop of vegetative branches
+            for l in range(self.vegetative_branches[k].number_of_fruiting_branches):  # loop of fruiting branches
+                self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.leaf_weight += self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_weight * vratio
+                self.leaf_weight += self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.leaf_weight
+                self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.petiole_weight += self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_petiole_weight * vratio
+                self.petiole_weight += self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.petiole_weight
+                self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.leaf_area += self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.potential_growth_for_leaf_area * vratio
+                self.leaf_area += self._[0].vegetative_branches[k].fruiting_branches[l].main_stem_leaf.leaf_area
+                # Loop for all fruiting nodes on each fruiting branch. to compute actual growth of fruiting node leaves.
+                # Added dry weight to each leaf is proportional to PotGroLeafWeightNodes, added dry weight to each petiole is proportional to PotGroPetioleWeightNodes, and added area to each leaf is proportional to PotGroLeafAreaNodes.
+                # Update leaf weight (LeafWeightNodes), petiole weight (PetioleWeightNodes) and leaf area (LeafAreaNodes) for each fruiting node leaf.
+                # Compute total leaf weight (state.leaf_weight), total petiole weight (PetioleWeightNodes) and total area (state.leaf_area).
+                for m in range(self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes):  # loop of nodes on a fruiting branch
+                    self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.weight += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * self.leaf_weight_area_ratio * vratio
+                    self.leaf_weight += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.weight
+                    self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.weight += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth * vratio
+                    self.petiole_weight += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.weight
+                    self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.area += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * vratio
+                    self.leaf_area += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.area
+
+    def dry_matter_balance(self, per_plant_area) -> tuple[float, float, float, float, float]:
+        """This function computes the cotton plant dry matter (carbon) balance, its allocation to growing plant parts, and carbon stress. It is called from PlantGrowth()."""
+        global ReserveC, TotalActualLeafGrowth, TotalActualPetioleGrowth, ActualStemGrowth, CarbonAllocatedForRootGrowth
+        # The following constant parameters are used:
+        cdef double[15] vchbal = [6.0, 2.5, 1.0, 5.0, 0.20, 0.80, 0.48, 0.40, 0.2072, 0.60651, 0.0065, 1.10, 4.0, 0.25, 4.0]
+        # Assign values for carbohydrate requirements for growth of stems, roots, leaves, petioles, squares and bolls. Potential growth of all plant parts is modified by nitrogen stresses.
+        cdef double cdsqar  # carbohydrate requirement for square growth, g per plant per day.
+        cdsqar = PotGroAllSquares * (self.nitrogen_stress_fruiting + vchbal[0]) / (vchbal[0] + 1)
+        cdef double cdboll # carbohydrate requirement for boll and burr growth, g per plant per day.
+        cdboll = (PotGroAllBolls + PotGroAllBurrs) * (self.nitrogen_stress_fruiting + vchbal[0]) / (vchbal[0] + 1)
+        # cdleaf is carbohydrate requirement for leaf growth, g per plant per day.
+        cdleaf = PotGroAllLeaves * (self.nitrogen_stress_vegetative + vchbal[1]) / (vchbal[1] + 1)
+        # cdstem is carbohydrate requirement for stem growth, g per plant per day.
+        cdstem = PotGroStem * (self.nitrogen_stress_vegetative + vchbal[2]) / (vchbal[2] + 1)
+        # cdroot is carbohydrate requirement for root growth, g per plant per day.
+        cdroot = PotGroAllRoots * (self.nitrogen_stress_root + vchbal[3]) / (vchbal[3] + 1)
+        # cdpet is carbohydrate requirement for petiole growth, g per plant per day.
+        cdpet = PotGroAllPetioles * (self.nitrogen_stress_vegetative + vchbal[14]) / (vchbal[14] + 1)
+        cdef double cdsum  # total carbohydrate requirement for plant growth, g per plant per day.
+        cdsum = cdstem + cdleaf + cdpet + cdroot + cdsqar + cdboll
+        cdef double cpool  # total available carbohydrates for growth (cpool, g per plant).
+        # cpool is computed as: net photosynthesis plus a fraction (vchbal(13) ) of the stored reserves (ReserveC).
+        cpool = NetPhotosynthesis + ReserveC * vchbal[13]
+        # Compute CarbonStress as the ratio of available to required carbohydrates.
+        if cdsum <= 0:
+            self.carbon_stress = 1
+            return cdstem, cdleaf, cdpet, cdroot, 0  # Exit function if cdsum is 0.
+        self.carbon_stress = min(1, cpool / cdsum)
+        # When carbohydrate supply is sufficient for growth requirements, CarbonStress will be assigned 1, and the carbohydrates actually supplied for plant growth (TotalActualLeafGrowth, TotalActualPetioleGrowth, ActualStemGrowth, CarbonAllocatedForRootGrowth, pdboll, pdsq) will be equal to the required amounts.
+        cdef double pdboll  # amount of carbohydrates allocated to boll growth.
+        cdef double pdsq  # amount of carbohydrates allocated to square growth.
+        cdef double xtrac1, xtrac2  # first and second components of ExtraCarbon.
+        if self.carbon_stress == 1:
+            TotalActualLeafGrowth = cdleaf
+            TotalActualPetioleGrowth = cdpet
+            ActualStemGrowth = cdstem
+            CarbonAllocatedForRootGrowth = cdroot
+            pdboll = cdboll
+            pdsq = cdsqar
+            xtrac1 = 0
+        # When carbohydrate supply is less than the growth requirements, set priorities for allocation of carbohydrates.
+        else:
+            # cavail remaining available carbohydrates.
+            # First priority is for fruit growth. Compute the ratio of available carbohydrates to the requirements for boll and square growth (bsratio).
+            if (cdboll + cdsqar) > 0:
+                # ratio of available carbohydrates to the requirements for boll and square growth.
+                bsratio = cpool / (cdboll + cdsqar)
+                # ffr is ratio of actual supply of carbohydrates to the requirement for boll and square growth.
+                # The factor ffr is a function of bsratio and WaterStress. It is assumed that water stress increases allocation of carbohydrates to bolls. Check that ffr is not less than zero, or greater than 1 or than bsratio.
+                ffr = min(max((vchbal[5] + vchbal[6] * (1 - self.water_stress)) * bsratio, 0), 1)
+                ffr = min(bsratio, ffr)
+                # Now compute the actual carbohydrates used for boll and square growth, and the remaining available carbohydrates.
+                pdboll = cdboll * ffr
+                pdsq = cdsqar * ffr
+                cavail = cpool - pdboll - pdsq
+            else:
+                cavail = cpool
+                pdboll = 0
+                pdsq = 0
+            # The next priority is for leaf and petiole growth. Compute the factor flf for leaf growth allocation, and check that it is not less than zero or greater than 1.
+            if (cdleaf + cdpet) > 0:
+                # ratio of actual supply of carbohydrates to the requirement for leaf growth.
+                flf = min(max(vchbal[7] * cavail / (cdleaf + cdpet), 0), 1)
+                # Compute the actual carbohydrates used for leaf and petiole growth, and the
+                # remaining available carbohydrates.
+                TotalActualLeafGrowth = cdleaf * flf
+                TotalActualPetioleGrowth = cdpet * flf
+                cavail -= (TotalActualLeafGrowth + TotalActualPetioleGrowth)
+            else:
+                TotalActualLeafGrowth = 0
+                TotalActualPetioleGrowth = 0
+            # The next priority is for root growth.
+            if cdroot > 0:
+                # ratio between carbohydrate supply to root and to stem growth.
+                # At no water stress conditions, ratio is an exponential function of dry weight of vegetative shoot (stem + leaves). This equation is based on data from Avi Ben-Porath's PhD thesis.
+                # ratio is modified (calibrated) by vchbal[11].
+                ratio = vchbal[8] + vchbal[9] * exp(-vchbal[10] * (self.stem_weight + self.leaf_weight + self.petiole_weight) *
+                                                    per_plant_area)
+                ratio *= vchbal[11]
+                # rtmax is the proportion of remaining available carbohydrates that can be supplied to root growth. This is increased by water stress.
+                rtmax = ratio / (ratio + 1)
+                rtmax = rtmax * (1 + vchbal[12] * (1 - self.water_stress))
+                rtmax = min(rtmax, 1)
+                # Compute the factor frt for root growth allocation, as a function of rtmax, and check that it is not less than zero or greater than 1.
+                # ratio of actual supply of carbohydrates to the requirement for root growth.
+                frt = min(max(rtmax * cavail / cdroot, 0), 1)
+                # Compute the actual carbohydrates used for root growth, and the remaining available carbohydrates.
+                CarbonAllocatedForRootGrowth = max((cdroot * frt), (cavail - cdstem))
+                cavail -= CarbonAllocatedForRootGrowth
+            else:
+                CarbonAllocatedForRootGrowth = 0
+            # The remaining available carbohydrates are used for stem growth. Compute thefactor fst and the actual carbohydrates used for stem growth.
+            if cdstem > 0:
+                # ratio of actual supply of carbohydrates to the requirement for stem growth.
+                fst = min(max(cavail / cdstem, 0), 1)
+                ActualStemGrowth = cdstem * fst
+            else:
+                ActualStemGrowth = 0
+            # If there are any remaining available unused carbohydrates, define them as xtrac1.
+            if cavail > ActualStemGrowth:
+                xtrac1 = cavail - ActualStemGrowth
+            else:
+                xtrac1 = 0
+        # Check that the amounts of carbohydrates supplied to each organ will not be less than zero.
+        if ActualStemGrowth < 0:
+            ActualStemGrowth = 0
+        if TotalActualLeafGrowth < 0:
+            TotalActualLeafGrowth = 0
+        if TotalActualPetioleGrowth < 0:
+            TotalActualPetioleGrowth = 0
+        if CarbonAllocatedForRootGrowth < 0:
+            CarbonAllocatedForRootGrowth = 0
+        if pdboll < 0:
+            pdboll = 0
+        if pdsq < 0:
+            pdsq = 0
+        # Update the amount of reserve carbohydrates (ReserveC) in the leaves.
+        ReserveC = ReserveC + NetPhotosynthesis - (ActualStemGrowth + TotalActualLeafGrowth + TotalActualPetioleGrowth + CarbonAllocatedForRootGrowth + pdboll + pdsq)
+        cdef double resmax  # maximum possible amount of carbohydrate reserves that can be stored in the leaves.
+        # resmax is a fraction (vchbal[4])) of leaf weight. Excessive reserves are defined as xtrac2.
+        resmax = vchbal[4] * self.leaf_weight
+        if ReserveC > resmax:
+            xtrac2 = ReserveC - resmax
+            ReserveC = resmax
+        else:
+            xtrac2 = 0
+        # ExtraCarbon is computed as total excessive carbohydrates.
+        self.extra_carbon = xtrac1 + xtrac2
+        # Compute state.fruit_growth_ratio as the ratio of carbohydrates supplied to square and boll growth to their carbohydrate requirements.
+        if (PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs) > 0:
+            self.fruit_growth_ratio = (pdsq + pdboll) / (PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs)
+        else:
+            self.fruit_growth_ratio = 1
+        # Compute vratio as the ratio of carbohydrates supplied to leaf and petiole growth to their carbohydrate requirements.
+        if (PotGroAllLeaves + PotGroAllPetioles) > 0:
+            vratio = (TotalActualLeafGrowth + TotalActualPetioleGrowth) / (PotGroAllLeaves + PotGroAllPetioles)
+        else:
+            vratio = 1
+        return cdstem, cdleaf, cdpet, cdroot, vratio
 
     def create_first_square(self, stemNRatio, first_square_leaf_area):
         """
@@ -2766,8 +2944,7 @@ cdef class Simulation:
         # cdpet is carbohydrate requirement for petiole growth, g per plant per day.
         # cdroot is carbohydrate requirement for root growth, g per plant per day.
         # cdstem is carbohydrate requirement for stem growth, g per plant per day.
-        cdef double cdstem, cdleaf, cdpet, cdroot
-        DryMatterBalance(self._sim.states[u], cdstem, cdleaf, cdpet, cdroot, self._sim.per_plant_area)
+        cdstem, cdleaf, cdpet, cdroot, vratio = state.dry_matter_balance(self._sim.per_plant_area)
         # If it is after first square, call ActualFruitGrowth() to compute actual
         # growth rate of squares and bolls.
         if self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed:
@@ -2782,7 +2959,7 @@ cdef class Simulation:
             self._sim.states[u].leaf_area = 0.6 * cotylwt
         self._sim.states[u].petiole_weight = 0
         # Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
-        ActualLeafGrowth(self._sim.states[u])
+        state.actual_leaf_growth(vratio)
         self._sim.states[u].leaf_area_index = self._sim.states[u].leaf_area / self._sim.per_plant_area
         # Add ActualStemGrowth to state.stem_weight, and define StemWeight(Kday) for this day.
         self._sim.states[u].stem_weight += ActualStemGrowth

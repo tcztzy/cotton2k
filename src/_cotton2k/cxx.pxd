@@ -90,6 +90,7 @@ cdef extern from "global.h":
     double PotGroLeafAreaPreFru[9]
     double PotGroLeafWeightPreFru[9]
     double PotGroPetioleWeightPreFru[9]
+    double PetioleWeightPreFru[9]
     int DefoliationDate[5]
     int DefoliationMethod[5]
     double PercentDefoliation
@@ -109,3 +110,5 @@ cdef extern from "global.h":
     double RootNitrogen
     double RootWeightLoss
     int SoilHorizonNum[40]
+    double TotalActualLeafGrowth
+    double TotalActualPetioleGrowth
