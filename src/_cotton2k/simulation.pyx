@@ -1129,7 +1129,7 @@ cdef class State:
         cdef double MaxAgePreFrNode = 66  # maximum age of a prefruiting node (constant)
         # When the age of the last prefruiting node exceeds MaxAgePreFrNode, this function is not activated.
         if self._[0].age_of_pre_fruiting_nodes[self.number_of_pre_fruiting_nodes - 1] > MaxAgePreFrNode:
-            return;
+            return
         # Loop over all existing prefruiting nodes.
         # Increment the age of each prefruiting node in physiological days.
         for j in range(self.number_of_pre_fruiting_nodes):
@@ -1146,13 +1146,21 @@ cdef class State:
             time_to_next_pre_fruiting_node *= time_factor_for_third_pre_fruiting_node
 
         if self._[0].age_of_pre_fruiting_nodes[self.number_of_pre_fruiting_nodes - 1] >= time_to_next_pre_fruiting_node:
+            if self.version >= 0x500:
+                leaf_weight = min(initial_pre_fruiting_nodes_leaf_area * self.leaf_weight_area_ratio, self.stem_weight - 0.2)
+                if leaf_weight <= 0:
+                    return
+                leaf_area = leaf_weight / self.leaf_weight_area_ratio
+            else:
+                leaf_area = initial_pre_fruiting_nodes_leaf_area
+                leaf_weight = leaf_area * self.leaf_weight_area_ratio
             self.number_of_pre_fruiting_nodes += 1
-            self._[0].leaf_area_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] = initial_pre_fruiting_nodes_leaf_area
-            self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] = self._[0].leaf_area_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * self.leaf_weight_area_ratio
-            self.leaf_weight += self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1]
-            self.stem_weight -= self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1]
-            self.leaf_nitrogen += self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * stemNRatio
-            self.stem_nitrogen -= self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] * stemNRatio
+            self._[0].leaf_area_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] = leaf_area
+            self._[0].leaf_weight_pre_fruiting[self.number_of_pre_fruiting_nodes - 1] = leaf_weight
+            self.leaf_weight += leaf_weight
+            self.stem_weight -= leaf_weight
+            self.leaf_nitrogen += leaf_weight * stemNRatio
+            self.stem_nitrogen -= leaf_weight * stemNRatio
 
     cdef add_fruiting_node(self, int k, int l, double delayFrtByCStress, double stemNRatio, double density_factor, double VarPar[61], double PhenDelayByNStress):
         """Decide if a new node is to be added to a fruiting branch, and forms it. It is called from function CottonPhenology()."""
@@ -1170,23 +1178,28 @@ cdef class State:
         TimeToNextFruNode = TimeToNextFruNode * (1 + VarPar[37] * (1 - density_factor)) + self._[0].vegetative_branches[k].fruiting_branches[l].delay_for_new_node
         # Check if the the age of the last node on the fruiting branch exceeds TimeToNextFruNode.
         # If so, form the new node:
-        if self._[0].vegetative_branches[k].fruiting_branches[l].nodes[nnid].age < TimeToNextFruNode:
+        if self._[0].vegetative_branches[k].fruiting_branches[l].nodes[nnid].age < TimeToNextFruNode or self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes == 5:
             return
         # Increment NumNodes, define newnod, and assign 1 to FruitFraction and FruitingCode.
+        if self.version >= 0x500:
+            leaf_weight = min(VarPar[34] * self.leaf_weight_area_ratio, self.stem_weight - 0.2)
+            if leaf_weight <= 0:
+                return
+            leaf_area = leaf_weight / self.leaf_weight_area_ratio
+        else:
+            leaf_area = VarPar[34]
+            leaf_weight = leaf_area * self.leaf_weight_area_ratio
         self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes += 1
-        if self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes > 5:
-            self._[0].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes = 5
-            return
         cdef int newnod = nnid + 1  # the number of the new node on this fruiting branche.
         self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].fraction = 1
         self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].stage = Stage.Square
         # Initiate a new leaf at the new node. The mass and nitrogen in the new leaf is substacted from the stem.
-        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.area = VarPar[34]
-        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight = VarPar[34] * self.leaf_weight_area_ratio
-        self.stem_weight -= self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight
-        self.leaf_weight += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight
-        self.leaf_nitrogen += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio
-        self.stem_nitrogen -= self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight * stemNRatio
+        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.area = leaf_area
+        self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].leaf.weight = leaf_weight
+        self.stem_weight -= leaf_weight
+        self.leaf_weight += leaf_weight
+        self.leaf_nitrogen += leaf_weight * stemNRatio
+        self.stem_nitrogen -= leaf_weight * stemNRatio
         # Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.
         self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].average_temperature = self.average_temperature
         self._[0].vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0
@@ -1377,16 +1390,23 @@ cdef class State:
         first_node.stage = Stage.Square
         first_node.fraction = 1
         # Initialize a new leaf at this position. define its initial weight and area. VarPar[34] is the initial area of a new leaf. The mass and nitrogen of the new leaf are substacted from the stem.
-        first_node.leaf.area = first_square_leaf_area
-        first_node.leaf.weight = first_square_leaf_area * self.leaf_weight_area_ratio
-        self.stem_weight -= first_node.leaf.weight
-        self.leaf_weight += first_node.leaf.weight
-        self.leaf_nitrogen += first_node.leaf.weight * stemNRatio
-        self.stem_nitrogen -= first_node.leaf.weight * stemNRatio
+        if self.version >= 0x500:
+            leaf_weight = min(first_square_leaf_area * self.leaf_weight_area_ratio, self.stem_weight - 0.2)
+            leaf_area = leaf_weight / self.leaf_weight_area_ratio
+        else:
+            leaf_area = first_square_leaf_area
+            leaf_weight = leaf_area * self.leaf_weight_area_ratio
+        first_node.leaf.area = leaf_area
+        first_node.leaf.weight = leaf_weight
+        self.stem_weight -= leaf_weight
+        self.leaf_weight += leaf_weight
+        self.leaf_nitrogen += leaf_weight * stemNRatio
+        self.stem_nitrogen -= leaf_weight * stemNRatio
         first_node.average_temperature = self.average_temperature
         # Define the initial values of NumFruitBranches, NumNodes, state.fruit_growth_ratio, and AvrgNodeTemper.
         self.fruit_growth_ratio = 1
-        # It is assumed that the cotyledons are dropped at time of first square. compute changes in AbscisedLeafWeight, state.leaf_weight, state.leaf_nitrogen and CumPlantNLoss caused by the abscission of the cotyledons.
+        # It is assumed that the cotyledons are dropped at time of first square.
+        # Compute changes in AbscisedLeafWeight, state.leaf_weight, state.leaf_nitrogen and CumPlantNLoss caused by the abscission of the cotyledons.
         cdef double cotylwt = 0.20  # cotylwt is the leaf weight of the cotyledons.
         self.abscised_leaf_weight += cotylwt
         self.leaf_weight -= cotylwt
@@ -1575,6 +1595,14 @@ cdef class State:
         if vegetative_branch.number_of_fruiting_branches > 30:
             vegetative_branch.number_of_fruiting_branches = 30
             return
+        if self.version >= 0x500:
+            leaf_weight = min(new_node_initial_leaf_area * self.leaf_weight_area_ratio, self.stem_weight - 0.2)
+            if leaf_weight <= 0:
+                return
+            leaf_area = leaf_weight / self.leaf_weight_area_ratio
+        else:
+            leaf_area = new_node_initial_leaf_area
+            leaf_weight = leaf_area * self.leaf_weight_area_ratio
         cdef int newbr  # the index number of the new fruiting branch on this vegetative branch, after a new branch has been added.
         newbr = vegetative_branch.number_of_fruiting_branches - 1
         new_branch = vegetative_branch.fruiting_branches[-1]
@@ -1583,11 +1611,12 @@ cdef class State:
         new_node.fraction = 1
         new_node.stage = Stage.Square
         # Initiate new leaves at the first node of the new fruiting branch, and at the corresponding main stem node. The mass and nitrogen in the new leaves is substacted from the stem.
-        new_node.leaf.area = new_node_initial_leaf_area
-        new_node.leaf.weight = new_node_initial_leaf_area * self.leaf_weight_area_ratio
+        new_node.leaf.area = leaf_area
+        new_node.leaf.weight = leaf_weight
         main_stem_leaf = new_branch.main_stem_leaf
-        main_stem_leaf.area = new_node_initial_leaf_area
-        main_stem_leaf.weight = main_stem_leaf.area * self.leaf_weight_area_ratio
+
+        main_stem_leaf.area = leaf_area
+        main_stem_leaf.weight = leaf_weight
         self.stem_weight -= main_stem_leaf.weight + new_node.leaf.weight
         self.leaf_weight += main_stem_leaf.weight + new_node.leaf.weight
         # addlfn is the nitrogen added to new leaves from stem.
