@@ -3041,11 +3041,9 @@ cdef class Simulation:
         if self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed:
             self._potential_fruit_growth(u)
         # Active stem tissue(stemnew) is the difference between state.stem_weight and the value of StemWeight(kkday).
-        cdef int voldstm = 32  # constant parameter(days for stem tissue to become "old")
-        cdef int kkday = self._sim.states[u].kday - voldstm  # age of young stem tissue
-        if kkday < 1:
-            kkday = 1
-        cdef double stemnew = self._sim.states[u].stem_weight - StemWeight[kkday]  # dry weight of active stem tissue.
+        voldstm = 32  # constant parameter(days for stem tissue to become "old")
+        kkday = max(u - voldstm, self._sim.day_emerge - self._sim.day_start)  # age of young stem tissue
+        cdef double stemnew = state.stem_weight - self.state(kkday).stem_weight  # dry weight of active stem tissue.
         # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
         # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
         # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
