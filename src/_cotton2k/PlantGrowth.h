@@ -12,8 +12,6 @@ extern "C"
 
 void CheckDryMatterBal(State &);
 
-void LeafWaterPotential(State &, double);
-
 void DryMatterBalance(State &, double &, double &, double &, double &, double);
 
 void ActualFruitGrowth(State &);

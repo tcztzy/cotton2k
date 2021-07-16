@@ -3,7 +3,7 @@
 from datetime import datetime, date, timedelta
 from math import sin, cos, acos, sqrt, pi
 
-from libc.math cimport exp
+from libc.math cimport exp, log
 from libc.stdlib cimport malloc
 from libcpp cimport bool as bool_t
 from libcpp.string cimport string
@@ -11,7 +11,7 @@ from libcpp.string cimport string
 import numpy as np
 
 from _cotton2k.climate import compute_day_length, radiation
-from _cotton2k.leaf import temperature_on_leaf_growth_rate
+from _cotton2k.leaf import temperature_on_leaf_growth_rate, leaf_resistance_for_transpiration
 from _cotton2k.phenology import days_to_first_square
 from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
 from _cotton2k.soil import compute_soil_surface_albedo, compute_incoming_short_wave_radiation, root_psi
@@ -24,7 +24,6 @@ from .cxx cimport (
     DayTimeTemp,
     FoliageTemp,
     NightTimeTemp,
-    LeafWaterPotential,
     StemWeight,
     AverageLwpMin,
     AverageLwp,
@@ -63,9 +62,11 @@ from .cxx cimport (
     TotalActualLeafGrowth,
     TotalActualPetioleGrowth,
     PetioleWeightPreFru,
+    AverageSoilPsi,
+    thts,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
+from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth, wcond
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf, StateBase
 from .fruiting_site cimport FruitingSite, Leaf
 
@@ -316,6 +317,14 @@ cdef class SoilCell:
 
 cdef class NodeLeaf:
     cdef Leaf *_
+
+    @property
+    def age(self):
+        return self._[0].age
+
+    @age.setter
+    def age(self, value):
+        self._[0].age = value
 
     @property
     def area(self):
@@ -706,6 +715,105 @@ cdef class State(StateBase):
         # Begin computing AvrgNodeTemper of the new node, and assign zero to DelayNewNode.
         self._[0].vegetative_branches[k].fruiting_branches[l].nodes[newnod].average_temperature = self.average_temperature
         self._[0].vegetative_branches[k].fruiting_branches[l].delay_for_new_node = 0
+
+    def leaf_water_potential(self, double row_space):
+        """This function simulates the leaf water potential of cotton plants.
+
+        It has been adapted from the model of Moshe Meron (The relation of cotton leaf water potential to soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
+        """
+        global LwpMax, LwpMin
+        # Constant parameters used:
+        cdef double cmg = 3200  # length in cm per g dry weight of roots, based on an average
+        # root diameter of 0.06 cm, and a specific weight of 0.11 g dw per cubic cm.
+        cdef double psild0 = -1.32  # maximum values of LwpMin
+        cdef double psiln0 = -0.40  # maximum values of LwpMax.
+        cdef double rtdiam = 0.06  # average root diameter in cm.
+        cdef double[13] vpsil = [0.48, -5.0, 27000., 4000., 9200., 920., 0.000012, -0.15, -1.70, -3.5, 0.1e-9, 0.025, 0.80]
+        # Leaf water potential is not computed during 10 days after emergence. Constant values are assumed for this period.
+        if self.kday <= 10:
+            LwpMax = psiln0
+            LwpMin = psild0
+            return
+        # Compute shoot resistance (rshoot) as a function of plant height.
+        cdef double rshoot  # shoot resistance, Mpa hours per cm.
+        rshoot = vpsil[0] * self.plant_height / 100
+        # Assign zero to summation variables
+        cdef double psinum = 0  # sum of RootWtCapblUptake for all soil cells with roots.
+        cdef double rootvol = 0  # sum of volume of all soil cells with roots.
+        cdef double rrlsum = 0  # weighted sum of reciprocals of rrl.
+        cdef double rroot = 0  # root resistance, Mpa hours per cm.
+        cdef double sumlv = 0  # weighted sum of root length, cm, for all soil cells with roots.
+        cdef double vh2sum = 0  # weighted sum of soil water content, for all soil cells with roots.
+        # Loop over all soil cells with roots. Check if RootWtCapblUptake is greater than vpsil[10].
+        # All average values computed for the root zone, are weighted by RootWtCapblUptake (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
+        cdef double rrl  # root resistance per g of active roots.
+        for l in range(self.soil.number_of_layers_with_root):
+            for k in range(self._[0].soil.layers[l].number_of_left_columns_with_root, self._[0].soil.layers[l].number_of_right_columns_with_root):
+                if self._[0].soil.cells[l][k].root.weight_capable_uptake >= vpsil[10]:
+                    psinum += min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11])
+                    sumlv += min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg
+                    rootvol += dl(l) * wk(k, row_space)
+                    if SoilPsi[l][k] <= vpsil[1]:
+                        rrl = vpsil[2] / cmg
+                    else:
+                        rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k])) / cmg
+                    rrlsum += min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl
+                    vh2sum += self.soil.cells[l][k].water_content * min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11])
+        # Compute average root resistance (rroot) and average soil water content (vh2).
+        cdef double dumyrs  # intermediate variable for computing cond.
+        cdef double vh2  # average of soil water content, for all soil soil cells with roots.
+        if psinum > 0 and sumlv > 0:
+            rroot = psinum / rrlsum
+            vh2 = vh2sum / psinum
+            dumyrs = sqrt(1 / (pi * sumlv / rootvol)) / rtdiam
+            if (dumyrs < 1.001):
+                dumyrs = 1.001
+        else:
+            rroot = 0
+            vh2 = thad[0]
+            dumyrs = 1.001
+        # Compute hydraulic conductivity (cond), and soil resistance near the root surface  (rsoil).
+        cdef double cond  # soil hydraulic conductivity near the root surface.
+        cond = wcond(vh2, thad[0], thts[0], vanGenuchtenBeta[0], SaturatedHydCond[0], PoreSpace[0]) / 24
+        cond = cond * 2 * sumlv / rootvol / log(dumyrs)
+        if cond < vpsil[6]:
+            cond = vpsil[6]
+        cdef double rsoil = 0.0001 / (2 * pi * cond)  # soil resistance, Mpa hours per cm.
+        # Compute leaf resistance (leaf_resistance_for_transpiration) as the average of the resistances of all existing leaves.
+        # The resistance of an individual leaf is a function of its age.
+        # Function leaf_resistance_for_transpiration is called to compute it. This is executed for all the leaves of the plant.
+        cdef int numl = 0  # number of leaves.
+        cdef double sumrl = 0  # sum of leaf resistances for all the plant.
+        for j in range(self.number_of_pre_fruiting_nodes):  # loop prefruiting nodes
+            numl += 1
+            sumrl += leaf_resistance_for_transpiration(self.age_of_pre_fruiting_nodes[j])
+
+        for k in range(self.number_of_vegetative_branches):  # loop for all other nodes
+            for l in range(self.vegetative_branches[k].number_of_fruiting_branches):
+                for m in range(self.vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes):
+                    numl += 1
+                    sumrl += leaf_resistance_for_transpiration(self.vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.age)
+        cdef double rleaf = sumrl / numl  # leaf resistance, Mpa hours per cm.
+
+        cdef double rtotal = rsoil + rroot + rshoot + rleaf  # The total resistance to transpiration, MPa hours per cm, (rtotal) is computed.
+        # Compute maximum (early morning) leaf water potential, LwpMax, from soil water potential (AverageSoilPsi, converted from bars to MPa).
+        # Check for minimum and maximum values.
+        LwpMax = vpsil[7] + 0.1 * AverageSoilPsi
+        if LwpMax < vpsil[8]:
+            LwpMax = vpsil[8]
+        if LwpMax > psiln0:
+            LwpMax = psiln0
+        # Compute minimum (at time of maximum transpiration rate) leaf water potential, LwpMin, from maximum transpiration rate (etmax) and total resistance to transpiration (rtotal).
+        cdef double etmax = 0  # the maximum hourly rate of evapotranspiration for this day.
+        for ihr in range(24):  # hourly loop
+            if self._[0].hours[ihr].ref_et > etmax:
+                etmax = self._[0].hours[ihr].ref_et
+        LwpMin = LwpMax - 0.1 * max(etmax, vpsil[12]) * rtotal
+        # Check for minimum and maximum values.
+        if LwpMin < vpsil[9]:
+            LwpMin = vpsil[9]
+        if LwpMin > psild0:
+            LwpMin = psild0
 
     def actual_leaf_growth(self, vratio):
         """This function simulates the actual growth of leaves of cotton plants. It is called from PlantGrowth()."""
@@ -1189,7 +1297,7 @@ cdef class State(StateBase):
             # If the lateral reaches a new soil soil cell: a proportion (tran) of mass of roots is transferred to the new soil cell.
             if self.rlat1[l] > sumwk and ktip > 0:
                 # column into which the tip of the lateral grows to left.
-                newktip = ktip - 1;
+                newktip = ktip - 1
                 for i in range(NumRootAgeGroups):
                     tran = self._[0].soil.cells[l][ktip].root.weight[i] * rtran
                     self._[0].soil.cells[l][ktip].root.weight[i] -= tran
@@ -2238,11 +2346,12 @@ cdef class Simulation:
         EvapoTranspiration(self._sim.states[u], self.latitude, self.elevation, declination, tmpisr, SitePar[7])
 
     def _stress(self, u):
+        state = self.state(u)
         global AverageLwpMin, AverageLwp, LwpMin, LwpMax
         # The following constant parameters are used:
         cdef double[9] vstrs = [-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05]
-        # Call LeafWaterPotential() to compute leaf water potentials.
-        LeafWaterPotential(self._sim.states[u], self.row_space)
+        # Call state.leaf_water_potential() to compute leaf water potentials.
+        state.leaf_water_potential(self.row_space)
         # The running averages, for the last three days, are computed:
         # AverageLwpMin is the average of LwpMin, and AverageLwp of LwpMin + LwpMax.
         AverageLwpMin += (LwpMin - LwpMinX[2]) / 3

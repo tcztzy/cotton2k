@@ -16,3 +16,4 @@ cdef extern:
     double SoilAirOnRootGrowth(double, double, double)
     double SoilMechanicResistance(double)
     double SoilTemOnRootGrowth(double)
+    double wcond(double, double, double, double, double, double)
