@@ -506,5 +506,13 @@ cdef class StateBase:
     def pavail(self, value):
         self._[0].pavail = value
 
+    @property
+    def deep_soil_temperature(self):
+        return self._[0].deep_soil_temperature
+
+    @deep_soil_temperature.setter
+    def deep_soil_temperature(self, value):
+        self._[0].deep_soil_temperature = value
+
     def __getitem__(self, item):
         return getattr(self, item)

@@ -98,6 +98,7 @@ cdef extern from "State.hpp":
         double fruit_growth_ratio
         double ginning_percent
         double average_temperature
+        double deep_soil_temperature
         double pavail
         bool_t pollination_switch
         double age_of_pre_fruiting_nodes[9]

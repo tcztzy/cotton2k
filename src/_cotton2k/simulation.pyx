@@ -2122,7 +2122,7 @@ cdef class Simulation:
 
         Wierenga, P.J., Nielsen, D.R. and Hagan, R.M. 1969. Thermal properties of soil based upon field and laboratory measurements. Soil Sci. Soc. Am. Proc. 33:354-360.
         """
-        global DeepSoilTemperature
+        state = self.state(u)
         if u == 0:
             SoilTemperatureInit(self._sim)
         # Compute dts, the daily change in deep soil temperature (C), as a site-dependent function of Daynum.
@@ -2157,14 +2157,14 @@ cdef class Simulation:
         # Start hourly loop of iterations.
         for ihr in range(iter1):
             # Update the temperature of the last soil layer (lower boundary conditions).
-            DeepSoilTemperature += dts * dlt / 86400
+            state.deep_soil_temperature += dts * dlt / 86400
             etp0 = 0  # actual transpiration (mm s-1) for this hour
             if self._sim.states[u].evapotranspiration > 0.000001:
                 etp0 = self._sim.states[u].actual_transpiration * self._sim.states[u].hours[ihr].ref_et / self._sim.states[u].evapotranspiration / dlt
             # Compute vertical transport for each column
             for k in range(kk):
                 #  Set SoilTemp for the lowest soil layer.
-                SoilTemp[nl - 1][k] = DeepSoilTemperature
+                SoilTemp[nl - 1][k] = state.deep_soil_temperature
                 # Compute transpiration from each column, weighted by its relative shading.
                 etp1 = 0  # actual hourly transpiration (mm s-1) for a column.
                 if shadeav > 0.000001:

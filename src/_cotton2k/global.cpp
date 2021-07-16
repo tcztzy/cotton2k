@@ -74,7 +74,6 @@ double
     CumWaterDrained,                  // cumulative water drained out from the slab, mm.
     DayTimeTemp,                      // average day-time temperature, C.
     dclay,                            // aggregation factor for clay in water.
-    DeepSoilTemperature,              // boundary soil temperature of deepest layer (K)
     DefoliantAppRate[5],              // rate of defoliant application in pints per acre.
     DepthLastRootLayer,               // the depth to the end of the last layer with roots (cm).
     dsand,                            // aggregation factor for sand in water.

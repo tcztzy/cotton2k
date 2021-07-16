@@ -22,7 +22,7 @@ void SoilTemperatureInit(Simulation &sim)
 //     The following global variables are referenced here:
 //  Clim (structure), nl, SitePar.
 //     The following global variables are set here:
-//  DeepSoilTemperature, SoilTemp.
+//  SoilTemp.
 {
     //     Compute initial values of soil temperature: It is assumed that at the start of simulation
     //  the temperature of the first soil layer (upper boundary) is equal to the average air temperature
@@ -37,15 +37,14 @@ void SoilTemperatureInit(Simulation &sim)
     tsi1 = tsi1 / 10;
     //     The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function
     //  of day of year, with site-specific parameters.
-    DeepSoilTemperature = SitePar[9] + SitePar[10] * sin(2 * pi * (sim.day_start - SitePar[11]) / 365);
+    sim.states[0].deep_soil_temperature = SitePar[9] + SitePar[10] * sin(2 * pi * (sim.day_start - SitePar[11]) / 365) + 273.161;
     //     SoilTemp is assigned to all columns, converted to degrees K.
     tsi1 += 273.161;
-    DeepSoilTemperature += 273.161;
     for (int l = 0; l < nl; l++)
     {
         //     The temperatures of the other soil layers are linearly interpolated.
         //  tsi = computed initial soil temperature, C, for each layer
-        double tsi = ((nl - l - 1) * tsi1 + l * DeepSoilTemperature) / (nl - 1);
+        double tsi = ((nl - l - 1) * tsi1 + l * sim.states[0].deep_soil_temperature) / (nl - 1);
         for (int k = 0; k < nk; k++)
             SoilTemp[l][k] = tsi;
     }

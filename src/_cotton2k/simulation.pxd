@@ -2,7 +2,6 @@ from libc.stdint cimport uint32_t
 
 from .cxx cimport (
 BulkDensity,
-DeepSoilTemperature,
 DefoliantAppRate,
 DefoliationDate,
 DefoliationMethod,
