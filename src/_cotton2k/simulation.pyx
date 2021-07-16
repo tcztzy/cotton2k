@@ -3023,9 +3023,7 @@ cdef class Simulation:
         # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
         PotGroStem = PotentialStemGrowth(stemnew, self._sim.states[u].kday,
                                      self._sim.states[u].vegetative_branches[0].fruiting_branches[2].nodes[0].stage, self._sim.density_factor,
-                                     self.cultivar_parameters[12], self.cultivar_parameters[13], self.cultivar_parameters[14],
-                                     self.cultivar_parameters[15], self.cultivar_parameters[16], self.cultivar_parameters[17],
-                                     self.cultivar_parameters[18]) * self._sim.states[u].day_inc * self._sim.states[u].water_stress_stem
+                                     *self.cultivar_parameters[12:19]) * self._sim.states[u].day_inc * self._sim.states[u].water_stress_stem
         cdef double maxstmgr = 0.067  # maximum posible potential stem growth, g dm - 2 day - 1.
         PotGroStem = min(maxstmgr * self._sim.per_plant_area, PotGroStem)
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
