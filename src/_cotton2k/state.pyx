@@ -498,5 +498,13 @@ cdef class StateBase:
     def actual_soil_evaporation(self, value):
         self._[0].actual_soil_evaporation = value
 
+    @property
+    def pavail(self):
+        return self._[0].pavail
+
+    @pavail.setter
+    def pavail(self, value):
+        self._[0].pavail = value
+
     def __getitem__(self, item):
         return getattr(self, item)

@@ -104,6 +104,7 @@ typedef struct State
     double fruit_growth_ratio;                  // ratio between actual and potential square and boll growth.
     double ginning_percent;                     // weighted average ginning percentage of all open bolls.
     double average_temperature;                 // average daily temperature, C, for 24 hours.
+    double pavail;                              // residual available carbon for root growth from previous day.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     double age_of_pre_fruiting_nodes[9];        // age of each prefruiting node, physiological days.
     int number_of_pre_fruiting_nodes;           // number of prefruiting nodes, per plant.

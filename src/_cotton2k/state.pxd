@@ -98,6 +98,7 @@ cdef extern from "State.hpp":
         double fruit_growth_ratio
         double ginning_percent
         double average_temperature
+        double pavail
         bool_t pollination_switch
         double age_of_pre_fruiting_nodes[9]
         int number_of_pre_fruiting_nodes
@@ -112,4 +113,3 @@ cdef class StateBase:
     cdef cState *_
     cdef public unsigned int year
     cdef public unsigned int version
-    cdef double pavail  # residual available carbon for root growth from previous day.
