@@ -106,3 +106,10 @@ cdef extern from "State.hpp":
         cVegetativeBranch vegetative_branches[3]
         cHour hours[24]
         cSoil soil
+
+
+cdef class StateBase:
+    cdef cState *_
+    cdef public unsigned int year
+    cdef public unsigned int version
+    cdef double pavail  # residual available carbon for root growth from previous day.
