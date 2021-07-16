@@ -776,8 +776,7 @@ cdef class State(StateBase):
         cdef double cond  # soil hydraulic conductivity near the root surface.
         cond = wcond(vh2, thad[0], thts[0], vanGenuchtenBeta[0], SaturatedHydCond[0], PoreSpace[0]) / 24
         cond = cond * 2 * sumlv / rootvol / log(dumyrs)
-        if cond < vpsil[6]:
-            cond = vpsil[6]
+        cond = max(cond, vpsil[6])
         cdef double rsoil = 0.0001 / (2 * pi * cond)  # soil resistance, Mpa hours per cm.
         # Compute leaf resistance (leaf_resistance_for_transpiration) as the average of the resistances of all existing leaves.
         # The resistance of an individual leaf is a function of its age.
@@ -798,22 +797,13 @@ cdef class State(StateBase):
         cdef double rtotal = rsoil + rroot + rshoot + rleaf  # The total resistance to transpiration, MPa hours per cm, (rtotal) is computed.
         # Compute maximum (early morning) leaf water potential, LwpMax, from soil water potential (AverageSoilPsi, converted from bars to MPa).
         # Check for minimum and maximum values.
-        LwpMax = vpsil[7] + 0.1 * AverageSoilPsi
-        if LwpMax < vpsil[8]:
-            LwpMax = vpsil[8]
-        if LwpMax > psiln0:
-            LwpMax = psiln0
+        LwpMax = min(max(vpsil[7] + 0.1 * AverageSoilPsi, vpsil[8]), psiln0)
         # Compute minimum (at time of maximum transpiration rate) leaf water potential, LwpMin, from maximum transpiration rate (etmax) and total resistance to transpiration (rtotal).
         cdef double etmax = 0  # the maximum hourly rate of evapotranspiration for this day.
         for ihr in range(24):  # hourly loop
             if self._[0].hours[ihr].ref_et > etmax:
                 etmax = self._[0].hours[ihr].ref_et
-        LwpMin = LwpMax - 0.1 * max(etmax, vpsil[12]) * rtotal
-        # Check for minimum and maximum values.
-        if LwpMin < vpsil[9]:
-            LwpMin = vpsil[9]
-        if LwpMin > psild0:
-            LwpMin = psild0
+        LwpMin = min(max(LwpMax - 0.1 * max(etmax, vpsil[12]) * rtotal, vpsil[9]), psild0)
 
     def actual_leaf_growth(self, vratio):
         """This function simulates the actual growth of leaves of cotton plants. It is called from PlantGrowth()."""
