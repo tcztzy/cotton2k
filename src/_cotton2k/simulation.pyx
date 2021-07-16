@@ -65,7 +65,7 @@ from .cxx cimport (
     PetioleWeightPreFru,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, PotentialStemGrowth, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
+from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf
 from .fruiting_site cimport FruitingSite, Leaf
 
@@ -1412,6 +1412,34 @@ cdef class State:
         self.leaf_weight -= cotylwt
         self.cumulative_nitrogen_loss += cotylwt * self.leaf_nitrogen / self.leaf_weight
         self.leaf_nitrogen -= cotylwt * self.leaf_nitrogen / self.leaf_weight
+
+    @staticmethod
+    def potential_stem_growth(
+        stem_dry_weight: float,
+        days_since_emergence: int,
+        third_fruiting_branch_stage: Stage,
+        density_factor: float,
+        var12: float,
+        var13: float,
+        var14: float,
+        var15: float,
+        var16: float,
+        var17: float,
+        var18: float,
+    ) -> float:
+        """Computes and returns the potential stem growth of cotton plants."""
+        # There are two periods for computation of potential stem growth:
+        # (1) Before the appearance of a square on the third fruiting branch.
+        # Potential stem growth is a function of plant age (days from emergence).
+        if third_fruiting_branch_stage == Stage.NotYetFormed:
+            return var12 * (var13 + var14 * days_since_emergence)
+        # (2) After the appearance of a square on the third fruiting branch.
+        # It is assumed that all stem tissue that is more than 32 days old is not active.
+        # Potential stem growth is a function of active stem tissue weight, and plant density.
+        else:
+            # effect of plant density on stem growth rate.
+            return max(1. - var15 * (1. - density_factor), 0.2) * var16 * (var17 + var18 * stem_dry_weight)
+
 
     def init_root_data(self, uint32_t plant_row_column, double mul):
         for l in range(40):
@@ -3021,14 +3049,14 @@ cdef class Simulation:
         # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
         # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
         # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
-        PotGroStem = PotentialStemGrowth(stemnew, self._sim.states[u].kday,
+        PotGroStem = state.potential_stem_growth(stemnew, self._sim.states[u].kday,
                                      self._sim.states[u].vegetative_branches[0].fruiting_branches[2].nodes[0].stage, self._sim.density_factor,
                                      *self.cultivar_parameters[12:19]) * self._sim.states[u].day_inc * self._sim.states[u].water_stress_stem
         cdef double maxstmgr = 0.067  # maximum posible potential stem growth, g dm - 2 day - 1.
         PotGroStem = min(maxstmgr * self._sim.per_plant_area, PotGroStem)
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
         cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
-        sumpdr = State.from_ptr(&self._sim.states[u], self.year, self.version).potential_root_growth(3, self._sim.states[u].soil.number_of_layers_with_root, self._sim.per_plant_area)
+        sumpdr = state.potential_root_growth(3, self._sim.states[u].soil.number_of_layers_with_root, self._sim.per_plant_area)
         # Total potential growth rate of roots is converted from g per slab(sumpdr) to g per plant(PotGroAllRoots).
         PotGroAllRoots = sumpdr * 100 * self._sim.per_plant_area / self.row_space
         # Limit PotGroAllRoots to(maxrtgr * per_plant_area) g per plant per day.
