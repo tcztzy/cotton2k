@@ -19,7 +19,7 @@ extern "C"{
     double PsiOnTranspiration(double);
 }
 
-void NitrogenUptake(SoilCell &, int, int, double, double, double);
+void NitrogenUptake(State &, SoilCell &, int, int, double, double, double);
 
 void WaterBalance(double[], double[], double [], int);
 
@@ -154,8 +154,8 @@ void WaterUptake(Simulation &sim, unsigned int u)
     state.actual_transpiration = sumep * 10 / sim.row_space;
 
     // Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
-    SupplyNH4N = 0;
-    SupplyNO3N = 0;
+    state.supplied_nitrate_nitrogen = 0;
+    state.supplied_ammonium_nitrogen = 0;
 
     // Compute the proportional N requirement from each soil cell with roots, and call function NitrogenUptake() to compute nitrogen uptake.
     if (sumep > 0 && state.total_required_nitrogen > 0) {
@@ -164,14 +164,14 @@ void WaterUptake(Simulation &sim, unsigned int u)
                 if (uptk[l][k] > 0) {
                     double reqnc; // proportional allocation of TotalRequiredN to each cell
                     reqnc = state.total_required_nitrogen * uptk[l][k] / sumep;
-                    NitrogenUptake(state.soil.cells[l][k], l, k, reqnc, sim.row_space, sim.per_plant_area);
+                    NitrogenUptake(state, state.soil.cells[l][k], l, k, reqnc, sim.row_space, sim.per_plant_area);
                 } // end if uptk
             } // end loop k & l
     } // end if sumep
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_space, double per_plant_area)
+void NitrogenUptake(State &state, SoilCell &soil_cell, int l, int k, double reqnc, double row_space, double per_plant_area)
 //     The function NitrogenUptake() computes the uptake of nitrate and ammonium N
 //  from a soil cell. It is called by WaterUptake().
 //     The arguments of this function are:
@@ -179,7 +179,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
 //        reqnc - maximum N uptake (proportional to total N
 //                required for plant growth), g N per plant.
 //     The following global variables are set here:
-//       SupplyNH4N, SupplyNO3N, VolNh4NContent, VolNo3NContent
+//       VolNh4NContent, VolNo3NContent
 {
 //     Constant parameters:
     const double halfn = 0.08;// the N concentration in soil water (mg cm-3) at which
@@ -208,8 +208,8 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
             soil_cell.nitrate_nitrogen_content -= upmax;
             upno3c = upmax / coeff;
         }
-//     upno3c is added to the total uptake by the plant (SupplyNO3N).
-        SupplyNO3N += upno3c;
+//     upno3c is added to the total uptake by the plant (supplied_nitrate_nitrogen).
+        state.supplied_nitrate_nitrogen += upno3c;
     }
 //     Ammonium in the soil is in a dynamic equilibrium between the adsorbed and the soluble
 //  fractions. The parameters p1 and p2 are used to compute the dissolved concentration,
@@ -223,7 +223,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
         double AmmonNDissolved; // ammonium N dissolved in soil water, mg cm-3 of soil
         AmmonNDissolved = 0.5 * (sqrt(ee) - bb);
 //     Uptake of ammonium N is now computed from AmmonNDissolved , using the Michaelis-Menten
-//  method, as for nitrate. upnh4c is added to the total uptake SupplyNH4N.
+//  method, as for nitrate. upnh4c is added to the total uptake supplied_ammonium_nitrogen.
         if (AmmonNDissolved > 0) {
             double upnh4c; // uptake rate of ammonium, g N per plant per day
             upnh4c = reqnc * AmmonNDissolved / (halfn * soil_cell.water_content + AmmonNDissolved);
@@ -235,7 +235,7 @@ void NitrogenUptake(SoilCell &soil_cell, int l, int k, double reqnc, double row_
                 VolNh4NContent[l][k] -= upmax;
                 upnh4c = upmax / coeff;
             }
-            SupplyNH4N += upnh4c;
+            state.supplied_ammonium_nitrogen += upnh4c;
         }
     }
 }

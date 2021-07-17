@@ -113,6 +113,8 @@ typedef struct State
     double actual_boll_growth;                  // total actual growth of seedcotton in bolls, g plant-1 day-1.
     double actual_burr_growth;                  // total actual growth of burrs in bolls, g plant-1 day-1.
     double carbon_allocated_for_root_growth;    // available carbon allocated for root growth, g per plant.
+    double supplied_nitrate_nitrogen;           // uptake of nitrate by the plant from the soil, mg N per slab per day.
+    double supplied_ammonium_nitrogen;          // uptake of ammonia N by the plant from the soil, mg N per slab per day.
     double petiole_nitrate_nitrogen_concentration; // average nitrate nitrogen concentration in petioles.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     double age_of_pre_fruiting_nodes[9];        // age of each prefruiting node, physiological days.

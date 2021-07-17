@@ -41,8 +41,6 @@ void InitializeGlobal()
     SoilNitrogenLoss = 0;
     StemNConc = 0.036;
     SumNO3N90 = 0;
-    SupplyNH4N = 0;
-    SupplyNO3N = 0;
 
     WaterTableLayer = 1000;
 //

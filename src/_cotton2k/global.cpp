@@ -129,8 +129,6 @@ double
     StemNConc,                        // ratio of stem nitrogen to dry matter.
     StemWeight[365],                  // stem weight added at each day, g per plant.
     SumNO3N90,                        // sum of soil nitrate n, 0-90 cm depth, in kg/ha.
-    SupplyNH4N,                       // uptake of ammonia N by the plant from the soil, mg N per slab per day.
-    SupplyNO3N,                       // uptake of nitrate by the plant from the soil, mg N per slab per day.
     TapRootLength,                    // the length of the taproot, in cm.
     thad[maxl],                       // residual volumetric water content of soil layers (at air-dry condition), cm3 cm-3.
     thetar[maxl],                     // volumetric water content of soil layers at permanent wilting point (-15 bars), cm3 cm-3.

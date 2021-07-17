@@ -184,7 +184,7 @@ void NitrogenSupply(State &state)
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       reqtot, SupplyNH4N, SupplyNO3N.
+//       reqtot.
 //     The following global and file scope variables are set here:
 //       burres, leafrs, npool, PetioleNitrogen, petrs,
 //       RootNitrogen, rootrs, stemrs, uptn, xtran.
@@ -200,7 +200,7 @@ void NitrogenSupply(State &state)
     const double vrtnmin = .010;                  //  minimum N contents of roots
     const double vstmnmin = .006;                 //  minimum N contents of stems
                                                   //     uptn is the total supply of nitrogen to the plant by uptake of nitrate and ammonium.
-    uptn = SupplyNO3N + SupplyNH4N;
+    uptn = state.supplied_nitrate_nitrogen + state.supplied_ammonium_nitrogen;
     double resn; // total reserve N, in g per plant.
                  //     If total N requirement is less than the supply, define npool as the supply and
                  //  assign zero to the N reserves in all organs.

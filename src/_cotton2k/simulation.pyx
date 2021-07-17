@@ -1858,6 +1858,8 @@ cdef class Simulation:
         state0.total_actual_leaf_growth = 0
         state0.total_actual_petiole_growth = 0
         state0.carbon_allocated_for_root_growth = 0
+        state0.supplied_ammonium_nitrogen = 0
+        state0.supplied_nitrate_nitrogen = 0
         state0.petiole_nitrate_nitrogen_concentration = 0
         for i in range(9):
             state0.age_of_pre_fruiting_nodes[i] = 0

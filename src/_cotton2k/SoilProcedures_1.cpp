@@ -51,7 +51,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
 //     The following global variables are referenced here:
 //       ActualTranspiration, Clim, DayStartPredIrrig, DayStopPredIrrig,
 //       dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk, nl, NumIrrigations,
-//       NumWaterTableData, SoilPsi, SupplyNH4N, SupplyNO3N.
+//       NumWaterTableData, SoilPsi,
 //     The following global variables are set here:
 //       AverageSoilPsi, CumNitrogenUptake, CumTranspiration, CumWaterAdded, LocationColumnDrip,
 //       LocationLayerDrip, noitr.
@@ -108,7 +108,7 @@ void SoilProcedures(Simulation &sim, uint32_t u)
                                             //     Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake
                                             //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
         state.cumulative_transpiration += state.actual_transpiration;
-        CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10 * sim.row_space / sim.per_plant_area;
+        CumNitrogenUptake += (state.supplied_nitrate_nitrogen + state.supplied_ammonium_nitrogen) * 10 * sim.row_space / sim.per_plant_area;
     }
     //     Call function WaterTable() for saturating soil below water table.
     if (NumWaterTableData > 0)

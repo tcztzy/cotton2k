@@ -563,6 +563,22 @@ cdef class StateBase:
         self._[0].carbon_allocated_for_root_growth = value
 
     @property
+    def supplied_nitrate_nitrogen(self):
+        return self._[0].supplied_nitrate_nitrogen
+
+    @supplied_nitrate_nitrogen.setter
+    def supplied_nitrate_nitrogen(self, value):
+        self._[0].supplied_nitrate_nitrogen = value
+
+    @property
+    def supplied_ammonium_nitrogen(self):
+        return self._[0].supplied_ammonium_nitrogen
+
+    @supplied_ammonium_nitrogen.setter
+    def supplied_ammonium_nitrogen(self, value):
+        self._[0].supplied_ammonium_nitrogen = value
+
+    @property
     def deep_soil_temperature(self):
         return self._[0].deep_soil_temperature
 
