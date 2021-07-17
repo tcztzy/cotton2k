@@ -80,7 +80,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //       NitrogenUptakeRequirement().
 //     The following global variables are referenced here:
 //       BurrNConc, Kday, LeafNConc,
-//       PetioleNConc, PetioleNConc, PetioleNitrogen, RootNConc,
+//       PetioleNConc, PetioleNConc, RootNConc,
 //       RootNitrogen, SeedNConc, StemNConc.
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs,
@@ -186,7 +186,7 @@ void NitrogenSupply(State &state)
 //     The following global variables are referenced here:
 //       reqtot.
 //     The following global and file scope variables are set here:
-//       burres, leafrs, npool, PetioleNitrogen, petrs,
+//       burres, leafrs, npool, petrs,
 //       RootNitrogen, rootrs, stemrs, uptn, xtran.
 {
     //     The following constant parameters are used:
@@ -232,14 +232,14 @@ void NitrogenSupply(State &state)
         double rpetno3; // ratio of NO3 N to total N in petioles.
         rpetno3 = PetioleNitrateN(state);
         double petrs1, petrs2; // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
-        petrs1 = (PetioleNitrogen * (1 - rpetno3) - vpetnmin * state.petiole_weight) * MobilizNFractionLeaves;
+        petrs1 = (state.petiole_nitrogen * (1 - rpetno3) - vpetnmin * state.petiole_weight) * MobilizNFractionLeaves;
         if (petrs1 < 0)
             petrs1 = 0;
-        petrs2 = (PetioleNitrogen * rpetno3 - vpno3min * state.petiole_weight) * MobilizNFractionLeaves;
+        petrs2 = (state.petiole_nitrogen * rpetno3 - vpno3min * state.petiole_weight) * MobilizNFractionLeaves;
         if (petrs2 < 0)
             petrs2 = 0;
         petrs = petrs1 + petrs2;
-        PetioleNitrogen -= petrs;
+        state.petiole_nitrogen -= petrs;
         //  Stem N reserves.
         stemrs = (state.stem_nitrogen - vstmnmin * state.stem_weight) * MobilizNFractionStemRoot;
         if (stemrs < 0)
@@ -319,8 +319,7 @@ void NitrogenAllocation(State &state)
 //  the plant parts. It is called from PlantNitrogen().
 //
 //     The following global and file scope variables are set here:
-//       addnf, addnr, addnv, npool, PetioleNitrogen,
-//       RootNitrogen, xtran.
+//       addnf, addnr, addnv, npool, RootNitrogen, xtran.
 //     The following global and file scope variables are referenced in this function:
 //       reqtot, rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm
 {
@@ -337,7 +336,7 @@ void NitrogenAllocation(State &state)
     if (reqtot <= npool)
     {
         state.leaf_nitrogen += rqnlef;
-        PetioleNitrogen += rqnpet;
+        state.petiole_nitrogen += rqnpet;
         state.stem_nitrogen += rqnstm;
         RootNitrogen += rqnrut;
         state.square_nitrogen += rqnsqr;
@@ -398,7 +397,7 @@ void NitrogenAllocation(State &state)
     if (rqnpet > 0)
     {
         useofn = std::min(vpetnmax * npool, rqnpet);
-        PetioleNitrogen += useofn;
+        state.petiole_nitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
@@ -422,7 +421,7 @@ void ExtraNitrogenAllocation(State &state)
 //     The following global and file scope variables are referenced here:
 //       burres, leafrs, petrs, rootrs, stemrs, xtran.
 //     The following global variables are set here:
-//       PetioleNitrogen, RootNitrogen.
+//       RootNitrogen.
 {
     //     If there are any N reserves in the plant, allocate remaining xtran in proportion to
     //  the N reserves in each of these organs. Note: all reserves are in g per plant units.
@@ -457,7 +456,7 @@ void ExtraNitrogenAllocation(State &state)
     //  nitrogen allocation, only vegetative parts and burrs are updated (not
     //  seeds or squares).
     state.leaf_nitrogen += addlfn;
-    PetioleNitrogen += addpetn;
+    state.petiole_nitrogen += addpetn;
     state.stem_nitrogen += addstm;
     RootNitrogen += addrt;
     state.burr_nitrogen += addbur;
@@ -470,7 +469,7 @@ void PlantNitrogenContent(State &state)
 //  function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       PetioleNitrogen, RootNitrogen.
+//       RootNitrogen.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, RootNConc,
 //       SeedNConc, StemNConc.
@@ -482,7 +481,7 @@ void PlantNitrogenContent(State &state)
         state.leaf_nitrogen_concentration = state.leaf_nitrogen / state.leaf_weight;
     if (state.petiole_weight > 0.00001)
     {
-        state.petiole_nitrogen_concentration = PetioleNitrogen / state.petiole_weight;
+        state.petiole_nitrogen_concentration = state.petiole_nitrogen / state.petiole_weight;
         state.petiole_nitrate_nitrogen_concentration = state.petiole_nitrogen_concentration * PetioleNitrateN(state);
     }
     if (state.stem_weight > 0)

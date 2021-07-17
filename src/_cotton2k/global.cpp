@@ -97,7 +97,6 @@ double
     NightTimeTemp,                    // average night-time temperature, C.
     NO3FlowFraction[maxl],            // fraction of nitrate that can move to the next layer.
     PercentDefoliation,               // percentage of leaves abscised as a result of defoliant application.
-    PetioleNitrogen,                  // total petiole nitrogen, g per plant.
     PetioleWeightPreFru[9],           // weight of prefruiting node petioles, g.
     PlantRowLocation,                 // distance of plant row from slab edge, cm.
     PoreSpace[maxl],                  // pore space of soil, volume fraction.

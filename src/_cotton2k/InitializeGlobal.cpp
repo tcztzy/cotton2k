@@ -31,7 +31,6 @@ void InitializeGlobal()
     NumWaterTableData = 0;
 
     PercentDefoliation = 0;
-    PetioleNitrogen = 0;
     PotGroStem = 0;
 
     ReserveC = 0.06;

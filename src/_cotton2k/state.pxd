@@ -109,6 +109,7 @@ cdef extern from "State.hpp":
         double carbon_allocated_for_root_growth
         double supplied_nitrate_nitrogen
         double supplied_ammonium_nitrogen
+        double petiole_nitrogen
         double petiole_nitrate_nitrogen_concentration
         bool_t pollination_switch
         double age_of_pre_fruiting_nodes[9]
