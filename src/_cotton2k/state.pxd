@@ -91,6 +91,7 @@ cdef extern from "State.hpp":
         double seed_nitrogen_concentration
         double seed_nitrogen
         double root_nitrogen_concentration
+        double root_nitrogen
         double square_nitrogen_concentration
         double burr_nitrogen
         double square_nitrogen

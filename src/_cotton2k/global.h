@@ -46,7 +46,7 @@ extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
     PercentDefoliation,
     PlantRowLocation, PotGroAllBolls, PotGroAllBurrs,
     PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem,
-    RatioImplicit, ReserveC, RootNitrogen, RootWeightLoss, SoilNitrogenLoss,
+    RatioImplicit, ReserveC, RootWeightLoss, SoilNitrogenLoss,
     StemNConc, SumNO3N90,
     TapRootLength, TotalSoilNh4N,
     TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater;

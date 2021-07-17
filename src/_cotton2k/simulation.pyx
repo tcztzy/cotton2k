@@ -54,7 +54,6 @@ from .cxx cimport (
     LastTaprootLayer,
     DepthLastRootLayer,
     TapRootLength,
-    RootNitrogen,
     RootWeightLoss,
     SoilHorizonNum,
     PetioleWeightPreFru,
@@ -1453,7 +1452,7 @@ cdef class State(StateBase):
     def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column):
         # The following constant parameters are used:
         # The index for the relative partitioning of root mass produced by new growth to class i.
-        global RootNitrogen, RootWeightLoss
+        global RootWeightLoss
         cdef double[3] RootGrowthIndex = [1.0, 0.0, 0.0]
         cdef double rtminc = 0.0000001  # the threshold ratio of root mass capable of growth
         # to soil cell volume (g/cm3); when this threshold is reached, a part of root growth in this cell may be extended to adjoining cells.
@@ -1550,8 +1549,8 @@ cdef class State(StateBase):
         # Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
         DailyRootLoss = DailyRootLoss * 100. * per_plant_area / row_space
         RootWeightLoss += DailyRootLoss
-        # Adjust RootNitrogen (root N content) for loss by death of roots.
-        RootNitrogen -= DailyRootLoss * self.root_nitrogen_concentration
+        # Adjust root_nitrogen (root N content) for loss by death of roots.
+        self.root_nitrogen -= DailyRootLoss * self.root_nitrogen_concentration
         self.cumulative_nitrogen_loss += DailyRootLoss * self.root_nitrogen_concentration
         # Call function RootSummation().
         self.root_summation(NumRootAgeGroups, row_space, per_plant_area)
@@ -1849,6 +1848,7 @@ cdef class Simulation:
         state0.burr_nitrogen = 0
         state0.seed_nitrogen = 0
         state0.root_nitrogen_concentration = .026
+        state0.root_nitrogen = 0.0052
         state0.square_nitrogen_concentration = 0
         state0.square_nitrogen = 0
         state0.stem_nitrogen = 0.0072

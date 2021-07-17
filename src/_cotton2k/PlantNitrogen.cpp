@@ -80,8 +80,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //       NitrogenUptakeRequirement().
 //     The following global variables are referenced here:
 //       BurrNConc, Kday, LeafNConc,
-//       PetioleNConc, PetioleNConc, RootNConc,
-//       RootNitrogen, SeedNConc, StemNConc.
+//       PetioleNConc, PetioleNConc, RootNConc, SeedNConc, StemNConc.
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs,
 //       rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm, stemrs, uptn, xtran.
@@ -186,8 +185,7 @@ void NitrogenSupply(State &state)
 //     The following global variables are referenced here:
 //       reqtot.
 //     The following global and file scope variables are set here:
-//       burres, leafrs, npool, petrs,
-//       RootNitrogen, rootrs, stemrs, uptn, xtran.
+//       burres, leafrs, npool, petrs, rootrs, stemrs, uptn, xtran.
 {
     //     The following constant parameters are used:
     const double MobilizNFractionBurrs = 0.08;    //  fraction of N mobilizable for burrs
@@ -246,10 +244,10 @@ void NitrogenSupply(State &state)
             stemrs = 0;
         state.stem_nitrogen -= stemrs;
         //  Root N reserves
-        rootrs = (RootNitrogen - vrtnmin * state.root_weight) * MobilizNFractionStemRoot;
+        rootrs = (state.root_nitrogen - vrtnmin * state.root_weight) * MobilizNFractionStemRoot;
         if (rootrs < 0)
             rootrs = 0;
-        RootNitrogen -= rootrs;
+        state.root_nitrogen -= rootrs;
         //  Burr N reserves
         if (state.green_bolls_burr_weight > 0)
         {
@@ -319,7 +317,7 @@ void NitrogenAllocation(State &state)
 //  the plant parts. It is called from PlantNitrogen().
 //
 //     The following global and file scope variables are set here:
-//       addnf, addnr, addnv, npool, RootNitrogen, xtran.
+//       addnf, addnr, addnv, npool, xtran.
 //     The following global and file scope variables are referenced in this function:
 //       reqtot, rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm
 {
@@ -338,7 +336,7 @@ void NitrogenAllocation(State &state)
         state.leaf_nitrogen += rqnlef;
         state.petiole_nitrogen += rqnpet;
         state.stem_nitrogen += rqnstm;
-        RootNitrogen += rqnrut;
+        state.root_nitrogen += rqnrut;
         state.square_nitrogen += rqnsqr;
         state.seed_nitrogen += rqnsed;
         state.burr_nitrogen += rqnbur;
@@ -406,7 +404,7 @@ void NitrogenAllocation(State &state)
     if (rqnrut > 0)
     {
         useofn = std::min(npool, rqnrut);
-        RootNitrogen += useofn;
+        state.root_nitrogen += useofn;
         addnr += useofn;
         npool -= useofn;
     }
@@ -420,8 +418,6 @@ void ExtraNitrogenAllocation(State &state)
 //
 //     The following global and file scope variables are referenced here:
 //       burres, leafrs, petrs, rootrs, stemrs, xtran.
-//     The following global variables are set here:
-//       RootNitrogen.
 {
     //     If there are any N reserves in the plant, allocate remaining xtran in proportion to
     //  the N reserves in each of these organs. Note: all reserves are in g per plant units.
@@ -458,7 +454,7 @@ void ExtraNitrogenAllocation(State &state)
     state.leaf_nitrogen += addlfn;
     state.petiole_nitrogen += addpetn;
     state.stem_nitrogen += addstm;
-    RootNitrogen += addrt;
+    state.root_nitrogen += addrt;
     state.burr_nitrogen += addbur;
 }
 
@@ -468,8 +464,6 @@ void PlantNitrogenContent(State &state)
 //  matter of the plant parts. It is called from PlantNitrogen(). It calls the
 //  function PetioleNitrateN().
 //
-//     The following global variables are referenced here:
-//       RootNitrogen.
 //     The following global variables are set here:
 //       BurrNConc, LeafNConc, PetioleNConc, RootNConc,
 //       SeedNConc, StemNConc.
@@ -487,7 +481,7 @@ void PlantNitrogenContent(State &state)
     if (state.stem_weight > 0)
         StemNConc = state.stem_nitrogen / state.stem_weight;
     if (state.root_weight > 0)
-        state.root_nitrogen_concentration = RootNitrogen / state.root_weight;
+        state.root_nitrogen_concentration = state.root_nitrogen / state.root_weight;
     if (state.square_weight > 0)
         state.square_nitrogen_concentration = state.square_nitrogen / state.square_weight;
     double xxseed; // weight of seeds in green and mature bolls.

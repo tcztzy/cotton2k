@@ -34,7 +34,6 @@ void InitializeGlobal()
     PotGroStem = 0;
 
     ReserveC = 0.06;
-    RootNitrogen = 0.0052;
     RootWeightLoss = 0;
 
     SoilNitrogenLoss = 0;

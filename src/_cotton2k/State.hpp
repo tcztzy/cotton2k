@@ -97,6 +97,7 @@ typedef struct State
     double seed_nitrogen_concentration;         // average nitrogen concentration in seeds.
     double seed_nitrogen;                       // total seed nitrogen, g per plant.
     double root_nitrogen_concentration;         // average nitrogen concentration in roots.
+    double root_nitrogen;                       // total root nitrogen, g per plant.
     double square_nitrogen_concentration;       // average concentration of nitrogen in the squares.
     double burr_nitrogen;                       // nitrogen in burrs, g per plant.
     double square_nitrogen;                     // total nitrogen in the squares, g per plant

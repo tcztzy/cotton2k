@@ -113,7 +113,6 @@ double
     RatioImplicit,                    // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
     ReserveC,                         // reserve carbohydrates in leaves, g per plant.
     RootImpede[maxl][maxk],           // root mechanical impedance for a soil cell, kg cm-2.
-    RootNitrogen,                     // total root nitrogen, g per plant.
     RootWeightLoss,                   // total cumulative weight of sloughed roots, g per plant.
     SandVolumeFraction[maxl],         // fraction by volume of sand plus silt in the soil.
     SaturatedHydCond[9],              // saturated hydraulic conductivity, cm per day.
