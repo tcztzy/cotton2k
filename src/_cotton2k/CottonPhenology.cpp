@@ -13,10 +13,6 @@
 
 using namespace std;
 
-void NewBollFormation(State &, FruitingSite &);
-
-void BollOpening(State &, int, int, int, unsigned int, double, double, double[61]);
-
 //   Declaration of file-scope variables:
 double FibLength;          // fiber length
 double FibStrength;        // fiber strength
@@ -32,129 +28,6 @@ double FibStrength;        // fiber strength
 //      FruitingSitesAbscission() calls SiteAbscissionRatio(), SquareAbscission(), BollAbscission() and ComputeSiteNumbers()
 //          === see file FruitAbscission.cpp
 //////////////////////////
-//////////////////////////////////////////////////
-void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int &NodeRecentWhiteFlower, const double &WaterStress)
-//     Function SimulateFruitingSite() simulates the development of each fruiting site.
-//  It is called from function CottonPhenology().
-//     The following global variable are set here:
-//        AgeOfSite, AgeOfBoll, AvrgNodeTemper, BollWeight,
-//        FirstBloom, FruitingCode, LeafAge, NumFruitSites,
-//     The following arguments are used in this function:
-//        k, l, m - indices of vegetative branch, fruiting branch, and
-//                  node on fruiting branch for this site.
-//        NodeRecentWhiteFlower - the node of the most recent white flower is computed in this
-//                  function, although it is not used in this version.
-//
-{
-    State &state = sim.states[u];
-    FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
-    //     The following constant parameters are used:
-    const double vfrsite[15] = {0.60, 0.40, 12.25, 0.40, 33.0, 0.20, 0.04, 0.45,
-                                26.10, 9.0, 0.10, 3.0, 1.129, 0.043, 0.26};
-    //      FruitingCode = 0 indicates that this node has not yet been formed.
-    //  In this case, assign zero to boltmp and return.
-    static double boltmp[3][30][5]; // cumulative boll temperature.
-    if (site.stage == Stage::NotYetFormed)
-    {
-        boltmp[k][l][m] = 0;
-        return;
-    }
-    //      Assign zero to FibLength and FibStrength before any sites have been formed.
-    if (state.number_of_fruiting_sites <= 0)
-    {
-        FibLength = 0;
-        FibStrength = 0;
-    }
-    state.number_of_fruiting_sites++; //      Increment site number.
-                     //     LeafAge(k,l,m) is the age of the leaf at this site. it is updated
-                     //  by adding the physiological age of this day, the effect of water
-                     //  and nitrogen stresses (agefac).
-    double agefac;   // effect of water and nitrogen stresses on leaf aging.
-    agefac = (1 - WaterStress) * vfrsite[0] + (1 - state.nitrogen_stress_vegetative) * vfrsite[1];
-    site.leaf.age += state.day_inc + agefac;
-    //  After the application of defoliation, add the effect of defoliation on leaf age.
-    if (sim.day_defoliate > 0 && state.daynum > sim.day_defoliate)
-        site.leaf.age += sim.cultivar_parameters[38];
-    //     FruitingCode = 3, 4, 5 or 6 indicates that this node has an open boll,
-    //  or has been completely abscised. Return in this case.
-    if (site.stage == Stage::MatureBoll || site.stage == Stage::AbscisedAsBoll || site.stage == Stage::AbscisedAsSquare || site.stage == Stage::AbscisedAsFlower)
-        return;
-    //     Age of node is modified for low minimum temperatures and for high
-    //  maximum temperatures.
-    double tmin = sim.climate[u].Tmin;
-    double tmax = sim.climate[u].Tmax;
-    double ageinc = state.day_inc; // daily addition to site age.
-                                   //     Adjust leaf aging for low minimum twmperatures.
-    if (tmin < vfrsite[2])
-        ageinc += vfrsite[3] * (vfrsite[2] - tmin);
-    //     Adjust leaf aging for high maximum twmperatures.
-    if (tmax > vfrsite[4])
-    {
-        double adjust = vfrsite[6] * (tmax - vfrsite[4]); // vfrsite [4] = 33.0  [5] 0.20  [6] 0.04
-        if (adjust > vfrsite[5])
-            adjust = vfrsite[5];
-        ageinc -= adjust;
-    }
-    //
-    if (ageinc < vfrsite[7])
-        ageinc = vfrsite[7];
-    //     Compute average temperature of this site since formation.
-    site.average_temperature = (site.average_temperature * site.age + state.average_temperature * ageinc) / (site.age + ageinc);
-    //     Update the age of this node, AgeOfSite(k,l,m), by adding ageinc.
-    site.age += ageinc;
-    //     The following is executed if this node is a square (FruitingCode =  1):
-    //     If square is old enough, make it a green boll: initialize the
-    //  computations of average boll temperature (boltmp) and boll age
-    //  (AgeOfBoll). FruitingCode will now be 7.
-    if (site.stage == Stage::Square)
-    {
-        if (site.age >= vfrsite[8])
-        {
-            boltmp[k][l][m] = state.average_temperature;
-            site.boll.age = state.day_inc;
-            site.stage = Stage::YoungGreenBoll;
-            NewBollFormation(state, state.vegetative_branches[k].fruiting_branches[l].nodes[m]);
-            //     If this is the first flower, define FirstBloom.
-            if (state.green_bolls_weight > 0 && sim.first_bloom <= 1)
-                sim.first_bloom = state.daynum;
-            //     Determine node of most recent white flower.
-            if (k == 0 && m == 0)
-                NodeRecentWhiteFlower = std::max(NodeRecentWhiteFlower, l);
-        }
-        return;
-    }
-    //     If there is a boll at this site:
-    //     Calculate average boll temperature (boltmp), and boll age
-    //  (AgeOfBoll) which is its physiological age, modified by water stress.
-    //  If leaf area index is low, dum is calculated as an intermediate
-    //  variable. It is used to increase boll temperature and to accelerate
-    //  boll aging when leaf cover is decreased. Boll age is also modified
-    //  by nitrogen stress (state.nitrogen_stress_fruiting).
-    if (site.boll.weight > 0)
-    {
-        double dum; // effect of leaf area index on boll temperature and age.
-        if (state.leaf_area_index <= vfrsite[11] && state.kday > 100)
-            dum = vfrsite[12] - vfrsite[13] * state.leaf_area_index;
-        else
-            dum = 1;
-        double dagebol; // added physiological age of boll on this day.
-        dagebol = state.day_inc * dum + vfrsite[14] * (1 - WaterStress) + vfrsite[10] * (1 - state.nitrogen_stress_fruiting);
-        boltmp[k][l][m] = (boltmp[k][l][m] * site.boll.age + state.average_temperature * dagebol) / (site.boll.age + dagebol);
-        site.boll.age += dagebol;
-    }
-    //     If this node is a young green boll (FruitingCode = 7):
-    //     Check boll age and after a fixed age convert it to an "old"
-    //  green boll (FruitingCode = 2).
-    if (site.stage == Stage::YoungGreenBoll)
-    {
-        if (site.boll.age >= vfrsite[9])
-            site.stage = Stage::GreenBoll;
-        return;
-    }
-    //     If this node is an older green boll (FruitingCode = 2):
-    if (site.stage == Stage::GreenBoll)
-        BollOpening(sim.states[u], k, l, m, sim.day_defoliate, boltmp[k][l][m], sim.plant_population, sim.cultivar_parameters);
-}
 
 /////////////////////////
 void NewBollFormation(State &state, FruitingSite &site)
@@ -213,7 +86,7 @@ void NewBollFormation(State &state, FruitingSite &site)
 }
 
 /////////////////////////
-void BollOpening(State &state, int k, int l, int m, unsigned int day_defoliate, double tmpboll, double plant_population, double cultivar_parameters[61])
+void BollOpening(State &state, int k, int l, int m, unsigned int day_defoliate, double tmpboll, double plant_population, double var39, double var40, double var41, double var42)
 //     Function BollOpening() simulates the transition of each fruiting site
 //  from green to dehissed (open) boll. It is called from SimulateFruitingSite().
 //     The following global variables are referenced here:
@@ -241,8 +114,8 @@ void BollOpening(State &state, int k, int l, int m, unsigned int day_defoliate, 
         atn = vboldhs[0];
     //     Compute dehiss as a function of boll temperature.
     double dehiss; // days from flowering to boll opening.
-    dehiss = cultivar_parameters[39] + atn * (vboldhs[1] + atn * (vboldhs[2] + atn * vboldhs[3]));
-    dehiss = dehiss * cultivar_parameters[40];
+    dehiss = var39 + atn * (vboldhs[1] + atn * (vboldhs[2] + atn * vboldhs[3]));
+    dehiss = dehiss * var40;
     if (dehiss > vboldhs[4])
         dehiss = vboldhs[4];
     //     Dehiss is decreased after a defoliation.
@@ -272,7 +145,7 @@ void BollOpening(State &state, int k, int l, int m, unsigned int day_defoliate, 
     //     Compute the ginning percentage as a function of boll temperature.
     //     Compute the average ginning percentage of all the bolls opened
     //  until now (state.ginning_percent).
-    site.ginning_percent = (cultivar_parameters[41] - cultivar_parameters[42] * atn) / 100;
+    site.ginning_percent = (var41 - var42 * atn) / 100;
     state.ginning_percent = (state.ginning_percent * state.number_of_open_bolls + site.ginning_percent * site.fraction) /
              (state.number_of_open_bolls + site.fraction);
     //     Cumulative lint yield (LintYield) is computed in kg per ha.

@@ -81,6 +81,8 @@ typedef struct State
     double number_of_squares;                   // number of squares per plant.
     double number_of_green_bolls;               // average number of retained green bolls, per plant.
     double number_of_open_bolls;                // number of open bolls, per plant.
+    double fiber_length;                        // fiber length
+    double fiber_strength;                      // fiber strength
     double nitrogen_stress;                     // the average nitrogen stress coefficient for vegetative and reproductive organs
     double nitrogen_stress_vegetative;          // nitrogen stress limiting vegetative development.
     double nitrogen_stress_fruiting;            // nitrogen stress limiting fruit development.

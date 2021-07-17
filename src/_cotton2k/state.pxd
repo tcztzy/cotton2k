@@ -75,6 +75,8 @@ cdef extern from "State.hpp":
         double number_of_squares
         double number_of_green_bolls
         double number_of_open_bolls
+        double fiber_length
+        double fiber_strength
         double nitrogen_stress
         double nitrogen_stress_vegetative
         double nitrogen_stress_fruiting

@@ -335,6 +335,30 @@ cdef class StateBase:
         self._[0].number_of_open_bolls = value
 
     @property
+    def fiber_strength(self):
+        return self._[0].fiber_strength
+
+    @fiber_strength.setter
+    def fiber_strength(self, value):
+        self._[0].fiber_strength = value
+
+    @property
+    def fiber_length(self):
+        return self._[0].fiber_length
+
+    @fiber_length.setter
+    def fiber_length(self, value):
+        self._[0].fiber_length = value
+
+    @property
+    def number_of_fruiting_sites(self):
+        return self._[0].number_of_fruiting_sites
+
+    @number_of_fruiting_sites.setter
+    def number_of_fruiting_sites(self, value):
+        self._[0].number_of_fruiting_sites = value
+
+    @property
     def nitrogen_stress(self):
         return self._[0].nitrogen_stress
 

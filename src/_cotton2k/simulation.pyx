@@ -1,12 +1,12 @@
 # distutils: language=c++
 # cython: language_level=3
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
 from math import sin, cos, acos, sqrt, pi
+from typing import Optional
 
 from libc.math cimport exp, log
 from libc.stdlib cimport malloc
 from libcpp cimport bool as bool_t
-from libcpp.string cimport string
 
 import numpy as np
 
@@ -325,6 +325,22 @@ cdef class Boll:
     cdef unsigned int m
 
     @property
+    def age(self):
+        return self._[0].age
+
+    @age.setter
+    def age(self, value):
+        self._[0].age = value
+
+    @property
+    def weight(self):
+        return self._[0].weight
+
+    @weight.setter
+    def weight(self, value):
+        self._[0].weight = value
+
+    @property
     def cumulative_temperature(self):
         return self._[0].cumulative_temperature
 
@@ -360,6 +376,10 @@ cdef class FruitingNode:
     def age(self):
         return self._[0].age
 
+    @age.setter
+    def age(self, value):
+        self._[0].age = value
+
     @property
     def fraction(self):
         return self._[0].fraction
@@ -371,6 +391,10 @@ cdef class FruitingNode:
     @property
     def leaf(self):
         return NodeLeaf.from_ptr(&self._.leaf)
+
+    @property
+    def boll(self):
+        return Boll.from_ptr(&self._[0].boll, self.k, self.l, self.m)
 
     @property
     def stage(self):
@@ -2100,6 +2124,83 @@ cdef class State(StateBase):
             )
     #end plant_nitrogen
 
+    #begin phenology
+    def simulate_fruiting_site(self, k, l, m, defoliate_date, first_bloom_date, min_temperature, max_temperature, plant_population, var38, var39, var40, var41, var42) -> Optional[date]:
+        """Simulates the development of each fruiting site."""
+        # The following constant parameters are used:
+        vfrsite = [0.60, 0.40, 12.25, 0.40, 33.0, 0.20, 0.04, 0.45, 26.10, 9.0, 0.10, 3.0, 1.129, 0.043, 0.26]
+        # FruitingCode = 0 indicates that this node has not yet been formed.
+        # In this case, assign zero to boltmp and return.
+        site = self.vegetative_branches[k].fruiting_branches[l].nodes[m]
+        if site.stage == Stage.NotYetFormed:
+            site.boll.cumulative_temperature = 0
+            return
+        self.number_of_fruiting_sites += 1  # Increment site number.
+        # LeafAge(k,l,m) is the age of the leaf at this site.
+        # it is updated by adding the physiological age of this day,
+        # the effect of water and nitrogen stresses (agefac).
+
+        # effect of water and nitrogen stresses on leaf aging.
+        agefac = (1 - self.water_stress) * vfrsite[0] + (1 - self.nitrogen_stress_vegetative) * vfrsite[1]
+        site.leaf.age += self.day_inc + agefac
+        # After the application of defoliation, add the effect of defoliation on leaf age.
+        if defoliate_date is not None and self.date > defoliate_date:
+            site.leaf.age += var38
+        # FruitingCode = 3, 4, 5 or 6 indicates that this node has an open boll,
+        # or has been completely abscised. Return in this case.
+        if site.stage in (Stage.MatureBoll, Stage.AbscisedAsBoll, Stage.AbscisedAsSquare, Stage.AbscisedAsFlower):
+            return
+        # Age of node is modified for low minimum temperatures and for high maximum temperatures.
+        ageinc = self.day_inc
+        # Adjust leaf aging for low minimum temperature.
+        if min_temperature < vfrsite[2]:
+            ageinc += vfrsite[3] * (vfrsite[2] - min_temperature)
+        # Adjust leaf aging for high maximum temperature.
+        if max_temperature > vfrsite[4]:
+            ageinc -= min(vfrsite[6] * (max_temperature - vfrsite[4]), vfrsite[5])
+        ageinc = max(ageinc, vfrsite[7])
+        # Compute average temperature of this site since formation.
+        site.average_temperature = (site.average_temperature * site.age + self.average_temperature * ageinc) / (site.age + ageinc)
+        # Update the age of this node, AgeOfSite(k,l,m), by adding ageinc.
+        site.age += ageinc
+        # The following is executed if this node is a square (FruitingCode =  1):
+        # If square is old enough, make it a green boll: initialize the computations of average boll temperature (boltmp) and boll age (AgeOfBoll). FruitingCode will now be 7.
+        if site.stage == Stage.Square:
+            if site.age >= vfrsite[8]:
+                site.boll.cumulative_temperature = self.average_temperature
+                site.boll.age = self.day_inc
+                site.stage = Stage.YoungGreenBoll
+                NewBollFormation(self._[0], self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m])
+                # If this is the first flower, define FirstBloom.
+                if self.green_bolls_weight > 0 and first_bloom_date is None:
+                    return self.date
+            return
+        # If there is a boll at this site:
+        # Calculate average boll temperature (boltmp), and boll age
+        # (AgeOfBoll) which is its physiological age, modified by water stress.
+        # If leaf area index is low, dum is calculated as an intermediate
+        # variable. It is used to increase boll temperature and to accelerate
+        # boll aging when leaf cover is decreased. Boll age is also modified
+        # by nitrogen stress (state.nitrogen_stress_fruiting).
+        if site.boll.weight > 0:
+            # effect of leaf area index on boll temperature and age.
+            if self.leaf_area_index <= vfrsite[11] and self.kday > 100:
+                dum = vfrsite[12] - vfrsite[13] * self.leaf_area_index
+            else:
+                dum = 1
+            # added physiological age of boll on this day.
+            dagebol = self.day_inc * dum + vfrsite[14] * (1 - self.water_stress) + vfrsite[10] * (1 - self.nitrogen_stress_fruiting)
+            site.boll.cumulative_temperature = (site.boll.cumulative_temperature * site.boll.age + self.average_temperature * dagebol) / (site.boll.age + dagebol)
+            site.boll.age += dagebol
+        # if this node is a young green boll (FruitingCode = 7):
+        # Check boll age and after a fixed age convert it to an "old" green boll (FruitingCode = 2).
+        if site.stage == Stage.YoungGreenBoll:
+            if site.boll.age >= vfrsite[9]:
+                site.stage = Stage.GreenBoll
+            return
+        if site.stage == Stage.GreenBoll:
+            BollOpening(self._[0], k, l, m, date2doy(defoliate_date), site.boll.cumulative_temperature, plant_population, var39, var40, var41, var42)
+    #end phenology
 
 def compute_incoming_long_wave_radiation(humidity: float, temperature: float, cloud_cov: float, cloud_cor: float) -> float:
     """LONG WAVE RADIATION EMITTED FROM SKY"""
@@ -2280,6 +2381,14 @@ cdef class Simulation:
         self._sim.first_square = date2doy(value)
 
     @property
+    def first_bloom_date(self):
+        return doy2date(self.year, self._sim.first_bloom)
+
+    @first_bloom_date.setter
+    def first_bloom_date(self, value):
+        self._sim.first_bloom = date2doy(value)
+
+    @property
     def defoliate_date(self):
         return doy2date(self.year, self._sim.day_defoliate)
 
@@ -2347,6 +2456,8 @@ cdef class Simulation:
         state0.number_of_squares = 0
         state0.number_of_green_bolls = 0
         state0.number_of_open_bolls = 0
+        state0.fiber_length = 0
+        state0.fiber_strength = 0
         state0.nitrogen_stress = 1
         state0.nitrogen_stress_vegetative = 1
         state0.nitrogen_stress_fruiting = 1
@@ -3274,7 +3385,7 @@ cdef class Simulation:
         """
         This is is the main function for simulating events of phenology and abscission in the cotton plant. It is called each day from DailySimulation().
 
-        CottonPhenology() calls PreFruitingNode(), days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), add_fruiting_node(), SimulateFruitingSite(), LeafAbscission(), FruitingSitesAbscission().
+        CottonPhenology() calls PreFruitingNode(), days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), add_fruiting_node(), simulate_fruiting_site(), LeafAbscission(), FruitingSitesAbscission().
         """
         state = self.state(u)
         # The following constant parameters are used:
@@ -3338,9 +3449,11 @@ cdef class Simulation:
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
                     state.add_fruiting_node(k, l, delayFrtByCStress, stemNRatio, self._sim.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
-                # Loop over all existing fruiting nodes, and call SimulateFruitingSite() to simulate the condition of each fruiting node.
+                # Loop over all existing fruiting nodes, and call simulate_fruiting_site() to simulate the condition of each fruiting node.
                 for m in range(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes):
-                    SimulateFruitingSite(self._sim, u, k, l, m, nwfl, self._sim.states[u].water_stress)
+                    first_bloom = state.simulate_fruiting_site(k, l, m, self.defoliate_date, self.first_bloom_date, self._sim.climate[u].Tmin, self._sim.climate[u].Tmax, self._sim.plant_population, *self.cultivar_parameters[38:43])
+                    if first_bloom is not None:
+                        self.first_bloom_date = first_bloom
         # Call FruitingSitesAbscission() to simulate the abscission of fruiting parts.
         FruitingSitesAbscission(self._sim, u)
         # Call LeafAbscission() to simulate the abscission of leaves.

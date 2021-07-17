@@ -2,4 +2,6 @@
 #include <cinttypes>
 #include "Simulation.hpp"
 
-void SimulateFruitingSite(Simulation &, uint32_t, int, int, int, int &, const double &);
+void NewBollFormation(State &, FruitingSite &);
+
+void BollOpening(State &, int, int, int, unsigned int, double, double, double, double, double, double);

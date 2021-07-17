@@ -31,7 +31,7 @@ thetas,
 vanGenuchtenBeta,
 cSimulation,
 )
-from .fruiting_site cimport Stage
+from .fruiting_site cimport Stage, FruitingSite
 from .state cimport cState, cHour
 from .soil cimport cSoilCell, cSoil
 
@@ -43,7 +43,8 @@ cdef extern:
     void EvapoTranspiration(cState &, double, double, double, double, double)
 
 cdef extern from "CottonPhenology.h":
-    void SimulateFruitingSite(cSimulation &, uint32_t, int, int, int, int &, const double &)
+    void NewBollFormation(cState &, FruitingSite &);
+    void BollOpening(cState &, int, int, int, unsigned int, double, double, double, double, double, double);
 
 cdef extern from "FruitAbscission.h":
     void FruitingSitesAbscission(cSimulation &, uint32_t)
