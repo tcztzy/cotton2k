@@ -111,6 +111,7 @@ typedef struct State
     double actual_square_growth;                // total actual growth of squares, g plant-1 day-1.
     double actual_stem_growth;                  // actual growth rate of stems, g plant-1 day-1.
     double actual_boll_growth;                  // total actual growth of seedcotton in bolls, g plant-1 day-1.
+    double actual_burr_growth;                  // total actual growth of burrs in bolls, g plant-1 day-1.
     double carbon_allocated_for_root_growth;    // available carbon allocated for root growth, g per plant.
     double petiole_nitrate_nitrogen_concentration; // average nitrate nitrogen concentration in petioles.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.

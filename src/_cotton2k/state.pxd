@@ -104,6 +104,8 @@ cdef extern from "State.hpp":
         double total_actual_petiole_growth
         double actual_square_growth
         double actual_stem_growth
+        double actual_boll_growth
+        double actual_burr_growth
         double carbon_allocated_for_root_growth
         double petiole_nitrate_nitrogen_concentration
         bool_t pollination_switch

@@ -34,8 +34,7 @@ extern int DayStartPredIrrig, DayStopPredIrrig,
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], DefoliationMethod[5],
     LateralRootFlag[maxl], SoilHorizonNum[maxl];
 ////    Double    ////
-extern double ActualBurrGrowth,
-    AverageLwp, AverageLwpMin, AverageSoilPsi,
+extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
     BurrNConc, conmax, CumFertilizerN,
     CumNetPhotosynth, CumNitrogenUptake,
     CumWaterAdded, CumWaterDrained, DayTimeTemp, dclay,

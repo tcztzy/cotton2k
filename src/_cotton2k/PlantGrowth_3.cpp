@@ -23,7 +23,7 @@ void ActualFruitGrowth(State &state)
 //        PotGroBolls, PotGroBurrs, PotGroSquares.
 //
 //     The following global variables are set here:
-//        ActualBurrGrowth, BollWeight, SquareWeight.
+//        BollWeight, SquareWeight.
 //
 {
     //     Assign zero to all the sums to be computed.
@@ -32,7 +32,7 @@ void ActualFruitGrowth(State &state)
     state.green_bolls_burr_weight = 0;
     state.actual_square_growth = 0;
     state.actual_boll_growth = 0;
-    ActualBurrGrowth = 0;
+    state.actual_burr_growth = 0;
     //     Begin loops over all fruiting sites.
     for (int k = 0; k < state.number_of_vegetative_branches; k++) // loop of vegetative branches
         for (int l = 0; l < state.vegetative_branches[k].number_of_fruiting_branches; l++)  // loop of fruiting branches
@@ -63,7 +63,7 @@ void ActualFruitGrowth(State &state)
                     double dwburr; // dry weight added to the burrs in a boll.
                     dwburr = site.burr.potential_growth * state.fruit_growth_ratio;
                     site.burr.weight += dwburr;
-                    ActualBurrGrowth += dwburr;
+                    state.actual_burr_growth += dwburr;
                     state.green_bolls_burr_weight += site.burr.weight;
                 }
             }

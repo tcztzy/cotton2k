@@ -124,8 +124,6 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, double ExtraCarbon)
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
-//     The following global variables are referenced here:
-//       ActualBurrGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, reqf, reqtot, reqv, rqnbur,
 //       rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm.
@@ -174,7 +172,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
         rqnsed2 = 0;
     //
     rqnsed = rqnsed1 + rqnsed2;         //   total requirement for seeds
-    rqnbur = ActualBurrGrowth * burcn0; //   for burrs
+    rqnbur = state.actual_burr_growth * burcn0; //   for burrs
     reqf = rqnsqr + rqnsed + rqnbur;    //    total for fruit
     reqv = rqnlef + rqnpet + rqnstm;    //    total for shoot
     reqtot = rqnrut + reqv + reqf;      //     total N requirement
