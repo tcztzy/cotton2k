@@ -33,7 +33,6 @@ void InitializeGlobal()
 
     PercentDefoliation = 0;
     PetioleNitrogen = 0;
-    PetioleNO3NConc = 0;
     PotGroStem = 0;
 
     ReserveC = 0.06;

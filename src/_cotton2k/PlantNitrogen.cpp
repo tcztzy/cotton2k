@@ -80,7 +80,7 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //       NitrogenUptakeRequirement().
 //     The following global variables are referenced here:
 //       BurrNConc, Kday, LeafNConc,
-//       PetioleNConc, PetioleNConc, PetioleNO3NConc, PetioleNitrogen, RootNConc,
+//       PetioleNConc, PetioleNConc, PetioleNitrogen, RootNConc,
 //       RootNitrogen, SeedNConc, StemNConc.
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs,
@@ -128,7 +128,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
 //       ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth,
 //       CarbonAllocatedForRootGrowth, TotalActualPetioleGrowth.
 //     The following global and file scope variables are set in this function:
-//       PetioleNConc, PetioleNO3NConc, reqf, reqtot, reqv, rqnbur,
+//       PetioleNConc, reqf, reqtot, reqv, rqnbur,
 //       rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm.
 {
     //     The following constant parameters are used:
@@ -145,7 +145,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
     if (Daynum <= DayEmerge)
     {
         state.petiole_nitrogen_concentration = petcn0;
-        PetioleNO3NConc = petcn0;
+        state.petiole_nitrate_nitrogen_concentration = petcn0;
     }
     //     Compute the nitrogen requirements for growth, by multiplying
     //  the daily added dry weight by the maximum N content of each organ.
@@ -476,7 +476,7 @@ void PlantNitrogenContent(State &state)
 //     The following global variables are referenced here:
 //       PetioleNitrogen, RootNitrogen.
 //     The following global variables are set here:
-//       BurrNConc, LeafNConc, PetioleNConc, PetioleNO3NConc, RootNConc,
+//       BurrNConc, LeafNConc, PetioleNConc, RootNConc,
 //       SeedNConc, StemNConc.
 {
     //     The following constant parameter is used:
@@ -487,7 +487,7 @@ void PlantNitrogenContent(State &state)
     if (state.petiole_weight > 0.00001)
     {
         state.petiole_nitrogen_concentration = PetioleNitrogen / state.petiole_weight;
-        PetioleNO3NConc = state.petiole_nitrogen_concentration * PetioleNitrateN(state);
+        state.petiole_nitrate_nitrogen_concentration = state.petiole_nitrogen_concentration * PetioleNitrateN(state);
     }
     if (state.stem_weight > 0)
         StemNConc = state.stem_nitrogen / state.stem_weight;

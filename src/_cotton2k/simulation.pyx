@@ -1862,6 +1862,7 @@ cdef class Simulation:
         state0.ginning_percent = 0.35
         state0.number_of_pre_fruiting_nodes = 1
         state0.total_actual_leaf_growth = 0
+        state0.petiole_nitrate_nitrogen_concentration = 0
         for i in range(9):
             state0.age_of_pre_fruiting_nodes[i] = 0
             state0.leaf_area_pre_fruiting[i] = 0

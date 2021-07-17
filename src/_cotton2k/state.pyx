@@ -522,5 +522,13 @@ cdef class StateBase:
     def deep_soil_temperature(self, value):
         self._[0].deep_soil_temperature = value
 
+    @property
+    def petiole_nitrate_nitrogen_concentration(self):
+        return self._[0].petiole_nitrate_nitrogen_concentration
+
+    @petiole_nitrate_nitrogen_concentration.setter
+    def petiole_nitrate_nitrogen_concentration(self, value):
+        self._[0].petiole_nitrate_nitrogen_concentration = value
+
     def __getitem__(self, item):
         return getattr(self, item)
