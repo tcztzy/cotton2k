@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Union
 
 from appdirs import user_data_dir
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 
 from .io import prepare_database, read_input, write_output

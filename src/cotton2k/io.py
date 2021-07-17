@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 
 from _cotton2k import (  # pylint: disable=import-error, no-name-in-module
     Climate,
-    Simulation,
     SoilImpedance,
     SoilInit,
 )
@@ -22,6 +21,7 @@ from cotton2k.models import Simulation as SimulationModel
 from cotton2k.models import Site, Soil, SoilHydrology
 from cotton2k.models import State as StateModel
 from cotton2k.models import association_table
+from cotton2k.simulation import Simulation
 
 SOIL_IMPEDANCE = SoilImpedance()
 with open(Path(__file__).parent / "soil_imp.csv") as csvfile:

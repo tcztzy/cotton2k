@@ -70,11 +70,6 @@ class SimulationEnd(RuntimeError):
     pass
 
 
-cdef CopyState(cSimulation & sim, uint32_t i):
-    cdef cState state = sim.states[i]
-    state.daynum = sim.day_start + i + 1
-    sim.states[i + 1] = state
-
 cdef class SoilInit:
     cdef unsigned int number_of_layers
     def __init__(self, initial, hydrology, layer_depth=None):
@@ -2282,13 +2277,6 @@ cdef class Simulation:
                 alias[k]: v for k, v in daily_climate.items()
             }
 
-    def run(self):
-        self._init_state()
-        try:
-            self._simulate()
-        except RuntimeError:
-            pass
-
     def _init_state(self):
         cdef State state0 = self.state(0)
         state0.date = self.start_date
@@ -2399,7 +2387,7 @@ cdef class Simulation:
                     )
         self._sim.states[0] = state0._[0]
 
-    def initialize_root_data(self):
+    def _initialize_root_data(self):
         """ This function initializes the root submodel parameters and variables."""
         global LastTaprootLayer, DepthLastRootLayer
         state0 = self.state(0)
@@ -2445,12 +2433,11 @@ cdef class Simulation:
         TapRootLength = (DepthLastRootLayer - 0.5 * dl(NumLayersWithRoots - 1))
         LastTaprootLayer = 6
 
-    def _simulate(self):
-        for i in range(self._sim.day_finish - self._sim.day_start):
-            self._simulate_this_day(i)
-            CopyState(self._sim, i)
-        else:
-            self._simulate_this_day(self._sim.day_finish - self._sim.day_start)
+
+    def _copy_state(self, i):
+        cdef cState state = self._sim.states[i]
+        state.daynum = self._sim.day_start + i + 1
+        self._sim.states[i + 1] = state
 
     def _energy_balance(self, u, ihr, k, ess, etp1):
         """
@@ -3485,4 +3472,3 @@ cdef class Simulation:
         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
         InitializeSoilData(self._sim, lyrsol)
         InitializeSoilTemperature()
-        self.initialize_root_data()
