@@ -8,7 +8,6 @@ mod tests;
 mod abscission;
 mod climate;
 mod fruit;
-mod physiology;
 mod root;
 mod soil;
 mod stem;

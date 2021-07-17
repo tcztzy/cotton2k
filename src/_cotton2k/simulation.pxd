@@ -70,7 +70,6 @@ cdef extern from "LeafAbscission.h":
 
 cdef extern from "PlantGrowth.h":
     void CheckDryMatterBal(cState &)
-    double PhysiologicalAge(cHour[24])
     void DryMatterBalance(cState &, double &, double &, double &, double &, double)
     void ActualFruitGrowth(cState &)
     void ActualLeafGrowth(cState &)

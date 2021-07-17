@@ -5,11 +5,6 @@
 
 using namespace std;
 
-extern "C"
-{
-    double PhysiologicalAge(Hour[24]);
-}
-
 void CheckDryMatterBal(State &);
 
 void DryMatterBalance(State &, double &, double &, double &, double &, double);

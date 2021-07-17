@@ -12,7 +12,7 @@ import numpy as np
 
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate, leaf_resistance_for_transpiration
-from _cotton2k.phenology import days_to_first_square
+from _cotton2k.phenology import days_to_first_square, physiological_age
 from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
 from _cotton2k.soil import compute_soil_surface_albedo, compute_incoming_short_wave_radiation, root_psi
 from _cotton2k.utils import date2doy, doy2date
@@ -2924,7 +2924,7 @@ cdef class Simulation:
         if state.daynum >= self._sim.day_emerge and isw > 0:
             # If this day is after emergence, assign to isw the value of 2.
             isw = 2
-            state.day_inc = PhysiologicalAge(self._sim.states[u].hours)  # physiological days increment for this day. computes physiological age
+            state.day_inc = physiological_age(self._sim.states[u].hours)  # physiological days increment for this day. computes physiological age
             self._defoliate(u)  # effects of defoliants applied.
             self._stress(u)  # computes water stress factors.
             self._get_net_photosynthesis(u)  # computes net photosynthesis.
