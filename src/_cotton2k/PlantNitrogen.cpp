@@ -472,7 +472,7 @@ void PlantNitrogenContent(State &state)
         state.petiole_nitrate_nitrogen_concentration = state.petiole_nitrogen_concentration * PetioleNitrateN(state);
     }
     if (state.stem_weight > 0)
-        StemNConc = state.stem_nitrogen / state.stem_weight;
+        state.stem_nitrogen_concentration = state.stem_nitrogen / state.stem_weight;
     if (state.root_weight > 0)
         state.root_nitrogen_concentration = state.root_nitrogen / state.root_weight;
     if (state.square_weight > 0)
@@ -571,8 +571,8 @@ void NitrogenUptakeRequirement(State &state)
         grstmwt = state.stem_weight;
     else
         grstmwt = state.stem_weight - StemWeight[kkday];
-    if (StemNConc < vnreqstm)
-        state.total_required_nitrogen += grstmwt * (vnreqstm - StemNConc);
+    if (state.stem_nitrogen_concentration < vnreqstm)
+        state.total_required_nitrogen += grstmwt * (vnreqstm - state.stem_nitrogen_concentration);
     //     Compute nitrogen uptake requirement for existing tissues of roots,
     //  squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
     if (state.root_nitrogen_concentration < vnreqrt)

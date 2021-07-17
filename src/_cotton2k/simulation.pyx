@@ -1852,6 +1852,7 @@ cdef class Simulation:
         state0.root_nitrogen = 0.0052
         state0.square_nitrogen_concentration = 0
         state0.square_nitrogen = 0
+        state0.stem_nitrogen_concentration = 0.036
         state0.stem_nitrogen = 0.0072
         state0.fruit_growth_ratio = 1
         state0.ginning_percent = 0.35

@@ -35,7 +35,6 @@ void InitializeGlobal()
     RootWeightLoss = 0;
 
     SoilNitrogenLoss = 0;
-    StemNConc = 0.036;
     SumNO3N90 = 0;
 
     WaterTableLayer = 1000;

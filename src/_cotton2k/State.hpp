@@ -102,6 +102,7 @@ typedef struct State
     double burr_nitrogen_concentration;         // average nitrogen concentration in burrs.
     double burr_nitrogen;                       // nitrogen in burrs, g per plant.
     double square_nitrogen;                     // total nitrogen in the squares, g per plant
+    double stem_nitrogen_concentration;         // ratio of stem nitrogen to dry matter.
     double stem_nitrogen;                       // total stem nitrogen, g per plant
     double fruit_growth_ratio;                  // ratio between actual and potential square and boll growth.
     double ginning_percent;                     // weighted average ginning percentage of all open bolls.

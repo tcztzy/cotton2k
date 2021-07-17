@@ -96,6 +96,7 @@ cdef extern from "State.hpp":
         double burr_nitrogen_concentration
         double burr_nitrogen
         double square_nitrogen
+        double stem_nitrogen_concentration
         double stem_nitrogen
         double fruit_growth_ratio
         double ginning_percent

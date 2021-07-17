@@ -447,6 +447,14 @@ cdef class StateBase:
         self._[0].square_nitrogen_concentration = value
 
     @property
+    def stem_nitrogen_concentration(self):
+        return self._[0].stem_nitrogen_concentration
+
+    @stem_nitrogen_concentration.setter
+    def stem_nitrogen_concentration(self, value):
+        self._[0].stem_nitrogen_concentration = value
+
+    @property
     def stem_nitrogen(self):
         return self._[0].stem_nitrogen
 

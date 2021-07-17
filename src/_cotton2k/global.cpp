@@ -123,7 +123,6 @@ double
     SoilPsi[maxl][maxk],              // matric water potential of a soil cell, bars.
     SoilTemp[maxl][maxk],             // hourly soil temperature oK.
     SoilTempDailyAvrg[maxl][maxk],    // daily average soil temperature, oK.
-    StemNConc,                        // ratio of stem nitrogen to dry matter.
     StemWeight[365],                  // stem weight added at each day, g per plant.
     SumNO3N90,                        // sum of soil nitrate n, 0-90 cm depth, in kg/ha.
     TapRootLength,                    // the length of the taproot, in cm.
