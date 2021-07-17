@@ -531,6 +531,14 @@ cdef class StateBase:
         self._[0].actual_square_growth = value
 
     @property
+    def actual_stem_growth(self):
+        return self._[0].actual_stem_growth
+
+    @actual_stem_growth.setter
+    def actual_stem_growth(self, value):
+        self._[0].actual_stem_growth = value
+
+    @property
     def carbon_allocated_for_root_growth(self):
         return self._[0].carbon_allocated_for_root_growth
 

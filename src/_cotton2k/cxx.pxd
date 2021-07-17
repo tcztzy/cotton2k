@@ -64,7 +64,6 @@ cdef extern from "global.h":
     double FoliageTemp[20]
     double SoilTempDailyAvrg[40][20]
     double SoilTemp[40][20]
-    double ActualStemGrowth
     double PotGroStem
     double PotGroAllRoots
     double LwpMin

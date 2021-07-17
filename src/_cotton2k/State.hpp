@@ -109,6 +109,7 @@ typedef struct State
     double total_actual_leaf_growth;            // actual growth rate of all the leaves, g plant-1 day-1.
     double total_actual_petiole_growth;         // actual growth rate of all the petioles, g plant-1 day-1.
     double actual_square_growth;                // total actual growth of squares, g plant-1 day-1.
+    double actual_stem_growth;                  // actual growth rate of stems, g plant-1 day-1.
     double carbon_allocated_for_root_growth;    // available carbon allocated for root growth, g per plant.
     double petiole_nitrate_nitrogen_concentration; // average nitrate nitrogen concentration in petioles.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
