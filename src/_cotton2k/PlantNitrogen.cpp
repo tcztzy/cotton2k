@@ -125,7 +125,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
-//       ActualBollGrowth, ActualBurrGrowth.
+//       ActualBurrGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, reqf, reqtot, reqv, rqnbur,
 //       rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm.
@@ -159,14 +159,14 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
     rqnrut = rootcn0 * (state.carbon_allocated_for_root_growth + ExtraCarbon); // for root
     rqnsqr = state.actual_square_growth * sqrcn0;                            //      for squares
     double rqnsed1, rqnsed2;                                         // components of seed N requirements.
-    rqnsed1 = ActualBollGrowth * seedratio * seedcn0;                //   for seed growth
+    rqnsed1 = state.actual_boll_growth * seedratio * seedcn0;                //   for seed growth
                                                                      //     The N required for replenishing the N content of existing seed
                                                                      //  tissue (rqnsed2) is added to seed growth requirement.
-    if (state.green_bolls_weight > ActualBollGrowth)
+    if (state.green_bolls_weight > state.actual_boll_growth)
     {
         double rseedn; // existing ratio of N to dry matter in the seeds.
-        rseedn = state.seed_nitrogen / ((state.green_bolls_weight - ActualBollGrowth) * seedratio);
-        rqnsed2 = (state.green_bolls_weight - ActualBollGrowth) * seedratio * (seedcn1 - rseedn);
+        rseedn = state.seed_nitrogen / ((state.green_bolls_weight - state.actual_boll_growth) * seedratio);
+        rqnsed2 = (state.green_bolls_weight - state.actual_boll_growth) * seedratio * (seedcn1 - rseedn);
         if (rqnsed2 < 0)
             rqnsed2 = 0;
     }
