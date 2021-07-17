@@ -239,9 +239,6 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //  at site (k, l, m). It is called from function FruitingSitesAbscission() if this site
 //  is a green boll.
 //
-//     The following global variables are referenced here:
-//   BurrNConc, SeedNConc
-//
 //     The following global variable are set here:
 //   BollWeight, CumPlantNLoss, FruitFraction, FruitingCode, FruitFraction, GreenBollsLost,
 //
@@ -254,9 +251,9 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
 //     Update state.seed_nitrogen, state.burr_nitrogen, CumPlantNLoss, GreenBollsLost, state.green_bolls_weight, state.green_bolls_burr_weight,
 //  BollWeight[k][l][m], state.site[k][l][m].burr.weight, and FruitFraction[k][l][m].
     state.seed_nitrogen -= site.boll.weight * abscissionRatio * (1 - gin1) * state.seed_nitrogen_concentration;
-    state.burr_nitrogen -= site.burr.weight * abscissionRatio * BurrNConc;
+    state.burr_nitrogen -= site.burr.weight * abscissionRatio * state.burr_nitrogen_concentration;
     state.cumulative_nitrogen_loss += site.boll.weight * abscissionRatio * (1. - gin1) * state.seed_nitrogen_concentration;
-    state.cumulative_nitrogen_loss += site.burr.weight * abscissionRatio * BurrNConc;
+    state.cumulative_nitrogen_loss += site.burr.weight * abscissionRatio * state.burr_nitrogen_concentration;
     GreenBollsLost += (site.boll.weight + site.burr.weight) * abscissionRatio;
     state.green_bolls_weight -= site.boll.weight * abscissionRatio;
     state.green_bolls_burr_weight -= site.burr.weight * abscissionRatio;
@@ -271,9 +268,9 @@ void BollAbscission(State &state, FruitingSite &site, double abscissionRatio, do
     if (site.fraction <= 0.001) {
         site.stage = Stage::AbscisedAsBoll;
         state.seed_nitrogen -= site.boll.weight * (1 - gin1) * state.seed_nitrogen_concentration;
-        state.burr_nitrogen -= site.burr.weight * BurrNConc;
+        state.burr_nitrogen -= site.burr.weight * state.burr_nitrogen_concentration;
         state.cumulative_nitrogen_loss += site.boll.weight * (1 - gin1) * state.seed_nitrogen_concentration;
-        state.cumulative_nitrogen_loss += site.burr.weight * BurrNConc;
+        state.cumulative_nitrogen_loss += site.burr.weight * state.burr_nitrogen_concentration;
         site.fraction = 0;
         state.green_bolls_weight -= site.boll.weight;
         state.green_bolls_burr_weight -= site.burr.weight;

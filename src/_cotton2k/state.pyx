@@ -407,6 +407,14 @@ cdef class StateBase:
         self._[0].burr_nitrogen = value
 
     @property
+    def burr_nitrogen_concentration(self):
+        return self._[0].burr_nitrogen_concentration
+
+    @burr_nitrogen_concentration.setter
+    def burr_nitrogen_concentration(self, value):
+        self._[0].burr_nitrogen_concentration = value
+
+    @property
     def root_nitrogen_concentration(self):
         return self._[0].root_nitrogen_concentration
 

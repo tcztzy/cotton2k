@@ -58,7 +58,6 @@ double
     AverageSoilPsi,                   // average soil matric water potential, bars, computed as the weighted average of the root zone.
     vanGenuchtenBeta[9],              // parameter of the Van Genuchten equation.
     BulkDensity[9],                   // bulk density of soil in a horizon, g cm-3.
-    BurrNConc,                        // average nitrogen concentration in burrs.
     ClayVolumeFraction[maxl],         // fraction by volume of clay in the soil.
     conmax,                           // the maximum value for non-dimensional hydraulic conductivity
     CultivationDepth[5],              // depth of cultivation, in cm.

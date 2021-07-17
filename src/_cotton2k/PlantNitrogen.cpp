@@ -78,9 +78,6 @@ void PlantNitrogen(Simulation &sim, uint32_t u)
 //       NitrogenSupply(), NitrogenRequirement(), NitrogenAllocation(),
 //       ExtraNitrogenAllocation(), PlantNitrogenContent(), GetNitrogenStress(),
 //       NitrogenUptakeRequirement().
-//     The following global variables are referenced here:
-//       BurrNConc, Kday, LeafNConc,
-//       PetioleNConc, PetioleNConc, RootNConc, SeedNConc, StemNConc.
 //     The following global and file scope variables are set here:
 //       addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv, rootrs,
 //       rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm, stemrs, uptn, xtran.
@@ -463,10 +460,6 @@ void PlantNitrogenContent(State &state)
 //     This function computes the concentrations of nitrogen in the dry
 //  matter of the plant parts. It is called from PlantNitrogen(). It calls the
 //  function PetioleNitrateN().
-//
-//     The following global variables are set here:
-//       BurrNConc, LeafNConc, PetioleNConc, RootNConc,
-//       SeedNConc, StemNConc.
 {
     //     The following constant parameter is used:
     const double seedratio = 0.64;
@@ -491,7 +484,7 @@ void PlantNitrogenContent(State &state)
     double xxbur; // weight of burrs in green and mature bolls.
     xxbur = state.open_bolls_burr_weight + state.green_bolls_burr_weight;
     if (xxbur > 0)
-        BurrNConc = state.burr_nitrogen / xxbur;
+        state.burr_nitrogen_concentration = state.burr_nitrogen / xxbur;
 }
 
 //////////////////////////
@@ -549,11 +542,6 @@ void NitrogenUptakeRequirement(State &state)
 //     This function computes TotalRequiredN, the nitrogen requirements of the plant -
 //  to be used for simulating the N uptake from the soil (in function NitrogenUptake() )
 //  in the next day. It is called from PlantNitrogen().
-//
-//     The following global variables is set here:      TotalRequiredN
-//     The following global variables are referenced here:
-//       BurrNConc, LeafNConc, PetioleNConc, reqtot,
-//       StemNConc, StemWeight.
 {
     //     The following constant parameters are used:
     const double seedcn1 = .045;   //   further requirement for existing seed tissue.
@@ -593,6 +581,6 @@ void NitrogenUptakeRequirement(State &state)
         state.total_required_nitrogen += state.square_weight * (vnreqsqr - state.square_nitrogen_concentration);
     if (state.seed_nitrogen_concentration < seedcn1)
         state.total_required_nitrogen += state.green_bolls_weight * seedratio * (seedcn1 - state.seed_nitrogen_concentration);
-    if (BurrNConc < vnreqbur)
-        state.total_required_nitrogen += state.green_bolls_burr_weight * (vnreqbur - BurrNConc);
+    if (state.burr_nitrogen_concentration < vnreqbur)
+        state.total_required_nitrogen += state.green_bolls_burr_weight * (vnreqbur - state.burr_nitrogen_concentration);
 }

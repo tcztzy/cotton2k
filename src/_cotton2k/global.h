@@ -35,8 +35,7 @@ extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], Defol
     LateralRootFlag[maxl], SoilHorizonNum[maxl];
 ////    Double    ////
 extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
-    BurrNConc, conmax, CumFertilizerN,
-    CumNetPhotosynth, CumNitrogenUptake,
+    conmax, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake,
     CumWaterAdded, CumWaterDrained, DayTimeTemp, dclay,
     DepthLastRootLayer, dsand,
     ElCondSatSoilToday, GreenBollsLost,
