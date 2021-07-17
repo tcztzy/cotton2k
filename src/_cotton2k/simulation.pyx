@@ -1583,6 +1583,495 @@ cdef class State(StateBase):
         # Compute the resulting LeafAreaIndex but do not let it get too small.
         self.leaf_area_index = max(0.0001, self.leaf_area / per_plant_area)
 
+    #begin plant_nitrogen
+    cdef double burres  # reserve N in burrs, in g per plant.
+    cdef double leafrs  # reserve N in leaves, in g per plant.
+    cdef double petrs  # reserve N in petioles, in g per plant.
+    cdef double stemrs  # reserve N in stems, in g per plant.
+    cdef double rootrs  # reserve N in roots, in g per plant.
+    cdef double rqnbur  # nitrogen requirement for burr growth.
+    cdef double rqnlef  # nitrogen requirement for leaf growth.
+    cdef double rqnpet  # nitrogen requirement for petiole growth.
+    cdef double rqnrut  # nitrogen requirement for root growth.
+    cdef double rqnsed  # nitrogen requirement for seed growth.
+    cdef double rqnsqr  # nitrogen requirement for square growth.
+    cdef double rqnstm  # nitrogen requirement for stem growth.
+    cdef double reqv  # nitrogen requirement for vegetative shoot growth.
+    cdef double reqf  # nitrogen requirement for fruit growth.
+    cdef double reqtot  # total nitrogen requirement for plant growth.
+    cdef double npool  # total nitrogen available for growth.
+    cdef double uptn  # nitrogen uptake from the soil, g per plant.
+    cdef double xtran  # amount of nitrogen not used for growth of plant parts.
+    cdef double addnf  # daily added nitrogen to fruit, g per plant.
+    cdef double addnr  # daily added nitrogen to root, g per plant.
+    cdef double addnv  # daily added nitrogen to vegetative shoot, g per plant.
+
+    def plant_nitrogen(self, emerge_date, stem_weight):
+        """\
+        This function simulates the nitrogen accumulation and distribution in cotton
+        plants, and computes nitrogen stresses.
+
+        The maximum and minimum N concentrations for the various organs are modified from
+        those reported by: Jones et. al. (1974): Development of a nitrogen balance for cotton
+        growth models: a first approximation. Crop Sci. 14:541-546.
+
+        The following parameters are used in all plant N routines:
+                  Growth requirement   Uptake requirement  Minimum content
+        leaves      lefcn0    = .064    vnreqlef  = .042    vlfnmin   = .018
+        petioles    petcn0    = .032    vnreqpet  = .036    vpetnmin  = .005
+        stems       stmcn0    = .036    vnreqstm  = .012    vstmnmin  = .006
+        roots       rootcn0   = .018    vnreqrt   = .010    vrtnmin   = .010
+        burrs       burcn0    = .026    vnreqbur  = .012    vburnmin  = .006
+        seeds       seedcn0   = .036    seedcn1   = .045
+        squares     sqrcn0    = .024    vnreqsqr  = .024
+        """
+
+        # Assign zero to some variables.
+        self.leafrs = 0  # reserve N in leaves, in g per plant.
+        self.petrs = 0  # reserve N in petioles, in g per plant.
+        self.stemrs = 0  # reserve N in stems, in g per plant.
+        self.rootrs = 0  # reserve N in roots, in g per plant.
+        self.reqf = 0  # nitrogen requirement for fruit growth.
+        self.reqtot = 0  # total nitrogen requirement for plant growth.
+        self.reqv = 0  # nitrogen requirement for vegetative shoot growth.
+        self.rqnbur = 0  # nitrogen requirement for burr growth.
+        self.rqnlef = 0  # nitrogen requirement for leaf growth.
+        self.rqnpet = 0  # nitrogen requirement for petiole growth.
+        self.rqnrut = 0  # nitrogen requirement for root growth.
+        self.rqnsed = 0  # nitrogen requirement for seed growth.
+        self.rqnsqr = 0  # nitrogen requirement for square growth.
+        self.rqnstm = 0  # nitrogen requirement for stem growth.
+        self.npool = 0  # total nitrogen available for growth.
+        self.uptn = 0  # nitrogen uptake from the soil, g per plant.
+        self.xtran = 0  # amount of nitrogen not used for growth of plant parts.
+        self.addnf = 0  # daily added nitrogen to fruit, g per plant.
+        self.addnr = 0  # daily added nitrogen to root, g per plant.
+        self.addnv = 0  # daily added nitrogen to vegetative shoot, g per plant.
+
+        # The following subroutines are now called:
+        self.nitrogen_requirement(
+            emerge_date
+        )  # computes the N requirements for growth.
+        self.nitrogen_supply()  # computes the supply of N from uptake and reserves.
+        self.nitrogen_allocation()  # computes the allocation of N in the plant.
+        if self.xtran > 0:
+            self.extra_nitrogen_allocation()  # computes the further allocation of N in the plant
+        self.plant_nitrogen_content()  # computes the concentrations of N in plant dry matter.
+        self.get_nitrogen_stress()  # computes nitrogen stress factors.
+        self.nitrogen_uptake_requirement(
+            stem_weight
+        )  # computes N requirements for uptake
+
+    def nitrogen_requirement(self, emerge_date):
+        """This function computes the N requirements for growth."""
+        # The following constant parameters are used:
+        burcn0 = 0.026  # maximum N content for burrs
+        lefcn0 = 0.064  # maximum N content for leaves
+        petcn0 = 0.032  # maximum N content for petioles
+        rootcn0 = 0.018  # maximum N content for roots
+        seedcn0 = 0.036  # maximum N content for seeds
+        seedcn1 = 0.045  # additional requirement of N for existing seed tissue.
+        seedratio = 0.64  # ratio of seeds to seedcotton in green bolls.
+        sqrcn0 = 0.024  # maximum N content for squares
+        stmcn0 = 0.036  # maximum N content for stems
+        # On emergence, assign initial values to petiole N concentrations.
+        if self.date <= emerge_date:
+            self.petiole_nitrogen_concentration = petcn0
+            self.petiole_nitrate_nitrogen_concentration = petcn0
+        # Compute the nitrogen requirements for growth, by multiplying the daily added dry weight by the maximum N content of each organ.
+        # Nitrogen requirements are based on actual growth rates.
+        # These N requirements will be used to compute the allocation of N to plant parts and the nitrogen stress factors.
+        # All nitrogen requirement variables are in g N per plant.
+        self.rqnlef = lefcn0 * self.total_actual_leaf_growth  # for leaf blade
+        self.rqnpet = petcn0 * self.total_actual_petiole_growth  # for petiole
+        self.rqnstm = stmcn0 * self.actual_stem_growth  # for stem
+        # Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of
+        # carbohydrates for root growth.
+        self.rqnrut = rootcn0 * (
+            self.carbon_allocated_for_root_growth + self.extra_carbon
+        )  # for root
+        self.rqnsqr = self.actual_square_growth * sqrcn0  # for squares
+        # components of seed N requirements.
+        rqnsed1 = self.actual_boll_growth * seedratio * seedcn0  # for seed growth
+        rqnsed2 = 0
+        # The N required for replenishing the N content of existing seed tissue (rqnsed2) is added to seed growth requirement.
+        if self.green_bolls_weight > self.actual_boll_growth:
+            # existing ratio of N to dry matter in the seeds.
+            rseedn = self.seed_nitrogen / (
+                (self.green_bolls_weight - self.actual_boll_growth) * seedratio
+            )
+            rqnsed2 = max(
+                (self.green_bolls_weight - self.actual_boll_growth)
+                * seedratio
+                * (seedcn1 - rseedn),
+                0,
+            )
+
+        self.rqnsed = rqnsed1 + rqnsed2  # total requirement for seeds
+        self.rqnbur = self.actual_burr_growth * burcn0  # for burrs
+        self.reqf = self.rqnsqr + self.rqnsed + self.rqnbur  # total for fruit
+        self.reqv = self.rqnlef + self.rqnpet + self.rqnstm  # total for shoot
+        self.reqtot = self.rqnrut + self.reqv + self.reqf  # total N requirement
+
+    def nitrogen_supply(self):
+        """This function computes the supply of N by uptake from the soil reserves."""
+        # The following constant parameters are used:
+        MobilizNFractionBurrs = 0.08  # fraction of N mobilizable for burrs
+        MobilizNFractionLeaves = (
+            0.09  # fraction of N mobilizable for leaves and petioles
+        )
+        MobilizNFractionStemRoot = 0.40  # fraction of N mobilizable for stems and roots
+        vburnmin = 0.006  # minimum N contents of burrs
+        vlfnmin = 0.018  # minimum N contents of leaves
+        vpetnmin = 0.005  # minimum N contents of petioles, non-nitrate fraction.
+        vpno3min = 0.002  # minimum N contents of petioles, nitrate fraction.
+        vrtnmin = 0.010  # minimum N contents of roots
+        vstmnmin = 0.006  # minimum N contents of stems
+        # uptn is the total supply of nitrogen to the plant by uptake of nitrate and ammonium.
+        self.uptn = self.supplied_nitrate_nitrogen + self.supplied_ammonium_nitrogen
+        # If total N requirement is less than the supply, define npool as the supply and assign zero to the N reserves in all organs.
+        if self.reqtot <= self.uptn:
+            self.npool = self.uptn
+            self.leafrs = 0
+            self.petrs = 0
+            self.stemrs = 0
+            self.rootrs = 0
+            self.burres = 0
+            self.xtran = 0
+        else:
+            # If total N requirement exceeds the supply, compute the nitrogen  reserves in the plant. The reserve N in an organ is defined as a fraction  of the nitrogen content exceeding a minimum N content in it.
+            # The N reserves in leaves, petioles, stems, roots and burrs of green bolls are computed, and their N content updated.
+            self.leafrs = max(
+                (self.leaf_nitrogen - vlfnmin * self.leaf_weight)
+                * MobilizNFractionLeaves,
+                0,
+            )
+            self.leaf_nitrogen -= self.leafrs
+            # The petiole N content is subdivided to nitrate and non-nitrate. The nitrate ratio in the petiole N is computed by calling function PetioleNitrateN().
+            # Note that the nitrate fraction is more available for redistribution.
+            # ratio of NO3 N to total N in petioles.
+            rpetno3 = self.petiole_nitrate_nitrogen()
+            # components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
+            petrs1 = max(
+                (self.petiole_nitrogen * (1 - rpetno3) - vpetnmin * self.petiole_weight)
+                * MobilizNFractionLeaves,
+                0,
+            )
+            petrs2 = max(
+                (self.petiole_nitrogen * rpetno3 - vpno3min * self.petiole_weight)
+                * MobilizNFractionLeaves,
+                0,
+            )
+            self.petrs = petrs1 + petrs2
+            self.petiole_nitrogen -= self.petrs
+            # Stem N reserves.
+            self.stemrs = max(
+                (self.stem_nitrogen - vstmnmin * self.stem_weight)
+                * MobilizNFractionStemRoot,
+                0,
+            )
+            self.stem_nitrogen -= self.stemrs
+            # Root N reserves
+            self.rootrs = max(
+                (self.root_nitrogen - vrtnmin * self.root_weight)
+                * MobilizNFractionStemRoot,
+                0,
+            )
+            self.root_nitrogen -= self.rootrs
+            # Burr N reserves
+            if self.green_bolls_burr_weight > 0:
+                self.burres = max(
+                    (self.burr_nitrogen - vburnmin * self.green_bolls_burr_weight)
+                    * MobilizNFractionBurrs,
+                    0,
+                )
+                self.burr_nitrogen -= self.burres
+            else:
+                self.burres = 0
+            # The total reserves, resn, are added to the amount taken up from the soil, for computing npool. Note that N of seeds or squares is not available for redistribution in the plant.
+            resn = (
+                self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres
+            )  # total reserve N, in g per plant.
+            self.npool = self.uptn + resn
+
+    def petiole_nitrate_nitrogen(self) -> float:
+        """This function computes the ratio of NO3 nitrogen to total N in the petioles."""
+        # The following constant parameters are used:
+        p1 = 0.96  # the maximum ratio (of NO3 to total N in petioles).
+        p2 = 0.015  # the rate of decline of this ratio with age.
+        p3 = 0.02  # the minimum ratio
+        # The ratio of NO3 to total N in each individual petiole is computed  as a linear function of leaf age. It is assumed that this ratio is maximum for young leaves and is declining with leaf age.
+        spetno3 = 0  # sum of petno3r.
+        petno3r = 0  # ratio of NO3 to total N in an individual petiole.
+        # Loop of prefruiting node leaves.
+        for j in range(self.number_of_pre_fruiting_nodes):
+            petno3r = p1 - self.age_of_pre_fruiting_nodes[j] * p2
+            if petno3r < p3:
+                petno3r = p3
+            spetno3 += petno3r
+        # Loop of all the other leaves, with the same computations.
+        numl = self.number_of_pre_fruiting_nodes  # number of petioles computed.
+        for k in range(self.number_of_vegetative_branches):
+            for l in range(self.vegetative_branches[k].number_of_fruiting_branches):
+                numl += (
+                    self.vegetative_branches[k]
+                    .fruiting_branches[l]
+                    .number_of_fruiting_nodes
+                )
+                for m in range(
+                    self.vegetative_branches[k]
+                    .fruiting_branches[l]
+                    .number_of_fruiting_nodes
+                ):
+                    petno3r = (
+                        p1
+                        - self.vegetative_branches[k]
+                        .fruiting_branches[l]
+                        .nodes[m]
+                        .leaf.age
+                        * p2
+                    )
+                    if petno3r < p3:
+                        petno3r = p3
+                    spetno3 += petno3r
+        # The return value of the function is the average ratio of NO3 to total N for all the petioles in the plant.
+        return spetno3 / numl
+
+    def nitrogen_allocation(self):
+        """This function computes the allocation of supplied nitrogen to the plant parts."""
+        # The following constant parameters are used:
+        vseednmax: float = (
+            0.70  # maximum proportion of N pool that can be added to seeds
+        )
+        vsqrnmax: float = (
+            0.65  # maximum proportion of N pool that can be added to squares
+        )
+        vburnmax: float = (
+            0.65  # maximum proportion of N pool that can be added to burrs
+        )
+        vlfnmax: float = (
+            0.90  # maximum proportion of N pool that can be added to leaves
+        )
+        vstmnmax: float = (
+            0.70  # maximum proportion of N pool that can be added to stems
+        )
+        vpetnmax: float = (
+            0.75  # maximum proportion of N pool that can be added to petioles
+        )
+        # If total N requirement is less than npool, add N required for growth to the N in each organ, compute added N to vegetative parts, fruiting parts and roots, and compute xtran as the difference between npool and the total N requirements.
+        if self.reqtot <= self.npool:
+            self.leaf_nitrogen += self.rqnlef
+            self.petiole_nitrogen += self.rqnpet
+            self.stem_nitrogen += self.rqnstm
+            self.root_nitrogen += self.rqnrut
+            self.square_nitrogen += self.rqnsqr
+            self.seed_nitrogen += self.rqnsed
+            self.burr_nitrogen += self.rqnbur
+            self.addnv = self.rqnlef + self.rqnstm + self.rqnpet
+            self.addnf = self.rqnsqr + self.rqnsed + self.rqnbur
+            self.addnr = self.rqnrut
+            self.xtran = self.npool - self.reqtot
+            return
+        # If N requirement is greater than npool, execute the following:
+        # First priority is nitrogen supply to the growing seeds. It is assumed that up to vseednmax = 0.70 of the supplied N can be used by the seeds. Update seed N and addnf by the amount of nitrogen used for seed growth, and decrease npool by this amount.
+        # The same procedure is used for each organ, consecutively.
+        useofn = 0  # amount of nitrogen used in growth of a plant organ.
+        if self.rqnsed > 0:
+            useofn = min(vseednmax * self.npool, self.rqnsed)
+            self.seed_nitrogen += useofn
+            self.addnf += useofn
+            self.npool -= useofn
+        # Next priority is for burrs, which can use N up to vburnmax = 0.65 of the  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
+        if self.rqnbur > 0:
+            useofn = min(vburnmax * self.npool, self.rqnbur)
+            self.burr_nitrogen += useofn
+            self.addnf += useofn
+            self.npool -= useofn
+        if self.rqnsqr > 0:
+            useofn = min(vsqrnmax * self.npool, self.rqnsqr)
+            self.square_nitrogen += useofn
+            self.addnf += useofn
+            self.npool -= useofn
+        # Next priority is for leaves, which can use N up to vlfnmax = 0.90  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for petioles, up to vpetnmax = 0.75
+        if self.rqnlef > 0:
+            useofn = min(vlfnmax * self.npool, self.rqnlef)
+            self.leaf_nitrogen += useofn
+            self.addnv += useofn
+            self.npool -= useofn
+        if self.rqnstm > 0:
+            useofn = min(vstmnmax * self.npool, self.rqnstm)
+            self.stem_nitrogen += useofn
+            self.addnv += useofn
+            self.npool -= useofn
+        if self.rqnpet > 0:
+            useofn = min(vpetnmax * self.npool, self.rqnpet)
+            self.petiole_nitrogen += useofn
+            self.addnv += useofn
+            self.npool -= useofn
+        # The remaining npool goes to root growth. If any npool remains it is defined as xtran.
+        if self.rqnrut > 0:
+            useofn = min(self.npool, self.rqnrut)
+            self.root_nitrogen += useofn
+            self.addnr += useofn
+            self.npool -= useofn
+        self.xtran = self.npool
+
+    def extra_nitrogen_allocation(self):
+        """This function computes the allocation of extra nitrogen to the plant parts."""
+        # If there are any N reserves in the plant, allocate remaining xtran in proportion to the N reserves in each of these organs. Note: all reserves are in g per plant units.
+        addbur: float = 0  # reserve N to be added to the burrs.
+        addlfn: float = 0  # reserve N to be added to the leaves.
+        addpetn: float = 0  # reserve N to be added to the petioles.
+        addrt: float = 0  # reserve N to be added to the roots.
+        addstm: float = 0  # reserve N to be added to the stem.
+        # sum of existing reserve N in plant parts.
+        rsum = self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres
+        if rsum > 0:
+            addlfn = self.xtran * self.leafrs / rsum
+            addpetn = self.xtran * self.petrs / rsum
+            addstm = self.xtran * self.stemrs / rsum
+            addrt = self.xtran * self.rootrs / rsum
+            addbur = self.xtran * self.burres / rsum
+        else:
+            # If there are no reserves, allocate xtran in proportion to the dry weights in each of these organs.
+            # weight of vegetative plant parts, plus burrs.
+            vegwt = (
+                self.leaf_weight
+                + self.petiole_weight
+                + self.stem_weight
+                + self.root_weight
+                + self.green_bolls_burr_weight
+            )
+            addlfn = self.xtran * self.leaf_weight / vegwt
+            addpetn = self.xtran * self.petiole_weight / vegwt
+            addstm = self.xtran * self.stem_weight / vegwt
+            addrt = self.xtran * self.root_weight / vegwt
+            addbur = self.xtran * self.green_bolls_burr_weight / vegwt
+        # Update N content in these plant parts. Note that at this stage of  nitrogen allocation, only vegetative parts and burrs are updated (not seeds or squares).
+        self.leaf_nitrogen += addlfn
+        self.petiole_nitrogen += addpetn
+        self.stem_nitrogen += addstm
+        self.root_nitrogen += addrt
+        self.burr_nitrogen += addbur
+
+    def plant_nitrogen_content(self):
+        """This function computes the concentrations of nitrogen in the dry matter of the plant parts."""
+        # The following constant parameter is used:
+        seedratio = 0.64
+        # Compute N concentration in plant organs as the ratio of N content to weight of dry matter.
+        if self.leaf_weight > 0.00001:
+            self.leaf_nitrogen_concentration = self.leaf_nitrogen / self.leaf_weight
+        if self.petiole_weight > 0.00001:
+            self.petiole_nitrogen_concentration = (
+                self.petiole_nitrogen / self.petiole_weight
+            )
+            self.petiole_nitrate_nitrogen_concentration = (
+                self.petiole_nitrogen_concentration * self.petiole_nitrate_nitrogen()
+            )
+        if self.stem_weight > 0:
+            self.stem_nitrogen_concentration = self.stem_nitrogen / self.stem_weight
+        if self.root_weight > 0:
+            self.root_nitrogen_concentration = self.root_nitrogen / self.root_weight
+        if self.square_weight > 0:
+            self.square_nitrogen_concentration = (
+                self.square_nitrogen / self.square_weight
+            )
+        # weight of seeds in green and mature bolls.
+        xxseed = (
+            self.open_bolls_weight * (1 - self.ginning_percent)
+            + self.green_bolls_weight * seedratio
+        )
+        if xxseed > 0:
+            self.seed_nitrogen_concentration = self.seed_nitrogen / xxseed
+        # weight of burrs in green and mature bolls.
+        xxbur = self.open_bolls_burr_weight + self.green_bolls_burr_weight
+        if xxbur > 0:
+            self.burr_nitrogen_concentration = self.burr_nitrogen / xxbur
+
+    def get_nitrogen_stress(self):
+        """This function computes the nitrogen stress factors."""
+        # Set the default values for the nitrogen stress coefficients to 1.
+        self.nitrogen_stress_vegetative = 1
+        self.nitrogen_stress_root = 1
+        self.nitrogen_stress_fruiting = 1
+        self.nitrogen_stress = 1
+        # Compute the nitrogen stress coefficients. state.nitrogen_stress_fruiting is the ratio of  N added actually to the fruits, to their N requirements. state.nitrogen_stress_vegetative is the same for vegetative shoot growth, and state.nitrogen_stress_root for roots. Also, an average stress coefficient for vegetative and reproductive organs is computed as NitrogenStress.
+        # Each stress coefficient has a value between 0 and 1.
+        if self.reqf > 0:
+            self.nitrogen_stress_fruiting = self.addnf / self.reqf
+            if self.nitrogen_stress_fruiting > 1:
+                self.nitrogen_stress_fruiting = 1
+            if self.nitrogen_stress_fruiting < 0:
+                self.nitrogen_stress_fruiting = 0
+        if self.reqv > 0:
+            self.nitrogen_stress_vegetative = self.addnv / self.reqv
+            if self.nitrogen_stress_vegetative > 1:
+                self.nitrogen_stress_vegetative = 1
+            if self.nitrogen_stress_vegetative < 0:
+                self.nitrogen_stress_vegetative = 0
+        if self.rqnrut > 0:
+            self.nitrogen_stress_root = self.addnr / self.rqnrut
+            if self.nitrogen_stress_root > 1:
+                self.nitrogen_stress_root = 1
+            if self.nitrogen_stress_root < 0:
+                self.nitrogen_stress_root = 0
+        if (self.reqf + self.reqv) > 0:
+            self.nitrogen_stress = (self.addnf + self.addnv) / (self.reqf + self.reqv)
+            if self.nitrogen_stress > 1:
+                self.nitrogen_stress = 1
+            if self.nitrogen_stress < 0:
+                self.nitrogen_stress = 0
+
+    def nitrogen_uptake_requirement(self, stem_weight):
+        """This function computes TotalRequiredN, the nitrogen requirements of the plant - to be used for simulating the N uptake from the soil (in function NitrogenUptake() ) in the next day."""
+        # The following constant parameters are used:
+        seedcn1 = 0.045  # further requirement for existing seed tissue.
+        seedratio = 0.64  # the ratio of seeds to seedcotton in green bolls.
+        vnreqlef = 0.042  # coefficient for computing N uptake requirements of leaves
+        vnreqpet = 0.036  # coefficient for computing N uptake requirements of petioles
+        vnreqstm = 0.012  # coefficient for computing N uptake requirements of stems
+        vnreqrt = 0.010  # coefficient for computing N uptake requirements of roots
+        vnreqsqr = 0.024  # coefficient for computing N uptake requirements of squares
+        vnreqbur = 0.012  # coefficient for computing N uptake requirements of burrs
+
+        self.total_required_nitrogen = self.reqtot
+        # After the requirements of today's growth are supplied, N is also required for supplying necessary functions in other active plant tissues.
+        # Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
+        if self.leaf_nitrogen_concentration < vnreqlef:
+            self.total_required_nitrogen += self.leaf_weight * (
+                vnreqlef - self.leaf_nitrogen_concentration
+            )
+        if self.petiole_nitrogen_concentration < vnreqpet:
+            self.total_required_nitrogen += self.petiole_weight * (
+                vnreqpet - self.petiole_nitrogen_concentration
+            )
+        # The active stem tissue is the stem formed during the last voldstm days (32 calendar days). add stem requirement to TotalRequiredN.
+        grstmwt = self.stem_weight - stem_weight if self.kday > 0 else 0
+        if self.stem_nitrogen_concentration < vnreqstm:
+            self.total_required_nitrogen += grstmwt * (
+                vnreqstm - self.stem_nitrogen_concentration
+            )
+        # Compute nitrogen uptake requirement for existing tissues of roots, squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
+        if self.root_nitrogen_concentration < vnreqrt:
+            self.total_required_nitrogen += self.root_weight * (
+                vnreqrt - self.root_nitrogen_concentration
+            )
+        if self.square_nitrogen_concentration < vnreqsqr:
+            self.total_required_nitrogen += self.square_weight * (
+                vnreqsqr - self.square_nitrogen_concentration
+            )
+        if self.seed_nitrogen_concentration < seedcn1:
+            self.total_required_nitrogen += (
+                self.green_bolls_weight
+                * seedratio
+                * (seedcn1 - self.seed_nitrogen_concentration)
+            )
+        if self.burr_nitrogen_concentration < vnreqbur:
+            self.total_required_nitrogen += self.green_bolls_burr_weight * (
+                vnreqbur - self.burr_nitrogen_concentration
+            )
+    #end plant_nitrogen
+
 
 def compute_incoming_long_wave_radiation(humidity: float, temperature: float, cloud_cov: float, cloud_cor: float) -> float:
     """LONG WAVE RADIATION EMITTED FROM SKY"""
@@ -2930,7 +3419,7 @@ cdef class Simulation:
             self._get_net_photosynthesis(u)  # computes net photosynthesis.
             self._growth(u)  # executes all modules of plant growth.
             self._phenology(u)  # executes all modules of plant phenology.
-            PlantNitrogen(self._sim, u)  # computes plant nitrogen allocation.
+            state.plant_nitrogen(self.emerge_date, self.state(max(u - 32, self._sim.day_emerge - self._sim.day_start)).stem_weight)  # computes plant nitrogen allocation.
             CheckDryMatterBal(self._sim.states[u])  # checks plant dry matter balance.
         # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
         if state.daynum >= LastDayWeatherData or (state.kday > 10 and state.leaf_area_index < 0.0002):
