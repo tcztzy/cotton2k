@@ -1964,10 +1964,11 @@ cdef class Simulation:
         LastTaprootLayer = 6
 
     def _simulate(self):
-        for i in range(self._sim.day_finish - self._sim.day_start + 1):
+        for i in range(self._sim.day_finish - self._sim.day_start):
             self._simulate_this_day(i)
-            if i < self._sim.day_finish - self._sim.day_start:
-                CopyState(self._sim, i)
+            CopyState(self._sim, i)
+        else:
+            self._simulate_this_day(self._sim.day_finish - self._sim.day_start)
 
     def _energy_balance(self, u, ihr, k, ess, etp1):
         """
