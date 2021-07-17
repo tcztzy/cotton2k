@@ -80,26 +80,6 @@ cdef CopyState(cSimulation & sim, uint32_t i):
     state.daynum = sim.day_start + i + 1
     sim.states[i + 1] = state
 
-cdef void initialize_switch(cSimulation & sim):
-    global isw
-    cdef cState state0 = sim.states[0]
-    # If the date of emergence has not been given, emergence will be simulated
-    # by the model. In this case, isw = 0, and a check is performed to make
-    # sure that the date of planting has been given.
-    if sim.day_emerge <= 0:
-        if sim.day_plant <= 0:
-            raise Exception(
-                " planting date or emergence date must be given in the profile file !!")
-        isw = 0
-    # If the date of emergence has been given in the input: isw = 1 if
-    # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
-    elif sim.day_emerge > sim.day_start:
-        isw = 1
-    else:
-        isw = 2
-        sim.states[0].kday = 1
-
-
 cdef class SoilInit:
     cdef unsigned int number_of_layers
     def __init__(self, initial, hydrology, layer_depth=None):
@@ -2997,10 +2977,28 @@ cdef class Simulation:
                 else:
                     self._sim.plant_row_column = k
 
+    cdef void initialize_switch(self):
+        global isw
+        # If the date of emergence has not been given, emergence will be simulated
+        # by the model. In this case, isw = 0, and a check is performed to make
+        # sure that the date of planting has been given.
+        if self.emerge_date is None:
+            if self.plant_date is None:
+                raise Exception(
+                    " planting date or emergence date must be given in the profile file !!")
+            isw = 0
+        # If the date of emergence has been given in the input: isw = 1 if
+        # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
+        elif self.emerge_date > self.start_date:
+            isw = 1
+        else:
+            isw = 2
+            self._sim.states[0].kday = 1
+
     def read_input(self, lyrsol, **kwargs):
         """This is the main function for reading input."""
         InitializeGlobal()
-        initialize_switch(self._sim)
+        self.initialize_switch()
         self._init_grid()
         read_agricultural_input(self._sim, kwargs.get("agricultural_inputs", []))
         InitializeSoilData(self._sim, lyrsol)
