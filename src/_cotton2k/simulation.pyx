@@ -740,9 +740,7 @@ cdef class State(StateBase):
         if psinum > 0 and sumlv > 0:
             rroot = psinum / rrlsum
             vh2 = vh2sum / psinum
-            dumyrs = sqrt(1 / (pi * sumlv / rootvol)) / rtdiam
-            if (dumyrs < 1.001):
-                dumyrs = 1.001
+            dumyrs = max(sqrt(1 / (pi * sumlv / rootvol)) / rtdiam, 1.001)
         else:
             rroot = 0
             vh2 = thad[0]
