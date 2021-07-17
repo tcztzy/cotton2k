@@ -15,7 +15,7 @@ using namespace std;
 
 void NewBollFormation(State &, FruitingSite &);
 
-void BollOpening(Simulation &, uint32_t, int, int, int, double);
+void BollOpening(State &, int, int, int, unsigned int, double, double, double[61]);
 
 //   Declaration of file-scope variables:
 double FibLength;          // fiber length
@@ -153,7 +153,7 @@ void SimulateFruitingSite(Simulation &sim, uint32_t u, int k, int l, int m, int 
     }
     //     If this node is an older green boll (FruitingCode = 2):
     if (site.stage == Stage::GreenBoll)
-        BollOpening(sim, u, k, l, m, boltmp[k][l][m]);
+        BollOpening(sim.states[u], k, l, m, sim.day_defoliate, boltmp[k][l][m], sim.plant_population, sim.cultivar_parameters);
 }
 
 /////////////////////////
@@ -213,7 +213,7 @@ void NewBollFormation(State &state, FruitingSite &site)
 }
 
 /////////////////////////
-void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpboll)
+void BollOpening(State &state, int k, int l, int m, unsigned int day_defoliate, double tmpboll, double plant_population, double cultivar_parameters[61])
 //     Function BollOpening() simulates the transition of each fruiting site
 //  from green to dehissed (open) boll. It is called from SimulateFruitingSite().
 //     The following global variables are referenced here:
@@ -227,7 +227,6 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
 //        tmpboll - average temperature of this boll.
 //
 {
-    State &state = sim.states[u];
     FruitingSite &site = state.vegetative_branches[k].fruiting_branches[l].nodes[m];
     //     The following constant parameters are used:
     double ddpar1 = 1;
@@ -242,13 +241,13 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
         atn = vboldhs[0];
     //     Compute dehiss as a function of boll temperature.
     double dehiss; // days from flowering to boll opening.
-    dehiss = sim.cultivar_parameters[39] + atn * (vboldhs[1] + atn * (vboldhs[2] + atn * vboldhs[3]));
-    dehiss = dehiss * sim.cultivar_parameters[40];
+    dehiss = cultivar_parameters[39] + atn * (vboldhs[1] + atn * (vboldhs[2] + atn * vboldhs[3]));
+    dehiss = dehiss * cultivar_parameters[40];
     if (dehiss > vboldhs[4])
         dehiss = vboldhs[4];
     //     Dehiss is decreased after a defoliation.
-    if (sim.day_defoliate > 0 && state.daynum > sim.day_defoliate)
-        dehiss = dehiss * pow(vboldhs[5], (state.daynum - sim.day_defoliate));
+    if (day_defoliate > 0 && state.daynum > day_defoliate)
+        dehiss = dehiss * pow(vboldhs[5], (state.daynum - day_defoliate));
     //     If leaf area index is less than dpar1, decrease dehiss.
     if (state.leaf_area_index < ddpar1)
     {
@@ -273,11 +272,11 @@ void BollOpening(Simulation &sim, uint32_t u, int k, int l, int m, double tmpbol
     //     Compute the ginning percentage as a function of boll temperature.
     //     Compute the average ginning percentage of all the bolls opened
     //  until now (state.ginning_percent).
-    site.ginning_percent = (sim.cultivar_parameters[41] - sim.cultivar_parameters[42] * atn) / 100;
+    site.ginning_percent = (cultivar_parameters[41] - cultivar_parameters[42] * atn) / 100;
     state.ginning_percent = (state.ginning_percent * state.number_of_open_bolls + site.ginning_percent * site.fraction) /
              (state.number_of_open_bolls + site.fraction);
     //     Cumulative lint yield (LintYield) is computed in kg per ha.
-    state.lint_yield += site.ginning_percent * site.boll.weight * sim.plant_population * .001;
+    state.lint_yield += site.ginning_percent * site.boll.weight * plant_population * .001;
     //     Note: computation of fiber properties is as in GOSSYM, it is
     //  not used in COTTON2K, and it has not been tested. It is included here
     //  for compatibility, and it may be developed in future versions.
