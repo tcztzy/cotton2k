@@ -45,8 +45,6 @@ void InitializeGlobal()
     SupplyNH4N = 0;
     SupplyNO3N = 0;
 
-    TotalActualPetioleGrowth = 0;
-
     WaterTableLayer = 1000;
 //
     for (int i = 0; i < 3; i++) {

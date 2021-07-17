@@ -141,7 +141,6 @@ double
     thetar[maxl],                     // volumetric water content of soil layers at permanent wilting point (-15 bars), cm3 cm-3.
     thetas[9],                        // volumetric saturated water content of soil horizon, cm3 cm-3.
     thts[maxl],                       // saturated volumetric water content of each soil layer, cm3 cm-3.
-    TotalActualPetioleGrowth,         // actual growth rate of all the petioles, g plant-1 day-1.
     TotalSoilNh4N,                    // total ammonium in profile, mg N per slab.
     TotalSoilNitrogen,                // total soil nitrogen, mg N per slab.
     TotalSoilNo3N,                    // total nitrate in profile, mg N per slab.

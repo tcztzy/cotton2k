@@ -101,6 +101,7 @@ cdef extern from "State.hpp":
         double deep_soil_temperature
         double pavail
         double total_actual_leaf_growth
+        double total_actual_petiole_growth
         double petiole_nitrate_nitrogen_concentration
         bool_t pollination_switch
         double age_of_pre_fruiting_nodes[9]
