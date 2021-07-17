@@ -53,7 +53,6 @@ double
     AbscissionLag[20],                // the time (in physiological days) from tagging fruiting sites for shedding.
     ActualBollGrowth,                 // total actual growth of seedcotton in bolls, g plant-1 day-1.
     ActualBurrGrowth,                 // total actual growth of burrs in bolls, g plant-1 day-1.
-    ActualSquareGrowth,               // total actual growth of squares, g plant-1 day-1.
     ActualStemGrowth,                 // actual growth rate of stems, g plant-1 day-1.
     airdr[9],                         // volumetric water content of soil at "air-dry" for each soil horizon, cm3 cm-3.
     alpha[9],                         // parameter of the Van Genuchten equation.

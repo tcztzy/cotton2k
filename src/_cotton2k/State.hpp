@@ -108,6 +108,7 @@ typedef struct State
     double pavail;                              // residual available carbon for root growth from previous day.
     double total_actual_leaf_growth;            // actual growth rate of all the leaves, g plant-1 day-1.
     double total_actual_petiole_growth;         // actual growth rate of all the petioles, g plant-1 day-1.
+    double actual_square_growth;                // total actual growth of squares, g plant-1 day-1.
     double petiole_nitrate_nitrogen_concentration; // average nitrate nitrogen concentration in petioles.
     bool pollination_switch;                    // pollination switch: false = no pollination, true = yes.
     double age_of_pre_fruiting_nodes[9];        // age of each prefruiting node, physiological days.

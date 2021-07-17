@@ -523,6 +523,14 @@ cdef class StateBase:
         self._[0].total_actual_petiole_growth = value
 
     @property
+    def actual_square_growth(self):
+        return self._[0].actual_square_growth
+
+    @actual_square_growth.setter
+    def actual_square_growth(self, value):
+        self._[0].actual_square_growth = value
+
+    @property
     def deep_soil_temperature(self):
         return self._[0].deep_soil_temperature
 

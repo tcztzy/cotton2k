@@ -23,7 +23,7 @@ void ActualFruitGrowth(State &state)
 //        PotGroBolls, PotGroBurrs, PotGroSquares.
 //
 //     The following global variables are set here:
-//        ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, BollWeight,
+//        ActualBollGrowth, ActualBurrGrowth, BollWeight,
 //        SquareWeight.
 //
 {
@@ -31,7 +31,7 @@ void ActualFruitGrowth(State &state)
     state.square_weight = 0;
     state.green_bolls_weight = 0;
     state.green_bolls_burr_weight = 0;
-    ActualSquareGrowth = 0;
+    state.actual_square_growth = 0;
     ActualBollGrowth = 0;
     ActualBurrGrowth = 0;
     //     Begin loops over all fruiting sites.
@@ -43,13 +43,13 @@ void ActualFruitGrowth(State &state)
                 //     If this site is a square, the actual dry weight added to it
                 //  (dwsq) is proportional to its potential growth.
                 //     Update the weight of this square (SquareWeight), sum of today's added dry
-                //  weight to squares (ActualSquareGrowth), and total weight of squares (state.square_weight).
+                //  weight to squares (state.actual_square_growth), and total weight of squares (state.square_weight).
                 if (site.stage == Stage::Square)
                 {
                     double dwsq = site.square.potential_growth * state.fruit_growth_ratio; // dry weight added to square.
 
                     site.square.weight += dwsq;
-                    ActualSquareGrowth += dwsq;
+                    state.actual_square_growth += dwsq;
                     state.square_weight += site.square.weight;
                 }
                 //     If this site is a green boll, the actual dry weight added to seedcotton and burrs
