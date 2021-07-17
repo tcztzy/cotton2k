@@ -59,7 +59,6 @@ from .cxx cimport (
     RootNitrogen,
     RootWeightLoss,
     SoilHorizonNum,
-    TotalActualLeafGrowth,
     TotalActualPetioleGrowth,
     PetioleWeightPreFru,
     AverageSoilPsi,
@@ -822,7 +821,7 @@ cdef class State(StateBase):
 
     def dry_matter_balance(self, per_plant_area) -> tuple[float, float, float, float, float]:
         """This function computes the cotton plant dry matter (carbon) balance, its allocation to growing plant parts, and carbon stress. It is called from PlantGrowth()."""
-        global ReserveC, TotalActualLeafGrowth, TotalActualPetioleGrowth, ActualStemGrowth, CarbonAllocatedForRootGrowth
+        global ReserveC, TotalActualPetioleGrowth, ActualStemGrowth, CarbonAllocatedForRootGrowth
         # The following constant parameters are used:
         cdef double[15] vchbal = [6.0, 2.5, 1.0, 5.0, 0.20, 0.80, 0.48, 0.40, 0.2072, 0.60651, 0.0065, 1.10, 4.0, 0.25, 4.0]
         # Assign values for carbohydrate requirements for growth of stems, roots, leaves, petioles, squares and bolls. Potential growth of all plant parts is modified by nitrogen stresses.
@@ -848,12 +847,12 @@ cdef class State(StateBase):
             self.carbon_stress = 1
             return cdstem, cdleaf, cdpet, cdroot, 0  # Exit function if cdsum is 0.
         self.carbon_stress = min(1, cpool / cdsum)
-        # When carbohydrate supply is sufficient for growth requirements, CarbonStress will be assigned 1, and the carbohydrates actually supplied for plant growth (TotalActualLeafGrowth, TotalActualPetioleGrowth, ActualStemGrowth, CarbonAllocatedForRootGrowth, pdboll, pdsq) will be equal to the required amounts.
+        # When carbohydrate supply is sufficient for growth requirements, CarbonStress will be assigned 1, and the carbohydrates actually supplied for plant growth (total_actual_leaf_growth, TotalActualPetioleGrowth, ActualStemGrowth, CarbonAllocatedForRootGrowth, pdboll, pdsq) will be equal to the required amounts.
         cdef double pdboll  # amount of carbohydrates allocated to boll growth.
         cdef double pdsq  # amount of carbohydrates allocated to square growth.
         cdef double xtrac1, xtrac2  # first and second components of ExtraCarbon.
         if self.carbon_stress == 1:
-            TotalActualLeafGrowth = cdleaf
+            self.total_actual_leaf_growth = cdleaf
             TotalActualPetioleGrowth = cdpet
             ActualStemGrowth = cdstem
             CarbonAllocatedForRootGrowth = cdroot
@@ -885,11 +884,11 @@ cdef class State(StateBase):
                 flf = min(max(vchbal[7] * cavail / (cdleaf + cdpet), 0), 1)
                 # Compute the actual carbohydrates used for leaf and petiole growth, and the
                 # remaining available carbohydrates.
-                TotalActualLeafGrowth = cdleaf * flf
+                self.total_actual_leaf_growth = cdleaf * flf
                 TotalActualPetioleGrowth = cdpet * flf
-                cavail -= (TotalActualLeafGrowth + TotalActualPetioleGrowth)
+                cavail -= (self.total_actual_leaf_growth + TotalActualPetioleGrowth)
             else:
-                TotalActualLeafGrowth = 0
+                self.total_actual_leaf_growth = 0
                 TotalActualPetioleGrowth = 0
             # The next priority is for root growth.
             if cdroot > 0:
@@ -926,8 +925,7 @@ cdef class State(StateBase):
         # Check that the amounts of carbohydrates supplied to each organ will not be less than zero.
         if ActualStemGrowth < 0:
             ActualStemGrowth = 0
-        if TotalActualLeafGrowth < 0:
-            TotalActualLeafGrowth = 0
+        self.total_actual_leaf_growth = max(self.total_actual_leaf_growth, 0)
         if TotalActualPetioleGrowth < 0:
             TotalActualPetioleGrowth = 0
         if CarbonAllocatedForRootGrowth < 0:
@@ -937,7 +935,7 @@ cdef class State(StateBase):
         if pdsq < 0:
             pdsq = 0
         # Update the amount of reserve carbohydrates (ReserveC) in the leaves.
-        ReserveC = ReserveC + NetPhotosynthesis - (ActualStemGrowth + TotalActualLeafGrowth + TotalActualPetioleGrowth + CarbonAllocatedForRootGrowth + pdboll + pdsq)
+        ReserveC = ReserveC + NetPhotosynthesis - (ActualStemGrowth + self.total_actual_leaf_growth + TotalActualPetioleGrowth + CarbonAllocatedForRootGrowth + pdboll + pdsq)
         cdef double resmax  # maximum possible amount of carbohydrate reserves that can be stored in the leaves.
         # resmax is a fraction (vchbal[4])) of leaf weight. Excessive reserves are defined as xtrac2.
         resmax = vchbal[4] * self.leaf_weight
@@ -955,7 +953,7 @@ cdef class State(StateBase):
             self.fruit_growth_ratio = 1
         # Compute vratio as the ratio of carbohydrates supplied to leaf and petiole growth to their carbohydrate requirements.
         if (PotGroAllLeaves + PotGroAllPetioles) > 0:
-            vratio = (TotalActualLeafGrowth + TotalActualPetioleGrowth) / (PotGroAllLeaves + PotGroAllPetioles)
+            vratio = (self.total_actual_leaf_growth + TotalActualPetioleGrowth) / (PotGroAllLeaves + PotGroAllPetioles)
         else:
             vratio = 1
         return cdstem, cdleaf, cdpet, cdroot, vratio
@@ -1863,6 +1861,7 @@ cdef class Simulation:
         state0.fruit_growth_ratio = 1
         state0.ginning_percent = 0.35
         state0.number_of_pre_fruiting_nodes = 1
+        state0.total_actual_leaf_growth = 0
         for i in range(9):
             state0.age_of_pre_fruiting_nodes[i] = 0
             state0.leaf_area_pre_fruiting[i] = 0

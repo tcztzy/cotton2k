@@ -106,7 +106,6 @@ cdef extern from "global.h":
     double RootNitrogen
     double RootWeightLoss
     int SoilHorizonNum[40]
-    double TotalActualLeafGrowth
     double TotalActualPetioleGrowth
     double AverageSoilPsi
     double thts[40]

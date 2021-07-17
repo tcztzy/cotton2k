@@ -100,6 +100,7 @@ cdef extern from "State.hpp":
         double average_temperature
         double deep_soil_temperature
         double pavail
+        double total_actual_leaf_growth
         bool_t pollination_switch
         double age_of_pre_fruiting_nodes[9]
         int number_of_pre_fruiting_nodes

@@ -46,7 +46,6 @@ void InitializeGlobal()
     SupplyNH4N = 0;
     SupplyNO3N = 0;
 
-    TotalActualLeafGrowth = 0;
     TotalActualPetioleGrowth = 0;
 
     WaterTableLayer = 1000;

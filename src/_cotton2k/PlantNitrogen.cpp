@@ -126,8 +126,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
 //
 //     The following global variables are referenced here:
 //       ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth,
-//       CarbonAllocatedForRootGrowth,
-//       TotalActualLeafGrowth, TotalActualPetioleGrowth.
+//       CarbonAllocatedForRootGrowth, TotalActualPetioleGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, PetioleNO3NConc, reqf, reqtot, reqv, rqnbur,
 //       rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm.
@@ -154,7 +153,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
     //     These N requirements will be used to compute the allocation
     //  of N to plant parts and the nitrogen stress factors.
     //     All nitrogen requirement variables are in g N per plant.
-    rqnlef = lefcn0 * TotalActualLeafGrowth;                         //      for leaf blade
+    rqnlef = lefcn0 * state.total_actual_leaf_growth;                         //      for leaf blade
     rqnpet = petcn0 * TotalActualPetioleGrowth;                      //      for petiole
     rqnstm = stmcn0 * ActualStemGrowth;                              //      for stem
                                                                      //     Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of

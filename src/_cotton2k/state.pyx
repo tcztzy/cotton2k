@@ -507,6 +507,14 @@ cdef class StateBase:
         self._[0].pavail = value
 
     @property
+    def total_actual_leaf_growth(self):
+        return self._[0].total_actual_leaf_growth
+
+    @total_actual_leaf_growth.setter
+    def total_actual_leaf_growth(self, value):
+        self._[0].total_actual_leaf_growth = value
+
+    @property
     def deep_soil_temperature(self):
         return self._[0].deep_soil_temperature
 
