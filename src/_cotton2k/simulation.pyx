@@ -63,7 +63,7 @@ from .cxx cimport (
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth, wcond
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf, StateBase
-from .fruiting_site cimport FruitingSite, Leaf
+from .fruiting_site cimport FruitingSite, Leaf, cBoll
 
 
 class SimulationEnd(RuntimeError):
@@ -318,9 +318,35 @@ cdef class NodeLeaf:
         leaf._ = _ptr
         return leaf
 
+cdef class Boll:
+    cdef cBoll *_
+    cdef unsigned int k
+    cdef unsigned int l
+    cdef unsigned int m
+
+    @property
+    def cumulative_temperature(self):
+        return self._[0].cumulative_temperature
+
+    @cumulative_temperature.setter
+    def cumulative_temperature(self, value):
+        self._[0].cumulative_temperature = value
+
+    @staticmethod
+    cdef Boll from_ptr(cBoll *_ptr, unsigned int k, unsigned int l, unsigned int m):
+        cdef Boll boll = Boll.__new__(Boll)
+        boll._ = _ptr
+        boll.k = k
+        boll.l = l
+        boll.m = m
+        return boll
+
 
 cdef class FruitingNode:
     cdef FruitingSite *_
+    cdef unsigned int k
+    cdef unsigned int l
+    cdef unsigned int m
 
     @property
     def average_temperature(self):
@@ -355,9 +381,12 @@ cdef class FruitingNode:
         self._[0].stage = value
 
     @staticmethod
-    cdef FruitingNode from_ptr(FruitingSite *_ptr):
+    cdef FruitingNode from_ptr(FruitingSite *_ptr, unsigned int k, unsigned int l, unsigned int m):
         cdef FruitingNode node = FruitingNode.__new__(FruitingNode)
         node._ = _ptr
+        node.k = k
+        node.l = l
+        node.m = m
         return node
 
 
@@ -396,6 +425,8 @@ cdef class MainStemLeaf:
 
 cdef class FruitingBranch:
     cdef cFruitingBranch *_
+    cdef unsigned int k
+    cdef unsigned int l
 
     @property
     def number_of_fruiting_nodes(self):
@@ -419,11 +450,11 @@ cdef class FruitingBranch:
 
     @property
     def nodes(self):
-        return [FruitingNode.from_ptr(&self._.nodes[i]) for i in
+        return [FruitingNode.from_ptr(&self._.nodes[i], self.k, self.l, i) for i in
                 range(self._.number_of_fruiting_nodes)]
 
     @staticmethod
-    cdef FruitingBranch from_ptr(cFruitingBranch *_ptr):
+    cdef FruitingBranch from_ptr(cFruitingBranch *_ptr, unsigned int k, unsigned int l):
         """Factory function to create WrapperClass objects from
         given my_c_struct pointer.
 
@@ -433,11 +464,14 @@ cdef class FruitingBranch:
         # Call to __new__ bypasses __init__ constructor
         cdef FruitingBranch fruiting_branch = FruitingBranch.__new__(FruitingBranch)
         fruiting_branch._ = _ptr
+        fruiting_branch.k = k
+        fruiting_branch.l = l
         return fruiting_branch
 
 
 cdef class VegetativeBranch:
     cdef cVegetativeBranch *_
+    cdef unsigned int k
 
     @property
     def number_of_fruiting_branches(self):
@@ -457,11 +491,11 @@ cdef class VegetativeBranch:
 
     @property
     def fruiting_branches(self):
-        return [FruitingBranch.from_ptr(&self._[0].fruiting_branches[i]) for i in
+        return [FruitingBranch.from_ptr(&self._[0].fruiting_branches[i], self.k, i) for i in
                 range(self._[0].number_of_fruiting_branches)]
 
     @staticmethod
-    cdef VegetativeBranch from_ptr(cVegetativeBranch *_ptr):
+    cdef VegetativeBranch from_ptr(cVegetativeBranch *_ptr, unsigned int k):
         """Factory function to create WrapperClass objects from
         given my_c_struct pointer.
 
@@ -471,6 +505,7 @@ cdef class VegetativeBranch:
         # Call to __new__ bypasses __init__ constructor
         cdef VegetativeBranch vegetative_branch = VegetativeBranch.__new__(VegetativeBranch)
         vegetative_branch._ = _ptr
+        vegetative_branch.k = k
         return vegetative_branch
 
 
@@ -599,7 +634,7 @@ cdef class State(StateBase):
 
     @property
     def vegetative_branches(self):
-        return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k]) for k in range(self.number_of_vegetative_branches)]
+        return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k], k) for k in range(self.number_of_vegetative_branches)]
 
     @property
     def hours(self):
@@ -1220,6 +1255,7 @@ cdef class State(StateBase):
         new_node.average_temperature = self.average_temperature
         vegetative_branch.delay_for_new_fruiting_branch = 0
 
+    #begin root
     def lateral_root_growth_left(self, int l, int NumRootAgeGroups, unsigned int plant_row_column, double row_space):
         """This function computes the elongation of the lateral roots in a soil layer(l) to the left."""
         # The following constant parameters are used:
@@ -1545,6 +1581,7 @@ cdef class State(StateBase):
         self.cumulative_nitrogen_loss += DailyRootLoss * self.root_nitrogen_concentration
         # Call function RootSummation().
         self.root_summation(NumRootAgeGroups, row_space, per_plant_area)
+    #end root
 
     def leaf_abscission(self, per_plant_area, first_square_date, defoliate_date):
         global ReserveC
@@ -2375,6 +2412,7 @@ cdef class Simulation:
                             age=0,
                             potential_growth=0,
                             weight=0,
+                            cumulative_temperature=0,
                         ),
                         burr=dict(
                             potential_growth=0,
@@ -2385,7 +2423,6 @@ cdef class Simulation:
                             weight=0,
                         ),
                     )
-        self._sim.states[0] = state0._[0]
 
     def _initialize_root_data(self):
         """ This function initializes the root submodel parameters and variables."""

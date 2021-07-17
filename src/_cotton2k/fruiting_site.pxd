@@ -16,10 +16,11 @@ cdef extern from "FruitingSite.h":
     struct SquareStruct:
         double potential_growth
         double weight
-    ctypedef struct Boll:
+    ctypedef struct cBoll "Boll":
         double age
         double potential_growth
         double weight
+        double cumulative_temperature
     ctypedef struct Burr:
         double potential_growth
         double weight
@@ -34,6 +35,6 @@ cdef extern from "FruitingSite.h":
         Stage stage
         Leaf leaf
         SquareStruct square
-        Boll boll
+        cBoll boll
         Burr burr
         Petiole petiole

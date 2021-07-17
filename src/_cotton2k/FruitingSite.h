@@ -29,6 +29,7 @@ typedef struct BollStruct
     double age;              // age of each boll, physiological days from flowering.
     double potential_growth; // potential growth in weight of an individual fruiting node bolls, g day-1.
     double weight;           // weight of seedcotton for each site, g per plant.
+    double cumulative_temperature; // cumulative boll temperature.
 } Boll;
 typedef struct BurrStruct
 {
