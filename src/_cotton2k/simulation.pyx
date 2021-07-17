@@ -1317,7 +1317,7 @@ cdef class State(StateBase):
         It calls: RootImpedance(), SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), SoilMechanicResistance(), SoilTemOnRootGrowth() and root_psi().
         """
         # The following constant parameter is used:
-        cdef double rgfac = 0.36 if self.version < 0x500 else 0.2  # potential relative growth rate of the roots (g/g/day).
+        cdef double rgfac = 0.36  # potential relative growth rate of the roots (g/g/day).
         # Initialize to zero the PotGroRoots array.
         self.root_potential_growth[:NumLayersWithRoots:, :] = 0
         self.soil.root_impedance()
@@ -1444,8 +1444,6 @@ cdef class State(StateBase):
                 roots += sum(self._[0].soil.cells[l][k].root.weight)
         # Convert total root weight from g per slab to g per plant.
         self.root_weight = roots * 100 * per_plant_area / row_space
-        if self.version >= 0x500:
-            self.root_weight /= 10
 
     def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column):
         # The following constant parameters are used:
@@ -3027,7 +3025,6 @@ cdef class Simulation:
         # The following constant parameters. are used in this function:
         cdef double p = 1.6  # parameter of the leaf growth rate equation.
         cdef double[14] vpotlf = [3.0, 0.95, 1.2, 13.5, -0.62143, 0.109365, 0.00137566, 0.025, 0.00005, 30., 0.02, 0.001, 2.50, 0.18]
-        max_smax = 1 if self.version >= 0x500 else float("inf")
         # Calculate water stress reduction factor for leaf growth rate (wstrlf). This has been empirically calibrated in COTTON2K.
         cdef double wstrlf = self._sim.states[u].water_stress * (1 + vpotlf[0] * (2 - self._sim.states[u].water_stress)) - vpotlf[0]
         if wstrlf < 0.05:
@@ -3053,7 +3050,7 @@ cdef class Simulation:
                 PotGroPetioleWeightPreFru[j] = 0
             else:
                 jp1 = j + 1
-                smax = min(max_smax, max(self.cultivar_parameters[4], jp1 * (self.cultivar_parameters[2] - self.cultivar_parameters[3] * jp1)))
+                smax = max(self.cultivar_parameters[4], jp1 * (self.cultivar_parameters[2] - self.cultivar_parameters[3] * jp1))
                 c = vpotlf[7] + vpotlf[8] * jp1 * (jp1 - vpotlf[9])
                 rate = smax * c * p * exp(-c * pow(self._sim.states[u].age_of_pre_fruiting_nodes[j], p)) * pow(self._sim.states[u].age_of_pre_fruiting_nodes[j], (p - 1))
                 # Growth rate is modified by water stress and a function of average temperature.
@@ -3079,7 +3076,7 @@ cdef class Simulation:
                 else:
                     lp1 = l + 1
                     smax = denfac * (self.cultivar_parameters[5] + self.cultivar_parameters[6] * lp1 * (self.cultivar_parameters[7] - lp1))
-                    smax = min(max_smax, max(self.cultivar_parameters[4], smax))
+                    smax = max(self.cultivar_parameters[4], smax)
                     c = vpotlf[10] + lp1 * vpotlf[11]
                     if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[0].leaf.age > 70:
                         rate = 0
@@ -3105,7 +3102,7 @@ cdef class Simulation:
                     else:
                         mp1 = m + 1
                         # smax and c are reduced as a function of node number on this fruiting branch.
-                        smax = min(max_smax, smaxx * (1 - self.cultivar_parameters[8] * mp1))
+                        smax = smaxx * (1 - self.cultivar_parameters[8] * mp1)
                         c = cc * (1 - self.cultivar_parameters[8] * mp1)
                         # Compute potential growth for the leaves on fruiting branches.
                         if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.age > 70:
