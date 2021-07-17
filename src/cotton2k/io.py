@@ -153,24 +153,7 @@ def read_input(path: Union[Path, str, dict, Profile], session=None) -> Simulatio
         kwargs = path
     else:
         kwargs = json.loads(Path(path).read_text())
-    sim = Simulation(kwargs.get("id", 0), kwargs.get("version", 0x0400))
-    for attr in [
-        "start_date",
-        "stop_date",
-        "emerge_date",
-        "plant_date",
-        "topping_date",
-        "latitude",
-        "longitude",
-        "elevation",
-        "site_parameters",
-        "cultivar_parameters",
-        "row_space",
-        "skip_row_width",
-        "plants_per_meter",
-    ]:
-        if attr in kwargs:
-            setattr(sim, attr, kwargs.get(attr))
+    sim = Simulation(kwargs.get("id", 0), kwargs.get("version", 0x0400), **kwargs)
     soil = SoilInit(**kwargs.get("soil", {}))
     start_date = kwargs["start_date"]
     if not isinstance(start_date, (datetime.date, str)):

@@ -1661,10 +1661,27 @@ cdef class Simulation:
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
 
-    def __init__(self, profile_id=0, version=0x0400):
+    def __init__(self, profile_id=0, version=0x0400, **kwargs):
         self.profile_id = profile_id
         self.version = version
         self.max_leaf_area_index = 0.001
+        for attr in (
+            "start_date",
+            "stop_date",
+            "emerge_date",
+            "plant_date",
+            "topping_date",
+            "latitude",
+            "longitude",
+            "elevation",
+            "site_parameters",
+            "cultivar_parameters",
+            "row_space",
+            "skip_row_width",
+            "plants_per_meter",
+        ):
+            if attr in kwargs:
+                setattr(self, attr, kwargs.get(attr))
 
     @property
     def year(self):
