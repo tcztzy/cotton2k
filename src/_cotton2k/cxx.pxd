@@ -102,7 +102,6 @@ cdef extern from "global.h":
     int LastTaprootLayer
     double DepthLastRootLayer
     double TapRootLength
-    double CarbonAllocatedForRootGrowth
     double RootNitrogen
     double RootWeightLoss
     int SoilHorizonNum[40]

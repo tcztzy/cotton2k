@@ -13,7 +13,6 @@ void InitializeGlobal()
 
     BurrNConc = 0;
 
-    CarbonAllocatedForRootGrowth = 0;
     CumFertilizerN = 0;
     CumNetPhotosynth = 0;
     CumNitrogenUptake = 0;

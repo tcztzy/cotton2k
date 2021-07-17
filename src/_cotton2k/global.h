@@ -36,7 +36,7 @@ extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], Defol
 ////    Double    ////
 extern double ActualBollGrowth, ActualBurrGrowth, ActualStemGrowth,
     AverageLwp, AverageLwpMin, AverageSoilPsi,
-    BurrNConc, CarbonAllocatedForRootGrowth, conmax, CumFertilizerN,
+    BurrNConc, conmax, CumFertilizerN,
     CumNetPhotosynth, CumNitrogenUptake,
     CumWaterAdded, CumWaterDrained, DayTimeTemp, dclay,
     DepthLastRootLayer, dsand,

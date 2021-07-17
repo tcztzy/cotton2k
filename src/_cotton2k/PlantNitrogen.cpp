@@ -125,8 +125,7 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
 //     This function computes the N requirements for growth. It is called from PlantNitrogen{}.
 //
 //     The following global variables are referenced here:
-//       ActualBollGrowth, ActualBurrGrowth, ActualStemGrowth,
-//       CarbonAllocatedForRootGrowth.
+//       ActualBollGrowth, ActualBurrGrowth, ActualStemGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, reqf, reqtot, reqv, rqnbur,
 //       rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm.
@@ -156,9 +155,8 @@ void NitrogenRequirement(State &state, const int &Daynum, const int &DayEmerge, 
     rqnlef = lefcn0 * state.total_actual_leaf_growth;                //      for leaf blade
     rqnpet = petcn0 * state.total_actual_petiole_growth;             //      for petiole
     rqnstm = stmcn0 * ActualStemGrowth;                              //      for stem
-                                                                     //     Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of
-                                                                     //  carbohydrates for root growth.
-    rqnrut = rootcn0 * (CarbonAllocatedForRootGrowth + ExtraCarbon); // for root
+    // Add ExtraCarbon to carbon_allocated_for_root_growth to compute the total supply of carbohydrates for root growth.
+    rqnrut = rootcn0 * (state.carbon_allocated_for_root_growth + ExtraCarbon); // for root
     rqnsqr = state.actual_square_growth * sqrcn0;                            //      for squares
     double rqnsed1, rqnsed2;                                         // components of seed N requirements.
     rqnsed1 = ActualBollGrowth * seedratio * seedcn0;                //   for seed growth
