@@ -2948,12 +2948,11 @@ cdef class Simulation:
         """
         # PlantRowLocation is the distance from edge of slab, cm, of the plant row.
         global PlantRowLocation, nl, nk
-        PlantRowLocation = 0.5 * self.row_space
+        PlantRowLocation = self.row_space / 2
         if self.skip_row_width > 1:
             # If there is a skiprow arrangement, RowSpace and PlantRowLocation are redefined.
-            self.row_space = 0.5 * (
-                    self.row_space + self.skip_row_width)  # actual width of the soil slab (cm)
-            PlantRowLocation = 0.5 * self.skip_row_width
+            self.row_space = (self.row_space + self.skip_row_width) / 2  # actual width of the soil slab (cm)
+            PlantRowLocation = self.skip_row_width / 2
         # Compute sim.plant_population - number of plants per hectar, and per_plant_area - the average surface area per plant, in dm2, and the empirical plant density factor (density_factor). This factor will be used to express the effect of plant density on some plant growth rate functions.
         # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
         self._sim.plant_population = self.plants_per_meter / self.row_space * 1000000
@@ -2970,9 +2969,9 @@ cdef class Simulation:
         cdef double sumwk = 0  # sum of column widths
         self._sim.plant_row_column = 0
         for k in range(nk):
-            sumwk = sumwk + wk(k, self.row_space)
+            sumwk += wk(k, self.row_space)
             if self._sim.plant_row_column == 0 and sumwk > PlantRowLocation:
-                if (sumwk - PlantRowLocation) > (0.5 * wk(k, self.row_space)):
+                if (sumwk - PlantRowLocation) > wk(k, self.row_space) / 2:
                     self._sim.plant_row_column = k - 1
                 else:
                     self._sim.plant_row_column = k
@@ -2984,8 +2983,7 @@ cdef class Simulation:
         # sure that the date of planting has been given.
         if self.emerge_date is None:
             if self.plant_date is None:
-                raise Exception(
-                    " planting date or emergence date must be given in the profile file !!")
+                raise Exception("planting date or emergence date must be given in the profile file !!")
             isw = 0
         # If the date of emergence has been given in the input: isw = 1 if
         # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
