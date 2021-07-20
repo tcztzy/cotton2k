@@ -80,7 +80,10 @@ cdef extern from "RootGrowth.h":
     void InitiateLateralRoots()
 
 cdef extern from "SoilNitrogen.h":
-    void SoilNitrogen(cSimulation &, unsigned int)
+    void UreaHydrolysis(cSoilCell &, int, int)
+    void MineralizeNitrogen(cSoilCell &, int, int, const int &, const int &, double)
+    void Nitrification(cSoilCell &, int, int, double)
+    void Denitrification(cSoilCell &, int, int, double)
 
 cdef extern from "SoilProcedures.h":
     void ApplyFertilizer(cSimulation &, unsigned int)

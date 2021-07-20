@@ -63,6 +63,8 @@ from .cxx cimport (
     SoilHorizonNum,
     PetioleWeightPreFru,
     AverageSoilPsi,
+    VolNh4NContent,
+    VolUreaNContent,
     noitr,
     thts,
 )
@@ -3589,6 +3591,27 @@ cdef class Simulation:
             noitr = 1
             CapillaryFlow(self._sim, u)
 
+    def _soil_nitrogen(self, u):
+        """This function computes the transformations of the nitrogen compounds in the soil."""
+        cdef double depth[40]  # depth to the end of each layer.
+        # At start compute depth[l] as the depth to the bottom of each layer, cm.
+        sumdl = 0  # sum of layer thicknesses.
+        for l in range(nl):
+            sumdl += dl(l)
+            depth[l] = sumdl
+        # For each soil cell: call functions UreaHydrolysis(), MineralizeNitrogen(), Nitrification() and Denitrification().
+        for l in range(nl):
+            for k in range(nk):
+                if VolUreaNContent[l][k] > 0:
+                    UreaHydrolysis(self._sim.states[u].soil.cells[l][k], l, k)
+                MineralizeNitrogen(self._sim.states[u].soil.cells[l][k], l, k, self._sim.states[u].daynum, self._sim.day_start, self.row_space)
+                if VolNh4NContent[l][k] > 0.00001:
+                    Nitrification(self._sim.states[u].soil.cells[l][k], l, k, depth[l])
+                # Denitrification() is called if there are enough water and nitrates in the soil cell. cparmin is the minimum temperature C for denitrification.
+                cparmin = 5
+                if self._sim.states[u].soil.cells[l][k].nitrate_nitrogen_content > 0.001 and self._sim.states[u].soil.cells[l][k].water_content > FieldCapacity[l] and SoilTempDailyAvrg[l][k] >= (cparmin + 273.161):
+                    Denitrification(self._sim.states[u].soil.cells[l][k], l, k, self.row_space)
+
     def _simulate_this_day(self, u):
         global isw
         state = self.state(u)
@@ -3606,7 +3629,7 @@ cdef class Simulation:
         self._daily_climate(u)  # computes climate variables for today.
         self._soil_temperature(u)  # executes all modules of soil and canopy temperature.
         self._soil_procedures(u)  # executes all other soil processes.
-        SoilNitrogen(self._sim, u)  # computes nitrogen transformations in the soil.
+        self._soil_nitrogen(u)  # computes nitrogen transformations in the soil.
         SoilSum(self._sim.states[u], self._sim.row_space)  # computes totals of water and N in the soil.
         # The following is executed each day after plant emergence:
         if state.daynum >= self._sim.day_emerge and isw > 0:

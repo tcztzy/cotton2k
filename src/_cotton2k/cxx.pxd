@@ -111,3 +111,5 @@ cdef extern from "global.h":
     double CumNitrogenUptake
     int NumWaterTableData
     int noitr
+    double VolNh4NContent[40][20]
+    double VolUreaNContent[40][20]

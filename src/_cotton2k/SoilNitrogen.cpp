@@ -15,19 +15,11 @@
 
 using namespace std;
 
-void UreaHydrolysis(SoilCell &, int, int);
-
-void MineralizeNitrogen(SoilCell &, int, int, const int &, const int &, double);
-
 extern "C"
 {
     double SoilTemperatureEffect(double);
     double SoilWaterEffect(double, double, double, double, double);
 }
-
-void Nitrification(SoilCell &, int, int, double);
-
-void Denitrification(SoilCell &, int, int, double);
 
 //////////////////////////
 /*                References for soil nitrogen routines:
@@ -50,43 +42,6 @@ void Denitrification(SoilCell &, int, int, double);
   recovery and modeling of nitrogen mineralized from labeled sorghum
   residues. Soil Sci. Soc. Am. J. 55:1031-1037.
 ************************************************************************/
-void SoilNitrogen(Simulation &sim, unsigned int u)
-//     This function computes the transformations of the nitrogen
-// compounds in the soil. It is called each day from SimulateThisDay().
-//     It calls UreaHydrolysis(), MineralizeNitrogen{}, Nitrification(),
-// Denitrification().
-//
-//     The following global variables are referenced here:
-//       dl, FieldCapacity, nk, nl, SoilTempDailyAvrg,
-//       VolNh4NContent, VolNo3NContent, VolUreaNContent.
-{
-    static double depth[maxl]; // depth to the end of each layer.
-//     At start compute depth[l] as the depth to the bottom of each layer, cm.
-    if (u <= 0) {
-        double sumdl = 0; // sum of layer thicknesses.
-        for (int l = 0; l < nl; l++) {
-            sumdl += dl(l);
-            depth[l] = sumdl;
-        }
-    }
-//     For each soil cell: call functions UreaHydrolysis(), MineralizeNitrogen(),
-//  Nitrification() and Denitrification().
-    for (int l = 0; l < nl; l++)
-        for (int k = 0; k < nk; k++) {
-            if (VolUreaNContent[l][k] > 0)
-                UreaHydrolysis(sim.states[u].soil.cells[l][k], l, k);
-            MineralizeNitrogen(sim.states[u].soil.cells[l][k], l, k, sim.states[u].daynum, sim.day_start, sim.row_space);
-            if (VolNh4NContent[l][k] > 0.00001)
-                Nitrification(sim.states[u].soil.cells[l][k], l, k, depth[l]);
-//     Denitrification() is called if there are enough water and nitrates in the
-//  soil cell. cparmin is the minimum temperature C for denitrification.
-            const double cparmin = 5;
-            if (sim.states[u].soil.cells[l][k].nitrate_nitrogen_content > 0.001 && sim.states[u].soil.cells[l][k].water_content > FieldCapacity[l]
-                && SoilTempDailyAvrg[l][k] >= (cparmin + 273.161))
-                Denitrification(sim.states[u].soil.cells[l][k], l, k, sim.row_space);
-        }
-}
-
 //////////////////////////
 void UreaHydrolysis(SoilCell &soil_cell, int l, int k)
 //     This function computes the hydrolysis of urea to ammonium in the soil.
