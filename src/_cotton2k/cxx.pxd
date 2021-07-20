@@ -105,3 +105,9 @@ cdef extern from "global.h":
     int SoilHorizonNum[40]
     double AverageSoilPsi
     double thts[40]
+    double CumWaterAdded
+    int LocationColumnDrip
+    int LocationLayerDrip
+    double CumNitrogenUptake
+    int NumWaterTableData
+    int noitr

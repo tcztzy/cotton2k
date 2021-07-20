@@ -21,8 +21,7 @@ int CultivationDate[5],     // Dates (DOY) of cultivatrion.
     DefoliationMethod[5];   // code number of method of application of defoliants:
 // 0 = 'banded'; 1 = 'sprinkler'; 2 = 'broaddcast'.
 
-int IrrigMethod, // method of predicted irrigation.
-    isw,         // switch affecting the method of computing soil temperature.
+int isw,         // switch affecting the method of computing soil temperature.
     // 0 = one dimensional (no horizontal flux) - used to predict emergence when emergence date is not known;
     // 1 = one dimensional - used before emergence when emergence date is given;
     // 2 = two dimensional - used after emergence.
@@ -89,7 +88,6 @@ double
     LwpMinX[3],                       // array of values of LwpMin for the last 3 days.
     LwpX[3],                          // array of values of LwpMin + LwpMax for the last 3 days.
     MarginalWaterContent[maxl],       // marginal soil water content (as a function of soil texture) for computing soil heat conductivity.
-    MaxIrrigation,                    // maximum amount of applied water in a predicted irrigation
     MaxWaterCapacity[maxl],           // volumetric water content of a soil layer at maximum capacity, before drainage, cm3 cm-3.
     MineralizedOrganicN,              // cumulative amount of mineralized organic N, mgs per slab.
     NetPhotosynthesis,                // net photosynthetic rate, g per plant per day.

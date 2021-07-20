@@ -21,7 +21,6 @@ void InitializeGlobal()
 
     LastIrrigation = 0;
 
-    MaxIrrigation = 0;
     MineralizedOrganicN = 0;
 
     NumAbscisedLeaves = 0;

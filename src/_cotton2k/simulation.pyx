@@ -21,17 +21,22 @@ from .cxx cimport (
     cSimulation,
     SandVolumeFraction,
     ClayVolumeFraction,
+    CumWaterAdded,
+    CumNitrogenUptake,
     DayTimeTemp,
     FoliageTemp,
     NightTimeTemp,
     StemWeight,
     AverageLwpMin,
     AverageLwp,
+    LocationColumnDrip,
+    LocationLayerDrip,
     LwpX,
     LwpMin,
     LwpMax,
     LwpMinX,
     NetPhotosynthesis,
+    NumWaterTableData,
     CumNetPhotosynth,
     PotGroStem,
     PotGroAllRoots,
@@ -58,6 +63,7 @@ from .cxx cimport (
     SoilHorizonNum,
     PetioleWeightPreFru,
     AverageSoilPsi,
+    noitr,
     thts,
 )
 from .irrigation cimport Irrigation
@@ -3521,6 +3527,67 @@ cdef class Simulation:
                 if PercentDefoliation > perdmax:
                     PercentDefoliation = perdmax
 
+    def _soil_procedures(self, u):
+        """This function manages all the soil related processes, and is executed once each day."""
+        global AverageSoilPsi, CumNitrogenUptake, CumWaterAdded, LocationColumnDrip, LocationLayerDrip, noitr
+        state = self.state(u)
+        # The following constant parameters are used:
+        cdef double cpardrip = 0.2
+        cdef double cparelse = 0.4
+        # Call function ApplyFertilizer() for nitrogen fertilizer application.
+        ApplyFertilizer(self._sim, u)
+        cdef double DripWaterAmount = 0  # amount of water applied by drip irrigation
+        cdef double WaterToApply  # amount of water applied by non-drip irrigation or rainfall
+        # Check if there is rain on this day
+        WaterToApply = self._sim.climate[u].Rain
+        # When water is added by an irrigation defined in the input: update the amount of applied water.
+        for i in range(NumIrrigations):
+            if state.daynum == self._sim.irrigation[i].day:
+                if self._sim.irrigation[i].method == 2:
+                    DripWaterAmount += self._sim.irrigation[i].amount
+                    LocationColumnDrip = self._sim.irrigation[i].LocationColumnDrip
+                    LocationLayerDrip = self._sim.irrigation[i].LocationLayerDrip
+                else:
+                    WaterToApply += self._sim.irrigation[i].amount
+                break
+        CumWaterAdded += WaterToApply + DripWaterAmount
+        # The following will be executed only after plant emergence
+        if state.date >= self.emerge_date and isw > 0:
+            RootsCapableOfUptake(state._[0].soil)  # function computes roots capable of uptake for each soil cell
+            AverageSoilPsi = AveragePsi(state._[0], self.row_space)  # function computes the average matric soil water
+            # potential in the root zone, weighted by the roots-capable-of-uptake.
+            WaterUptake(self._sim, u)  # function  computes water and nitrogen uptake by plants.
+            # Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
+            state.cumulative_transpiration += state.actual_transpiration
+            CumNitrogenUptake += (state.supplied_nitrate_nitrogen + state.supplied_ammonium_nitrogen) * 10 * self.row_space / self._sim.per_plant_area
+        # Call function WaterTable() for saturating soil below water table.
+        if NumWaterTableData > 0:
+            WaterTable(self._sim, u)
+        if WaterToApply > 0:
+            # For rain or surface irrigation.
+            # The number of iterations is computed from the thickness of the first soil layer.
+            noitr = <int>(cparelse * WaterToApply / (dl(0) + 2) + 1)
+            # the amount of water applied, mm per iteration.
+            applywat = WaterToApply / noitr
+            # The following subroutines are called noitr times per day:
+            # If water is applied, GravityFlow() is called when the method of irrigation is not by drippers, followed by CapillaryFlow().
+            for iter in range(noitr):
+                GravityFlow(self._sim.states[u].soil.cells, applywat, self.row_space)
+                CapillaryFlow(self._sim, u)
+        if DripWaterAmount > 0:
+            # For drip irrigation.
+            # The number of iterations is computed from the volume of the soil cell in which the water is applied.
+            noitr = <int>(cpardrip * DripWaterAmount / (dl(LocationLayerDrip) * wk(LocationColumnDrip, self.row_space)) + 1)
+            # the amount of water applied, mm per iteration.
+            applywat = DripWaterAmount / noitr
+            # If water is applied, DripFlow() is called followed by CapillaryFlow().
+            for iter in range(noitr):
+                DripFlow(state._[0].soil.cells, applywat, self.row_space)
+                CapillaryFlow(self._sim, u)
+        # When no water is added, there is only one iteration in this day.
+        if WaterToApply + DripWaterAmount <= 0:
+            noitr = 1
+            CapillaryFlow(self._sim, u)
 
     def _simulate_this_day(self, u):
         global isw
@@ -3538,7 +3605,7 @@ cdef class Simulation:
         # The following functions are executed each day (also before emergence).
         self._daily_climate(u)  # computes climate variables for today.
         self._soil_temperature(u)  # executes all modules of soil and canopy temperature.
-        SoilProcedures(self._sim, u)  # executes all other soil processes.
+        self._soil_procedures(u)  # executes all other soil processes.
         SoilNitrogen(self._sim, u)  # computes nitrogen transformations in the soil.
         SoilSum(self._sim.states[u], self._sim.row_space)  # computes totals of water and N in the soil.
         # The following is executed each day after plant emergence:

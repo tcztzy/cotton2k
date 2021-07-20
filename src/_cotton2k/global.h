@@ -23,8 +23,7 @@ typedef struct NitrogenFertilizer
 } NitrogenFertilizer;
 extern NitrogenFertilizer NFertilizer[150];
 ////    Integers    ////
-extern int DayStartPredIrrig, DayStopPredIrrig,
-    IrrigMethod, isw,
+extern int DayStartPredIrrig, DayStopPredIrrig, isw,
     LastDayWeatherData, LastIrrigation, LastTaprootLayer,
     LocationColumnDrip, LocationLayerDrip,
     MainStemNodes, MinDaysBetweenIrrig,
@@ -40,7 +39,7 @@ extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
     DepthLastRootLayer, dsand,
     ElCondSatSoilToday, GreenBollsLost,
     InitialTotalSoilWater, IrrigationDepth,
-    LwpMax, LwpMin, MaxIrrigation, MineralizedOrganicN,
+    LwpMax, LwpMin, MineralizedOrganicN,
     NetPhotosynthesis, NightTimeTemp,
     PercentDefoliation,
     PlantRowLocation, PotGroAllBolls, PotGroAllBurrs,

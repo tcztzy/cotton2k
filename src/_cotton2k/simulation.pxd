@@ -43,8 +43,8 @@ cdef extern:
     void EvapoTranspiration(cState &, double, double, double, double, double)
 
 cdef extern from "CottonPhenology.h":
-    void NewBollFormation(cState &, FruitingSite &);
-    void BollOpening(cState &, int, int, int, unsigned int, double, double, double, double, double, double);
+    void NewBollFormation(cState &, FruitingSite &)
+    void BollOpening(cState &, int, int, int, unsigned int, double, double, double, double, double, double)
 
 cdef extern from "FruitAbscission.h":
     void FruitingSitesAbscission(cSimulation &, uint32_t)
@@ -83,8 +83,15 @@ cdef extern from "SoilNitrogen.h":
     void SoilNitrogen(cSimulation &, unsigned int)
 
 cdef extern from "SoilProcedures.h":
-    void SoilProcedures(cSimulation &, uint32_t)
+    void ApplyFertilizer(cSimulation &, unsigned int)
+    void RootsCapableOfUptake(cSoil &)
+    double AveragePsi(const cState &, double)
+    void WaterTable(cSimulation &, unsigned int)
+    void WaterUptake(cSimulation &, unsigned int)
     void SoilSum(cState &, double)
+    void GravityFlow(cSoilCell[40][20], double, double)
+    void CapillaryFlow(cSimulation &, unsigned int)
+    void DripFlow(cSoilCell[40][20], double, double)
 
 cdef extern from "SoilTemperature.h":
     void SoilTemperatureInit(cSimulation &)
