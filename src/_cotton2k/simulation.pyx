@@ -3525,8 +3525,8 @@ cdef class Simulation:
     def _simulate_this_day(self, u):
         global isw
         state = self.state(u)
-        if 0 < self._sim.day_emerge <= self._sim.day_start + u:
-            state.kday = (self._sim.day_start + u) - self._sim.day_emerge + 1
+        if self.emerge_date is not None and state.date >= self.emerge_date:
+            state.kday = (state.date - self.emerge_date).days + 1
             if state.leaf_area_index > self.max_leaf_area_index:
                 self.max_leaf_area_index = state.leaf_area_index
             state.light_interception = compute_light_interception(state.leaf_area_index, self.max_leaf_area_index, state.plant_height, self.row_space, version=self.version)
