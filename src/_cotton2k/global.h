@@ -36,17 +36,11 @@ extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5], Defol
 extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
     conmax, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake,
     CumWaterAdded, CumWaterDrained, DayTimeTemp, dclay,
-    DepthLastRootLayer, dsand,
-    ElCondSatSoilToday, GreenBollsLost,
-    InitialTotalSoilWater, IrrigationDepth,
-    LwpMax, LwpMin, MineralizedOrganicN,
-    NetPhotosynthesis, NightTimeTemp,
-    PercentDefoliation,
-    PlantRowLocation, PotGroAllBolls, PotGroAllBurrs,
+    DepthLastRootLayer, dsand, ElCondSatSoilToday, GreenBollsLost,
+    IrrigationDepth, LwpMax, LwpMin, MineralizedOrganicN, NetPhotosynthesis, NightTimeTemp,
+    PercentDefoliation, PlantRowLocation, PotGroAllBolls, PotGroAllBurrs,
     PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem,
-    RatioImplicit, ReserveC, RootWeightLoss, SoilNitrogenLoss,
-    SumNO3N90, TapRootLength, TotalSoilNh4N,
-    TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN, TotalSoilWater;
+    RatioImplicit, ReserveC, RootWeightLoss, SoilNitrogenLoss, SumNO3N90, TapRootLength;
 
 extern double AbscissionLag[20], airdr[9],
     alpha[9], vanGenuchtenBeta[9], BulkDensity[9],

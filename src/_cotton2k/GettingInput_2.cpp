@@ -42,9 +42,9 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
 //        airdr, alpha, vanGenuchtenBeta, BulkDensity, condfc, Date, dl, h2oint, ldepth,
 //        nl, oma, psisfc, wk.
 //     Global and file scope variables set:
-//        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter, InitialTotalSoilWater,
+//        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter,
 //        MaxWaterCapacity, NO3FlowFraction, PoreSpace, rnnh4, rnno3, SaturatedHydCond,
-//        SoilHorizonNum, thad, thetar, thetas, thts, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN,
+//        SoilHorizonNum, thad, thetar, thetas, thts,
 //        VolNh4NContent, VolNo3NContent, VolUreaNContent
 {
     int j = 0; // horizon number
@@ -162,22 +162,10 @@ static void InitializeSoilData(Simulation &sim, unsigned int lyrsol)
             sim.states[0].soil.cells[l][k].fresh_organic_matter = sim.states[0].soil.cells[l][0].fresh_organic_matter;
             HumusOrganicMatter[l][k] = HumusOrganicMatter[l][0];
         }
-//     Total amounts of water (InitialTotalSoilWater), nitrate N (TotalSoilNo3N), ammonium
-//  N (TotalSoilNh4N), and urea N (TotalSoilUreaN) are computed for the whole slab.
-    InitialTotalSoilWater = 0;
-    TotalSoilNo3N = 0;
-    TotalSoilNh4N = 0;
-    TotalSoilUreaN = 0;
 //
     for (int l = 0; l < nl; l++)
-        for (int k = 0; k < nk; k++) {
-            InitialTotalSoilWater += sim.states[0].soil.cells[l][k].water_content * dl(l) * wk(k, sim.row_space);
-            TotalSoilNo3N += sim.states[0].soil.cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, sim.row_space);
-            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, sim.row_space);
+        for (int k = 0; k < nk; k++)
             VolUreaNContent[l][k] = 0;
-        }
-//     InitialTotalSoilWater is converted from cm3 per slab to mm.
-    InitialTotalSoilWater = 10 * InitialTotalSoilWater / sim.row_space;
 }
 
 //////////////////////////////////////////////////////////

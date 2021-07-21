@@ -80,7 +80,6 @@ double
     HeatCondDrySoil[maxl],            // the heat conductivity of dry soil.
     HumusNitrogen[maxl][maxk],        // N in stable humic fraction material in a soil cells, mg/cm3.
     HumusOrganicMatter[maxl][maxk],   // humus fraction of soil organic matter, mg/cm3.
-    InitialTotalSoilWater,            // initial total soil water in the profile, mm.
     IrrigationDepth,                  // depth of predicted irrigation, cm.
     LevelsOfWaterTable[20],           // water table level input data (cm below soil surface).
     LwpMax,                           // maximum (dawn) leaf water potential, MPa.
@@ -128,10 +127,5 @@ double
     thetar[maxl],                     // volumetric water content of soil layers at permanent wilting point (-15 bars), cm3 cm-3.
     thetas[9],                        // volumetric saturated water content of soil horizon, cm3 cm-3.
     thts[maxl],                       // saturated volumetric water content of each soil layer, cm3 cm-3.
-    TotalSoilNh4N,                    // total ammonium in profile, mg N per slab.
-    TotalSoilNitrogen,                // total soil nitrogen, mg N per slab.
-    TotalSoilNo3N,                    // total nitrate in profile, mg N per slab.
-    TotalSoilUreaN,                   // total urea in profile, mg N per slab.
-    TotalSoilWater,                   // total water in the soil profile, mm.
     VolNh4NContent[maxl][maxk],       // volumetric ammonium nitrogen content of a soil cell, mg N cm-3.
     VolUreaNContent[maxl][maxk];      // volumetric urea nitrogen content of a soil cell, mg N cm-3.

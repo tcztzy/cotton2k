@@ -8,7 +8,6 @@
 // WaterFlux()
 // WaterBalance()
 // NitrogenFlow()
-// SoilSum()
 //
 #include <cmath>
 #include "global.h"
@@ -581,33 +580,4 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[], 
         nit[i] += (qdn[i] + qup[i]) / dd[i];
         nur[i] += (udn[i] + uup[i]) / dd[i];
     }
-}
-
-///////////////////////////////////////////////////////////////////////////
-void SoilSum(State &state, double row_space)
-//     This function computes sums of some soil variables. It is called by SimulateThisDay()
-//     It computes the total amounts per slab of water in mm (TotalSoilWater). The sums of
-//  nitrogen are in mg N per slab: nitrate (TotalSoilNo3N), ammonium (TotalSoilNh4N),
-//  urea (TotalSoilUreaN) and the sum of all mineral nitrogen forms (TotalSoilNitrogen).
-//
-//     The following global variables are referenced here:
-//       dl, nk, nl, RowSpace, VolNh4NContent, VolNo3NContent, VolUreaNContent, wk.
-//     The following global variables are set here:
-//       TotalSoilNitrogen, TotalSoilWater, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN.
-{
-    TotalSoilWater = 0;
-    TotalSoilNo3N = 0;
-    TotalSoilNh4N = 0;
-    TotalSoilUreaN = 0;
-//
-    for (int l = 0; l < nl; l++)
-        for (int k = 0; k < nk; k++) {
-            TotalSoilNo3N += state.soil.cells[l][k].nitrate_nitrogen_content * dl(l) * wk(k, row_space);
-            TotalSoilNh4N += VolNh4NContent[l][k] * dl(l) * wk(k, row_space);
-            TotalSoilUreaN += VolUreaNContent[l][k] * dl(l) * wk(k, row_space);
-            TotalSoilWater += state.soil.cells[l][k].water_content * dl(l) * wk(k, row_space);
-        }
-//
-    TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
-    TotalSoilWater = TotalSoilWater * 10 / row_space;
 }

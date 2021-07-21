@@ -11,4 +11,3 @@ void GravityFlow(SoilCell[40][20], double, double);
 // SoilProcedure_2
 void CapillaryFlow(Simulation &, unsigned int);
 void DripFlow(SoilCell[40][20], double, double);
-void SoilSum(State &, double);

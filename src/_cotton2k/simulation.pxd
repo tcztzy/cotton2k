@@ -91,7 +91,6 @@ cdef extern from "SoilProcedures.h":
     double AveragePsi(const cState &, double)
     void WaterTable(cSimulation &, unsigned int)
     void WaterUptake(cSimulation &, unsigned int)
-    void SoilSum(cState &, double)
     void GravityFlow(cSoilCell[40][20], double, double)
     void CapillaryFlow(cSimulation &, unsigned int)
     void DripFlow(cSoilCell[40][20], double, double)

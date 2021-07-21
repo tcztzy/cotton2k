@@ -43,9 +43,6 @@ cdef extern from "global.h":
     int nl
     int nk
     double SitePar[21]
-    double TotalSoilNo3N
-    double TotalSoilNh4N
-    double TotalSoilUreaN
     double ReserveC
     double PlantRowLocation
     double RatioImplicit

@@ -3630,7 +3630,6 @@ cdef class Simulation:
         self._soil_temperature(u)  # executes all modules of soil and canopy temperature.
         self._soil_procedures(u)  # executes all other soil processes.
         self._soil_nitrogen(u)  # computes nitrogen transformations in the soil.
-        SoilSum(self._sim.states[u], self._sim.row_space)  # computes totals of water and N in the soil.
         # The following is executed each day after plant emergence:
         if state.daynum >= self._sim.day_emerge and isw > 0:
             # If this day is after emergence, assign to isw the value of 2.
