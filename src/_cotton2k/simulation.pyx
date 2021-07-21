@@ -12,8 +12,8 @@ import numpy as np
 
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate, leaf_resistance_for_transpiration
-from _cotton2k.phenology import days_to_first_square, physiological_age
-from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
+from _cotton2k.phenology import days_to_first_square
+from _cotton2k.photosynthesis import ambient_co2_factor
 from _cotton2k.soil import compute_soil_surface_albedo, compute_incoming_short_wave_radiation, root_psi
 from _cotton2k.utils import date2doy, doy2date
 from .climate cimport ClimateStruct
@@ -540,6 +540,14 @@ cdef class VegetativeBranch:
 
 cdef class Hour:
     cdef cHour *_
+
+    @property
+    def temperature(self):
+        return self._[0].temperature
+
+    @temperature.setter
+    def temperature(self, value):
+        self._[0].temperature = value
 
     @staticmethod
     cdef Hour from_ptr(cHour *_ptr):
@@ -2243,8 +2251,8 @@ cdef class Simulation:
     cdef cSimulation _sim
     cdef public unsigned int profile_id
     cdef public unsigned int version
-    cdef double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
-    cdef double max_leaf_area_index
+    cdef public double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
+    cdef public double max_leaf_area_index
     cdef double ptsred  # The effect of moisture stress on the photosynthetic rate
     cdef double DaysTo1stSqare   # number of days from emergence to 1st square
     cdef double defkgh  # amount of defoliant applied, kg per ha
@@ -2413,7 +2421,7 @@ cdef class Simulation:
         return [self.state(i) for i in
                 range(self._sim.day_finish - self._sim.day_start + 1)]
 
-    cdef State state(self, unsigned int i):
+    cpdef State state(self, unsigned int i):
         return State.from_ptr(&self._sim.states[i], self.year, self.version)
 
     @property
@@ -3616,39 +3624,6 @@ cdef class Simulation:
                 cparmin = 5
                 if self._sim.states[u].soil.cells[l][k].nitrate_nitrogen_content > 0.001 and self._sim.states[u].soil.cells[l][k].water_content > FieldCapacity[l] and SoilTempDailyAvrg[l][k] >= (cparmin + 273.161):
                     Denitrification(self._sim.states[u].soil.cells[l][k], l, k, self.row_space)
-
-    def _simulate_this_day(self, u):
-        state = self.state(u)
-        if self.emerge_date is not None and state.date >= self.emerge_date:
-            state.kday = (state.date - self.emerge_date).days + 1
-            if state.leaf_area_index > self.max_leaf_area_index:
-                self.max_leaf_area_index = state.leaf_area_index
-            state.light_interception = compute_light_interception(state.leaf_area_index, self.max_leaf_area_index, state.plant_height, self.row_space, version=self.version)
-            self._column_shading(u)
-        else:
-            state.kday = 0
-            state.light_interception = 0
-            self.relative_radiation_received_by_a_soil_column = [1] * 20
-        # The following functions are executed each day (also before emergence).
-        self._daily_climate(u)  # computes climate variables for today.
-        self._soil_temperature(u)  # executes all modules of soil and canopy temperature.
-        self._soil_procedures(u)  # executes all other soil processes.
-        self._soil_nitrogen(u)  # computes nitrogen transformations in the soil.
-        # The following is executed each day after plant emergence:
-        if state.daynum >= self._sim.day_emerge and self.emerge_switch > 0:
-            # If this day is after emergence, assign to emerge_switch the value of 2.
-            self.emerge_switch = 2
-            state.day_inc = physiological_age(self._sim.states[u].hours)  # physiological days increment for this day. computes physiological age
-            self._defoliate(u)  # effects of defoliants applied.
-            self._stress(u)  # computes water stress factors.
-            self._get_net_photosynthesis(u)  # computes net photosynthesis.
-            self._growth(u)  # executes all modules of plant growth.
-            self._phenology(u)  # executes all modules of plant phenology.
-            state.plant_nitrogen(self.emerge_date, self.state(max(u - 32, self._sim.day_emerge - self._sim.day_start)).stem_weight)  # computes plant nitrogen allocation.
-            state.plant_weight = state.root_weight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + state.petiole_weight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + state.reserve_carbohydrate
-        # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
-        if state.kday > 10 and state.leaf_area_index < 0.0002:
-            raise SimulationEnd
 
     def _init_grid(self):
         """

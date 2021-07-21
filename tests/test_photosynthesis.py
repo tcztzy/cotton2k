@@ -1,4 +1,5 @@
-from _cotton2k.photosynthesis import ambient_co2_factor, compute_light_interception
+from _cotton2k.photosynthesis import ambient_co2_factor
+from cotton2k.simulation import compute_light_interception
 
 
 def test_ambient_co2_factor():
