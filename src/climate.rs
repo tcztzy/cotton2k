@@ -333,14 +333,13 @@ extern "C" fn daytmp(
     u: u32,
     ti: f64,
     site8: f64,
-    LastDayWeatherData: u32,
     sunr: f64,
     suns: f64,
 ) -> f64
 //  Input argument:
 //     ti - time of day (hours).
 //  Global variables used:
-//     DayLength, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
+//     DayLength, pi, SitePar, SolarNoon, sunr, suns
 {
     let state = sim.states[u as usize];
     let tkk = 15f64; // The temperature increase at which the sensible heat flux is
@@ -350,7 +349,7 @@ extern "C" fn daytmp(
     let im1 = if u > 1 { u - 1 } else { 0 }; // day of year yesterday
     let yesterday = sim.climate[im1 as usize];
     let today = sim.climate[u as usize];
-    let ip1 = if u + 1 > LastDayWeatherData { u } else { u + 1 };
+    let ip1 = u + 1;
     let tomorrow = sim.climate[ip1 as usize];
     //
     let amp: f64; // amplitude of temperatures for a period.
@@ -437,7 +436,6 @@ fn sunangle(
 extern "C" fn tdewhour(
     sim: &Simulation,
     u: u32,
-    last_day_has_weather_data: u32,
     time: f64,
     temperature: f64,
     sunrise: f64,
@@ -451,9 +449,6 @@ extern "C" fn tdewhour(
     let yesterday = sim.climate[im1 as usize];
     let today = sim.climate[u as usize];
     let mut ip1 = u + 1; // day of year tomorrow
-    if ip1 > last_day_has_weather_data {
-        ip1 = u;
-    }
     let tomorrow = sim.climate[ip1 as usize];
     let tdmin; // minimum of dew point temperature.
     let mut tdrange; // range of dew point temperature.

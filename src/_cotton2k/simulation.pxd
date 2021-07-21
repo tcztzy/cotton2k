@@ -8,7 +8,6 @@ DefoliationMethod,
 FieldCapacity,
 PercentDefoliation,
 InitializeGlobal,
-LastDayWeatherData,
 NFertilizer,
 NitrogenFertilizer,
 NumIrrigations,
@@ -36,9 +35,9 @@ from .state cimport cState, cHour
 from .soil cimport cSoilCell, cSoil
 
 cdef extern:
-    double daytmp(cSimulation &, uint32_t, double, double, uint32_t, double, double)
+    double daytmp(cSimulation &, uint32_t, double, double, double, double)
     void AverageAirTemperatures(cHour[24], double &, double &, double &)
-    double tdewhour(cSimulation &, uint32_t, uint32_t, double, double, double, double, double, double, double, double)
+    double tdewhour(cSimulation &, uint32_t, double, double, double, double, double, double, double, double)
     double SimulateRunoff(cSimulation &, uint32_t, double, double, uint32_t)
     void EvapoTranspiration(cState &, double, double, double, double, double)
 

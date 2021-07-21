@@ -168,12 +168,10 @@ cdef class Climate:
     cdef unsigned int current
 
     def __init__(self, start_date, climate):
-        global LastDayWeatherData
         self.start_day = date2doy(start_date)
         self.current = self.start_day
         self.days = len(climate)
         self.climate = <ClimateStruct *> malloc(sizeof(ClimateStruct) * len(climate))
-        LastDayWeatherData = len(climate) + self.start_day - 1
         for i, daily_climate in enumerate(climate):
             self.climate[i].Rad = daily_climate["radiation"]
             self.climate[i].Tmax = daily_climate["max"]
@@ -2953,9 +2951,9 @@ cdef class Simulation:
             ti = ihr + 0.5
             sinb = sd + cd * cos(pi * (ti - self._sim.states[u].solar_noon) / 12)
             self._sim.states[u].hours[ihr].radiation = radiation(radsum, sinb, c11)
-            self._sim.states[u].hours[ihr].temperature = daytmp(self._sim, u, ti, SitePar[8], LastDayWeatherData, sunr,
+            self._sim.states[u].hours[ihr].temperature = daytmp(self._sim, u, ti, SitePar[8], sunr,
                                                                 suns)
-            self._sim.states[u].hours[ihr].dew_point = tdewhour(self._sim, u, LastDayWeatherData, ti,
+            self._sim.states[u].hours[ihr].dew_point = tdewhour(self._sim, u, ti,
                                                                 self._sim.states[u].hours[ihr].temperature, sunr,
                                                                 self._sim.states[u].solar_noon, SitePar[8], SitePar[12],
                                                                 SitePar[13], SitePar[14])
@@ -3649,7 +3647,7 @@ cdef class Simulation:
             state.plant_nitrogen(self.emerge_date, self.state(max(u - 32, self._sim.day_emerge - self._sim.day_start)).stem_weight)  # computes plant nitrogen allocation.
             state.plant_weight = state.root_weight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + state.petiole_weight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + state.reserve_carbohydrate
         # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
-        if state.daynum >= LastDayWeatherData or (state.kday > 10 and state.leaf_area_index < 0.0002):
+        if state.kday > 10 and state.leaf_area_index < 0.0002:
             raise SimulationEnd
 
     def _init_grid(self):

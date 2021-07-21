@@ -37,7 +37,6 @@ cdef extern from "global.h":
         double amtura
     void InitializeGlobal()
     int isw
-    int LastDayWeatherData
     const int maxl
     const int maxk
     int nl
