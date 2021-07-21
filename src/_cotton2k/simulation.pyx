@@ -2378,6 +2378,15 @@ cdef class Simulation:
         self._sim.row_space = value or 0
 
     @property
+    def emerge_switch(self):
+        return isw
+
+    @emerge_switch.setter
+    def emerge_switch(self, value):
+        global isw
+        isw = value
+
+    @property
     def first_square_date(self):
         return doy2date(self.year, self._sim.first_square)
 
@@ -2758,8 +2767,8 @@ cdef class Simulation:
         # If there is no canopy cover, no horizontal heat flux is assumed, kk = 1.
         # Otherwise it is equal to the number of columns in the slab.
         cdef double shadeav = 0  # average shaded area in all shaded soil columns.
-        # isw defines the type of soil temperature computation.
-        if isw > 1:
+        # emerge_switch defines the type of soil temperature computation.
+        if self.emerge_switch > 1:
             shadetot = 0  # sum of shaded area in all shaded soil columns.
             nshadedcol = 0  # number of at least partially shaded soil columns.
             kk = nk
@@ -2815,7 +2824,7 @@ cdef class Simulation:
             for k in range(kk):
                 SoilHeatFlux(self._sim.states[u], dlt, iv, nn, layer, k, self.row_space)
             # If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the value computed for the first column. Also, do the same for array memebers of cell.water_content.
-            if isw <= 1:
+            if self.emerge_switch <= 1:
                 for l in range(nl):
                     for k in range(nk):
                         SoilTemp[l][k] = SoilTemp[l][0]
@@ -2823,9 +2832,9 @@ cdef class Simulation:
                             self._sim.states[u].soil.cells[l][k].water_content = self._sim.states[u].soil.cells[l][0].water_content
             # Compute horizontal transport for each layer
 
-            # Compute soil temperature flux in the horizontal direction, when isw = 2.
+            # Compute soil temperature flux in the horizontal direction, when self.emerge_switch = 2.
             # Assign iv = 0 and nn = nk. Start loop for soil layers, and call SoilHeatFlux.
-            if isw > 1:
+            if self.emerge_switch > 1:
                 iv = 0
                 nn = nk
                 for l in range(nl):
@@ -2848,7 +2857,7 @@ cdef class Simulation:
             if shading >= 0.01:
                 tfc = tfc / shading
             # If emergence date is to be simulated, call PredictEmergence().
-            if isw == 0 and self._sim.states[u].daynum >= self._sim.day_plant:
+            if self.emerge_switch == 0 and self._sim.states[u].daynum >= self._sim.day_plant:
                 PredictEmergence(self._sim, u, ihr)
         # At the end of the day compute actual daily evaporation and its cumulative sum.
         if kk == 1:
@@ -3552,7 +3561,7 @@ cdef class Simulation:
                 break
         CumWaterAdded += WaterToApply + DripWaterAmount
         # The following will be executed only after plant emergence
-        if state.date >= self.emerge_date and isw > 0:
+        if state.date >= self.emerge_date and self.emerge_switch > 0:
             RootsCapableOfUptake(state._[0].soil)  # function computes roots capable of uptake for each soil cell
             AverageSoilPsi = AveragePsi(state._[0], self.row_space)  # function computes the average matric soil water
             # potential in the root zone, weighted by the roots-capable-of-uptake.
@@ -3611,7 +3620,6 @@ cdef class Simulation:
                     Denitrification(self._sim.states[u].soil.cells[l][k], l, k, self.row_space)
 
     def _simulate_this_day(self, u):
-        global isw
         state = self.state(u)
         if self.emerge_date is not None and state.date >= self.emerge_date:
             state.kday = (state.date - self.emerge_date).days + 1
@@ -3629,9 +3637,9 @@ cdef class Simulation:
         self._soil_procedures(u)  # executes all other soil processes.
         self._soil_nitrogen(u)  # computes nitrogen transformations in the soil.
         # The following is executed each day after plant emergence:
-        if state.daynum >= self._sim.day_emerge and isw > 0:
-            # If this day is after emergence, assign to isw the value of 2.
-            isw = 2
+        if state.daynum >= self._sim.day_emerge and self.emerge_switch > 0:
+            # If this day is after emergence, assign to emerge_switch the value of 2.
+            self.emerge_switch = 2
             state.day_inc = physiological_age(self._sim.states[u].hours)  # physiological days increment for this day. computes physiological age
             self._defoliate(u)  # effects of defoliants applied.
             self._stress(u)  # computes water stress factors.
@@ -3685,20 +3693,19 @@ cdef class Simulation:
                     self._sim.plant_row_column = k
 
     cdef void initialize_switch(self):
-        global isw
         # If the date of emergence has not been given, emergence will be simulated
-        # by the model. In this case, isw = 0, and a check is performed to make
+        # by the model. In this case, emerge_switch = 0, and a check is performed to make
         # sure that the date of planting has been given.
         if self.emerge_date is None:
             if self.plant_date is None:
                 raise Exception("planting date or emergence date must be given in the profile file !!")
-            isw = 0
-        # If the date of emergence has been given in the input: isw = 1 if
-        # simulation starts before emergence, or isw = 2 if simulation starts at emergence.
+            self.emerge_switch = 0
+        # If the date of emergence has been given in the input: emerge_switch = 1 if
+        # simulation starts before emergence, or emerge_switch = 2 if simulation starts at emergence.
         elif self.emerge_date > self.start_date:
-            isw = 1
+            self.emerge_switch = 1
         else:
-            isw = 2
+            self.emerge_switch = 2
             self._sim.states[0].kday = 1
 
     def read_input(self, lyrsol, **kwargs):
