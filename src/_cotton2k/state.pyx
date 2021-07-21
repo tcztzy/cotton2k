@@ -159,6 +159,14 @@ cdef class StateBase:
         self._[0].root_weight = value
 
     @property
+    def reserve_carbohydrate(self):
+        return self._[0].reserve_carbohydrate
+
+    @reserve_carbohydrate.setter
+    def reserve_carbohydrate(self, value):
+        self._[0].reserve_carbohydrate = value
+
+    @property
     def bloom_weight_loss(self):
         return self._[0].bloom_weight_loss
 

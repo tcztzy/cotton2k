@@ -66,6 +66,7 @@ typedef struct State
     double green_bolls_burr_weight; // total weight of burrs in green bolls, g plant-1.
     double open_bolls_weight;       // total weight of seedcotton in open bolls, g per plant.
     double open_bolls_burr_weight;
+    double reserve_carbohydrate;    // reserve carbohydrates in leaves, g per plant.
     double runoff;
     double solar_noon;
     double net_radiation;                       // daily total net radiation, W m-2.

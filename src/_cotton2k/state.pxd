@@ -60,6 +60,7 @@ cdef extern from "State.hpp":
         double green_bolls_burr_weight
         double open_bolls_weight
         double open_bolls_burr_weight
+        double reserve_carbohydrate
         double runoff
         double solar_noon
         double net_radiation

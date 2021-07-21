@@ -4,7 +4,6 @@
 // DryMatterBalance()
 // ActualFruitGrowth()
 // ActualLeafGrowth()
-// CheckDryMatterBal()
 //
 #include <cmath>
 #include <string>
@@ -67,18 +66,4 @@ void ActualFruitGrowth(State &state)
                     state.green_bolls_burr_weight += site.burr.weight;
                 }
             }
-}
-
-//////////////////////////
-void CheckDryMatterBal(State &state)
-//     This function checks the dry matter balances in the cotton model, for diagnostic
-//  purposes. The units are g per plant of dry matter. It is called from SimulateThisDay().
-//     The following global variables are referenced here:
-//       AbscisedLeafWeight, BloomWeightLoss,
-//       CumNetPhotosynth, GreenBollsLost, Kday,
-//       ReserveC, RootWeightLoss.
-//     The following global variable is set here:     PlantWeight.
-{
-    //     PlantWeight Is the total dry weight of all plant organs, including C reserves.
-    state.plant_weight = state.root_weight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + state.petiole_weight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + ReserveC;
 }

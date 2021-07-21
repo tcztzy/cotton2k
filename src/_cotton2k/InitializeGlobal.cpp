@@ -30,7 +30,6 @@ void InitializeGlobal()
     PercentDefoliation = 0;
     PotGroStem = 0;
 
-    ReserveC = 0.06;
     RootWeightLoss = 0;
 
     SoilNitrogenLoss = 0;

@@ -107,7 +107,6 @@ double
     PotGroPetioleWeightPreFru[9],     // potentially added weight of a prefruiting node petiole, g day-1.
     PotGroStem,                       // potential growth rate of stems, g plant-1 day-1.
     RatioImplicit,                    // the ratio for the implicit numerical solution of the water transport equation (used in FLUXI and in SFLUX.
-    ReserveC,                         // reserve carbohydrates in leaves, g per plant.
     RootImpede[maxl][maxk],           // root mechanical impedance for a soil cell, kg cm-2.
     RootWeightLoss,                   // total cumulative weight of sloughed roots, g per plant.
     SandVolumeFraction[maxl],         // fraction by volume of sand plus silt in the soil.

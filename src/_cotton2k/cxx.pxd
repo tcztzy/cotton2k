@@ -43,7 +43,6 @@ cdef extern from "global.h":
     int nl
     int nk
     double SitePar[21]
-    double ReserveC
     double PlantRowLocation
     double RatioImplicit
     double conmax

@@ -52,7 +52,6 @@ from .cxx cimport (
     PoreSpace,
     SoilPsi,
     RootImpede,
-    ReserveC,
     CultivationDepth,
     CultivationDate,
     LateralRootFlag,
@@ -877,7 +876,6 @@ cdef class State(StateBase):
 
     def dry_matter_balance(self, per_plant_area) -> tuple[float, float, float, float, float]:
         """This function computes the cotton plant dry matter (carbon) balance, its allocation to growing plant parts, and carbon stress. It is called from PlantGrowth()."""
-        global ReserveC
         # The following constant parameters are used:
         cdef double[15] vchbal = [6.0, 2.5, 1.0, 5.0, 0.20, 0.80, 0.48, 0.40, 0.2072, 0.60651, 0.0065, 1.10, 4.0, 0.25, 4.0]
         # Assign values for carbohydrate requirements for growth of stems, roots, leaves, petioles, squares and bolls. Potential growth of all plant parts is modified by nitrogen stresses.
@@ -896,8 +894,8 @@ cdef class State(StateBase):
         cdef double cdsum  # total carbohydrate requirement for plant growth, g per plant per day.
         cdsum = cdstem + cdleaf + cdpet + cdroot + cdsqar + cdboll
         cdef double cpool  # total available carbohydrates for growth (cpool, g per plant).
-        # cpool is computed as: net photosynthesis plus a fraction (vchbal(13) ) of the stored reserves (ReserveC).
-        cpool = NetPhotosynthesis + ReserveC * vchbal[13]
+        # cpool is computed as: net photosynthesis plus a fraction (vchbal(13) ) of the stored reserves (reserve_carbohydrate).
+        cpool = NetPhotosynthesis + self.reserve_carbohydrate * vchbal[13]
         # Compute CarbonStress as the ratio of available to required carbohydrates.
         if cdsum <= 0:
             self.carbon_stress = 1
@@ -987,14 +985,14 @@ cdef class State(StateBase):
             pdboll = 0
         if pdsq < 0:
             pdsq = 0
-        # Update the amount of reserve carbohydrates (ReserveC) in the leaves.
-        ReserveC = ReserveC + NetPhotosynthesis - (self.actual_stem_growth + self.total_actual_leaf_growth + self.total_actual_petiole_growth + self.carbon_allocated_for_root_growth + pdboll + pdsq)
+        # Update the amount of reserve carbohydrates (reserve_carbohydrate) in the leaves.
+        self.reserve_carbohydrate += NetPhotosynthesis - (self.actual_stem_growth + self.total_actual_leaf_growth + self.total_actual_petiole_growth + self.carbon_allocated_for_root_growth + pdboll + pdsq)
         cdef double resmax  # maximum possible amount of carbohydrate reserves that can be stored in the leaves.
         # resmax is a fraction (vchbal[4])) of leaf weight. Excessive reserves are defined as xtrac2.
         resmax = vchbal[4] * self.leaf_weight
-        if ReserveC > resmax:
-            xtrac2 = ReserveC - resmax
-            ReserveC = resmax
+        if self.reserve_carbohydrate > resmax:
+            xtrac2 = self.reserve_carbohydrate - resmax
+            self.reserve_carbohydrate = resmax
         else:
             xtrac2 = 0
         # ExtraCarbon is computed as total excessive carbohydrates.
@@ -1616,7 +1614,6 @@ cdef class State(StateBase):
     #end root
 
     def leaf_abscission(self, per_plant_area, first_square_date, defoliate_date):
-        global ReserveC
         # If there are almost no leaves, this routine is not executed.
         if self.leaf_area_index <= 0.0001:
             return
@@ -1633,13 +1630,13 @@ cdef class State(StateBase):
         # Call DefoliationLeafAbscission() to simulate leaf abscission caused by defoliants.
         if date2doy(defoliate_date) > 0 and self.daynum >= date2doy(defoliate_date):
             DefoliationLeafAbscission(self._[0], date2doy(defoliate_date))
-        # If the reserves in the leaf are too high, add the lost reserves to AbscisedLeafWeight and adjust ReserveC.
-        if ReserveC > 0:
+        # If the reserves in the leaf are too high, add the lost reserves to AbscisedLeafWeight and adjust reserve_carbohydrate.
+        if self.reserve_carbohydrate > 0:
             # maximum possible amount of reserve C in the leaves.
             resmax = 0.2 * self.leaf_weight
-            if ReserveC > resmax:
-                self.abscised_leaf_weight += ReserveC - resmax
-                ReserveC = resmax
+            if self.reserve_carbohydrate > resmax:
+                self.abscised_leaf_weight += self.reserve_carbohydrate - resmax
+                self.reserve_carbohydrate = resmax
         # Compute the resulting LeafAreaIndex but do not let it get too small.
         self.leaf_area_index = max(0.0001, self.leaf_area / per_plant_area)
 
@@ -2445,6 +2442,7 @@ cdef class Simulation:
         state0.green_bolls_burr_weight = 0
         state0.open_bolls_weight = 0
         state0.open_bolls_burr_weight = 0
+        state0.reserve_carbohydrate = 0.06
         state0.bloom_weight_loss = 0
         state0.abscised_fruit_sites = 0
         state0.abscised_leaf_weight = 0
@@ -3641,7 +3639,7 @@ cdef class Simulation:
             self._growth(u)  # executes all modules of plant growth.
             self._phenology(u)  # executes all modules of plant phenology.
             state.plant_nitrogen(self.emerge_date, self.state(max(u - 32, self._sim.day_emerge - self._sim.day_start)).stem_weight)  # computes plant nitrogen allocation.
-            CheckDryMatterBal(self._sim.states[u])  # checks plant dry matter balance.
+            state.plant_weight = state.root_weight + state.stem_weight + state.green_bolls_weight + state.green_bolls_burr_weight + state.leaf_weight + state.petiole_weight + state.square_weight + state.open_bolls_weight + state.open_bolls_burr_weight + state.reserve_carbohydrate
         # Check if the date to stop simulation has been reached, or if this is the last day with available weather data. Simulation will also stop when no leaves remain on the plant.
         if state.daynum >= LastDayWeatherData or (state.kday > 10 and state.leaf_area_index < 0.0002):
             raise SimulationEnd

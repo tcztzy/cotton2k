@@ -70,7 +70,6 @@ cdef extern from "LeafAbscission.h":
     void DefoliationLeafAbscission(cState &, unsigned int)
 
 cdef extern from "PlantGrowth.h":
-    void CheckDryMatterBal(cState &)
     void DryMatterBalance(cState &, double &, double &, double &, double &, double)
     void ActualFruitGrowth(cState &)
     void ActualLeafGrowth(cState &)

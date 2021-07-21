@@ -40,7 +40,7 @@ extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
     IrrigationDepth, LwpMax, LwpMin, MineralizedOrganicN, NetPhotosynthesis, NightTimeTemp,
     PercentDefoliation, PlantRowLocation, PotGroAllBolls, PotGroAllBurrs,
     PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem,
-    RatioImplicit, ReserveC, RootWeightLoss, SoilNitrogenLoss, SumNO3N90, TapRootLength;
+    RatioImplicit, RootWeightLoss, SoilNitrogenLoss, SumNO3N90, TapRootLength;
 
 extern double AbscissionLag[20], airdr[9],
     alpha[9], vanGenuchtenBeta[9], BulkDensity[9],
