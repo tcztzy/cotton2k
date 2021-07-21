@@ -2449,7 +2449,6 @@ cdef class Simulation:
         state0.lint_yield = 0
         state0.soil.number_of_layers_with_root = 7
         state0.plant_height = 4.0
-        state0.plant_weight = 0
         state0.stem_weight = 0.2
         state0.petiole_weight = 0
         state0.square_weight = 0

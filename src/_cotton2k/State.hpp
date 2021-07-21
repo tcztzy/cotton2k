@@ -57,7 +57,6 @@ typedef struct State
     double extra_carbon;             // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
     double day_length;               // day length, in hours
     double plant_height;
-    double plant_weight;
     double stem_weight;             // total stem weight, g per plant.
     double root_weight;             // total root weight, g per plant.
     double petiole_weight;          // total petiole weight, g per plant.

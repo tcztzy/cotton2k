@@ -51,7 +51,6 @@ cdef extern from "State.hpp":
         double extra_carbon
         double day_length
         double plant_height
-        double plant_weight
         double stem_weight
         double root_weight
         double petiole_weight

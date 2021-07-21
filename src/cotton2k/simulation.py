@@ -127,18 +127,6 @@ class Simulation(CySimulation):
                     max(u - 32, (self.emerge_date - self.start_date).days)
                 ).stem_weight,
             )  # computes plant nitrogen allocation.
-            state.plant_weight = (
-                state.root_weight
-                + state.stem_weight
-                + state.green_bolls_weight
-                + state.green_bolls_burr_weight
-                + state.leaf_weight
-                + state.petiole_weight
-                + state.square_weight
-                + state.open_bolls_weight
-                + state.open_bolls_burr_weight
-                + state.reserve_carbohydrate
-            )
         # Check if the date to stop simulation has been reached, or if this is the last
         # day with available weather data. Simulation will also stop when no leaves
         # remain on the plant.
