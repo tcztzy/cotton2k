@@ -2416,12 +2416,7 @@ cdef class Simulation:
     def defoliate_date(self, value):
         self._sim.day_defoliate = date2doy(value)
 
-    @property
-    def states(self):
-        return [self.state(i) for i in
-                range(self._sim.day_finish - self._sim.day_start + 1)]
-
-    cpdef State state(self, unsigned int i):
+    cpdef State _state(self, unsigned int i):
         return State.from_ptr(&self._sim.states[i], self.year, self.version)
 
     @property
@@ -2444,7 +2439,7 @@ cdef class Simulation:
             }
 
     def _init_state(self):
-        cdef State state0 = self.state(0)
+        cdef State state0 = self._state(0)
         state0.date = self.start_date
         state0.lint_yield = 0
         state0.soil.number_of_layers_with_root = 7
@@ -2558,7 +2553,7 @@ cdef class Simulation:
     def _initialize_root_data(self):
         """ This function initializes the root submodel parameters and variables."""
         global LastTaprootLayer, DepthLastRootLayer
-        state0 = self.state(0)
+        state0 = self._state(0)
         # The parameters of the root model are defined for each root class:
         # grind(i), cuind(i), thtrn(i), trn(i), thdth(i), dth(i).
         cdef double rlint = 10  # Vertical interval, in cm, along the taproot, for initiating lateral roots.
@@ -2760,7 +2755,7 @@ cdef class Simulation:
 
         Wierenga, P.J., Nielsen, D.R. and Hagan, R.M. 1969. Thermal properties of soil based upon field and laboratory measurements. Soil Sci. Soc. Am. Proc. 33:354-360.
         """
-        state = self.state(u)
+        state = self._state(u)
         if u == 0:
             SoilTemperatureInit(self._sim)
         # Compute dts, the daily change in deep soil temperature (C), as a site-dependent function of Daynum.
@@ -2974,7 +2969,7 @@ cdef class Simulation:
         EvapoTranspiration(self._sim.states[u], self.latitude, self.elevation, declination, tmpisr, SitePar[7])
 
     def _stress(self, u):
-        state = self.state(u)
+        state = self._state(u)
         global AverageLwpMin, AverageLwp, LwpMin, LwpMax
         # The following constant parameters are used:
         cdef double[9] vstrs = [-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05]
@@ -3272,7 +3267,7 @@ cdef class Simulation:
                             PotGroAllPetioles += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth
 
     def _growth(self, u):
-        state = self.state(u)
+        state = self._state(u)
         global PotGroStem, PotGroAllRoots
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
         self._potential_leaf_growth(u)
@@ -3282,7 +3277,7 @@ cdef class Simulation:
         # Active stem tissue(stemnew) is the difference between state.stem_weight and the value of StemWeight(kkday).
         voldstm = 32  # constant parameter(days for stem tissue to become "old")
         kkday = max(u - voldstm, self._sim.day_emerge - self._sim.day_start)  # age of young stem tissue
-        cdef double stemnew = state.stem_weight - self.state(kkday).stem_weight  # dry weight of active stem tissue.
+        cdef double stemnew = state.stem_weight - self._state(kkday).stem_weight  # dry weight of active stem tissue.
         # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
         # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
         # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
@@ -3407,7 +3402,7 @@ cdef class Simulation:
 
         CottonPhenology() calls PreFruitingNode(), days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), add_fruiting_node(), simulate_fruiting_site(), LeafAbscission(), FruitingSitesAbscission().
         """
-        state = self.state(u)
+        state = self._state(u)
         # The following constant parameters are used:
         cdef double[8] vpheno = [0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10]
 
@@ -3464,7 +3459,7 @@ cdef class Simulation:
         # Call AddFruitingBranch() to decide if a new node (and a new fruiting branch) is to be added on this stem.
         for k in range(self._sim.states[u].number_of_vegetative_branches):
             if self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches < 30:
-                self.state(u).add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
+                self._state(u).add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
             # Loop over all existing fruiting branches, and call add_fruiting_node() to decide if a new node on this fruiting branch is to be added.
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
@@ -3544,7 +3539,7 @@ cdef class Simulation:
     def _soil_procedures(self, u):
         """This function manages all the soil related processes, and is executed once each day."""
         global AverageSoilPsi, CumNitrogenUptake, CumWaterAdded, LocationColumnDrip, LocationLayerDrip, noitr
-        state = self.state(u)
+        state = self._state(u)
         # The following constant parameters are used:
         cdef double cpardrip = 0.2
         cdef double cparelse = 0.4

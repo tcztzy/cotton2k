@@ -3,8 +3,8 @@ from pathlib import Path
 
 from pytest import fixture
 
-from _cotton2k import Simulation
 from cotton2k import run
+from cotton2k.simulation import Simulation
 
 
 @fixture

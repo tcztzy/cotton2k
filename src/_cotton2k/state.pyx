@@ -86,20 +86,6 @@ cdef class StateBase:
     def plant_height(self, value):
         self._[0].plant_height = value
 
-    def plant_weight(self):
-        return (
-            self.root_weight
-            + self.stem_weight
-            + self.green_bolls_weight
-            + self.green_bolls_burr_weight
-            + self.leaf_weight
-            + self.petiole_weight
-            + self.square_weight
-            + self.open_bolls_weight
-            + self.open_bolls_burr_weight
-            + self.reserve_carbohydrate
-        )
-
     @property
     def stem_weight(self):
         return self._[0].stem_weight

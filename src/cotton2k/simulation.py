@@ -1,8 +1,41 @@
 # pylint: disable=no-name-in-module
 from math import exp
+from typing import Any
 
 from _cotton2k.simulation import Simulation as CySimulation
 from _cotton2k.simulation import SimulationEnd
+from _cotton2k.simulation import State as CyState
+
+
+class State:
+    _: CyState
+
+    def __init__(self, state: CyState) -> None:
+        self._ = state
+
+    def __getattr__(self, name: str) -> Any:
+        try:
+            return getattr(self._, name)
+        except AttributeError:
+            return getattr(self, name)
+
+    def __getitem__(self, name: str) -> Any:
+        return getattr(self, name)
+
+    @property
+    def plant_weight(self):
+        return (
+            self._.root_weight
+            + self._.stem_weight
+            + self._.green_bolls_weight
+            + self._.green_bolls_burr_weight
+            + self._.leaf_weight
+            + self._.petiole_weight
+            + self._.square_weight
+            + self._.open_bolls_weight
+            + self._.open_bolls_burr_weight
+            + self._.reserve_carbohydrate
+        )
 
 
 def physiological_age(hours) -> float:
@@ -59,6 +92,15 @@ def compute_light_interception(
 
 
 class Simulation(CySimulation):
+    @property
+    def states(self):
+        return [
+            self.state(i) for i in range((self.stop_date - self.start_date).days + 1)
+        ]
+
+    def state(self, i):
+        return State(self._state(i))
+
     def read_input(self, *args, **kwargs):  # pylint: disable=unused-argument
         self._init_state()
         super().read_input(*args, **kwargs)
@@ -78,7 +120,7 @@ class Simulation(CySimulation):
         self._simulate_this_day(days)
 
     def _simulate_this_day(self, u):
-        state = self.state(u)
+        state = self._state(u)
         if state.date >= self.emerge_date:
             state.kday = (state.date - self.emerge_date).days + 1
             # pylint: disable=access-member-before-definition
