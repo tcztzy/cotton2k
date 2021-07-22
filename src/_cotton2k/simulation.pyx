@@ -2874,24 +2874,28 @@ cdef class Simulation:
             for k in range(nk):
                 SoilTempDailyAvrg[l][k] /= iter1
 
+    @property
+    def _column_width(self):
+        return self.row_space / 20
+
+    @property
+    def plant_row_column(self):
+        return self._sim.plant_row_column
+
     def _column_shading(self, u):
-        cdef cState state = self._sim.states[u]
+        state = self._state(u)
         zint = 1.0756 * state.plant_height / self.row_space
-        sw = 0
-        for k in range(nk):
-            if k <= self._sim.plant_row_column:
-                j = self._sim.plant_row_column - k
-                sw += wk(j, self.row_space)
-                sw0 = sw
-                sw1 = sw - wk(j, self.row_space) / 2
-                k0 = j
+        for k in range(20):
+            sw = (k + 1) * self._column_width
+            if k <= self.plant_row_column:
+                k0 = self.plant_row_column - k
+                sw1 = sw - self._column_width / 2
             else:
-                sw += wk(k, self.row_space)
-                sw1 = sw - sw0 - wk(k, self.row_space) / 2
+                sw1 = sw - self._column_width / 2 - (self.plant_row_column + 1) * self._column_width
                 k0 = k
             shade = 0
             if sw1 < state.plant_height:
-                shade = 1 - (sw1 / state.plant_height) * (sw1 / state.plant_height)
+                shade = 1 - (sw1 / state.plant_height) ** 2
                 if state.light_interception < zint and state.leaf_area_index < self.max_leaf_area_index:
                     shade *= state.light_interception / zint
             self.relative_radiation_received_by_a_soil_column[k0] = max(0.05, 1 - shade)
