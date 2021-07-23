@@ -137,12 +137,18 @@ class Simulation(CySimulation):
                 self.row_space,
                 version=self.version,
             )
-            self._column_shading(u)
+            state.column_shading(
+                self.row_space,
+                self.plant_row_column,
+                self._column_width,
+                self.max_leaf_area_index,
+                self.relative_radiation_received_by_a_soil_column,
+            )
         else:
             state.kday = 0
             state.light_interception = 0
             # pylint: disable=attribute-defined-outside-init
-            self.relative_radiation_received_by_a_soil_column = [1] * 20
+            self.relative_radiation_received_by_a_soil_column[:] = 1
         # The following functions are executed each day (also before emergence).
         self._daily_climate(u)  # computes climate variables for today.
         self._soil_temperature(
@@ -177,3 +183,7 @@ class Simulation(CySimulation):
         # remain on the plant.
         if state.kday > 10 and state.leaf_area_index < 0.0002:
             raise SimulationEnd
+
+    @property
+    def _column_width(self):
+        return self.row_space / 20

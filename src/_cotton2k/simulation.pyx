@@ -722,6 +722,33 @@ cdef class State(StateBase):
     def vegetative_branches(self):
         return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k], k) for k in range(self.number_of_vegetative_branches)]
 
+    def column_shading(
+        self,
+        row_space,
+        plant_row_column,
+        column_width,
+        max_leaf_area_index,
+        relative_radiation_received_by_a_soil_column,
+    ):
+        zint = 1.0756 * self.plant_height / row_space
+        for k in range(20):
+            sw = (k + 1) * column_width
+            if k <= plant_row_column:
+                k0 = plant_row_column - k
+                sw1 = sw - column_width / 2
+            else:
+                sw1 = sw - column_width / 2 - (plant_row_column + 1) * column_width
+                k0 = k
+            shade = 0
+            if sw1 < self.plant_height:
+                shade = 1 - (sw1 / self.plant_height) ** 2
+                if (
+                    self.light_interception < zint
+                    and self.leaf_area_index < max_leaf_area_index
+                ):
+                    shade *= self.light_interception / zint
+            relative_radiation_received_by_a_soil_column[k0] = max(0.05, 1 - shade)
+
     def pre_fruiting_node(self, stemNRatio, time_to_next_pre_fruiting_node, time_factor_for_first_two_pre_fruiting_nodes, time_factor_for_third_pre_fruiting_node, initial_pre_fruiting_nodes_leaf_area):
         """This function checks if a new prefruiting node is to be added, and then sets it."""
         # The following constant parameter is used:
@@ -2416,7 +2443,6 @@ cdef class Simulation:
     cdef cSimulation _sim
     cdef public unsigned int profile_id
     cdef public unsigned int version
-    cdef public double relative_radiation_received_by_a_soil_column[20]  # the relative radiation received by a soil column, as affected by shading by plant canopy.
     cdef public double max_leaf_area_index
     cdef double ptsred  # The effect of moisture stress on the photosynthetic rate
     cdef double DaysTo1stSqare   # number of days from emergence to 1st square
@@ -2426,6 +2452,7 @@ cdef class Simulation:
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
     cdef public State _current_state
+    relative_radiation_received_by_a_soil_column = np.ones(20)  # the relative radiation received by a soil column, as affected by shading by plant canopy.
 
     def __init__(self, profile_id=0, version=0x0400, **kwargs):
         self.profile_id = profile_id
@@ -3043,30 +3070,8 @@ cdef class Simulation:
                 SoilTempDailyAvrg[l][k] /= iter1
 
     @property
-    def _column_width(self):
-        return self.row_space / 20
-
-    @property
     def plant_row_column(self):
         return self._sim.plant_row_column
-
-    def _column_shading(self, u):
-        state = self._current_state
-        zint = 1.0756 * state.plant_height / self.row_space
-        for k in range(20):
-            sw = (k + 1) * self._column_width
-            if k <= self.plant_row_column:
-                k0 = self.plant_row_column - k
-                sw1 = sw - self._column_width / 2
-            else:
-                sw1 = sw - self._column_width / 2 - (self.plant_row_column + 1) * self._column_width
-                k0 = k
-            shade = 0
-            if sw1 < state.plant_height:
-                shade = 1 - (sw1 / state.plant_height) ** 2
-                if state.light_interception < zint and state.leaf_area_index < self.max_leaf_area_index:
-                    shade *= state.light_interception / zint
-            self.relative_radiation_received_by_a_soil_column[k0] = max(0.05, 1 - shade)
 
     def _daily_climate(self, u):
         cdef double declination  # daily declination angle, in radians
