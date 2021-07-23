@@ -1655,7 +1655,7 @@ cdef class State(StateBase):
             if CultivationDate[j] == self.daynum:
                 DailyRootLoss = RootCultivation(self._[0].soil.cells, NumRootAgeGroups, CultivationDepth[j], DailyRootLoss, row_space)
         # Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
-        DailyRootLoss = DailyRootLoss * 100. * per_plant_area / row_space
+        DailyRootLoss *= 100. * per_plant_area / row_space
         RootWeightLoss += DailyRootLoss
         # Adjust root_nitrogen (root N content) for loss by death of roots.
         self.root_nitrogen -= DailyRootLoss * self.root_nitrogen_concentration
