@@ -98,5 +98,5 @@ cdef extern from "SoilTemperature.h":
     void PredictEmergence(cSimulation &, unsigned int, int)
     void SoilHeatFlux(cState &, double, int, int, int, int, double)
     void CanopyBalance(int, int, double, double, double, double, double, double, double, double &, const int &)
-    void SoilSurfaceBalance(cState &, int, int, double, double, double, double, double, double &, double &, double &, double, double)
     double SensibleHeatTransfer(double, double, double, double)
+    double ThermalCondSoil(double, double, int)

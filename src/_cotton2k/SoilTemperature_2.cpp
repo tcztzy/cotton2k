@@ -2,7 +2,6 @@
 //
 //   List of functions in this file:
 //       SensibleHeatTransfer()
-//       SoilSurfaceBalance()
 //
 #include <cmath>
 #include "Simulation.hpp"
@@ -12,8 +11,6 @@
 using namespace std;
 
 // SoilTemperature_3
-
-double ThermalCondSoil(double, double, int);
 
 /////////////////////////////////////////////////////////////////////////////
 double SensibleHeatTransfer(double tsf, double tenviron, double height, double wndcanp)
@@ -159,145 +156,4 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height, double w
     //     No more iterations. Compute sensibleHeatTransfer.
     double sensibleHeatTransfer = ustar * vonkar / g1;
     return sensibleHeatTransfer;
-}
-
-/////////////////////////////////////////
-void SoilSurfaceBalance(State &state, int ihr, int k, double ess, double rlzero, double rss, double sf,
-                        double hsg, double &so, double &so2, double &so3, double thet, double tv)
-//     This function is called from EnergyBalance(). It calls function ThermalCondSoil().
-//     It solves the energy balance equations at the soil surface, and
-//  computes the resulting temperature of the soil surface.
-//     Units for all energy fluxes are: cal cm-2 sec-1.
-//
-//     The following arguments are set in this function:
-//       so - temperature of soil surface.
-//       so2 - temperature of soil 2nd layer
-//       so3 - temperature of soil 3rd layer
-//     The following arguments are referenced in this function:
-//       ess - evaporation from soil surface (mm / sec).
-//       hsg - multiplier for computing sensible heat transfer from soil to air.
-//       ihr - the time in hours.
-//       k - soil column number.
-//       rlzero - incoming long wave radiation (ly / sec).
-//       rss - global radiation absorbed by soil surface
-//       sf - fraction of shaded soil area
-//       thet - air temperature (K).
-//       tv - temperature of plant canopy (K).
-//
-{
-    // Constants:
-    const double ef = 0.95;                          // emissivity of the foliage surface
-    const double eg = 0.95;                          // emissivity of the soil surface
-    const double stefa1 = 1.38e-12;                  // Stefan-Boltsman constant.
-                                                     //     Long wave radiation reaching the soil:
-    double rls1;                                     // long wave energy reaching soil surface
-    if (sf >= 0.05)                                  // shaded column
-        rls1 = (1 - sf) * eg * rlzero                // from sky on unshaded soil surface
-               + sf * eg * ef * stefa1 * pow(tv, 4); // from foliage on shaded soil surface
-    else
-        rls1 = eg * rlzero; // from sky in unshaded column
-                            //     rls4 is the multiplier of so**4 for emitted long wave radiation from soil
-    double rls4 = eg * stefa1;
-    double bbex;      // previous value of bbadjust.
-    int mon = 0;      // count of iterations for soil surface energy balance
-    double soex = so; //  previous value of so.
-                      //     Start itrations for soil surface enegy balance.
-    while (mon < 50)
-    {
-        //     Compute latent heat flux from soil evaporation: convert from mm sec-1 to
-        //  cal cm-2 sec-1. Compute derivative of hlat
-        //     hlat is the energy used for evaporation from soil surface (latent heat)
-        double hlat = (75.5255 - 0.05752 * so) * ess;
-        double dhlat = -0.05752 * ess; // derivative of hlat
-                                       //     Compute the thermal conductivity of layers 1 to 3 by function ThermalCondSoil().
-        double rosoil1;                // heat conductivity of 1st soil layer in cal / (cm sec deg).
-        double rosoil2;                // heat conductivity of 2nd soil layer in cal / (cm sec deg).
-        double rosoil3;                // heat conductivity of 3rd soil layer in cal / (cm sec deg).
-        rosoil1 = ThermalCondSoil(state.soil.cells[0][k].water_content, so, 1);
-        rosoil2 = ThermalCondSoil(state.soil.cells[1][k].water_content, so2, 2);
-        rosoil3 = ThermalCondSoil(state.soil.cells[2][k].water_content, so3, 3);
-        //     Compute average rosoil between layers 1 to 3,and heat transfer from
-        //  soil surface to 3rd soil layer.
-        double rosoil; // multiplier for heat flux between 1st and 3rd soil layers.
-        rosoil = (rosoil1 * dl(0) + rosoil2 * dl(1) + rosoil3 * dl(2)) / (dl(0) + dl(1) + dl(2)) / (.5 * dl(0) + dl(1) + .5 * dl(2));
-        //     bbsoil is the heat energy transfer by conductance from soil surface to soil
-        double bbsoil = rosoil * (so - so3);
-        //     emtlw is emitted long wave radiation from soil surface
-        double emtlw = rls4 * pow(so, 4);
-        //     Sensible heat transfer and its derivative
-        double dsenheat; // derivative of senheat
-        double senheat;  // sensible heat transfer from soil surface
-
-        double tafk; // average air temperature above soil surface (K)
-        tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
-        senheat = hsg * (so - tafk);
-        dsenheat = hsg * (1 - sf * 0.1);
-        //     Compute the energy balance bb. (positive direction is upward)
-        double bb = emtlw      // (a) long wave radiation emitted from soil surface
-                    - rls1     // long wave radiation reaching the soil surface
-                    + bbsoil   // (b) heat transfer from soil surface to next soil layer
-                    + hlat     // (c) latent heat transfer
-                    - rss      // global radiation reaching the soil surface
-                    + senheat; // (d) heat transfer from soil surface to air
-                               //
-        if (fabs(bb) < 10e-6)
-            return;    // end computation for so
-                       //     If bb is not small enough, compute its derivative by so.
-        double demtlw; // The derivative of emitted long wave radiation (emtlw)
-        demtlw = 4 * rls4 * pow(so, 3);
-        //     Compute derivative of bbsoil
-        double sop001 = so + 0.001; // soil surface temperature plus 0.001
-        double rosoil1p;            // heat conductivity of 1st soil layer for so+0.001
-        rosoil1p = ThermalCondSoil(state.soil.cells[0][k].water_content, sop001, 1);
-        double rosoilp; // rosoil for so+0.001
-        rosoilp = (rosoil1p * dl(0) + rosoil2 * dl(1) + rosoil3 * dl(2)) / (dl(0) + dl(1) + dl(2)) / (.5 * dl(0) + dl(1) + .5 * dl(2));
-        double drosoil = (rosoilp - rosoil) / 0.001;    // derivative of rosoil
-        double dbbsoil = rosoil + drosoil * (so - so3); // derivative of bbsoil
-                                                        //     The derivative of the energy balance function
-        double bbp = demtlw                             // (a)
-                     + dbbsoil                          // (b)
-                     + dhlat                            // (c)
-                     + dsenheat;                        // (d)
-                                                        //     Correct the upper soil temperature by the ratio of bb to bbp.
-        double bbadjust;                                // the adjustment of soil surface temperature before next iteration
-        bbadjust = bb / bbp;
-        //     If adjustment is small enough, no more iterations are needed.
-        if (fabs(bbadjust) < 0.002)
-            return;
-        //     If bbadjust is not the same sign as bbex, reduce fluctuations
-        if (mon <= 1)
-            bbex = 0;
-        else if (mon >= 2)
-        {
-            if (fabs(bbadjust + bbex) < fabs(bbadjust - bbex))
-            {
-                bbadjust = (bbadjust + bbex) / 2;
-                so = (so + soex) / 2;
-            }
-        }
-        //
-        if (bbadjust > 10)
-            bbadjust = 10;
-        if (bbadjust < -10)
-            bbadjust = -10;
-        //
-        so = so - bbadjust;
-        so2 = so2 + (so - soex) / 2;
-        so3 = so3 + (so - soex) / 3;
-        soex = so;
-        bbex = bbadjust;
-        mon++;
-    } // end while loop
-      //     If (mon >= 50) send message on error and end simulation.
-    string msg = " Infinite loop in SoilSurfaceBalance(). Abnormal stop!! \n";
-    char C1[12];
-    sprintf(C1, "%3d %3d %3d", state.daynum, ihr, k);
-    msg += " Daynum, ihr, k = " + (string)C1 + "\n";
-    sprintf(C1, "%10.3g", so);
-    msg += " so      = " + (string)C1 + "\n";
-    sprintf(C1, "%10.3g", so2);
-    msg += " so2 = " + (string)C1 + "\n";
-    sprintf(C1, "%10.3g", so3);
-    msg += " so3 = " + (string)C1 + "\n";
-    throw SimulationEnd(msg);
 }

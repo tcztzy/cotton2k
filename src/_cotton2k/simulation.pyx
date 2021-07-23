@@ -542,12 +542,36 @@ cdef class Hour:
     cdef cHour *_
 
     @property
+    def albedo(self):
+        return self._[0].albedo
+
+    @property
+    def cloud_cor(self):
+        return self._[0].cloud_cor
+
+    @property
+    def cloud_cov(self):
+        return self._[0].cloud_cov
+
+    @property
+    def humidity(self):
+        return self._[0].humidity
+
+    @property
+    def radiation(self):
+        return self._[0].radiation
+
+    @property
     def temperature(self):
         return self._[0].temperature
 
     @temperature.setter
     def temperature(self, value):
         self._[0].temperature = value
+
+    @property
+    def wind_speed(self):
+        return self._[0].wind_speed
 
     @staticmethod
     cdef Hour from_ptr(cHour *_ptr):
@@ -2213,6 +2237,126 @@ cdef class State(StateBase):
             BollOpening(self._[0], k, l, m, date2doy(defoliate_date), site.boll.cumulative_temperature, plant_population, var39, var40, var41, var42)
     #end phenology
 
+    #begin soil
+    def soil_surface_balance(self, int ihr, int k, double ess, double rlzero, double rss, double sf, double hsg, double so, double so2, double so3, double thet, double tv) -> tuple[float, float, float]:
+        """This function is called from EnergyBalance(). It calls function ThermalCondSoil().
+
+        It solves the energy balance equations at the soil surface, and computes the resulting temperature of the soil surface.
+
+        Units for all energy fluxes are: cal cm-2 sec-1.
+
+        :param ihr: the time in hours.
+        :param k: soil column number.
+        :param ess: evaporation from soil surface (mm / sec).
+        :param rlzero: incoming long wave
+        :param rss: global radiation absorbed by soil surface
+        :param sf: fraction of shaded soil area
+        :param hsg: multiplier for computing sensible heat transfer from soil to air.
+        :param thet: air temperature (K).
+        :param tv: temperature of plant canopy (K).
+        """
+        # Constants:
+        cdef double ef = 0.95  # emissivity of the foliage surface
+        cdef double eg = 0.95  # emissivity of the soil surface
+        cdef double stefa1 = 1.38e-12  # Stefan-Boltsman constant.
+        # Long wave radiation reaching the soil:
+        cdef double rls1  # long wave energy reaching soil surface
+        if sf >= 0.05:  # haded column
+            rls1 = (
+                (1 - sf) * eg * rlzero  # from sky on unshaded soil surface
+                + sf * eg * ef * stefa1 * tv ** 4  # from foliage on shaded soil surface
+            )
+        else:
+            rls1 = eg * rlzero  # from sky in unshaded column
+        # rls4 is the multiplier of so**4 for emitted long wave radiation from soil
+        cdef double rls4 = eg * stefa1
+        cdef double bbex  # previous value of bbadjust.
+        cdef double soex = so  # previous value of so.
+        # Start itrations for soil surface enegy balance.
+        for mon in range(50):
+            # Compute latent heat flux from soil evaporation: convert from mm sec-1 to cal cm-2 sec-1. Compute derivative of hlat
+            # hlat is the energy used for evaporation from soil surface (latent heat)
+            hlat = (75.5255 - 0.05752 * so) * ess
+            dhlat = -0.05752 * ess  # derivative of hlat
+            # Compute the thermal conductivity of layers 1 to 3 by function ThermalCondSoil().
+            # heat conductivity of n-th soil layer in cal / (cm sec deg).
+            rosoil1 = ThermalCondSoil(self._[0].soil.cells[0][k].water_content, so, 1)
+            rosoil2 = ThermalCondSoil(self._[0].soil.cells[1][k].water_content, so2, 2)
+            rosoil3 = ThermalCondSoil(self._[0].soil.cells[2][k].water_content, so3, 3)
+            # Compute average rosoil between layers 1 to 3,and heat transfer from soil surface to 3rd soil layer.
+            # multiplier for heat flux between 1st and 3rd soil layers.
+            rosoil = (rosoil1 * dl(0) + rosoil2 * dl(1) + rosoil3 * dl(2)) / (dl(0) + dl(1) + dl(2)) / (.5 * dl(0) + dl(1) + .5 * dl(2))
+            # bbsoil is the heat energy transfer by conductance from soil surface to soil
+            bbsoil = rosoil * (so - so3)
+            # emtlw is emitted long wave radiation from soil surface
+            emtlw = rls4 * pow(so, 4);
+            # Sensible heat transfer and its derivative
+            # average air temperature above soil surface (K)
+            tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv)
+            senheat = hsg * (so - tafk)  # sensible heat transfer from soil surface
+            dsenheat = hsg * (1 - sf * 0.1)  # derivative of senheat
+            # Compute the energy balance bb. (positive direction is upward)
+            bb = (
+                emtlw  # long wave radiation emitted from soil surface
+                - rls1  # long wave radiation reaching the soil surface
+                + bbsoil  #(b) heat transfer from soil surface to next soil layer
+                + hlat  #(c) latent heat transfer
+                - rss  # global radiation reaching the soil surface
+                + senheat  # (d) heat transfer from soil surface to air
+            )
+
+            if abs(bb) < 10e-6:
+                return so, so2, so3  # end computation for so
+            # If bb is not small enough, compute its derivative by so.
+
+            demtlw = 4 * rls4 * so ** 3 # The derivative of emitted long wave radiation (emtlw)
+            # Compute derivative of bbsoil
+            sop001 = so + 0.001  # soil surface temperature plus 0.001
+            # heat conductivity of 1st soil layer for so+0.001
+            rosoil1p = ThermalCondSoil(self._[0].soil.cells[0][k].water_content, sop001, 1)
+            # rosoil for so+0.001
+            rosoilp = (rosoil1p * dl(0) + rosoil2 * dl(1) + rosoil3 * dl(2)) / (dl(0) + dl(1) + dl(2)) / (.5 * dl(0) + dl(1) + .5 * dl(2))
+            drosoil = (rosoilp - rosoil) / 0.001  # derivative of rosoil
+            dbbsoil = rosoil + drosoil * (so - so3)  # derivative of bbsoil
+            # The derivative of the energy balance function
+            bbp = (
+                demtlw  # (a)
+                + dbbsoil  # (b)
+                + dhlat  # (c)
+                + dsenheat  # (d)
+            )
+            # Correct the upper soil temperature by the ratio of bb to bbp.
+            # the adjustment of soil surface temperature before next iteration
+            bbadjust = bb / bbp
+            # If adjustment is small enough, no more iterations are needed.
+            if abs(bbadjust) < 0.002:
+                return so, so2, so3
+            # If bbadjust is not the same sign as bbex, reduce fluctuations
+            if mon <= 1:
+                bbex = 0
+            elif mon >= 2:
+                if abs(bbadjust + bbex) < abs(bbadjust - bbex):
+                    bbadjust = (bbadjust + bbex) / 2
+                    so = (so + soex) / 2
+
+            bbadjust = min(max(bbadjust, -10), 10)
+
+            so -= bbadjust;
+            so2 += (so - soex) / 2
+            so3 += (so - soex) / 3
+            soex = so
+            bbex = bbadjust
+            mon += 1
+        else:
+            # If (mon >= 50) send message on error and end simulation.
+            raise SimulationEnd("\n".join((
+                "Infinite loop in soil_surface_balance(). Abnormal stop!!",
+                "Daynum, ihr, k = %3d %3d %3d" % (self.daynum, ihr, k),
+                "so = %10.3g" % so,
+                "so2 = %10.3g" % so2,
+                "so3 = %10.3g" % so3,
+            )))
+
 def compute_incoming_long_wave_radiation(humidity: float, temperature: float, cloud_cov: float, cloud_cor: float) -> float:
     """LONG WAVE RADIATION EMITTED FROM SKY"""
     stefa1 = 1.38e-12  # Stefan-Boltsman constant.
@@ -2608,7 +2752,7 @@ cdef class Simulation:
 
         Units for all energy fluxes are: cal cm-2 sec-1.
         It is called from SoilTemperature(), on each hourly time step and for each soil column.
-        It calls functions clearskyemiss(), VaporPressure(), SensibleHeatTransfer(), SoilSurfaceBalance() and CanopyBalance.()
+        It calls functions clearskyemiss(), VaporPressure(), SensibleHeatTransfer(), soil_surface_balance() and CanopyBalance.()
 
         :param ihr: the time of day in hours.
         :param k: soil column number.
@@ -2616,6 +2760,7 @@ cdef class Simulation:
         :param etp1: actual transpiration rate (mm / sec).
         :param sf: fraction of shaded soil area
         """
+        state = self._state(u)
         # Constants used:
         cdef double wndfac = 0.60  # Ratio of wind speed under partial canopy cover.
         cdef double cswint = 0.75  # proportion of short wave radiation (on fully shaded soil surface) intercepted by the canopy.
@@ -2671,14 +2816,14 @@ cdef class Simulation:
             varc = SensibleHeatTransfer(so, tafk, 0, wndcanp)
             rocp = 0.08471 / tafk
             hsg = rocp * varc  # multiplier for computing sensible heat transfer soil to air.
-            # Call SoilSurfaceBalance() for energy balance in soil surface / air interface.
-            SoilSurfaceBalance(self._sim.states[u], ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, tv)
+            # Call soil_surface_balance() for energy balance in soil surface / air interface.
+            so, so2, so3 = state.soil_surface_balance(ihr, k, ess, rlzero, rss, sf, hsg, so, so2, so3, thet, tv)
 
             if sf >= 0.05:
                 # This section executed for shaded columns only.
                 tvold = tv
                 # Compute canopy energy balance for shaded columns
-                CanopyBalance(ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tv, self._sim.day_start + u)
+                CanopyBalance(ihr, k, etp1, rlzero, rsv, c2, sf, so, thet, tv, state.daynum)
                 if menit >= 10:
                     # The following is used to reduce fluctuations.
                     so = (so + soold) / 2

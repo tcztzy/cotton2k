@@ -10,6 +10,6 @@ void SoilHeatFlux(State &, double, int, int, int, int, double);
 
 void CanopyBalance(int, int, double, double, double, double, double, double, double, double &, const int &);
 
-void SoilSurfaceBalance(State &, int, int, double, double, double, double, double, double &, double &, double &, double, double);
-
 double SensibleHeatTransfer(double, double, double, double);
+
+double ThermalCondSoil(double, double, int);
