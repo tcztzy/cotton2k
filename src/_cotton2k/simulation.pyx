@@ -2404,6 +2404,7 @@ cdef class Simulation:
     cdef bool_t idsw  # switch indicating if predicted defoliation date was defined.
     cdef public double skip_row_width  # the smaller distance between skip rows, cm
     cdef public double plants_per_meter  # average number of plants pre meter of row.
+    cdef public State _current_state
 
     def __init__(self, profile_id=0, version=0x0400, **kwargs):
         self.profile_id = profile_id
@@ -2583,7 +2584,7 @@ cdef class Simulation:
             }
 
     def _init_state(self):
-        cdef State state0 = self._state(0)
+        cdef State state0 = self._current_state
         state0.date = self.start_date
         state0.lint_yield = 0
         state0.soil.number_of_layers_with_root = 7
@@ -2697,7 +2698,7 @@ cdef class Simulation:
     def _initialize_root_data(self):
         """ This function initializes the root submodel parameters and variables."""
         global LastTaprootLayer, DepthLastRootLayer
-        state0 = self._state(0)
+        state0 = self._current_state
         # The parameters of the root model are defined for each root class:
         # grind(i), cuind(i), thtrn(i), trn(i), thdth(i), dth(i).
         cdef double rlint = 10  # Vertical interval, in cm, along the taproot, for initiating lateral roots.
@@ -2760,7 +2761,7 @@ cdef class Simulation:
         :param etp1: actual transpiration rate (mm / sec).
         :param sf: fraction of shaded soil area
         """
-        state = self._state(u)
+        state = self._current_state
         # Constants used:
         cdef double wndfac = 0.60  # Ratio of wind speed under partial canopy cover.
         cdef double cswint = 0.75  # proportion of short wave radiation (on fully shaded soil surface) intercepted by the canopy.
@@ -2900,7 +2901,7 @@ cdef class Simulation:
 
         Wierenga, P.J., Nielsen, D.R. and Hagan, R.M. 1969. Thermal properties of soil based upon field and laboratory measurements. Soil Sci. Soc. Am. Proc. 33:354-360.
         """
-        state = self._state(u)
+        state = self._current_state
         if u == 0:
             SoilTemperatureInit(self._sim)
         # Compute dts, the daily change in deep soil temperature (C), as a site-dependent function of Daynum.
@@ -3028,7 +3029,7 @@ cdef class Simulation:
         return self._sim.plant_row_column
 
     def _column_shading(self, u):
-        state = self._state(u)
+        state = self._current_state
         zint = 1.0756 * state.plant_height / self.row_space
         for k in range(20):
             sw = (k + 1) * self._column_width
@@ -3118,7 +3119,7 @@ cdef class Simulation:
         EvapoTranspiration(self._sim.states[u], self.latitude, self.elevation, declination, tmpisr, SitePar[7])
 
     def _stress(self, u):
-        state = self._state(u)
+        state = self._current_state
         global AverageLwpMin, AverageLwp, LwpMin, LwpMax
         # The following constant parameters are used:
         cdef double[9] vstrs = [-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05]
@@ -3416,7 +3417,7 @@ cdef class Simulation:
                             PotGroAllPetioles += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth
 
     def _growth(self, u):
-        state = self._state(u)
+        state = self._current_state
         global PotGroStem, PotGroAllRoots
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
         self._potential_leaf_growth(u)
@@ -3551,7 +3552,7 @@ cdef class Simulation:
 
         CottonPhenology() calls PreFruitingNode(), days_to_first_square(), create_first_square(), _add_vegetative_branch(), _add_fruiting_branch(), add_fruiting_node(), simulate_fruiting_site(), LeafAbscission(), FruitingSitesAbscission().
         """
-        state = self._state(u)
+        state = self._current_state
         # The following constant parameters are used:
         cdef double[8] vpheno = [0.65, -0.83, -1.67, -0.25, -0.75, 10.0, 15.0, 7.10]
 
@@ -3608,7 +3609,7 @@ cdef class Simulation:
         # Call AddFruitingBranch() to decide if a new node (and a new fruiting branch) is to be added on this stem.
         for k in range(self._sim.states[u].number_of_vegetative_branches):
             if self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches < 30:
-                self._state(u).add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
+                state.add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
             # Loop over all existing fruiting branches, and call add_fruiting_node() to decide if a new node on this fruiting branch is to be added.
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
@@ -3688,7 +3689,7 @@ cdef class Simulation:
     def _soil_procedures(self, u):
         """This function manages all the soil related processes, and is executed once each day."""
         global AverageSoilPsi, CumNitrogenUptake, CumWaterAdded, LocationColumnDrip, LocationLayerDrip, noitr
-        state = self._state(u)
+        state = self._current_state
         # The following constant parameters are used:
         cdef double cpardrip = 0.2
         cdef double cparelse = 0.4

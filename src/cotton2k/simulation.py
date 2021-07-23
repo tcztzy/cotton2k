@@ -102,6 +102,8 @@ class Simulation(CySimulation):
         return State(self._state(i))
 
     def read_input(self, *args, **kwargs):  # pylint: disable=unused-argument
+        # pylint: disable=attribute-defined-outside-init
+        self._current_state = self._state(0)
         self._init_state()
         super().read_input(*args, **kwargs)
         self._initialize_root_data()
@@ -120,7 +122,8 @@ class Simulation(CySimulation):
         self._simulate_this_day(days)
 
     def _simulate_this_day(self, u):
-        state = self._state(u)
+        # pylint: disable=attribute-defined-outside-init
+        state = self._current_state = self._state(u)
         if state.date >= self.emerge_date:
             state.kday = (state.date - self.emerge_date).days + 1
             # pylint: disable=access-member-before-definition
