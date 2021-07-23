@@ -695,10 +695,34 @@ cdef class Soil:
                         RootImpede[l][k] = temp2 + (temp1 - temp2) * (Vh2o - gh2oc[i0]) / (gh2oc[i1] - gh2oc[i0])
 
 
+    cdef double root_cultivation(self, int NumRootAgeGroups, double cultivation_depth, double row_space):
+        """This function is executed on the day of soil cultivation.
+
+        It has been adapted from GOSSYM. It is assumed that the roots in the upper soil layers, as defined by the depth of cultivation, are destroyed, with the exception of the soil cells that are within 15 cm of the plant row."""
+        # The depth of cultivation (CultivationDepth) is in cm. The number of layers affected by it (lcult) is determined. Loop for all columns, and check if this column is more than 15 cm from the plant row: if this is true, destroy all roots and add their weight to DailyRootLoss.
+        cdef int lcult = 0  # number of soil layers affected by cultivation.
+        cdef double sdpth = 0  # sum depth to the end of the layer.
+        for l in range(40):
+            sdpth += dl(l);
+            if sdpth >= cultivation_depth:
+                lcult = l
+                break
+
+        cdef double sumwk = 0  # sum of column widths from edge of slab to this column.
+        root_loss = 0
+        for k in range(20):
+            sumwk += wk(k, row_space)
+            if abs(sumwk - PlantRowLocation) >= 15:
+                for l in range(lcult):
+                    for i in range(NumRootAgeGroups):
+                        root_loss += self.cells[l][k].root.weight[i]
+                        self._[0].cells[l][k].root.weight[i] = 0
+        return root_loss
+
 
 cdef class State(StateBase):
 
-    cdef Soil soil
+    cdef public Soil soil
 
     @staticmethod
     cdef State from_ptr(cState *_ptr, unsigned int year, unsigned int version):
@@ -1650,10 +1674,10 @@ cdef class State(StateBase):
                 if self.root_age[l][k] > 0:
                     self.root_aging(l, k)
                     DailyRootLoss += self.root_death(l, k)
-        # Check if cultivation is executed in this day and call RootCultivation().
+        # Check if cultivation is executed in this day and call root_cultivation().
         for j in range(5):
             if CultivationDate[j] == self.daynum:
-                DailyRootLoss = RootCultivation(self._[0].soil.cells, NumRootAgeGroups, CultivationDepth[j], DailyRootLoss, row_space)
+                DailyRootLoss += self.soil.root_cultivation(NumRootAgeGroups, CultivationDepth[j], row_space)
         # Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
         DailyRootLoss *= 100. * per_plant_area / row_space
         RootWeightLoss += DailyRootLoss

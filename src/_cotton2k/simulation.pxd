@@ -74,7 +74,6 @@ cdef extern from "PlantGrowth.h":
     void ActualLeafGrowth(cState &)
 
 cdef extern from "RootGrowth.h":
-    double RootCultivation(cSoilCell[40][20], int, double, double, double)
     void InitiateLateralRoots()
 
 cdef extern from "SoilNitrogen.h":

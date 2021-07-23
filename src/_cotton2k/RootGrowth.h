@@ -35,8 +35,6 @@
 //     PotentialRootGrowth() calls RootImpedance(), SoilMechanicResistance(), SoilAirOnRootGrowth(),
 //  SoilNitrateOnRootGrowth(), SoilTemOnRootGrowth().
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(), LateralRootGrowth(),
-//  RootAging(), RootDeath(), RootCultivation(), RootSummation().
-
-double RootCultivation(SoilCell[40][20], int, double, double, double);
+//  RootAging(), RootDeath(), RootSummation().
 
 void InitiateLateralRoots();
