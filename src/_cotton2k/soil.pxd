@@ -1,5 +1,5 @@
 cdef extern from "Soil.h":
-    ctypedef struct Root:
+    ctypedef struct cRoot "Root":
         double growth_factor
         double weight_capable_uptake
         double weight[3]
@@ -8,7 +8,7 @@ cdef extern from "Soil.h":
         double nitrate_nitrogen_content
         double fresh_organic_matter
         double water_content
-        Root root
+        cRoot root
 
     ctypedef struct SoilLayer:
         unsigned int number_of_left_columns_with_root

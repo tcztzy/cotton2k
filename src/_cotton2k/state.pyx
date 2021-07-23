@@ -12,6 +12,7 @@ cdef class StateBase:
     actual_root_growth = np.zeros((40, 20), dtype=np.float64)
     root_potential_growth = np.zeros((40, 20), dtype=np.float64)  # potential root growth in a soil cell (g per day).
     root_age = np.zeros((40, 20), dtype=np.float64)
+    hours = np.empty(24, dtype=object)
 
     def keys(self):
         return [

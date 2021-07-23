@@ -69,6 +69,7 @@ from .cxx cimport (
 )
 from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth, wcond
+from .soil cimport cRoot
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf, StateBase
 from .fruiting_site cimport FruitingSite, Leaf, cBoll
 
@@ -268,11 +269,33 @@ cdef read_agricultural_input(cSimulation & sim, inputs):
             DefoliationMethod[idef] = i.get("method", 0)
             idef += 1
 
+cdef class Root:
+    cdef cRoot *_
+    cdef unsigned int l
+    cdef unsigned int k
+
+    @property
+    def weight(self):
+        return self._[0].weight
+
+    @property
+    def weight_capable_uptake(self):
+        return self._[0].weight_capable_uptake
+
+    @staticmethod
+    cdef Root from_ptr(cRoot *_ptr, unsigned int l, unsigned int k):
+        cdef Root root = Root.__new__(Root)
+        root._ = _ptr
+        root.l = l
+        root.k = k
+        return root
+
 
 cdef class SoilCell:
     cdef cSoilCell *_
     cdef unsigned int l
     cdef unsigned int k
+    cdef public Root root
 
     @staticmethod
     cdef SoilCell from_ptr(cSoilCell *_ptr, unsigned int l, unsigned int k):
@@ -280,6 +303,7 @@ cdef class SoilCell:
         cell._ = _ptr
         cell.l = l
         cell.k = k
+        cell.root = Root.from_ptr(&_ptr[0].root, l, k)
         return cell
 
     @property
@@ -631,7 +655,7 @@ cdef class Soil:
         soil._ = _ptr
         for l in range(40):
             for k in range(20):
-                soil.cells[l][k] = SoilCell.from_ptr(&_ptr.cells[l][k], l, k)
+                soil.cells[l][k] = SoilCell.from_ptr(&_ptr[0].cells[l][k], l, k)
         return soil
 
     def root_impedance(self):
@@ -674,9 +698,7 @@ cdef class Soil:
 
 cdef class State(StateBase):
 
-    @property
-    def soil(self):
-        return Soil.from_ptr(&self._[0].soil)
+    cdef Soil soil
 
     @staticmethod
     cdef State from_ptr(cState *_ptr, unsigned int year, unsigned int version):
@@ -691,15 +713,14 @@ cdef class State(StateBase):
         state._ = _ptr
         state.year = year
         state.version = version
+        state.soil = Soil.from_ptr(&_ptr[0].soil)
+        for i in range(24):
+            state.hours[i] = Hour.from_ptr(&_ptr[0].hours[i])
         return state
 
     @property
     def vegetative_branches(self):
         return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k], k) for k in range(self.number_of_vegetative_branches)]
-
-    @property
-    def hours(self):
-        return (Hour.from_ptr(&self._[0].hours[i]) for i in range(24))
 
     def pre_fruiting_node(self, stemNRatio, time_to_next_pre_fruiting_node, time_factor_for_first_two_pre_fruiting_nodes, time_factor_for_third_pre_fruiting_node, initial_pre_fruiting_nodes_leaf_area):
         """This function checks if a new prefruiting node is to be added, and then sets it."""
@@ -815,16 +836,16 @@ cdef class State(StateBase):
         cdef double rrl  # root resistance per g of active roots.
         for l in range(self.soil.number_of_layers_with_root):
             for k in range(self._[0].soil.layers[l].number_of_left_columns_with_root, self._[0].soil.layers[l].number_of_right_columns_with_root):
-                if self._[0].soil.cells[l][k].root.weight_capable_uptake >= vpsil[10]:
-                    psinum += min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11])
-                    sumlv += min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg
+                if self.soil.cells[l][k].root.weight_capable_uptake >= vpsil[10]:
+                    psinum += min(self.soil.cells[l][k].root.weight_capable_uptake, vpsil[11])
+                    sumlv += min(self.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) * cmg
                     rootvol += dl(l) * wk(k, row_space)
                     if SoilPsi[l][k] <= vpsil[1]:
                         rrl = vpsil[2] / cmg
                     else:
                         rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k])) / cmg
-                    rrlsum += min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl
-                    vh2sum += self.soil.cells[l][k].water_content * min(self._[0].soil.cells[l][k].root.weight_capable_uptake, vpsil[11])
+                    rrlsum += min(self.soil.cells[l][k].root.weight_capable_uptake, vpsil[11]) / rrl
+                    vh2sum += self.soil.cells[l][k].water_content * min(self.soil.cells[l][k].root.weight_capable_uptake, vpsil[11])
         # Compute average root resistance (rroot) and average soil water content (vh2).
         cdef double dumyrs  # intermediate variable for computing cond.
         cdef double vh2  # average of soil water content, for all soil soil cells with roots.
@@ -1155,9 +1176,9 @@ cdef class State(StateBase):
         for i in range(2):
             if self.root_age[l][k] > thtrn[i]:
                 # root mass transferred from one class to the next.
-                xtr = trn[i] * self._[0].soil.cells[l][k].root.weight[i]
-                self._[0].soil.cells[l][k].root.weight[i + 1] += xtr
-                self._[0].soil.cells[l][k].root.weight[i] -= xtr
+                xtr = trn[i] * self.soil.cells[l][k].root.weight[i]
+                self.soil.cells[l][k].root.weight[i + 1] += xtr
+                self.soil.cells[l][k].root.weight[i] -= xtr
 
     def root_death(self, l, k):
         """This function computes the death of root tissue in each soil cell containing roots.
@@ -2762,20 +2783,21 @@ cdef class Simulation:
         :param sf: fraction of shaded soil area
         """
         state = self._current_state
+        hour = state.hours[ihr]
         # Constants used:
         cdef double wndfac = 0.60  # Ratio of wind speed under partial canopy cover.
         cdef double cswint = 0.75  # proportion of short wave radiation (on fully shaded soil surface) intercepted by the canopy.
         # Set initial values
         cdef double sf = 1 - self.relative_radiation_received_by_a_soil_column[k]
-        cdef double thet = self._sim.states[u].hours[ihr].temperature + 273.161  # air temperature, K
+        cdef double thet = hour.temperature + 273.161  # air temperature, K
         cdef double so = SoilTemp[0][k]  # soil surface temperature, K
         cdef double so2 = SoilTemp[1][k]  # 2nd soil layer temperature, K
         cdef double so3 = SoilTemp[2][k]  # 3rd soil layer temperature, K
         # Compute soil surface albedo (based on Horton and Chung, 1991):
-        ag = compute_soil_surface_albedo(self._sim.states[u].soil.cells[0][k].water_content, FieldCapacity[0], thad[0], SitePar[15], SitePar[16])
+        ag = compute_soil_surface_albedo(state.soil.cells[0][k].water_content, FieldCapacity[0], thad[0], SitePar[15], SitePar[16])
 
-        rzero, rss, rsup = compute_incoming_short_wave_radiation(self._sim.states[u].hours[ihr].radiation, sf * cswint, ag)
-        rlzero = compute_incoming_long_wave_radiation(self._sim.states[u].hours[ihr].humidity, self._sim.states[u].hours[ihr].temperature, self._sim.states[u].hours[ihr].cloud_cov, self._sim.states[u].hours[ihr].cloud_cor)
+        rzero, rss, rsup = compute_incoming_short_wave_radiation(hour.radiation, sf * cswint, ag)
+        rlzero = compute_incoming_long_wave_radiation(hour.humidity, hour.temperature, hour.cloud_cov, hour.cloud_cor)
 
         # Set initial values of canopy temperature and air temperature in canopy.
         cdef double tv  # temperature of plant foliage (K)
@@ -2785,7 +2807,7 @@ cdef class Simulation:
             tafk = thet
         # Wind velocity in canopy is converted to cm / s.
         cdef double wndhr  # wind speed in cm /sec
-        wndhr = self._sim.states[u].hours[ihr].wind_speed * 100
+        wndhr = hour.wind_speed * 100
         cdef double rocp  # air density * specific heat at constant pressure = 0.24 * 2 * 1013 / 5740
         # divided by tafk.
         cdef double c2  # multiplier for sensible heat transfer (at plant surface).
@@ -2794,15 +2816,15 @@ cdef class Simulation:
             tv = FoliageTemp[k]  # vegetation temperature
             # Short wave radiation intercepted by the canopy:
             rsv = (
-                    rzero * (1 - self._sim.states[u].hours[ihr].albedo) * sf * cswint  # from above
-                    + rsup * (1 - self._sim.states[u].hours[ihr].albedo) * sf * cswint  # reflected from soil surface
+                    rzero * (1 - hour.albedo) * sf * cswint  # from above
+                    + rsup * (1 - hour.albedo) * sf * cswint  # reflected from soil surface
             )
             # Air temperature inside canopy is the average of soil, air, and plant temperatures, weighted by 0.1, 0.3, and 0.6, respectively.
             tafk = (1 - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv)
 
             # Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2 for sensible heat transfer: 2 sides of leaf plus stems and petioles.
             # sensible heat transfer coefficient for soil
-            varcc = SensibleHeatTransfer(tv, tafk, self._sim.states[u].plant_height, wndhr)  # canopy to air
+            varcc = SensibleHeatTransfer(tv, tafk, state.plant_height, wndhr)  # canopy to air
             rocp = 0.08471 / tafk
             c2 = 2.2 * sf * rocp * varcc
         cdef double soold = so  # previous value of soil surface temperature
