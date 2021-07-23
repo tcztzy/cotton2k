@@ -2905,7 +2905,7 @@ cdef class Simulation:
         if u == 0:
             SoilTemperatureInit(self._sim)
         # Compute dts, the daily change in deep soil temperature (C), as a site-dependent function of Daynum.
-        cdef double dts = 2 * pi * SitePar[10] / 365 * cos(2 * pi * (self._sim.states[u].daynum - SitePar[11]) / 365)
+        cdef double dts = 2 * pi * SitePar[10] / 365 * cos(2 * pi * (state.daynum - SitePar[11]) / 365)
         # Define iter1 and dlt for hourly time step.
         cdef int iter1 = 24  # number of iterations per day.
         cdef double dlt = 3600  # time (seconds) of one iteration.
@@ -2931,15 +2931,15 @@ cdef class Simulation:
                 SoilTempDailyAvrg[l][k] = 0
         # es and ActualSoilEvaporation are computed as the average for the whole soil slab, weighted by column widths.
         cdef double es = 0  # potential evaporation rate, mm day-1
-        self._sim.states[u].potential_evaporation = 0
-        self._sim.states[u].actual_soil_evaporation = 0
+        state.potential_evaporation = 0
+        state.actual_soil_evaporation = 0
         # Start hourly loop of iterations.
         for ihr in range(iter1):
             # Update the temperature of the last soil layer (lower boundary conditions).
             state.deep_soil_temperature += dts * dlt / 86400
             etp0 = 0  # actual transpiration (mm s-1) for this hour
-            if self._sim.states[u].evapotranspiration > 0.000001:
-                etp0 = self._sim.states[u].actual_transpiration * self._sim.states[u].hours[ihr].ref_et / self._sim.states[u].evapotranspiration / dlt
+            if state.evapotranspiration > 0.000001:
+                etp0 = state.actual_transpiration * state._[0].hours[ihr].ref_et / state.evapotranspiration / dlt
             # Compute vertical transport for each column
             for k in range(kk):
                 #  Set SoilTemp for the lowest soil layer.
@@ -2951,13 +2951,13 @@ cdef class Simulation:
                 ess = 0  # evaporation rate from surface of a soil column (mm / sec).
                 # The potential evaporation rate (escol1k) from a column is the sum of the radiation component of the Penman equation(es1hour), multiplied by the relative radiation reaching this column, and the wind and vapor deficit component of the Penman equation (es2hour).
                 # potential evaporation fron soil surface of a column, mm per hour.
-                escol1k = self._sim.states[u].hours[ihr].et1 * self.relative_radiation_received_by_a_soil_column[k] + self._sim.states[u].hours[ihr].et2
+                escol1k = state._[0].hours[ihr].et1 * self.relative_radiation_received_by_a_soil_column[k] + state._[0].hours[ihr].et2
                 es += escol1k * wk(k, self.row_space)
                 # Compute actual evaporation from soil surface. update cell.water_content of the soil soil cell, and add to daily sum of actual evaporation.
-                evapmax = 0.9 * (self._sim.states[u].soil.cells[0][k].water_content - thad[0]) * 10 * dl(0)  # maximum possible evaporatio from a soil cell near the surface.
+                evapmax = 0.9 * (state._[0].soil.cells[0][k].water_content - thad[0]) * 10 * dl(0)  # maximum possible evaporatio from a soil cell near the surface.
                 escol1k = min(evapmax, escol1k)
-                self._sim.states[u].soil.cells[0][k].water_content -= 0.1 * escol1k / dl(0)
-                self._sim.states[u].actual_soil_evaporation += escol1k * wk(k, self.row_space)
+                state._[0].soil.cells[0][k].water_content -= 0.1 * escol1k / dl(0)
+                state.actual_soil_evaporation += escol1k * wk(k, self.row_space)
                 ess = escol1k / dlt
                 # Call self._energy_balance to compute soil surface and canopy temperature.
                 self._energy_balance(u, ihr, k, ess, etp1)
@@ -2968,14 +2968,14 @@ cdef class Simulation:
             layer = 0  # soil layer number
             # Loop over kk columns, and call SoilHeatFlux().
             for k in range(kk):
-                SoilHeatFlux(self._sim.states[u], dlt, iv, nn, layer, k, self.row_space)
+                SoilHeatFlux(state._[0], dlt, iv, nn, layer, k, self.row_space)
             # If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the value computed for the first column. Also, do the same for array memebers of cell.water_content.
             if self.emerge_switch <= 1:
                 for l in range(nl):
                     for k in range(nk):
                         SoilTemp[l][k] = SoilTemp[l][0]
                         if l == 0:
-                            self._sim.states[u].soil.cells[l][k].water_content = self._sim.states[u].soil.cells[l][0].water_content
+                            state._[0].soil.cells[l][k].water_content = state._[0].soil.cells[l][0].water_content
             # Compute horizontal transport for each layer
 
             # Compute soil temperature flux in the horizontal direction, when self.emerge_switch = 2.
@@ -2985,7 +2985,7 @@ cdef class Simulation:
                 nn = nk
                 for l in range(nl):
                     layer = l
-                    SoilHeatFlux(self._sim.states[u], dlt, iv, nn, layer, l, self.row_space)
+                    SoilHeatFlux(state._[0], dlt, iv, nn, layer, l, self.row_space)
             # Compute average temperature of soil layers, in degrees C.
             tsolav = [0] * nl  # hourly average soil temperature C, of a soil layer.
             for l in range(nl):
@@ -3003,18 +3003,18 @@ cdef class Simulation:
             if shading >= 0.01:
                 tfc = tfc / shading
             # If emergence date is to be simulated, call PredictEmergence().
-            if self.emerge_switch == 0 and self._sim.states[u].daynum >= self._sim.day_plant:
+            if self.emerge_switch == 0 and state.daynum >= self._sim.day_plant:
                 PredictEmergence(self._sim, u, ihr)
         # At the end of the day compute actual daily evaporation and its cumulative sum.
         if kk == 1:
             es /= wk(1, self.row_space)
-            self._sim.states[u].actual_soil_evaporation /= wk(1, self.row_space)
+            state.actual_soil_evaporation /= wk(1, self.row_space)
         else:
             es /= self.row_space
-            self._sim.states[u].actual_soil_evaporation /= self.row_space
-        self._sim.states[u].cumulative_evaporation += self._sim.states[u].actual_soil_evaporation
-        if self._sim.states[u].kday > 0:
-            self._sim.states[u].potential_evaporation = es
+            state.actual_soil_evaporation /= self.row_space
+        state.cumulative_evaporation += state.actual_soil_evaporation
+        if state.kday > 0:
+            state.potential_evaporation = es
         # compute daily averages.
         for l in range(nl):
             for k in range(nk):

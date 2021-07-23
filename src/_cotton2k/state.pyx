@@ -547,6 +547,14 @@ cdef class StateBase:
         self._[0].actual_soil_evaporation = value
 
     @property
+    def potential_evaporation(self):
+        return self._[0].potential_evaporation
+
+    @potential_evaporation.setter
+    def potential_evaporation(self, value):
+        self._[0].potential_evaporation = value
+
+    @property
     def pavail(self):
         return self._[0].pavail
 
