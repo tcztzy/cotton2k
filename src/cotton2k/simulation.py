@@ -19,6 +19,15 @@ class State:
         except AttributeError:
             return getattr(self, name)
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "_":
+            object.__setattr__(self, name, value)
+        else:
+            try:
+                setattr(self._, name, value)
+            except AttributeError:
+                setattr(self, name, value)
+
     def __getitem__(self, name: str) -> Any:
         return getattr(self, name)
 
@@ -36,6 +45,34 @@ class State:
             + self._.open_bolls_burr_weight
             + self._.reserve_carbohydrate
         )
+
+    # pylint: disable=too-many-arguments
+    def column_shading(
+        self,
+        row_space,
+        plant_row_column,
+        column_width,
+        max_leaf_area_index,
+        relative_radiation_received_by_a_soil_column,
+    ):
+        zint = 1.0756 * self.plant_height / row_space
+        for k in range(20):
+            sw = (k + 1) * column_width
+            if k <= plant_row_column:
+                k0 = plant_row_column - k
+                sw1 = sw - column_width / 2
+            else:
+                sw1 = sw - column_width / 2 - (plant_row_column + 1) * column_width
+                k0 = k
+            shade = 0
+            if sw1 < self.plant_height:
+                shade = 1 - (sw1 / self.plant_height) ** 2
+                if (
+                    self.light_interception < zint
+                    and self.leaf_area_index < max_leaf_area_index
+                ):
+                    shade *= self.light_interception / zint
+            relative_radiation_received_by_a_soil_column[k0] = max(0.05, 1 - shade)
 
 
 def physiological_age(hours) -> float:
@@ -117,18 +154,19 @@ class Simulation(CySimulation):
     def _simulate(self):
         days = (self.stop_date - self.start_date).days
         for i in range(days):
+            # pylint: disable=attribute-defined-outside-init
+            self._current_state = self._state(i)
             self._simulate_this_day(i)
             self._copy_state(i)
         self._simulate_this_day(days)
 
+    # pylint: disable=attribute-defined-outside-init
     def _simulate_this_day(self, u):
-        # pylint: disable=attribute-defined-outside-init
-        state = self._current_state = self._state(u)
+        state = State(self._current_state)
         if state.date >= self.emerge_date:
             state.kday = (state.date - self.emerge_date).days + 1
             # pylint: disable=access-member-before-definition
             if state.leaf_area_index > self.max_leaf_area_index:
-                # pylint: disable=attribute-defined-outside-init
                 self.max_leaf_area_index = state.leaf_area_index
             state.light_interception = compute_light_interception(
                 state.leaf_area_index,
@@ -147,7 +185,6 @@ class Simulation(CySimulation):
         else:
             state.kday = 0
             state.light_interception = 0
-            # pylint: disable=attribute-defined-outside-init
             self.relative_radiation_received_by_a_soil_column[:] = 1
         # The following functions are executed each day (also before emergence).
         self._daily_climate(u)  # computes climate variables for today.
@@ -163,7 +200,7 @@ class Simulation(CySimulation):
             and self.emerge_switch > 0
         ):
             # If this day is after emergence, assign to emerge_switch the value of 2.
-            self.emerge_switch = 2  # pylint: disable=attribute-defined-outside-init
+            self.emerge_switch = 2
             state.day_inc = physiological_age(
                 state.hours
             )  # physiological days increment for this day. computes physiological age

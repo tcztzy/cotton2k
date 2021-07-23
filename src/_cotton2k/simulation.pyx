@@ -722,33 +722,6 @@ cdef class State(StateBase):
     def vegetative_branches(self):
         return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k], k) for k in range(self.number_of_vegetative_branches)]
 
-    def column_shading(
-        self,
-        row_space,
-        plant_row_column,
-        column_width,
-        max_leaf_area_index,
-        relative_radiation_received_by_a_soil_column,
-    ):
-        zint = 1.0756 * self.plant_height / row_space
-        for k in range(20):
-            sw = (k + 1) * column_width
-            if k <= plant_row_column:
-                k0 = plant_row_column - k
-                sw1 = sw - column_width / 2
-            else:
-                sw1 = sw - column_width / 2 - (plant_row_column + 1) * column_width
-                k0 = k
-            shade = 0
-            if sw1 < self.plant_height:
-                shade = 1 - (sw1 / self.plant_height) ** 2
-                if (
-                    self.light_interception < zint
-                    and self.leaf_area_index < max_leaf_area_index
-                ):
-                    shade *= self.light_interception / zint
-            relative_radiation_received_by_a_soil_column[k0] = max(0.05, 1 - shade)
-
     def pre_fruiting_node(self, stemNRatio, time_to_next_pre_fruiting_node, time_factor_for_first_two_pre_fruiting_nodes, time_factor_for_third_pre_fruiting_node, initial_pre_fruiting_nodes_leaf_area):
         """This function checks if a new prefruiting node is to be added, and then sets it."""
         # The following constant parameter is used:
