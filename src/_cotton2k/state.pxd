@@ -122,13 +122,16 @@ cdef extern from "State.hpp":
 
 cdef class StateBase:
     cdef cState *_
+    cdef public unsigned int seed_layer_number  # layer number where the seeds are located.
     cdef public unsigned int year
     cdef public unsigned int version
     cdef public double carbon_allocated_for_root_growth # available carbon allocated for root growth, g per plant.
+    cdef public double delay_of_emergence  # effect of negative values of xt on germination rate.
     cdef public double extra_carbon  # Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
     cdef public double fiber_length
     cdef public double fiber_strength
+    cdef public double hypocotyl_length  # length of hypocotyl, cm.
     cdef public double lint_yield  # yield of lint, kgs per hectare.
     cdef public double net_photosynthesis  # net photosynthetic rate, g per plant per day.
     cdef public double pavail  # residual available carbon for root growth from previous day.
-
+    cdef public double seed_moisture  # moisture content of germinating seeds, percent.

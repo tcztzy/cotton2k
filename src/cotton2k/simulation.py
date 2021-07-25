@@ -93,12 +93,16 @@ class Simulation(CySimulation):
         post = self._state(i + 1)
         for attr in (
             "carbon_allocated_for_root_growth",
+            "delay_of_emergence",
             "extra_carbon",
             "fiber_length",
             "fiber_strength",
+            "hypocotyl_length",
             "lint_yield",
             "net_photosynthesis",
             "pavail",
+            "seed_layer_number",
+            "seed_moisture",
         ):
             setattr(post, attr, getattr(pre, attr))
 

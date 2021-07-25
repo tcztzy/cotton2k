@@ -4,8 +4,6 @@
 
 void SoilTemperatureInit(Simulation &);
 
-void PredictEmergence(Simulation &, unsigned int, int);
-
 void SoilHeatFlux(State &, double, int, int, int, int, double);
 
 void CanopyBalance(int, int, double, double, double, double, double, double, double, double &, const int &);

@@ -808,6 +808,84 @@ cdef class State(StateBase):
     def vegetative_branches(self):
         return [VegetativeBranch.from_ptr(&self._[0].vegetative_branches[k], k) for k in range(self.number_of_vegetative_branches)]
 
+    def predict_emergence(self, plant_date, hour, plant_row_column):
+        """This function predicts date of emergence."""
+        cdef double dpl = 5  # depth of planting, cm (assumed 5).
+        # Define some initial values on day of planting.
+        if self.date == plant_date and hour == 0:
+            self.delay_of_emergence = 0
+            self.hypocotyl_length = 0.3
+            self.seed_moisture = 8
+            # Compute soil layer number for seed depth.
+            sumdl = 0  # depth to the bottom of a soil layer.
+            for l in range(40):
+                sumdl += dl(l)
+                if sumdl >= dpl:
+                    self.seed_layer_number = l
+                    break
+        # Compute matric soil moisture potential at seed location.
+        # Define te as soil temperature at seed location, C.
+        cdef double psi  # matric soil moisture potential at seed location.
+        cdef double te  # soil temperature at seed depth, C.
+        psi = SoilPsi[self.seed_layer_number][plant_row_column]
+        te = SoilTemp[self.seed_layer_number][plant_row_column] - 273.161
+        te = max(te, 10)
+
+        # Phase 1 of of germination - imbibition. This phase is executed when the moisture content of germinating seeds is not more than 80%.
+        cdef double dw  # rate of moisture addition to germinating seeds, percent per hour.
+        cdef double xkl  # a function of temperature and moisture, used to calculate dw.
+        if self.seed_moisture <= 80:
+            xkl = .0338 + .0000855 * te * te - 0.003479 * psi
+            if xkl < 0:
+                xkl = 0
+            # Compute the rate of moisture addition to germinating seeds, percent per hour.
+            dw = xkl * (80 - self.seed_moisture)
+            # Compute delw, the marginal value of dw, as a function of soil temperature and soil water potential.
+            delw = 0  # marginal value of dw.
+            if te < 21.2:
+                delw = -0.1133 + .000705 * te ** 2 - .001348 * psi + .001177 * psi ** 2
+            elif te < 26.66:
+                delw = -.3584 + .001383 * te ** 2 - .03509 * psi + .003507 * psi ** 2
+            elif te < 32.3:
+                delw = -.6955 + .001962 * te ** 2 - .08335 * psi + .007627 * psi ** 2 - .006411 * psi * te
+            else:
+                delw = 3.3929 - .00197 * te ** 2 - .36935 * psi + .00865 * psi ** 2 + .007306 * psi * te
+            if delw < 0.01:
+                delw = 0.01
+            # Add dw to tw, or if dw is less than delw assign 100% to tw.
+            if dw > delw:
+                self.seed_moisture += dw
+            else:
+                self.seed_moisture = 100
+            return
+
+        # Phase 2 of of germination - hypocotyl elongation.
+        cdef double xt  # a function of temperature, used to calculate de.
+        if te > 39.9:
+            xt = 0
+        else:
+            xt = 0.0853 - 0.0057 * (te - 34.44) * (te - 34.44) / (41.9 - te)
+        # At low soil temperatures, when negative values of xt occur, compute the delay in germination rate.
+        if xt < 0 and te < 14:
+            self.delay_of_emergence += xt / 2
+            return
+        else:
+            if self.delay_of_emergence < 0:
+                if self.delay_of_emergence + xt < 0:
+                    self.delay_of_emergence += xt;
+                    return
+                else:
+                    xt += self.delay_of_emergence
+                    self.delay_of_emergence = 0
+        # Compute elongation rate of hypocotyl, de, as a sigmoid function of HypocotylLength. Add de to HypocotylLength.
+        cdef double de  # rate of hypocotyl growth, cm per hour.
+        de = 0.0567 * xt * self.hypocotyl_length * (10 - self.hypocotyl_length)
+        self.hypocotyl_length += de
+        # Check for completion of emergence (when HypocotylLength exceeds planting depth) and report germination to output.
+        if self.hypocotyl_length > dpl:
+            self.kday = 1
+            return self.date
+
     def pre_fruiting_node(self, stemNRatio, time_to_next_pre_fruiting_node, time_factor_for_first_two_pre_fruiting_nodes, time_factor_for_third_pre_fruiting_node, initial_pre_fruiting_nodes_leaf_area):
         """This function checks if a new prefruiting node is to be added, and then sets it."""
         # The following constant parameter is used:
@@ -3076,7 +3154,7 @@ cdef class Simulation:
         This is the main part of the soil temperature sub-model.
         It is called daily from self._simulate_this_day.
         It calls the following functions:
-        _energy_balance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
+        _energy_balance(), predict_emergence(), SoilHeatFlux(), SoilTemperatureInit().
 
         References:
 
@@ -3233,9 +3311,12 @@ cdef class Simulation:
                     shading += 1 - self.relative_radiation_received_by_a_soil_column[k]
             if shading >= 0.01:
                 tfc = tfc / shading
-            # If emergence date is to be simulated, call PredictEmergence().
-            if self.emerge_switch == 0 and state.daynum >= self._sim.day_plant:
-                PredictEmergence(self._sim, u, ihr)
+            # If emergence date is to be simulated, call predict_emergence().
+            if self.emerge_switch == 0 and state.date >= self.plant_date:
+                emerge_date = state.predict_emergence(self.plant_date, ihr, self.plant_row_column)
+                if emerge_date is not None:
+                    self.emerge_date = emerge_date
+                    self.emerge_switch = 2
         # At the end of the day compute actual daily evaporation and its cumulative sum.
         if kk == 1:
             es /= wk(1, self.row_space)
