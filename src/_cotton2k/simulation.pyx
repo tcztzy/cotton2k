@@ -13,7 +13,6 @@ import numpy as np
 from _cotton2k.climate import compute_day_length, radiation
 from _cotton2k.leaf import temperature_on_leaf_growth_rate, leaf_resistance_for_transpiration
 from _cotton2k.phenology import days_to_first_square
-from _cotton2k.photosynthesis import ambient_co2_factor
 from _cotton2k.soil import compute_soil_surface_albedo, compute_incoming_short_wave_radiation, root_psi
 from _cotton2k.utils import date2doy, doy2date
 from .climate cimport ClimateStruct
@@ -2625,7 +2624,7 @@ cdef class Simulation:
     cdef public unsigned int profile_id
     cdef public unsigned int version
     cdef public double max_leaf_area_index
-    cdef double ptsred  # The effect of moisture stress on the photosynthetic rate
+    cdef public double ptsred  # The effect of moisture stress on the photosynthetic rate
     cdef double DaysTo1stSqare   # number of days from emergence to 1st square
     cdef double defkgh  # amount of defoliant applied, kg per ha
     cdef double tdfkgh  # total cumulative amount of defoliant
@@ -2756,6 +2755,10 @@ cdef class Simulation:
     @row_space.setter
     def row_space(self, value):
         self._sim.row_space = value or 0
+
+    @property
+    def per_plant_area(self):
+        return self._sim.per_plant_area
 
     @property
     def emerge_switch(self):
@@ -3351,9 +3354,7 @@ cdef class Simulation:
         # It is a function of AverageLwpMin (average LwpMin for the last three days).
         if AverageLwpMin < vstrs[0]:
             AverageLwpMin = vstrs[0]
-        self.ptsred = vstrs[1] + AverageLwpMin * (vstrs[2] + vstrs[3] * AverageLwpMin)
-        if self.ptsred > 1:
-            self.ptsred = 1
+        self.ptsred = min(vstrs[1] + AverageLwpMin * (vstrs[2] + vstrs[3] * AverageLwpMin), 1)
         # The general moisture stress factor (WaterStress) is computed as an empirical function of AverageLwp. psilim, the value of AverageLwp at the maximum value of the function, is used for truncating it.
         # The minimum value of WaterStress is 0.05, and the maximum is 1.
         cdef double psilim  # limiting value of AverageLwp.
@@ -3372,62 +3373,6 @@ cdef class Simulation:
         if self._sim.states[u].water_stress_stem < vstrs[8]:
             self._sim.states[u].water_stress_stem = vstrs[8]
         self._sim.states[u].water_stress = WaterStress
-
-    def _get_net_photosynthesis(self, u, old_stem_weight):
-        """
-        References:
-        Baker et. al. (1972). Simulation of Growth and Yield in Cotton: I. Gross photosynthesis, respiration and growth. Crop Sci. 12:431-435.
-        Harper et. al. (1973) Carbon dioxide and the photosynthesis of field crops.  A metered carbon dioxide release in cotton under field conditions.  Agron. J. 65:7-11.
-        Baker (1965)  Effects of certain environmental factors on net assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).
-        """
-        state = self._current_state
-        # constants
-        cdef double gsubr = 0.375  # the growth respiration factor.
-        cdef double rsubo = 0.0032  # maintenance respiration factor.
-        cdef double[4] vpnet = [1.30, 0.034, 0.010, 0.32]
-        # Note: co2parm is for icrease in ambient CO2 concentration changes from 1959 (308 ppm).
-        # The first 28 values (up to 1987) are from GOSSYM. The other values (up to 2004) are derived from data of the Carbon Dioxide Information Analysis Center (CDIAC).
-
-        # Exit the function and end simulation if there are no leaves
-        if state.leaf_area_index <= 0:
-            raise SimulationEnd
-        # Get the CO2 correction factor (pnetcor) for photosynthesis, using ambient_co2_factor and a factor that may be variety specific (vpnet[0]).
-        cdef double pnetcor = ambient_co2_factor(self.year) * vpnet[0]  # correction factor for gross photosynthesis
-        # Compute ptnfac, the effect of leaf N concentration on photosynthesis, using an empirical relationship.
-        cdef double ptnfac = vpnet[3] + (state.leaf_nitrogen_concentration - vpnet[2]) * (1 - vpnet[3]) / (
-                vpnet[1] - vpnet[2])  # correction factor for low nitrogen content in leaves.
-        if ptnfac > 1:
-            ptnfac = 1
-        if ptnfac < vpnet[3]:
-            ptnfac = vpnet[3]
-
-        # Convert the average daily short wave radiation from langley per day, to Watts per square meter (wattsm).
-        cdef double wattsm = self._sim.climate[u].Rad * 697.45 / (
-                state.day_length * 60)  # average daily global radiation, W m^{-2}
-        # Compute pstand as an empirical function of wattsm (based on Baker et al., 1972)
-        cdef double pstand  # gross photosynthesis for a non-stressed full canopy
-        pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136)
-        # Convert it to gross photosynthesis per plant (pplant), using per_plant_area and corrections for light interception by canopy, ambient CO2 concentration, water stress and low N in the leaves.
-        cdef double pplant  # actual gross photosynthetic rate, g per plant per day.
-        pplant = 0.001 * pstand * state.light_interception * self._sim.per_plant_area * self.ptsred * pnetcor * ptnfac
-        # Compute the photorespiration factor (rsubl) as a linear function of average day time temperature.
-        cdef double rsubl = 0.0032125 + 0.0066875 * state.daytime_temperature  # photorespiration factor
-        # Photorespiration (lytres) is computed as a proportion of gross photosynthetic rate.
-        cdef double lytres  # rate of photorespiration, g per plant per day.
-        lytres = rsubl * pplant
-        # Old stems are those more than voldstm = 32 calendar days old.
-        # Maintenance respiration is computed on the basis of plant dry weight, minus the old stems and the dry tissue of opened bolls.
-        cdef double bmain  # maintenance respiration, g per plant per day.
-        bmain = (state.plant_height - state.open_bolls_weight - state.open_bolls_burr_weight - old_stem_weight) * rsubo
-        # Net photosynthesis is computed by subtracting photo-respiration and maintenance respiration from the gross rate of photosynthesis.
-        # To avoid computational problem, make sure that pts is positive and non-zero.
-        cdef double pts  # intermediate computation of net_photosynthesis.
-        pts = pplant - lytres - bmain
-        if pts < 0.00001:
-            pts = 0.00001
-        # the growth respiration (gsubr) supplies energy for converting the supplied carbohydrates to plant tissue dry matter.
-        # 0.68182 converts CO2 to CH2O. net_photosynthesis is the computed net photosynthesis, in g per plant per day.
-        state.net_photosynthesis = pts / (1 + gsubr) * 0.68182
 
     def _potential_fruit_growth(self, u):
         """

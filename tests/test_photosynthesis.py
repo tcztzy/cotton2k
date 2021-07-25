@@ -1,4 +1,4 @@
-from _cotton2k.photosynthesis import ambient_co2_factor
+from cotton2k.photo import ambient_co2_factor
 
 
 def test_ambient_co2_factor():

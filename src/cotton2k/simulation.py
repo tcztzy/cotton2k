@@ -162,8 +162,11 @@ class Simulation(CySimulation):
                     state.stem_weight - self.state(self.emerge_date).stem_weight
                 )
                 growing_stem_weight = state.stem_weight
-            self._get_net_photosynthesis(
-                u, old_stem_weight
+            state.get_net_photosynthesis(
+                self.climate[u]["Rad"],
+                self.per_plant_area,
+                self.ptsred,
+                old_stem_weight,
             )  # computes net photosynthesis.
             self._growth(u, new_stem_weight)  # executes all modules of plant growth.
             self._phenology(u)  # executes all modules of plant phenology.
