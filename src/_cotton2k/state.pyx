@@ -72,6 +72,14 @@ cdef class StateBase:
         self._[0].average_temperature = value
 
     @property
+    def day_length(self):
+        return self._[0].day_length
+
+    @day_length.setter
+    def day_length(self, value):
+        self._[0].day_length = value
+
+    @property
     def lint_yield(self):
         return self._[0].lint_yield
 
@@ -254,6 +262,14 @@ cdef class StateBase:
     @light_interception.setter
     def light_interception(self, value):
         self._[0].light_interception = value
+
+    @property
+    def net_photosynthesis(self):
+        return self._[0].net_photosynthesis
+
+    @net_photosynthesis.setter
+    def net_photosynthesis(self, value):
+        self._[0].net_photosynthesis = value
 
     @property
     def leaf_area_index(self):

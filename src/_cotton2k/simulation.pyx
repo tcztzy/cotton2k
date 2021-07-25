@@ -35,7 +35,6 @@ from .cxx cimport (
     LwpMin,
     LwpMax,
     LwpMinX,
-    NetPhotosynthesis,
     NumWaterTableData,
     CumNetPhotosynth,
     PotGroStem,
@@ -1038,7 +1037,7 @@ cdef class State(StateBase):
         cdsum = cdstem + cdleaf + cdpet + cdroot + cdsqar + cdboll
         cdef double cpool  # total available carbohydrates for growth (cpool, g per plant).
         # cpool is computed as: net photosynthesis plus a fraction (vchbal(13) ) of the stored reserves (reserve_carbohydrate).
-        cpool = NetPhotosynthesis + self.reserve_carbohydrate * vchbal[13]
+        cpool = self.net_photosynthesis + self.reserve_carbohydrate * vchbal[13]
         # Compute CarbonStress as the ratio of available to required carbohydrates.
         if cdsum <= 0:
             self.carbon_stress = 1
@@ -1129,7 +1128,7 @@ cdef class State(StateBase):
         if pdsq < 0:
             pdsq = 0
         # Update the amount of reserve carbohydrates (reserve_carbohydrate) in the leaves.
-        self.reserve_carbohydrate += NetPhotosynthesis - (self.actual_stem_growth + self.total_actual_leaf_growth + self.total_actual_petiole_growth + self.carbon_allocated_for_root_growth + pdboll + pdsq)
+        self.reserve_carbohydrate += self.net_photosynthesis - (self.actual_stem_growth + self.total_actual_leaf_growth + self.total_actual_petiole_growth + self.carbon_allocated_for_root_growth + pdboll + pdsq)
         cdef double resmax  # maximum possible amount of carbohydrate reserves that can be stored in the leaves.
         # resmax is a fraction (vchbal[4])) of leaf weight. Excessive reserves are defined as xtrac2.
         resmax = vchbal[4] * self.leaf_weight
@@ -3385,8 +3384,8 @@ cdef class Simulation:
         Harper et. al. (1973) Carbon dioxide and the photosynthesis of field crops.  A metered carbon dioxide release in cotton under field conditions.  Agron. J. 65:7-11.
         Baker (1965)  Effects of certain environmental factors on net assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).
         """
-        global NetPhotosynthesis, CumNetPhotosynth
-        cdef cState state = self._sim.states[u]
+        global CumNetPhotosynth
+        state = self._current_state
         # constants
         cdef double gsubr = 0.375  # the growth respiration factor.
         cdef double rsubo = 0.0032  # maintenance respiration factor.
@@ -3434,15 +3433,15 @@ cdef class Simulation:
         bmain = (state.plant_height - state.open_bolls_weight - state.open_bolls_burr_weight - oldstmwt) * rsubo
         # Net photosynthesis is computed by subtracting photo-respiration and maintenance respiration from the gross rate of photosynthesis.
         # To avoid computational problem, make sure that pts is positive and non-zero.
-        cdef double pts  # intermediate computation of NetPhotosynthesis.
+        cdef double pts  # intermediate computation of net_photosynthesis.
         pts = pplant - lytres - bmain
         if pts < 0.00001:
             pts = 0.00001
         # the growth respiration (gsubr) supplies energy for converting the supplied carbohydrates to plant tissue dry matter.
-        # 0.68182 converts CO2 to CH2O. NetPhotosynthesis is the computed net photosynthesis, in g per plant per day.
-        NetPhotosynthesis = pts / (1 + gsubr) * 0.68182
-        # CumNetPhotosynth is the cumulative value of NetPhotosynthesis, from day of emergence.
-        CumNetPhotosynth += NetPhotosynthesis
+        # 0.68182 converts CO2 to CH2O. net_photosynthesis is the computed net photosynthesis, in g per plant per day.
+        state.net_photosynthesis = pts / (1 + gsubr) * 0.68182
+        # CumNetPhotosynth is the cumulative value of net_photosynthesis, from day of emergence.
+        CumNetPhotosynth += state.net_photosynthesis
 
     def _potential_fruit_growth(self, u):
         """

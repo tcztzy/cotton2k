@@ -88,7 +88,6 @@ double
     MarginalWaterContent[maxl],       // marginal soil water content (as a function of soil texture) for computing soil heat conductivity.
     MaxWaterCapacity[maxl],           // volumetric water content of a soil layer at maximum capacity, before drainage, cm3 cm-3.
     MineralizedOrganicN,              // cumulative amount of mineralized organic N, mgs per slab.
-    NetPhotosynthesis,                // net photosynthetic rate, g per plant per day.
     NightTimeTemp,                    // average night-time temperature, C.
     NO3FlowFraction[maxl],            // fraction of nitrate that can move to the next layer.
     PercentDefoliation,               // percentage of leaves abscised as a result of defoliant application.

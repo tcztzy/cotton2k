@@ -37,7 +37,7 @@ extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
     conmax, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake,
     CumWaterAdded, CumWaterDrained, DayTimeTemp, dclay,
     DepthLastRootLayer, dsand, ElCondSatSoilToday, GreenBollsLost,
-    IrrigationDepth, LwpMax, LwpMin, MineralizedOrganicN, NetPhotosynthesis, NightTimeTemp,
+    IrrigationDepth, LwpMax, LwpMin, MineralizedOrganicN, NightTimeTemp,
     PercentDefoliation, PlantRowLocation, PotGroAllBolls, PotGroAllBurrs,
     PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares, PotGroStem,
     RatioImplicit, RootWeightLoss, SoilNitrogenLoss, SumNO3N90, TapRootLength;

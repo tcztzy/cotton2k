@@ -70,6 +70,7 @@ cdef extern from "State.hpp":
         double actual_soil_evaporation
         double cumulative_evaporation
         double light_interception
+        double net_photosynthesis
         unsigned int number_of_vegetative_branches
         unsigned int number_of_fruiting_sites
         double number_of_squares
