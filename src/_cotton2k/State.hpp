@@ -110,6 +110,7 @@ typedef struct State
     double fruit_growth_ratio;                  // ratio between actual and potential square and boll growth.
     double ginning_percent;                     // weighted average ginning percentage of all open bolls.
     double average_temperature;                 // average daily temperature, C, for 24 hours.
+    double daytime_temperature;                 // average day-time temperature, C.
     double deep_soil_temperature;               // boundary soil temperature of deepest layer (K)
     double pavail;                              // residual available carbon for root growth from previous day.
     double total_actual_leaf_growth;            // actual growth rate of all the leaves, g plant-1 day-1.

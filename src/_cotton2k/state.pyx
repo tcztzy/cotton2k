@@ -72,6 +72,14 @@ cdef class StateBase:
         self._[0].average_temperature = value
 
     @property
+    def daytime_temperature(self):
+        return self._[0].daytime_temperature
+
+    @daytime_temperature.setter
+    def daytime_temperature(self, value):
+        self._[0].daytime_temperature = value
+
+    @property
     def day_length(self):
         return self._[0].day_length
 

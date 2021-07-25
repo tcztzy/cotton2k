@@ -104,6 +104,7 @@ cdef extern from "State.hpp":
         double fruit_growth_ratio
         double ginning_percent
         double average_temperature
+        double daytime_temperature
         double deep_soil_temperature
         double pavail
         double total_actual_leaf_growth

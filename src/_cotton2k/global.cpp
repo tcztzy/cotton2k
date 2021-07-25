@@ -64,7 +64,6 @@ double
     CumNitrogenUptake,                // cumulative total uptake of nitrogen by plants, mg N per slab.
     CumWaterAdded,                    // cumulative water added to the slab by rainfall or irrigation, mm.
     CumWaterDrained,                  // cumulative water drained out from the slab, mm.
-    DayTimeTemp,                      // average day-time temperature, C.
     dclay,                            // aggregation factor for clay in water.
     DefoliantAppRate[5],              // rate of defoliant application in pints per acre.
     DepthLastRootLayer,               // the depth to the end of the last layer with roots (cm).

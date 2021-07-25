@@ -69,7 +69,6 @@ cdef extern from "global.h":
     double AverageLwpMin
     double StemWeight[365]
     double CumNetPhotosynth
-    double DayTimeTemp
     double NightTimeTemp
     double PotGroAllSquares
     double PotGroAllBolls

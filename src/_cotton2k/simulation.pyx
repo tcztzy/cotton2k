@@ -23,7 +23,6 @@ from .cxx cimport (
     ClayVolumeFraction,
     CumWaterAdded,
     CumNitrogenUptake,
-    DayTimeTemp,
     FoliageTemp,
     NightTimeTemp,
     StemWeight,
@@ -3325,7 +3324,7 @@ cdef class Simulation:
                                                             self._sim.states[u].hours[ihr].dew_point)
             self._sim.states[u].hours[ihr].wind_speed = daywnd(ti, self._sim.climate[u].Wind, t1, t2, t3, wnytf)
         # Compute average daily temperature, using function AverageAirTemperatures.
-        AverageAirTemperatures(self._sim.states[u].hours, self._sim.states[u].average_temperature, DayTimeTemp,
+        AverageAirTemperatures(self._sim.states[u].hours, self._sim.states[u].average_temperature, self._sim.states[u].daytime_temperature,
                                NightTimeTemp)
         # Compute potential evapotranspiration.
         EvapoTranspiration(self._sim.states[u], self.latitude, self.elevation, declination, tmpisr, SitePar[7])
@@ -3416,7 +3415,7 @@ cdef class Simulation:
         cdef double pplant  # actual gross photosynthetic rate, g per plant per day.
         pplant = 0.001 * pstand * state.light_interception * self._sim.per_plant_area * self.ptsred * pnetcor * ptnfac
         # Compute the photorespiration factor (rsubl) as a linear function of average day time temperature.
-        cdef double rsubl = 0.0032125 + 0.0066875 * DayTimeTemp  # photorespiration factor
+        cdef double rsubl = 0.0032125 + 0.0066875 * state.daytime_temperature  # photorespiration factor
         # Photorespiration (lytres) is computed as a proportion of gross photosynthetic rate.
         cdef double lytres  # rate of photorespiration, g per plant per day.
         lytres = rsubl * pplant
@@ -3459,7 +3458,7 @@ cdef class Simulation:
         cdef double[5] vpotfrt = [0.72, 0.30, 3.875, 0.125, 0.17]
         # Compute tfrt for the effect of temperature on boll and burr growth rates. Function TemperatureOnFruitGrowthRate() is used (with parameters derived from GOSSYM), for day time and night time temperatures, weighted by day and night lengths.
         cdef double tfrt  # the effect of temperature on rate of boll, burr or square growth.
-        tfrt = (self._sim.states[u].day_length * TemperatureOnFruitGrowthRate(DayTimeTemp) + (24 - self._sim.states[u].day_length) * TemperatureOnFruitGrowthRate(NightTimeTemp)) / 24
+        tfrt = (self._sim.states[u].day_length * TemperatureOnFruitGrowthRate(self._sim.states[u].daytime_temperature) + (24 - self._sim.states[u].day_length) * TemperatureOnFruitGrowthRate(NightTimeTemp)) / 24
         # Assign zero to sums of potential growth of squares, bolls and burrs.
         PotGroAllSquares = 0
         PotGroAllBolls = 0
