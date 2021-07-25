@@ -25,7 +25,6 @@ from .cxx cimport (
     CumNitrogenUptake,
     FoliageTemp,
     NightTimeTemp,
-    StemWeight,
     AverageLwpMin,
     AverageLwp,
     LocationColumnDrip,
@@ -1837,7 +1836,7 @@ cdef class State(StateBase):
     cdef double addnr  # daily added nitrogen to root, g per plant.
     cdef double addnv  # daily added nitrogen to vegetative shoot, g per plant.
 
-    def plant_nitrogen(self, emerge_date, stem_weight):
+    def plant_nitrogen(self, emerge_date, growing_stem_weight):
         """\
         This function simulates the nitrogen accumulation and distribution in cotton
         plants, and computes nitrogen stresses.
@@ -1890,7 +1889,7 @@ cdef class State(StateBase):
         self.plant_nitrogen_content()  # computes the concentrations of N in plant dry matter.
         self.get_nitrogen_stress()  # computes nitrogen stress factors.
         self.nitrogen_uptake_requirement(
-            stem_weight
+            growing_stem_weight
         )  # computes N requirements for uptake
 
     def nitrogen_requirement(self, emerge_date):
@@ -2253,7 +2252,7 @@ cdef class State(StateBase):
             if self.nitrogen_stress < 0:
                 self.nitrogen_stress = 0
 
-    def nitrogen_uptake_requirement(self, stem_weight):
+    def nitrogen_uptake_requirement(self, growing_stem_weight):
         """This function computes TotalRequiredN, the nitrogen requirements of the plant - to be used for simulating the N uptake from the soil (in function NitrogenUptake() ) in the next day."""
         # The following constant parameters are used:
         seedcn1 = 0.045  # further requirement for existing seed tissue.
@@ -2277,9 +2276,8 @@ cdef class State(StateBase):
                 vnreqpet - self.petiole_nitrogen_concentration
             )
         # The active stem tissue is the stem formed during the last voldstm days (32 calendar days). add stem requirement to TotalRequiredN.
-        grstmwt = self.stem_weight - stem_weight if self.kday > 0 else 0
         if self.stem_nitrogen_concentration < vnreqstm:
-            self.total_required_nitrogen += grstmwt * (
+            self.total_required_nitrogen += growing_stem_weight * (
                 vnreqstm - self.stem_nitrogen_concentration
             )
         # Compute nitrogen uptake requirement for existing tissues of roots, squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
@@ -3376,7 +3374,7 @@ cdef class Simulation:
             self._sim.states[u].water_stress_stem = vstrs[8]
         self._sim.states[u].water_stress = WaterStress
 
-    def _get_net_photosynthesis(self, u):
+    def _get_net_photosynthesis(self, u, old_stem_weight):
         """
         References:
         Baker et. al. (1972). Simulation of Growth and Yield in Cotton: I. Gross photosynthesis, respiration and growth. Crop Sci. 12:431-435.
@@ -3421,15 +3419,8 @@ cdef class Simulation:
         lytres = rsubl * pplant
         # Old stems are those more than voldstm = 32 calendar days old.
         # Maintenance respiration is computed on the basis of plant dry weight, minus the old stems and the dry tissue of opened bolls.
-        cdef oldstmwt  # weight of old stems
-        cdef int voldstm = 32
-        cdef int kkday = state.kday - voldstm  # day of least recent actively growing stems.
-        if kkday < 1:
-            oldstmwt = 0
-        else:
-            oldstmwt = StemWeight[kkday]
         cdef double bmain  # maintenance respiration, g per plant per day.
-        bmain = (state.plant_height - state.open_bolls_weight - state.open_bolls_burr_weight - oldstmwt) * rsubo
+        bmain = (state.plant_height - state.open_bolls_weight - state.open_bolls_burr_weight - old_stem_weight) * rsubo
         # Net photosynthesis is computed by subtracting photo-respiration and maintenance respiration from the gross rate of photosynthesis.
         # To avoid computational problem, make sure that pts is positive and non-zero.
         cdef double pts  # intermediate computation of net_photosynthesis.
@@ -3627,7 +3618,7 @@ cdef class Simulation:
                             PotGroAllLeaves += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * self._sim.states[u].leaf_weight_area_ratio
                             PotGroAllPetioles += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth
 
-    def _growth(self, u):
+    def _growth(self, u, new_stem_weight):
         state = self._current_state
         global PotGroStem, PotGroAllRoots
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
@@ -3635,15 +3626,11 @@ cdef class Simulation:
         # If it is after first square, call self._potential_fruit_growth(u) to compute potential growth rate of squares and bolls.
         if self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed:
             self._potential_fruit_growth(u)
-        # Active stem tissue(stemnew) is the difference between state.stem_weight and the value of StemWeight(kkday).
-        voldstm = 32  # constant parameter(days for stem tissue to become "old")
-        kkday = max(u - voldstm, self._sim.day_emerge - self._sim.day_start)  # age of young stem tissue
-        cdef double stemnew = state.stem_weight - self._state(kkday).stem_weight  # dry weight of active stem tissue.
         # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
         # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
         # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
         PotGroStem = state.potential_stem_growth(
-            stemnew,
+            new_stem_weight,
             self._sim.density_factor,
             *self.cultivar_parameters[12:19]
         ) * state.day_inc * state.water_stress_stem
@@ -3679,9 +3666,8 @@ cdef class Simulation:
         # Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
         state.actual_leaf_growth(vratio)
         self._sim.states[u].leaf_area_index = self._sim.states[u].leaf_area / self._sim.per_plant_area
-        # Add actual_stem_growth to state.stem_weight, and define StemWeight(Kday) for this day.
+        # Add actual_stem_growth to state.stem_weight.
         self._sim.states[u].stem_weight += self._sim.states[u].actual_stem_growth
-        StemWeight[self._sim.states[u].kday] = self._sim.states[u].stem_weight
         # Plant density affects growth in height of tall plants.
         cdef double htdenf = 55  # minimum plant height for plant density affecting growth in height.
         cdef double z1  # intermediate variable to compute denf2.

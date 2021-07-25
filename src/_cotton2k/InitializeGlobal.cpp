@@ -74,9 +74,5 @@ void InitializeGlobal()
             RootImpede[l][k] = 0;
         }
     }
-//
-    for (int i = 0; i < 365; i++) {
-        StemWeight[i] = 0;
-    }
 }
 //////////////////////////////////////////////////////////

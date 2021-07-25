@@ -56,7 +56,7 @@ extern double AbscissionLag[20], airdr[9],
     PotGroLeafAreaPreFru[9], PotGroLeafWeightPreFru[9], PotGroPetioleWeightPreFru[9],
     RootImpede[maxl][maxk], SandVolumeFraction[maxl], SaturatedHydCond[9], ShedByCarbonStress[20],
     ShedByNitrogenStress[20], ShedByWaterStress[20], SitePar[21], SoilPsi[maxl][maxk],
-    SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk], StemWeight[365],
+    SoilTemp[maxl][maxk], SoilTempDailyAvrg[maxl][maxk],
     thad[maxl], thetar[maxl], thetas[9], thts[maxl],
     VolNh4NContent[maxl][maxk], VolUreaNContent[maxl][maxk];
 

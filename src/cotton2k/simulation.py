@@ -1,4 +1,5 @@
 # pylint: disable=no-name-in-module
+import datetime
 from typing import Any
 
 from _cotton2k.simulation import Simulation as CySimulation
@@ -81,6 +82,8 @@ class Simulation(CySimulation):
         ]
 
     def state(self, i):
+        if isinstance(i, datetime.date):
+            i = (i - self.start_date).days
         return State(self._state(i))
 
     def read_input(self, *args, **kwargs):  # pylint: disable=unused-argument
@@ -148,14 +151,24 @@ class Simulation(CySimulation):
             )  # physiological days increment for this day. computes physiological age
             self._defoliate(u)  # effects of defoliants applied.
             self._stress(u)  # computes water stress factors.
-            self._get_net_photosynthesis(u)  # computes net photosynthesis.
-            self._growth(u)  # executes all modules of plant growth.
+            old_stem_days = 32
+            if state.kday > old_stem_days:
+                old_stem_weight = self.state(u - 32).stem_weight
+                new_stem_weight = state.stem_weight - old_stem_weight
+                growing_stem_weight = new_stem_weight
+            else:
+                old_stem_weight = 0
+                new_stem_weight = (
+                    state.stem_weight - self.state(self.emerge_date).stem_weight
+                )
+                growing_stem_weight = state.stem_weight
+            self._get_net_photosynthesis(
+                u, old_stem_weight
+            )  # computes net photosynthesis.
+            self._growth(u, new_stem_weight)  # executes all modules of plant growth.
             self._phenology(u)  # executes all modules of plant phenology.
             state.plant_nitrogen(
-                self.emerge_date,
-                self.state(
-                    max(u - 32, (self.emerge_date - self.start_date).days)
-                ).stem_weight,
+                self.emerge_date, growing_stem_weight
             )  # computes plant nitrogen allocation.
         # Check if the date to stop simulation has been reached, or if this is the last
         # day with available weather data. Simulation will also stop when no leaves
