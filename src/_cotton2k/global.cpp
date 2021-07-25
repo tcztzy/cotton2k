@@ -60,7 +60,6 @@ double
     conmax,                           // the maximum value for non-dimensional hydraulic conductivity
     CultivationDepth[5],              // depth of cultivation, in cm.
     CumFertilizerN,                   // cumulative amount of inorganic nitrogen applied in fertilizer, mg N per slab.
-    CumNetPhotosynth,                 // cumulative sum of photosynthate produced to date, g per plant.
     CumNitrogenUptake,                // cumulative total uptake of nitrogen by plants, mg N per slab.
     CumWaterAdded,                    // cumulative water added to the slab by rainfall or irrigation, mm.
     CumWaterDrained,                  // cumulative water drained out from the slab, mm.

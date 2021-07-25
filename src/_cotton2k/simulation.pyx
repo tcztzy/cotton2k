@@ -34,7 +34,6 @@ from .cxx cimport (
     LwpMax,
     LwpMinX,
     NumWaterTableData,
-    CumNetPhotosynth,
     PotGroStem,
     PotGroAllRoots,
     PotGroAllSquares,
@@ -3381,7 +3380,6 @@ cdef class Simulation:
         Harper et. al. (1973) Carbon dioxide and the photosynthesis of field crops.  A metered carbon dioxide release in cotton under field conditions.  Agron. J. 65:7-11.
         Baker (1965)  Effects of certain environmental factors on net assimilation in cotton.  Crop Sci. 5:53-56 (Fig 5).
         """
-        global CumNetPhotosynth
         state = self._current_state
         # constants
         cdef double gsubr = 0.375  # the growth respiration factor.
@@ -3430,8 +3428,6 @@ cdef class Simulation:
         # the growth respiration (gsubr) supplies energy for converting the supplied carbohydrates to plant tissue dry matter.
         # 0.68182 converts CO2 to CH2O. net_photosynthesis is the computed net photosynthesis, in g per plant per day.
         state.net_photosynthesis = pts / (1 + gsubr) * 0.68182
-        # CumNetPhotosynth is the cumulative value of net_photosynthesis, from day of emergence.
-        CumNetPhotosynth += state.net_photosynthesis
 
     def _potential_fruit_growth(self, u):
         """

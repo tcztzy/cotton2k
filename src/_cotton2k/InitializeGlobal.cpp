@@ -12,7 +12,6 @@ void InitializeGlobal()
     AverageLwpMin = 0;
 
     CumFertilizerN = 0;
-    CumNetPhotosynth = 0;
     CumNitrogenUptake = 0;
     CumWaterAdded = 0;
     CumWaterDrained = 0;
