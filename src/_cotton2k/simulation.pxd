@@ -41,9 +41,6 @@ cdef extern:
     double SimulateRunoff(cSimulation &, uint32_t, double, double, uint32_t)
     void EvapoTranspiration(cState &, double, double, double, double, double)
 
-cdef extern from "CottonPhenology.h":
-    void NewBollFormation(cState &, FruitingSite &)
-
 cdef extern from "FruitAbscission.h":
     void FruitingSitesAbscission(cSimulation &, uint32_t)
 

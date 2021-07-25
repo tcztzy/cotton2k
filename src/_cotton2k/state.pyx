@@ -659,5 +659,13 @@ cdef class StateBase:
     def petiole_nitrate_nitrogen_concentration(self, value):
         self._[0].petiole_nitrate_nitrogen_concentration = value
 
+    @property
+    def pollination_switch(self):
+        return self._[0].pollination_switch
+
+    @pollination_switch.setter
+    def pollination_switch(self, value):
+        self._[0].pollination_switch = value
+
     def __getitem__(self, item):
         return getattr(self, item)

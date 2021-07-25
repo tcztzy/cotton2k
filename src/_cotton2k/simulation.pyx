@@ -71,7 +71,7 @@ from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth, wcond
 from .soil cimport cRoot
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf, StateBase
-from .fruiting_site cimport FruitingSite, Leaf, cBoll, cBurr
+from .fruiting_site cimport FruitingSite, Leaf, cBoll, cBurr, SquareStruct
 
 
 class SimulationEnd(RuntimeError):
@@ -397,14 +397,42 @@ cdef class Burr:
     def weight(self):
         return self._[0].weight
 
+    @weight.setter
+    def weight(self, value):
+        self._[0].weight = value
+
     @staticmethod
     cdef Burr from_ptr(cBurr *_ptr, unsigned int k, unsigned int l, unsigned int m):
-        cdef Burr boll = Burr.__new__(Burr)
-        boll._ = _ptr
-        boll.k = k
-        boll.l = l
-        boll.m = m
-        return boll
+        cdef Burr burr = Burr.__new__(Burr)
+        burr._ = _ptr
+        burr.k = k
+        burr.l = l
+        burr.m = m
+        return burr
+
+
+cdef class Square:
+    cdef SquareStruct *_
+    cdef unsigned int k
+    cdef unsigned int l
+    cdef unsigned int m
+
+    @property
+    def weight(self):
+        return self._[0].weight
+
+    @weight.setter
+    def weight(self, value):
+        self._[0].weight = value
+
+    @staticmethod
+    cdef Square from_ptr(SquareStruct *_ptr, unsigned int k, unsigned int l, unsigned int m):
+        cdef Square square = Square.__new__(Square)
+        square._ = _ptr
+        square.k = k
+        square.l = l
+        square.m = m
+        return square
 
 
 cdef class FruitingNode:
@@ -456,6 +484,10 @@ cdef class FruitingNode:
     @property
     def burr(self):
         return Burr.from_ptr(&self._[0].burr, self.k, self.l, self.m)
+
+    @property
+    def square(self):
+        return Square.from_ptr(&self._[0].square, self.k, self.l, self.m)
 
     @property
     def stage(self):
@@ -2282,7 +2314,7 @@ cdef class State(StateBase):
                 site.boll.cumulative_temperature = self.average_temperature
                 site.boll.age = self.day_inc
                 site.stage = Stage.YoungGreenBoll
-                NewBollFormation(self._[0], self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m])
+                self.new_boll_formation(site)
                 # If this is the first flower, define FirstBloom.
                 if self.green_bolls_weight > 0 and first_bloom_date is None:
                     return self.date
@@ -2312,6 +2344,44 @@ cdef class State(StateBase):
             return
         if site.stage == Stage.GreenBoll:
             self.boll_opening(k, l, m, date2doy(defoliate_date), site.boll.cumulative_temperature, plant_population, var39, var40, var41, var42)
+
+    def new_boll_formation(self, site):
+        """Simulates the formation of a new boll at a fruiting site."""
+        # The following constant parameters are used:
+        cdef double seedratio = 0.64  # ratio of seeds in seedcotton weight.
+        cdef double[2] vnewboll = [0.31, 0.02]
+        # If bPollinSwitch is false accumulate number of blooms to be dropped, and define FruitingCode as 6.
+        if not self.pollination_switch:
+            site.stage = Stage.AbscisedAsFlower
+            site.fraction = 0
+            self.bloom_weight_loss += site.square.weight
+            site.square.weight = 0
+            return
+        # The initial weight of the new boll (BollWeight) and new burr (state.burr_weight) will be a fraction of the square weight, and the rest will be added to BloomWeightLoss. 80% of the initial weight will be in the burr.
+        # The nitrogen in the square is partitioned in the same proportions. The nitrogen that was in the square is transferred to the burrs. Update state.green_bolls_weight, state.green_bolls_burr_weight and state.square_weight. assign zero to SquareWeight at this site.
+        cdef double bolinit  # initial weight of boll after flowering.
+        bolinit = vnewboll[0] * site.square.weight
+        site.boll.weight = 0.2 * bolinit
+        site.burr.weight = bolinit - site.boll.weight
+        self.bloom_weight_loss += site.square.weight - bolinit
+
+        cdef double sqr1n  # the nitrogen content of one square before flowering.
+        sqr1n = self.square_nitrogen_concentration * site.square.weight
+        self.square_nitrogen -= sqr1n
+        self.cumulative_nitrogen_loss += sqr1n * (1 - vnewboll[0])
+        sqr1n = sqr1n * vnewboll[0]
+
+        cdef double seed1n  # the nitrogen content of seeds in a new boll on flowering.
+        seed1n = site.boll.weight * seedratio * vnewboll[1]
+        if seed1n > sqr1n:
+            seed1n = sqr1n
+        self.seed_nitrogen += seed1n
+        self.burr_nitrogen += sqr1n - seed1n
+
+        self.green_bolls_weight += site.boll.weight
+        self.green_bolls_burr_weight += site.burr.weight
+        self.square_weight -= site.square.weight
+        site.square.weight = 0
 
     def boll_opening(self, int k, int l, int m, unsigned int day_defoliate, double tmpboll, double plant_population, double var39, double var40, double var41, double var42):
         """Simulates the transition of each fruiting site from green to dehissed (open) boll. It is called from SimulateFruitingSite()."""
