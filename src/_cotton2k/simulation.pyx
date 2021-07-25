@@ -1425,6 +1425,28 @@ cdef class State(StateBase):
         vegetative_branch.delay_for_new_fruiting_branch = 0
 
     #begin root
+    #                  THE COTTON ROOT SUB-MODEL.
+    # The following is a documentation of the root sub-model used in COTTON2K. It is
+    # derived from the principles of RHIZOS, as implemented in GOSSYM and in GLYCIM,
+    # and from some principles of ROOTSIMU (Hoogenboom and Huck, 1986). It is devised
+    # to be generally applicable, and may be used with root systems of different crops by
+    # redefining the parameters, which are set here as constants, and some of them are
+    # set in function InitializeRootData(). These parameters are of course specific for the
+    # crop species, and perhaps also for cultivars or cultivar groups.
+    #
+    # This is a two-dimensional model and it may be used with soil cells of different
+    # sizes. The grid can be defined by the modeler. The maximum numbers of layers
+    # and columns are given by the parameters maxl and maxk, respectively. These are set
+    # to 40 and 20, in this version of COTTON2K. The grid is set in function InitializeGrid().
+    #
+    # The whole slab is being simulated. Thus, non-symmetrical processes (such as
+    # side-dressing of fertilizers or drip-irrigation) can be handled. The plant is assumed to
+    # be situated at the center of the soil slab, or off-center for skip-rows. Adjoining soil
+    # slabs are considered as mirror-images of each other. Alternate-row drip systems (or any
+    # other agricultural input similarly situated) are located at one edge of the slab.
+    #
+    # The root mass in each cell is made up of NumRootAgeGroups classes, whose number is to be
+    # defined by the modeler. The maximum number of classes is 3 in this version of COTTON2K.
     def lateral_root_growth_left(self, int l, int NumRootAgeGroups, unsigned int plant_row_column, double row_space):
         """This function computes the elongation of the lateral roots in a soil layer(l) to the left."""
         # The following constant parameters are used:
@@ -1645,6 +1667,19 @@ cdef class State(StateBase):
         # Convert total root weight from g per slab to g per plant.
         self.root_weight = roots * 100 * per_plant_area / row_space
 
+    def initialize_lateral_roots(self):
+        """This function initiates lateral root growth."""
+        cdef double distlr = 12  # the minimum distance, in cm, from the tip of the taproot, for a lateral root to be able to grow.
+        cdef double sdl  # distance of a layer from tip of taproot, cm.
+        sdl = TapRootLength - DepthLastRootLayer
+        # Loop on soil layers, from the lowest layer with roots upward:
+        for l in reversed(range(LastTaprootLayer + 1)):
+            # Compute distance from tip of taproot.
+            sdl += dl(l)
+            # If a layer is marked for a lateral (LateralRootFlag[l] = 1) and its distance from the tip is larger than distlr - initiate a lateral (LateralRootFlag[l] = 2).
+            if sdl > distlr and LateralRootFlag[l] == 1:
+                LateralRootFlag[l] = 2
+
     def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column):
         # The following constant parameters are used:
         # The index for the relative partitioning of root mass produced by new growth to class i.
@@ -1725,7 +1760,7 @@ cdef class State(StateBase):
         if LastTaprootLayer < nl - 1 or TapRootLength < DepthLastRootLayer:
             self.tap_root_growth(NumRootAgeGroups, plant_row_column)
         # Call functions for growth of lateral roots
-        InitiateLateralRoots()
+        self.initialize_lateral_roots()
         for l in range(LastTaprootLayer):
             if LateralRootFlag[l] == 2:
                 self.lateral_root_growth_left(l, NumRootAgeGroups, plant_row_column, row_space)

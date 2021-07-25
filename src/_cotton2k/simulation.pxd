@@ -69,9 +69,6 @@ cdef extern from "PlantGrowth.h":
     void ActualFruitGrowth(cState &)
     void ActualLeafGrowth(cState &)
 
-cdef extern from "RootGrowth.h":
-    void InitiateLateralRoots()
-
 cdef extern from "SoilNitrogen.h":
     void UreaHydrolysis(cSoilCell &, int, int)
     void MineralizeNitrogen(cSoilCell &, int, int, const int &, const int &, double)
