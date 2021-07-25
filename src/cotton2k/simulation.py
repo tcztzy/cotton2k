@@ -34,16 +34,16 @@ class State:
     @property
     def plant_weight(self):
         return (
-            self._.root_weight
-            + self._.stem_weight
-            + self._.green_bolls_weight
-            + self._.green_bolls_burr_weight
-            + self._.leaf_weight
-            + self._.petiole_weight
-            + self._.square_weight
-            + self._.open_bolls_weight
-            + self._.open_bolls_burr_weight
-            + self._.reserve_carbohydrate
+            self.root_weight
+            + self.stem_weight
+            + self.green_bolls_weight
+            + self.green_bolls_burr_weight
+            + self.leaf_weight
+            + self.petiole_weight
+            + self.square_weight
+            + self.open_bolls_weight
+            + self.open_bolls_burr_weight
+            + self.reserve_carbohydrate
         )
 
     # pylint: disable=too-many-arguments
