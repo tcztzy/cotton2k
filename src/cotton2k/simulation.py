@@ -1,5 +1,6 @@
 # pylint: disable=no-name-in-module
 import datetime
+from functools import cached_property
 from typing import Any
 
 from _cotton2k.simulation import Simulation as CySimulation
@@ -75,7 +76,7 @@ def physiological_age(hours) -> float:
 
 
 class Simulation(CySimulation):
-    @property
+    @cached_property
     def states(self):
         return [
             self.state(i) for i in range((self.stop_date - self.start_date).days + 1)
@@ -85,6 +86,21 @@ class Simulation(CySimulation):
         if isinstance(i, datetime.date):
             i = (i - self.start_date).days
         return State(self._state(i))
+
+    def _copy_state(self, i):
+        super()._copy_state(i)
+        pre = self._state(i)
+        post = self._state(i + 1)
+        for attr in (
+            "carbon_allocated_for_root_growth",
+            "extra_carbon",
+            "fiber_length",
+            "fiber_strength",
+            "lint_yield",
+            "net_photosynthesis",
+            "pavail",
+        ):
+            setattr(post, attr, getattr(pre, attr))
 
     def read_input(self, *args, **kwargs):  # pylint: disable=unused-argument
         # pylint: disable=attribute-defined-outside-init

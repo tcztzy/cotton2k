@@ -45,16 +45,13 @@ typedef struct State
     unsigned int daynum;
     unsigned int kday;
     double day_inc;                  // physiological days increment for this day. computes physiological age
-    double lint_yield;               // yield of lint, kgs per hectare.
     double bloom_weight_loss;        // cumulative weight lost due to petals shed after blooming, g per plant.
     double abscised_fruit_sites;     // total number of abscised fruit sites, per plant.
     double abscised_leaf_weight;     // weight of abscissed leaves, g per plant.
     double cumulative_nitrogen_loss; // total cumulative nitrogen lost in sloughed roots, and abscised leaves, squares and bolls, g per plant.
-    double applied_water;            // the amount of water to apply (mm), computed for a predicted irrigation.
     double water_stress;             // general water stress index (0 to 1).
     double water_stress_stem;        // water stress index for stem growth (0 to 1).
     double carbon_stress;            // carbohydrate stress factor.
-    double extra_carbon;             // Extra carbon, not used for plant potential growth requirements, assumed to accumulate in taproot.
     double day_length;               // day length, in hours
     double plant_height;
     double stem_weight;             // total stem weight, g per plant.
@@ -76,14 +73,11 @@ typedef struct State
     double actual_soil_evaporation;             // actual evaporation from soil surface, mm day-1.
     double cumulative_evaporation;              // cumulative evaporation from soil surface, mm.
     double light_interception;                  // ratio of light interception by plant canopy.
-    double net_photosynthesis;                  // net photosynthetic rate, g per plant per day.
     unsigned int number_of_vegetative_branches; // number of vegetative branches (including the main branch), per plant.
     unsigned int number_of_fruiting_sites;      // total number of fruiting sites per plant.
     double number_of_squares;                   // number of squares per plant.
     double number_of_green_bolls;               // average number of retained green bolls, per plant.
     double number_of_open_bolls;                // number of open bolls, per plant.
-    double fiber_length;                        // fiber length
-    double fiber_strength;                      // fiber strength
     double nitrogen_stress;                     // the average nitrogen stress coefficient for vegetative and reproductive organs
     double nitrogen_stress_vegetative;          // nitrogen stress limiting vegetative development.
     double nitrogen_stress_fruiting;            // nitrogen stress limiting fruit development.
@@ -112,14 +106,12 @@ typedef struct State
     double average_temperature;                 // average daily temperature, C, for 24 hours.
     double daytime_temperature;                 // average day-time temperature, C.
     double deep_soil_temperature;               // boundary soil temperature of deepest layer (K)
-    double pavail;                              // residual available carbon for root growth from previous day.
     double total_actual_leaf_growth;            // actual growth rate of all the leaves, g plant-1 day-1.
     double total_actual_petiole_growth;         // actual growth rate of all the petioles, g plant-1 day-1.
     double actual_square_growth;                // total actual growth of squares, g plant-1 day-1.
     double actual_stem_growth;                  // actual growth rate of stems, g plant-1 day-1.
     double actual_boll_growth;                  // total actual growth of seedcotton in bolls, g plant-1 day-1.
     double actual_burr_growth;                  // total actual growth of burrs in bolls, g plant-1 day-1.
-    double carbon_allocated_for_root_growth;    // available carbon allocated for root growth, g per plant.
     double supplied_nitrate_nitrogen;           // uptake of nitrate by the plant from the soil, mg N per slab per day.
     double supplied_ammonium_nitrogen;          // uptake of ammonia N by the plant from the soil, mg N per slab per day.
     double petiole_nitrogen;                    // total petiole nitrogen, g per plant.

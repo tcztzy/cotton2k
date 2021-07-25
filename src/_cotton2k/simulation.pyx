@@ -786,7 +786,6 @@ cdef class Soil:
 cdef class State(StateBase):
 
     cdef public Soil soil
-
     @staticmethod
     cdef State from_ptr(cState *_ptr, unsigned int year, unsigned int version):
         """Factory function to create WrapperClass objects from
@@ -2835,7 +2834,6 @@ cdef class Simulation:
         state0.cumulative_nitrogen_loss = 0
         state0.cumulative_transpiration = 0
         state0.cumulative_evaporation = 0
-        state0.applied_water = 0
         state0.water_stress = 1
         state0.water_stress_stem = 1
         state0.carbon_stress = 1

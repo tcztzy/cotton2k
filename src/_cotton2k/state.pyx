@@ -88,14 +88,6 @@ cdef class StateBase:
         self._[0].day_length = value
 
     @property
-    def lint_yield(self):
-        return self._[0].lint_yield
-
-    @lint_yield.setter
-    def lint_yield(self, value):
-        self._[0].lint_yield = value
-
-    @property
     def plant_height(self):
         return self._[0].plant_height
 
@@ -224,14 +216,6 @@ cdef class StateBase:
         self._[0].cumulative_evaporation = value
 
     @property
-    def applied_water(self):
-        return self._[0].applied_water
-
-    @applied_water.setter
-    def applied_water(self, value):
-        self._[0].applied_water = value
-
-    @property
     def water_stress(self):
         return self._[0].water_stress
 
@@ -256,28 +240,12 @@ cdef class StateBase:
         self._[0].carbon_stress = value
 
     @property
-    def extra_carbon(self):
-        return self._[0].extra_carbon
-
-    @extra_carbon.setter
-    def extra_carbon(self, value):
-        self._[0].extra_carbon = value
-
-    @property
     def light_interception(self):
         return self._[0].light_interception
 
     @light_interception.setter
     def light_interception(self, value):
         self._[0].light_interception = value
-
-    @property
-    def net_photosynthesis(self):
-        return self._[0].net_photosynthesis
-
-    @net_photosynthesis.setter
-    def net_photosynthesis(self, value):
-        self._[0].net_photosynthesis = value
 
     @property
     def leaf_area_index(self):
@@ -358,22 +326,6 @@ cdef class StateBase:
     @number_of_open_bolls.setter
     def number_of_open_bolls(self, value):
         self._[0].number_of_open_bolls = value
-
-    @property
-    def fiber_strength(self):
-        return self._[0].fiber_strength
-
-    @fiber_strength.setter
-    def fiber_strength(self, value):
-        self._[0].fiber_strength = value
-
-    @property
-    def fiber_length(self):
-        return self._[0].fiber_length
-
-    @fiber_length.setter
-    def fiber_length(self, value):
-        self._[0].fiber_length = value
 
     @property
     def number_of_fruiting_sites(self):
@@ -580,14 +532,6 @@ cdef class StateBase:
         self._[0].potential_evaporation = value
 
     @property
-    def pavail(self):
-        return self._[0].pavail
-
-    @pavail.setter
-    def pavail(self, value):
-        self._[0].pavail = value
-
-    @property
     def total_actual_leaf_growth(self):
         return self._[0].total_actual_leaf_growth
 
@@ -634,14 +578,6 @@ cdef class StateBase:
     @actual_burr_growth.setter
     def actual_burr_growth(self, value):
         self._[0].actual_burr_growth = value
-
-    @property
-    def carbon_allocated_for_root_growth(self):
-        return self._[0].carbon_allocated_for_root_growth
-
-    @carbon_allocated_for_root_growth.setter
-    def carbon_allocated_for_root_growth(self, value):
-        self._[0].carbon_allocated_for_root_growth = value
 
     @property
     def supplied_nitrate_nitrogen(self):
