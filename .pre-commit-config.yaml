@@ -30,8 +30,9 @@ repos:
       rev: v0.902
       hooks:
           - id: mypy
-            additional_dependencies: ["sqlalchemy[mypy]"]
+            additional_dependencies: [appdirs-stubs, "sqlalchemy[mypy]"]
             files: ^(src/_?cotton2k|tests)/
+            args: [--show-error-codes]
     - repo: local
       hooks:
           - id: pytest-with-cov

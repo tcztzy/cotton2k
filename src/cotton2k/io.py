@@ -153,8 +153,8 @@ def read_input(path: Union[Path, str, dict, Profile], session=None) -> Simulatio
         kwargs = path
     else:
         kwargs = json.loads(Path(path).read_text())
-    sim = Simulation(kwargs.get("id", 0), kwargs.get("version", 0x0400), **kwargs)
-    soil = SoilInit(**kwargs.get("soil", {}))
+    sim = Simulation(kwargs.get("id", 0), kwargs.get("version", 0x0400), **kwargs)  # type: ignore[arg-type]
+    soil = SoilInit(**kwargs.get("soil", {}))  # type: ignore[arg-type]
     start_date = kwargs["start_date"]
     if not isinstance(start_date, (datetime.date, str)):
         raise ValueError
@@ -164,9 +164,8 @@ def read_input(path: Union[Path, str, dict, Profile], session=None) -> Simulatio
         else int(start_date[:4])
     )
     sim.read_input(lyrsol=soil.lyrsol, **kwargs)
-    sim.climate = Climate(kwargs.get("climate_start_date", 0), kwargs.get("climate"))[
-        sim.start_date :
-    ]
+    climate_start_date = kwargs.get("climate_start_date", 0)
+    sim.climate = Climate(climate_start_date, kwargs.get("climate"))[sim.start_date :]  # type: ignore[misc]
     return sim
 
 

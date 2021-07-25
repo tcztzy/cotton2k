@@ -1,13 +1,13 @@
 # pylint: disable=no-name-in-module
-from math import exp
 from typing import Any
 
 from _cotton2k.simulation import Simulation as CySimulation
 from _cotton2k.simulation import SimulationEnd
 from _cotton2k.simulation import State as CyState
+from cotton2k.photo import Photosynthesis
 
 
-class State:
+class State(Photosynthesis):
     _: CyState
 
     def __init__(self, state: CyState) -> None:
@@ -46,34 +46,6 @@ class State:
             + self.reserve_carbohydrate
         )
 
-    # pylint: disable=too-many-arguments
-    def column_shading(
-        self,
-        row_space,
-        plant_row_column,
-        column_width,
-        max_leaf_area_index,
-        relative_radiation_received_by_a_soil_column,
-    ):
-        zint = 1.0756 * self.plant_height / row_space
-        for k in range(20):
-            sw = (k + 1) * column_width
-            if k <= plant_row_column:
-                k0 = plant_row_column - k
-                sw1 = sw - column_width / 2
-            else:
-                sw1 = sw - column_width / 2 - (plant_row_column + 1) * column_width
-                k0 = k
-            shade = 0
-            if sw1 < self.plant_height:
-                shade = 1 - (sw1 / self.plant_height) ** 2
-                if (
-                    self.light_interception < zint
-                    and self.leaf_area_index < max_leaf_area_index
-                ):
-                    shade *= self.light_interception / zint
-            relative_radiation_received_by_a_soil_column[k0] = max(0.05, 1 - shade)
-
 
 def physiological_age(hours) -> float:
     """computes physiological age
@@ -99,33 +71,6 @@ def physiological_age(hours) -> float:
         # add the hourly contribution to physiological age.
         dayfd += min(max((hour.temperature - p1) / p2, 0), p3)
     return dayfd / 24.0
-
-
-def compute_light_interception(
-    leaf_area_index: float,
-    max_leaf_area_index: float,
-    plant_height: float,
-    row_space: float,
-    /,
-    *,
-    version: int = 0x0400,
-):
-    if version < 0x0500:
-        zint = 1.0756 * plant_height / row_space
-        lfint = (
-            0.80 * leaf_area_index
-            if leaf_area_index <= 0.5
-            else 1 - exp(0.07 - 1.16 * leaf_area_index)
-        )
-        if lfint > zint:
-            light_interception = (zint + lfint) / 2
-        elif leaf_area_index < max_leaf_area_index:
-            light_interception = lfint
-        else:
-            light_interception = zint
-        return light_interception if light_interception < 1 else 1
-    param = max(1.16, -0.1 * plant_height + 8)
-    return 1 - exp(-param * leaf_area_index)
 
 
 class Simulation(CySimulation):
@@ -168,12 +113,9 @@ class Simulation(CySimulation):
             # pylint: disable=access-member-before-definition
             if state.leaf_area_index > self.max_leaf_area_index:
                 self.max_leaf_area_index = state.leaf_area_index
-            state.light_interception = compute_light_interception(
-                state.leaf_area_index,
+            state.light_interception = state.compute_light_interception(
                 self.max_leaf_area_index,
-                state.plant_height,
                 self.row_space,
-                version=self.version,
             )
             state.column_shading(
                 self.row_space,
