@@ -43,7 +43,6 @@ cdef extern:
 
 cdef extern from "CottonPhenology.h":
     void NewBollFormation(cState &, FruitingSite &)
-    void BollOpening(cState &, int, int, int, unsigned int, double, double, double, double, double, double)
 
 cdef extern from "FruitAbscission.h":
     void FruitingSitesAbscission(cSimulation &, uint32_t)

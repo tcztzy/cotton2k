@@ -71,7 +71,7 @@ from .irrigation cimport Irrigation
 from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth, wcond
 from .soil cimport cRoot
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf, StateBase
-from .fruiting_site cimport FruitingSite, Leaf, cBoll
+from .fruiting_site cimport FruitingSite, Leaf, cBoll, cBurr
 
 
 class SimulationEnd(RuntimeError):
@@ -387,6 +387,26 @@ cdef class Boll:
         return boll
 
 
+cdef class Burr:
+    cdef cBurr *_
+    cdef unsigned int k
+    cdef unsigned int l
+    cdef unsigned int m
+
+    @property
+    def weight(self):
+        return self._[0].weight
+
+    @staticmethod
+    cdef Burr from_ptr(cBurr *_ptr, unsigned int k, unsigned int l, unsigned int m):
+        cdef Burr boll = Burr.__new__(Burr)
+        boll._ = _ptr
+        boll.k = k
+        boll.l = l
+        boll.m = m
+        return boll
+
+
 cdef class FruitingNode:
     cdef FruitingSite *_
     cdef unsigned int k
@@ -418,12 +438,24 @@ cdef class FruitingNode:
         self._[0].fraction = value
 
     @property
+    def ginning_percent(self):
+        return self._[0].ginning_percent
+
+    @ginning_percent.setter
+    def ginning_percent(self, value):
+        self._[0].ginning_percent = value
+
+    @property
     def leaf(self):
         return NodeLeaf.from_ptr(&self._.leaf)
 
     @property
     def boll(self):
         return Boll.from_ptr(&self._[0].boll, self.k, self.l, self.m)
+
+    @property
+    def burr(self):
+        return Burr.from_ptr(&self._[0].burr, self.k, self.l, self.m)
 
     @property
     def stage(self):
@@ -2279,7 +2311,57 @@ cdef class State(StateBase):
                 site.stage = Stage.GreenBoll
             return
         if site.stage == Stage.GreenBoll:
-            BollOpening(self._[0], k, l, m, date2doy(defoliate_date), site.boll.cumulative_temperature, plant_population, var39, var40, var41, var42)
+            self.boll_opening(k, l, m, date2doy(defoliate_date), site.boll.cumulative_temperature, plant_population, var39, var40, var41, var42)
+
+    def boll_opening(self, int k, int l, int m, unsigned int day_defoliate, double tmpboll, double plant_population, double var39, double var40, double var41, double var42):
+        """Simulates the transition of each fruiting site from green to dehissed (open) boll. It is called from SimulateFruitingSite()."""
+        site = self.vegetative_branches[k].fruiting_branches[l].nodes[m]
+        # The following constant parameters are used:
+        cdef double ddpar1 = 1
+        cdef double ddpar2 = 0.8  # constant parameters for computing fdhslai.
+        cdef double[11] vboldhs = [30.0, 41.189, -1.6057, 0.020743, 70.0, 0.994, 56.603, -2.921, 0.059, 1.219, 0.0065]
+        # Assign atn as the average boll temperature (tmpboll), and check that it is not higher than a maximum value.
+        cdef double atn  # modified average temperature of this boll.
+        atn = min(tmpboll, vboldhs[0])
+        # Compute dehiss as a function of boll temperature.
+        cdef double dehiss  # days from flowering to boll opening.
+        dehiss = var39 + atn * (vboldhs[1] + atn * (vboldhs[2] + atn * vboldhs[3]))
+        dehiss *= var40
+        dehiss = min(dehiss, vboldhs[4])
+        # Dehiss is decreased after a defoliation.
+        if day_defoliate > 0 and self.daynum > day_defoliate:
+            dehiss *= pow(vboldhs[5], (self.daynum - day_defoliate))
+        # If leaf area index is less than dpar1, decrease dehiss.
+        if self.leaf_area_index < ddpar1:
+            # effect of small lai on dehiss
+            fdhslai = ddpar2 + self.leaf_area_index * (1 - ddpar2) / ddpar1
+            fdhslai = min(max(fdhslai, 0), 1)
+            dehiss *= fdhslai
+        if site.boll.age < dehiss:
+            return
+        # If green boll is old enough (AgeOfBoll greater than dehiss), make it an open boll, set FruitingCode to 3, and update state.open_bolls_weight, state.open_bolls_burr_weight, state.green_bolls_weight, state.green_bolls_burr_weight.
+        site.stage = Stage.MatureBoll
+        self.open_bolls_weight += site.boll.weight
+        self.open_bolls_burr_weight += site.burr.weight
+        self.green_bolls_weight -= site.boll.weight
+        self.green_bolls_burr_weight -= site.burr.weight
+        # Compute the ginning percentage as a function of boll temperature.
+        # Compute the average ginning percentage of all the bolls opened until now (state.ginning_percent).
+        site.ginning_percent = (var41 - var42 * atn) / 100
+        self.ginning_percent = (self.ginning_percent * self.number_of_open_bolls + site.ginning_percent * site.fraction) / (self.number_of_open_bolls + site.fraction)
+        # Cumulative lint yield (LintYield) is computed in kg per ha.
+        self.lint_yield += site.ginning_percent * site.boll.weight * plant_population * 0.001
+        # Note: computation of fiber properties is as in GOSSYM, it is not used in COTTON2K, and it has not been tested. It is included here for compatibility, and it may be developed in future versions.
+        # fsx (fiber strength in g / tex at 1/8 inch) is computed, and averaged (as FibStrength) for all open bolls.
+        # flx (fiber length in inches, 2.5% span) is computed, and averaged (as FibLength) for all open bolls.
+        cdef double flx  # fiber length (inches, 2.5% span) of this boll.
+        cdef double fsx  # fiber strength (g / tex at 1/8 inch) of this boll.
+        fsx = vboldhs[6] + atn * (vboldhs[7] + vboldhs[8] * atn)
+        flx = vboldhs[9] - vboldhs[10] * atn
+        self.fiber_strength = (self.fiber_strength * self.number_of_open_bolls + fsx * site.fraction) / (self.number_of_open_bolls + site.fraction);
+        self.fiber_length = (self.fiber_length * self.number_of_open_bolls + flx * site.fraction) / (self.number_of_open_bolls + site.fraction);
+        # Update the number of open bolls per plant (nopen).
+        self.number_of_open_bolls += site.fraction
     #end phenology
 
     #begin soil
