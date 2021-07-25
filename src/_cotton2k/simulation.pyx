@@ -282,6 +282,10 @@ cdef class Root:
     def weight_capable_uptake(self):
         return self._[0].weight_capable_uptake
 
+    @property
+    def growth_factor(self):
+        return self._[0].growth_factor
+
     @staticmethod
     cdef Root from_ptr(cRoot *_ptr, unsigned int l, unsigned int k):
         cdef Root root = Root.__new__(Root)
@@ -1609,11 +1613,11 @@ cdef class State(StateBase):
         cdef double efacr  # as efac1 for the cell to the right of this cell.
         cdef double efacu  # as efac1 for the cell above this cell.
         cdef double srwp  # sum of all efac values.
-        efac1 = dl(l) * wk(k, row_space) * self._[0].soil.cells[l][k].root.growth_factor
-        efacl = rgfsd * self._[0].soil.cells[l][km1].root.growth_factor
-        efacr = rgfsd * self._[0].soil.cells[l][kp1].root.growth_factor
-        efacu = rgfup * self._[0].soil.cells[lm1][k].root.growth_factor
-        efacd = rgfdn * self._[0].soil.cells[lp1][k].root.growth_factor
+        efac1 = dl(l) * wk(k, row_space) * self.soil.cells[l][k].root.growth_factor
+        efacl = rgfsd * self.soil.cells[l][km1].root.growth_factor
+        efacr = rgfsd * self.soil.cells[l][kp1].root.growth_factor
+        efacu = rgfup * self.soil.cells[lm1][k].root.growth_factor
+        efacd = rgfdn * self.soil.cells[lp1][k].root.growth_factor
         srwp = efac1 + efacl + efacr + efacu + efacd
         # If srwp is very small, all the added weight will be in the same soil soil cell, and execution of this function is ended.
         if srwp < 1e-10:
