@@ -1182,11 +1182,9 @@ cdef class State(StateBase):
         self.cumulative_nitrogen_loss += cotylwt * self.leaf_nitrogen / self.leaf_weight
         self.leaf_nitrogen -= cotylwt * self.leaf_nitrogen / self.leaf_weight
 
-    @staticmethod
     def potential_stem_growth(
+        self,
         stem_dry_weight: float,
-        days_since_emergence: int,
-        third_fruiting_branch_stage: Stage,
         density_factor: float,
         var12: float,
         var13: float,
@@ -1200,8 +1198,8 @@ cdef class State(StateBase):
         # There are two periods for computation of potential stem growth:
         # (1) Before the appearance of a square on the third fruiting branch.
         # Potential stem growth is a function of plant age (days from emergence).
-        if third_fruiting_branch_stage == Stage.NotYetFormed:
-            return var12 * (var13 + var14 * days_since_emergence)
+        if len(self.vegetative_branches[0].fruiting_branches) < 3 or self.vegetative_branches[0].fruiting_branches[2].nodes[0].stage == Stage.NotYetFormed:
+            return var12 * (var13 + var14 * self.kday)
         # (2) After the appearance of a square on the third fruiting branch.
         # It is assumed that all stem tissue that is more than 32 days old is not active.
         # Potential stem growth is a function of active stem tissue weight, and plant density.
@@ -3642,9 +3640,11 @@ cdef class Simulation:
         # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
         # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
         # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
-        PotGroStem = state.potential_stem_growth(stemnew, self._sim.states[u].kday,
-                                     self._sim.states[u].vegetative_branches[0].fruiting_branches[2].nodes[0].stage, self._sim.density_factor,
-                                     *self.cultivar_parameters[12:19]) * self._sim.states[u].day_inc * self._sim.states[u].water_stress_stem
+        PotGroStem = state.potential_stem_growth(
+            stemnew,
+            self._sim.density_factor,
+            *self.cultivar_parameters[12:19]
+        ) * state.day_inc * state.water_stress_stem
         cdef double maxstmgr = 0.067  # maximum posible potential stem growth, g dm - 2 day - 1.
         PotGroStem = min(maxstmgr * self._sim.per_plant_area, PotGroStem)
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
