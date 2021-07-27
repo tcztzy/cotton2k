@@ -3660,7 +3660,11 @@ cdef class Simulation:
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
         self._potential_leaf_growth(u)
         # If it is after first square, call self._potential_fruit_growth(u) to compute potential growth rate of squares and bolls.
-        if self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed:
+        if (
+            len(state.vegetative_branches[0].fruiting_branches) > 0
+            and len(state.vegetative_branches[0].fruiting_branches[0].nodes) > 0
+            and state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed
+        ):
             self._potential_fruit_growth(u)
         # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
         # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
@@ -3674,7 +3678,7 @@ cdef class Simulation:
         PotGroStem = min(maxstmgr * self._sim.per_plant_area, PotGroStem)
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
         cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
-        sumpdr = state.potential_root_growth(3, self._sim.states[u].soil.number_of_layers_with_root, self._sim.per_plant_area)
+        sumpdr = state.potential_root_growth(3, state.soil.number_of_layers_with_root, self._sim.per_plant_area)
         # Total potential growth rate of roots is converted from g per slab(sumpdr) to g per plant(PotGroAllRoots).
         PotGroAllRoots = sumpdr * 100 * self._sim.per_plant_area / self.row_space
         # Limit PotGroAllRoots to(maxrtgr * per_plant_area) g per plant per day.
@@ -3688,26 +3692,30 @@ cdef class Simulation:
         cdstem, cdleaf, cdpet, cdroot, vratio = state.dry_matter_balance(self._sim.per_plant_area)
         # If it is after first square, call ActualFruitGrowth() to compute actual
         # growth rate of squares and bolls.
-        if self._sim.states[u].vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed:
+        if (
+            len(state.vegetative_branches[0].fruiting_branches) > 0
+            and len(state.vegetative_branches[0].fruiting_branches[0].nodes) > 0
+            and state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed
+        ):
             ActualFruitGrowth(self._sim.states[u])
         # Initialize state.leaf_weight.It is assumed that cotyledons fall off at time of first square.Also initialize state.leaf_area and state.petiole_weight.
         if self._sim.first_square > 0:
-            self._sim.states[u].leaf_weight = 0
-            self._sim.states[u].leaf_area = 0
+            state.leaf_weight = 0
+            state.leaf_area = 0
         else:
             cotylwt = 0.20  # weight of cotyledons dry matter.
-            self._sim.states[u].leaf_weight = cotylwt
-            self._sim.states[u].leaf_area = 0.6 * cotylwt
-        self._sim.states[u].petiole_weight = 0
+            state.leaf_weight = cotylwt
+            state.leaf_area = 0.6 * cotylwt
+        state.petiole_weight = 0
         # Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
         state.actual_leaf_growth(vratio)
-        self._sim.states[u].leaf_area_index = self._sim.states[u].leaf_area / self._sim.per_plant_area
+        state.leaf_area_index = state.leaf_area / self._sim.per_plant_area
         # Add actual_stem_growth to state.stem_weight.
-        self._sim.states[u].stem_weight += self._sim.states[u].actual_stem_growth
+        state.stem_weight += state.actual_stem_growth
         # Plant density affects growth in height of tall plants.
         cdef double htdenf = 55  # minimum plant height for plant density affecting growth in height.
         cdef double z1  # intermediate variable to compute denf2.
-        z1 = (self._sim.states[u].plant_height - htdenf) / htdenf
+        z1 = (state.plant_height - htdenf) / htdenf
         if z1 < 0:
             z1 = 0
         if z1 > 1:
@@ -3716,26 +3724,33 @@ cdef class Simulation:
         denf2 = 1 + z1 * (self._sim.density_factor - 1)
         # Call AddPlantHeight to compute PlantHeight.
         cdef int l, l1, l2  # node numbers of top three nodes.
-        l = self._sim.states[u].vegetative_branches[0].number_of_fruiting_branches - 1
-        l1 = l - 1
-        if l < 1:
-            l1 = 0
-        l2 = l - 2
-        if l < 2:
-            l2 = 0
-        cdef double agetop  # average physiological age of top three nodes.
-        agetop = (self._sim.states[u].vegetative_branches[0].fruiting_branches[l].nodes[0].age +
-                  self._sim.states[u].vegetative_branches[0].fruiting_branches[l1].nodes[0].age +
-                  self._sim.states[u].vegetative_branches[0].fruiting_branches[l2].nodes[0].age) / 3
+        l = len(state.vegetative_branches[0].fruiting_branches) - 1
+        # average physiological age of top three nodes.
+        if l < 0:
+            agetop = 0
+        elif l == 0:
+            agetop = state.vegetative_branches[0].fruiting_branches[0].nodes[0].age
+        elif l == 1:
+            agetop = (state.vegetative_branches[0].fruiting_branches[0].nodes[0].age * 2 + state.vegetative_branches[0].fruiting_branches[1].nodes[0].age) / 3
+        else:
+            agetop = (
+                state.vegetative_branches[0].fruiting_branches[l].nodes[0].age +
+                state.vegetative_branches[0].fruiting_branches[l - 1].nodes[0].age +
+                state.vegetative_branches[0].fruiting_branches[l - 2].nodes[0].age
+            ) / 3
         if self.version < 0x500 or self._sim.day_topping <= 0 or self._sim.states[u].daynum < self._sim.day_topping:
-            self._sim.states[u].plant_height += AddPlantHeight(denf2, self._sim.states[u].day_inc, self._sim.states[u].number_of_pre_fruiting_nodes,
-                                                 self._sim.states[u].vegetative_branches[0].fruiting_branches[1].nodes[0].stage,
+            if len(state.vegetative_branches[0].fruiting_branches) >= 2:
+                stage = state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage
+            else:
+                stage = Stage.NotYetFormed
+            state.plant_height += AddPlantHeight(denf2, state.day_inc, state.number_of_pre_fruiting_nodes,
+                                                 stage,
                                                  self._sim.states[u].age_of_pre_fruiting_nodes[
                                                      self._sim.states[u].number_of_pre_fruiting_nodes - 1],
                                                  self._sim.states[u].age_of_pre_fruiting_nodes[
                                                      self._sim.states[u].number_of_pre_fruiting_nodes - 2], agetop,
-                                                 self._sim.states[u].water_stress_stem, self._sim.states[u].carbon_stress,
-                                                 self._sim.states[u].nitrogen_stress_vegetative, self.cultivar_parameters[19],
+                                                 state.water_stress_stem, state.carbon_stress,
+                                                 state.nitrogen_stress_vegetative, self.cultivar_parameters[19],
                                                  self.cultivar_parameters[20], self.cultivar_parameters[21],
                                                  self.cultivar_parameters[22], self.cultivar_parameters[23],
                                                  self.cultivar_parameters[24], self.cultivar_parameters[25],
