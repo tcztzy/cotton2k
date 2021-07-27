@@ -135,3 +135,4 @@ cdef class StateBase:
     cdef public double net_photosynthesis  # net photosynthetic rate, g per plant per day.
     cdef public double pavail  # residual available carbon for root growth from previous day.
     cdef public double seed_moisture  # moisture content of germinating seeds, percent.
+    cdef public double stem_potential_growth  # potential growth rate of stems, g plant-1 day-1.

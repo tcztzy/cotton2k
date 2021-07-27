@@ -27,7 +27,6 @@ void InitializeGlobal()
     NumWaterTableData = 0;
 
     PercentDefoliation = 0;
-    PotGroStem = 0;
 
     RootWeightLoss = 0;
 

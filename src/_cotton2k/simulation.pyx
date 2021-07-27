@@ -33,7 +33,6 @@ from .cxx cimport (
     LwpMax,
     LwpMinX,
     NumWaterTableData,
-    PotGroStem,
     PotGroAllRoots,
     PotGroAllSquares,
     PotGroAllBolls,
@@ -1121,7 +1120,7 @@ cdef class State(StateBase):
         # cdleaf is carbohydrate requirement for leaf growth, g per plant per day.
         cdleaf = PotGroAllLeaves * (self.nitrogen_stress_vegetative + vchbal[1]) / (vchbal[1] + 1)
         # cdstem is carbohydrate requirement for stem growth, g per plant per day.
-        cdstem = PotGroStem * (self.nitrogen_stress_vegetative + vchbal[2]) / (vchbal[2] + 1)
+        cdstem = self.stem_potential_growth * (self.nitrogen_stress_vegetative + vchbal[2]) / (vchbal[2] + 1)
         # cdroot is carbohydrate requirement for root growth, g per plant per day.
         cdroot = PotGroAllRoots * (self.nitrogen_stress_root + vchbal[3]) / (vchbal[3] + 1)
         # cdpet is carbohydrate requirement for petiole growth, g per plant per day.
@@ -3656,7 +3655,7 @@ cdef class Simulation:
 
     def _growth(self, u, new_stem_weight):
         state = self._current_state
-        global PotGroStem, PotGroAllRoots
+        global PotGroAllRoots
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
         self._potential_leaf_growth(u)
         # If it is after first square, call self._potential_fruit_growth(u) to compute potential growth rate of squares and bolls.
@@ -3669,13 +3668,15 @@ cdef class Simulation:
         # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
         # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
         # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
-        PotGroStem = state.potential_stem_growth(
-            new_stem_weight,
-            self._sim.density_factor,
-            *self.cultivar_parameters[12:19]
-        ) * state.day_inc * state.water_stress_stem
         cdef double maxstmgr = 0.067  # maximum posible potential stem growth, g dm - 2 day - 1.
-        PotGroStem = min(maxstmgr * self._sim.per_plant_area, PotGroStem)
+        state.stem_potential_growth = min(
+            maxstmgr * self._sim.per_plant_area,
+            state.potential_stem_growth(
+                new_stem_weight,
+                self._sim.density_factor,
+                *self.cultivar_parameters[12:19]
+            ) * state.day_inc * state.water_stress_stem
+        )
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
         cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
         sumpdr = state.potential_root_growth(3, state.soil.number_of_layers_with_root, self._sim.per_plant_area)
