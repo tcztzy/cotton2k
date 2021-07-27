@@ -543,6 +543,24 @@ cdef class FruitingNode:
         return node
 
 
+cdef class PreFruitingNode:
+    cdef double *_age
+
+    @property
+    def age(self):
+        return self._age[0]
+
+    @age.setter
+    def age(self, value):
+        self._age[0] = value
+
+    @staticmethod
+    cdef PreFruitingNode from_ptr(double *age):
+        cdef PreFruitingNode node = PreFruitingNode.__new__(PreFruitingNode)
+        node._age = age
+        return node
+
+
 cdef class MainStemLeaf:
     cdef cMainStemLeaf *_
 
@@ -865,8 +883,9 @@ cdef class Soil:
 
 
 cdef class State(StateBase):
-
     cdef public Soil soil
+    pre_fruiting_nodes = []
+
     @staticmethod
     cdef State from_ptr(cState *_ptr, unsigned int year, unsigned int version):
         """Factory function to create WrapperClass objects from
@@ -883,6 +902,8 @@ cdef class State(StateBase):
         state.soil = Soil.from_ptr(&_ptr[0].soil)
         for i in range(24):
             state.hours[i] = Hour.from_ptr(&_ptr[0].hours[i])
+        for i in range(_ptr[0].number_of_pre_fruiting_nodes):
+            state.pre_fruiting_nodes.append(PreFruitingNode.from_ptr(&_ptr[0].age_of_pre_fruiting_nodes[i]))
         return state
 
     @property
@@ -1022,12 +1043,12 @@ cdef class State(StateBase):
         # The following constant parameter is used:
         cdef double MaxAgePreFrNode = 66  # maximum age of a prefruiting node (constant)
         # When the age of the last prefruiting node exceeds MaxAgePreFrNode, this function is not activated.
-        if self._[0].age_of_pre_fruiting_nodes[self.number_of_pre_fruiting_nodes - 1] > MaxAgePreFrNode:
+        if self.pre_fruiting_nodes[-1].age > MaxAgePreFrNode:
             return
         # Loop over all existing prefruiting nodes.
         # Increment the age of each prefruiting node in physiological days.
-        for j in range(self.number_of_pre_fruiting_nodes):
-            self._[0].age_of_pre_fruiting_nodes[j] += self.day_inc
+        for node in self.pre_fruiting_nodes:
+            node.age += self.day_inc
         # For the last prefruiting node (if there are less than 9 prefruiting nodes):
         # The period (timeToNextPreFruNode) until the formation of the next node is VarPar(31), but it is modified for the first three nodes.
         # If the physiological age of the last prefruiting node is more than timeToNextPreFruNode, form a new prefruiting node - increase state.number_of_pre_fruiting_nodes, assign the initial average temperature for the new node, and initiate a new leaf on this node.
@@ -1039,7 +1060,7 @@ cdef class State(StateBase):
         elif self.number_of_pre_fruiting_nodes == 3:
             time_to_next_pre_fruiting_node *= time_factor_for_third_pre_fruiting_node
 
-        if self._[0].age_of_pre_fruiting_nodes[self.number_of_pre_fruiting_nodes - 1] >= time_to_next_pre_fruiting_node:
+        if self.pre_fruiting_nodes[-1].age >= time_to_next_pre_fruiting_node:
             if self.version >= 0x500:
                 leaf_weight = min(initial_pre_fruiting_nodes_leaf_area * self.leaf_weight_area_ratio, self.stem_weight - 0.2)
                 if leaf_weight <= 0:
@@ -1165,7 +1186,7 @@ cdef class State(StateBase):
         cdef double sumrl = 0  # sum of leaf resistances for all the plant.
         for j in range(self.number_of_pre_fruiting_nodes):  # loop prefruiting nodes
             numl += 1
-            sumrl += leaf_resistance_for_transpiration(self.age_of_pre_fruiting_nodes[j])
+            sumrl += leaf_resistance_for_transpiration(self.pre_fruiting_nodes[j].age)
 
         for k in range(self.number_of_vegetative_branches):  # loop for all other nodes
             for l in range(self.vegetative_branches[k].number_of_fruiting_branches):
@@ -2274,33 +2295,18 @@ cdef class State(StateBase):
         spetno3 = 0  # sum of petno3r.
         petno3r = 0  # ratio of NO3 to total N in an individual petiole.
         # Loop of prefruiting node leaves.
-        for j in range(self.number_of_pre_fruiting_nodes):
-            petno3r = p1 - self.age_of_pre_fruiting_nodes[j] * p2
+        for node in self.pre_fruiting_nodes:
+            petno3r = p1 - node.age * p2
             if petno3r < p3:
                 petno3r = p3
             spetno3 += petno3r
         # Loop of all the other leaves, with the same computations.
-        numl = self.number_of_pre_fruiting_nodes  # number of petioles computed.
-        for k in range(self.number_of_vegetative_branches):
-            for l in range(self.vegetative_branches[k].number_of_fruiting_branches):
-                numl += (
-                    self.vegetative_branches[k]
-                    .fruiting_branches[l]
-                    .number_of_fruiting_nodes
-                )
-                for m in range(
-                    self.vegetative_branches[k]
-                    .fruiting_branches[l]
-                    .number_of_fruiting_nodes
-                ):
-                    petno3r = (
-                        p1
-                        - self.vegetative_branches[k]
-                        .fruiting_branches[l]
-                        .nodes[m]
-                        .leaf.age
-                        * p2
-                    )
+        numl = len(self.pre_fruiting_nodes)  # number of petioles computed.
+        for vegetative_branch in self.vegetative_branches:
+            for fruiting_branch in vegetative_branch.fruiting_branches:
+                numl += len(fruiting_branch.nodes)
+                for node in fruiting_branch.nodes:
+                    petno3r = p1 - node.leaf.age * p2
                     if petno3r < p3:
                         petno3r = p3
                     spetno3 += petno3r
@@ -3736,7 +3742,7 @@ cdef class Simulation:
                 jp1 = j + 1
                 smax = max(self.cultivar_parameters[4], jp1 * (self.cultivar_parameters[2] - self.cultivar_parameters[3] * jp1))
                 c = vpotlf[7] + vpotlf[8] * jp1 * (jp1 - vpotlf[9])
-                rate = smax * c * p * exp(-c * pow(state.age_of_pre_fruiting_nodes[j], p)) * pow(state.age_of_pre_fruiting_nodes[j], (p - 1))
+                rate = smax * c * p * exp(-c * pow(state.pre_fruiting_nodes[j].age, p)) * pow(state.pre_fruiting_nodes[j].age, (p - 1))
                 # Growth rate is modified by water stress and a function of average temperature.
                 # Compute potential growth of leaf area, leaf weight and petiole weight for leaf on node j. Add leaf weight potential growth to leaf_potential_growth.
                 # Add potential growth of petiole weight to petiole_potential_growth.

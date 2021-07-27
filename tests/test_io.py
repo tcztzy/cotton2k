@@ -18,4 +18,3 @@ def test_write_output(sim: Simulation):
     session, simulation = write_output(sim)
     assert len(simulation.states) == 181
     assert (simulation.states[-1].lint_yield - 2205.223254512975) < 10e-9
-    assert simulation.states[-1].number_of_fruiting_branches == 19
