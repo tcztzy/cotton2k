@@ -33,7 +33,6 @@ from .cxx cimport (
     LwpMax,
     LwpMinX,
     NumWaterTableData,
-    PotGroAllRoots,
     PotGroAllSquares,
     PotGroAllBolls,
     PotGroAllBurrs,
@@ -1122,7 +1121,7 @@ cdef class State(StateBase):
         # cdstem is carbohydrate requirement for stem growth, g per plant per day.
         cdstem = self.stem_potential_growth * (self.nitrogen_stress_vegetative + vchbal[2]) / (vchbal[2] + 1)
         # cdroot is carbohydrate requirement for root growth, g per plant per day.
-        cdroot = PotGroAllRoots * (self.nitrogen_stress_root + vchbal[3]) / (vchbal[3] + 1)
+        cdroot = self.root_potential_growth * (self.nitrogen_stress_root + vchbal[3]) / (vchbal[3] + 1)
         # cdpet is carbohydrate requirement for petiole growth, g per plant per day.
         cdpet = PotGroAllPetioles * (self.nitrogen_stress_vegetative + vchbal[14]) / (vchbal[14] + 1)
         cdef double cdsum  # total carbohydrate requirement for plant growth, g per plant per day.
@@ -1634,7 +1633,7 @@ cdef class State(StateBase):
         # The following constant parameter is used:
         cdef double rgfac = 0.36  # potential relative growth rate of the roots (g/g/day).
         # Initialize to zero the PotGroRoots array.
-        self.root_potential_growth[:NumLayersWithRoots:, :] = 0
+        self._root_potential_growth[:NumLayersWithRoots:, :] = 0
         self.soil.root_impedance()
         cdef double sumpdr = 0  # sum of potential root growth rate for the whole slab
         for l in range(NumLayersWithRoots):
@@ -1671,8 +1670,8 @@ cdef class State(StateBase):
                     # Potential root growth PotGroRoots(l,k) in each cell is computed as a product of rtwtcg, rgfac, the temperature function temprg, and RootGroFactor(l,k). It is also multiplied by per_plant_area / 19.6, for the effect of plant population density on root growth: it is made comparable to a population of 5 plants per m in 38" rows.
                     # The sum of the potential growth for the whole slab is computed as sumpdr.
                     self._[0].soil.cells[l][k].root.growth_factor = root_psi(SoilPsi[l][k]) * min(rtrdo, rtpct, rtrdn)
-                    self.root_potential_growth[l][k] = rtwtcg * rgfac * temprg * self._[0].soil.cells[l][k].root.growth_factor * per_plant_area / 19.6
-                    sumpdr += self.root_potential_growth[l][k]
+                    self._root_potential_growth[l][k] = rtwtcg * rgfac * temprg * self._[0].soil.cells[l][k].root.growth_factor * per_plant_area / 19.6
+                    sumpdr += self._root_potential_growth[l][k]
         return sumpdr
 
     def redist_root_new_growth(self, int l, int k, double addwt, double row_space, unsigned int plant_row_column):
@@ -1799,7 +1798,7 @@ cdef class State(StateBase):
             for k in range(nk):
                 # adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
                 if self.root_age[l][k] > 0:
-                    adwr1[l][k] = self.root_potential_growth[l][k] * actgf
+                    adwr1[l][k] = self._root_potential_growth[l][k] * actgf
         # If extra carbon is available, it is assumed to be added to the taproot.
         if self.extra_carbon > 0:
             # available carbon for taproot growth, in g dry matter per slab.
@@ -3655,7 +3654,6 @@ cdef class Simulation:
 
     def _growth(self, u, new_stem_weight):
         state = self._current_state
-        global PotGroAllRoots
         # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
         self._potential_leaf_growth(u)
         # If it is after first square, call self._potential_fruit_growth(u) to compute potential growth rate of squares and bolls.
@@ -3680,11 +3678,10 @@ cdef class Simulation:
         # Call PotentialRootGrowth() to compute potential growth rate on roots.
         cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
         sumpdr = state.potential_root_growth(3, state.soil.number_of_layers_with_root, self._sim.per_plant_area)
-        # Total potential growth rate of roots is converted from g per slab(sumpdr) to g per plant(PotGroAllRoots).
-        PotGroAllRoots = sumpdr * 100 * self._sim.per_plant_area / self.row_space
-        # Limit PotGroAllRoots to(maxrtgr * per_plant_area) g per plant per day.
+        # Total potential growth rate of roots is converted from g per slab(sumpdr) to g per plant(state.root_potential_growth).
+        # Limit state.root_potential_growth to(maxrtgr * per_plant_area) g per plant per day.
         cdef double maxrtgr = 0.045  # maximum possible potential root growth, g dm - 2 day - 1.
-        PotGroAllRoots = min(maxrtgr * self._sim.per_plant_area, PotGroAllRoots)
+        state.root_potential_growth = min(maxrtgr * self.per_plant_area, sumpdr * 100 * self.per_plant_area / self.row_space)
         # Call DryMatterBalance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress.DryMatterBalance() also computes and returns the values of the following arguments:
         # cdleaf is carbohydrate requirement for leaf growth, g per plant per day.
         # cdpet is carbohydrate requirement for petiole growth, g per plant per day.

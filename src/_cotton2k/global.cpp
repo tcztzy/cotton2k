@@ -96,7 +96,6 @@ double
     PotGroAllBurrs,                   // sum of potential growth rates of burrs in all bolls, g plant-1 day-1.
     PotGroAllLeaves,                  // sum of potential growth rates of all leaves, g plant-1 day-1.
     PotGroAllPetioles,                // sum of potential growth rates of all petioles, g plant-1 day-1.
-    PotGroAllRoots,                   // potential growth rate of roots, g plant-1 day-1
     PotGroAllSquares,                 // sum of potential growth rates of all squares, g plant-1 day-1.
     PotGroLeafAreaPreFru[9],          // potentially added area of a prefruiting node leaf, dm2 day-1.
     PotGroLeafWeightPreFru[9],        // potentially added weight of a prefruiting node leaf, g day-1.

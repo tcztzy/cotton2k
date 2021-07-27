@@ -39,7 +39,7 @@ extern double AverageLwp, AverageLwpMin, AverageSoilPsi,
     DepthLastRootLayer, dsand, ElCondSatSoilToday, GreenBollsLost,
     IrrigationDepth, LwpMax, LwpMin, MineralizedOrganicN, NightTimeTemp,
     PercentDefoliation, PlantRowLocation, PotGroAllBolls, PotGroAllBurrs,
-    PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares,
+    PotGroAllLeaves, PotGroAllPetioles, PotGroAllSquares,
     RatioImplicit, RootWeightLoss, SoilNitrogenLoss, SumNO3N90, TapRootLength;
 
 extern double AbscissionLag[20], airdr[9],
