@@ -68,7 +68,6 @@ cdef extern from "global.h":
     double PotGroAllSquares
     double PotGroAllBolls
     double PotGroAllBurrs
-    double PotGroAllPetioles
     double PotGroLeafAreaPreFru[9]
     double PotGroLeafWeightPreFru[9]
     double PotGroPetioleWeightPreFru[9]
