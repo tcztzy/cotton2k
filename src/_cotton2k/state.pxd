@@ -131,6 +131,7 @@ cdef class StateBase:
     cdef public double fiber_length
     cdef public double fiber_strength
     cdef public double hypocotyl_length  # length of hypocotyl, cm.
+    cdef public double leaf_potential_growth  # sum of potential growth rates of all leaves, g plant-1 day-1.
     cdef public double lint_yield  # yield of lint, kgs per hectare.
     cdef public double net_photosynthesis  # net photosynthetic rate, g per plant per day.
     cdef public double pavail  # residual available carbon for root growth from previous day.

@@ -94,7 +94,6 @@ double
     PoreSpace[maxl],                  // pore space of soil, volume fraction.
     PotGroAllBolls,                   // sum of potential growth rates of seedcotton in all bolls, g plant-1 day-1.
     PotGroAllBurrs,                   // sum of potential growth rates of burrs in all bolls, g plant-1 day-1.
-    PotGroAllLeaves,                  // sum of potential growth rates of all leaves, g plant-1 day-1.
     PotGroAllPetioles,                // sum of potential growth rates of all petioles, g plant-1 day-1.
     PotGroAllSquares,                 // sum of potential growth rates of all squares, g plant-1 day-1.
     PotGroLeafAreaPreFru[9],          // potentially added area of a prefruiting node leaf, dm2 day-1.
