@@ -24,7 +24,7 @@ cdef extern from "FruitingSite.h":
     ctypedef struct cBurr "Burr":
         double potential_growth
         double weight
-    ctypedef struct Petiole:
+    ctypedef struct cPetiole "Petiole":
         double potential_growth
         double weight
     ctypedef struct FruitingSite:
@@ -37,4 +37,4 @@ cdef extern from "FruitingSite.h":
         SquareStruct square
         cBoll boll
         cBurr burr
-        Petiole petiole
+        cPetiole petiole
