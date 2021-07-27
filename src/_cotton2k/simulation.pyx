@@ -61,7 +61,7 @@ from .cxx cimport (
     thts,
 )
 from .irrigation cimport Irrigation
-from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, AddPlantHeight, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth, wcond
+from .rs cimport SlabLoc, tdewest, dl, wk, daywnd, TemperatureOnFruitGrowthRate, VaporPressure, clearskyemiss, SoilNitrateOnRootGrowth, SoilAirOnRootGrowth, SoilMechanicResistance, SoilTemOnRootGrowth, wcond
 from .soil cimport cRoot
 from .state cimport cState, cVegetativeBranch, cFruitingBranch, cMainStemLeaf, StateBase
 from .fruiting_site cimport FruitingSite, Leaf, cBoll, cBurr, SquareStruct
@@ -374,6 +374,10 @@ cdef class Boll:
     def cumulative_temperature(self, value):
         self._[0].cumulative_temperature = value
 
+    @property
+    def potential_growth(self):
+        return self._[0].potential_growth
+
     @staticmethod
     cdef Boll from_ptr(cBoll *_ptr, unsigned int k, unsigned int l, unsigned int m):
         cdef Boll boll = Boll.__new__(Boll)
@@ -389,6 +393,10 @@ cdef class Burr:
     cdef unsigned int k
     cdef unsigned int l
     cdef unsigned int m
+
+    @property
+    def potential_growth(self):
+        return self._[0].potential_growth
 
     @property
     def weight(self):
@@ -421,6 +429,10 @@ cdef class Square:
     @weight.setter
     def weight(self, value):
         self._[0].weight = value
+
+    @property
+    def potential_growth(self):
+        return self._[0].potential_growth
 
     @staticmethod
     cdef Square from_ptr(SquareStruct *_ptr, unsigned int k, unsigned int l, unsigned int m):
@@ -904,6 +916,56 @@ cdef class State(StateBase):
             self.kday = 1
             return self.date
 
+    @staticmethod
+    def add_plant_height(
+        density_factor: float,
+        physiological_days_increment: float,
+        number_of_pre_fruiting_nodes: int,
+        second_fruiting_branch_stage: Stage,
+        age_of_last_pre_fruiting_node: float,
+        age_of_penultimate_pre_fruiting_node: float,
+        average_physiological_age_of_top_three_nodes: float,
+        water_stress_of_stem: float,
+        carbon_stress: float,
+        nitrogen_stress_of_vegetative: float,
+        var19: float,
+        var20: float,
+        var21: float,
+        var22: float,
+        var23: float,
+        var24: float,
+        var25: float,
+        var26: float,
+    ) -> float:
+        """This function simulates the growth in height of the main stem of cotton plants."""
+        # The following constant parameters are used:
+        vhtpar = [1.0, 0.27, 0.60, 0.20, 0.10, 0.26, 0.32]
+        addz = 0  # daily plant height growth increment, cm.
+        # Calculate vertical growth of main stem before the square on the second fruiting branch has appeared. Added stem height (addz) is a function of the age of the last prefruiting node.
+        if second_fruiting_branch_stage == Stage.NotYetFormed:
+            addz = vhtpar[0] - vhtpar[1] * age_of_last_pre_fruiting_node
+            addz = max(min(addz, vhtpar[2]), 0)
+            # It is assumed that the previous prefruiting node is also capable of growth, and its growth (dz2) is added to addz.
+            if number_of_pre_fruiting_nodes > 1:
+                # plant height growth increment due to growth of the second node from the top.
+                dz2 = var19 - var20 * age_of_penultimate_pre_fruiting_node
+                dz2 = min(max(dz2, 0), vhtpar[3])
+                addz += dz2
+            # The effect of water stress on stem height at this stage is less than at a later stage (as modified by vhtpar(4)).
+            addz *= 1. - vhtpar[4] * (1. - water_stress_of_stem)
+        else:
+            # Calculate vertical growth of main stem after the second square has appeared. Added stem height (addz) is a function of the average age of the upper three main stem nodes.
+            addz = var21 + average_physiological_age_of_top_three_nodes * (var22 + var23 * average_physiological_age_of_top_three_nodes)
+            if average_physiological_age_of_top_three_nodes > (-0.5 * var22 / var23):
+                addz = var24
+            addz = min(max(addz, var24), var25)
+            # addz is affected by water, carbohydrate and nitrogen stresses.
+            addz *= water_stress_of_stem
+            addz *= 1. - vhtpar[5] * (1. - carbon_stress)
+            addz *= 1. - vhtpar[6] * (1. - nitrogen_stress_of_vegetative)
+        # The effect of temperature is expressed by physiological_days_increment. there are also effects of plant density, and of a variety-specific calibration parameter (VarPar(26)).
+        return addz * var26 * physiological_days_increment * density_factor
+
     def pre_fruiting_node(self, stemNRatio, time_to_next_pre_fruiting_node, time_factor_for_first_two_pre_fruiting_nodes, time_factor_for_third_pre_fruiting_node, initial_pre_fruiting_nodes_leaf_area):
         """This function checks if a new prefruiting node is to be added, and then sets it."""
         # The following constant parameter is used:
@@ -1107,7 +1169,41 @@ cdef class State(StateBase):
                     self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.area += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * vratio
                     self.leaf_area += self._[0].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.area
 
-    def dry_matter_balance(self, per_plant_area) -> tuple[float, float, float, float, float]:
+    def actual_fruit_growth(self):
+        """This function simulates the actual growth of squares and bolls of cotton plants."""
+        # Assign zero to all the sums to be computed.
+        self.square_weight = 0
+        self.green_bolls_weight = 0
+        self.green_bolls_burr_weight = 0
+        self.actual_square_growth = 0
+        self.actual_boll_growth = 0
+        self.actual_burr_growth = 0
+        # Begin loops over all fruiting sites.
+        for vegetative_branch in self.vegetative_branches:
+            for fruiting_branch in vegetative_branch.fruiting_branches:
+                for site in fruiting_branch.nodes:
+                    # If this site is a square, the actual dry weight added to it (dwsq) is proportional to its potential growth.
+                    # Update the weight of this square (SquareWeight), sum of today's added dry weight to squares (state.actual_square_growth), and total weight of squares (self.square_weight).
+                    if site.stage == Stage.Square:
+                        dwsq = site.square.potential_growth * self.fruit_growth_ratio  # dry weight added to square.
+
+                        site.square.weight += dwsq
+                        self.actual_square_growth += dwsq
+                        self.square_weight += site.square.weight
+                    # If this site is a green boll, the actual dry weight added to seedcotton and burrs is proportional to their respective potential growth.
+                    if site.stage == Stage.GreenBoll or site.stage == Stage.YoungGreenBoll:
+                        # dry weight added to seedcotton in a boll.
+                        dwboll = site.boll.potential_growth * self.fruit_growth_ratio
+                        site.boll.weight += dwboll
+                        self.actual_boll_growth += dwboll
+                        self.green_bolls_weight += site.boll.weight
+                        # dry weight added to the burrs in a boll.
+                        dwburr = site.burr.potential_growth * self.fruit_growth_ratio
+                        site.burr.weight += dwburr
+                        self.actual_burr_growth += dwburr
+                        self.green_bolls_burr_weight += site.burr.weight
+
+    def dry_matter_balance(self, per_plant_area) -> float:
         """This function computes the cotton plant dry matter (carbon) balance, its allocation to growing plant parts, and carbon stress. It is called from PlantGrowth()."""
         # The following constant parameters are used:
         cdef double[15] vchbal = [6.0, 2.5, 1.0, 5.0, 0.20, 0.80, 0.48, 0.40, 0.2072, 0.60651, 0.0065, 1.10, 4.0, 0.25, 4.0]
@@ -1132,7 +1228,7 @@ cdef class State(StateBase):
         # Compute CarbonStress as the ratio of available to required carbohydrates.
         if cdsum <= 0:
             self.carbon_stress = 1
-            return cdstem, cdleaf, cdpet, cdroot, 0  # Exit function if cdsum is 0.
+            return 0  # Exit function if cdsum is 0.
         self.carbon_stress = min(1, cpool / cdsum)
         # When carbohydrate supply is sufficient for growth requirements, CarbonStress will be assigned 1, and the carbohydrates actually supplied for plant growth (total_actual_leaf_growth, total_actual_petiole_growth, actual_stem_growth, carbon_allocated_for_root_growth, pdboll, pdsq) will be equal to the required amounts.
         cdef double pdboll  # amount of carbohydrates allocated to boll growth.
@@ -1240,7 +1336,7 @@ cdef class State(StateBase):
             vratio = (self.total_actual_leaf_growth + self.total_actual_petiole_growth) / (PotGroAllLeaves + PotGroAllPetioles)
         else:
             vratio = 1
-        return cdstem, cdleaf, cdpet, cdroot, vratio
+        return vratio
 
     def create_first_square(self, stemNRatio, first_square_leaf_area):
         """
@@ -1772,7 +1868,7 @@ cdef class State(StateBase):
             if sdl > distlr and LateralRootFlag[l] == 1:
                 LateralRootFlag[l] = 2
 
-    def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, unsigned int day_emerge, unsigned int plant_row_column):
+    def compute_actual_root_growth(self, double sumpdr, double row_space, double per_plant_area, int NumRootAgeGroups, emerge_date, unsigned int plant_row_column):
         # The following constant parameters are used:
         # The index for the relative partitioning of root mass produced by new growth to class i.
         global RootWeightLoss
@@ -1780,7 +1876,7 @@ cdef class State(StateBase):
         cdef double rtminc = 0.0000001  # the threshold ratio of root mass capable of growth
         # to soil cell volume (g/cm3); when this threshold is reached, a part of root growth in this cell may be extended to adjoining cells.
         # Assign zero to pavail if this is the day of emergence.
-        if self.daynum <= day_emerge:
+        if self.date <= emerge_date:
             self.pavail = 0
         adwr1 = np.zeros((40, 20), dtype=np.float64)  # actual growth rate from roots existing in this soil cell.
         # Assign zero to the arrays of actual root growth rate.
@@ -2720,6 +2816,7 @@ cdef class Simulation:
     cdef public unsigned int version
     cdef public double max_leaf_area_index
     cdef public double ptsred  # The effect of moisture stress on the photosynthetic rate
+    cdef public double density_factor  # empirical plant density factor.
     cdef double DaysTo1stSqare   # number of days from emergence to 1st square
     cdef double defkgh  # amount of defoliant applied, kg per ha
     cdef double tdfkgh  # total cumulative amount of defoliant
@@ -3599,7 +3696,7 @@ cdef class Simulation:
                     PotGroAllLeaves += PotGroLeafWeightPreFru[j]
                     PotGroAllPetioles += PotGroPetioleWeightPreFru[j]
         # denfac is the effect of plant density on leaf growth rate.
-        cdef double denfac = 1 - vpotlf[12] * (1 - self._sim.density_factor)
+        cdef double denfac = 1 - vpotlf[12] * (1 - self.density_factor)
         for k in range(self._sim.states[u].number_of_vegetative_branches):
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 # smax and c are  functions of fruiting branch number.
@@ -3651,110 +3748,6 @@ cdef class Simulation:
                             self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth = self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * self._sim.states[u].leaf_weight_area_ratio * vpotlf[13]
                             PotGroAllLeaves += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].leaf.potential_growth * self._sim.states[u].leaf_weight_area_ratio
                             PotGroAllPetioles += self._sim.states[u].vegetative_branches[k].fruiting_branches[l].nodes[m].petiole.potential_growth
-
-    def _growth(self, u, new_stem_weight):
-        state = self._current_state
-        # Call self._potential_leaf_growth(u) to compute potential growth rate of leaves.
-        self._potential_leaf_growth(u)
-        # If it is after first square, call self._potential_fruit_growth(u) to compute potential growth rate of squares and bolls.
-        if (
-            len(state.vegetative_branches[0].fruiting_branches) > 0
-            and len(state.vegetative_branches[0].fruiting_branches[0].nodes) > 0
-            and state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed
-        ):
-            self._potential_fruit_growth(u)
-        # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of stems.
-        # The effect of temperature is introduced, by multiplying potential growth rate by DayInc.
-        # Stem growth is also affected by water stress(WaterStressStem).PotGroStem is limited by (maxstmgr * per_plant_area) g per plant per day.
-        cdef double maxstmgr = 0.067  # maximum posible potential stem growth, g dm - 2 day - 1.
-        state.stem_potential_growth = min(
-            maxstmgr * self._sim.per_plant_area,
-            state.potential_stem_growth(
-                new_stem_weight,
-                self._sim.density_factor,
-                *self.cultivar_parameters[12:19]
-            ) * state.day_inc * state.water_stress_stem
-        )
-        # Call PotentialRootGrowth() to compute potential growth rate on roots.
-        cdef double sumpdr  # total potential growth rate of roots in g per slab.this is computed in PotentialRootGrowth() and used in ActualRootGrowth().
-        sumpdr = state.potential_root_growth(3, state.soil.number_of_layers_with_root, self._sim.per_plant_area)
-        # Total potential growth rate of roots is converted from g per slab(sumpdr) to g per plant(state.root_potential_growth).
-        # Limit state.root_potential_growth to(maxrtgr * per_plant_area) g per plant per day.
-        cdef double maxrtgr = 0.045  # maximum possible potential root growth, g dm - 2 day - 1.
-        state.root_potential_growth = min(maxrtgr * self.per_plant_area, sumpdr * 100 * self.per_plant_area / self.row_space)
-        # Call DryMatterBalance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress.DryMatterBalance() also computes and returns the values of the following arguments:
-        # cdleaf is carbohydrate requirement for leaf growth, g per plant per day.
-        # cdpet is carbohydrate requirement for petiole growth, g per plant per day.
-        # cdroot is carbohydrate requirement for root growth, g per plant per day.
-        # cdstem is carbohydrate requirement for stem growth, g per plant per day.
-        cdstem, cdleaf, cdpet, cdroot, vratio = state.dry_matter_balance(self._sim.per_plant_area)
-        # If it is after first square, call ActualFruitGrowth() to compute actual
-        # growth rate of squares and bolls.
-        if (
-            len(state.vegetative_branches[0].fruiting_branches) > 0
-            and len(state.vegetative_branches[0].fruiting_branches[0].nodes) > 0
-            and state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage != Stage.NotYetFormed
-        ):
-            ActualFruitGrowth(self._sim.states[u])
-        # Initialize state.leaf_weight.It is assumed that cotyledons fall off at time of first square.Also initialize state.leaf_area and state.petiole_weight.
-        if self._sim.first_square > 0:
-            state.leaf_weight = 0
-            state.leaf_area = 0
-        else:
-            cotylwt = 0.20  # weight of cotyledons dry matter.
-            state.leaf_weight = cotylwt
-            state.leaf_area = 0.6 * cotylwt
-        state.petiole_weight = 0
-        # Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
-        state.actual_leaf_growth(vratio)
-        state.leaf_area_index = state.leaf_area / self._sim.per_plant_area
-        # Add actual_stem_growth to state.stem_weight.
-        state.stem_weight += state.actual_stem_growth
-        # Plant density affects growth in height of tall plants.
-        cdef double htdenf = 55  # minimum plant height for plant density affecting growth in height.
-        cdef double z1  # intermediate variable to compute denf2.
-        z1 = (state.plant_height - htdenf) / htdenf
-        if z1 < 0:
-            z1 = 0
-        if z1 > 1:
-            z1 = 1
-        cdef double denf2  # effect of plant density on plant growth in height.
-        denf2 = 1 + z1 * (self._sim.density_factor - 1)
-        # Call AddPlantHeight to compute PlantHeight.
-        cdef int l, l1, l2  # node numbers of top three nodes.
-        l = len(state.vegetative_branches[0].fruiting_branches) - 1
-        # average physiological age of top three nodes.
-        if l < 0:
-            agetop = 0
-        elif l == 0:
-            agetop = state.vegetative_branches[0].fruiting_branches[0].nodes[0].age
-        elif l == 1:
-            agetop = (state.vegetative_branches[0].fruiting_branches[0].nodes[0].age * 2 + state.vegetative_branches[0].fruiting_branches[1].nodes[0].age) / 3
-        else:
-            agetop = (
-                state.vegetative_branches[0].fruiting_branches[l].nodes[0].age +
-                state.vegetative_branches[0].fruiting_branches[l - 1].nodes[0].age +
-                state.vegetative_branches[0].fruiting_branches[l - 2].nodes[0].age
-            ) / 3
-        if self.version < 0x500 or self._sim.day_topping <= 0 or self._sim.states[u].daynum < self._sim.day_topping:
-            if len(state.vegetative_branches[0].fruiting_branches) >= 2:
-                stage = state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage
-            else:
-                stage = Stage.NotYetFormed
-            state.plant_height += AddPlantHeight(denf2, state.day_inc, state.number_of_pre_fruiting_nodes,
-                                                 stage,
-                                                 self._sim.states[u].age_of_pre_fruiting_nodes[
-                                                     self._sim.states[u].number_of_pre_fruiting_nodes - 1],
-                                                 self._sim.states[u].age_of_pre_fruiting_nodes[
-                                                     self._sim.states[u].number_of_pre_fruiting_nodes - 2], agetop,
-                                                 state.water_stress_stem, state.carbon_stress,
-                                                 state.nitrogen_stress_vegetative, self.cultivar_parameters[19],
-                                                 self.cultivar_parameters[20], self.cultivar_parameters[21],
-                                                 self.cultivar_parameters[22], self.cultivar_parameters[23],
-                                                 self.cultivar_parameters[24], self.cultivar_parameters[25],
-                                                 self.cultivar_parameters[26])
-        # Call ActualRootGrowth() to compute actual root growth.
-        state.compute_actual_root_growth(sumpdr, self.row_space, self._sim.per_plant_area, 3, self._sim.day_emerge, self._sim.plant_row_column)
 
     def _add_vegetative_branch(self, u, delayVegByCStress, stemNRatio, DaysTo1stSqare, PhenDelayByNStress):
         """
@@ -3850,18 +3843,18 @@ cdef class Simulation:
             self._add_vegetative_branch(u, delayVegByCStress, stemNRatio, self.DaysTo1stSqare, PhenDelayByNStress)
         # The maximum number of nodes per fruiting branch (nidmax) is affected by plant density. It is computed as a function of density_factor.
         cdef int nidmax  # maximum number of nodes per fruiting branch.
-        nidmax = <int>(vpheno[7] * self._sim.density_factor + 0.5)
+        nidmax = <int>(vpheno[7] * self.density_factor + 0.5)
         if nidmax > 5:
             nidmax = 5
         # Start loop over all existing vegetative branches.
         # Call AddFruitingBranch() to decide if a new node (and a new fruiting branch) is to be added on this stem.
         for k in range(self._sim.states[u].number_of_vegetative_branches):
             if self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches < 30:
-                state.add_fruiting_branch(k, self._sim.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
+                state.add_fruiting_branch(k, self.density_factor, delayVegByCStress, delayFrtByCStress, stemNRatio, PhenDelayByNStress, self.cultivar_parameters[35], self.cultivar_parameters[34], self.topping_date)
             # Loop over all existing fruiting branches, and call add_fruiting_node() to decide if a new node on this fruiting branch is to be added.
             for l in range(self._sim.states[u].vegetative_branches[k].number_of_fruiting_branches):
                 if self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes < nidmax:
-                    state.add_fruiting_node(k, l, delayFrtByCStress, stemNRatio, self._sim.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
+                    state.add_fruiting_node(k, l, delayFrtByCStress, stemNRatio, self.density_factor, self._sim.cultivar_parameters, PhenDelayByNStress)
                 # Loop over all existing fruiting nodes, and call simulate_fruiting_site() to simulate the condition of each fruiting node.
                 for m in range(self._sim.states[u].vegetative_branches[k].fruiting_branches[l].number_of_fruiting_nodes):
                     first_bloom = state.simulate_fruiting_site(k, l, m, self.defoliate_date, self.first_bloom_date, self._sim.climate[u].Tmin, self._sim.climate[u].Tmax, self._sim.plant_population, *self.cultivar_parameters[38:43])
@@ -4038,7 +4031,7 @@ cdef class Simulation:
         # NOTE: density_factor = 1 for 5 plants per sq m (or 50000 per ha).
         self._sim.plant_population = self.plants_per_meter / self.row_space * 1000000
         self._sim.per_plant_area = 1000000 / self._sim.plant_population
-        self._sim.density_factor = exp(self.cultivar_parameters[1] * (5 - self._sim.plant_population / 10000))
+        self.density_factor = exp(self.cultivar_parameters[1] * (5 - self._sim.plant_population / 10000))
         # Define the numbers of rows and columns in the soil slab (nl, nk).
         # Define the depth, in cm, of consecutive nl layers.
         # NOTE: maxl and maxk are defined as constants in file "global.h".

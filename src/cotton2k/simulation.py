@@ -1,5 +1,6 @@
 # pylint: disable=no-name-in-module
 import datetime
+from enum import IntEnum
 from functools import cached_property
 from typing import Any
 
@@ -9,7 +10,18 @@ from _cotton2k.simulation import State as CyState
 from cotton2k.photo import Photosynthesis
 
 
-class State(Photosynthesis):
+class Stage(IntEnum):
+    NotYetFormed = 0
+    Square = 1
+    GreenBoll = 2
+    MatureBoll = 3
+    AbscisedAsBoll = 4
+    AbscisedAsSquare = 5
+    AbscisedAsFlower = 6
+    YoungGreenBoll = 7
+
+
+class State(Photosynthesis):  # pylint: disable=too-many-instance-attributes
     _: CyState
 
     def __init__(self, state: CyState) -> None:
@@ -37,7 +49,7 @@ class State(Photosynthesis):
     def plant_weight(self):
         return (
             self.root_weight
-            + self.stem_weight
+            + self.stem_weight  # pylint: disable=no-member
             + self.green_bolls_weight
             + self.green_bolls_burr_weight
             + self.leaf_weight
@@ -47,6 +59,25 @@ class State(Photosynthesis):
             + self.open_bolls_burr_weight
             + self.reserve_carbohydrate
         )
+
+    @property
+    def agetop(self):
+        l = len(self.vegetative_branches[0].fruiting_branches) - 1
+        # average physiological age of top three nodes.
+        if l < 0:
+            return 0
+        if l == 0:
+            return self.vegetative_branches[0].fruiting_branches[0].nodes[0].age
+        if l == 1:
+            return (
+                self.vegetative_branches[0].fruiting_branches[0].nodes[0].age * 2
+                + self.vegetative_branches[0].fruiting_branches[1].nodes[0].age
+            ) / 3
+        return (
+            self.vegetative_branches[0].fruiting_branches[l].nodes[0].age
+            + self.vegetative_branches[0].fruiting_branches[l - 1].nodes[0].age
+            + self.vegetative_branches[0].fruiting_branches[l - 2].nodes[0].age
+        ) / 3
 
 
 def physiological_age(hours) -> float:
@@ -128,7 +159,7 @@ class Simulation(CySimulation):
             self._copy_state(i)
         self._simulate_this_day(days)
 
-    # pylint: disable=attribute-defined-outside-init
+    # pylint: disable=attribute-defined-outside-init,no-member
     def _simulate_this_day(self, u):
         state = State(self._current_state)
         if state.date >= self.emerge_date:
@@ -198,6 +229,120 @@ class Simulation(CySimulation):
         # remain on the plant.
         if state.kday > 10 and state.leaf_area_index < 0.0002:
             raise SimulationEnd
+
+    def _growth(self, u, new_stem_weight):
+        state = State(self._current_state)
+        # Call _potential_leaf_growth() to compute potential growth rate of leaves.
+        self._potential_leaf_growth(u)
+        # If it is after first square, call _potential_fruit_growth() to compute
+        # potential growth rate of squares and bolls.
+        if (
+            len(state.vegetative_branches[0].fruiting_branches) > 0
+            and len(state.vegetative_branches[0].fruiting_branches[0].nodes) > 0
+            and state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage
+            != Stage.NotYetFormed
+        ):
+            self._potential_fruit_growth(u)
+        # Call PotentialStemGrowth() to compute PotGroStem, potential growth rate of
+        # stems.
+        # The effect of temperature is introduced, by multiplying potential growth rate
+        # by day_inc.
+        # Stem growth is also affected by water stress(water_stress_stem).
+        # stem_potential_growth is limited by (maxstmgr * per_plant_area) g per plant
+        # per day.
+        maxstmgr = 0.067  # maximum posible potential stem growth, g dm - 2 day - 1.
+        state.stem_potential_growth = min(
+            maxstmgr * self.per_plant_area,
+            state.potential_stem_growth(
+                new_stem_weight, self.density_factor, *self.cultivar_parameters[12:19]
+            )
+            * state.day_inc
+            * state.water_stress_stem,
+        )
+        # Call PotentialRootGrowth() to compute potential growth rate on roots.
+        # total potential growth rate of roots in g per slab.this is computed in
+        # potential_root_growth() and used in actual_root_growth().
+        sumpdr = state.potential_root_growth(
+            3, state.soil.number_of_layers_with_root, self.per_plant_area
+        )
+        # Total potential growth rate of roots is converted from g per slab(sumpdr) to
+        # g per plant (state.root_potential_growth).
+        # Limit state.root_potential_growth to(maxrtgr * per_plant_area) g per plant
+        # per day.
+        maxrtgr = 0.045  # maximum possible potential root growth, g dm - 2 day - 1.
+        state.root_potential_growth = min(
+            maxrtgr * self.per_plant_area,
+            sumpdr * 100 * self.per_plant_area / self.row_space,
+        )
+        # Call dry_matter_balance() to compute carbon balance, allocation of carbon to
+        # plant parts, and carbon stress.
+        vratio = state.dry_matter_balance(self.per_plant_area)
+        # If it is after first square, call actual_fruit_growth() to compute actual
+        # growth rate of squares and bolls.
+        if (
+            len(state.vegetative_branches[0].fruiting_branches) > 0
+            and len(state.vegetative_branches[0].fruiting_branches[0].nodes) > 0
+            and state.vegetative_branches[0].fruiting_branches[0].nodes[0].stage
+            != Stage.NotYetFormed
+        ):
+            state.actual_fruit_growth()
+        # Initialize state.leaf_weight.It is assumed that cotyledons fall off at time
+        # of first square. Also initialize state.leaf_area and state.petiole_weight.
+        if self.first_square_date is not None:
+            state.leaf_weight = 0
+            state.leaf_area = 0
+        else:
+            cotylwt = 0.20  # weight of cotyledons dry matter.
+            state.leaf_weight = cotylwt
+            state.leaf_area = 0.6 * cotylwt
+        state.petiole_weight = 0
+        # Call actual_leaf_growth to compute actual growth rate of leaves and compute
+        # leaf area index.
+        state.actual_leaf_growth(vratio)
+        state.leaf_area_index = state.leaf_area / self.per_plant_area
+        # Add actual_stem_growth to state.stem_weight.
+        state.stem_weight += state.actual_stem_growth
+        # Plant density affects growth in height of tall plants.
+        htdenf = (
+            55  # minimum plant height for plant density affecting growth in height.
+        )
+        z1 = min(
+            max((state.plant_height - htdenf) / htdenf, 0),
+            1,
+        )  # intermediate variable to compute denf2.
+        denf2 = 1 + z1 * (
+            self.density_factor - 1
+        )  # effect of plant density on plant growth in height.
+        # Call add_plant_height to compute PlantHeight.
+        if self.version < 0x500 or not state.date >= self.topping_date:
+            # node numbers of top node.
+
+            if len(state.vegetative_branches[0].fruiting_branches) >= 2:
+                stage = state.vegetative_branches[0].fruiting_branches[1].nodes[0].stage
+            else:
+                stage = Stage.NotYetFormed
+            state.plant_height += state.add_plant_height(
+                denf2,
+                state.day_inc,
+                state.number_of_pre_fruiting_nodes,
+                stage,
+                state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 1],
+                state.age_of_pre_fruiting_nodes[state.number_of_pre_fruiting_nodes - 2],
+                state.agetop,
+                state.water_stress_stem,
+                state.carbon_stress,
+                state.nitrogen_stress_vegetative,
+                *self.cultivar_parameters[19:27]
+            )
+        # Call ActualRootGrowth() to compute actual root growth.
+        state.compute_actual_root_growth(
+            sumpdr,
+            self.row_space,
+            self.per_plant_area,
+            3,
+            self.emerge_date,
+            self.plant_row_column,
+        )
 
     @property
     def _column_width(self):

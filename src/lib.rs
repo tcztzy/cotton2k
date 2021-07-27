@@ -10,7 +10,6 @@ mod climate;
 mod fruit;
 mod root;
 mod soil;
-mod stem;
 mod util;
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));

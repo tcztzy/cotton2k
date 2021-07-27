@@ -17,7 +17,6 @@ cdef extern from "Simulation.hpp":
         double row_space
         double plant_population
         double per_plant_area
-        double density_factor
         unsigned int first_bloom
         unsigned int first_square
         unsigned int plant_row_column

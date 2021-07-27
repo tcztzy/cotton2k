@@ -64,11 +64,6 @@ cdef extern from "LeafAbscission.h":
     void MainStemLeafAbscission(cState &, int, int, double, unsigned int, unsigned int)
     void DefoliationLeafAbscission(cState &, unsigned int)
 
-cdef extern from "PlantGrowth.h":
-    void DryMatterBalance(cState &, double &, double &, double &, double &, double)
-    void ActualFruitGrowth(cState &)
-    void ActualLeafGrowth(cState &)
-
 cdef extern from "SoilNitrogen.h":
     void UreaHydrolysis(cSoilCell &, int, int)
     void MineralizeNitrogen(cSoilCell &, int, int, const int &, const int &, double)
