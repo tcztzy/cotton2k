@@ -641,12 +641,28 @@ cdef class Hour:
         return self._[0].cloud_cov
 
     @property
+    def dew_point(self):
+        return self._[0].dew_point
+
+    @dew_point.setter
+    def dew_point(self, value):
+        self._[0].dew_point = value
+
+    @property
     def humidity(self):
         return self._[0].humidity
+
+    @humidity.setter
+    def humidity(self, value):
+        self._[0].humidity = value
 
     @property
     def radiation(self):
         return self._[0].radiation
+
+    @radiation.setter
+    def radiation(self, value):
+        self._[0].radiation = value
 
     @property
     def temperature(self):
@@ -659,6 +675,10 @@ cdef class Hour:
     @property
     def wind_speed(self):
         return self._[0].wind_speed
+
+    @wind_speed.setter
+    def wind_speed(self, value):
+        self._[0].wind_speed = value
 
     @staticmethod
     cdef Hour from_ptr(cHour *_ptr):
@@ -3337,19 +3357,20 @@ cdef class Simulation:
         return self._sim.plant_row_column
 
     def _daily_climate(self, u):
+        state = self._current_state
         cdef double declination  # daily declination angle, in radians
         cdef double sunr  # time of sunrise, hours.
         cdef double suns  # time of sunset, hours.
         cdef double tmpisr  # extraterrestrial radiation, \frac{W}{m^2}
         hour = timedelta(hours=1)
-        result = compute_day_length((self.latitude, self.longitude), doy2date(self.year, self._sim.states[u].daynum))
+        result = compute_day_length((self.latitude, self.longitude), state.date)
         declination = result["declination"]
         zero = result["sunr"].replace(hour=0, minute=0, second=0, microsecond=0)
         sunr = (result["sunr"] - zero) / hour
         suns = (result["suns"] - zero) / hour
         tmpisr = result["tmpisr"]
-        self._sim.states[u].solar_noon = (result["solar_noon"] - zero) / hour
-        self._sim.states[u].day_length = result["day_length"] / hour
+        state.solar_noon = (result["solar_noon"] - zero) / hour
+        state.day_length = result["day_length"] / hour
 
         cdef double xlat = self.latitude * pi / 180  # latitude converted to radians.
         cdef double cd = cos(xlat) * cos(declination)  # amplitude of the sine of the solar height.
@@ -3370,7 +3391,7 @@ cdef class Simulation:
         cdef double rainToday
         rainToday = self._sim.climate[u].Rain  # the amount of rain today, mm
         # Set 'pollination switch' for rainy days (as in GOSSYM).
-        self._sim.states[u].pollination_switch = rainToday < 2.5
+        state.pollination_switch = rainToday < 2.5
         # Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
         # Note: this is modified from the original GOSSYM - RRUNOFF routine. It is called here for rainfall only, but it is not activated when irrigation is applied.
         cdef double runoffToday = 0  # amount of runoff today, mm
@@ -3384,29 +3405,24 @@ cdef class Simulation:
         self._sim.states[u].runoff = runoffToday
         # Parameters for the daily wind function are now computed:
         cdef double t1 = sunr + SitePar[1]  # the hour at which wind begins to blow (SitePar(1) hours after sunrise).
-        cdef double t2 = self._sim.states[u].solar_noon + SitePar[
+        cdef double t2 = state.solar_noon + SitePar[
             2]  # the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
         cdef double t3 = suns + SitePar[3]  # the hour at which wind stops to blow (SitePar(3) hours after sunset).
         cdef double wnytf = SitePar[4]  # used for estimating night time wind (from time t3 to time t1 next day).
 
         for ihr in range(24):
+            hour = state.hours[ihr]
             ti = ihr + 0.5
-            sinb = sd + cd * cos(pi * (ti - self._sim.states[u].solar_noon) / 12)
-            self._sim.states[u].hours[ihr].radiation = radiation(radsum, sinb, c11)
-            self._sim.states[u].hours[ihr].temperature = daytmp(self._sim, u, ti, SitePar[8], sunr,
-                                                                suns)
-            self._sim.states[u].hours[ihr].dew_point = tdewhour(self._sim, u, ti,
-                                                                self._sim.states[u].hours[ihr].temperature, sunr,
-                                                                self._sim.states[u].solar_noon, SitePar[8], SitePar[12],
-                                                                SitePar[13], SitePar[14])
-            self._sim.states[u].hours[ihr].humidity = dayrh(self._sim.states[u].hours[ihr].temperature,
-                                                            self._sim.states[u].hours[ihr].dew_point)
-            self._sim.states[u].hours[ihr].wind_speed = daywnd(ti, self._sim.climate[u].Wind, t1, t2, t3, wnytf)
+            sinb = sd + cd * cos(pi * (ti - state.solar_noon) / 12)
+            hour.radiation = radiation(radsum, sinb, c11)
+            hour.temperature = daytmp(self._sim, u, ti, SitePar[8], sunr, suns)
+            hour.dew_point = tdewhour(self._sim, u, ti, hour.temperature, sunr, state.solar_noon, SitePar[8], SitePar[12], SitePar[13], SitePar[14])
+            hour.humidity = dayrh(hour.temperature, hour.dew_point)
+            hour.wind_speed = daywnd(ti, self._sim.climate[u].Wind, t1, t2, t3, wnytf)
         # Compute average daily temperature, using function AverageAirTemperatures.
-        AverageAirTemperatures(self._sim.states[u].hours, self._sim.states[u].average_temperature, self._sim.states[u].daytime_temperature,
-                               NightTimeTemp)
+        AverageAirTemperatures(state._[0].hours, state._[0].average_temperature, state._[0].daytime_temperature, NightTimeTemp)
         # Compute potential evapotranspiration.
-        EvapoTranspiration(self._sim.states[u], self.latitude, self.elevation, declination, tmpisr, SitePar[7])
+        EvapoTranspiration(state._[0], self.latitude, self.elevation, declination, tmpisr, SitePar[7])
 
     def _stress(self, u):
         state = self._current_state

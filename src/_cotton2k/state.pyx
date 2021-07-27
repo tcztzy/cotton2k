@@ -64,6 +64,14 @@ cdef class StateBase:
         self._[0].kday = value
 
     @property
+    def solar_noon(self):
+        return self._[0].solar_noon
+
+    @solar_noon.setter
+    def solar_noon(self, value):
+        self._[0].solar_noon = value
+
+    @property
     def average_temperature(self):
         return self._[0].average_temperature
 
