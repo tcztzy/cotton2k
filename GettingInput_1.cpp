@@ -17,8 +17,8 @@
 #endif
 //
 // Definitions of File scope variables:
-   BOOL bLat,                // TRUE if latitude is south, FALSE if north
-        bLong;               // TRUE if longitude is west, FALSE if east 
+   bool bLat,                // true if latitude is south, false if north
+        bLong;               // true if longitude is west, false if east 
    int  nSiteNum,            // index number for site. 
         LastDayOfActualWeather,   // last day of actual weather. 
         nVarNum;             // index number for cultivar. 
@@ -70,15 +70,6 @@ void ReadProfileFile()
 //
 {
     CString strFileName = "PROFILES\\" + ProfileName + ".PRO"; // file name with path
-    CFile file;
-    CFileStatus status;
-    CString strMessage;
-//     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName, status))
-    {
-         std::cerr << strFileName << " cannot be open!" << std::endl;
-         return;
-    }
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
@@ -203,14 +194,14 @@ void ReadProfileFile()
 //  above sea level), and the index number for this geographic site.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.GetLength();
-	bLat = FALSE;
-	bLong = FALSE;
+	bLat = false;
+	bLong = false;
     if (nLength > 1)
 	{
           Latitude = atof(Dummy.Left(10));
 		  if (Latitude < 0)
 		  {
-			  bLat = TRUE;
+			  bLat = true;
 			  Latitude = -Latitude;
 		  }
 	}
@@ -219,7 +210,7 @@ void ReadProfileFile()
           Longitude = atof(Dummy.Mid(10,10));
 		  if (Longitude < 0)
 		  {
-			  bLong = TRUE;
+			  bLong = true;
 			  Longitude = -Longitude;
 		  }
 	}
@@ -311,7 +302,7 @@ void ReadProfileFile()
             CString msg = " planting date or emergence date must";
             msg += " be given in the profile file !!";
 			AfxMessageBox(msg);
-            bEnd = TRUE;
+            bEnd = true;
          }
 	  }
 //     If the date of emergence has been given in the input: isw = 1 if simulation
@@ -336,15 +327,6 @@ void ReadCalibrationData()
 {
 //     Open file of variety file list. 
     CString strFileName = "DATA\\VARS\\VARLIST.DAT";
-    CFile file;
-    CFileStatus status;
-    CString strMessage;
-//     If file does not exist, display message and and open a new file
-    if (!file.GetStatus(strFileName, status))
-    {
-         std::cerr << strFileName << " cannot be open!" << std::endl;
-         return;
-    }
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
@@ -386,12 +368,6 @@ void ReadCalibrationData()
     DataFile.close();
 //
     strFileName = "DATA\\VARS\\" + VarFile;
-//  If file does not exist, or can not be opened, display message
-    if (!file.GetStatus(strFileName, status))
-    {
-         std::cerr << strFileName << " cannot be open!" << std::endl;
-         return;
-    }
     ifstream DataFile1(strFileName, ios::in);
     if ( DataFile1.fail() )
     {
@@ -409,12 +385,6 @@ void ReadCalibrationData()
     DataFile1.close();
 //     Open file of site file list. 
     strFileName = "DATA\\SITE\\SITELIST.DAT";
-//     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName, status))
-    {
-         std::cerr << strFileName << " cannot be open!" << std::endl;
-         return;
-    }
     CString SiteFile;
     ifstream DataFile2(strFileName, ios::in);
     if ( DataFile2.fail() )
@@ -457,12 +427,6 @@ void ReadCalibrationData()
     DataFile2.close();
 //
     strFileName = "DATA\\SITE\\" + SiteFile;
-//     If file does not exist, or can not be opened, display message 
-    if (!file.GetStatus(strFileName, status))
-    {
-         std::cerr << strFileName << " cannot be open!" << std::endl;
-         return;
-    }
     ifstream DataFile3(strFileName, ios::in);
     if ( DataFile3.fail() )
     {

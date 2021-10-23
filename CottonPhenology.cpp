@@ -635,7 +635,7 @@ void NewBollFormation(int k, int l, int m)
 //     The following constant parameters are used:
       const double seedratio = 0.64; // ratio of seeds in seedcotton weight.
       const double vnewboll[2] = { 0.31, 0.02 };
-//     If bPollinSwitch is FALSE accumulate number of blooms to be dropped,
+//     If bPollinSwitch is false accumulate number of blooms to be dropped,
 //  and define FruitingCode as 6.
       if (! bPollinSwitch ) 
 	  {

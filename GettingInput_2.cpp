@@ -46,15 +46,6 @@ void ReadSoilImpedance()
 //
 {
        CString strFileName = "DATA\\SOILIMPD.DAT";
-       CFile file;
-       CFileStatus status;
-	   CString strMessage;
-//  If file does not exist, or can not be opened, display message.
-       if (!file.GetStatus(strFileName, status))
-	   {
-          std::cerr << strFileName << " cannot be open!" << std::endl;
-		  return;
-	   }
 	   ifstream DataFile(strFileName, ios::in);
        if ( DataFile.fail() )
 	   {

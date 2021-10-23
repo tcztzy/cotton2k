@@ -23,22 +23,12 @@ int OpenClimateFile()
 //  Return value: LastDayOfActualWeather.
 //
 {
-    CFile file;
-    CFileStatus status;
-    CString strMessage;
     int LastDayOfPredictedWeather = 0;    // last DOY of predicted weather data
 	int LastDayOfActualWeather = 0;       // last DOY of actual weather data
 //     Open file of predicted weather data.
     if (PrdWthFileName.GetLength() > 0)
 	{
        CString strFileName = "CLIMATE\\" + PrdWthFileName;
-//     If file does not exist, display message.
-       if (!file.GetStatus(strFileName, status))
-	   {
-          std::cerr << strFileName << " cannot be open!" << std::endl;
-	   }
-       else
-	   {
 	      ifstream DataFile(strFileName, ios::in);
           if ( DataFile.fail() )
 		  {
@@ -50,19 +40,11 @@ int OpenClimateFile()
              LastDayOfPredictedWeather = ReadClimateData(DataFile);
              DataFile.close();
 		  }
-	   }
 	}
 //     Open file of actual weather data.
     if (ActWthFileName.GetLength() > 0)
 	{
        CString strFileName = "CLIMATE\\" + ActWthFileName;
-//     If file does not exist, display message.
-       if (!file.GetStatus(strFileName, status))
-	   {
-          std::cerr << strFileName << " cannot be open!" << std::endl;
-       }
-	   else
-	   {
           ifstream DataFile1(strFileName, ios::in);
           if ( DataFile1.fail() )
 		  {
@@ -74,7 +56,6 @@ int OpenClimateFile()
              LastDayOfActualWeather = ReadClimateData(DataFile1);
              DataFile1.close();
 		  }
-	   }
 	}
 //     Define the last day of weather data
 	LastDayWeatherData = LastDayOfActualWeather;

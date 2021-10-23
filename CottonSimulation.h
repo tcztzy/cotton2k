@@ -61,7 +61,7 @@ using namespace std;
     void   DripFlow(double WaterApplied);       
 	void   DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet, double &cdroot);
 // E
-    void   EnergyBalance (int ihr, int k, BOOL bMulchon, double ess, double etp1);
+    void   EnergyBalance (int ihr, int k, bool bMulchon, double ess, double etp1);
     void   EvapoTranspiration(int jtout);
     void   ExtraNitrogenAllocation();
 // F
@@ -165,7 +165,7 @@ using namespace std;
     void   SoilHeatFlux( double dlt, int iv, int nn, int layer, int n0 );
     void   SoilInit();
     double SoilMechanicResistance(int l, int k);
-    BOOL   SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, double sf, 
+    bool   SoilMulchBalance (int ihr, int k, double rlzero, double rsm, double rss, double sf, 
 	       double &so, double &so2, double &so3, double thet, double &tm, double tv, double wndcanp);
     double SoilNitrateOnRootGrowth(double vno3lk);
     void   SoilNitrogen();       
@@ -203,4 +203,4 @@ using namespace std;
     double SoilWaterEffect (int l, int k, double xx);
     void   WriteInitialInputData();
 	void   WriteLine22(ofstream &File22, double i00, double i01, double i02);
-    void   WriteStateVariables(BOOL bAdjusting);
+    void   WriteStateVariables(bool bAdjusting);

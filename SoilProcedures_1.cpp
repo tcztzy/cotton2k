@@ -425,21 +425,21 @@ void PredictDripIrrigation(double TargetStress)
 //     The argument used is TargetStress.
 //  
 {
-      static BOOL irr1st; // switch is set to TRUE after first drip irrigation
+      static bool irr1st; // switch is set to true after first drip irrigation
 	  if ( Daynum <= DayStartPredIrrig ) 
-	       irr1st = FALSE;  // set to FALSE on first day of irrigation prediction
+	       irr1st = false;  // set to false on first day of irrigation prediction
 //
       static double RequiredWater; // the amount of water (mm) required for this or next irrigation
 //     The amount of the first drip irrigation is set as 30 mm, or MaxIrrigation
       if ( !irr1st )
       {
 //     Check if there is an irrigation defined by input, or rain, on this day. 
-         BOOL bIsIrr = FALSE;
+         bool bIsIrr = false;
          for (int j = 0; j < NumIrrigations; j++)
          {
              if (Irrig[j].day == Daynum || GetFromClim("rain", Daynum) > 1)
              {
-                 bIsIrr = TRUE; // there is an irrigation today
+                 bIsIrr = true; // there is an irrigation today
                  break;
              }
          }
@@ -449,7 +449,7 @@ void PredictDripIrrigation(double TargetStress)
 	     {
 //     The first predicted drip irrigation is applied
                     AppliedWater = min(30, MaxIrrigation);
-                    irr1st = TRUE;
+                    irr1st = true;
                     RequiredWater = 0;
          }
          return;

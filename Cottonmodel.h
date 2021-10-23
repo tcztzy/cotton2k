@@ -21,8 +21,8 @@ public:
     void RunTheModel();
 	void DailySimulation();
 	void SimulateThisDay();
-    BOOL DoAdjustments();
-	virtual BOOL InitInstance(std::string);
+    bool DoAdjustments();
+	virtual bool InitInstance(std::string);
 
     CStringArray ProfileArray;  // array of the profile names
 };

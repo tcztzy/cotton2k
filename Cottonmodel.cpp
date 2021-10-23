@@ -29,7 +29,7 @@ C2KApp::C2KApp()
 {
 }
 /////////////////////////////////////////////////////////////////////////////
-BOOL C2KApp::InitInstance(std::string JobFileName)
+bool C2KApp::InitInstance(std::string JobFileName)
 //     InitInstance() starts the application. it calls the functions:
 //  GetProfilesList() and RunTheModel().
 //     Global variables set:  FrameTitle
@@ -50,7 +50,7 @@ BOOL C2KApp::InitInstance(std::string JobFileName)
 	GetProfilesList(JobFileName.c_str());
 //     Now run the model.
     RunTheModel();
-	return TRUE;
+	return true;
 }
 /////////////////////////////////////////////////////////////////////////
 void C2KApp::GetProfilesList(CString JobFileName)
@@ -59,14 +59,6 @@ void C2KApp::GetProfilesList(CString JobFileName)
 //     Input argument: name of the JOB file (with path)
 //    
 {
-//     Check if the file exists
-    CFile file;
-    CFileStatus status;
-    if (!file.GetStatus(JobFileName, status))
-    {
-        std::cerr << JobFileName << " cannot be open!" << std::endl;
-		return;
-    }
 //     Open the selected Job file for input.
     ifstream DataFile(JobFileName, ios::in);
     if ( DataFile.fail() )
@@ -131,23 +123,23 @@ void C2KApp::DailySimulation()
 //
 {
       Daynum = DayStart - 1;
-	  bEnd = FALSE;
+	  bEnd = false;
 //     Start the daily loop. If variable bEnd has been assigned a value
-//  of TRUE end simulation.
+//  of true end simulation.
 	  while (! bEnd)
 	  {
-         BOOL bAdjustToDo = DoAdjustments();
+         bool bAdjustToDo = DoAdjustments();
          std::cout << "\rProcess (" << Daynum - DayStart + 2 << "/" << DayFinish - DayStart + 1 << ")" << std::flush;
 //     Execute simulation for this day.
          SimulateThisDay();
 //     If there are pending plant adjustments, call WriteStateVariables() to write
 //  state variables of this day in a scratch file.
          if (bAdjustToDo)
-		        WriteStateVariables(TRUE);  
+		        WriteStateVariables(true);  
 	  } // end while
 }
 ///////////////////////////////////////////////////////////////////////////////
-BOOL C2KApp::DoAdjustments()
+bool C2KApp::DoAdjustments()
 //     This function is called from DailySimulation(). It checks if plant adjustment data
 //  are available for this day and calls the necessary functions to compute adjustment.
 //  It calls PlantAdjustments(), SimulateThisDay(), WriteStateVariables()
@@ -162,7 +154,7 @@ BOOL C2KApp::DoAdjustments()
       for (int i = 0; i < 30; i++)
           sumsad += MapDataDate[i];
       if (sumsad <= 0)
-          return FALSE;
+          return false;
 //     Loop for all adjustment data, and check if there is an adjustment for this day.
       for (int i = 0; i < 30; i++)
       {
@@ -174,7 +166,7 @@ BOOL C2KApp::DoAdjustments()
             if (NumAdjustDays > 12)
 				NumAdjustDays = 12;
 //     Loop for six possible adjustments. On each iteration call first PlantAdjustments(), which 
-//  will assign TRUE to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
+//  will assign true to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
             for (int jj = 0; jj < 5; jj++)
             {
                 PlantAdjustments(i, jj);
@@ -185,7 +177,7 @@ BOOL C2KApp::DoAdjustments()
                    {
                        SimulateThisDay();
                        if (Kday > 0) 
-                           WriteStateVariables(TRUE); 
+                           WriteStateVariables(true); 
                    }     // end for j1, and if nadj 
             }            // end for jj
 //     After finishing this adjustment date, set kprevadj (date of previous adjustment, to 
@@ -193,11 +185,11 @@ BOOL C2KApp::DoAdjustments()
             kprevadj = MapDataDate[i] - DayEmerge + 1;
             MapDataDate[i] = 0;
             for(int jj = 0; jj < 5; jj++)
-                 nadj[jj] = FALSE;
+                 nadj[jj] = false;
             continue;
          }// end if Daynum
       }// end do i
-      return TRUE;
+      return true;
 }
 //////////////////////////////////////////////////
 void C2KApp::SimulateThisDay()
@@ -262,11 +254,11 @@ void C2KApp::SimulateThisDay()
       DailyOutput();
 //     Check if the date to stop simulation has been reached, or if this is the last day
 //  with available weather data. Simulation will also stop when no leaves remain on the plant.
-//  bEnd = TRUE  indicates stopping this simulation.
+//  bEnd = true  indicates stopping this simulation.
 //
       if ( Daynum >= DayFinish || Daynum >= LastDayWeatherData 
            || (Kday > 10 && LeafAreaIndex < 0.0002) )
-		  bEnd = TRUE;
+		  bEnd = true;
 }
 
 int main(int argc, char **argv) {
