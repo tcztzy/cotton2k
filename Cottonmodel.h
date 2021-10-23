@@ -8,27 +8,21 @@
 	#error include 'stdafx.h' before including this file for PCH
 #endif
 
+#include <string>
 #include "stdafx.h"
-#include "resource.h"       // main symbols
-#include "dialogs.h"       // main symbols
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:
 //
-class C2KApp : public CWinApp
+class C2KApp
 {
 public:
 	C2KApp();
-    CString GetJobFile();
     void GetProfilesList(CString JobFileName);
     void RunTheModel();
 	void DailySimulation();
 	void SimulateThisDay();
     BOOL DoAdjustments();
-	virtual BOOL InitInstance();
-	virtual int ExitInstance();
-	afx_msg void OnAppAbout();
-	DECLARE_MESSAGE_MAP()
+	virtual BOOL InitInstance(std::string);
 
-    CProgCtrlDlg* pdlg;         // pointer to the progress control dialog
     CStringArray ProfileArray;  // array of the profile names
 };

@@ -51,9 +51,6 @@
     <ClCompile Include="LeafAbscission.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainFrm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PlantAdjustment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -128,9 +125,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MainFrm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">

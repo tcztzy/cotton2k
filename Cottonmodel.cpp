@@ -6,18 +6,15 @@
 //    Message map and constructor
 //    InitInstance()
 //    ExitInstance()
-//    GetJobFile()
 //    GetProfilesList()
 //    RunTheModel()
 //    DailySimulation()
 //    DoAdjustments()
 //    SimulateThisDay()
-//    OnAppAbout()
-//       Class CAoutDlg
 //    
+#include <iostream>
 #include "stdafx.h"
 #include "Cottonmodel.h"
-#include "MainFrm.h"
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 //
@@ -27,40 +24,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 //    Class C2KApp
 ///////////////////////////////////////////////////////////////////////////////
-BEGIN_MESSAGE_MAP(C2KApp, CWinApp)
-	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-	ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
-END_MESSAGE_MAP()
-/////////////////////////////////////////////////////////////////////////////
 // C2KApp construction
 C2KApp::C2KApp()
 {
 }
-C2KApp theApp;
 /////////////////////////////////////////////////////////////////////////////
-BOOL C2KApp::InitInstance()
+BOOL C2KApp::InitInstance(std::string JobFileName)
 //     InitInstance() starts the application. it calls the functions:
-//  GetJobFile(), GetProfilesList() and RunTheModel().
+//  GetProfilesList() and RunTheModel().
 //     Global variables set:  FrameTitle
 //
 {
-	AfxEnableControlContainer();
-	SetRegistryKey(_T("CottonModel"));
-//
-    _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-//     Parse command line for standard shell commands.
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
-    CString JobFileName;     // Name of the Job file (with full directory).
-//     The name of the "Job" file is usually taken from the command line.
-    JobFileName = cmdInfo.m_strFileName; 
-//     If the "Job" file is not defined in the command line, call GetJobFile().
-	if (JobFileName.GetLength() == 0)
-        JobFileName = GetJobFile();
 //     Build and set title of the main frame.
     FrameTitle = "";
     CString Slash = "\\";
-    int nLen = JobFileName.GetLength();
+    int nLen = JobFileName.length();
 //
     for (int i = nLen-1; i >= 0; i--)
     {
@@ -68,59 +46,11 @@ BOOL C2KApp::InitInstance()
             break;
         FrameTitle = JobFileName[i] + FrameTitle;
     }
-//
-    CFrameWnd* pFrame = new CMainFrame;
-	m_pMainWnd = pFrame;
-	if (!pFrame->LoadFrame(IDR_MAINFRAME))
-		return FALSE;
-//     The main window has been initialized, so show and update it.
-	pFrame->ShowWindow(m_nCmdShow);
-	pFrame->UpdateWindow();
 //     Get the list of the "Profiles" to run.
-	GetProfilesList(JobFileName);
+	GetProfilesList(JobFileName.c_str());
 //     Now run the model.
     RunTheModel();
 	return TRUE;
-}
-/////////////////////////////////////////////////////////////////////////////
-int C2KApp::ExitInstance() 
-{
-	return CWinApp::ExitInstance();
-}
-/////////////////////////////////////////////////////////////////////////
-CString C2KApp::GetJobFile()
-//     Function GetJobFile() is called from InitInstance() when the name of the Job file 
-//  has not been obtained from parsing the command line. It enables the user to input
-//  this name by a standard "open file" dialog.
-//     It Checks the file extension and returns the name of the Job file (with 
-//  full directory path).
-//
-{
-//     Activate the extended "open file" dialog for windows
-    COpenDlg dlg(TRUE);
-    if (dlg.DoModal() != IDOK)
-		return "No File found";
-//     Get file name with path
-    CString strFileName = dlg.GetPathName();
-    CString Exten = _T(".JOB");
-//     Check file extension and define Job name
-    if (strFileName.Right(4) == Exten)  
-        return strFileName;
-    else
-    {
-        int strlen = strFileName.GetLength();
-        int newlen = strlen;
-        for ( int ii = 4; ii > 0 ; ii-- )
-        {
-            char Dummy = strFileName[strlen - ii];
-            if (Dummy == '.')
-            {
-                newlen = strlen - ii;
-                return strFileName.Left(newlen) + Exten;
-            }
-        }
-        return strFileName.Left(newlen) + Exten;
-    }
 }
 /////////////////////////////////////////////////////////////////////////
 void C2KApp::GetProfilesList(CString JobFileName)
@@ -134,9 +64,7 @@ void C2KApp::GetProfilesList(CString JobFileName)
     CFileStatus status;
     if (!file.GetStatus(JobFileName, status))
     {
-        CString strMessage;
-        AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, JobFileName);
-        AfxMessageBox(strMessage);
+        std::cerr << JobFileName << " cannot be open!" << std::endl;
 		return;
     }
 //     Open the selected Job file for input.
@@ -145,9 +73,7 @@ void C2KApp::GetProfilesList(CString JobFileName)
     {
 //     When the file can not be opened:
        DataFile.close();
-       CString strMessage;
-       AfxFormatString1(strMessage, IDS_FILE_NOT_OPENED, JobFileName);
-       AfxMessageBox(strMessage);
+       std::cerr << JobFileName << " cannot be open!" << std::endl;
        return;
 	}
 	char m_TempString[100];
@@ -185,23 +111,13 @@ void C2KApp::RunTheModel()
 		ProfileName = ProfileArray.GetAt(i);
 //     Read the input data for this simulation
         ReadInput();
-//     Create a modeless dialog with progress control
-        int range = DayFinish - DayStart + 1;
-        pdlg = new CProgCtrlDlg;
-        pdlg->m_uiRangeTo = range;
-        pdlg->m_ProfileName = ProfileName;
-        pdlg->m_Running = "Running the Simulation";
-        pdlg->Create();
 //     Do daily simulations
         DailySimulation();
 //     Write output data
-        pdlg->m_Running = "Writing Output Files";
         DataOutput();
-        pdlg->EndDialog(i);
-        delete pdlg;  //  check if needed
     }
 //     End of simulation of all profiles
-    AfxMessageBox(" Simulation Ended. \n\n To Exit - close the Job window. " );
+       std::cout << " Simulation Ended." << std::endl;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void C2KApp::DailySimulation()
@@ -221,7 +137,7 @@ void C2KApp::DailySimulation()
 	  while (! bEnd)
 	  {
          BOOL bAdjustToDo = DoAdjustments();
-         pdlg->ProgressStepit();
+         std::cout << "\rProcess (" << Daynum - DayStart + 2 << "/" << DayFinish - DayStart + 1 << ")" << std::flush;
 //     Execute simulation for this day.
          SimulateThisDay();
 //     If there are pending plant adjustments, call WriteStateVariables() to write
@@ -352,35 +268,14 @@ void C2KApp::SimulateThisDay()
            || (Kday > 10 && LeafAreaIndex < 0.0002) )
 		  bEnd = TRUE;
 }
-/////////////////////////////////////////////////////////////////////////////
-// CAboutDlg dialog used for App About
 
-class CAboutDlg : public CDialog
-{
-public:
-	CAboutDlg();
-
-	enum { IDD = IDD_ABOUTBOX };
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
-{
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-END_MESSAGE_MAP()
-/////////////////////////////////////////////////////////////////////////////
-//
-void C2KApp::OnAppAbout()
-{
-	CAboutDlg aboutDlg;
-	aboutDlg.DoModal();
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        std::cerr << "Job file path should be provided!" << std::endl;
+        return 1;
+    }
+    std::string job_filename = argv[1];
+    C2KApp app;
+    app.InitInstance(job_filename);
+    return 0;
 }

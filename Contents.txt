@@ -15,14 +15,9 @@ Genaral Framework:
           DailySimulation()
           DoAdjustments()
           SimulateThisDay()
-          OnAppAbout()
-       Class CAoutDlg
 
     File CottonModel.rc 
        Resource script for menu, dialogs, etc.
-       
-    File MainFrm.cpp
-       Class CMainFrame 
        
     File Dialogs.cpp 
        Class InputDatesDlg
@@ -56,8 +51,6 @@ Genaral Framework:
           PlantAdjustments()
           GoBack()
 
-    File stdafx.cpp
-    
     Header files:
           CottonModel.h   
           CottonSimulation.h   
