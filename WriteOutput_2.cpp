@@ -7,7 +7,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 //
 #ifdef _DEBUG
 #define new DEBUG_NEW

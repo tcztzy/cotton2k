@@ -16,14 +16,6 @@ Genaral Framework:
           DoAdjustments()
           SimulateThisDay()
 
-    File CottonModel.rc 
-       Resource script for menu, dialogs, etc.
-       
-    File Dialogs.cpp 
-       Class InputDatesDlg
-       Class COpenDlg
-       Class CProgCtrlDlg
-       
     File GeneralFunctions.cpp (functions which are used in several places in the model)
        String handling -
           GetLineData()
@@ -54,11 +46,9 @@ Genaral Framework:
     Header files:
           CottonModel.h   
           CottonSimulation.h   
-          Dialogs.h   
           GeneralFunctions.h   
           Global.h   
           MainFrame.h   
-          Resource.h   
           StdAfx.h   
 
 ===========================================================================================       

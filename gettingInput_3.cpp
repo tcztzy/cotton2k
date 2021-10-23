@@ -7,9 +7,9 @@
 // SlabLoc()
 // ReadPlantMapInput()
 //
+#include <iostream>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 //
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -35,15 +35,14 @@ int OpenClimateFile()
 //     If file does not exist, display message.
        if (!file.GetStatus(strFileName, status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-          AfxMessageBox(strMessage);
+          std::cerr << strFileName << " cannot be open!" << std::endl;
 	   }
        else
 	   {
 	      ifstream DataFile(strFileName, ios::in);
           if ( DataFile.fail() )
 		  {
-             AfxMessageBox("Error opening " + strFileName + ".");
+             std::cerr << "Error opening " + strFileName + "." << std::endl;
              DataFile.close();
 		  }
           else
@@ -60,15 +59,14 @@ int OpenClimateFile()
 //     If file does not exist, display message.
        if (!file.GetStatus(strFileName, status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-          AfxMessageBox(strMessage);
+          std::cerr << strFileName << " cannot be open!" << std::endl;
        }
 	   else
 	   {
           ifstream DataFile1(strFileName, ios::in);
           if ( DataFile1.fail() )
 		  {
-             AfxMessageBox("Error opening " + strFileName + ".");
+             std::cerr << "Error opening " + strFileName + "." << std::endl;
              DataFile1.close();
 		  }
 		  else

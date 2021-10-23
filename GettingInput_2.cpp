@@ -8,9 +8,9 @@
 // InitializeSoilTemperature()
 // form()
 //
+#include <iostream>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 //
 #include <math.h>
 #ifdef _DEBUG
@@ -52,14 +52,13 @@ void ReadSoilImpedance()
 //  If file does not exist, or can not be opened, display message.
        if (!file.GetStatus(strFileName, status))
 	   {
-          AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-          AfxMessageBox(strMessage);
+          std::cerr << strFileName << " cannot be open!" << std::endl;
 		  return;
 	   }
 	   ifstream DataFile(strFileName, ios::in);
        if ( DataFile.fail() )
 	   {
-            AfxMessageBox("Error opening " + strFileName + ".");
+            std::cerr << "Error opening " + strFileName + "." << std::endl;
             DataFile.close();
 	   }
 //     Read data from file

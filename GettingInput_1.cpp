@@ -7,9 +7,9 @@
 // InitializeGrid()
 // WriteInitialInputData()
 //
+#include <iostream>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
 #include <math.h>
 
 #ifdef _DEBUG
@@ -76,14 +76,13 @@ void ReadProfileFile()
 //     If file does not exist, or can not be opened, display message 
     if (!file.GetStatus(strFileName, status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-         AfxMessageBox(strMessage);
+         std::cerr << strFileName << " cannot be open!" << std::endl;
          return;
     }
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          std::cerr << "Error opening " + strFileName + "." << std::endl;
           DataFile.close();
           return;
     }
@@ -343,8 +342,7 @@ void ReadCalibrationData()
 //     If file does not exist, display message and and open a new file
     if (!file.GetStatus(strFileName, status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-         AfxMessageBox(strMessage);
+         std::cerr << strFileName << " cannot be open!" << std::endl;
          return;
     }
     ifstream DataFile(strFileName, ios::in);
@@ -391,8 +389,7 @@ void ReadCalibrationData()
 //  If file does not exist, or can not be opened, display message
     if (!file.GetStatus(strFileName, status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-         AfxMessageBox(strMessage);
+         std::cerr << strFileName << " cannot be open!" << std::endl;
          return;
     }
     ifstream DataFile1(strFileName, ios::in);
@@ -415,15 +412,14 @@ void ReadCalibrationData()
 //     If file does not exist, or can not be opened, display message 
     if (!file.GetStatus(strFileName, status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-         AfxMessageBox(strMessage);
+         std::cerr << strFileName << " cannot be open!" << std::endl;
          return;
     }
     CString SiteFile;
     ifstream DataFile2(strFileName, ios::in);
     if ( DataFile2.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          std::cerr << "Error opening " + strFileName + "." << std::endl;
           DataFile.close();
           return;
     }
@@ -464,14 +460,13 @@ void ReadCalibrationData()
 //     If file does not exist, or can not be opened, display message 
     if (!file.GetStatus(strFileName, status))
     {
-         AfxFormatString1(strMessage, IDS_FILE_NOT_EXISTS, strFileName);
-         AfxMessageBox(strMessage);
+         std::cerr << strFileName << " cannot be open!" << std::endl;
          return;
     }
     ifstream DataFile3(strFileName, ios::in);
     if ( DataFile3.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          std::cerr << "Error opening " + strFileName + "." << std::endl;
           DataFile3.close();
           return;
     }

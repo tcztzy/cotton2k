@@ -6,8 +6,6 @@
 //
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-#include "resource.h"
-#include "dialogs.h"
 #include <math.h>
 //
 #ifdef _DEBUG
@@ -493,29 +491,10 @@ void SoilTemperatureInit(int &jt1, int &jt2)
 //     The following global variables are set here:
 //  DeepSoilTemperature, SoilTemp.
 {
-//     If there is an output flag for soil temperatures, a dialog pops up for defining 
+//     If there is an output flag for soil temperatures, an error message pops up for defining 
 //  the start and stop dates for this output. 
       jt1 = 0;
       jt2 = 0;
-      if ( OutIndex[16] > 0 ) 
-	  {
-		  InputDatesDlg dlg;
-          dlg.m_StartDate = DayStart;
-          dlg.m_EndDate = DayFinish;
-		  dlg.m_OutputType = "Hourly values of Computed Soil temperature";
-          dlg.DoModal();
-		  jt1 = dlg.m_StartDate;
-		  jt2 = dlg.m_EndDate;
-//     File *.TMS is used for checking the soil temperature routines. Write header of output:
-          ofstream File19("Output\\" + ProfileName + ".TMS", ios::out);
-		  File19 << " Day of Year hour ----------------  TS FOR ALL LAYERS  -------------------" << endl;
-		  File19 << "                  1      2       3       4       5       6       7       8" << endl;
-		  File19 << "                  9     10      11      12      13      14      15      16" << endl;
-		  File19 << "                 17     18      19      20      21      22      23      24" << endl;
-		  File19 << "                 25     26      27      28      29      30      31      32" << endl;
-		  File19 << "                 33     34      35      36      37      38      39      40" << endl;
-		  File19 << endl;
-	  }
 //     Compute initial values of soil temperature: It is assumed that at the start of simulation 
 //  the temperature of the first soil layer (upper boundary) is equal to the average air temperature
 //  of the previous five days (if climate data not available - start from first climate data).
