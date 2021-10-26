@@ -10,6 +10,7 @@
 // output7()
 // OutputForSoilMaps()
 //
+#include <string>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 //
@@ -577,7 +578,7 @@ void OutputForSoilMaps(int irec, int igo, int nday)
 //       nDay - day of year for these data.
 {
 //     The following constant variables are used:
-	  CString ka[12] = { "  ", " 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8",
+	  std::string ka[12] = { "  ", " 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8",
                       " 9", " *"}; // character symbols used in plots.
       double psisca[11] = { -50, -15, -8, -4, -2, -1, -0.6, -0.4,
                         -0.2, -0.1, 0 }; // range of values for plotting soil water potential.
@@ -592,9 +593,9 @@ void OutputForSoilMaps(int irec, int igo, int nday)
       double vnosca[11] = { 0, 0.0001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10,
                        0.20 }; // range of values for plotting soil nitrate.
       double Array[maxl][maxk];
-      CString khar[maxl][maxk]; // array of symbols plotted.
+      std::string khar[maxl][maxk]; // array of symbols plotted.
       double range[11]; // array of range values used for plotting.
-      CString tl1; // keyword in first line of plot title.
+      std::string tl1; // keyword in first line of plot title.
 //     Define the array of values to plot, titles, units, and range of
 //  values used for plotting soil nitrate.
       if ( igo == 1 )

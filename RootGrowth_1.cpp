@@ -112,7 +112,7 @@ double PotentialRootGrowth()
 //  to a population of 5 plants per m in 38" rows.
 //     The sum of the potential growth for the whole slab is computed
 //  as sumpdr.
-			   double minres = min(rtpct,rtrdo);
+			   double minres = (rtpct < rtrdo ? rtpct : rtrdo);
 			   if (rtrdn < minres)
 				   minres = rtrdn;
 			   double rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k]);

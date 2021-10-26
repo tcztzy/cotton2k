@@ -48,8 +48,6 @@ Genaral Framework:
           CottonSimulation.h   
           GeneralFunctions.h   
           Global.h   
-          MainFrame.h   
-          StdAfx.h   
 
 ===========================================================================================       
 

@@ -448,7 +448,7 @@ void PredictDripIrrigation(double TargetStress)
          if ( !bIsIrr && WaterStress <= 0.99 ) 
 	     {
 //     The first predicted drip irrigation is applied
-                    AppliedWater = min(30, MaxIrrigation);
+                    AppliedWater = min(30., MaxIrrigation);
                     irr1st = true;
                     RequiredWater = 0;
          }

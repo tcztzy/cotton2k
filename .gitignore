@@ -1,2 +1,5 @@
 /Debug/
 /Release/
+/build/
+/.vscode/launch.json
+/.vscode/settings.json

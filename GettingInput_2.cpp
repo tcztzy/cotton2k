@@ -9,6 +9,7 @@
 // form()
 //
 #include <iostream>
+#include <boost/algorithm/string.hpp>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 //
@@ -45,7 +46,7 @@ void ReadSoilImpedance()
 //        gh2oc, impede, inrim, ncurve, tstbd.
 //
 {
-       CString strFileName = "DATA\\SOILIMPD.DAT";
+       std::string strFileName = "DATA\\SOILIMPD.DAT";
 	   ifstream DataFile(strFileName, ios::in);
        if ( DataFile.fail() )
 	   {
@@ -53,10 +54,10 @@ void ReadSoilImpedance()
             DataFile.close();
 	   }
 //     Read data from file
-       CString Dummy = GetLineData(DataFile); // 1st line
-	   CString SoilName = Dummy;
+       std::string Dummy = GetLineData(DataFile); // 1st line
+	   std::string SoilName = Dummy;
        Dummy = GetLineData(DataFile); // 2nd line
-	   ncurve = atoi(Dummy);
+	   ncurve = stoi(Dummy);
 	   if (ncurve > 10)
 		   ncurve = 10;
 	   for(int i = 0; i < ncurve; i++)
@@ -78,12 +79,11 @@ void InitSoil()
 //        rnnh4, rnno3, oma, h2oint.
 {
 //     The the file containing the initial soil data is opened for input.
-      CString strFileName = "SOILS\\" + SoilInitFileName;
+      std::string strFileName = "SOILS\\" + SoilInitFileName;
       ifstream fstr(strFileName, ios::in);
       if ( fstr.fail() )
       {
-          CString CSTemp = " Can not open file \n" + strFileName;
-          MessageBox( NULL, CSTemp, NULL, MB_OK);
+          std::cerr << " Can not open file \n" + strFileName;
           fstr.close();
 		  return;
       }
@@ -273,11 +273,11 @@ int ReadSoilHydraulicData()
 //     Return value = number of soilhorizons (lyrsol)
 {
 //     The the file containing the hydraulic soil data is opened for input.
-      CString m_FileName = "SOILS\\" + SoilHydFileName;
+      std::string m_FileName = "SOILS\\" + SoilHydFileName;
       ifstream DataFile(m_FileName, ios::in);
       if ( DataFile.fail() )
       {
-          AfxMessageBox(_T("Error opening ") + m_FileName + ".");
+          std::cerr << "Error opening " + m_FileName + ".";
           DataFile.close();
           return 0;
       }
@@ -297,18 +297,18 @@ int ReadSoilHydraulicData()
 	  }
 //     The following code reads data from the file to the variables: 
 //     -Reading line 1--------------------------------------------------------------//
-      CString Dummy = GetLineData(DataFile);
-      CString m_fileDesc = ""; // Description of the Hydraulic file
-      if (Dummy.GetLength() > 1)
-          m_fileDesc = Dummy.TrimRight();
+      std::string Dummy = GetLineData(DataFile);
+      std::string m_fileDesc = ""; // Description of the Hydraulic file
+      if (Dummy.length() > 1)
+          m_fileDesc = boost::algorithm::trim_right_copy(Dummy);
 //     -Reading line 2--------------------------------------------------------------//
       Dummy = GetLineData(DataFile);
       int lyrsol;   // the number of soil horizons in the slab (down to 2 m).
-      lyrsol =  atoi(Dummy.Left(10));
-      RatioImplicit = atof(Dummy.Mid(10,10));
-      conmax =   atof(Dummy.Mid(20,10));
-      psisfc =   atof(Dummy.Mid(30,10));
-      psidra =   atof(Dummy.Mid(40,10));
+      lyrsol =  stoi(Dummy.substr(0,10));
+      RatioImplicit = stof(Dummy.substr(10,10));
+      conmax =   stof(Dummy.substr(20,10));
+      psisfc =   stof(Dummy.substr(30,10));
+      psidra =   stof(Dummy.substr(40,10));
 	  if (lyrsol > 9)
           lyrsol = 9; // not more than 9 layers
 	  if (psisfc > 0)
@@ -320,18 +320,18 @@ int ReadSoilHydraulicData()
       {
 //     First line for each layer
           Dummy = GetLineData(DataFile);
-          ldepth[il] =  atof(Dummy.Left(10));
-          airdr[il] =  atof(Dummy.Mid(10,10));
-          thetas[il] =  atof(Dummy.Mid(20,10));
-          alpha[il] =  atof(Dummy.Mid(30,10));
-          beta[il] =  atof(Dummy.Mid(40,10));
-          SaturatedHydCond[il] =  atof(Dummy.Mid(50,10));
-          condfc[il] =  atof(Dummy.Mid(60,10));
+          ldepth[il] =  stof(Dummy.substr(0,10));
+          airdr[il] =  atof(Dummy.substr(10,10).c_str());
+          thetas[il] =  atof(Dummy.substr(20,10).c_str());
+          alpha[il] =  atof(Dummy.substr(30,10).c_str());
+          beta[il] =  atof(Dummy.substr(40,10).c_str());
+          SaturatedHydCond[il] =  atof(Dummy.substr(50,10).c_str());
+          condfc[il] =  atof(Dummy.substr(60,10).c_str());
 //     Second line for each layer
           Dummy = GetLineData(DataFile);
-          BulkDensity[il] =  atof(Dummy.Left(10));
-          pclay[il] =  atof(Dummy.Mid(10,10));
-          psand[il] =  atof(Dummy.Mid(20,10));
+          BulkDensity[il] =  atof(Dummy.substr(0,10).c_str());
+          pclay[il] =  stof(Dummy.substr(10,10));
+          psand[il] =  stof(Dummy.substr(20,10));
       }
       DataFile.close();
       return lyrsol;

@@ -4,12 +4,9 @@
 // Compiled by Microsoft Visual C++.Net 2003.
 //  This file contains declartions for class C2K.
 #pragma once
-#ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
-#endif
 
+#include <vector>
 #include <string>
-#include "stdafx.h"
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:
 //
@@ -17,12 +14,12 @@ class C2KApp
 {
 public:
 	C2KApp();
-    void GetProfilesList(CString JobFileName);
+    void GetProfilesList(std::string JobFileName);
     void RunTheModel();
 	void DailySimulation();
 	void SimulateThisDay();
     bool DoAdjustments();
 	virtual bool InitInstance(std::string);
 
-    CStringArray ProfileArray;  // array of the profile names
+    std::vector<std::string> ProfileArray;  // array of the profile names
 };

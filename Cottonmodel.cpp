@@ -13,7 +13,7 @@
 //    SimulateThisDay()
 //    
 #include <iostream>
-#include "stdafx.h"
+#include <boost/algorithm/string.hpp>
 #include "Cottonmodel.h"
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
@@ -37,7 +37,7 @@ bool C2KApp::InitInstance(std::string JobFileName)
 {
 //     Build and set title of the main frame.
     FrameTitle = "";
-    CString Slash = "\\";
+    char Slash = '\\';
     int nLen = JobFileName.length();
 //
     for (int i = nLen-1; i >= 0; i--)
@@ -53,7 +53,7 @@ bool C2KApp::InitInstance(std::string JobFileName)
 	return true;
 }
 /////////////////////////////////////////////////////////////////////////
-void C2KApp::GetProfilesList(CString JobFileName)
+void C2KApp::GetProfilesList(std::string JobFileName)
 //     Function GetProfilesList() opens the "JOB" file, reads it, and gets
 //  from it the profile list. It is called from InitInstance().
 //     Input argument: name of the JOB file (with path)
@@ -73,7 +73,7 @@ void C2KApp::GetProfilesList(CString JobFileName)
     DataFile.getline(m_TempString, 99);
 //     Read the simulation profiles from the next lines of the file, and store them
 //  in the StringArray ProfileArray.
-    ProfileArray.RemoveAll();
+    ProfileArray.clear();
 	int readlength = 99;
 	while (readlength > 0)
     {
@@ -81,11 +81,11 @@ void C2KApp::GetProfilesList(CString JobFileName)
            DataFile.get(m_TempString,21);
            if (DataFile.eof() == 1) 
                break;
-           CString m_String = (CString) m_TempString;
-           m_String.Remove(' ');
-	       readlength = m_String.GetLength();
+           std::string m_String = m_TempString;
+           boost::algorithm::erase_all(m_String, " ");
+	       readlength = m_String.length();
 		   if (readlength > 4)
-		       ProfileArray.Add( m_String.Left(readlength - 4) );
+		       ProfileArray.push_back( m_String.substr(0, readlength - 4) );
            DataFile.getline(m_TempString, 99);
 	}
     DataFile.close();
@@ -98,9 +98,9 @@ void C2KApp::RunTheModel()
 //     Global variables referenced:  DayFinish, DayStart 
 //
 {
-    for (int i = 0; i < ProfileArray.GetSize(); i++)
+    for (int i = 0; i < ProfileArray.size(); i++)
     {
-		ProfileName = ProfileArray.GetAt(i);
+		ProfileName = ProfileArray[i];
 //     Read the input data for this simulation
         ReadInput();
 //     Do daily simulations

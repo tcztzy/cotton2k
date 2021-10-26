@@ -11,6 +11,8 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include <math.h>
+#include <iostream>
+#include <string>
 //
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -122,15 +124,14 @@ void CanopyBalance (int ihr, int k, double etp1, double rlzero, double rsv,
          mot++;
 	  }
 //     If reached 50 iterations there must be an error somewhere!
-      CString msg = " Infinite loop in CanopyBalance(). Abnormal stop!! \n";
+      std::cerr << " Infinite loop in CanopyBalance(). Abnormal stop!! " << std::endl;
       char C1[12];
       sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-      msg += " Daynum, ihr, k = " + (CString) C1 + "\n";
+      std::cerr << " Daynum, ihr, k = " << C1 << std::endl;
       sprintf(C1, "%10.3g", so);
-      msg += " so      = " + (CString) C1 + "\n";
+      std::cerr << " so      = " << C1 << std::endl;
       sprintf(C1, "%10.3g", tv);
-      msg += " tv = " + (CString) C1 + "\n";
-	  AfxMessageBox(msg);
+      std::cerr << " tv = " << C1 << std::endl;
       bEnd = true;
 }
 /////////////////////////////////////////
@@ -219,15 +220,14 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm, d
 //     Go to next iteration
       } while (mop < 50);
 //     If reached 50 iterations there must be an error somewhere!
-      CString msg = " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! \n";
+      std::cerr << " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! " << std::endl;
       char C1[12];
       sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-      msg += " Daynum, ihr, k = " + (CString) C1 + "\n";
+      std::cerr << " Daynum, ihr, k = " << C1 << std::endl;
       sprintf(C1, "%10.3g", so);
-      msg += " so      = " + (CString) C1 + "\n";
+      std::cerr << " so      = " << C1 << std::endl;
       sprintf(C1, "%10.3g", tm);
-      msg += " tm = " + (CString) C1 + "\n";
-	  AfxMessageBox(msg);
+      std::cerr << " tm = " << C1 << std::endl;
       bEnd = true;
 }
 ///////////////////////////////////////////////////////////////////
@@ -605,7 +605,7 @@ void PredictEmergence(int hour)
          isw = 2;
          DayEmerge = Daynum;
          Kday = 1;
-         CString gerday = DoyToDate ( DayEmerge, iyear );
+         std::string gerday = DoyToDate ( DayEmerge, iyear );
          ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
 		 File46 << " Predicted Germination on " << gerday << " (Day of Year = " << DayEmerge << " )" << endl;
          ofstream File22("Output\\" + ProfileName + ".S01", ios::app);

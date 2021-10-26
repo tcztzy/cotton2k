@@ -125,9 +125,9 @@
     // 1 - for plant height. 2 - for total site number. 3 - for square number.
     // 4 - for green boll number.  
 //
-// CString variables:
+// std::string variables:
 //
-    CString 
+    std::string 
         ActWthFileName,      // name of input file with actual weather data.
         AgrInputFileName,    // name of input file with agricultural input data
 	    Date,                // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003

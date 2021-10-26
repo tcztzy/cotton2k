@@ -8,6 +8,7 @@
 // WriteInitialInputData()
 //
 #include <iostream>
+#include <boost/algorithm/string.hpp>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 #include <math.h>
@@ -24,7 +25,7 @@
         nVarNum;             // index number for cultivar. 
    double SkipRowWidth,      // the smaller distance between skip rows, cm
         PlantsPerM;          // average number of plants pre meter of row.
-   CString m_mulchdata,      // string containing input data of mulching
+   std::string m_mulchdata,      // string containing input data of mulching
         VarName,              // name of the cultivar
         SiteName;             // name of the site
 /////////////////////////////////////////////////////////////
@@ -69,7 +70,7 @@ void ReadProfileFile()
 //     The following global variable is referenced here:   ProfileName
 //
 {
-    CString strFileName = "PROFILES\\" + ProfileName + ".PRO"; // file name with path
+    std::string strFileName = "PROFILES\\" + ProfileName + ".PRO"; // file name with path
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
@@ -78,38 +79,38 @@ void ReadProfileFile()
           return;
     }
 //     Line #1: Read file description.
-	CString Dummy = GetLineData(DataFile);
-    CString m_fileDesc; // Description of the Profile file
-    if (Dummy.GetLength() > 20)
+	std::string Dummy = GetLineData(DataFile);
+    std::string m_fileDesc; // Description of the Profile file
+    if (Dummy.length() > 20)
     {
-        m_fileDesc = Dummy.Mid(20);
-        m_fileDesc.TrimRight();
+        m_fileDesc = Dummy.substr(20);
+        boost::algorithm::trim_right(m_fileDesc);
     }
     else   
         m_fileDesc = "";
 //     Line #2: Read dates of emergence, start and end of simulation, and planting date. 
-	CString DateEmerge, DateSimStart, DateSimEnd, DatePlant;
+	std::string DateEmerge, DateSimStart, DateSimEnd, DatePlant;
     Dummy = GetLineData(DataFile);
-    int nLength = Dummy.GetLength();
+    int nLength = Dummy.length();
     if (nLength >= 14)
     {
-       DateEmerge =  Dummy.Left(14);
-       DateEmerge.Remove(' ');
+       DateEmerge =  Dummy.substr(0, 14);
+       boost::algorithm::erase_all(DateEmerge, " ");
     }
     if (nLength >= 23)
     {
-       DateSimStart = Dummy.Mid(15,14);
-       DateSimStart.Remove(' ');
+       DateSimStart = Dummy.substr(15,14);
+       boost::algorithm::erase_all(DateSimStart, " ");
     }
     if (nLength >= 38)
     {
-       DateSimEnd = Dummy.Mid(30,14);
-       DateSimEnd.Remove(' ');
+       DateSimEnd = Dummy.substr(30,14);
+       boost::algorithm::erase_all(DateSimEnd, " ");
     }
     if (nLength >= 53)
     {
-       DatePlant = Dummy.Mid(45,14);
-       DatePlant.Remove(' ');
+       DatePlant = Dummy.substr(45,14);
+       boost::algorithm::erase_all(DatePlant, " ");
     }
     else 
        DatePlant = "";
@@ -117,44 +118,44 @@ void ReadProfileFile()
 //	for start and stop of enrichment (these are left blank if there is no CO2 enrichment).
     if (nLength > 76)
 	{
-       CString ttt = Dummy.Mid(60,10);
-       ttt.Remove(' ');
-       CO2EnrichmentFactor = atof(ttt);
-       ttt = Dummy.Mid(70,5);
-       ttt.Remove(' ');
-       DayStartCO2 = atoi(ttt);
-       ttt = Dummy.Mid(75);
-       ttt.Remove(' ');
-       DayEndCO2 = atoi(ttt);
+       std::string ttt = Dummy.substr(60,10);
+       boost::algorithm::erase_all(ttt, " ");
+       CO2EnrichmentFactor = stof(ttt);
+       ttt = Dummy.substr(70,5);
+       boost::algorithm::erase_all(ttt, " ");
+       DayStartCO2 = stoi(ttt);
+       ttt = Dummy.substr(75);
+       boost::algorithm::erase_all(ttt, " ");
+       DayEndCO2 = stoi(ttt);
 	}
     else  
        CO2EnrichmentFactor = 0;
 //     Line #3: Names of weather files: actual and predicted. 
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.GetLength();
+    nLength = Dummy.length();
     if (nLength > 1)
     {
-        ActWthFileName = Dummy.Left(20);
-        ActWthFileName.Remove(' ');
+        ActWthFileName = Dummy.substr(0, 20);
+        boost::algorithm::erase_all(ActWthFileName, " ");
     }
     if (nLength > 21)
     {
-        PrdWthFileName = Dummy.Mid(20,20);
-        PrdWthFileName.Remove(' ');
+        PrdWthFileName = Dummy.substr(20,20);
+        boost::algorithm::erase_all(PrdWthFileName, " ");
     }
     else 
         PrdWthFileName = "";
 //     For advanced users only: If soil mulch is used, read relevant parameters.
     if (nLength > 41)
 	{
-           m_mulchdata = Dummy.Mid(40);
-	       MulchIndicator = atoi (m_mulchdata.Left(10) );
+           m_mulchdata = Dummy.substr(40);
+	       MulchIndicator = stoi (m_mulchdata.substr(0, 10) );
            if (MulchIndicator > 0)
            {
-              MulchTranSW = atof (m_mulchdata.Mid(10, 10));
-              MulchTranLW = atof (m_mulchdata.Mid(20, 10));
-			  DayStartMulch = atoi (m_mulchdata.Mid(30, 5));
-			  DayEndMulch = atoi (m_mulchdata.Mid(35, 5));
+              MulchTranSW = stof (m_mulchdata.substr(10, 10));
+              MulchTranLW = stof (m_mulchdata.substr(20, 10));
+			  DayStartMulch = stoi (m_mulchdata.substr(30, 5));
+			  DayEndMulch = stoi (m_mulchdata.substr(35, 5));
               if (DayEndMulch <= 0)
                   DayEndMulch = DateToDoy(DateSimEnd, iyear);
            }
@@ -167,38 +168,38 @@ void ReadProfileFile()
 //     Line #4: Names of files for soil hydraulic data, soil initial
 //  conditions, agricultural input, and plant map adjustment.
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.GetLength();
+    nLength = Dummy.length();
     if (nLength > 1)
     {
-       SoilHydFileName = Dummy.Left(20);
-       SoilHydFileName.Remove(' ');
+       SoilHydFileName = Dummy.substr(0, 20);
+       boost::algorithm::erase_all(SoilHydFileName, " ");
     }
     if (nLength > 20)
     {
-       SoilInitFileName = Dummy.Mid(20,20);
-       SoilInitFileName.Remove(' ');
+       SoilInitFileName = Dummy.substr(20,20);
+       boost::algorithm::erase_all(SoilInitFileName, " ");
     }
     if (nLength > 40)
     {
-       AgrInputFileName = Dummy.Mid(40,20);
-       AgrInputFileName.Remove(' ');
+       AgrInputFileName = Dummy.substr(40,20);
+       boost::algorithm::erase_all(AgrInputFileName, " ");
     }
     if (nLength > 60)
     {
-       PlantmapFileName = Dummy.Mid(60);
-       PlantmapFileName.Remove(' ');
+       PlantmapFileName = Dummy.substr(60);
+       boost::algorithm::erase_all(PlantmapFileName, " ");
     }
     else 
        PlantmapFileName = "";
 //     Line #5: Latitude and longitude of this site, elevation (in m
 //  above sea level), and the index number for this geographic site.
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.GetLength();
+    nLength = Dummy.length();
 	bLat = false;
 	bLong = false;
     if (nLength > 1)
 	{
-          Latitude = atof(Dummy.Left(10));
+          Latitude = stof(Dummy.substr(0,10));
 		  if (Latitude < 0)
 		  {
 			  bLat = true;
@@ -207,7 +208,7 @@ void ReadProfileFile()
 	}
     if (nLength >= 20)
 	{
-          Longitude = atof(Dummy.Mid(10,10));
+          Longitude = stof(Dummy.substr(10,10));
 		  if (Longitude < 0)
 		  {
 			  bLong = true;
@@ -215,51 +216,51 @@ void ReadProfileFile()
 		  }
 	}
     if (nLength >= 30)
-          Elevation = atof(Dummy.Mid(20,10));
+          Elevation = stof(Dummy.substr(20,10));
     if (nLength > 30)
-          nSiteNum = atoi(Dummy.Mid(30));
+          nSiteNum = stoi(Dummy.substr(30));
 //     Line #6: Row spacing in cm, skip-row spacing in cm (blank or 0 
 //  for no skip rows), number of plants per meter of row, and index
 //  number for the cultivar.
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.GetLength();
+    nLength = Dummy.length();
     if (nLength > 1)
-          RowSpace =  atof(Dummy.Left(10));
+          RowSpace =  stof(Dummy.substr(0, 10));
     if (nLength >= 20)
-          SkipRowWidth = atof(Dummy.Mid(10,10));
+          SkipRowWidth = stof(Dummy.substr(10,10));
     if (nLength >= 30)
-          PlantsPerM = atof(Dummy.Mid(20,10));
+          PlantsPerM = stof(Dummy.substr(20,10));
     if (nLength > 30)
-          nVarNum = atoi(Dummy.Mid(30));
+          nVarNum = stoi(Dummy.substr(30));
 //     Line #7: Frequency in days for output of soil maps, and dates 
 //  for start and stop of this output (blank or 0 if no such output is
 //  required. Same is repeated for output of plant maps.
-	CString SoilMapStartDate, SoilMapStopDate, PlantMapStartDate, PlantMapStopDate; 
+	std::string SoilMapStartDate, SoilMapStopDate, PlantMapStartDate, PlantMapStopDate; 
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.GetLength();
+    nLength = Dummy.length();
     if (nLength > 9)
-          SoilMapFreq = atoi(Dummy.Left(10));
+          SoilMapFreq = stoi(Dummy.substr(0,10));
     if (nLength >= 16)
     {
-          SoilMapStartDate =  Dummy.Mid(14,11);
-          SoilMapStartDate.Remove(' ');
+          SoilMapStartDate =  Dummy.substr(14,11);
+          boost::algorithm::erase_all(SoilMapStartDate, " ");
     }
     if (nLength >= 31)
     {
-          SoilMapStopDate =  Dummy.Mid(29,11);
-          SoilMapStopDate.Remove(' ');
+          SoilMapStopDate =  Dummy.substr(29,11);
+          boost::algorithm::erase_all(SoilMapStopDate, " ");
     }
     if (nLength > 41)
-          PlantMapFreq = atoi(Dummy.Mid(40,10));
+          PlantMapFreq = stoi(Dummy.substr(40,10));
     if (nLength >= 56)
     {
-          PlantMapStartDate =  Dummy.Mid(54,11);
-          PlantMapStartDate.Remove(' ');
+          PlantMapStartDate =  Dummy.substr(54,11);
+          boost::algorithm::erase_all(PlantMapStartDate, " ");
     }
     if (nLength >= 71)
     {
-          PlantMapStopDate =  Dummy.Mid(69,11);
-          PlantMapStopDate.Remove(' ');
+          PlantMapStopDate =  Dummy.substr(69,11);
+          boost::algorithm::erase_all(PlantMapStopDate, " ");
     }
 //     Line #8: 23 output flags.
 // - Line 8 consists of zeros and ones.  "1" tells the simulator to
@@ -268,16 +269,16 @@ void ReadProfileFile()
     for (int n = 0; n < 24; n++)
         OutIndex[n] = 0;
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.GetLength();
+    nLength = Dummy.length();
     for (int n = 0; n < 23 && 3*n < nLength ; n++)
     {
           int n1 = 3 * n;
-          OutIndex[n+1] = atoi(Dummy.Mid(n1, 3)); 
+          OutIndex[n+1] = stoi(Dummy.substr(n1, 3)); 
     }
     DataFile.close();
 //     Calendar dates of emergence, planting, start and stop of simulation, start and stop of 
 // output of soil slab and plant maps are converted to DOY dates by calling function DateToDoy.
-    iyear = atoi(DateSimStart.Mid(7,4));
+    iyear = stoi(DateSimStart.substr(7,4));
     DayStart = DateToDoy(DateSimStart, iyear);
     DayEmerge = DateToDoy(DateEmerge, iyear);
     DayFinish = DateToDoy(DateSimEnd, iyear);
@@ -299,9 +300,7 @@ void ReadProfileFile()
          isw = 0;
          if (DayPlant <= 0) 
 		 {
-            CString msg = " planting date or emergence date must";
-            msg += " be given in the profile file !!";
-			AfxMessageBox(msg);
+            std::cerr << " planting date or emergence date must be given in the profile file !!" << std::endl;
             bEnd = true;
          }
 	  }
@@ -326,37 +325,37 @@ void ReadCalibrationData()
 //  SiteName, SitePar, VarName, VarPar
 {
 //     Open file of variety file list. 
-    CString strFileName = "DATA\\VARS\\VARLIST.DAT";
+    std::string strFileName = "DATA\\VARS\\VARLIST.DAT";
     ifstream DataFile(strFileName, ios::in);
     if ( DataFile.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          std::cerr << "Error opening " + strFileName + ".";
           DataFile.close();
           return;
     }
 //
-    CString Dummy, VarFile;
+    std::string Dummy, VarFile;
     for (int m_idx = 0; m_idx < 1000; m_idx++)
     {
         if (DataFile.eof() == 1)
             break;
         Dummy = GetLineData(DataFile);
-        int nLength = Dummy.GetLength();
+        int nLength = Dummy.length();
 	    int num;
-	    CString Name, FileName;
+	    std::string Name, FileName;
         if (nLength >= 4)
 		{
-           num = atoi(Dummy.Left(4));
+           num = stoi(Dummy.substr(0,4));
 		}
         if (nLength >= 25)
 		{
-           Name = Dummy.Mid(5,20);
-           Name.Remove(' ');
+           Name = Dummy.substr(5,20);
+           boost::algorithm::erase_all(Name, " ");
 		}
         if (nLength >= 45)
 		{
-           FileName = Dummy.Mid(40,20);
-           FileName.Remove(' ');
+           FileName = Dummy.substr(40,20);
+           boost::algorithm::erase_all(FileName, " ");
 		}
 	    if (num == nVarNum)
 		{
@@ -371,7 +370,7 @@ void ReadCalibrationData()
     ifstream DataFile1(strFileName, ios::in);
     if ( DataFile1.fail() )
     {
-          AfxMessageBox("Error opening " + strFileName + ".");
+          std::cerr << "Error opening " + strFileName + ".";
           DataFile1.close();
           return;
     }
@@ -380,12 +379,12 @@ void ReadCalibrationData()
 	for (int i = 1; i <= 60; i++)
 	{
 	    Dummy = GetLineData(DataFile1); 
-		VarPar[i] = atof (Dummy.Left(20));
+		VarPar[i] = stof (Dummy.substr(0,20));
 	}
     DataFile1.close();
 //     Open file of site file list. 
     strFileName = "DATA\\SITE\\SITELIST.DAT";
-    CString SiteFile;
+    std::string SiteFile;
     ifstream DataFile2(strFileName, ios::in);
     if ( DataFile2.fail() )
     {
@@ -400,22 +399,22 @@ void ReadCalibrationData()
             break;
 
         Dummy = GetLineData(DataFile2);
-        int nLength = Dummy.GetLength();
+        int nLength = Dummy.length();
 	    int num;
-	    CString Name, FileName;
+	    std::string Name, FileName;
         if (nLength >= 4)
 		{
-           num =  atoi(Dummy.Left(4));
+           num =  stoi(Dummy.substr(0,4));
 		}
         if (nLength >= 25)
 		{
-           Name = Dummy.Mid(5,20);
-           Name.Remove(' ');
+           Name = Dummy.substr(5,20);
+           boost::algorithm::erase_all(Name, " ");
 		}
         if (nLength >= 45)
 		{
-           FileName = Dummy.Mid(40,20);
-           FileName.Remove(' ');
+           FileName = Dummy.substr(40,20);
+           boost::algorithm::erase_all(FileName, " ");
 		}
 	    if (num == nSiteNum)
 		{
@@ -439,7 +438,7 @@ void ReadCalibrationData()
 	for (int i = 1; i <= 20; i++)
 	{
 	    Dummy = GetLineData(DataFile3); 
-		SitePar[i] = atof (Dummy.Left(20));
+		SitePar[i] = stof (Dummy.substr(0,20));
 	}
     DataFile3.close();
 }
@@ -610,7 +609,7 @@ void WriteInitialInputData()
 		 File20 << "    to ...... " << DoyToDate(DayEndCO2, iyear) << endl;
 	  }
 //
-	  if (m_mulchdata.GetLength() > 0 && MulchIndicator > 0)
+	  if (m_mulchdata.length() > 0 && MulchIndicator > 0)
 	  {
 			  File20 << "   Polyethylene mulch cover. Transmissivity values are: " << endl;
 			  File20 << " For short waves:  ";
@@ -641,18 +640,18 @@ void WriteInitialInputData()
 			  }
 	  }
 //     Write names of the other input files
-      if (ActWthFileName.GetLength() > 0)
+      if (ActWthFileName.length() > 0)
       {
          File20 << "    Actual Weather Input File:     " << ActWthFileName << endl; 
          File20 << "    Last date read from Actual Weather File: " 
                 << DoyToDate(LastDayOfActualWeather, iyear) << endl; 
       } 
-      if (PrdWthFileName.GetLength() > 0)
+      if (PrdWthFileName.length() > 0)
          File20 << "    Predicted Weather Input File:  " << PrdWthFileName << endl; 
       File20 << "    Cultural Input File:           " << AgrInputFileName << endl; 
       File20 << "    Initial Soil Data Input File:  " << SoilInitFileName << endl; 
       File20 << "    Soil Hydrology Input File:     " << SoilHydFileName << endl; 
-      if (PlantmapFileName.GetLength() > 0)
+      if (PlantmapFileName.length() > 0)
          File20 << "    Plant Map Adjustment File:     " << PlantmapFileName << endl << endl; 
 //   Write names of the site and the variety
       File20 << "    Site...     " << SiteName << endl; 

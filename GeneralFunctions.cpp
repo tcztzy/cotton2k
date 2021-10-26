@@ -14,6 +14,8 @@
 //  Extracting climate data -
 //      GetFromClim()
 //
+#include <iostream>
+#include <boost/algorithm/string.hpp>
 #include "global.h"
 #include "GeneralFunctions.h"
 #include <math.h>
@@ -22,19 +24,18 @@
 #define new DEBUG_NEW
 #endif
 ///////////////////////////////////////////////////////////////////////
-CString GetLineData(ifstream &DataFile)
+std::string GetLineData(ifstream &DataFile)
 //     This function safely reads a line from input. All data are read into a temporary character
-//  string with the "getline" command. It stops at end of line, and converts it to CString.
+//  string with the "getline" command. It stops at end of line, and converts it to std::string.
 //     Input        : the ifstream file which is being read.
-//     return value : CString with the trailing blanks removed.
+//     return value : std::string with the trailing blanks removed.
 //
 {
      char  m_TempString[91];   // Temporarily stores a character array.
      for (int ii = 0; ii < 90; ii++)
          m_TempString[ii] = ' ';
      m_TempString[90] = '\0';
-     CString LineString;
-     LineString.Empty();
+     std::string LineString = "";
 
      DataFile.getline(m_TempString, 90);
      for (int ii = 0; ii < 90; ii++)
@@ -45,13 +46,13 @@ CString GetLineData(ifstream &DataFile)
           LineString += m_TempString[ii];
      }
 //     Cut blanks at end of string.
-     LineString.TrimRight();
+     boost::algorithm::trim_right(LineString);
      return LineString;
 }
 /////////////////////////////////////////////////////////////////////////
 // Date conversion functions:
 //
-int DateToDoy(CString Date, int m_YearStart) 
+int DateToDoy(std::string Date, int m_YearStart) 
 //     This function converts calendar date string to day of year, and
 //  allows for leap years and dates in the following year.
 //     Day of year, sometimes called "Julian date", counts the days from 
@@ -70,24 +71,24 @@ int DateToDoy(CString Date, int m_YearStart)
 //  m_YearStart or m_YearStart+1
 //
 {
-	static CString MonthName[] =
+	static std::string MonthName[] =
 	{ "JAN","FEB","MAR","APR","MAY","JUN", "JUL","AUG","SEP","OCT","NOV","DEC" };
     static int i0[] =
 	{  0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 };
 
-      Date.Remove(' ');  // remove blanks
+      boost::algorithm::erase_all(Date, " ");  // remove blanks
 //   If the date string is blank, or old style date format, return 0.
-      if ( Date.IsEmpty() )
+      if ( Date.empty() )
           return 0;
-      else if (Date.Mid(2,1) == '/') 
+      else if (Date.substr(2,1) == "/") 
 	  {
-          AfxMessageBox(Date + " == ERROR: Old date format used " );
+          std::cerr << Date + " == ERROR: Old date format used ";
 		  return 0;
 	  }
 
-	  int day = atoi (Date.Left(2));  //  Convert characters to integers for day.
-      int iy = atoi (Date.Mid(7));    //  Convert characters to integers for year.
-      CString stmon = Date.Mid(3,3);  //  Get string month
+	  int day = stoi (Date.substr(0, 2));  //  Convert characters to integers for day.
+      int iy = stoi (Date.substr(7));    //  Convert characters to integers for year.
+      std::string stmon = Date.substr(3,3);  //  Get string month
 
       int month = 0 ;
 	  for (int i = 0; i < 12; i++)
@@ -99,7 +100,7 @@ int DateToDoy(CString Date, int m_YearStart)
 
       if (month == 0)
 	  {
-          AfxMessageBox(" Error in month definition:  " + stmon);
+          std::cerr << " Error in month definition:  " + stmon;
 		  return 0;
 	  }
 //     Adjust number of days in February for leap years.
@@ -116,7 +117,7 @@ int DateToDoy(CString Date, int m_YearStart)
 	  return jday;
 }
 ///////////////////////////////////////////////////////////////////////////
-CString DoyToDate(int Doy, int m_YearStart) 
+std::string DoyToDate(int Doy, int m_YearStart) 
 //     This function converts day of year (sometimes called 'Julian date')
 // to calendar date, allowing for leap years and for days in the following year.
 //     Arguments input:
@@ -130,7 +131,7 @@ CString DoyToDate(int Doy, int m_YearStart)
 // and m_YearStart is a 4-digit number).
 //
 {
-      static CString MonthName[] =
+      static std::string MonthName[] =
 	  { "JAN","FEB","MAR","APR","MAY","JUN", "JUL","AUG","SEP","OCT","NOV","DEC" };
       static int mday[] =
 	  { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -161,23 +162,19 @@ CString DoyToDate(int Doy, int m_YearStart)
          iday = iday - mday[i];
 	  }
 //   Construct date string.
-	  CString Date1 = "  ";
+	  std::string Date1 = "  ";
       char Cday[3];
       sprintf(Cday, "%2d", iday);
 	  if ( Cday[0] == ' ')
                Cday[0] = '0';
-      Date1.SetAt(0, Cday[0]);
-      Date1.SetAt(1, Cday[1]);
+      Date1.assign(Cday, 2);
 
-	  CString Date2 = "    ";
+	  std::string Date2 = "    ";
       char Cyear[5];
       sprintf(Cyear, "%4d", iy);
-      Date2.SetAt(0, Cyear[0]);
-      Date2.SetAt(1, Cyear[1]);
-      Date2.SetAt(2, Cyear[2]);
-      Date2.SetAt(3, Cyear[3]);
+      Date2.assign(Cyear, 4);
 
-	  CString DateOut;
+	  std::string DateOut;
 	  DateOut = Date1 + "-" + MonthName[month - 1] + "-" + Date2;
       return DateOut;
 }
@@ -325,7 +322,7 @@ double PsiOsmotic ( double q, double qsat, double ec)
 	     return 0;
 }
 ///////////////////////////////////////////////////////////////////////////////
-double GetFromClim(CString item, int Doy)
+double GetFromClim(std::string item, int Doy)
 //     This function extracts daily climate values for day of year Doy
 //  from the structure Clim.
 //     Input arguments:

@@ -293,7 +293,7 @@ void SoilTemperature()
 		 if (shading >= 0.01)
 			   tfc = tfc / shading;
 //     If there is an output flag, write data to file TMS.
-         if ( jtout > 0 ) 
+         if ( jtout ) 
 		 {
              ofstream File19("Output\\" + ProfileName + ".TMS", ios::app);
 			 File19.width(5);

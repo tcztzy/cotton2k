@@ -1,6 +1,7 @@
 // CottonSimulation.h : Defines the functions of the application.
 //
 #pragma once
+#include <string>
 #include "global.h"
 #include <fstream>  // Necessary for file I/O
 using namespace std;
@@ -108,7 +109,7 @@ using namespace std;
     void   NitrogenUptakeRequirement();
 // O
 	int    OpenClimateFile();
-	void   OpenOutputFiles(CString m_fileDesc);
+	void   OpenOutputFiles(std::string m_fileDesc);
     void   output1();
     void   output2();
     void   output3();

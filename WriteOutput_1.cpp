@@ -7,6 +7,8 @@
 // DataOutput()
 // WriteLine22()
 //
+#include <ctime>
+#include <string>
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 //
@@ -14,7 +16,7 @@
 #define new DEBUG_NEW
 #endif
 /////////////////////////////////////////////////////////////
-void OpenOutputFiles(CString m_fileDesc)
+void OpenOutputFiles(std::string m_fileDesc)
 //     This function opens the output files that will be used by
 //  this simulation. It is called from function ReadProfileFile().
 //
@@ -51,8 +53,12 @@ void OpenOutputFiles(CString m_fileDesc)
 //
 {
 //     Get the date of running this simulation.  
-	  CTime timeSys = CTime::GetCurrentTime();
-      CString Rundate = timeSys.Format( "%A, %B %d, %Y" );
+	  time_t timeSys;
+        struct tm * timeinfo;
+        time(&timeSys);
+        timeinfo = gmtime(&timeSys);
+      char Rundate[30];
+      strftime(Rundate, 30, "%A, %B %d, %Y", timeinfo);
 //     Open file F01 and write header to it.
       ofstream File46("Output\\" + ProfileName + ".F01", ios::out);
       File46.unsetf(ios::left);
