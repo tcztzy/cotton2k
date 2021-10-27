@@ -14,12 +14,10 @@
 class C2KApp {
    public:
     C2KApp();
-    void GetProfilesList(std::string JobFileName);
-    void RunTheModel();
+    void RunTheModel(const char *);
     void DailySimulation();
     void SimulateThisDay();
     bool DoAdjustments();
-    virtual bool InitInstance(std::string);
 
     std::vector<std::string> ProfileArray;  // array of the profile names
 };

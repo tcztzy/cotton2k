@@ -72,7 +72,7 @@ extern struct Irrigation {
     double amount;
 } Irrig[150];
 ////    Strings    ////
-extern std::string ActWthFileName, AgrInputFileName, Date, FrameTitle,
+extern std::string ActWthFileName, AgrInputFileName, Date,
     PlantmapFileName, PrdWthFileName, ProfileName, SoilHydFileName,
     SoilInitFileName;
 ////    Integers    ////

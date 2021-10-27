@@ -29,80 +29,20 @@
 // C2KApp construction
 C2KApp::C2KApp() {}
 /////////////////////////////////////////////////////////////////////////////
-bool C2KApp::InitInstance(std::string JobFileName)
-//     InitInstance() starts the application. it calls the functions:
-//  GetProfilesList() and RunTheModel().
-//     Global variables set:  FrameTitle
-//
-{
-    //     Build and set title of the main frame.
-    FrameTitle = "";
-    char Slash = '\\';
-    int nLen = JobFileName.length();
-    //
-    for (int i = nLen - 1; i >= 0; i--) {
-        if (JobFileName[i] == Slash) break;
-        FrameTitle = JobFileName[i] + FrameTitle;
-    }
-    //     Get the list of the "Profiles" to run.
-    GetProfilesList(JobFileName.c_str());
-    //     Now run the model.
-    RunTheModel();
-    return true;
-}
-/////////////////////////////////////////////////////////////////////////
-void C2KApp::GetProfilesList(std::string JobFileName)
-//     Function GetProfilesList() opens the "JOB" file, reads it, and gets
-//  from it the profile list. It is called from InitInstance().
-//     Input argument: name of the JOB file (with path)
-//
-{
-    //     Open the selected Job file for input.
-    ifstream DataFile(JobFileName, ios::in);
-    if (DataFile.fail()) {
-        //     When the file can not be opened:
-        DataFile.close();
-        std::cerr << JobFileName << " cannot be open!" << std::endl;
-        return;
-    }
-    char m_TempString[100];
-    //     Skip the first line of the file.
-    DataFile.getline(m_TempString, 99);
-    //     Read the simulation profiles from the next lines of the file, and
-    //     store them
-    //  in the StringArray ProfileArray.
-    ProfileArray.clear();
-    int readlength = 99;
-    while (readlength > 0) {
-        //     Create array of Profile names
-        DataFile.get(m_TempString, 21);
-        if (DataFile.eof() == 1) break;
-        std::string m_String = m_TempString;
-        boost::algorithm::erase_all(m_String, " ");
-        readlength = m_String.length();
-        if (readlength > 4)
-            ProfileArray.push_back(m_String.substr(0, readlength - 4));
-        DataFile.getline(m_TempString, 99);
-    }
-    DataFile.close();
-}
-/////////////////////////////////////////////////////////////////////////////
-void C2KApp::RunTheModel()
+void C2KApp::RunTheModel(const char *profile)
 //     This function calls the following functions for each profile:
 //          ReadInput(), DailySimulation() and  DataOutput()
 //     Global variables set: ProfileName
 //     Global variables referenced:  DayFinish, DayStart
 //
 {
-    for (int i = 0; i < ProfileArray.size(); i++) {
-        ProfileName = ProfileArray[i];
-        //     Read the input data for this simulation
-        ReadInput();
-        //     Do daily simulations
-        DailySimulation();
-        //     Write output data
-        DataOutput();
-    }
+    ProfileName = profile;
+    //     Read the input data for this simulation
+    ReadInput();
+    //     Do daily simulations
+    DailySimulation();
+    //     Write output data
+    DataOutput();
     //     End of simulation of all profiles
     std::cout << " Simulation Ended." << std::endl;
 }
@@ -261,15 +201,4 @@ void C2KApp::SimulateThisDay()
     if (Daynum >= DayFinish || Daynum >= LastDayWeatherData ||
         (Kday > 10 && LeafAreaIndex < 0.0002))
         bEnd = true;
-}
-
-int main(int argc, char **argv) {
-    if (argc < 2) {
-        std::cerr << "Job file path should be provided!" << std::endl;
-        return 1;
-    }
-    std::string job_filename = argv[1];
-    C2KApp app;
-    app.InitInstance(job_filename);
-    return 0;
 }

@@ -184,24 +184,6 @@ void ReadProfileFile()
     //     Line #5: Latitude and longitude of this site, elevation (in m
     //  above sea level), and the index number for this geographic site.
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    bLat = false;
-    bLong = false;
-    if (nLength > 1) {
-        Latitude = stof(Dummy.substr(0, 10));
-        if (Latitude < 0) {
-            bLat = true;
-            Latitude = -Latitude;
-        }
-    }
-    if (nLength >= 20) {
-        Longitude = stof(Dummy.substr(10, 10));
-        if (Longitude < 0) {
-            bLong = true;
-            Longitude = -Longitude;
-        }
-    }
-    if (nLength >= 30) Elevation = stof(Dummy.substr(20, 10));
     if (nLength > 30) nSiteNum = stoi(Dummy.substr(30));
     //     Line #6: Row spacing in cm, skip-row spacing in cm (blank or 0
     //  for no skip rows), number of plants per meter of row, and index
