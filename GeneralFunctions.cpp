@@ -1,8 +1,9 @@
-//     File GeneralFunctions.cpp contains the following functions, which are used in
+//     File GeneralFunctions.cpp contains the following functions, which are
+//     used in
 //  several places in the model:
 //  String handling -
 //      GetLineData()
-//  Date conversions - 
+//  Date conversions -
 //      DateToDoy()
 //      DoyToDate()
 //      LeapYear()
@@ -14,54 +15,58 @@
 //  Extracting climate data -
 //      GetFromClim()
 //
-#include <iostream>
-#include <boost/algorithm/string.hpp>
-#include "global.h"
 #include "GeneralFunctions.h"
+
 #include <math.h>
+
+#include <boost/algorithm/string.hpp>
+#include <iostream>
+
+#include "global.h"
+
 //
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 ///////////////////////////////////////////////////////////////////////
 std::string GetLineData(ifstream &DataFile)
-//     This function safely reads a line from input. All data are read into a temporary character
-//  string with the "getline" command. It stops at end of line, and converts it to std::string.
+//     This function safely reads a line from input. All data are read into a
+//     temporary character
+//  string with the "getline" command. It stops at end of line, and converts it
+//  to std::string.
 //     Input        : the ifstream file which is being read.
 //     return value : std::string with the trailing blanks removed.
 //
 {
-     char  m_TempString[91];   // Temporarily stores a character array.
-     for (int ii = 0; ii < 90; ii++)
-         m_TempString[ii] = ' ';
-     m_TempString[90] = '\0';
-     std::string LineString = "";
+    char m_TempString[91];  // Temporarily stores a character array.
+    for (int ii = 0; ii < 90; ii++) m_TempString[ii] = ' ';
+    m_TempString[90] = '\0';
+    std::string LineString = "";
 
-     DataFile.getline(m_TempString, 90);
-     for (int ii = 0; ii < 90; ii++)
-     {
-//     Ignore end of character string and convert it to space
-          if (m_TempString[ii] == 0) 
-              m_TempString[ii] = 32;
-          LineString += m_TempString[ii];
-     }
-//     Cut blanks at end of string.
-     boost::algorithm::trim_right(LineString);
-     return LineString;
+    DataFile.getline(m_TempString, 90);
+    for (int ii = 0; ii < 90; ii++) {
+        //     Ignore end of character string and convert it to space
+        if (m_TempString[ii] == 0) m_TempString[ii] = 32;
+        LineString += m_TempString[ii];
+    }
+    //     Cut blanks at end of string.
+    boost::algorithm::trim_right(LineString);
+    return LineString;
 }
 /////////////////////////////////////////////////////////////////////////
 // Date conversion functions:
 //
-int DateToDoy(std::string Date, int m_YearStart) 
+int DateToDoy(std::string Date, int m_YearStart)
 //     This function converts calendar date string to day of year, and
 //  allows for leap years and dates in the following year.
-//     Day of year, sometimes called "Julian date", counts the days from 
+//     Day of year, sometimes called "Julian date", counts the days from
 //  the beginning of the calendar year. If the simulation continues to the
 //  next year, count continues.
 //
 //     Arguments input:
-//            Date = calendar date string as 'dd-MON-yyyy' (11-character string).
-//            m_YearStart = year of start of simulation (4 digit integer).
+//            Date = calendar date string as 'dd-MON-yyyy' (11-character
+//            string). m_YearStart = year of start of simulation (4 digit
+//            integer).
 //     Return value:
 //            jday =  Day of year (Julian date).
 //
@@ -71,53 +76,48 @@ int DateToDoy(std::string Date, int m_YearStart)
 //  m_YearStart or m_YearStart+1
 //
 {
-	static std::string MonthName[] =
-	{ "JAN","FEB","MAR","APR","MAY","JUN", "JUL","AUG","SEP","OCT","NOV","DEC" };
-    static int i0[] =
-	{  0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 };
+    static std::string MonthName[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                                      "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+    static int i0[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30};
 
-      boost::algorithm::erase_all(Date, " ");  // remove blanks
-//   If the date string is blank, or old style date format, return 0.
-      if ( Date.empty() )
-          return 0;
-      else if (Date.substr(2,1) == "/") 
-	  {
-          std::cerr << Date + " == ERROR: Old date format used ";
-		  return 0;
-	  }
+    boost::algorithm::erase_all(Date, " ");  // remove blanks
+    //   If the date string is blank, or old style date format, return 0.
+    if (Date.empty())
+        return 0;
+    else if (Date.substr(2, 1) == "/") {
+        std::cerr << Date + " == ERROR: Old date format used ";
+        return 0;
+    }
 
-	  int day = stoi (Date.substr(0, 2));  //  Convert characters to integers for day.
-      int iy = stoi (Date.substr(7));    //  Convert characters to integers for year.
-      std::string stmon = Date.substr(3,3);  //  Get string month
+    int day =
+        stoi(Date.substr(0, 2));    //  Convert characters to integers for day.
+    int iy = stoi(Date.substr(7));  //  Convert characters to integers for year.
+    std::string stmon = Date.substr(3, 3);  //  Get string month
 
-      int month = 0 ;
-	  for (int i = 0; i < 12; i++)
-		  if (stmon == MonthName[i])
-		  {
-			  month = i + 1;
-			  break;
-		  }
+    int month = 0;
+    for (int i = 0; i < 12; i++)
+        if (stmon == MonthName[i]) {
+            month = i + 1;
+            break;
+        }
 
-      if (month == 0)
-	  {
-          std::cerr << " Error in month definition:  " + stmon;
-		  return 0;
-	  }
-//     Adjust number of days in February for leap years.
-      i0[2] = 28 + LeapYear(iy);
-//     Compute jday.
-      int jday = 0;
-      for (int i = 0; i < month; i++)
-			jday += i0[i];
-      jday += day;
-//   Add correction if this is the next calendar year of simulation.
-      int nexty = m_YearStart + 1; //    next year
-      if (iy == nexty)
-           jday += 365 + LeapYear(m_YearStart);
-	  return jday;
+    if (month == 0) {
+        std::cerr << " Error in month definition:  " + stmon;
+        return 0;
+    }
+    //     Adjust number of days in February for leap years.
+    i0[2] = 28 + LeapYear(iy);
+    //     Compute jday.
+    int jday = 0;
+    for (int i = 0; i < month; i++) jday += i0[i];
+    jday += day;
+    //   Add correction if this is the next calendar year of simulation.
+    int nexty = m_YearStart + 1;  //    next year
+    if (iy == nexty) jday += 365 + LeapYear(m_YearStart);
+    return jday;
 }
 ///////////////////////////////////////////////////////////////////////////
-std::string DoyToDate(int Doy, int m_YearStart) 
+std::string DoyToDate(int Doy, int m_YearStart)
 //     This function converts day of year (sometimes called 'Julian date')
 // to calendar date, allowing for leap years and for days in the following year.
 //     Arguments input:
@@ -126,60 +126,54 @@ std::string DoyToDate(int Doy, int m_YearStart)
 //     Return value:
 //         Calender date as an 11-character string 'dd-MON-yyyy'
 //
-//     NOTE: This function does not check for correct input. Make sure that Doy 
-// is an integer between 1 and 730 (or 731 if m_YearStart or m_YearStart+1 is a leap year),
-// and m_YearStart is a 4-digit number).
+//     NOTE: This function does not check for correct input. Make sure that Doy
+// is an integer between 1 and 730 (or 731 if m_YearStart or m_YearStart+1 is a
+// leap year), and m_YearStart is a 4-digit number).
 //
 {
-      static std::string MonthName[] =
-	  { "JAN","FEB","MAR","APR","MAY","JUN", "JUL","AUG","SEP","OCT","NOV","DEC" };
-      static int mday[] =
-	  { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    static std::string MonthName[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                                      "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+    static int mday[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-      if (Doy <= 0) 
-          return "           ";
+    if (Doy <= 0) return "           ";
 
-//  Adjust number of days in February for leap years.
-      mday[1] = 28 + LeapYear(m_YearStart);
+    //  Adjust number of days in February for leap years.
+    mday[1] = 28 + LeapYear(m_YearStart);
 
-	  int iday = Doy;
-	  int iy = m_YearStart;
-//  If this is the following year
-      int jadd = 365 + LeapYear(m_YearStart);
-	  if (Doy > jadd) 
-	  {  
-	     iday = Doy - jadd;
-	     iy ++;
-         mday[1] = 28 + LeapYear(iy);
-	  }
-//   Compute month and day from Julian date.
-      int month = 1;
-      for (int i = 0; i < 12; i++)
-	  {
-         if ( iday <= mday[i] )
-             break;
-         month ++;
-         iday = iday - mday[i];
-	  }
-//   Construct date string.
-	  std::string Date1 = "  ";
-      char Cday[3];
-      sprintf(Cday, "%2d", iday);
-	  if ( Cday[0] == ' ')
-               Cday[0] = '0';
-      Date1.assign(Cday, 2);
+    int iday = Doy;
+    int iy = m_YearStart;
+    //  If this is the following year
+    int jadd = 365 + LeapYear(m_YearStart);
+    if (Doy > jadd) {
+        iday = Doy - jadd;
+        iy++;
+        mday[1] = 28 + LeapYear(iy);
+    }
+    //   Compute month and day from Julian date.
+    int month = 1;
+    for (int i = 0; i < 12; i++) {
+        if (iday <= mday[i]) break;
+        month++;
+        iday = iday - mday[i];
+    }
+    //   Construct date string.
+    std::string Date1 = "  ";
+    char Cday[3];
+    sprintf(Cday, "%2d", iday);
+    if (Cday[0] == ' ') Cday[0] = '0';
+    Date1.assign(Cday, 2);
 
-	  std::string Date2 = "    ";
-      char Cyear[5];
-      sprintf(Cyear, "%4d", iy);
-      Date2.assign(Cyear, 4);
+    std::string Date2 = "    ";
+    char Cyear[5];
+    sprintf(Cyear, "%4d", iy);
+    Date2.assign(Cyear, 4);
 
-	  std::string DateOut;
-	  DateOut = Date1 + "-" + MonthName[month - 1] + "-" + Date2;
-      return DateOut;
+    std::string DateOut;
+    DateOut = Date1 + "-" + MonthName[month - 1] + "-" + Date2;
+    return DateOut;
 }
 /////////////////////////////////////////////////////////////////
-int LeapYear(int nYear) 
+int LeapYear(int nYear)
 //    This function returns 1 if this is a leap year, or 0 if not.
 //    Argument input:
 //           nYear = the year (4 digit integer).
@@ -187,18 +181,15 @@ int LeapYear(int nYear)
 //           nLeap =  1 if this is a leap year, 0 if not.
 //
 {
-      int nLeap = 0;
-      if ( nYear % 4 == 0 )
-          nLeap = 1;
-      if ( nYear % 100 == 0 ) 
-          nLeap = 0; 
-      if ( nYear % 400 == 0 )
-          nLeap = 1;
+    int nLeap = 0;
+    if (nYear % 4 == 0) nLeap = 1;
+    if (nYear % 100 == 0) nLeap = 0;
+    if (nYear % 400 == 0) nLeap = 1;
 
-	  return nLeap;
+    return nLeap;
 }
 //////////////////////////////////////////////////////////////////
-double psiq ( double q, double qr, double qsat, double alpha, double beta )
+double psiq(double q, double qr, double qsat, double alpha, double beta)
 //     This function computes soil water matric potential (in bars)
 //  for a given value of soil water content, using the Van-Genuchten equation.
 //
@@ -209,32 +200,29 @@ double psiq ( double q, double qr, double qsat, double alpha, double beta )
 //        qsat - saturated water content, cm3 cm-3.
 //
 {
-//      For very low values of water content (near the residual water
-//  content) psiq is -500000 bars, and for saturated or higher water
-//  content psiq is -0.00001 bars.
-      if ( (q-qr) < 0.00001 )
-          return -500000;
-      else if ( q >= qsat ) 
-          return -0.00001;
-//     The following equation is used (FORTRAN notation):
-//      PSIX = (((QSAT-QR) / (Q-QR))**(1/GAMA) - 1) **(1/BETA) / ALPHA
-      double gama = 1 - 1 / beta;
-      double gaminv = 1 / gama;
-      double term = (qsat - qr) / ( q - qr);  //  intermediate variable
-      term = pow (term, gaminv);
-      double psix = pow ((term - 1), (1 / beta)) / alpha;
-      if ( psix < 0.01 ) 
-           psix = 0.01;
-//      psix (in cm) is converted to bars (negative value).
-      psix = ( 0.01 - psix ) * 0.001;
-      if ( psix < -500000 ) 
-          psix = - 500000;
-      if ( psix > -0.00001 ) 
-          psix = - 0.00001;
-	  return psix;
+    //      For very low values of water content (near the residual water
+    //  content) psiq is -500000 bars, and for saturated or higher water
+    //  content psiq is -0.00001 bars.
+    if ((q - qr) < 0.00001)
+        return -500000;
+    else if (q >= qsat)
+        return -0.00001;
+    //     The following equation is used (FORTRAN notation):
+    //      PSIX = (((QSAT-QR) / (Q-QR))**(1/GAMA) - 1) **(1/BETA) / ALPHA
+    double gama = 1 - 1 / beta;
+    double gaminv = 1 / gama;
+    double term = (qsat - qr) / (q - qr);  //  intermediate variable
+    term = pow(term, gaminv);
+    double psix = pow((term - 1), (1 / beta)) / alpha;
+    if (psix < 0.01) psix = 0.01;
+    //      psix (in cm) is converted to bars (negative value).
+    psix = (0.01 - psix) * 0.001;
+    if (psix < -500000) psix = -500000;
+    if (psix > -0.00001) psix = -0.00001;
+    return psix;
 }
 ////////////////////////////////////////////////////////////////////
-double qpsi ( double psi, double qr, double qsat, double alpha, double beta )
+double qpsi(double psi, double qr, double qsat, double alpha, double beta)
 //     This function computes soil water content (cm3 cm-3) for
 //  a given value of matric potential, using the Van-Genuchten equation.
 //
@@ -245,25 +233,26 @@ double qpsi ( double psi, double qr, double qsat, double alpha, double beta )
 //        qsat - saturated water content, cm3 cm-3.
 //
 {
-//     For very high values of PSI, saturated water content is assumed.
-//     For very low values of PSI, air-dry water content is assumed.
-      if ( psi >= -0.00001 )     
-          return qsat;
-      else if ( psi <= -500000 ) 
-          return qr;
-//     The soil water matric potential is transformed from bars (psi)
-//  to cm in positive value (psix).
-      double psix = 1000 * fabs(psi + 0.00001);
-//     The following equation is used (in FORTRAN notation):
-//      QPSI = QR + (QSAT-QR) / (1 + (ALPHA*PSIX)**BETA)**(1-1/BETA)
-      double gama = 1 - 1 / beta;
-      double term = 1 + pow( (alpha * psix), beta);  //  intermediate variable
-      double swfun = qr + (qsat - qr) / pow(term, gama);  //  computed water content
-      if (swfun < (qr + 0.0001)) 
-          swfun = qr + 0.0001;
-      return swfun;
-}////////////////////////////////////////////////////////////////////////
-double wcond ( double q, double qr, double qsat, double beta, double SaturatedHydCond, double PoreSpace )
+    //     For very high values of PSI, saturated water content is assumed.
+    //     For very low values of PSI, air-dry water content is assumed.
+    if (psi >= -0.00001)
+        return qsat;
+    else if (psi <= -500000)
+        return qr;
+    //     The soil water matric potential is transformed from bars (psi)
+    //  to cm in positive value (psix).
+    double psix = 1000 * fabs(psi + 0.00001);
+    //     The following equation is used (in FORTRAN notation):
+    //      QPSI = QR + (QSAT-QR) / (1 + (ALPHA*PSIX)**BETA)**(1-1/BETA)
+    double gama = 1 - 1 / beta;
+    double term = 1 + pow((alpha * psix), beta);  //  intermediate variable
+    double swfun =
+        qr + (qsat - qr) / pow(term, gama);  //  computed water content
+    if (swfun < (qr + 0.0001)) swfun = qr + 0.0001;
+    return swfun;
+}  ////////////////////////////////////////////////////////////////////////
+double wcond(double q, double qr, double qsat, double beta,
+             double SaturatedHydCond, double PoreSpace)
 //     This function computes soil water hydraulic conductivity
 //  for a given value of soil water content, using the Van-Genuchten
 //  equation. The units of the computed conductivity are the same as the given
@@ -278,31 +267,33 @@ double wcond ( double q, double qr, double qsat, double beta, double SaturatedHy
 //        qsat - saturated water content, cm3 cm-3.
 //
 {
-//
-//     For very low values of water content (near the residual water
-//  content) wcond is 0.
-      if ( (q-qr) < 0.0001 )
-          return 0;
-//     Water content for saturated conductivity is minimum of PoreSpace and qsat.
-//     For very high values of water content (exceeding the saturated
-//  water content or pore space) conductivity is SaturatedHydCond.
-      double xsat = min( qsat, PoreSpace );
-      if ( q >= xsat) 
-          return SaturatedHydCond;
-//      The following equation is used (in FORTRAN notation):
-//      WCOND = CONDSAT * ((Q-QR)/(XSAT-QR))**0.5
-//             * (1-(1-((Q-QR)/(XSAT-QR))**(1/GAMA))**GAMA)**2
-      double gama   = 1 - 1 / beta;
-      double gaminv = 1 / gama;
-      double sweff  = (q - qr) / (xsat - qr);  // intermediate variable (effective water content).
-      double acoeff = pow ( (1 - pow(sweff, gaminv)),  gama);  // intermediate variable
-      double bcoeff = pow ( (1 - acoeff),  2);  // intermediate variable
-      double conductivity = pow ( sweff, 0.5) * bcoeff * SaturatedHydCond;
-	  return conductivity;
+    //
+    //     For very low values of water content (near the residual water
+    //  content) wcond is 0.
+    if ((q - qr) < 0.0001) return 0;
+    //     Water content for saturated conductivity is minimum of PoreSpace and
+    //     qsat. For very high values of water content (exceeding the saturated
+    //  water content or pore space) conductivity is SaturatedHydCond.
+    double xsat = min(qsat, PoreSpace);
+    if (q >= xsat) return SaturatedHydCond;
+    //      The following equation is used (in FORTRAN notation):
+    //      WCOND = CONDSAT * ((Q-QR)/(XSAT-QR))**0.5
+    //             * (1-(1-((Q-QR)/(XSAT-QR))**(1/GAMA))**GAMA)**2
+    double gama = 1 - 1 / beta;
+    double gaminv = 1 / gama;
+    double sweff =
+        (q - qr) /
+        (xsat - qr);  // intermediate variable (effective water content).
+    double acoeff =
+        pow((1 - pow(sweff, gaminv)), gama);  // intermediate variable
+    double bcoeff = pow((1 - acoeff), 2);     // intermediate variable
+    double conductivity = pow(sweff, 0.5) * bcoeff * SaturatedHydCond;
+    return conductivity;
 }
 ///////////////////////////////////////////////////////////////////////////////
-double PsiOsmotic ( double q, double qsat, double ec)
-//      This function computes soil water osmotic potential (in bars, positive value).
+double PsiOsmotic(double q, double qsat, double ec)
+//      This function computes soil water osmotic potential (in bars, positive
+//      value).
 //
 //     The following arguments are used:
 //        q - soil water content, cm3 cm-3.
@@ -311,15 +302,12 @@ double PsiOsmotic ( double q, double qsat, double ec)
 //
 {
     double ReturnValue;
-	if (ec > 0) 
-	{
-	     ReturnValue = 0.36 * ec * qsat / q;
-         if (ReturnValue > 6)
-             ReturnValue = 6;
-		 return ReturnValue;
-	}
-    else   
-	     return 0;
+    if (ec > 0) {
+        ReturnValue = 0.36 * ec * qsat / q;
+        if (ReturnValue > 6) ReturnValue = 6;
+        return ReturnValue;
+    } else
+        return 0;
 }
 ///////////////////////////////////////////////////////////////////////////////
 double GetFromClim(std::string item, int Doy)
@@ -330,29 +318,25 @@ double GetFromClim(std::string item, int Doy)
 //       Doy -  defines day of year to extract.
 //
 {
-      int i;
-	  for (i = 0; i < 400; i++)
-	  {
-		if (Clim[i].nDay == Doy)
-	            		break;
-	  }
-//
-	  if (i > 399)
-         i = 399;
-	  if (Doy < Clim[0].nDay)
-         i = 0;
-	  if (item == "tmin")
-		  return Clim[i].Tmin;
-	  else if (item == "tmax")
-		  return Clim[i].Tmax;
-	  else if (item == "rad")
-		  return Clim[i].Rad;
-	  else if (item == "rain")
-		  return Clim[i].Rain;
-	  else if (item == "wind")
-		  return Clim[i].Wind;
-	  else if (item == "tdew")
-		  return Clim[i].Tdew;
-	  else
-		  return -99;
+    int i;
+    for (i = 0; i < 400; i++) {
+        if (Clim[i].nDay == Doy) break;
+    }
+    //
+    if (i > 399) i = 399;
+    if (Doy < Clim[0].nDay) i = 0;
+    if (item == "tmin")
+        return Clim[i].Tmin;
+    else if (item == "tmax")
+        return Clim[i].Tmax;
+    else if (item == "rad")
+        return Clim[i].Rad;
+    else if (item == "rain")
+        return Clim[i].Rain;
+    else if (item == "wind")
+        return Clim[i].Wind;
+    else if (item == "tdew")
+        return Clim[i].Tdew;
+    else
+        return -99;
 }

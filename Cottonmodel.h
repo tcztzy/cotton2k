@@ -5,21 +5,21 @@
 //  This file contains declartions for class C2K.
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
+
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:
 //
-class C2KApp
-{
-public:
-	C2KApp();
+class C2KApp {
+   public:
+    C2KApp();
     void GetProfilesList(std::string JobFileName);
     void RunTheModel();
-	void DailySimulation();
-	void SimulateThisDay();
+    void DailySimulation();
+    void SimulateThisDay();
     bool DoAdjustments();
-	virtual bool InitInstance(std::string);
+    virtual bool InitInstance(std::string);
 
     std::vector<std::string> ProfileArray;  // array of the profile names
 };
