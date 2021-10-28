@@ -94,27 +94,10 @@ void ReadProfileFile()
     std::string DateEmerge, DateSimStart, DateSimEnd, DatePlant;
     Dummy = GetLineData(DataFile);
     int nLength = Dummy.length();
-    if (nLength >= 53) {
-        DatePlant = Dummy.substr(45, 14);
-        boost::algorithm::erase_all(DatePlant, " ");
-    } else
-        DatePlant = "";
     //     For advanced users only: if there is CO2 enrichment, read also CO2
     //     factor, DOY dates
     //	for start and stop of enrichment (these are left blank if there is no
     //CO2 enrichment).
-    if (nLength > 76) {
-        std::string ttt = Dummy.substr(60, 10);
-        boost::algorithm::erase_all(ttt, " ");
-        CO2EnrichmentFactor = stof(ttt);
-        ttt = Dummy.substr(70, 5);
-        boost::algorithm::erase_all(ttt, " ");
-        DayStartCO2 = stoi(ttt);
-        ttt = Dummy.substr(75);
-        boost::algorithm::erase_all(ttt, " ");
-        DayEndCO2 = stoi(ttt);
-    } else
-        CO2EnrichmentFactor = 0;
     //     Line #3: Names of weather files: actual and predicted.
     Dummy = GetLineData(DataFile);
     nLength = Dummy.length();
@@ -129,20 +112,6 @@ void ReadProfileFile()
         PrdWthFileName = "";
     //     For advanced users only: If soil mulch is used, read relevant
     //     parameters.
-    if (nLength > 41) {
-        m_mulchdata = Dummy.substr(40);
-        MulchIndicator = stoi(m_mulchdata.substr(0, 10));
-        if (MulchIndicator > 0) {
-            MulchTranSW = stof(m_mulchdata.substr(10, 10));
-            MulchTranLW = stof(m_mulchdata.substr(20, 10));
-            DayStartMulch = stoi(m_mulchdata.substr(30, 5));
-            DayEndMulch = stoi(m_mulchdata.substr(35, 5));
-            if (DayEndMulch <= 0) DayEndMulch = DateToDoy(DateSimEnd, iyear);
-        }
-    } else {
-        m_mulchdata = "";
-        MulchIndicator = 0;
-    }
     //     Line #4: Names of files for soil hydraulic data, soil initial
     //  conditions, agricultural input, and plant map adjustment.
     Dummy = GetLineData(DataFile);
@@ -218,7 +187,6 @@ void ReadProfileFile()
     //     start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling
     // function DateToDoy.
-    DayPlant = DateToDoy(DatePlant, iyear);
     DayStartSoilMaps = DateToDoy(SoilMapStartDate, iyear);
     DayStopSoilMaps = DateToDoy(SoilMapStopDate, iyear);
     DayStartPlantMaps = DateToDoy(PlantMapStartDate, iyear);
@@ -226,27 +194,6 @@ void ReadProfileFile()
     //     If the output frequency indicators are zero, they are set to 999.
     if (SoilMapFreq <= 0) SoilMapFreq = 999;
     if (PlantMapFreq <= 0) PlantMapFreq = 999;
-    //     If the date of emergence has not been given, emergence will be
-    //  simulated by the model. In this case, isw = 0, and a check is
-    //  performed to make sure that the date of planting has been given.
-    if (DayEmerge <= 0) {
-        isw = 0;
-        if (DayPlant <= 0) {
-            std::cerr << " planting date or emergence date must be given in "
-                         "the profile file !!"
-                      << std::endl;
-            bEnd = true;
-        }
-    }
-    //     If the date of emergence has been given in the input: isw = 1 if
-    //     simulation
-    //  starts before emergence, or isw = 2 if simulation starts at emergence.
-    else if (DayEmerge > DayStart)
-        isw = 1;
-    else {
-        isw = 2;
-        Kday = 1;
-    }
     //     Call function OpenOutputFiles() to open the output files.
     OpenOutputFiles(m_fileDesc);
 }
