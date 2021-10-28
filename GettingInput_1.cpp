@@ -89,28 +89,11 @@ void ReadProfileFile()
     //     Line #1: Read file description.
     std::string Dummy = GetLineData(DataFile);
     std::string m_fileDesc;  // Description of the Profile file
-    if (Dummy.length() > 20) {
-        m_fileDesc = Dummy.substr(20);
-        boost::algorithm::trim_right(m_fileDesc);
-    } else
-        m_fileDesc = "";
     //     Line #2: Read dates of emergence, start and end of simulation, and
     //     planting date.
     std::string DateEmerge, DateSimStart, DateSimEnd, DatePlant;
     Dummy = GetLineData(DataFile);
     int nLength = Dummy.length();
-    if (nLength >= 14) {
-        DateEmerge = Dummy.substr(0, 14);
-        boost::algorithm::erase_all(DateEmerge, " ");
-    }
-    if (nLength >= 23) {
-        DateSimStart = Dummy.substr(15, 14);
-        boost::algorithm::erase_all(DateSimStart, " ");
-    }
-    if (nLength >= 38) {
-        DateSimEnd = Dummy.substr(30, 14);
-        boost::algorithm::erase_all(DateSimEnd, " ");
-    }
     if (nLength >= 53) {
         DatePlant = Dummy.substr(45, 14);
         boost::algorithm::erase_all(DatePlant, " ");
@@ -235,10 +218,6 @@ void ReadProfileFile()
     //     start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling
     // function DateToDoy.
-    iyear = stoi(DateSimStart.substr(7, 4));
-    DayStart = DateToDoy(DateSimStart, iyear);
-    DayEmerge = DateToDoy(DateEmerge, iyear);
-    DayFinish = DateToDoy(DateSimEnd, iyear);
     DayPlant = DateToDoy(DatePlant, iyear);
     DayStartSoilMaps = DateToDoy(SoilMapStartDate, iyear);
     DayStopSoilMaps = DateToDoy(SoilMapStopDate, iyear);
