@@ -6,7 +6,7 @@ use chrono::{Datelike, NaiveDate};
 use serde::{de, Deserialize};
 use std::ffi::CString;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
@@ -85,6 +85,8 @@ struct Profile {
     plant_date: Option<NaiveDate>,
     co2_enrichment: Option<CO2Enrichment>,
     mulch: Option<Mulch>,
+    weather_path: PathBuf,
+    site: Site,
 }
 
 #[derive(Deserialize, Debug)]
@@ -116,11 +118,29 @@ struct Mulch {
     stop_date: Option<NaiveDate>,
 }
 
-fn read_profile(profile_path: &Path) {
-    let mut file = std::fs::File::open(profile_path).unwrap();
+#[derive(Deserialize, Debug)]
+struct Site {
+    average_wind_speed: Option<f64>,
+    estimate_dew_point: (f64, f64),
+}
+
+#[derive(Deserialize, Debug)]
+struct WeatherRecord {
+    #[serde(deserialize_with = "from_isoformat")]
+    date: NaiveDate,
+    irradiation: f64,
+    tmax: f64,
+    tmin: f64,
+    rain: f64,
+    wind: Option<f64>,
+    tdew: Option<f64>,
+}
+
+fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    let mut file = std::fs::File::open(profile_path)?;
     let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
-    let mut profile: Profile = toml::from_str(&contents).unwrap();
+    file.read_to_string(&mut contents)?;
+    let mut profile: Profile = toml::from_str(&contents)?;
     match profile.name {
         None => {
             profile.name = Some(String::from(
@@ -191,6 +211,53 @@ fn read_profile(profile_path: &Path) {
             }
         }
     }
+    let weather_path = if profile.weather_path.is_relative() {
+        profile_path.parent().unwrap().join(profile.weather_path)
+    } else {
+        profile.weather_path
+    };
+    println!("{:?}", weather_path.to_str().unwrap());
+    let mut rdr = csv::Reader::from_path(weather_path)?;
+    let mut jdd: i32 = 0;
+    for result in rdr.deserialize() {
+        let record: WeatherRecord = result?;
+        jdd = record.date.ordinal() as i32;
+        let j = jdd - unsafe { DayStart };
+        if j < 0 {continue;}
+        unsafe {
+            Clim[j as usize].nDay = jdd;
+            // convert \frac{MJ}{m^2} to langleys
+            Clim[j as usize].Rad = record.irradiation * 23.884;
+            Clim[j as usize].Tmax = record.tmax;
+            Clim[j as usize].Tmin = record.tmin;
+            Clim[j as usize].Wind = if profile.site.average_wind_speed.is_some() && record.wind.is_none() {
+                profile.site.average_wind_speed.unwrap()
+            } else {
+                record.wind.unwrap_or(0.)
+            };
+            Clim[j as usize].Tdew = record.tdew.unwrap_or(estimate_dew_point(
+                record.tmax,
+                profile.site.estimate_dew_point.0,
+                profile.site.estimate_dew_point.1,
+            ));
+            Clim[j as usize].Rain = record.rain;
+        }
+    }
+    unsafe {
+        LastDayWeatherData = jdd;
+    }
+    Ok(())
+}
+
+/// estimates the approximate daily average dewpoint temperature when it is not available.
+pub fn estimate_dew_point(maxt: f64, site5: f64, site6: f64) -> f64 {
+    if maxt <= 20. {
+        site5
+    } else if maxt >= 40. {
+        site6
+    } else {
+        ((40. - maxt) * site5 + (maxt - 20.) * site6) / 20.
+    }
 }
 
 fn main() {
@@ -199,7 +266,7 @@ fn main() {
         panic!("profile file path should be provided!");
     }
     let mut app: C2KApp = unsafe { C2KApp::new() };
-    read_profile(Path::new(&args[1]));
+    read_profile(Path::new(&args[1])).expect("Error in read_profile");
     let filename = CString::new(args[2].to_string()).expect("Error");
     unsafe {
         app.RunTheModel(filename.as_ptr());

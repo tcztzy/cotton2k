@@ -47,7 +47,6 @@ void ReadInput()
     InitializeGlobal();
     ReadProfileFile();
     ReadCalibrationData();
-    LastDayOfActualWeather = OpenClimateFile();
     InitializeGrid();
     ReadSoilImpedance();
     WriteInitialInputData();

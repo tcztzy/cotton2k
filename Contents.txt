@@ -71,9 +71,6 @@ Input Routines:
           form()
        
     File GettingInput_3.cpp
-          OpenClimateFile()
-          ReadClimateData()
-          tdewest()
           ReadAgriculturalInput()
           SlabLoc()
           ReadPlantMapInput()

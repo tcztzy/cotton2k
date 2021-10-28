@@ -117,7 +117,6 @@ void NitrogenSupply();
 void NitrogenUptake(int l, int k, double reqnc);
 void NitrogenUptakeRequirement();
 // O
-int OpenClimateFile();
 void OpenOutputFiles(std::string m_fileDesc);
 void output1();
 void output2();
@@ -151,7 +150,6 @@ double PsiOnTranspiration(double PsiAverage);
 // R
 void ReadAgriculturalInput();
 void ReadCalibrationData();
-int ReadClimateData(ifstream &DataFile);
 void ReadInput();
 void ReadPlantMapInput();
 void ReadProfileFile();
@@ -200,7 +198,6 @@ void Stress();
 void sunangle(double ti, double &coszhr, double &sunahr);
 // T
 void TapRootGrowth();
-double tdewest(double maxt);
 double tdewhour(double ti, double tt);
 double TemperatureOnFruitGrowthRate(double t);
 double SoilTemperatureEffect(double tt);
