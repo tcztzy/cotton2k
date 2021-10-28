@@ -35,8 +35,7 @@
 //     different
 //  sizes. The grid can be defined by the modeler. The maximum numbers of layers
 //  and columns are given by the parameters maxl and maxk, respectively. These
-//  are set to 40 and 20, in this version of COTTON2K. The grid is set in
-//  function InitializeGrid().
+//  are set to 40 and 20, in this version of COTTON2K. The grid is set at beginning.
 //
 //     The whole slab is being simulated. Thus, non-symmetrical processes (such
 //     as

@@ -67,6 +67,11 @@ where
     d.deserialize_option(OptionalNaiveDateVisitor)
 }
 
+#[inline]
+fn zero() -> f64 {
+    0.
+}
+
 #[derive(Deserialize, Debug)]
 struct Profile {
     name: Option<String>,
@@ -88,6 +93,10 @@ struct Profile {
     weather_path: PathBuf,
     site: Site,
     cultivar_parameters: Vec<f64>,
+    row_space: f64,
+    #[serde(default = "zero")]
+    skip_row_width: f64,
+    plants_per_meter: f64,
 }
 
 #[derive(Deserialize, Debug)]
@@ -220,8 +229,6 @@ fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
                 MulchIndicator = MulchType::NoMulch as i32;
             }
         }
-    }
-    unsafe {
         SitePar[1] = profile.site.wind_blow_after_sunrise;
         SitePar[2] = profile.site.wind_max_after_noon;
         SitePar[3] = profile.site.wind_stop_after_sunset;
@@ -236,10 +243,56 @@ fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
         SitePar[14] = profile.site.dew_point_range.2;
         SitePar[15] = profile.site.albedo_range.1;
         SitePar[16] = profile.site.albedo_range.0;
-    }
-    unsafe {
         for pair in profile.cultivar_parameters.iter().enumerate() {
             VarPar[pair.0 + 1] = *pair.1;
+        }
+        RowSpace = if profile.skip_row_width > 0. {
+            (profile.row_space + profile.skip_row_width) / 2.
+        } else {
+            profile.row_space
+        };
+        // PlantRowLocation is the distance from edge of slab, cm, of the plant row.
+        PlantRowLocation = RowSpace / 2.;
+        // Compute PlantPopulation - number of plants per hectar, and
+        // PerPlantArea - the average surface area per plant, in dm2, and
+        // the empirical plant density factor (DensityFactor). This factor will be used to express the effect of plant density on some plant growth rate functions.  Note that DensityFactor =1 for 5 plants per sq m (or 50000 per ha).
+        PlantPopulation = profile.plants_per_meter / RowSpace * 1000000.;
+        PerPlantArea = 1000000. / PlantPopulation;
+        DensityFactor = (VarPar[1] * (5. - PlantPopulation / 10000.)).exp();
+        // Define the numbers of rows and columns in the soil slab (nl, nk).
+        // Define the depth, in cm, of consecutive nl layers.
+        nl = maxl;
+        nk = maxk;
+        dl[0] = 2.;
+        dl[1] = 2.;
+        dl[2] = 2.;
+        dl[3] = 4.;
+        for i in 4..(maxl - 2) as usize {
+            dl[i] = 5.;
+        }
+        dl[(maxl - 2) as usize] = 10.;
+        dl[(maxl - 1) as usize] = 10.;
+        //      The width of the slab columns is computed by dividing the row
+        //  spacing by the number of columns. It is assumed that slab width is
+        //  equal to the average row spacing, and column widths are uniform.
+        //      Note: wk is an array - to enable the option of non-uniform
+        //  column widths in the future.
+        //      PlantRowColumn (the column including the plant row) is now computed
+        //      from
+        //  PlantRowLocation (the distance of the plant row from the edge of the
+        //  slab).
+        let mut sumwk = 0.; // sum of column widths
+        PlantRowColumn = 0;
+        for k in 0..nk {
+            wk[k as usize] = RowSpace / nk as f64;
+            sumwk = sumwk + wk[k as usize];
+            if PlantRowColumn == 0 && sumwk > PlantRowLocation {
+                PlantRowColumn = if (sumwk - PlantRowLocation) > (0.5 * wk[k as usize]) {
+                    k - 1
+                } else {
+                    k
+                };
+            }
         }
     }
     let weather_path = if profile.weather_path.is_relative() {
@@ -253,18 +306,21 @@ fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
         let record: WeatherRecord = result?;
         jdd = record.date.ordinal() as i32;
         let j = jdd - unsafe { DayStart };
-        if j < 0 {continue;}
+        if j < 0 {
+            continue;
+        }
         unsafe {
             Clim[j as usize].nDay = jdd;
             // convert \frac{MJ}{m^2} to langleys
             Clim[j as usize].Rad = record.irradiation * 23.884;
             Clim[j as usize].Tmax = record.tmax;
             Clim[j as usize].Tmin = record.tmin;
-            Clim[j as usize].Wind = if profile.site.average_wind_speed.is_some() && record.wind.is_none() {
-                profile.site.average_wind_speed.unwrap()
-            } else {
-                record.wind.unwrap_or(0.)
-            };
+            Clim[j as usize].Wind =
+                if profile.site.average_wind_speed.is_some() && record.wind.is_none() {
+                    profile.site.average_wind_speed.unwrap()
+                } else {
+                    record.wind.unwrap_or(0.)
+                };
             Clim[j as usize].Tdew = record.tdew.unwrap_or(estimate_dew_point(
                 record.tmax,
                 profile.site.estimate_dew_point.0,

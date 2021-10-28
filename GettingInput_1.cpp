@@ -3,7 +3,6 @@
 //   functions in this file:
 // ReadInput()
 // ReadProfileFile()
-// InitializeGrid()
 // WriteInitialInputData()
 //
 #include <math.h>
@@ -18,12 +17,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-//
-// Definitions of File scope variables:
-bool bLat,                   // true if latitude is south, false if north
-    bLong;                   // true if longitude is west, false if east
-double SkipRowWidth,         // the smaller distance between skip rows, cm
-    PlantsPerM;              // average number of plants pre meter of row.
+
 /////////////////////////////////////////////////////////////
 void ReadInput()
 //     This is the main function for reading input. It is called from
@@ -39,7 +33,6 @@ void ReadInput()
     //  input files, or initialize them otherwise.
     InitializeGlobal();
     ReadProfileFile();
-    InitializeGrid();
     ReadSoilImpedance();
     WriteInitialInputData();
     InitSoil();
@@ -59,12 +52,12 @@ void ReadProfileFile()
 //     ReadInput().
 //  It calls GetLineData(), DateToDoy() and OpenOutputFiles().
 //     The following global or file-scope variables are set here:
-//  ActWthFileName, AgrInputFileName, bEnd, bLat, bLong, CO2EnrichmentFactor,
+//  AgrInputFileName, bEnd, bLat, bLong, CO2EnrichmentFactor,
 //  DayEmerge, DayEndCO2, DayFinish, DayPlant, DayStart, DayStartCO2,
 //  DayStartPlantMaps, DayStartSoilMaps, DayStopPlantMaps, DayStopSoilMaps,
 //  Elevation, isw, iyear, Latitude, Longitude, m_mulchdata, MulchIndicator,
 //  OutIndex, PlantmapFileName, PlantMapFreq, PlantsPerM,
-//  PrdWthFileName, RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName,
+//  RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName,
 //  SoilMapFreq.
 //     The following global variable is referenced here:   ProfileName
 //
@@ -91,16 +84,6 @@ void ReadProfileFile()
     //CO2 enrichment).
     //     Line #3: Names of weather files: actual and predicted.
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    if (nLength > 1) {
-        ActWthFileName = Dummy.substr(0, 20);
-        boost::algorithm::erase_all(ActWthFileName, " ");
-    }
-    if (nLength > 21) {
-        PrdWthFileName = Dummy.substr(20, 20);
-        boost::algorithm::erase_all(PrdWthFileName, " ");
-    } else
-        PrdWthFileName = "";
     //     For advanced users only: If soil mulch is used, read relevant
     //     parameters.
     //     Line #4: Names of files for soil hydraulic data, soil initial
@@ -131,10 +114,6 @@ void ReadProfileFile()
     //  for no skip rows), number of plants per meter of row, and index
     //  number for the cultivar.
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    if (nLength > 1) RowSpace = stof(Dummy.substr(0, 10));
-    if (nLength >= 20) SkipRowWidth = stof(Dummy.substr(10, 10));
-    if (nLength >= 30) PlantsPerM = stof(Dummy.substr(20, 10));
     //     Line #7: Frequency in days for output of soil maps, and dates
     //  for start and stop of this output (blank or 0 if no such output is
     //  required. Same is repeated for output of plant maps.
@@ -186,71 +165,6 @@ void ReadProfileFile()
     //     Call function OpenOutputFiles() to open the output files.
     OpenOutputFiles(m_fileDesc);
 }
-
-//////////////////////////////////////////////////////////
-void InitializeGrid()
-//     This function initializes the soil grid variables. It is executed once
-//  at the beginning of the simulation. It is called from ReadInput().
-//
-//     The following global or file-scope variables are set here:
-//  DensityFactor, dl, nk, nl, PerPlantArea, PlantPopulation,
-//  PlantRowColumn, PlantRowLocation, RowSpace, wk.
-//     The following global variables are referenced here:
-//  PlantsPerM, SkipRowWidth, VarPar, maxk, maxl.
-{
-    //     PlantRowLocation is the distance from edge of slab, cm, of the plant
-    //     row.
-    PlantRowLocation = 0.5 * RowSpace;
-    if (SkipRowWidth > 1) {
-        //     If there is a skiprow arrangement, RowSpace and PlantRowLocation
-        //     are redefined.
-        RowSpace = 0.5 * (RowSpace +
-                          SkipRowWidth);  // actual width of the soil slab (cm)
-        PlantRowLocation = 0.5 * SkipRowWidth;
-    }
-    //     Compute PlantPopulation - number of plants per hectar, and
-    //     PerPlantArea - the average
-    //  surface area per plant, in dm2, and the empirical plant density factor
-    //  (DensityFactor). This factor will be used to express the effect of plant
-    //  density on some plant growth rate functions.  Note that DensityFactor =
-    //  1 for 5 plants per sq m (or 50000 per ha).
-    PlantPopulation = PlantsPerM / RowSpace * 1000000;
-    PerPlantArea = 1000000 / PlantPopulation;
-    DensityFactor = exp(VarPar[1] * (5 - PlantPopulation / 10000));
-    //     Define the numbers of rows and columns in the soil slab (nl, nk).
-    //  Define the depth, in cm, of consecutive nl layers.
-    //     Note that maxl and maxk are defined as constants in file "global.h".
-    nl = maxl;
-    nk = maxk;
-    dl[0] = 2;
-    dl[1] = 2;
-    dl[2] = 2;
-    dl[3] = 4;
-    for (int l = 4; l < maxl - 2; l++) dl[l] = 5;
-    dl[maxl - 2] = 10;
-    dl[maxl - 1] = 10;
-    //      The width of the slab columns is computed by dividing the row
-    //  spacing by the number of columns. It is assumed that slab width is
-    //  equal to the average row spacing, and column widths are uniform.
-    //      Note: wk is an array - to enable the option of non-uniform
-    //  column widths in the future.
-    //      PlantRowColumn (the column including the plant row) is now computed
-    //      from
-    //  PlantRowLocation (the distance of the plant row from the edge of the
-    //  slab).
-    double sumwk = 0;  // sum of column widths
-    PlantRowColumn = 0;
-    for (int k = 0; k < nk; k++) {
-        wk[k] = RowSpace / nk;
-        sumwk = sumwk + wk[k];
-        if (PlantRowColumn == 0 && sumwk > PlantRowLocation) {
-            if ((sumwk - PlantRowLocation) > (0.5 * wk[k]))
-                PlantRowColumn = k - 1;
-            else
-                PlantRowColumn = k;
-        }
-    }
-}
 //////////////////////////////////////////////////////////
 void WriteInitialInputData()
 //     This function writes the input data to File20 (*.B01). It is executed
@@ -260,10 +174,10 @@ void WriteInitialInputData()
 //     The following global or file-scope variables are set here:
 //  DayEndMulch, DayStartMulch, MulchTranLW, MulchTranSW.
 //     The following global or file-scope variables are referenced here:
-//  ActWthFileName, AgrInputFileName, CO2EnrichmentFactor, DayEmerge, DayEndCO2,
+//  AgrInputFileName, CO2EnrichmentFactor, DayEmerge, DayEndCO2,
 //  DayFinish, DayPlant, DayStart, DayStartCO2, Elevation, iyear, Latitude,
 //  Longitude, m_mulchdata, maxk, MulchIndicator, OutIndex, PerPlantArea,
-//  PlantmapFileName, PlantsPerM, PrdWthFileName, ProfileName, RowSpace,
+//  PlantmapFileName, PlantsPerM, ProfileName, RowSpace,
 //  SiteName, SkipRowWidth, SoilHydFileName, SoilInitFileName, VarName.
 {
     ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
@@ -273,18 +187,12 @@ void WriteInitialInputData()
     File20.precision(2);
     File20 << fabs(Latitude);
     File20.width(7);
-    if (bLat)
-        File20 << "  South";
-    else
         File20 << "  North";
     File20 << "         Longitude.. ";
     File20.width(8);
     File20.precision(2);
     File20 << fabs(Longitude);
     File20.width(7);
-    if (bLong)
-        File20 << "   West";
-    else
         File20 << "   East";
     File20 << endl;
     //
@@ -321,10 +229,10 @@ void WriteInitialInputData()
         File20 << RowSpace;
         File20 << "          Plants Per Row-m... ";
         File20.width(8);
-        File20 << PlantsPerM << endl;
+        File20 << 0 << endl;
         File20 << "    Skip Width (cm). ";
         File20.width(8);
-        File20 << SkipRowWidth;
+        File20 << 0;
         File20 << "          Plants Per Ha...... ";
         File20.width(8);
         File20.precision(1);
@@ -336,10 +244,10 @@ void WriteInitialInputData()
         File20 << RowSpace / 2.54;
         File20 << "          Plants Per Row-ft.. ";
         File20.width(8);
-        File20 << PlantsPerM * 0.305 << endl;
+        File20 << 0 * 0.305 << endl;
         File20 << "    Skip Width (in). ";
         File20.width(8);
-        File20 << SkipRowWidth / 2.54;
+        File20 << 0 / 2.54;
         File20 << "          Plants Per Acre.... ";
         File20.width(8);
         File20.precision(1);
@@ -386,16 +294,6 @@ void WriteInitialInputData()
                    << endl;
         }
     }
-    //     Write names of the other input files
-    if (ActWthFileName.length() > 0) {
-        File20 << "    Actual Weather Input File:     " << ActWthFileName
-               << endl;
-        File20 << "    Last date read from Actual Weather File: "
-               << DoyToDate(0, iyear) << endl;
-    }
-    if (PrdWthFileName.length() > 0)
-        File20 << "    Predicted Weather Input File:  " << PrdWthFileName
-               << endl;
     File20 << "    Cultural Input File:           " << AgrInputFileName << endl;
     File20 << "    Initial Soil Data Input File:  " << SoilInitFileName << endl;
     File20 << "    Soil Hydrology Input File:     " << SoilHydFileName << endl;

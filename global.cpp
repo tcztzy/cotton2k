@@ -153,11 +153,10 @@ bool bEnd,                  // flag indicating abnormal simulation end.
 //
 // std::string variables:
 //
-std::string ActWthFileName,  // name of input file with actual weather data.
+std::string
     AgrInputFileName,        // name of input file with agricultural input data
     Date,  // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
     PlantmapFileName,  // name of input file with plant map adjustment data.
-    PrdWthFileName,    // name of input file with predicted weather data.
     ProfileName,  // name of input file with profile data (without the extension
                   // ".PRO").
     SoilHydFileName,        // name of input file with soil hydrology data.

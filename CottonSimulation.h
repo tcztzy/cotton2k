@@ -88,7 +88,6 @@ double TemperatureOnLeafGrowthRate(double t);
 void HeatBalance(int nn);
 // I
 void InitializeGlobal();
-void InitializeGrid();
 void InitiateLateralRoots();
 void InitializeRootData();
 void InitializeSoilData();
