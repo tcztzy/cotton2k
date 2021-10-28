@@ -3,7 +3,6 @@
 //   functions in this file:
 // ReadInput()
 // ReadProfileFile()
-// ReadCalibrationData()
 // InitializeGrid()
 // WriteInitialInputData()
 //
@@ -23,14 +22,8 @@
 // Definitions of File scope variables:
 bool bLat,                   // true if latitude is south, false if north
     bLong;                   // true if longitude is west, false if east
-int nSiteNum,                // index number for site.
-    LastDayOfActualWeather,  // last day of actual weather.
-    nVarNum;                 // index number for cultivar.
 double SkipRowWidth,         // the smaller distance between skip rows, cm
     PlantsPerM;              // average number of plants pre meter of row.
-std::string m_mulchdata,     // string containing input data of mulching
-    VarName,                 // name of the cultivar
-    SiteName;                // name of the site
 /////////////////////////////////////////////////////////////
 void ReadInput()
 //     This is the main function for reading input. It is called from
@@ -46,7 +39,6 @@ void ReadInput()
     //  input files, or initialize them otherwise.
     InitializeGlobal();
     ReadProfileFile();
-    ReadCalibrationData();
     InitializeGrid();
     ReadSoilImpedance();
     WriteInitialInputData();
@@ -71,7 +63,7 @@ void ReadProfileFile()
 //  DayEmerge, DayEndCO2, DayFinish, DayPlant, DayStart, DayStartCO2,
 //  DayStartPlantMaps, DayStartSoilMaps, DayStopPlantMaps, DayStopSoilMaps,
 //  Elevation, isw, iyear, Latitude, Longitude, m_mulchdata, MulchIndicator,
-//  nSiteNum, nVarNum, OutIndex, PlantmapFileName, PlantMapFreq, PlantsPerM,
+//  OutIndex, PlantmapFileName, PlantMapFreq, PlantsPerM,
 //  PrdWthFileName, RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName,
 //  SoilMapFreq.
 //     The following global variable is referenced here:   ProfileName
@@ -135,7 +127,6 @@ void ReadProfileFile()
     //     Line #5: Latitude and longitude of this site, elevation (in m
     //  above sea level), and the index number for this geographic site.
     Dummy = GetLineData(DataFile);
-    if (nLength > 30) nSiteNum = stoi(Dummy.substr(30));
     //     Line #6: Row spacing in cm, skip-row spacing in cm (blank or 0
     //  for no skip rows), number of plants per meter of row, and index
     //  number for the cultivar.
@@ -144,7 +135,6 @@ void ReadProfileFile()
     if (nLength > 1) RowSpace = stof(Dummy.substr(0, 10));
     if (nLength >= 20) SkipRowWidth = stof(Dummy.substr(10, 10));
     if (nLength >= 30) PlantsPerM = stof(Dummy.substr(20, 10));
-    if (nLength > 30) nVarNum = stoi(Dummy.substr(30));
     //     Line #7: Frequency in days for output of soil maps, and dates
     //  for start and stop of this output (blank or 0 if no such output is
     //  required. Same is repeated for output of plant maps.
@@ -196,114 +186,7 @@ void ReadProfileFile()
     //     Call function OpenOutputFiles() to open the output files.
     OpenOutputFiles(m_fileDesc);
 }
-//////////////////////////////////////////////////////////
-void ReadCalibrationData()
-//     This function reads the values of the calibration parameters
-//  from input files. It is called from ReadInput(). It calls GetLineData().
-//
-//     The following global or file-scope variables are set here:
-//  SiteName, SitePar, VarName, VarPar
-{
-    //     Open file of variety file list.
-    std::string strFileName = "DATA\\VARS\\VARLIST.DAT";
-    ifstream DataFile(strFileName, ios::in);
-    if (DataFile.fail()) {
-        std::cerr << "Error opening " + strFileName + ".";
-        DataFile.close();
-        return;
-    }
-    //
-    std::string Dummy, VarFile;
-    for (int m_idx = 0; m_idx < 1000; m_idx++) {
-        if (DataFile.eof() == 1) break;
-        Dummy = GetLineData(DataFile);
-        int nLength = Dummy.length();
-        int num;
-        std::string Name, FileName;
-        if (nLength >= 4) {
-            num = stoi(Dummy.substr(0, 4));
-        }
-        if (nLength >= 25) {
-            Name = Dummy.substr(5, 20);
-            boost::algorithm::erase_all(Name, " ");
-        }
-        if (nLength >= 45) {
-            FileName = Dummy.substr(40, 20);
-            boost::algorithm::erase_all(FileName, " ");
-        }
-        if (num == nVarNum) {
-            VarFile = FileName;
-            VarName = Name;
-            break;
-        }
-    }
-    DataFile.close();
-    //
-    strFileName = "DATA\\VARS\\" + VarFile;
-    ifstream DataFile1(strFileName, ios::in);
-    if (DataFile1.fail()) {
-        std::cerr << "Error opening " + strFileName + ".";
-        DataFile1.close();
-        return;
-    }
-    //     Read values of variety related parameters
-    Dummy = GetLineData(DataFile1);  // skip 1st line
-    for (int i = 1; i <= 60; i++) {
-        Dummy = GetLineData(DataFile1);
-        VarPar[i] = stof(Dummy.substr(0, 20));
-    }
-    DataFile1.close();
-    //     Open file of site file list.
-    strFileName = "DATA\\SITE\\SITELIST.DAT";
-    std::string SiteFile;
-    ifstream DataFile2(strFileName, ios::in);
-    if (DataFile2.fail()) {
-        std::cerr << "Error opening " + strFileName + "." << std::endl;
-        DataFile.close();
-        return;
-    }
-    //
-    for (int m_idx = 0; m_idx < 1000; m_idx++) {
-        if (DataFile2.eof() == 1) break;
 
-        Dummy = GetLineData(DataFile2);
-        int nLength = Dummy.length();
-        int num;
-        std::string Name, FileName;
-        if (nLength >= 4) {
-            num = stoi(Dummy.substr(0, 4));
-        }
-        if (nLength >= 25) {
-            Name = Dummy.substr(5, 20);
-            boost::algorithm::erase_all(Name, " ");
-        }
-        if (nLength >= 45) {
-            FileName = Dummy.substr(40, 20);
-            boost::algorithm::erase_all(FileName, " ");
-        }
-        if (num == nSiteNum) {
-            SiteFile = FileName;
-            SiteName = Name;
-            break;
-        }
-    }
-    DataFile2.close();
-    //
-    strFileName = "DATA\\SITE\\" + SiteFile;
-    ifstream DataFile3(strFileName, ios::in);
-    if (DataFile3.fail()) {
-        std::cerr << "Error opening " + strFileName + "." << std::endl;
-        DataFile3.close();
-        return;
-    }
-    //     Read values of site related parameters
-    Dummy = GetLineData(DataFile3);  // skip 1st line
-    for (int i = 1; i <= 20; i++) {
-        Dummy = GetLineData(DataFile3);
-        SitePar[i] = stof(Dummy.substr(0, 20));
-    }
-    DataFile3.close();
-}
 //////////////////////////////////////////////////////////
 void InitializeGrid()
 //     This function initializes the soil grid variables. It is executed once
@@ -473,7 +356,7 @@ void WriteInitialInputData()
         File20 << "    to ...... " << DoyToDate(DayEndCO2, iyear) << endl;
     }
     //
-    if (m_mulchdata.length() > 0 && MulchIndicator > 0) {
+    if (false && MulchIndicator > 0) {
         File20 << "   Polyethylene mulch cover. Transmissivity values are: "
                << endl;
         File20 << " For short waves:  ";
@@ -508,7 +391,7 @@ void WriteInitialInputData()
         File20 << "    Actual Weather Input File:     " << ActWthFileName
                << endl;
         File20 << "    Last date read from Actual Weather File: "
-               << DoyToDate(LastDayOfActualWeather, iyear) << endl;
+               << DoyToDate(0, iyear) << endl;
     }
     if (PrdWthFileName.length() > 0)
         File20 << "    Predicted Weather Input File:  " << PrdWthFileName
@@ -521,6 +404,6 @@ void WriteInitialInputData()
                << endl
                << endl;
     //   Write names of the site and the variety
-    File20 << "    Site...     " << SiteName << endl;
-    File20 << "    Variety...  " << VarName << endl << endl;
+    File20 << "    Site...     " << endl;
+    File20 << "    Variety...  " << endl << endl;
 }

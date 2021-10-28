@@ -87,6 +87,7 @@ struct Profile {
     mulch: Option<Mulch>,
     weather_path: PathBuf,
     site: Site,
+    cultivar_parameters: Vec<f64>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -122,6 +123,15 @@ struct Mulch {
 struct Site {
     average_wind_speed: Option<f64>,
     estimate_dew_point: (f64, f64),
+    wind_blow_after_sunrise: f64,
+    wind_max_after_noon: f64,
+    wind_stop_after_sunset: f64,
+    night_time_wind_factor: f64,
+    cloud_type_correction_factor: f64,
+    max_temperature_after_noon: f64,
+    deep_soil_temperature: (f64, f64, f64),
+    dew_point_range: (f64, f64, f64),
+    albedo_range: (f64, f64),
 }
 
 #[derive(Deserialize, Debug)]
@@ -211,12 +221,32 @@ fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
+    unsafe {
+        SitePar[1] = profile.site.wind_blow_after_sunrise;
+        SitePar[2] = profile.site.wind_max_after_noon;
+        SitePar[3] = profile.site.wind_stop_after_sunset;
+        SitePar[4] = profile.site.night_time_wind_factor;
+        SitePar[7] = profile.site.cloud_type_correction_factor;
+        SitePar[8] = profile.site.max_temperature_after_noon;
+        SitePar[9] = profile.site.deep_soil_temperature.0;
+        SitePar[10] = profile.site.deep_soil_temperature.1;
+        SitePar[11] = profile.site.deep_soil_temperature.2;
+        SitePar[12] = profile.site.dew_point_range.0;
+        SitePar[13] = profile.site.dew_point_range.1;
+        SitePar[14] = profile.site.dew_point_range.2;
+        SitePar[15] = profile.site.albedo_range.1;
+        SitePar[16] = profile.site.albedo_range.0;
+    }
+    unsafe {
+        for pair in profile.cultivar_parameters.iter().enumerate() {
+            VarPar[pair.0 + 1] = *pair.1;
+        }
+    }
     let weather_path = if profile.weather_path.is_relative() {
         profile_path.parent().unwrap().join(profile.weather_path)
     } else {
         profile.weather_path
     };
-    println!("{:?}", weather_path.to_str().unwrap());
     let mut rdr = csv::Reader::from_path(weather_path)?;
     let mut jdd: i32 = 0;
     for result in rdr.deserialize() {

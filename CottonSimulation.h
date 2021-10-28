@@ -149,7 +149,6 @@ void PreFruitLeafAbscission(double droplf);
 double PsiOnTranspiration(double PsiAverage);
 // R
 void ReadAgriculturalInput();
-void ReadCalibrationData();
 void ReadInput();
 void ReadPlantMapInput();
 void ReadProfileFile();
