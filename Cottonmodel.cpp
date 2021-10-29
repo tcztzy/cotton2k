@@ -39,12 +39,6 @@ void C2KApp::RunTheModel(const char *profile)
     ProfileName = profile;
     //     Read the input data for this simulation
     ReadInput();
-    //     Do daily simulations
-    DailySimulation();
-    //     Write output data
-    DataOutput();
-    //     End of simulation of all profiles
-    std::cout << " Simulation Ended." << std::endl;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void C2KApp::DailySimulation()

@@ -164,3 +164,4 @@ extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk],
     VolNh4NContent[maxl][maxk], VolNo3NContent[maxl][maxk],
     VolUreaNContent[maxl][maxk], VolWaterContent[maxl][maxk], WindSpeed[24],
     wk[maxk];
+void WriteStateVariables(bool bAdjusting);
