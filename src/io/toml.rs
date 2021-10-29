@@ -21,6 +21,7 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
     }
     unsafe {
         InitializeGlobal();
+        version = profile.version;
         Latitude = profile.latitude;
         Longitude = profile.longitude;
         Elevation = profile.elevation;
@@ -335,6 +336,7 @@ unsafe fn InitializeGlobal()
 //  simulation. It is called from ReadInput(). Note that initialization
 //  is needed at the start of each simulation (NOT at start of the run).
 {
+    version = 4;
     AbscisedFruitSites = 0.;
     AbscisedLeafWeight = 0.;
     addwtbl = 0.;
@@ -376,6 +378,10 @@ unsafe fn InitializeGlobal()
     LeafAreaIndex = 0.001;
     LeafNConc = 0.056;
     LeafNitrogen = 0.0112;
+    LeafNitrogenLayer[0] = 0.0112;
+    for i in 1..0 {
+        LeafNitrogenLayer[i] = 0.;
+    }
     LintYield = 0.;
 
     MaxIrrigation = 0.;
@@ -448,6 +454,7 @@ unsafe fn InitializeGlobal()
             PotGroLeafAreaMainStem[i][j] = 0.;
             PotGroLeafWeightMainStem[i][j] = 0.;
             PotGroPetioleWeightMainStem[i][j] = 0.;
+            NodeLayer[i][j] = 0;
             for k in 0..5 {
                 AgeOfBoll[i][j][k] = 0.;
                 AgeOfSite[i][j][k] = 0.;
@@ -479,6 +486,7 @@ unsafe fn InitializeGlobal()
         PotGroPetioleWeightPreFru[i] = 0.;
         LeafWeightPreFru[i] = 0.;
         PetioleWeightPreFru[i] = 0.;
+        NodeLayerPreFru[i] = 0;
     }
     //
     for i in 0..20 {
@@ -490,6 +498,11 @@ unsafe fn InitializeGlobal()
         ShedByNitrogenStress[i] = 0.;
         ShedByWaterStress[i] = 0.;
     }
+    for i in 0..20 {
+        LeafArea[i] = 0.;
+        LeafWeightLayer[i] = 0.;
+    }
+    LeafWeightLayer[0] = 0.2;
     //
     for k in 0..maxk as usize {
         FoliageTemp[k] = 295.;

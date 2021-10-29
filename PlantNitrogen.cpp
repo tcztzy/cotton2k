@@ -293,6 +293,19 @@ void NitrogenSupply()
             (LeafNitrogen - vlfnmin * TotalLeafWeight) * MobilizNFractionLeaves;
         if (leafrs < 0) leafrs = 0;
         LeafNitrogen -= leafrs;
+        double total_leafrs = leafrs;
+        for (int i = 0; i < 20; i++) {
+            if (total_leafrs == 0) break;
+            double loss = (LeafNitrogenLayer[i] - vlfnmin * LeafWeightLayer[i]) * MobilizNFractionLeaves;
+            if (loss < 0) loss = 0;
+            if (total_leafrs >= loss)
+                total_leafrs -= loss;
+            else {
+                loss = total_leafrs;
+                total_leafrs = 0;
+            }
+            LeafNitrogenLayer[i] -= loss;
+        }
         //     The petiole N content is subdivided to nitrate and non-nitrate.
         //     The
         //  nitrate ratio in the petiole N is computed by calling function
@@ -450,7 +463,10 @@ void NitrogenAllocation()
     //  roots, and compute xtran as the difference between npool and the total N
     //  requirements.
     if (reqtot <= npool) {
+        double leaf_n_growth_ratio = 1 + rqnlef / LeafNitrogen;
         LeafNitrogen += rqnlef;
+        for (int i = 0; i < 20; i++)
+            if (LeafNitrogenLayer[i] > 0) LeafNitrogenLayer[i] *= leaf_n_growth_ratio;
         PetioleNitrogen += rqnpet;
         StemNitrogen += rqnstm;
         RootNitrogen += rqnrut;
@@ -497,7 +513,23 @@ void NitrogenAllocation()
     //  petioles, up to vpetnmax = 0.75
     if (rqnlef > 0) {
         useofn = min(vlfnmax * npool, rqnlef);
+        double leaf_n_growth_r = rqnlef / LeafNitrogen;
         LeafNitrogen += useofn;
+        double remain_useofn = useofn;
+        for (int i = 19; i >= 0; i--) {
+            if (remain_useofn <= 0) break;
+            if (LeafNitrogenLayer[i] > 0) {
+                double usage = leaf_n_growth_r * LeafNitrogenLayer[i];
+                if (remain_useofn >= usage) {
+                    remain_useofn -= usage;
+                    LeafNitrogenLayer[i] += usage;
+                }
+                else {
+                    LeafNitrogenLayer[i] += remain_useofn;
+                    remain_useofn = 0;
+                }
+            }
+        }
         addnv += useofn;
         npool -= useofn;
     }
@@ -568,7 +600,11 @@ void ExtraNitrogenAllocation()
     //     Update N content in these plant parts. Note that at this stage of
     //  nitrogen allocation, only vegetative parts and burrs are updated (not
     //  seeds or squares).
+    double leaf_n_growth_ratio = 1 +  addlfn / LeafNitrogen;
     LeafNitrogen += addlfn;
+    for (int i = 0; i < 20; i++)
+        if (LeafNitrogenLayer[i] > 0)
+            LeafNitrogenLayer[i] *= leaf_n_growth_ratio;
     PetioleNitrogen += addpetn;
     StemNitrogen += addstm;
     RootNitrogen += addrt;

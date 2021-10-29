@@ -38,6 +38,7 @@ struct Irrigation
 //
 // Integer variables:
 //
+unsigned int version;
 int CultivationDate[5],  // Dates (DOY) of cultivatrion.
     DayEmerge,           // Date of emergence (DOY).
     DayEndCO2,           // Last date (DOY) with CO2 enrichment.
@@ -110,6 +111,8 @@ int MainStemNodes,        // number of main stem nodes.
     nl,      // number of horizontal layers of soil cells in the slab.
     noitr,  // number of iterations per day, for calling some soil water related
             // functions.
+    NodeLayer[3][30], // the layer number this node belong.
+    NodeLayerPreFru[9],
     NumAbscisedLeaves,  // number of leaves, per plant, lost by abscission.
     NumAdjustDays,      // number of days for retroactive plant map adjustment.
     NumFruitBranches[3],  // number of fruiting branches at each vegetative
@@ -305,20 +308,25 @@ double impede[10][10],         // input table of soil impedance to root growth
     IrrigationDepth,           // depth of predicted irrigation, cm.
     Latitude,                  // latitude, degrees.
     LeafAge[3][30][5],  // leaf age at each fruiting site, physiological days.
+    LeafArea[20],
     LeafAreaIndex,      // leaf area index.
+    LeafAreaIndexes[20],      // leaf area index for layers.
     LeafAreaMainStem[3][30],  // mainstem leaf area at each node, dm2.
     LeafAreaNodes[3][30][5],  // leaf area at each fruiting site, dm2.
     LeafAreaPreFru[9],        // area of prefruiting node leaves, dm2.
     LeafNConc,                // average nitrogen concentration in leaves.
     LeafNitrogen,             // total leaf nitrogen, g per plant.
+    LeafNitrogenLayer[20],
     LeafWeightAreaRatio,  // temperature dependent factor for converting leaf
                           // area to leaf weight during the day, g dm-1.
+    LeafWeightLayer[20],
     LeafWeightMainStem[3][30],  // mainstem leaf weight at each node, g.
     LeafWeightNodes[3][30][5],  // leaf weight at each fruiting site, g.
     LeafWeightPreFru[9],        // weight of prefruiting node leaves, g.
     LevelsOfWaterTable[20],     // water table level input data (cm below soil
                                 // surface).
     LightIntercept,             // ratio of light interception by plant canopy.
+    LightInterceptLayer[20],
     LintYield,                  // yield of lint, kgs per hectare.
     Longitude,                  // longitude, degrees.
     LwpMax,                     // maximum (dawn) leaf water potential, MPa.

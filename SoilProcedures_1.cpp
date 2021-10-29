@@ -258,10 +258,20 @@ void ApplyFertilizer()
                 //     It is assumed that 70% of the amount of ammonium or urea
                 //     intercepted by the canopy
                 //  is added to the leaf N content (LeafNitrogen).
-                LeafNitrogen +=
+                double leafnadd =
                     0.70 * LightIntercept *
                     (NFertilizer[i].amtamm + NFertilizer[i].amtura) * 1000 /
                     PlantPopulation;
+                LeafNitrogen += leafnadd;
+                double remain_leafn = leafnadd;
+                for (int i = 19; i >= 1; i--) {
+                    if (remain_leafn <= 0) break;
+                    if (LightInterceptLayer[i] > 0) {
+                        LeafNitrogenLayer[i] += LightInterceptLayer[i] * remain_leafn;
+                        remain_leafn *= (1 - LightInterceptLayer[i]);
+                    }
+                }
+                LeafNitrogenLayer[0] += remain_leafn;
                 //     The amount not intercepted by the canopy is added to the
                 //     soil. If the fertilizer is
                 //  nitrate, it is assumed that all of it is added to the upper

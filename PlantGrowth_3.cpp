@@ -382,6 +382,7 @@ void ActualLeafGrowth()
         TotalPetioleWeight += PetioleWeightPreFru[j];
         LeafAreaPreFru[j] += PotGroLeafAreaPreFru[j] * vratio;
         TotalLeafArea += LeafAreaPreFru[j];
+        LeafArea[NodeLayerPreFru[j]] += LeafAreaPreFru[j];
     }
     //     Loop for all fruiting branches on each vegetative branch, to
     //  compute actual growth of mainstem leaves.
@@ -407,6 +408,7 @@ void ActualLeafGrowth()
             TotalPetioleWeight += PetioleWeightMainStem[k][l];
             LeafAreaMainStem[k][l] += PotGroLeafAreaMainStem[k][l] * vratio;
             TotalLeafArea += LeafAreaMainStem[k][l];
+            LeafArea[NodeLayer[k][l]] += LeafAreaMainStem[k][l];
             //     Loop for all fruiting nodes on each fruiting branch. to
             //     compute
             //  actual growth of fruiting node leaves.
@@ -432,6 +434,7 @@ void ActualLeafGrowth()
                 TotalPetioleWeight += PetioleWeightNodes[k][l][m];
                 LeafAreaNodes[k][l][m] += PotGroLeafAreaNodes[k][l][m] * vratio;
                 TotalLeafArea += LeafAreaNodes[k][l][m];
+                LeafArea[NodeLayer[k][l]] += LeafAreaNodes[k][l][m];
             }  // loop m
         }      // loopl
     }          // loop k

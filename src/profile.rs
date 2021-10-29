@@ -8,9 +8,16 @@ fn zero() -> f64 {
     0.
 }
 
+#[inline]
+fn four() -> u32 {
+    4
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Profile {
     pub name: Option<String>,
+    #[serde(default = "four")]
+    pub version: u32,
     pub latitude: f64,
     pub longitude: f64,
     pub elevation: f64,
