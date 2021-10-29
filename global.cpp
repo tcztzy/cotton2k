@@ -502,7 +502,6 @@ double TapRootLength,  // the length of the taproot, in cm.
                             // day-1.
     TotalActualPetioleGrowth,  // actual growth rate of all the petioles, g
                                // plant-1 day-1.
-    TotalLeafArea,             // total leaf area, dm2 per plant.
     TotalPetioleWeight,        // total petiole weight, g per plant.
     TotalRequiredN,   // total nitrogen required for plant growth, g per plant.
     TotalRootWeight,  // total dry weight of the roots, g per plant.
@@ -538,6 +537,21 @@ double TotalLeafWeight() {
     for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
         result += LeafWeightMainStem[k][l];
         for (int m = 0; m < NumNodes[k][l]; m++) result += LeafWeightNodes[k][l][m];
+    }
+    return result;
+}
+
+
+double TotalLeafArea(){
+    // total leaf area, dm2 per plant.
+    double result = 0;
+    if (FirstSquare <= 0) {
+        result += 0.20 * 0.6;
+    }
+    for (int i = 0; i < NumPreFruNodes; i++) result += LeafAreaPreFru[i];
+    for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
+        result += LeafAreaMainStem[k][l];
+        for (int m = 0; m < NumNodes[k][l]; m++) result += LeafAreaNodes[k][l][m];
     }
     return result;
 }

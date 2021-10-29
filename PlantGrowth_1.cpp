@@ -497,21 +497,11 @@ void PlantGrowth()
     //     Initialize TotalLeafWeight. It is assumed that cotyledons fall off
     //  at time of first square. Also initialize TotalLeafArea and
     //  TotalPetioleWeight.
-    for (int i = 0; i < 20; i++) {
-        LeafArea[i] = 0;
-    }
-    if (FirstSquare > 0) {
-        TotalLeafArea = 0;
-    } else {
-        double cotylwt = 0.20;  // weight of cotyledons dry matter.
-        TotalLeafArea = 0.6 * cotylwt;
-        LeafArea[0] = 0.6 * cotylwt;
-    }
     TotalPetioleWeight = 0;
     //     Call ActualLeafGrowth to compute actual growth rate of leaves and
     //     compute leaf area index.
     ActualLeafGrowth();
-    LeafAreaIndex = TotalLeafArea / PerPlantArea;
+    LeafAreaIndex = TotalLeafArea() / PerPlantArea;
     //     Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday)
     //     for this day.
     TotalStemWeight += ActualStemGrowth;

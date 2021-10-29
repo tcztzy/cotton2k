@@ -66,7 +66,7 @@ void LeafAbscission()
         }
     }
     //     Compute the resulting LeafAreaIndex but do not let it get too small.
-    LeafAreaIndex = TotalLeafArea / PerPlantArea;
+    LeafAreaIndex = TotalLeafArea() / PerPlantArea;
     if (LeafAreaIndex < 0.0001) LeafAreaIndex = 0.0001;
 }
 /////////////////////////
@@ -103,7 +103,6 @@ void PreFruitLeafAbscission(double droplf)
         //     1 to the counter NumAbscisedLeaves.
         if (AgeOfPreFruNode[j] >= droplf && LeafAreaPreFru[j] > 0 &&
             LeafAreaIndex > 0.1) {
-            TotalLeafArea -= LeafAreaPreFru[j];
             LeafArea[NodeLayerPreFru[j]] -= LeafAreaPreFru[j];
             AbscisedLeafWeight += LeafWeightPreFru[j] + PetioleWeightPreFru[j];
             TotalPetioleWeight -= PetioleWeightPreFru[j];
@@ -163,7 +162,6 @@ void MainStemLeafAbscission(int k, int l, double droplf)
         PetioleNitrogen -= PetioleWeightMainStem[k][l] * PetioleNConc;
         CumPlantNLoss += LeafWeightMainStem[k][l] * LeafNConc +
                          PetioleWeightMainStem[k][l] * PetioleNConc;
-        TotalLeafArea -= LeafAreaMainStem[k][l];
         LeafArea[NodeLayer[k][l]] -= LeafAreaMainStem[k][l];
         LeafAreaMainStem[k][l] = 0;
         LeafWeightMainStem[k][l] = 0;
@@ -219,7 +217,6 @@ void FruitNodeLeafAbscission(int k, int l, int m, double droplf)
         PetioleNitrogen -= PetioleWeightNodes[k][l][m] * PetioleNConc;
         CumPlantNLoss += LeafWeightNodes[k][l][m] * LeafNConc +
                          PetioleWeightNodes[k][l][m] * PetioleNConc;
-        TotalLeafArea -= LeafAreaNodes[k][l][m];
         LeafArea[NodeLayer[k][l]] -= LeafAreaNodes[k][l][m];
         LeafAreaNodes[k][l][m] = 0;
         LeafWeightNodes[k][l][m] = 0;
@@ -252,7 +249,6 @@ void DefoliationLeafAbscission()
     if (Daynum == DayFirstDef) {
         for (int j = 0; j < NumPreFruNodes; j++) {
             if (LeafAreaPreFru[j] > 0) {
-                TotalLeafArea -= LeafAreaPreFru[j];
                 LeafArea[NodeLayerPreFru[j]] -= LeafAreaPreFru[j];
                 LeafAreaPreFru[j] = 0;
                 AbscisedLeafWeight +=
@@ -328,7 +324,6 @@ void DefoliationLeafAbscission()
                 PetioleNitrogen -= PetioleWeightMainStem[k][l] * PetioleNConc;
                 CumPlantNLoss += LeafWeightMainStem[k][l] * LeafNConc +
                                  PetioleWeightMainStem[k][l] * PetioleNConc;
-                TotalLeafArea -= LeafAreaMainStem[k][l];
                 LeafArea[NodeLayer[k][l]] -= LeafAreaMainStem[k][l];
                 LeafAreaMainStem[k][l] = 0;
                 LeafWeightMainStem[k][l] = 0;
@@ -344,7 +339,6 @@ void DefoliationLeafAbscission()
                 PetioleNitrogen -= PetioleWeightNodes[k][l][m] * PetioleNConc;
                 CumPlantNLoss += LeafWeightNodes[k][l][m] * LeafNConc +
                                  PetioleWeightNodes[k][l][m] * PetioleNConc;
-                TotalLeafArea -= LeafAreaNodes[k][l][m];
                 LeafArea[NodeLayer[k][l]] -= LeafAreaNodes[k][l][m];
                 LeafAreaNodes[k][l][m] = 0;
                 LeafWeightNodes[k][l][m] = 0;

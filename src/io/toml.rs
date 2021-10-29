@@ -429,7 +429,6 @@ unsafe fn InitializeGlobal()
 
     TotalActualLeafGrowth = 0.;
     TotalActualPetioleGrowth = 0.;
-    TotalLeafArea = 0.;
     TotalPetioleWeight = 0.;
     TotalRequiredN = 0.;
     TotalSquareWeight = 0.;

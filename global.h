@@ -124,7 +124,7 @@ extern double AbscisedFruitSites, AbscisedLeafWeight, ActualBollGrowth,
     RowSpace, SeedNConc, SeedNitrogen, SoilNitrogenAtStart, SoilNitrogenLoss,
     SquareNConc, SquareNitrogen, StemNConc, StemNitrogen, SumNO3N90, SupplyNH4N,
     SupplyNO3N, TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth,
-    TotalLeafArea, TotalPetioleWeight, TotalRequiredN,
+    TotalPetioleWeight, TotalRequiredN,
     TotalRootWeight, TotalSoilNh4N, TotalSoilNitrogen, TotalSoilNo3N,
     TotalSoilUreaN, TotalSoilWater, TotalSquareWeight, TotalStemWeight,
     WaterStress, WaterStressStem;
@@ -168,3 +168,4 @@ extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk],
     wk[maxk];
 void WriteStateVariables(bool bAdjusting);
 double TotalLeafWeight();           // total leaf weight, g per plant.
+double TotalLeafArea();
