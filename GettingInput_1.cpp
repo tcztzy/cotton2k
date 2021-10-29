@@ -36,7 +36,6 @@ void ReadInput()
     ReadSoilImpedance();
     WriteInitialInputData();
     InitSoil();
-    ReadAgriculturalInput();
     ReadPlantMapInput();
     InitializeSoilData();
     InitializeSoilTemperature();

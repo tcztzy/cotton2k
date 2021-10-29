@@ -147,7 +147,6 @@ void PreFruitingNode(double stemNRatio);
 void PreFruitLeafAbscission(double droplf);
 double PsiOnTranspiration(double PsiAverage);
 // R
-void ReadAgriculturalInput();
 void ReadInput();
 void ReadPlantMapInput();
 void ReadProfileFile();
@@ -167,7 +166,6 @@ double SensibleHeatTransfer(double tsf, double tenviron, double PlantHeight,
 double SimulateRunoff(double rain);
 double SiteAbscissionRatio(int k, int l, int m, int lt);
 void sitecode();
-int SlabLoc(int isd, int index);
 double SoilAirOnRootGrowth(double psislk, double poreSpace, double vh2olk);
 void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0);
 void SoilInit();

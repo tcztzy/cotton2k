@@ -1,6 +1,6 @@
 use crate::de::{from_isoformat, from_isoformat_option};
-use serde::Deserialize;
 use chrono::NaiveDate;
+use serde::Deserialize;
 use std::path::PathBuf;
 
 #[inline]
@@ -33,6 +33,7 @@ pub struct Profile {
     #[serde(default = "zero")]
     pub skip_row_width: f64,
     pub plants_per_meter: f64,
+    pub agronomy_operations: Vec<AgronomyOperation>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -89,4 +90,105 @@ pub struct WeatherRecord {
     pub rain: f64,
     pub wind: Option<f64>,
     pub tdew: Option<f64>,
+}
+
+#[inline]
+fn default_predict() -> bool {
+    false
+}
+
+#[inline]
+fn default_irrgation_method() -> IrrigationMethod {
+    IrrigationMethod::Sprinkler
+}
+
+#[inline]
+fn default_fertilization_method() -> FertilizationMethod {
+    FertilizationMethod::Broadcast
+}
+
+#[derive(Deserialize, Debug)]
+pub enum IrrigationMethod {
+    Sprinkler = 0,
+    Furrow = 1,
+    Drip = 2,
+}
+
+#[derive(Deserialize, Debug)]
+pub enum FertilizationMethod {
+    Broadcast = 0,
+    Sidedress = 1,
+    Foliar = 2,
+    Drip = 3,
+}
+
+#[derive(Deserialize, Debug)]
+pub enum PixMethod {
+    Banded = 0,
+    Sprinkler = 1,
+    Broadcast = 2,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(tag = "type")]
+pub enum AgronomyOperation {
+    irrigation {
+        #[serde(deserialize_with = "from_isoformat")]
+        date: NaiveDate,
+        amount: f64,
+        #[serde(default = "default_predict")]
+        predict: bool,
+        #[serde(default = "default_irrgation_method")]
+        method: IrrigationMethod,
+        #[serde(default = "zero")]
+        drip_x: f64,
+        #[serde(default = "zero")]
+        drip_y: f64,
+        max_amount: Option<f64>,
+        #[serde(default)]
+        #[serde(deserialize_with = "from_isoformat_option")]
+        stop_predict_date: Option<NaiveDate>,
+    },
+    fertilization {
+        #[serde(deserialize_with = "from_isoformat")]
+        date: NaiveDate,
+        #[serde(default = "zero")]
+        urea: f64,
+        #[serde(default = "zero")]
+        nitrate: f64,
+        #[serde(default = "zero")]
+        ammonium: f64,
+        #[serde(default = "default_fertilization_method")]
+        method: FertilizationMethod,
+        #[serde(default = "zero")]
+        drip_x: f64,
+        #[serde(default = "zero")]
+        drip_y: f64,
+    },
+    defoliation {
+        #[serde(deserialize_with = "from_isoformat")]
+        date: NaiveDate,
+        open_ratio: i32,
+        #[serde(default = "default_predict")]
+        predict: bool,
+        #[serde(default = "zero")]
+        ppa: f64, // pints per acre
+    },
+    cultivation {
+        #[serde(deserialize_with = "from_isoformat")]
+        date: NaiveDate,
+        depth: f64,
+    },
+    pix {
+        #[serde(deserialize_with = "from_isoformat")]
+        date: NaiveDate,
+        method: FertilizationMethod,
+        ppa: f64, // pints per acre
+    },
+    watertable {
+        #[serde(deserialize_with = "from_isoformat")]
+        date: NaiveDate,
+        level: f64,
+        ecs: f64,
+    },
 }

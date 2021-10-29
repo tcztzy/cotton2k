@@ -1,11 +1,17 @@
 use crate::bindings::{
-    dl, isw, iyear, maxk, maxl, nk, nl, wk, CO2EnrichmentFactor, Clim, DayEmerge, DayEndCO2,
-    DayEndMulch, DayFinish, DayPlant, DayStart, DayStartCO2, DayStartMulch, DensityFactor,
-    Elevation, Kday, LastDayWeatherData, Latitude, Longitude, MulchIndicator, MulchTranLW,
-    MulchTranSW, PerPlantArea, PlantPopulation, PlantRowColumn, PlantRowLocation, RowSpace,
+    dl, isw, iyear, maxk, maxl, nk, nl, pixday, pixmth, pixppa, wk, CO2EnrichmentFactor, Clim,
+    CultivationDate, CultivationDepth, DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef,
+    DayPlant, DayStart, DayStartCO2, DayStartMulch, DayStartPredIrrig, DayStopPredIrrig,
+    DayWaterTableInput, DefoliantAppRate, DefoliationDate, DefoliationMethod, DensityFactor,
+    ElCondSatSoil, Elevation, Irrig, IrrigMethod, Kday, LastDayWeatherData, Latitude,
+    LevelsOfWaterTable, LocationColumnDrip, LocationLayerDrip, Longitude, MaxIrrigation,
+    MulchIndicator, MulchTranLW, MulchTranSW, NFertilizer, NumIrrigations, NumNitApps,
+    NumWaterTableData, PerPlantArea, PlantPopulation, PlantRowColumn, PlantRowLocation, RowSpace,
     SitePar, VarPar,
 };
-use crate::profile::{MulchType, Profile, WeatherRecord};
+use crate::profile::{
+    AgronomyOperation, FertilizationMethod, IrrigationMethod, MulchType, Profile, WeatherRecord,
+};
 use chrono::Datelike;
 use std::io::Read;
 use std::path::Path;
@@ -187,6 +193,110 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
     unsafe {
         LastDayWeatherData = jdd;
     }
+    let mut idef: usize = 0;
+    let mut icult: usize = 0;
+    let mut ipix: usize = 0;
+    unsafe {
+        NumNitApps = 0;
+        NumIrrigations = 0;
+        NumWaterTableData = 0;
+        for i in 0..5 {
+            DefoliationDate[i] = 0;
+            DefoliationMethod[i] = 0;
+            DefoliantAppRate[i] = 0.;
+        }
+
+        for ao in profile.agronomy_operations {
+            match ao {
+                AgronomyOperation::irrigation {
+                    date,
+                    amount,
+                    predict,
+                    method,
+                    drip_x,
+                    drip_y,
+                    max_amount,
+                    stop_predict_date,
+                } => {
+                    if predict {
+                        MaxIrrigation = max_amount.unwrap();
+                        DayStartPredIrrig = date.ordinal() as i32;
+                        DayStopPredIrrig = stop_predict_date.unwrap().ordinal() as i32;
+                        if let IrrigationMethod::Drip = method {
+                            LocationColumnDrip = slab_horizontal_location(drip_x) as i32;
+                            LocationLayerDrip = slab_vertical_location(drip_y) as i32;
+                        }
+                        IrrigMethod = method as i32;
+                    } else {
+                        Irrig[NumIrrigations as usize].day = date.ordinal() as i32;
+                        Irrig[NumIrrigations as usize].amount = amount;
+                        if let IrrigationMethod::Drip = method {
+                            Irrig[NumIrrigations as usize].LocationColumnDrip =
+                                slab_horizontal_location(drip_x) as i32;
+                            Irrig[NumIrrigations as usize].LocationLayerDrip =
+                                slab_vertical_location(drip_y) as i32;
+                        }
+                        Irrig[NumIrrigations as usize].method = method as i32;
+                        NumIrrigations += 1;
+                    }
+                }
+                AgronomyOperation::fertilization {
+                    date,
+                    urea,
+                    nitrate,
+                    ammonium,
+                    method,
+                    drip_x,
+                    drip_y,
+                } => {
+                    NFertilizer[NumNitApps as usize].day = date.ordinal() as i32;
+                    NFertilizer[NumNitApps as usize].amtamm = ammonium;
+                    NFertilizer[NumNitApps as usize].amtnit = nitrate;
+                    NFertilizer[NumNitApps as usize].amtura = urea;
+                    match method {
+                        FertilizationMethod::Sidedress | FertilizationMethod::Drip => {
+                            NFertilizer[NumNitApps as usize].ksdr =
+                                slab_horizontal_location(drip_x) as i32;
+                            NFertilizer[NumNitApps as usize].lsdr =
+                                slab_vertical_location(drip_y) as i32;
+                        }
+                        _ => {}
+                    }
+                    NFertilizer[NumNitApps as usize].mthfrt = method as i32;
+                    NumNitApps += 1;
+                }
+                AgronomyOperation::defoliation {
+                    date,
+                    open_ratio,
+                    predict,
+                    ppa,
+                } => {
+                    DefoliationDate[idef] = date.ordinal() as i32;
+                    DefoliantAppRate[idef] = if predict { -99.9 } else { ppa };
+                    DefoliationMethod[idef] = open_ratio;
+                    DayFirstDef = DefoliationDate[0];
+                    idef += 1;
+                }
+                AgronomyOperation::cultivation { date, depth } => {
+                    CultivationDate[icult] = date.ordinal() as i32;
+                    CultivationDepth[icult] = depth;
+                    icult += 1;
+                }
+                AgronomyOperation::pix { date, method, ppa } => {
+                    pixday[ipix] = date.ordinal() as i32;
+                    pixmth[ipix] = method as i32;
+                    pixppa[ipix] = ppa;
+                    ipix += 1;
+                }
+                AgronomyOperation::watertable { date, level, ecs } => {
+                    DayWaterTableInput[NumWaterTableData as usize] = date.ordinal() as i32;
+                    LevelsOfWaterTable[NumWaterTableData as usize] = level;
+                    ElCondSatSoil[NumWaterTableData as usize] = ecs;
+                    NumWaterTableData += 1;
+                }
+            }
+        }
+    }
     Ok(())
 }
 /// estimates the approximate daily average dewpoint temperature when it is not available.
@@ -198,4 +308,34 @@ fn estimate_dew_point(maxt: f64, site5: f64, site6: f64) -> f64 {
     } else {
         ((40. - maxt) * site5 + (maxt - 20.) * site6) / 20.
     }
+}
+
+fn slab_vertical_location(distance: f64) -> usize {
+    let mut sumdl = 0.;
+    let mut result: usize = 0;
+    unsafe {
+        for l in 0..nl as usize {
+            sumdl += dl[l];
+            if sumdl >= distance {
+                result = l;
+                break;
+            }
+        }
+    }
+    result
+}
+
+fn slab_horizontal_location(distance: f64) -> usize {
+    let mut sumwk = 0.;
+    let mut result: usize = 0;
+    unsafe {
+        for k in 0..nk as usize {
+            sumwk += wk[k];
+            if sumwk >= distance {
+                result = k;
+                break;
+            }
+        }
+    }
+    result
 }

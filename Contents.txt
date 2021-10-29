@@ -69,8 +69,6 @@ Input Routines:
           form()
        
     File GettingInput_3.cpp
-          ReadAgriculturalInput()
-          SlabLoc()
           ReadPlantMapInput()
        
 ===========================================================================================       

@@ -147,12 +147,6 @@ void InitializeGlobal()
         }
     }
     //
-    for (int i = 0; i < 5; i++) {
-        DefoliationDate[i] = 0;
-        DefoliationMethod[i] = 0;
-        DefoliantAppRate[i] = 0;
-    }
-    //
     for (int i = 0; i < 9; i++) {
         AgeOfPreFruNode[i] = 0;
         LeafAreaPreFru[i] = 0;
