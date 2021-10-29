@@ -192,7 +192,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
             //     ratio is modified (calibrated) by vchbal[11].
             ratio =
                 vchbal[8] + vchbal[9] * exp(-vchbal[10] *
-                                            (TotalStemWeight + TotalLeafWeight +
+                                            (TotalStemWeight + TotalLeafWeight() +
                                              TotalPetioleWeight) *
                                             PerPlantArea);
             ratio = ratio * vchbal[11];
@@ -255,7 +255,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
                     // be stored in the leaves.
     //     resmax is a fraction (vchbal[4])) of leaf weight. Excessive reserves
     //     are defined as xtrac2.
-    resmax = vchbal[4] * TotalLeafWeight;
+    resmax = vchbal[4] * TotalLeafWeight();
     if (ReserveC > resmax) {
         xtrac2 = ReserveC - resmax;
         ReserveC = resmax;
@@ -377,7 +377,6 @@ void ActualLeafGrowth()
     for (int j = 0; j < NumPreFruNodes; j++)  // loop by prefruiting node.
     {
         LeafWeightPreFru[j] += PotGroLeafWeightPreFru[j] * vratio;
-        TotalLeafWeight += LeafWeightPreFru[j];
         PetioleWeightPreFru[j] += PotGroPetioleWeightPreFru[j] * vratio;
         TotalPetioleWeight += PetioleWeightPreFru[j];
         LeafAreaPreFru[j] += PotGroLeafAreaPreFru[j] * vratio;
@@ -402,7 +401,6 @@ void ActualLeafGrowth()
         for (int l = 0; l < nbrch; l++)  // loop of fruiting branches
         {
             LeafWeightMainStem[k][l] += PotGroLeafWeightMainStem[k][l] * vratio;
-            TotalLeafWeight += LeafWeightMainStem[k][l];
             PetioleWeightMainStem[k][l] +=
                 PotGroPetioleWeightMainStem[k][l] * vratio;
             TotalPetioleWeight += PetioleWeightMainStem[k][l];
@@ -428,7 +426,6 @@ void ActualLeafGrowth()
             {
                 LeafWeightNodes[k][l][m] +=
                     PotGroLeafWeightNodes[k][l][m] * vratio;
-                TotalLeafWeight += LeafWeightNodes[k][l][m];
                 PetioleWeightNodes[k][l][m] +=
                     PotGroPetioleWeightNodes[k][l][m] * vratio;
                 TotalPetioleWeight += PetioleWeightNodes[k][l][m];
@@ -532,7 +529,7 @@ void CheckDryMatterBal()
     //     PlantWeight Is the total dry weight of all plant organs, including C
     //     reserves.
     PlantWeight = TotalRootWeight + TotalStemWeight + CottonWeightGreenBolls +
-                  BurrWeightGreenBolls + TotalLeafWeight + TotalPetioleWeight +
+                  BurrWeightGreenBolls + TotalLeafWeight() + TotalPetioleWeight +
                   TotalSquareWeight + CottonWeightOpenBolls +
                   BurrWeightOpenBolls + ReserveC;
     //     Compute the "used" side as PlantWeight plus dry matter abscised as
@@ -572,7 +569,7 @@ void CheckDryMatterBal()
                   "ReserveC=";
         File36.precision(4);
         File36.width(9);
-        File36 << TotalLeafWeight;
+        File36 << TotalLeafWeight();
         File36.width(9);
         File36 << TotalPetioleWeight;
         File36.width(9);

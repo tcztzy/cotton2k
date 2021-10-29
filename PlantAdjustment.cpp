@@ -93,7 +93,6 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].sumNO3N90 = SumNO3N90;
     Scratch21[DayOfSimulation - 1].tmax = GetFromClim("tmax", Daynum);
     Scratch21[DayOfSimulation - 1].tmin = GetFromClim("tmin", Daynum);
-    Scratch21[DayOfSimulation - 1].totalLeafWeight = TotalLeafWeight;
     Scratch21[DayOfSimulation - 1].totalPetioleWeight = TotalPetioleWeight;
     Scratch21[DayOfSimulation - 1].totalRootWeight = TotalRootWeight;
     Scratch21[DayOfSimulation - 1].totalSquareWeight = TotalSquareWeight;
@@ -567,7 +566,6 @@ void GoBack()
     SumNO3N90 = Scratch21[irec].sumNO3N90;
     SupplyNO3N = Scratch21[irec].supplyNO3N;
     SupplyNH4N = Scratch21[irec].supplyNH4N;
-    TotalLeafWeight = Scratch21[irec].totalLeafWeight;
     TotalPetioleWeight = Scratch21[irec].totalPetioleWeight;
     TotalRequiredN = Scratch21[irec].totalRequiredN;
     TotalRootWeight = Scratch21[irec].totalRootWeight;

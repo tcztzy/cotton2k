@@ -51,7 +51,7 @@ pub fn write_record() -> Result<(), Box<dyn std::error::Error>> {
         },
         unsafe { PlantHeight.to_string() },
         unsafe { NumFruitBranches[0].to_string() },
-        unsafe { (TotalLeafWeight * PlantPopulation / 1000.).to_string() },
+        unsafe { (TotalLeafWeight() * PlantPopulation / 1000.).to_string() },
         unsafe { (TotalStemWeight * PlantPopulation / 1000.).to_string() },
         unsafe { (NumGreenBolls * PlantPopulation).to_string() },
         unsafe { (NumOpenBolls * PlantPopulation).to_string() },

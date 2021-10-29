@@ -133,7 +133,7 @@ void outputplt()
         else
             File25.precision(2);  // per plant
         File25.width(7);          // 6F7.0 or 6F7.2
-        File25 << multi1 * (Scratch21[irec].totalLeafWeight +
+        File25 << multi1 * (0 +
                             Scratch21[irec].reserveC);
         File25.width(7);
         File25 << multi1 * Scratch21[irec].totalStemWeight;
@@ -334,7 +334,7 @@ void output3()
         File46.width(7);
         File46 << multi * Scratch21[irec].plantWeight;
         File46.width(6);
-        File46 << multi * Scratch21[irec].totalLeafWeight +
+        File46 << multi * 0 +
                       Scratch21[irec].reserveC;
         File46.width(6);
         File46 << multi * Scratch21[irec].totalPetioleWeight;

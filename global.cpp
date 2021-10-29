@@ -61,8 +61,8 @@ int CultivationDate[5],  // Dates (DOY) of cultivatrion.
     DayWaterTableInput[20],  // Dates (DOY) of water table input data.
     DefoliationDate[5],      // Dates (DOY) of defoliant applications.
     DefoliationMethod[5];    // code number of method of application of
-                           // defoliants: 0 = 'banded'; 1 = 'sprinkler'; 2 =
-                           // 'broaddcast'.
+                             // defoliants: 0 = 'banded'; 1 = 'sprinkler'; 2 =
+                             // 'broaddcast'.
 
 int FirstBloom,   // Date (DOY) of first bloom.
     FirstSquare,  // Date of first square (DOY), if no squares have been formed,
@@ -111,7 +111,7 @@ int MainStemNodes,        // number of main stem nodes.
     nl,      // number of horizontal layers of soil cells in the slab.
     noitr,  // number of iterations per day, for calling some soil water related
             // functions.
-    NodeLayer[3][30], // the layer number this node belong.
+    NodeLayer[3][30],  // the layer number this node belong.
     NodeLayerPreFru[9],
     NumAbscisedLeaves,  // number of leaves, per plant, lost by abscission.
     NumAdjustDays,      // number of days for retroactive plant map adjustment.
@@ -125,12 +125,12 @@ int MainStemNodes,        // number of main stem nodes.
     NumPreFruNodes,       // number of prefruiting nodes, per plant.
     NumRootAgeGroups,     // the number of root classes defined in the model.
     NumSheddingTags,      // number of 'box-car' units used for moving values in
-                      // arrays defining fruit shedding (AbscissionLag,
-                      // ShedByCarbonStress, ShedByNitrogenStress and
-                      // ShedByWaterStress).
-    NumVegBranches,     // number of vegetative branches (including the main
-                        // branch), per plant.
-    NumWaterTableData;  // number of water table level input data.
+                          // arrays defining fruit shedding (AbscissionLag,
+                          // ShedByCarbonStress, ShedByNitrogenStress and
+                          // ShedByWaterStress).
+    NumVegBranches,       // number of vegetative branches (including the main
+                          // branch), per plant.
+    NumWaterTableData;    // number of water table level input data.
 
 int OutIndex[24],  // output flags.
     pixday[10],    // Date (DOY) of PIX application.
@@ -157,7 +157,7 @@ bool bEnd,                  // flag indicating abnormal simulation end.
 // std::string variables:
 //
 std::string
-    AgrInputFileName,        // name of input file with agricultural input data
+    AgrInputFileName,  // name of input file with agricultural input data
     Date,  // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
     PlantmapFileName,  // name of input file with plant map adjustment data.
     ProfileName,  // name of input file with profile data (without the extension
@@ -291,8 +291,8 @@ double ElCondSatSoil[20],  // electrical conductivity of saturated soil extract
     gh2oc[10],  // input gravimetric soil water content, g g-1, in the soil
                 // mechanical impedance table. values have been read from the
                 // soil impedance file.
-    ginp,            // ginning percentage of an individual boll.
-    Gintot,          // weighted average ginning percentage of all open bolls.
+    ginp,       // ginning percentage of an individual boll.
+    Gintot,     // weighted average ginning percentage of all open bolls.
     GreenBollsLost,  // cumulative loss of green bolls, due to abscission, g per
                      // plant.
     HeatCapacitySoilSolid[maxl],  // heat capacity of the solid phase of the
@@ -300,16 +300,15 @@ double ElCondSatSoil[20],  // electrical conductivity of saturated soil extract
     HeatCondDrySoil[maxl],        // the heat conductivity of dry soil.
     HumusNitrogen[maxl][maxk],  // N in stable humic fraction material in a soil
                                 // cells, mg/cm3.
-    HumusOrganicMatter[maxl]
-                      [maxk];  // humus fraction of soil organic matter, mg/cm3.
-                               // I J K L
-double impede[10][10],         // input table of soil impedance to root growth
-    InitialTotalSoilWater,     // initial total soil water in the profile, mm.
-    IrrigationDepth,           // depth of predicted irrigation, cm.
-    Latitude,                  // latitude, degrees.
+    HumusOrganicMatter[maxl][maxk];  // humus fraction of soil organic matter,
+                                     // mg/cm3. I J K L
+double impede[10][10],      // input table of soil impedance to root growth
+    InitialTotalSoilWater,  // initial total soil water in the profile, mm.
+    IrrigationDepth,        // depth of predicted irrigation, cm.
+    Latitude,               // latitude, degrees.
     LeafAge[3][30][5],  // leaf age at each fruiting site, physiological days.
     LeafArea[20],
-    LeafAreaIndex,      // leaf area index.
+    LeafAreaIndex,            // leaf area index.
     LeafAreaIndexes[20],      // leaf area index for layers.
     LeafAreaMainStem[3][30],  // mainstem leaf area at each node, dm2.
     LeafAreaNodes[3][30][5],  // leaf area at each fruiting site, dm2.
@@ -327,10 +326,10 @@ double impede[10][10],         // input table of soil impedance to root growth
                                 // surface).
     LightIntercept,             // ratio of light interception by plant canopy.
     LightInterceptLayer[20],
-    LintYield,                  // yield of lint, kgs per hectare.
-    Longitude,                  // longitude, degrees.
-    LwpMax,                     // maximum (dawn) leaf water potential, MPa.
-    LwpMin,                     // minimum (noon) leaf water potential, MPa.
+    LintYield,   // yield of lint, kgs per hectare.
+    Longitude,   // longitude, degrees.
+    LwpMax,      // maximum (dawn) leaf water potential, MPa.
+    LwpMin,      // minimum (noon) leaf water potential, MPa.
     LwpMinX[3],  // array of values of LwpMin for the last 3 days.
     LwpX[3];     // array of values of LwpMin + LwpMax for the last 3 days.
                  // M
@@ -504,7 +503,6 @@ double TapRootLength,  // the length of the taproot, in cm.
     TotalActualPetioleGrowth,  // actual growth rate of all the petioles, g
                                // plant-1 day-1.
     TotalLeafArea,             // total leaf area, dm2 per plant.
-    TotalLeafWeight,           // total leaf weight, g per plant.
     TotalPetioleWeight,        // total petiole weight, g per plant.
     TotalRequiredN,   // total nitrogen required for plant growth, g per plant.
     TotalRootWeight,  // total dry weight of the roots, g per plant.
@@ -530,3 +528,16 @@ double VarPar[61],      // array of cultivar specific constant parameters.
     WaterStressStem,  // water stress index for stem growth (0 to 1).
     WindSpeed[24],    // Hourly wind velocity, m per second.
     wk[maxk];         // horizontal width of a soil column (cm).
+
+double TotalLeafWeight() {
+    double result = 0;
+    if (FirstSquare <= 0) {
+        result += 0.2;  // weight of cotyledons dry matter.
+    }
+    for (int i = 0; i < NumPreFruNodes; i++) result += LeafWeightPreFru[i];
+    for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
+        result += LeafWeightMainStem[k][l];
+        for (int m = 0; m < NumNodes[k][l]; m++) result += LeafWeightNodes[k][l][m];
+    }
+    return result;
+}

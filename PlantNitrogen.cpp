@@ -290,7 +290,7 @@ void NitrogenSupply()
         //     The N reserves in leaves, petioles, stems, roots and burrs of
         //  green bolls are computed, and their N content updated.
         leafrs =
-            (LeafNitrogen - vlfnmin * TotalLeafWeight) * MobilizNFractionLeaves;
+            (LeafNitrogen - vlfnmin * TotalLeafWeight()) * MobilizNFractionLeaves;
         if (leafrs < 0) leafrs = 0;
         LeafNitrogen -= leafrs;
         double total_leafrs = leafrs;
@@ -589,9 +589,9 @@ void ExtraNitrogenAllocation()
         //     If there are no reserves, allocate xtran in proportion to the dry
         //  weights in each of these organs.
         double vegwt;  // weight of vegetative plant parts, plus burrs.
-        vegwt = TotalLeafWeight + TotalPetioleWeight + TotalStemWeight +
+        vegwt = TotalLeafWeight() + TotalPetioleWeight + TotalStemWeight +
                 TotalRootWeight + BurrWeightGreenBolls;
-        addlfn = xtran * TotalLeafWeight / vegwt;
+        addlfn = xtran * TotalLeafWeight() / vegwt;
         addpetn = xtran * TotalPetioleWeight / vegwt;
         addstm = xtran * TotalStemWeight / vegwt;
         addrt = xtran * TotalRootWeight / vegwt;
@@ -630,7 +630,7 @@ void PlantNitrogenContent()
     const double seedratio = 0.64;
     //     Compute N concentration in plant organs as the ratio of N content to
     //     weight of dry matter.
-    if (TotalLeafWeight > 0.00001) LeafNConc = LeafNitrogen / TotalLeafWeight;
+    if (TotalLeafWeight() > 0.00001) LeafNConc = LeafNitrogen / TotalLeafWeight();
     if (TotalPetioleWeight > 0.00001) {
         PetioleNConc = PetioleNitrogen / TotalPetioleWeight;
         PetioleNO3NConc = PetioleNConc * PetioleNitrateN();
@@ -729,7 +729,7 @@ void NitrogenUptakeRequirement()
     //    Add nitrogen uptake required for leaf and petiole tissue to
     //    TotalRequiredN.
     if (LeafNConc < vnreqlef)
-        TotalRequiredN += TotalLeafWeight * (vnreqlef - LeafNConc);
+        TotalRequiredN += TotalLeafWeight() * (vnreqlef - LeafNConc);
     if (PetioleNConc < vnreqpet)
         TotalRequiredN += TotalPetioleWeight * (vnreqpet - PetioleNConc);
     //    The active stem tissue is the stem formed during the last voldstm

@@ -34,7 +34,7 @@ extern struct scratch {
         rootNConc, rootNitrogen, rootWeightLoss, runoff, seedNConc,
         seedNitrogen, soilNitrogenLoss, squareNConc, squareNitrogen, stemNConc,
         stemNitrogen, sumNO3N90, supplyNH4N, supplyNO3N, tapRootLength, tmax,
-        tmin, totalLeafWeight, totalPetioleWeight, totalRequiredN,
+        tmin, totalPetioleWeight, totalRequiredN,
         totalRootWeight, totalSoilNh4N, totalSoilNo3N, totalSoilUreaN,
         totalSoilWater, totalSquareWeight, totalStemWeight, waterStress,
         waterStressStem, wind;
@@ -124,7 +124,7 @@ extern double AbscisedFruitSites, AbscisedLeafWeight, ActualBollGrowth,
     RowSpace, SeedNConc, SeedNitrogen, SoilNitrogenAtStart, SoilNitrogenLoss,
     SquareNConc, SquareNitrogen, StemNConc, StemNitrogen, SumNO3N90, SupplyNH4N,
     SupplyNO3N, TapRootLength, TotalActualLeafGrowth, TotalActualPetioleGrowth,
-    TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalRequiredN,
+    TotalLeafArea, TotalPetioleWeight, TotalRequiredN,
     TotalRootWeight, TotalSoilNh4N, TotalSoilNitrogen, TotalSoilNo3N,
     TotalSoilUreaN, TotalSoilWater, TotalSquareWeight, TotalStemWeight,
     WaterStress, WaterStressStem;
@@ -167,3 +167,4 @@ extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk],
     VolUreaNContent[maxl][maxk], VolWaterContent[maxl][maxk], WindSpeed[24],
     wk[maxk];
 void WriteStateVariables(bool bAdjusting);
+double TotalLeafWeight();           // total leaf weight, g per plant.

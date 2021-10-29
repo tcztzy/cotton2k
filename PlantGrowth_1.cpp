@@ -364,7 +364,7 @@ void GetNetPhotosynthesis()  // computes net photosynthesis.
     //  Analysis Center (CDIAC).
     //
     //     Exit the function and end simulation if there are no leaves.
-    if (TotalLeafWeight <= 0) {
+    if (TotalLeafWeight() <= 0) {
         bEnd = true;
         return;
     }
@@ -540,11 +540,9 @@ void PlantGrowth()
         LeafArea[i] = 0;
     }
     if (FirstSquare > 0) {
-        TotalLeafWeight = 0;
         TotalLeafArea = 0;
     } else {
         double cotylwt = 0.20;  // weight of cotyledons dry matter.
-        TotalLeafWeight = cotylwt;
         TotalLeafArea = 0.6 * cotylwt;
         LeafArea[0] = 0.6 * cotylwt;
     }
@@ -591,7 +589,7 @@ void PlantGrowth()
         File36.width(10);
         File36 << TotalStemWeight;
         File36.width(10);
-        File36 << TotalLeafWeight;
+        File36 << TotalLeafWeight();
         File36.width(10);
         File36 << TotalPetioleWeight;
         File36.width(10);

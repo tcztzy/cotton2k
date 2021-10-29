@@ -42,7 +42,7 @@ void ReadInput()
     //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
     PlantWeightAtStart =
-        TotalRootWeight + TotalStemWeight + TotalLeafWeight + ReserveC;
+        TotalRootWeight + TotalStemWeight + TotalLeafWeight() + ReserveC;
 }
 /////////////////////////////////////////////////////////////////////////////
 void ReadProfileFile()
