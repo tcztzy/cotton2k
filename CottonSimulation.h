@@ -87,7 +87,6 @@ void GravityFlow(double WaterApplied);
 double TemperatureOnLeafGrowthRate(double t);
 void HeatBalance(int nn);
 // I
-void InitializeGlobal();
 void InitiateLateralRoots();
 void InitializeRootData();
 void InitializeSoilData();

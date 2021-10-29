@@ -35,9 +35,6 @@ Genaral Framework:
        Defines all global ("common") variables.
        (This file also serves as a "dictionary" for these variables.)
 
-    File InitializeGlobal.cpp
-          InitializeGlobal()
-
     File PlantAdjustment.cpp
           WriteStateVariables()
           PlantAdjustments()

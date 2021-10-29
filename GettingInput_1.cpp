@@ -31,7 +31,6 @@ void ReadInput()
     //     The following functions are called to read initial values of some
     //     variables from
     //  input files, or initialize them otherwise.
-    InitializeGlobal();
     ReadProfileFile();
     ReadSoilImpedance();
     WriteInitialInputData();
