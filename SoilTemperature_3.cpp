@@ -621,12 +621,5 @@ void PredictEmergence(int hour)
         isw = 2;
         DayEmerge = Daynum;
         Kday = 1;
-        std::string gerday = DoyToDate(DayEmerge, iyear);
-        ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
-        File46 << " Predicted Germination on " << gerday
-               << " (Day of Year = " << DayEmerge << " )" << endl;
-        ofstream File22("Output\\" + ProfileName + ".S01", ios::app);
-        File22 << " Predicted Germination on " << gerday
-               << " (Day of Year = " << DayEmerge << " )" << endl;
     }
 }

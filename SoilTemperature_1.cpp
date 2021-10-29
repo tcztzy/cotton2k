@@ -294,46 +294,6 @@ void SoilTemperature()
             }
         }
         if (shading >= 0.01) tfc = tfc / shading;
-        //     If there is an output flag, write data to file TMS.
-        if (jtout) {
-            ofstream File19("Output\\" + ProfileName + ".TMS", ios::app);
-            File19.width(5);
-            File19 << Daynum;
-            File19.width(5);
-            File19 << ihr + 1;
-            File19.setf(ios::fixed);
-            File19.precision(3);
-            for (int l = 0; l < 8; l++) {
-                File19.width(8);
-                File19 << tsolav[l];
-            }
-            File19 << endl;
-            for (int n = 0; n < 4; n++) {
-                File19 << "          ";
-                for (int l = 8 * (n + 1); l < 8 * (n + 2); l++) {
-                    File19.width(8);
-                    File19 << tsolav[l];
-                }
-                File19 << endl;
-            }
-            File19 << " ihr  AirTemp  tfc  DewPointTemp  RelativeHumidity% "
-                      "tmav = ";
-            File19.width(3);
-            File19 << ihr + 1;
-            File19.setf(ios::fixed);
-            File19.precision(3);
-            File19.width(8);
-            File19 << AirTemp[ihr];
-            File19.width(8);
-            File19 << tfc;
-            File19.width(8);
-            File19 << DewPointTemp[ihr];
-            File19.width(8);
-            File19 << RelativeHumidity[ihr];
-            File19.width(8);
-            File19 << tmav;
-            File19 << endl;
-        }
         //     If emergence date is to be simulated, call PredictEmergence().
         if (isw == 0 && Daynum >= DayPlant) PredictEmergence(ihr);
     }  // end of hourly loop

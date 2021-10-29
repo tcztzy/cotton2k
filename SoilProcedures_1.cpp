@@ -8,7 +8,6 @@
 // GetTargetStress()
 // PredictDripIrrigation()
 // PredictSurfaceIrrigation()
-// OutputPredictedIrrigation()
 // AveragePsi()
 // WaterTable()
 //
@@ -131,43 +130,6 @@ void SoilProcedures()
     if (WaterToApply + DripWaterAmount <= 0) {
         noitr = 1;
         CapillaryFlow();
-    }
-    //     If the output flag OutIndex(17) is non-zero, write to output file
-    //     *.WAT.
-    //  This flag is also the interval in days between outputs. This is used for
-    //  checking only.
-    if (OutIndex[17] > 0) {
-        int kkk = Daynum / OutIndex[17];
-        if (kkk * OutIndex[17] == Daynum) {
-            ofstream File42("Output\\" + ProfileName + ".WAT", ios::app);
-            File42 << endl << " Average Values by Layers on Day of Year ";
-            File42 << Daynum << endl;
-            File42 << " Layer          VolWaterContent          SoilPsi "
-                   << endl;
-            for (int l = 0; l < nl; l++) {
-                //     Compute for each layer the average water content and the
-                //     average matric water potential.
-                double psiavx =
-                    0;  // average of SoilPsi for a soil layer, bars.
-                double vavg =
-                    0;  // average water content in a soil layer, cm3 cm-3.
-                for (int k = 0; k < nk; k++) {
-                    vavg += VolWaterContent[l][k];
-                    psiavx += SoilPsi[l][k];
-                }
-                vavg = vavg / nk;
-                psiavx = psiavx / nk;
-                File42.width(6);
-                File42 << l + 1;
-                File42.setf(ios::fixed);
-                File42.precision(3);
-                File42.width(15);
-                File42 << vavg;
-                File42.width(15);
-                File42 << psiavx;
-                File42 << endl;
-            }
-        }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -376,7 +338,6 @@ void ComputeIrrigation()
 //  irrigation. It is called from SoilProcedures().
 //     It calls GetTargetStress(), PredictDripIrrigation(),
 //     PredictSurfaceIrrigation(),
-//  OutputPredictedIrrigation().
 //     The following global variables are referenced here:
 //       AppliedWater, Daynum, IrrigMethod.
 //     The following global variable is set here:       LastIrrigation.
@@ -393,7 +354,6 @@ void ComputeIrrigation()
     //  last irrigation, and write report in output file *.B01.
     if (AppliedWater > 0.00001) {
         LastIrrigation = Daynum;
-        OutputPredictedIrrigation(AppliedWater, TargetStress);
     }
 }
 ///////////////////////////////////////////////////////////////////////
@@ -606,30 +566,6 @@ void PredictSurfaceIrrigation(double TargetStress)
             }
         }
     }
-}
-////////////////////////////////////////////////////////////////////////////
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress)
-//      This function is called from ComputeIrrigation().
-//      It writes output ofapplication of predicted irrigation to file *.B01
-//      Function DoyToDate() is used.
-//      Arguments used: AppliedWater, TargetStress.
-//      Global variables referenced: Daynum, iyear, ProfileName, WaterStress.
-{
-    ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
-    File20 << " Predicted irrigation on " << DoyToDate(Daynum, iyear) << " - ";
-    if (OutIndex[1] == 0)
-        File20 << AppliedWater << " mm. ";
-    else
-        File20 << AppliedWater / 25.4 << " inches. ";
-    File20 << " Water Stress: Actual = ";
-    File20.setf(ios::fixed);
-    File20.precision(3);
-    File20.width(6);
-    File20 << WaterStress;
-    File20 << " Target = ";
-    File20.width(6);
-    File20 << TargetStress;
-    File20 << endl;
 }
 ////////////////////////////////////////////////////////////////////////////////
 double AveragePsi()

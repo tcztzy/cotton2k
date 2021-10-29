@@ -54,7 +54,6 @@ Input Routines:
     File GettingInput_1.cpp 
           ReadInput()
           ReadProfileFile()
-          WriteInitialInputData()
        
     File GettingInput_2.cpp
           ReadSoilImpedance()
@@ -106,7 +105,6 @@ Soil:
           GetTargetStress()
           PredictDripIrrigation()
           PredictSurfaceIrrigation()
-          OutputPredictedIrrigation()
           AveragePsi()
           WaterTable()
 
@@ -259,30 +257,3 @@ The Cotton Plant:
           GetNitrogenStress()
           NitrogenUptakeRequirement()
           PlantNitrogenBal()
-       
-================================================================================
-
-Package H.
-Output Routines:    
-
-    File WriteOutput_1.cpp
-          OpenOutputFiles()
-          DailyOutput{}
-          output1()
-          DataOutput()
-          WriteLine22()
-
-    File WriteOutput_2.cpp
-          cotplt()
-          sitecode()
-          bollsize()
-
-    File WriteOutput_3.cpp
-          outputplt()
-          output2()
-          output3()
-          output4()
-          output5()
-          output6()
-          output7()
-          OutputForSoilMaps()

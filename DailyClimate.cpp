@@ -153,43 +153,9 @@ void DayClim()
         WindSpeed[ihr] =
             daywnd(ti, GetFromClim("wind", Daynum), t1, t2, t3, wnytf);
     }
-    //     Write output file if requested.
-    if (jtout > 1) {
-        ofstream File18("Output\\" + ProfileName + ".TM2", ios::app);
-        File18 << endl;
-        File18 << " hour     radiation    temperature             "
-                  "RelativeHumidity           wind"
-               << endl;
-        for (int ihr = 0; ihr < 24; ihr++)  //  Start hourly loop.
-        {
-            File18.width(5);
-            File18 << ihr;
-            File18.precision(5);
-            File18.width(15);
-            File18 << Radiation[ihr];
-            File18.width(15);
-            File18 << AirTemp[ihr];
-            File18.width(15);
-            File18 << RelativeHumidity[ihr];
-            File18.width(15);
-            File18 << WindSpeed[ihr] << endl;
-        }
-    }
     //     Compute average daily temperature, using function
     //     AverageAirTemperatures.
     AverageAirTemperatures();
-    //     Write output file if requested.
-    if (jtout > 1) {
-        ofstream File18("Output\\" + ProfileName + ".TM2", ios::app);
-        File18 << endl << " DayTimeTemp, NightTimeTemp, AvrgDailyTemp =   ";
-        File18.precision(2);
-        File18.width(10);
-        File18 << DayTimeTemp;
-        File18.width(10);
-        File18 << NightTimeTemp;
-        File18.width(10);
-        File18 << AvrgDailyTemp << endl;
-    }
     //     Compute potential evapotranspiration.
     EvapoTranspiration(jtout);
 }
@@ -656,27 +622,6 @@ void EvapoTranspiration(int jtout)
         //      refalbed is called to compute the reference albedo for each
         //      hour.
         albedo[ihr] = refalbed(isr, Radiation[ihr], cosz, suna);
-        if (jtout > 1) {
-            // write output to file
-            ofstream File18("Output\\" + ProfileName + ".TM2", ios::app);
-            if (ihr == 0) {
-                File18 << "    ***********" << endl << "  date =";
-                File18.width(12);
-                File18 << Date << " Day of Year =";
-                File18.width(4);
-                File18 << Daynum << endl;
-                File18 << " hour    cosz       isr   sunangle " << endl;
-            }
-            File18.width(5);
-            File18 << ihr;
-            File18.precision(4);
-            File18.width(10);
-            File18 << cosz;
-            File18.width(10);
-            File18 << isr;
-            File18.width(10);
-            File18 << suna << endl;
-        }
     }  //   End of 1st hourly loop
        //     Zero some variables that will later be used for summation.
     ReferenceTransp = 0;

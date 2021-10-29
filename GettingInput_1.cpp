@@ -3,7 +3,6 @@
 //   functions in this file:
 // ReadInput()
 // ReadProfileFile()
-// WriteInitialInputData()
 //
 #include <math.h>
 
@@ -33,7 +32,6 @@ void ReadInput()
     //  input files, or initialize them otherwise.
     ReadProfileFile();
     ReadSoilImpedance();
-    WriteInitialInputData();
     InitSoil();
     ReadPlantMapInput();
     InitializeSoilData();
@@ -160,146 +158,4 @@ void ReadProfileFile()
     //     If the output frequency indicators are zero, they are set to 999.
     if (SoilMapFreq <= 0) SoilMapFreq = 999;
     if (PlantMapFreq <= 0) PlantMapFreq = 999;
-    //     Call function OpenOutputFiles() to open the output files.
-    OpenOutputFiles(m_fileDesc);
-}
-//////////////////////////////////////////////////////////
-void WriteInitialInputData()
-//     This function writes the input data to File20 (*.B01). It is executed
-//     once
-//  at the beginning of the simulation. It is called by ReadInput().
-//
-//     The following global or file-scope variables are set here:
-//  DayEndMulch, DayStartMulch, MulchTranLW, MulchTranSW.
-//     The following global or file-scope variables are referenced here:
-//  AgrInputFileName, CO2EnrichmentFactor, DayEmerge, DayEndCO2,
-//  DayFinish, DayPlant, DayStart, DayStartCO2, Elevation, iyear, Latitude,
-//  Longitude, m_mulchdata, maxk, MulchIndicator, OutIndex, PerPlantArea,
-//  PlantmapFileName, PlantsPerM, ProfileName, RowSpace,
-//  SiteName, SkipRowWidth, SoilHydFileName, SoilInitFileName, VarName.
-{
-    ofstream File20("Output\\" + ProfileName + ".B01", ios::app);
-    File20 << "    Latitude.. ";
-    File20.setf(ios::fixed);
-    File20.width(8);
-    File20.precision(2);
-    File20 << fabs(Latitude);
-    File20.width(7);
-        File20 << "  North";
-    File20 << "         Longitude.. ";
-    File20.width(8);
-    File20.precision(2);
-    File20 << fabs(Longitude);
-    File20.width(7);
-        File20 << "   East";
-    File20 << endl;
-    //
-    if (OutIndex[1] == 0)  // write profile data in metric units
-    {
-        File20 << "    Elevation (m).... ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << Elevation;
-    } else {
-        File20 << "    Elevation (ft).... ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << Elevation * 3.28;
-    }
-    File20 << endl;
-    //
-    File20 << "    Start Simulation " << DoyToDate(DayStart, iyear);
-    File20 << "       Stop Simulation.... " << DoyToDate(DayFinish, iyear)
-           << endl;
-    //
-    File20 << "    Planting date...." << DoyToDate(DayPlant, iyear);
-    if (DayEmerge <= 0)
-        File20 << "       Emergence date is simulated   " << endl;
-    else
-        File20 << "       Emergence date...   " << DoyToDate(DayEmerge, iyear)
-               << endl;
-    //
-    if (OutIndex[1] == 0)  // write profile data in metric units
-    {
-        File20 << "    Row Spacing (cm) ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << RowSpace;
-        File20 << "          Plants Per Row-m... ";
-        File20.width(8);
-        File20 << 0 << endl;
-        File20 << "    Skip Width (cm). ";
-        File20.width(8);
-        File20 << 0;
-        File20 << "          Plants Per Ha...... ";
-        File20.width(8);
-        File20.precision(1);
-        File20 << PlantPopulation << endl;
-    } else {
-        File20 << "    Row Spacing (in) ";
-        File20.width(8);
-        File20.precision(2);
-        File20 << RowSpace / 2.54;
-        File20 << "          Plants Per Row-ft.. ";
-        File20.width(8);
-        File20 << 0 * 0.305 << endl;
-        File20 << "    Skip Width (in). ";
-        File20.width(8);
-        File20 << 0 / 2.54;
-        File20 << "          Plants Per Acre.... ";
-        File20.width(8);
-        File20.precision(1);
-        File20 << PlantPopulation * 0.405 << endl;
-    }
-    //
-    if (CO2EnrichmentFactor > 1)  //  write CO2 enrichment input data.
-    {
-        File20 << "          CO2 enrichment factor              ...  ";
-        File20.width(8);
-        File20.precision(4);
-        File20 << CO2EnrichmentFactor << endl;
-        File20 << "    from ...... " << DoyToDate(DayStartCO2, iyear);
-        File20 << "    to ...... " << DoyToDate(DayEndCO2, iyear) << endl;
-    }
-    //
-    if (false && MulchIndicator > 0) {
-        File20 << "   Polyethylene mulch cover. Transmissivity values are: "
-               << endl;
-        File20 << " For short waves:  ";
-        File20.width(8);
-        File20.precision(3);
-        File20 << MulchTranSW;
-        File20 << " For long waves:  ";
-        File20.width(8);
-        File20.precision(3);
-        File20 << MulchTranLW << endl;
-        File20 << " From Day of Year  ";
-        File20.width(4);
-        File20 << DayStartMulch;
-        File20 << " to Day of Year  ";
-        File20.width(4);
-        File20 << DayEndMulch << endl;
-        if (MulchIndicator == 1)
-            File20 << " All soil surface covered by mulch." << endl;
-        else {
-            File20.width(6);
-            File20.precision(2);
-            if (MulchIndicator == 2)
-                File20 << RowSpace / maxk;
-            else if (MulchIndicator == 3)
-                File20 << 2 * RowSpace / maxk;
-            File20 << " cm on each side of planr rows not covered by mulch."
-                   << endl;
-        }
-    }
-    File20 << "    Cultural Input File:           " << AgrInputFileName << endl;
-    File20 << "    Initial Soil Data Input File:  " << SoilInitFileName << endl;
-    File20 << "    Soil Hydrology Input File:     " << SoilHydFileName << endl;
-    if (PlantmapFileName.length() > 0)
-        File20 << "    Plant Map Adjustment File:     " << PlantmapFileName
-               << endl
-               << endl;
-    //   Write names of the site and the variety
-    File20 << "    Site...     " << endl;
-    File20 << "    Variety...  " << endl << endl;
 }

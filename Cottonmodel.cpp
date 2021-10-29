@@ -31,7 +31,7 @@ C2KApp::C2KApp() {}
 /////////////////////////////////////////////////////////////////////////////
 void C2KApp::RunTheModel(const char *profile)
 //     This function calls the following functions for each profile:
-//          ReadInput(), DailySimulation() and  DataOutput()
+//          ReadInput(), DailySimulation()
 //     Global variables set: ProfileName
 //     Global variables referenced:  DayFinish, DayStart
 //
@@ -134,7 +134,6 @@ void C2KApp::SimulateThisDay()
 //     Defoliate(), Stress(), GetNetPhotosynthesis(), PlantGrowth(),
 //     CottonPhenology(), PlantNitrogen(), CheckDryMatterBal(),
 //     PlantNitrogenBal(), SoilNitrogenBal(), SoilNitrogenAverage(),
-//     DailyOutput();
 //
 //     The following global variables are referenced here:  DayEmerge,
 //     DayFinish,
@@ -185,8 +184,6 @@ void C2KApp::SimulateThisDay()
             SoilNitrogenAverage();  // computes average soil nitrogen by layers.
         }
     }
-    //     Call DailyOutput for reporting some simulation data for this day.
-    DailyOutput();
     //     Check if the date to stop simulation has been reached, or if this is
     //     the last day
     //  with available weather data. Simulation will also stop when no leaves

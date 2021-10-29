@@ -267,45 +267,6 @@ void LeafWaterPotential()
     //     Check for minimum and maximum values.
     if (LwpMin < vpsil[9]) LwpMin = vpsil[9];
     if (LwpMin > psild0) LwpMin = psild0;
-    //     If the output flag is non-zero, write daily values to file 44 (*.LWP)
-    if (OutIndex[19] > 0) {
-        ofstream File44("Output\\" + ProfileName + ".LWP", ios::app);
-        File44.unsetf(ios::left);
-        File44.width(5);
-        File44 << Kday;
-        File44 << "   ";
-        File44.setf(ios::fixed);
-        File44.precision(2);
-        File44.width(9);
-        File44 << AverageSoilPsi;
-        File44 << " ";
-        File44.width(9);
-        File44.precision(3);
-        File44.setf(ios::scientific);
-        File44 << cond;
-        File44.setf(ios::fixed);
-        File44 << " ";
-        File44.precision(2);
-        File44.width(9);
-        File44 << rsoil;
-        File44 << " ";
-        File44.width(9);
-        File44 << rroot;
-        File44 << " ";
-        File44.precision(3);
-        File44.width(9);
-        File44 << rshoot;
-        File44 << " ";
-        File44.width(9);
-        File44 << rleaf;
-        File44 << " ";
-        File44.width(9);
-        File44 << LwpMax;
-        File44 << " ";
-        File44.width(9);
-        File44 << LwpMin;
-        File44 << endl;
-    }
 }
 //////////////////////////////////
 double LeafResistance(double agel)
@@ -568,36 +529,4 @@ void PlantGrowth()
     PlantHeight += AddPlantHeight(denf2);
     //     Call ActualRootGrowth() to compute actual root growth.
     ComputeActualRootGrowth(sumpdr);
-    //     Output data to file *.CHB
-    if (OutIndex[18] > 0) {
-        ofstream File36("Output\\" + ProfileName + ".CHB", ios::app);
-        File36.unsetf(ios::left);
-        File36.width(11);
-        File36 << Date;
-        File36.setf(ios::fixed);
-        File36.precision(5);
-        File36.width(10);
-        File36 << cdstem;
-        File36.width(10);
-        File36 << cdleaf;
-        File36.width(10);
-        File36 << cdpet;
-        File36.width(10);
-        File36 << cdroot;
-        File36.width(10);
-        File36 << CarbonStress;
-        File36.width(10);
-        File36 << TotalStemWeight;
-        File36.width(10);
-        File36 << TotalLeafWeight();
-        File36.width(10);
-        File36 << TotalPetioleWeight;
-        File36.width(10);
-        File36 << TotalRootWeight;
-        File36.width(10);
-        File36 << sumpdr;
-        File36.width(10);
-        File36 << NStressRoots;
-        File36 << endl;
-    }
 }

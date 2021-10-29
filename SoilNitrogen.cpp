@@ -523,24 +523,6 @@ void SoilNitrogenBal()
     //  N in the soil, and the amount lost by drainage.
     balsn = SoilNitrogenAtStart + CumFertilizerN + MineralizedOrganicN -
             CumNitrogenUptake - TotalSoilNitrogen - SoilNitrogenLoss;
-    //     Output to file NB1
-    ofstream File47("Output\\" + ProfileName + ".NB1", ios::app);
-    File47.width(4);
-    File47 << Kday;
-    File47.setf(ios::fixed);
-    File47.precision(2);
-    File47.width(9);
-    File47 << balsn;
-    File47.width(9);
-    File47 << CumFertilizerN;
-    File47.width(9);
-    File47 << MineralizedOrganicN;
-    File47.width(9);
-    File47 << CumNitrogenUptake;
-    File47.width(9);
-    File47 << TotalSoilNitrogen;
-    File47.width(9);
-    File47 << SoilNitrogenLoss << endl;
 }
 //////////////////////////
 void SoilNitrogenAverage()
@@ -589,26 +571,4 @@ void SoilNitrogenAverage()
     avnh90 = 1000 * avnh90 / (30 * nk);
     avno120 = 1000 * avno120 / (30 * nk);
     avnh120 = 1000 * avnh120 / (30 * nk);
-    //
-    ofstream File35("Output\\" + ProfileName + ".NB0", ios::app);
-    File35.width(4);
-    File35 << Kday;
-    File35.setf(ios::fixed);
-    File35.precision(2);
-    File35.width(9);
-    File35 << avno30;
-    File35.width(9);
-    File35 << avno60;
-    File35.width(9);
-    File35 << avno90;
-    File35.width(9);
-    File35 << avno120;
-    File35.width(9);
-    File35 << avnh30;
-    File35.width(9);
-    File35 << avnh60;
-    File35.width(9);
-    File35 << avnh90;
-    File35.width(9);
-    File35 << avnh120 << endl;
 }

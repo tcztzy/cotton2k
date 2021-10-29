@@ -1,7 +1,6 @@
 // CottonSimulation.h : Defines the functions of the application.
 //
 #pragma once
-#include <fstream>  // Necessary for file I/O
 #include <string>
 
 #include "global.h"
@@ -51,8 +50,6 @@ void cotplt(int nmap);
 void CottonPhenology();
 void CreateFirstSquare(double stemNRatio);
 // D
-void DailyOutput();
-void DataOutput();
 void DayClim();
 double dayrad(double ti, double radsum, double sinb, double c11);
 double dayrh(double tt, double tdew);
@@ -114,18 +111,6 @@ void NitrogenRequirement();
 void NitrogenSupply();
 void NitrogenUptake(int l, int k, double reqnc);
 void NitrogenUptakeRequirement();
-// O
-void OpenOutputFiles(std::string m_fileDesc);
-void output1();
-void output2();
-void output3();
-void output4();
-void output5();
-void output6();
-void output7();
-void OutputForSoilMaps(int irec, int igo, int nday);
-void outputplt();
-void OutputPredictedIrrigation(double AppliedWater, double TargetStress);
 // P
 double PetioleNitrateN();
 double PhysiologicalAge();
@@ -208,6 +193,4 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
 void WaterTable();   // WATERTBL
 void WaterUptake();  // UPTAKE
 double SoilWaterEffect(int l, int k, double xx);
-void WriteInitialInputData();
-void WriteLine22(ofstream &File22, double i00, double i01, double i02);
 void WriteStateVariables(bool bAdjusting);

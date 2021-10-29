@@ -6,7 +6,7 @@
 //       GoBack()
 //
 #include <math.h>
-
+#include <iostream>
 #include "CottonSimulation.h"
 #include "Cottonmodel.h"
 #include "GeneralFunctions.h"
@@ -330,9 +330,8 @@ void PlantAdjustments(int i, int jj)
                 nadj[0] = true;
                 //     AdjAddMSNodesRate will be used in function
                 //     AddFruitingBranch()
-                ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
-                File46 << " Apply plant adjustment for main stem nodes to date "
-                       << Date << endl;
+                std::cout << " Apply plant adjustment for main stem nodes to date "
+                       << Date << std::endl;
                 GoBack();
             }
             return;
@@ -375,9 +374,8 @@ void PlantAdjustments(int i, int jj)
                 nadj[1] = true;
                 //     AdjAddHeightRate will be used in function
                 //     AddPlantHeight()
-                ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
-                File46 << " Apply plant adjustment for stem height to date "
-                       << Date << endl;
+                std::cout << " Apply plant adjustment for stem height to date "
+                       << Date << std::endl;
                 GoBack();
             }
             return;
@@ -422,10 +420,9 @@ void PlantAdjustments(int i, int jj)
                 nadj[2] = true;
                 //     AdjAddSitesRate will be used in function
                 //     AddFruitingNode()
-                ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
-                File46 << " Apply plant adjustment for total number of sites "
+                std::cout << " Apply plant adjustment for total number of sites "
                           "to date "
-                       << Date << endl;
+                       << Date << std::endl;
                 GoBack();
             }
             return;
@@ -440,10 +437,9 @@ void PlantAdjustments(int i, int jj)
                 AdjSquareAbsc = 1 - pow((MapDataSquareNum[i] / NumSquares),
                                         (1 / (double)NumAdjustDays));
                 //     AdjSquareAbsc will be used in function AdjustAbscission()
-                ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
-                File46
+                std::cout
                     << " Apply plant adjustment for number of squares to date "
-                    << Date << endl;
+                    << Date << std::endl;
                 GoBack();
             } else
                 nadj[3] = false;
@@ -461,10 +457,9 @@ void PlantAdjustments(int i, int jj)
                 nadj[4] = true;
                 //     AdjGreenBollAbsc will be used in function
                 //     AdjustAbscission()
-                ofstream File46("Output\\" + ProfileName + ".F01", ios::app);
-                File46 << " Apply plant adjustment for number of green bolls "
+                std::cout << " Apply plant adjustment for number of green bolls "
                           "to date "
-                       << Date << endl;
+                       << Date << std::endl;
                 GoBack();
             } else
                 nadj[4] = false;
