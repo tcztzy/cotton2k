@@ -205,7 +205,6 @@ void PreFruitingNode(double stemNRatio)
             LeafAreaPreFru[NumPreFruNodes - 1] * LeafWeightAreaRatio;
         TotalStemWeight -= LeafWeightPreFru[NumPreFruNodes - 1];
         LeafNitrogen += LeafWeightPreFru[NumPreFruNodes - 1] * stemNRatio;
-        LeafNitrogenLayer[NodeLayerPreFru[NumPreFruNodes - 1]] += LeafWeightPreFru[NumPreFruNodes - 1] * stemNRatio;
         StemNitrogen -= LeafWeightPreFru[NumPreFruNodes - 1] * stemNRatio;
     }
 }
@@ -283,7 +282,6 @@ void CreateFirstSquare(double stemNRatio)
     NumFruitBranches[0] = 1;
     NumNodes[0][0] = 1;
     NodeLayer[0][0] = min(max((int)(PlantHeight / 5), 0), 20);
-    LeafNitrogenLayer[NodeLayer[0][0]] += LeafWeightNodes[0][0][0] * stemNRatio;
     FruitGrowthRatio = 1;
     AvrgNodeTemper[0][0][0] = AvrgDailyTemp;
     //     It is assumed that the cotyledons are dropped at time of first
@@ -293,7 +291,6 @@ void CreateFirstSquare(double stemNRatio)
     double cotylwt = 0.20;  // cotylwt is the leaf weight of the cotyledons.
     AbscisedLeafWeight += cotylwt;
     CumPlantNLoss += cotylwt * LeafNitrogen / TotalLeafWeight();
-    LeafNitrogenLayer[0] -= cotylwt * LeafNitrogen / TotalLeafWeight();
     LeafNitrogen -= cotylwt * LeafNitrogen / TotalLeafWeight();
     PixInPlants -= cotylwt * pixcon;
 }
@@ -369,7 +366,6 @@ void AddVegetativeBranch(double delayVegByCStress, double stemNRatio,
     NumFruitBranches[NumVegBranches - 1] = 1;
     NumNodes[NumVegBranches - 1][0] = 1;
     NodeLayer[NumVegBranches - 1][0] = min(max((int)(PlantHeight / 5), 0), 20);
-    LeafNitrogenLayer[NodeLayer[NumVegBranches - 1][0]] += addlfn;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
 void AddFruitingBranch(int k, double delayVegByCStress, double stemNRatio)
@@ -463,7 +459,6 @@ void AddFruitingBranch(int k, double delayVegByCStress, double stemNRatio)
         stemNRatio;
     LeafNitrogen += addlfn;
     NodeLayer[k][newbr] = min(max((int)(PlantHeight / 5), 0), 20);
-    LeafNitrogenLayer[NodeLayer[k][newbr]] += addlfn;
     StemNitrogen -= addlfn;
     //      Begin computing AvrgNodeTemper of the new node and assign zero to
     //      DelayNewFruBranch.
@@ -546,7 +541,6 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio)
     LeafWeightNodes[k][l][newnod] = VarPar[34] * LeafWeightAreaRatio;
     TotalStemWeight -= LeafWeightNodes[k][l][newnod];
     LeafNitrogen += LeafWeightNodes[k][l][newnod] * stemNRatio;
-    LeafNitrogenLayer[NodeLayer[k][l]] += LeafWeightNodes[k][l][newnod] * stemNRatio;
     StemNitrogen -= LeafWeightNodes[k][l][newnod] * stemNRatio;
     //     Begin computing AvrgNodeTemper of the new node, and assign zero to
     //     DelayNewNode.

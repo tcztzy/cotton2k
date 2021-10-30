@@ -43,16 +43,27 @@ void ColumnShading()
     double zint;  // light interception computed from plant height.
     zint = 1.0756 * PlantHeight / RowSpace;
     if (version >= 5) {
-        for (int i = 0; i < 20; i++) LeafArea[i] = 0;
-        for (int i = 0; i < 9; i++) LeafArea[NodeLayerPreFru[i]] += LeafAreaPreFru[i];
+        for (int i = 0; i < 20; i++) {
+            LeafArea[i] = 0;
+            AverageLeafAge[i] = 0;
+        }
+        for (int i = 0; i < 9; i++) {
+            LeafArea[NodeLayerPreFru[i]] += LeafAreaPreFru[i];
+            AverageLeafAge[NodeLayerPreFru[i]] += LeafAreaPreFru[i] * AgeOfPreFruNode[i];
+        }
         for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
             LeafArea[NodeLayer[k][l]] += LeafAreaMainStem[k][l];
-            for (int m = 0; m < NumNodes[k][l]; m++) LeafArea[NodeLayer[k][l]] += LeafAreaNodes[k][l][m];
+            AverageLeafAge[NodeLayer[k][l]] += LeafAreaMainStem[k][l] * LeafAge[k][l][0];
+            for (int m = 0; m < NumNodes[k][l]; m++) {
+                LeafArea[NodeLayer[k][l]] += LeafAreaNodes[k][l][m];
+                AverageLeafAge[NodeLayer[k][l]] += LeafAreaNodes[k][l][m] * LeafAge[k][l][m];
+            }
         }
         if (FirstSquare <= 0) {
             LeafArea[0] += 0.20 * 0.6;
         }
         for (int i = 0; i < 20; i++) {
+            AverageLeafAge[i] /= LeafArea[i];
             LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
             LightInterceptLayer[i] = 1 - exp(light_intercept_parameters[i] * LeafAreaIndexes[i]);
         }

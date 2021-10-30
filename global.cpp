@@ -201,6 +201,7 @@ double AbscisedFruitSites,  // total number of abscised fruit sites, per plant.
     alpha[9],     // parameter of the Van Genuchten equation.
     AppliedWater,    // the amount of water to apply (mm), computed for a
                      // predicted irrigation.
+    AverageLeafAge[20],  // area-weighted leaf age
     AverageLwp,      // running average of LwpMin + LwpMax for the last 3 days.
     AverageLwpMin,   // running average of LwpMin for the last 3 days.
     AverageSoilPsi,  // average soil matric water potential, bars, computed as
@@ -315,7 +316,6 @@ double impede[10][10],      // input table of soil impedance to root growth
     LeafAreaPreFru[9],        // area of prefruiting node leaves, dm2.
     LeafNConc,                // average nitrogen concentration in leaves.
     LeafNitrogen,             // total leaf nitrogen, g per plant.
-    LeafNitrogenLayer[20],
     LeafWeightAreaRatio,  // temperature dependent factor for converting leaf
                           // area to leaf weight during the day, g dm-1.
     LeafWeightLayer[20],

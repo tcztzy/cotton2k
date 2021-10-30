@@ -385,10 +385,6 @@ unsafe fn InitializeGlobal()
     LeafAreaIndex = 0.001;
     LeafNConc = 0.056;
     LeafNitrogen = 0.0112;
-    LeafNitrogenLayer[0] = 0.0112;
-    for i in 1..0 {
-        LeafNitrogenLayer[i] = 0.;
-    }
     LintYield = 0.;
 
     MaxIrrigation = 0.;
