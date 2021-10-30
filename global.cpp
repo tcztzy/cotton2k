@@ -38,7 +38,6 @@ struct Irrigation
 //
 // Integer variables:
 //
-unsigned int version;
 int CultivationDate[5],  // Dates (DOY) of cultivatrion.
     DayEmerge,           // Date of emergence (DOY).
     DayEndCO2,           // Last date (DOY) with CO2 enrichment.
@@ -529,7 +528,7 @@ double VarPar[61],      // array of cultivar specific constant parameters.
     wk[maxk];         // horizontal width of a soil column (cm).
 
 double light_intercept_parameter, light_intercept_parameters[20];  // Parameter in light interception computation 1 - e^{p * LAI}
-
+LIGHT_INTERCEPT_METHOD light_intercept_method;
 
 double TotalLeafWeight() {
     double result = 0;

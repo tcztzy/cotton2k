@@ -371,7 +371,7 @@ void GetNetPhotosynthesis()  // computes net photosynthesis.
     //  PerPlantArea and corrections for light interception by canopy, ambient
     //  CO2 concentration, water stress and low N in the leaves.
     double pplant;  // actual gross photosynthetic rate, g per plant per day.
-    if (version >= 5) {
+    if (light_intercept_method == LIGHT_INTERCEPT_METHOD_LAYERED) {
         double pstand_remain = pstand;
         for (int i = 19; i >= 0; i++) {
             if (pstand_remain <= 0) break;

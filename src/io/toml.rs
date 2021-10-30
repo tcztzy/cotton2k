@@ -21,7 +21,7 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
     }
     unsafe {
         InitializeGlobal();
-        version = profile.version;
+        light_intercept_method = profile.light_intercept_method;
         Latitude = profile.latitude;
         Longitude = profile.longitude;
         Elevation = profile.elevation;
@@ -288,7 +288,7 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
                 }
             }
         }
-        if profile.version >= 5 {
+        if profile.light_intercept_method == 2 {
             light_intercept_parameter = 0.;
             for i in 0..20 {
                 light_intercept_parameters[i] = profile.light_intercept_parameters.unwrap()[i];
@@ -343,7 +343,6 @@ unsafe fn InitializeGlobal()
 //  simulation. It is called from ReadInput(). Note that initialization
 //  is needed at the start of each simulation (NOT at start of the run).
 {
-    version = 4;
     AbscisedFruitSites = 0.;
     AbscisedLeafWeight = 0.;
     addwtbl = 0.;

@@ -42,57 +42,65 @@ void ColumnShading()
     //     row spacing.
     double zint;  // light interception computed from plant height.
     zint = 1.0756 * PlantHeight / RowSpace;
-    if (version >= 5) {
+    if (light_intercept_method == LIGHT_INTERCEPT_METHOD_LAYERED) {
         for (int i = 0; i < 20; i++) {
             LeafArea[i] = 0;
             AverageLeafAge[i] = 0;
         }
         for (int i = 0; i < 9; i++) {
             LeafArea[NodeLayerPreFru[i]] += LeafAreaPreFru[i];
-            AverageLeafAge[NodeLayerPreFru[i]] += LeafAreaPreFru[i] * AgeOfPreFruNode[i];
+            AverageLeafAge[NodeLayerPreFru[i]] +=
+                LeafAreaPreFru[i] * AgeOfPreFruNode[i];
         }
-        for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
-            LeafArea[NodeLayer[k][l]] += LeafAreaMainStem[k][l];
-            AverageLeafAge[NodeLayer[k][l]] += LeafAreaMainStem[k][l] * LeafAge[k][l][0];
-            for (int m = 0; m < NumNodes[k][l]; m++) {
-                LeafArea[NodeLayer[k][l]] += LeafAreaNodes[k][l][m];
-                AverageLeafAge[NodeLayer[k][l]] += LeafAreaNodes[k][l][m] * LeafAge[k][l][m];
+        for (int k = 0; k < NumVegBranches; k++)
+            for (int l = 0; l < NumFruitBranches[k]; l++) {
+                LeafArea[NodeLayer[k][l]] += LeafAreaMainStem[k][l];
+                AverageLeafAge[NodeLayer[k][l]] +=
+                    LeafAreaMainStem[k][l] * LeafAge[k][l][0];
+                for (int m = 0; m < NumNodes[k][l]; m++) {
+                    LeafArea[NodeLayer[k][l]] += LeafAreaNodes[k][l][m];
+                    AverageLeafAge[NodeLayer[k][l]] +=
+                        LeafAreaNodes[k][l][m] * LeafAge[k][l][m];
+                }
             }
-        }
         if (FirstSquare <= 0) {
             LeafArea[0] += 0.20 * 0.6;
         }
         for (int i = 0; i < 20; i++) {
             AverageLeafAge[i] /= LeafArea[i];
             LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
-            LightInterceptLayer[i] = 1 - exp(light_intercept_parameters[i] * LeafAreaIndexes[i]);
+            LightInterceptLayer[i] =
+                1 - exp(light_intercept_parameters[i] * LeafAreaIndexes[i]);
         }
         LightIntercept = 1 - exp(light_intercept_parameter * LeafAreaIndex);
+    } else if (light_intercept_method == LIGHT_INTERCEPT_METHOD_FRY1980) {
+        LightIntercept = 0.39 * pow(LeafAreaIndex, 0.68);
     } else {
-    //     (2) It is computed as a function of leaf area index. If LeafAreaIndex
-    //     is not greater
-    //  than 0.5 lfint is a linear function of it.
-    double lfint;  // light interception computed from leaf area index.
-    if (LeafAreaIndex <= 0.5)
-        lfint = 0.80 * LeafAreaIndex;
-    else
-        //     If the leaf area index is greater than 0.5, lfint is computed as
-        //     an exponential
-        //  function of LeafAreaIndex.
-        lfint = 1 - exp(0.07 - 1.16 * LeafAreaIndex);
-    //     If lfint is greater then zint, LightIntercept is their average value.
-    //  Otherwise, if the LeafAreaIndex is decreasing, it is lfint. Else it is
-    //  zint.
-    if (lfint > zint)
-        LightIntercept = 0.5 * (zint + lfint);
-    else if (LeafAreaIndex < lmax)
-        LightIntercept = lfint;
-    else
-        LightIntercept = zint;
+        //     (2) It is computed as a function of leaf area index. If
+        //     LeafAreaIndex is not greater
+        //  than 0.5 lfint is a linear function of it.
+        double lfint;  // light interception computed from leaf area index.
+        if (LeafAreaIndex <= 0.5)
+            lfint = 0.80 * LeafAreaIndex;
+        else
+            //     If the leaf area index is greater than 0.5, lfint is computed
+            //     as an exponential
+            //  function of LeafAreaIndex.
+            lfint = 1 - exp(0.07 - 1.16 * LeafAreaIndex);
+        //     If lfint is greater then zint, LightIntercept is their average
+        //     value.
+        //  Otherwise, if the LeafAreaIndex is decreasing, it is lfint. Else it
+        //  is zint.
+        if (lfint > zint)
+            LightIntercept = 0.5 * (zint + lfint);
+        else if (LeafAreaIndex < lmax)
+            LightIntercept = lfint;
+        else
+            LightIntercept = zint;
+    }
     //     The value of LightIntercept is between zero and one.
     if (LightIntercept < 0) LightIntercept = 0;
     if (LightIntercept > 1) LightIntercept = 1;
-    }
     //     Loop of soil columns.
     double sw = 0;  // sum of column widths
     double sw0;     // sum of column widths up to location of plant row.

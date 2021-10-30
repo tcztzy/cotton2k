@@ -9,15 +9,15 @@ fn zero() -> f64 {
 }
 
 #[inline]
-fn four() -> u32 {
-    4
+fn zero_i32() -> i32 {
+    0
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Profile {
     pub name: Option<String>,
-    #[serde(default = "four")]
-    pub version: u32,
+    #[serde(default = "zero_i32")]
+    pub light_intercept_method: i32,
     pub latitude: f64,
     pub longitude: f64,
     pub elevation: f64,
