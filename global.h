@@ -166,6 +166,7 @@ extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk],
     VolNh4NContent[maxl][maxk], VolNo3NContent[maxl][maxk],
     VolUreaNContent[maxl][maxk], VolWaterContent[maxl][maxk], WindSpeed[24],
     wk[maxk];
+extern double light_intercept_parameter, light_intercept_parameters[20];
 void WriteStateVariables(bool bAdjusting);
 double TotalLeafWeight();           // total leaf weight, g per plant.
 double TotalLeafArea();

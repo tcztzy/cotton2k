@@ -288,6 +288,13 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
                 }
             }
         }
+        if profile.version >= 5 {
+            light_intercept_parameter = 0.;
+            for i in 0..20 {
+                light_intercept_parameters[i] = profile.light_intercept_parameters.unwrap()[i];
+                light_intercept_parameter += light_intercept_parameters[i];
+            }
+        }
     }
     Ok(())
 }

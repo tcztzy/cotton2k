@@ -528,6 +528,9 @@ double VarPar[61],      // array of cultivar specific constant parameters.
     WindSpeed[24],    // Hourly wind velocity, m per second.
     wk[maxk];         // horizontal width of a soil column (cm).
 
+double light_intercept_parameter, light_intercept_parameters[20];  // Parameter in light interception computation 1 - e^{p * LAI}
+
+
 double TotalLeafWeight() {
     double result = 0;
     if (FirstSquare <= 0) {

@@ -42,6 +42,22 @@ void ColumnShading()
     //     row spacing.
     double zint;  // light interception computed from plant height.
     zint = 1.0756 * PlantHeight / RowSpace;
+    if (version >= 5) {
+        for (int i = 0; i < 20; i++) LeafArea[i] = 0;
+        for (int i = 0; i < 9; i++) LeafArea[NodeLayerPreFru[i]] += LeafAreaPreFru[i];
+        for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
+            LeafArea[NodeLayer[k][l]] += LeafAreaMainStem[k][l];
+            for (int m = 0; m < NumNodes[k][l]; m++) LeafArea[NodeLayer[k][l]] += LeafAreaNodes[k][l][m];
+        }
+        if (FirstSquare <= 0) {
+            LeafArea[0] += 0.20 * 0.6;
+        }
+        for (int i = 0; i < 20; i++) {
+            LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
+            LightInterceptLayer[i] = 1 - exp(light_intercept_parameters[i] * LeafAreaIndexes[i]);
+        }
+        LightIntercept = 1 - exp(light_intercept_parameter * LeafAreaIndex);
+    } else {
     //     (2) It is computed as a function of leaf area index. If LeafAreaIndex
     //     is not greater
     //  than 0.5 lfint is a linear function of it.
@@ -65,6 +81,7 @@ void ColumnShading()
     //     The value of LightIntercept is between zero and one.
     if (LightIntercept < 0) LightIntercept = 0;
     if (LightIntercept > 1) LightIntercept = 1;
+    }
     //     Loop of soil columns.
     double sw = 0;  // sum of column widths
     double sw0;     // sum of column widths up to location of plant row.

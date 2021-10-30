@@ -371,8 +371,21 @@ void GetNetPhotosynthesis()  // computes net photosynthesis.
     //  PerPlantArea and corrections for light interception by canopy, ambient
     //  CO2 concentration, water stress and low N in the leaves.
     double pplant;  // actual gross photosynthetic rate, g per plant per day.
+    if (version >= 5) {
+        double pstand_remain = pstand;
+        for (int i = 19; i >= 0; i++) {
+            if (pstand_remain <= 0) break;
+            if (LightInterceptLayer[i] <= 0) continue;
+            double pplant_inc = 0.001 * pstand_remain * LightInterceptLayer[i] * PerPlantArea * ptsred * pnetcor * ptnfac;
+            if (pplant_inc > pstand_remain) pplant_inc = pstand_remain;
+            pplant += pplant_inc;
+            pstand_remain -= pplant_inc;
+        }
+    }
+    else {
     pplant = 0.001 * pstand * LightIntercept * PerPlantArea * ptsred * pnetcor *
              ptnfac;
+    }
     //     Compute the photorespiration factor (rsubl) as a linear
     //  function af average day time temperature.
     double rsubl =

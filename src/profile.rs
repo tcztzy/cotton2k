@@ -41,6 +41,7 @@ pub struct Profile {
     pub skip_row_width: f64,
     pub plants_per_meter: f64,
     pub agronomy_operations: Vec<AgronomyOperation>,
+    pub light_intercept_parameters: Option<[f64; 20]>,
 }
 
 #[derive(Deserialize, Debug)]
