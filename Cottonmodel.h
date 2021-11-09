@@ -5,8 +5,6 @@
 //  This file contains declartions for class C2K.
 #pragma once
 
-#include <string>
-#include <vector>
 
 /////////////////////////////////////////////////////////////////////////////
 // C2KApp:
@@ -18,6 +16,4 @@ class C2KApp {
     void DailySimulation();
     void SimulateThisDay();
     bool DoAdjustments();
-
-    std::vector<std::string> ProfileArray;  // array of the profile names
 };

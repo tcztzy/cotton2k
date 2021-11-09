@@ -66,13 +66,15 @@ void ColumnShading()
         if (FirstSquare <= 0) {
             LeafArea[0] += 0.20 * 0.6;
         }
+        double light_through = 0;
         for (int i = 0; i < 20; i++) {
             AverageLeafAge[i] /= LeafArea[i];
             LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
             LightInterceptLayer[i] =
                 1 - exp(light_intercept_parameters[i] * LeafAreaIndexes[i]);
+            light_through += light_intercept_parameters[i] * LeafAreaIndexes[i];
         }
-        LightIntercept = 1 - exp(light_intercept_parameter * LeafAreaIndex);
+        LightIntercept = 1 - exp(light_through);
     } else if (light_intercept_method == LIGHT_INTERCEPT_METHOD_FRY1980) {
         LightIntercept = 0.39 * pow(LeafAreaIndex, 0.68);
     } else {

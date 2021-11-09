@@ -1,7 +1,6 @@
 // CottonSimulation.h : Defines the functions of the application.
 //
 #pragma once
-#include <string>
 
 #include "global.h"
 
