@@ -134,7 +134,6 @@ void ReadInput();
 void ReadPlantMapInput();
 void ReadProfileFile();
 int ReadSoilHydraulicData();
-void ReadSoilImpedance();
 void RedistRootNewGrowth(int l, int k, double adwr1);
 double refalbed(double isrhr, double rad, double coszhr, double sunahr);
 void RootAging(int l, int k);

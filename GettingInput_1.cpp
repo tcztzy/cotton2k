@@ -31,7 +31,6 @@ void ReadInput()
     //     variables from
     //  input files, or initialize them otherwise.
     ReadProfileFile();
-    ReadSoilImpedance();
     InitSoil();
     ReadPlantMapInput();
     InitializeSoilData();

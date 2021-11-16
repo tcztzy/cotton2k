@@ -1,6 +1,5 @@
 //  File GettingInput_2.cpp
 //     Consists of the following functions:
-// ReadSoilImpedance()
 // InitSoil()
 // InitializeSoilData()
 // ReadSoilHydraulicData()
@@ -41,36 +40,6 @@ double condfc[9],  // hydraulic conductivity at field capacity of horizon
     rnno3[14];  // residual nitrogen as nitrate in soil at beginning of season,
                 // kg per ha. defined by input for consecutive 15 cm soil
                 // layers.
-////////////////////////////////////////////////////////////////////////////////////
-void ReadSoilImpedance()
-//     This function opens the soil root impedance data file and reads it.
-//  It is called from ReadInput(), and executed once at the beginning of the
-//  simulation. The variables read here are later used to compute soil impedance
-//  to root growth.
-//
-//     Global or file scope variables set:
-//        gh2oc, impede, inrim, ncurve, tstbd.
-//
-{
-    std::string strFileName = "DATA\\SOILIMPD.DAT";
-    ifstream DataFile(strFileName, ios::in);
-    if (DataFile.fail()) {
-        std::cerr << "Error opening " + strFileName + "." << std::endl;
-        DataFile.close();
-    }
-    //     Read data from file
-    std::string Dummy = GetLineData(DataFile);  // 1st line
-    std::string SoilName = Dummy;
-    Dummy = GetLineData(DataFile);  // 2nd line
-    ncurve = stoi(Dummy);
-    if (ncurve > 10) ncurve = 10;
-    for (int i = 0; i < ncurve; i++) {
-        DataFile >> inrim >> gh2oc[i];
-        if (inrim > 10) inrim = 10;
-        for (int j = 0; j < inrim; j++) DataFile >> tstbd[j][i] >> impede[j][i];
-    }
-    DataFile.close();
-}
 //////////////////////////////////////////////////////////////////
 void InitSoil()
 //     This function opens the initial soil data file and reads it. It is

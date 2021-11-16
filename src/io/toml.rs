@@ -296,6 +296,7 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
             }
         }
     }
+    read_soil_impedance(&profile_path.parent().unwrap().join("soil_imp.csv"))?;
     Ok(())
 }
 /// estimates the approximate daily average dewpoint temperature when it is not available.
@@ -521,4 +522,49 @@ unsafe fn InitializeGlobal()
     for i in 0..365 {
         StemWeight[i] = 0.;
     }
+}
+
+fn read_soil_impedance(path: &Path) -> Result<(), Box<dyn std::error::Error>>
+//     This function opens the soil root impedance data file and reads it.
+//  It is called from ReadInput(), and executed once at the beginning of the
+//  simulation. The variables read here are later used to compute soil impedance
+//  to root growth.
+//
+//     Global or file scope variables set:
+//        gh2oc, impede, inrim, ncurve, tstbd.
+//
+{
+    let mut rdr = csv::Reader::from_path(path)?;
+    unsafe {
+        ncurve = 0;
+        inrim = 0;
+    }
+    for result in rdr.records() {
+        let record = result?;
+        for (i, item) in record.iter().enumerate() {
+            if i == 0 {
+                let water_content: f64 = item.parse()?;
+                unsafe {
+                    gh2oc[ncurve as usize] = water_content;
+                }
+            } else {
+                unsafe {
+                    impede[i][ncurve as usize] = item.parse()?;
+                }
+            }
+        }
+        unsafe {
+            ncurve += 1;
+        }
+    }
+    for (j, header) in rdr.headers()?.iter().enumerate() {
+        if j > 0 {
+            unsafe {
+                for i in 0..ncurve as usize {
+                    tstbd[j - 1][i] = header.parse()?;
+                }
+            }
+        }
+    }
+    Ok(())
 }

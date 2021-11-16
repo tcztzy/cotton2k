@@ -56,7 +56,7 @@
 //  lateral roots.
 //
 //     The calling sequence of the root submodel modules is as follows:
-//     InitializeRootData() and ReadSoilImpedance() are called from ReadInput()
+//     InitializeRootData() is called from ReadInput()
 //  at the start of the simulation (see their code in file gettinginput_2.cpp) .
 //     PotentialRootGrowth() and ActualRootGrowth() are called each day from
 //     PlantGrowth(). PotentialRootGrowth() calls RootImpedance(),
