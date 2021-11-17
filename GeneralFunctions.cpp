@@ -162,7 +162,7 @@ double PsiOsmotic(double q, double qsat, double ec)
         return 0;
 }
 ///////////////////////////////////////////////////////////////////////////////
-double GetFromClim(std::string item, int Doy)
+double GetFromClim(CLIMATE_METRIC item, int Doy)
 //     This function extracts daily climate values for day of year Doy
 //  from the structure Clim.
 //     Input arguments:
@@ -177,17 +177,17 @@ double GetFromClim(std::string item, int Doy)
     //
     if (i > 399) i = 399;
     if (Doy < Clim[0].nDay) i = 0;
-    if (item == "tmin")
+    if (item == CLIMATE_METRIC_TMIN)
         return Clim[i].Tmin;
-    else if (item == "tmax")
+    else if (item == CLIMATE_METRIC_TMAX)
         return Clim[i].Tmax;
-    else if (item == "rad")
+    else if (item == CLIMATE_METRIC_IRRD)
         return Clim[i].Rad;
-    else if (item == "rain")
+    else if (item == CLIMATE_METRIC_RAIN)
         return Clim[i].Rain;
-    else if (item == "wind")
+    else if (item == CLIMATE_METRIC_WIND)
         return Clim[i].Wind;
-    else if (item == "tdew")
+    else if (item == CLIMATE_METRIC_TDEW)
         return Clim[i].Tdew;
     else
         return -99;

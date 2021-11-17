@@ -14,6 +14,14 @@ enum LIGHT_INTERCEPT_METHOD {
     LIGHT_INTERCEPT_METHOD_FRY1980 = 1,
     LIGHT_INTERCEPT_METHOD_LAYERED = 2,
 };
+enum CLIMATE_METRIC {
+    CLIMATE_METRIC_TMAX = 0,
+    CLIMATE_METRIC_TMIN = 1,
+    CLIMATE_METRIC_IRRD = 2,
+    CLIMATE_METRIC_RAIN = 3,
+    CLIMATE_METRIC_WIND = 4,
+    CLIMATE_METRIC_TDEW = 5,
+};
 ////    Structures    ////
 extern struct scratch {
     int daynum, kday, firstBloom, firstSquare, lastTaprootLayer, mainStemNodes,

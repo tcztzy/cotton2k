@@ -91,11 +91,11 @@ void DayClim()
         //  Daily radiation intedral is converted from langleys to Watt m-2, and
         //  divided by dsbe.
         //      11.630287 = 1000000 / 3600 / 23.884
-        radsum = GetFromClim("rad", Daynum) * 11.630287 / dsbe;
+        radsum = GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 11.630287 / dsbe;
     }
     //     Set 'pollination switch' for rainy days (as in GOSSYM).
     double rainToday;  // The amount of rain today, mm
-    rainToday = GetFromClim("rain", Daynum);
+    rainToday = GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
     if (rainToday >= 2.5)
         bPollinSwitch = false;
     else
@@ -147,7 +147,7 @@ void DayClim()
         //     Compute hourly wind speed, using function daywnd, and daily sum
         //     of wind.
         WindSpeed[ihr] =
-            daywnd(ti, GetFromClim("wind", Daynum), t1, t2, t3, wnytf);
+            daywnd(ti, GetFromClim(CLIMATE_METRIC_WIND, Daynum), t1, t2, t3, wnytf);
     }
     //     Compute average daily temperature, using function
     //     AverageAirTemperatures.
@@ -329,47 +329,47 @@ double daytmp(double ti)
                                //
     if (ti <= sunr)            //  from midnight to sunrise
     {
-        amp = (GetFromClim("tmax", im1) - GetFromClim("tmin", Daynum)) *
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, im1) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
               (1 +
-               (GetFromClim("tmax", im1) - GetFromClim("tmin", Daynum)) / tkk);
+               (GetFromClim(CLIMATE_METRIC_TMAX, im1) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) / tkk);
         sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
         //  compute temperature at sunset:
-        sst = GetFromClim("tmin", Daynum) - tkk / 2 +
+        sst = GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - tkk / 2 +
               0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
         HourlyTemperature =
-            (GetFromClim("tmin", Daynum) - sst * exp((DayLength - 24) / tcoef) +
-             (sst - GetFromClim("tmin", Daynum)) *
+            (GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - sst * exp((DayLength - 24) / tcoef) +
+             (sst - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
                  exp((suns - ti - 24) / tcoef)) /
             (1 - exp((DayLength - 24) / tcoef));
     } else if (ti <= hmax)  //  from sunrise to hmax
     {
-        amp = (GetFromClim("tmax", Daynum) - GetFromClim("tmin", Daynum)) *
-              (1 + (GetFromClim("tmax", Daynum) - GetFromClim("tmin", Daynum)) /
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
+              (1 + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
                        tkk);
         st = sin(pi * (ti - SolarNoon + DayLength / 2.) /
                  (DayLength + 2 * SitePar[8]));
-        HourlyTemperature = GetFromClim("tmin", Daynum) - tkk / 2 +
+        HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - tkk / 2 +
                             0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
     } else if (ti <= suns)  //  from hmax to sunset
     {
-        amp = (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1)) *
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) *
               (1 +
-               (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1)) / tkk);
+               (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) / tkk);
         st = sin(pi * (ti - SolarNoon + DayLength / 2) /
                  (DayLength + 2 * SitePar[8]));
-        HourlyTemperature = GetFromClim("tmin", ip1) - tkk / 2 +
+        HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2 +
                             0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
     } else  //  from sunset to midnight
     {
-        amp = (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1)) *
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) *
               (1 +
-               (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1)) / tkk);
+               (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) / tkk);
         sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
-        sst = GetFromClim("tmin", ip1) - tkk / 2 +
+        sst = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2 +
               0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
         HourlyTemperature =
-            (GetFromClim("tmin", ip1) - sst * exp((DayLength - 24) / tcoef) +
-             (sst - GetFromClim("tmin", ip1)) * exp((suns - ti) / tcoef)) /
+            (GetFromClim(CLIMATE_METRIC_TMIN, ip1) - sst * exp((DayLength - 24) / tcoef) +
+             (sst - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) * exp((suns - ti) / tcoef)) /
             (1. - exp((DayLength - 24) / tcoef));
     }
     return HourlyTemperature;
@@ -401,31 +401,31 @@ double tdewhour(double ti, double tt)
                                            //
     if (ti <= sunr)                        // from midnight to sunrise
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim("tmax", im1) +
-                  SitePar[14] * GetFromClim("tmin", Daynum);
+        tdrange = SitePar[12] + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, im1) +
+                  SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
         if (tdrange < 0) tdrange = 0;
-        tdmin = GetFromClim("tdew", im1) - tdrange / 2;
+        tdmin = GetFromClim(CLIMATE_METRIC_TDEW, im1) - tdrange / 2;
         tdewhr = tdmin +
-                 tdrange * (tt - GetFromClim("tmin", Daynum)) /
-                     (GetFromClim("tmax", im1) - GetFromClim("tmin", Daynum));
+                 tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
+                     (GetFromClim(CLIMATE_METRIC_TMAX, im1) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
     } else if (ti <= hmax)  // from sunrise to hmax
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim("tmax", Daynum) +
-                  SitePar[14] * GetFromClim("tmin", Daynum);
+        tdrange = SitePar[12] + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum) +
+                  SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
         if (tdrange < 0) tdrange = 0;
-        tdmin = GetFromClim("tdew", Daynum) - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - GetFromClim("tmin", Daynum)) /
-                             (GetFromClim("tmax", Daynum) -
-                              GetFromClim("tmin", Daynum));
+        tdmin = GetFromClim(CLIMATE_METRIC_TDEW, Daynum) - tdrange / 2;
+        tdewhr = tdmin + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
+                             (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+                              GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
     } else  //  from hmax to midnight
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim("tmax", Daynum) +
-                  SitePar[14] * GetFromClim("tmin", ip1);
+        tdrange = SitePar[12] + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum) +
+                  SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, ip1);
         if (tdrange < 0) tdrange = 0;
-        tdmin = GetFromClim("tdew", ip1) - tdrange / 2;
+        tdmin = GetFromClim(CLIMATE_METRIC_TDEW, ip1) - tdrange / 2;
         tdewhr = tdmin +
-                 tdrange * (tt - GetFromClim("tmin", ip1)) /
-                     (GetFromClim("tmax", Daynum) - GetFromClim("tmin", ip1));
+                 tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) /
+                     (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1));
     }
     return tdewhr;
 }
@@ -960,7 +960,7 @@ double SimulateRunoff(double rain)
         for (int i = 0; i < NumIrrigations; i++) {
             if (Dayn == Irrig[i].day) amtirr = Irrig[i].amount;
         }
-        PreviousWetting += amtirr + GetFromClim("rain", Dayn);
+        PreviousWetting += amtirr + GetFromClim(CLIMATE_METRIC_RAIN, Dayn);
     }
     //
     double d02;  // Adjusting curve number for antecedent rainfall conditions.

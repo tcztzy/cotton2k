@@ -362,7 +362,7 @@ void GetNetPhotosynthesis()  // computes net photosynthesis.
     //     Convert the average daily short wave radiation from langley per
     //  day, to Watts per square meter (wattsm).
     double wattsm;  // average daily global radiation, W m-2.
-    wattsm = GetFromClim("rad", Daynum) * 697.45 / (DayLength * 60);
+    wattsm = GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 697.45 / (DayLength * 60);
     //     Compute pstand as an empirical function of wattsm (based on Baker et
     //     al., 1972).
     double pstand;  // gross photosynthesis for a non-stressed full canopy.

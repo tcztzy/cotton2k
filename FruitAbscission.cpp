@@ -79,7 +79,7 @@ void FruitingSitesAbscission()
     //     is
     //  incremented by physiological age of today. It is further increased
     //  (i.e., shedding will occur sooner) when maximum temperatures are high.
-    double tmax = GetFromClim("tmax", Daynum);
+    double tmax = GetFromClim(CLIMATE_METRIC_TMAX, Daynum);
     for (int lt = 0; lt < NumSheddingTags; lt++) {
         AbscissionLag[lt] += max(DayInc, 0.40);
         if (tmax > vabsfr[2])

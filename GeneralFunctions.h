@@ -1,6 +1,6 @@
 //  General auxiliary functions
 //
-#include <fstream>  // Necessary for file I/O
+#include "global.h"  // Necessary for file I/O
 using namespace std;
 //
 //  definition of functions
@@ -13,7 +13,7 @@ double wcond(double q, double qr, double qsat, double beta,
              double SaturatedHydCond, double PoreSpace);
 double psiq(double q, double qr, double qsat, double alpha, double beta);
 double PsiOsmotic(double q, double qsat, double ec);
-double GetFromClim(std::string item, int Doy);
+double GetFromClim(CLIMATE_METRIC item, int Doy);
 inline double drop_leaf_age(double lai) {
     return 140. - 1. * lai;
 }
