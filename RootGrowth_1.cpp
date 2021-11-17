@@ -76,7 +76,7 @@ double PotentialRootGrowth()
 //
 //     The following global variables are referenced here:
 //       cgind, Date, Daynum, NumLayersWithRoots, NumRootAgeGroups, nk,
-//       OutIndex, PerPlantArea, PoreSpace, RootAge, RootWeight. SoilPsi,
+//       PerPlantArea, PoreSpace, RootAge, RootWeight. SoilPsi,
 //       SoilTempDailyAvrg, VolNo3NContent, VolWaterContent.
 //     The following global variables are set here:    PotGroRoots,
 //     RootGroFactor

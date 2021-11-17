@@ -66,7 +66,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
                       double &cdroot);
 // E
 void EnergyBalance(int ihr, int k, bool bMulchon, double ess, double etp1);
-void EvapoTranspiration(int jtout);
+void EvapoTranspiration();
 void ExtraNitrogenAllocation();
 // F
 double form(double c0, double d0, double g0);

@@ -148,7 +148,7 @@ void SoilTemperature()
 //     The following global variables are referenced here:
 //       ActualTranspiration, AirTemp, Date, DayEndMulchDaynum, DayPlant,
 //       DayStart, DayStartMulch, DewPointTemp, dl, FoliageTemp, isw,
-//       MulchIndicator, MulchTemp, nk, nl, OutIndex, PlantRowColumn,
+//       MulchIndicator, MulchTemp, nk, nl, PlantRowColumn,
 //       ProfileName, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
@@ -157,11 +157,6 @@ void SoilTemperature()
 {
     static int jt1, jt2;  //  Julian dates for start and end of output.
     if (Daynum <= DayStart) SoilTemperatureInit(jt1, jt2);
-    //     Set output flag jtout, indicating if output of soil temperature is
-    //     required.
-    bool jtout = false;  // output flag for soil temperature data
-    if (OutIndex[16] > 0)
-        if (Daynum >= jt1 && Daynum <= jt2) jtout = true;
     //     Compute dts, the daily change in deep soil temperature (C), as
     //  a site-dependent function of Daynum.
     double dts =
@@ -481,7 +476,7 @@ void SoilTemperatureInit(int &jt1, int &jt2)
 //  jt1, jt2 - input of start and stop of output of soil temperatures.
 //
 //     The following global variables are referenced here:
-//  Clim (structure), DayFinish, Daynum, DayStart, nl, OutIndex, ProfileName,
+//  Clim (structure), DayFinish, Daynum, DayStart, nl, ProfileName,
 //  SitePar.
 //     The following global variables are set here:
 //  DeepSoilTemperature, SoilTemp.

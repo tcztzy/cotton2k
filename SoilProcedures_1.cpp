@@ -29,7 +29,7 @@ void SoilProcedures()
 //     The following global variables are referenced here:
 //       ActualTranspiration, Clim, DayEmerge, Daynum, DayStartPredIrrig,
 //       DayStopPredIrrig, dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk,
-//       nl, NumIrrigations, NumWaterTableData, OutIndex, PerPlantArea, SoilPsi,
+//       nl, NumIrrigations, NumWaterTableData, PerPlantArea, SoilPsi,
 //       RowSpace, SupplyNH4N, SupplyNO3N, VolWaterContent, wk.
 //     The following global variables are set here:
 //       AverageSoilPsi, CumNitrogenUptake, CumTranspiration, CumWaterAdded,

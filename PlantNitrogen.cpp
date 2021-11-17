@@ -66,7 +66,7 @@ void PlantNitrogen()
 //       ExtraNitrogenAllocation(), PlantNitrogenContent(), GetNitrogenStress(),
 //       NitrogenUptakeRequirement().
 //     The following global variables are referenced here:
-//       BurrNConc, BurrNitrogen, Kday, LeafNConc, LeafNitrogen, OutIndex,
+//       BurrNConc, BurrNitrogen, Kday, LeafNConc, LeafNitrogen,
 //       PetioleNConc, PetioleNConc, PetioleNO3NConc, PetioleNitrogen,
 //       RootNConc, RootNitrogen, SeedNConc, SeedNitrogen, SquareNitrogen,
 //       StemNConc, StemNitrogen.
@@ -116,7 +116,7 @@ void NitrogenRequirement()
 //     The following global variables are referenced here:
 //       ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth,
 //       ActualStemGrowth, CarbonAllocatedForRootGrowth, CottonWeightGreenBolls,
-//       DayEmerge, Daynum, ExtraCarbon, OutIndex, Kday,
+//       DayEmerge, Daynum, ExtraCarbon, Kday,
 //       SeedNitrogen, TotalActualLeafGrowth, TotalActualPetioleGrowth.
 //     The following global and file scope variables are set in this function:
 //       PetioleNConc, PetioleNO3NConc, reqf, reqtot, reqv, rqnbur,
@@ -180,7 +180,7 @@ void NitrogenSupply()
 //  It is called from PlantNitrogen(). It calls function PetioleNitrateN().
 //
 //     The following global variables are referenced here:
-//       BurrWeightGreenBolls, Kday, OutIndex, reqtot, SupplyNH4N, SupplyNO3N,
+//       BurrWeightGreenBolls, Kday, reqtot, SupplyNH4N, SupplyNO3N,
 //       TotalLeafWeight, TotalPetioleWeight, TotalRootWeight, TotalStemWeight.
 //     The following global and file scope variables are set here:
 //       burres, BurrNitrogen, LeafNitrogen, leafrs, npool, PetioleNitrogen,

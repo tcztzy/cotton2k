@@ -524,7 +524,7 @@ void RootSummation()
 //
 //     The following global variables are referenced here:
 //  dl, Kday, nk, nl, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea,
-//  ProfileName, OutIndex, RootWeight, RootWtCapblUptake, RowSpace, wk
+//  ProfileName, RootWeight, RootWtCapblUptake, RowSpace, wk
 //     The following global variable is set here:     TotalRootWeight
 {
     //     Compute the root weight (of all age classes) for all soil cells as

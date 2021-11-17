@@ -137,7 +137,7 @@ void C2KApp::SimulateThisDay()
 //
 //     The following global variables are referenced here:  DayEmerge,
 //     DayFinish,
-//  DayStart, iyear, Kday, LastDayWeatherData, LeafAreaIndex, OutIndex, pixday.
+//  DayStart, iyear, Kday, LastDayWeatherData, LeafAreaIndex, pixday.
 //
 //     The following global variables are set here:
 //  bEnd, Date, DayInc, Daynum, DayOfSimulation, isw, Kday.
@@ -178,7 +178,7 @@ void C2KApp::SimulateThisDay()
         //     If the relevant output flag is not zero, compute soil nitrogen
         //     balance and soil
         //  nitrogen averages by layer, and write this information to files.
-        if (OutIndex[20] > 0) {
+        if (false) {
             PlantNitrogenBal();     // checks plant nitrogen balance.
             SoilNitrogenBal();      // checks soil nitrogen balance.
             SoilNitrogenAverage();  // computes average soil nitrogen by layers.

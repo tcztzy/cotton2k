@@ -58,7 +58,7 @@ void DayClim()
 //     tdewhour(), dayrh(), daywnd()
 //         Global variables referenced:
 //    Daynum, DayFinish, DayStart, declination, LastDayWeatherData, Latitude,
-//    OutIndex, pi, SitePar
+//    pi, SitePar
 //         Global variables set:
 //    AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity,
 //    WindSpeed
@@ -118,11 +118,7 @@ void DayClim()
     //     Set period for detailed output of weather variables, if requested.
     static int j1 = 0;
     static int j2 = 0;
-    int jtout;  // jtout > 0 if output is required
-    if (OutIndex[15] > 0 && Daynum >= j1 && Daynum <= j2)
-        jtout = OutIndex[15];
-    else
-        jtout = 0;
+    int jtout = 0;  // jtout > 0 if output is required
     //     Parameters for the daily wind function are now computed:
     //     Note:  SitePar[] are site specific parameters.
     double t1 = sunr + SitePar[1];  // the hour at which wind begins to blow
@@ -157,7 +153,7 @@ void DayClim()
     //     AverageAirTemperatures.
     AverageAirTemperatures();
     //     Compute potential evapotranspiration.
-    EvapoTranspiration(jtout);
+    EvapoTranspiration();
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 void ComputeDayLength()
@@ -581,7 +577,7 @@ double VaporPressure(double tt)
     return VaporPressure;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EvapoTranspiration(int jtout)
+void EvapoTranspiration()
 //     Function EvapoTranspiration() computes the rate of reference
 //     evapotranspiration
 //  and related variables. The following subroutines and functions are called

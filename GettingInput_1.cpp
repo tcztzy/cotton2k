@@ -49,11 +49,9 @@ void ReadProfileFile()
 //     The following global or file-scope variables are set here:
 //  AgrInputFileName, bEnd, bLat, bLong, CO2EnrichmentFactor,
 //  DayEmerge, DayEndCO2, DayFinish, DayPlant, DayStart, DayStartCO2,
-//  DayStartPlantMaps, DayStartSoilMaps, DayStopPlantMaps, DayStopSoilMaps,
 //  Elevation, isw, iyear, Latitude, Longitude, m_mulchdata, MulchIndicator,
-//  OutIndex, PlantmapFileName, PlantMapFreq, PlantsPerM,
-//  RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName,
-//  SoilMapFreq.
+//  PlantmapFileName, PlantsPerM,
+//  RowSpace, SkipRowWidth, SoilHydFileName, SoilInitFileName.
 //     The following global variable is referenced here:   ProfileName
 //
 {
@@ -112,49 +110,16 @@ void ReadProfileFile()
     //     Line #7: Frequency in days for output of soil maps, and dates
     //  for start and stop of this output (blank or 0 if no such output is
     //  required. Same is repeated for output of plant maps.
-    std::string SoilMapStartDate, SoilMapStopDate, PlantMapStartDate,
-        PlantMapStopDate;
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    if (nLength > 9) SoilMapFreq = stoi(Dummy.substr(0, 10));
-    if (nLength >= 16) {
-        SoilMapStartDate = Dummy.substr(14, 11);
-        boost::algorithm::erase_all(SoilMapStartDate, " ");
-    }
-    if (nLength >= 31) {
-        SoilMapStopDate = Dummy.substr(29, 11);
-        boost::algorithm::erase_all(SoilMapStopDate, " ");
-    }
-    if (nLength > 41) PlantMapFreq = stoi(Dummy.substr(40, 10));
-    if (nLength >= 56) {
-        PlantMapStartDate = Dummy.substr(54, 11);
-        boost::algorithm::erase_all(PlantMapStartDate, " ");
-    }
-    if (nLength >= 71) {
-        PlantMapStopDate = Dummy.substr(69, 11);
-        boost::algorithm::erase_all(PlantMapStopDate, " ");
-    }
     //     Line #8: 23 output flags.
     // - Line 8 consists of zeros and ones.  "1" tells the simulator to
     //   produce a particular report and "0" indicates that no report
     //   should be produced.
-    for (int n = 0; n < 24; n++) OutIndex[n] = 0;
     Dummy = GetLineData(DataFile);
-    nLength = Dummy.length();
-    for (int n = 0; n < 23 && 3 * n < nLength; n++) {
-        int n1 = 3 * n;
-        OutIndex[n + 1] = stoi(Dummy.substr(n1, 3));
-    }
     DataFile.close();
     //     Calendar dates of emergence, planting, start and stop of simulation,
     //     start and stop of
     // output of soil slab and plant maps are converted to DOY dates by calling
     // function DateToDoy.
-    DayStartSoilMaps = DateToDoy(SoilMapStartDate, iyear);
-    DayStopSoilMaps = DateToDoy(SoilMapStopDate, iyear);
-    DayStartPlantMaps = DateToDoy(PlantMapStartDate, iyear);
-    DayStopPlantMaps = DateToDoy(PlantMapStopDate, iyear);
     //     If the output frequency indicators are zero, they are set to 999.
-    if (SoilMapFreq <= 0) SoilMapFreq = 999;
-    if (PlantMapFreq <= 0) PlantMapFreq = 999;
 }

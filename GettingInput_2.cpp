@@ -87,7 +87,7 @@ void InitializeSoilData()
 //
 //     Global and file scope variables referenced:
 //        airdr, alpha, beta, BulkDensity, condfc, Date, dl, h2oint, ldepth,
-//        nl, oma, OutIndex, ProfileName, psisfc, wk.
+//        nl, oma, ProfileName, psisfc, wk.
 //     Global and file scope variables set:
 //        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter,
 //        InitialTotalSoilWater, MaxWaterCapacity, NO3FlowFraction, PoreSpace,

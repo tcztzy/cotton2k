@@ -51,12 +51,8 @@ int CultivationDate[5],  // Dates (DOY) of cultivatrion.
     DayStart,                // Date (DOY) to start simulation.
     DayStartCO2,             // First date (DOY) with CO2 enrichment.
     DayStartMulch,           // Date (DOY) for beginning of mulch.
-    DayStartPlantMaps,       // Date (DOY) to start plant maps output.
     DayStartPredIrrig,       // Date (DOY) for starting predicted irrigation.
-    DayStartSoilMaps,        // Date (DOY) to start soil slab maps output.
-    DayStopPlantMaps,        // Date (DOY) to stop plant maps output.
     DayStopPredIrrig,        // Date (DOY) for stopping predicted irrigation.
-    DayStopSoilMaps,         // Date (DOY) to stop soil slab maps output.
     DayWaterTableInput[20],  // Dates (DOY) of water table input data.
     DefoliationDate[5],      // Dates (DOY) of defoliant applications.
     DefoliationMethod[5];    // code number of method of application of
@@ -131,17 +127,14 @@ int MainStemNodes,        // number of main stem nodes.
                           // branch), per plant.
     NumWaterTableData;    // number of water table level input data.
 
-int OutIndex[24],  // output flags.
-    pixday[10],    // Date (DOY) of PIX application.
+int pixday[10],    // Date (DOY) of PIX application.
     pixmth[10],  // code number for method of application of PIX: 0 = 'BANDED';
                  // 1 = 'SPKLER'; 2 = 'BDCAST'.
-    PlantMapFreq,           // frequency of output of plant maps, days.
     PlantRowColumn,         // column number to the left of plant row location.
     RootColNumLeft[maxl],   // first column with roots in a soil layer.
     RootColNumRight[maxl],  // last column with roots in a soil layer.
     SoilHorizonNum[maxl],   // the soil horizon number associated with each soil
                             // layer in the slab.
-    SoilMapFreq,            // frequency of output of soil slab maps
     WaterTableLayer;        // number of uppermost soil layer below water table.
                             //
                             // boolean variables:

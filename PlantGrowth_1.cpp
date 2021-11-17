@@ -130,7 +130,7 @@ void LeafWaterPotential()
 //     The following global variables are referenced here:
 //       AgeOfPreFruNode, AverageSoilPsi, beta, dl, Kday, LeafAge,
 //       NumFruitBranches, NumLayersWithRoots, NumNodes, NumPreFruNodes,
-//       NumVegBranches, OutIndex, pi, PlantHeight, PoreSpace, ReferenceETP,
+//       NumVegBranches, pi, PlantHeight, PoreSpace, ReferenceETP,
 //       RootColNumLeft, RootColNumRight, RootWtCapblUptake, SaturatedHydCond,
 //       SoilPsi, thad, thts, VolWaterContent, wk.
 //     The following global variables are set here:

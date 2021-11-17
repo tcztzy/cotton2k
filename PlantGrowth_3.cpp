@@ -29,7 +29,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
 //  growing plant parts, and carbon stress. It is called from PlantGrowth().
 //     The following global variables are referenced here:
 //        Kday, NetPhotosynthesis, NStressFruiting, NStressRoots, NStressVeg,
-//        OutIndex, PerPlantArea, PotGroAllBolls, PotGroAllBurrs,
+//        PerPlantArea, PotGroAllBolls, PotGroAllBurrs,
 //        PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares,
 //        PotGroStem, TotalLeafWeight, TotalStemWeight, WaterStress.
 //     The following global and file scope variables are set here:
@@ -485,7 +485,7 @@ void CheckDryMatterBal()
 //     The following global variables are referenced here:
 //       AbscisedLeafWeight, BloomWeightLoss, BurrWeightGreenBolls,
 //       BurrWeightOpenBolls, CottonWeightGreenBolls, CottonWeightOpenBolls,
-//       CumNetPhotosynth, GreenBollsLost, Kday, OutIndex, PlantWeightAtStart,
+//       CumNetPhotosynth, GreenBollsLost, Kday, PlantWeightAtStart,
 //       ReserveC, RootWeightLoss, TotalLeafWeight, TotalPetioleWeight,
 //       TotalRootWeight, TotalSquareWeight, TotalStemWeight.
 //     The following global variable is set here:     PlantWeight.
