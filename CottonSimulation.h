@@ -85,8 +85,6 @@ void HeatBalance(int nn);
 // I
 void InitiateLateralRoots();
 void InitializeRootData();
-void InitializeSoilData();
-void InitializeSoilTemperature();
 void InitSoil();
 // L
 void LateralRootGrowthLeft(int l);
@@ -150,7 +148,6 @@ double SiteAbscissionRatio(int k, int l, int m, int lt);
 void sitecode();
 double SoilAirOnRootGrowth(double psislk, double poreSpace, double vh2olk);
 void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0);
-void SoilInit();
 double SoilMechanicResistance(int l, int k);
 bool SoilMulchBalance(int ihr, int k, double rlzero, double rsm, double rss,
                       double sf, double &so, double &so2, double &so3,

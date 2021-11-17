@@ -18,28 +18,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-//
-// Definitions of variables with file scope:
-//
-double condfc[9],  // hydraulic conductivity at field capacity of horizon
-                   // layers, cm per day.
-    h2oint[14],    // initial soil water content, percent of field capacity,
-                   // defined by input for consecutive 15 cm soil layers.
-    ldepth[9],     // depth from soil surface to the end of horizon layers, cm.
-    oma[14],  // organic matter at the beginning of the season, percent of soil
-              // weight, defined by input for consecutive 15 cm soil layers.
-    pclay[9],  // percentage of clay in soil horizon of horizon layers.
-    psand[9],  // percentage of sand in soil horizon of horizon layers.
-    psidra,  // soil matric water potential, bars, for which immediate drainage
-             // will be simulated (suggested value -0.25 to -0.1).
-    psisfc,  // soil matric water potential at field capacity,
-             // bars (suggested value -0.33 to -0.1).
-    rnnh4[14],  // residual nitrogen as ammonium in soil at beginning of season,
-                // kg per ha. defined by input for consecutive 15 cm soil
-                // layers.
-    rnno3[14];  // residual nitrogen as nitrate in soil at beginning of season,
-                // kg per ha. defined by input for consecutive 15 cm soil
-                // layers.
 //////////////////////////////////////////////////////////////////
 void InitSoil()
 //     This function opens the initial soil data file and reads it. It is
@@ -49,6 +27,26 @@ void InitSoil()
 //     Global or file scope variables set:
 //        rnnh4, rnno3, oma, h2oint.
 {
+    double condfc[9],  // hydraulic conductivity at field capacity of horizon
+                       // layers, cm per day.
+        h2oint[14],    // initial soil water content, percent of field capacity,
+                       // defined by input for consecutive 15 cm soil layers.
+        ldepth[9],  // depth from soil surface to the end of horizon layers, cm.
+        oma[14],    // organic matter at the beginning of the season, percent of
+                  // soil weight, defined by input for consecutive 15 cm soil
+                  // layers.
+        pclay[9],  // percentage of clay in soil horizon of horizon layers.
+        psand[9],  // percentage of sand in soil horizon of horizon layers.
+        psidra,    // soil matric water potential, bars, for which immediate
+                 // drainage will be simulated (suggested value -0.25 to -0.1).
+        psisfc,     // soil matric water potential at field capacity,
+                    // bars (suggested value -0.33 to -0.1).
+        rnnh4[14],  // residual nitrogen as ammonium in soil at beginning of
+                    // season, kg per ha. defined by input for consecutive 15 cm
+                    // soil layers.
+        rnno3[14];  // residual nitrogen as nitrate in soil at beginning of
+                    // season, kg per ha. defined by input for consecutive 15 cm
+                    // soil layers.
     //     The the file containing the initial soil data is opened for input.
     std::string strFileName = "SOILS\\" + SoilInitFileName;
     ifstream fstr(strFileName, ios::in);
@@ -77,26 +75,65 @@ void InitSoil()
         rnno3[i] = rnno3[11];
         oma[i] = oma[11];
     }
-}
-//////////////////////////////////////////////////////////
-void InitializeSoilData()
-//     This function computes and sets the initial soil data. It is
-//  executed once at the beginning of the simulation, after the soil
-//  hydraulic data file has been read. It is called by ReadInput().
-//     It calls ReadSoilHydraulicData().
-//
-//     Global and file scope variables referenced:
-//        airdr, alpha, beta, BulkDensity, condfc, Date, dl, h2oint, ldepth,
-//        nl, oma, ProfileName, psisfc, wk.
-//     Global and file scope variables set:
-//        FieldCapacity, FreshOrganicMatter, HumusOrganicMatter,
-//        InitialTotalSoilWater, MaxWaterCapacity, NO3FlowFraction, PoreSpace,
-//        rnnh4, rnno3, SaturatedHydCond, SoilHorizonNum, thad, thetar, thetas,
-//        thts, TotalSoilNh4N, TotalSoilNo3N, TotalSoilUreaN, VolNh4NContent,
-//        VolNo3NContent, VolUreaNContent, VolWaterContent
-{
     int lyrsol;  // the number of soil horizons in the slab (down to 2 m).
-    lyrsol = ReadSoilHydraulicData();
+    //     The the file containing the hydraulic soil data is opened for input.
+    std::string m_FileName = "SOILS\\" + SoilHydFileName;
+    ifstream DataFile(m_FileName, ios::in);
+    if (DataFile.fail()) {
+        std::cerr << "Error opening " + m_FileName + ".";
+        DataFile.close();
+        return;
+    }
+    //     Zeroise arrays of data values.
+    for (int i = 0; i < 9; i++) {
+        ldepth[i] = 0;
+        airdr[i] = 0;
+        thetas[i] = 0;
+        alpha[i] = 0;
+        beta[i] = 0;
+        SaturatedHydCond[i] = 0;
+        condfc[i] = 0;
+        BulkDensity[i] = 0;
+        pclay[i] = 0;
+        psand[i] = 0;
+    }
+    //     The following code reads data from the file to the variables:
+    //     -Reading line
+    //     1--------------------------------------------------------------//
+    std::string Dummy = GetLineData(DataFile);
+    std::string m_fileDesc = "";  // Description of the Hydraulic file
+    if (Dummy.length() > 1)
+        m_fileDesc = boost::algorithm::trim_right_copy(Dummy);
+    //     -Reading line
+    //     2--------------------------------------------------------------//
+    Dummy = GetLineData(DataFile);
+    lyrsol = stoi(Dummy.substr(
+        0, 10));  // the number of soil horizons in the slab (down to 2 m).
+    RatioImplicit = stof(Dummy.substr(10, 10));
+    conmax = stof(Dummy.substr(20, 10));
+    psisfc = stof(Dummy.substr(30, 10));
+    psidra = stof(Dummy.substr(40, 10));
+    if (lyrsol > 9) lyrsol = 9;        // not more than 9 layers
+    if (psisfc > 0) psisfc = -psisfc;  // make sure it is negative
+    if (psidra > 0) psidra = -psidra;  // make sure it is negative
+    //     -Reading next lines  -------------------------------------------
+    for (int il = 0; il < lyrsol; il++) {
+        //     First line for each layer
+        Dummy = GetLineData(DataFile);
+        ldepth[il] = stof(Dummy.substr(0, 10));
+        airdr[il] = atof(Dummy.substr(10, 10).c_str());
+        thetas[il] = atof(Dummy.substr(20, 10).c_str());
+        alpha[il] = atof(Dummy.substr(30, 10).c_str());
+        beta[il] = atof(Dummy.substr(40, 10).c_str());
+        SaturatedHydCond[il] = atof(Dummy.substr(50, 10).c_str());
+        condfc[il] = atof(Dummy.substr(60, 10).c_str());
+        //     Second line for each layer
+        Dummy = GetLineData(DataFile);
+        BulkDensity[il] = atof(Dummy.substr(0, 10).c_str());
+        pclay[il] = stof(Dummy.substr(10, 10));
+        psand[il] = stof(Dummy.substr(20, 10));
+    }
+    DataFile.close();
     //
     int j = 0;         // horizon number
     double sumdl = 0;  // depth to the bottom this layer (cm);
@@ -232,74 +269,65 @@ void InitializeSoilData()
         }
     //     InitialTotalSoilWater is converted from cm3 per slab to mm.
     InitialTotalSoilWater = 10 * InitialTotalSoilWater / RowSpace;
-}
-/////////////////////////////////////////////////////////////////////
-int ReadSoilHydraulicData()
-//     This functions reads the soil hydrology file. It is called by
-//     InitializeSoilData(). Global or file scope Variables set here:
-//  airdr, alpha, beta, BulkDensity, condfc, conmax, ldepth, pclay, psand,
-//  psidra, psisfc, RatioImplicit, SaturatedHydCond, thetas
-//     Return value = number of soilhorizons (lyrsol)
-{
-    //     The the file containing the hydraulic soil data is opened for input.
-    std::string m_FileName = "SOILS\\" + SoilHydFileName;
-    ifstream DataFile(m_FileName, ios::in);
-    if (DataFile.fail()) {
-        std::cerr << "Error opening " + m_FileName + ".";
-        DataFile.close();
-        return 0;
+    double bsand =
+        20;  // heat conductivity of sand and silt (mcal cm-1 s-1 C-1).
+    double bclay = 7;     // heat conductivity of clay (mcal cm-1 s-1 C-1).
+    double cka = 0.0615;  // heat conductivity of air (mcal cm-1 s-1 C-1).
+    double ckw = 1.45;    // heat conductivity of water (mcal cm-1 s-1 C-1).
+    double cmin = 0.46;   // heat capacity of the mineral fraction of the soil.
+    double corg = 0.6;    // heat capacity of the organic fraction of the soil.
+    double ga = 0.144;    // shape factor for air in pore spaces.
+    double ro = 1.3;      // specific weight of organic fraction of soil.
+                          //     Compute aggregation factors:
+    dsand = form(bsand, ckw, ga);  // aggregation factor for sand in water
+    dclay = form(bclay, ckw, ga);  // aggregation factor for clay in water
+    double dsandair =
+        form(bsand, cka, ga);  // aggregation factor for sand in air
+    double dclayair =
+        form(bclay, cka, ga);  // aggregation factor for clay in air
+    //     Loop over all soil layers, and define indices for some soil arrays.
+    sumdl = 0;                    // sum of depth of consecutive soil layers.
+    for (int l = 0; l < nl; l++)  // loop by soil layers
+    {
+        sumdl += dl[l];
+        int j = (int)((sumdl + 14) / 15) - 1;  //  layer definition for oma
+        if (j > 13) j = 13;
+        //     Using the values of the clay and organic matter percentages in
+        //     the soil, compute
+        //   mineral and organic fractions of the soil, by weight and by volume.
+        double mmo =
+            oma[j] / 100;  // organic matter fraction of dry soil (by weight).
+        double mm = 1 - mmo;  // mineral fraction of dry soil (by weight).
+        //     MarginalWaterContent is set as a function of the sand fraction of
+        //     the soil.
+        int i1 = SoilHorizonNum[l];  //  layer definition as in soil hydrology
+                                     //  input file.
+        MarginalWaterContent[l] = 0.1 - 0.07 * psand[i1] / 100;
+        //     The volume fractions of clay (ClayVolumeFraction) and of sand
+        //     plus silt (SandVolumeFraction), are
+        //  calculated.
+        double ra =
+            (mmo / ro) /
+            (mm / rm);  // volume ratio of organic to mineral soil fractions.
+        double xo = (1 - PoreSpace[l]) * ra /
+                    (1 + ra);  // organic fraction of soil (by volume).
+        double xm =
+            (1 - PoreSpace[l]) - xo;  // mineral fraction of soil (by volume).
+        ClayVolumeFraction[l] = pclay[i1] * xm / mm / 100;
+        SandVolumeFraction[l] = 1 - PoreSpace[l] - ClayVolumeFraction[l];
+        //     Heat capacity of the solid soil fractions (mineral + organic, by
+        //     volume )
+        HeatCapacitySoilSolid[l] = xm * cmin + xo * corg;
+        //     The heat conductivity of dry soil (HeatCondDrySoil) is computed
+        //     using the
+        //  procedure suggested by De Vries.
+        HeatCondDrySoil[l] =
+            1.25 *
+            (PoreSpace[l] * cka + dsandair * bsand * SandVolumeFraction[l] +
+             dclayair * bclay * ClayVolumeFraction[l]) /
+            (PoreSpace[l] + dsandair * SandVolumeFraction[l] +
+             dclayair * ClayVolumeFraction[l]);
     }
-    //     Zeroise arrays of data values.
-    for (int i = 0; i < 9; i++) {
-        ldepth[i] = 0;
-        airdr[i] = 0;
-        thetas[i] = 0;
-        alpha[i] = 0;
-        beta[i] = 0;
-        SaturatedHydCond[i] = 0;
-        condfc[i] = 0;
-        BulkDensity[i] = 0;
-        pclay[i] = 0;
-        psand[i] = 0;
-    }
-    //     The following code reads data from the file to the variables:
-    //     -Reading line
-    //     1--------------------------------------------------------------//
-    std::string Dummy = GetLineData(DataFile);
-    std::string m_fileDesc = "";  // Description of the Hydraulic file
-    if (Dummy.length() > 1)
-        m_fileDesc = boost::algorithm::trim_right_copy(Dummy);
-    //     -Reading line
-    //     2--------------------------------------------------------------//
-    Dummy = GetLineData(DataFile);
-    int lyrsol;  // the number of soil horizons in the slab (down to 2 m).
-    lyrsol = stoi(Dummy.substr(0, 10));
-    RatioImplicit = stof(Dummy.substr(10, 10));
-    conmax = stof(Dummy.substr(20, 10));
-    psisfc = stof(Dummy.substr(30, 10));
-    psidra = stof(Dummy.substr(40, 10));
-    if (lyrsol > 9) lyrsol = 9;        // not more than 9 layers
-    if (psisfc > 0) psisfc = -psisfc;  // make sure it is negative
-    if (psidra > 0) psidra = -psidra;  // make sure it is negative
-    //     -Reading next lines  -------------------------------------------
-    for (int il = 0; il < lyrsol; il++) {
-        //     First line for each layer
-        Dummy = GetLineData(DataFile);
-        ldepth[il] = stof(Dummy.substr(0, 10));
-        airdr[il] = atof(Dummy.substr(10, 10).c_str());
-        thetas[il] = atof(Dummy.substr(20, 10).c_str());
-        alpha[il] = atof(Dummy.substr(30, 10).c_str());
-        beta[il] = atof(Dummy.substr(40, 10).c_str());
-        SaturatedHydCond[il] = atof(Dummy.substr(50, 10).c_str());
-        condfc[il] = atof(Dummy.substr(60, 10).c_str());
-        //     Second line for each layer
-        Dummy = GetLineData(DataFile);
-        BulkDensity[il] = atof(Dummy.substr(0, 10).c_str());
-        pclay[il] = stof(Dummy.substr(10, 10));
-        psand[il] = stof(Dummy.substr(20, 10));
-    }
-    DataFile.close();
-    return lyrsol;
 }
 //////////////////////////////////////////////////////////
 void InitializeRootData()
@@ -312,7 +340,7 @@ void InitializeRootData()
 //     Global or file scope variables set:
 //        ActualRootGrowth[maxl][maxk], cgind[3], DepthLastRootLayer,
 //	      LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots,
-//NumRootAgeGroups,
+// NumRootAgeGroups,
 //        PotGroRoots[maxl][maxk], RootAge[maxl][maxk], RootColNumLeft[maxl],
 //        RootColNumRight[maxl], RootGroFactor[maxl][maxk],
 //        RootWeight[maxl][maxk][3], TapRootLength, TotalRootWeight.
@@ -409,86 +437,6 @@ void InitializeRootData()
     NumLayersWithRoots = 7;
     TapRootLength = (DepthLastRootLayer - 0.5 * dl[NumLayersWithRoots - 1]);
     LastTaprootLayer = 6;
-}
-//////////////////////////////////////////////////////////
-void InitializeSoilTemperature()
-//     This function initializes the variables needed for the simulation of
-// soil temperature, and variables used by functions ThermalCondSoil() and
-// SoilHeatFlux().
-//     It is executed once at the beginning of the simulation. It is called by
-// ReadInput() and it calls form().
-//
-//     Global and file scope variables set:
-//	      MarginalWaterContent[maxl], dclay, dsand,
-//HeatCapacitySoilSolid[maxl],
-//        HeatCondDrySoil[maxl], ClayVolumeFraction[maxl],
-//        SandVolumeFraction[maxl];
-//
-//     Global and file scope variables referenced:
-//        dl[maxl], nl, oma[14], pclay[9], psand[9], PoreSpace[maxl],
-//        SoilHorizonNum[maxl].
-//
-{
-    double bsand =
-        20;  // heat conductivity of sand and silt (mcal cm-1 s-1 C-1).
-    double bclay = 7;     // heat conductivity of clay (mcal cm-1 s-1 C-1).
-    double cka = 0.0615;  // heat conductivity of air (mcal cm-1 s-1 C-1).
-    double ckw = 1.45;    // heat conductivity of water (mcal cm-1 s-1 C-1).
-    double cmin = 0.46;   // heat capacity of the mineral fraction of the soil.
-    double corg = 0.6;    // heat capacity of the organic fraction of the soil.
-    double ga = 0.144;    // shape factor for air in pore spaces.
-    double rm = 2.65;     // specific weight of mineral fraction of soil.
-    double ro = 1.3;      // specific weight of organic fraction of soil.
-                          //     Compute aggregation factors:
-    dsand = form(bsand, ckw, ga);  // aggregation factor for sand in water
-    dclay = form(bclay, ckw, ga);  // aggregation factor for clay in water
-    double dsandair =
-        form(bsand, cka, ga);  // aggregation factor for sand in air
-    double dclayair =
-        form(bclay, cka, ga);  // aggregation factor for clay in air
-    //     Loop over all soil layers, and define indices for some soil arrays.
-    double sumdl = 0;             // sum of depth of consecutive soil layers.
-    for (int l = 0; l < nl; l++)  // loop by soil layers
-    {
-        sumdl += dl[l];
-        int j = (int)((sumdl + 14) / 15) - 1;  //  layer definition for oma
-        if (j > 13) j = 13;
-        //     Using the values of the clay and organic matter percentages in
-        //     the soil, compute
-        //   mineral and organic fractions of the soil, by weight and by volume.
-        double mmo =
-            oma[j] / 100;  // organic matter fraction of dry soil (by weight).
-        double mm = 1 - mmo;  // mineral fraction of dry soil (by weight).
-        //     MarginalWaterContent is set as a function of the sand fraction of
-        //     the soil.
-        int i1 = SoilHorizonNum[l];  //  layer definition as in soil hydrology
-                                     //  input file.
-        MarginalWaterContent[l] = 0.1 - 0.07 * psand[i1] / 100;
-        //     The volume fractions of clay (ClayVolumeFraction) and of sand
-        //     plus silt (SandVolumeFraction), are
-        //  calculated.
-        double ra =
-            (mmo / ro) /
-            (mm / rm);  // volume ratio of organic to mineral soil fractions.
-        double xo = (1 - PoreSpace[l]) * ra /
-                    (1 + ra);  // organic fraction of soil (by volume).
-        double xm =
-            (1 - PoreSpace[l]) - xo;  // mineral fraction of soil (by volume).
-        ClayVolumeFraction[l] = pclay[i1] * xm / mm / 100;
-        SandVolumeFraction[l] = 1 - PoreSpace[l] - ClayVolumeFraction[l];
-        //     Heat capacity of the solid soil fractions (mineral + organic, by
-        //     volume )
-        HeatCapacitySoilSolid[l] = xm * cmin + xo * corg;
-        //     The heat conductivity of dry soil (HeatCondDrySoil) is computed
-        //     using the
-        //  procedure suggested by De Vries.
-        HeatCondDrySoil[l] =
-            1.25 *
-            (PoreSpace[l] * cka + dsandair * bsand * SandVolumeFraction[l] +
-             dclayair * bclay * ClayVolumeFraction[l]) /
-            (PoreSpace[l] + dsandair * SandVolumeFraction[l] +
-             dclayair * ClayVolumeFraction[l]);
-    }
 }
 //////////////////////////////////////////////////////////////////////
 double form(double c0, double d0, double g0)

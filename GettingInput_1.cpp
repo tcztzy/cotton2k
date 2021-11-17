@@ -31,10 +31,8 @@ void ReadInput()
     //     variables from
     //  input files, or initialize them otherwise.
     ReadProfileFile();
-    InitSoil();
     ReadPlantMapInput();
-    InitializeSoilData();
-    InitializeSoilTemperature();
+    InitSoil();
     InitializeRootData();
     //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
