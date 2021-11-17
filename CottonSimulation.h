@@ -85,7 +85,6 @@ void HeatBalance(int nn);
 // I
 void InitiateLateralRoots();
 void InitializeRootData();
-void InitSoil();
 // L
 void LateralRootGrowthLeft(int l);
 void LateralRootGrowthRight(int l);

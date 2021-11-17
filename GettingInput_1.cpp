@@ -12,7 +12,6 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -32,7 +31,6 @@ void ReadInput()
     //  input files, or initialize them otherwise.
     ReadProfileFile();
     ReadPlantMapInput();
-    InitSoil();
     InitializeRootData();
     //     initialize some variables at the start of simulation.
     SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
@@ -72,7 +70,7 @@ void ReadProfileFile()
     //     For advanced users only: if there is CO2 enrichment, read also CO2
     //     factor, DOY dates
     //	for start and stop of enrichment (these are left blank if there is no
-    //CO2 enrichment).
+    // CO2 enrichment).
     //     Line #3: Names of weather files: actual and predicted.
     Dummy = GetLineData(DataFile);
     //     For advanced users only: If soil mulch is used, read relevant

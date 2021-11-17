@@ -42,6 +42,8 @@ pub struct Profile {
     pub plants_per_meter: f64,
     pub agronomy_operations: Vec<AgronomyOperation>,
     pub light_intercept_parameters: Option<[f64; 20]>,
+    pub soil_layers: [SoilLayer; 14],
+    pub soil_hydraulic: SoilHydraulic,
 }
 
 #[derive(Deserialize, Debug)]
@@ -199,4 +201,35 @@ pub enum AgronomyOperation {
         level: f64,
         ecs: f64,
     },
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SoilLayer {
+    pub ammonium: f64,
+    pub nitrate: f64,
+    pub organic_matter: f64,
+    pub water_content: f64,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SoilHydraulic {
+    pub implicit_ratio: f64,
+    pub max_conductivity: f64,
+    pub psi_fc: f64,
+    pub psi_id: f64,
+    pub layers: Vec<SoilHydraulicLayer>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SoilHydraulicLayer {
+    pub depth: f64,
+    pub theta_d: f64,
+    pub theta_s: f64,
+    pub alpha: f64,
+    pub beta: f64,
+    pub hcs: f64,
+    pub hcfc: f64,
+    pub bulk_density: f64,
+    pub clay: f64,
+    pub sand: f64,
 }

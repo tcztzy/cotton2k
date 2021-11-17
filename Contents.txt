@@ -56,7 +56,6 @@ Input Routines:
           ReadProfileFile()
        
     File GettingInput_2.cpp
-          InitSoil()
           InitializeSoilData()
           ReadSoilHydraulicData()
           InitializeRootData()

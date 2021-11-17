@@ -12,6 +12,8 @@ fn main() {
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=Cottonmodel.h");
     println!("cargo:rerun-if-changed=global.h");
+    println!("cargo:rerun-if-changed=CottonSimulation.h");
+    println!("cargo:rerun-if-changed=GeneralFunctions.h");
 
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
@@ -23,6 +25,8 @@ fn main() {
         .clang_arg("-std=c++14")
         .header("Cottonmodel.h")
         .header("global.h")
+        .header("CottonSimulation.h")
+        .header("GeneralFunctions.h")
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
