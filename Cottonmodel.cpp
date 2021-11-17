@@ -40,33 +40,6 @@ void C2KApp::RunTheModel(const char *profile)
     //     Read the input data for this simulation
     ReadInput();
 }
-////////////////////////////////////////////////////////////////////////////////
-void C2KApp::DailySimulation()
-//     This function controls the dynamic phase of the simulation, allowing
-//  for in-run adjustments when there is an input of plant map adjustments.
-//     It calls the functions:
-//        DoAdjustments(), SimulateThisDay(), WriteStateVariables()
-//
-//     The following global variable are referenced:   DayStart, Kday.
-//     The following global variable are set:   bEnd, Daynum.
-//
-{
-    Daynum = DayStart - 1;
-    bEnd = false;
-    //     Start the daily loop. If variable bEnd has been assigned a value
-    //  of true end simulation.
-    while (!bEnd) {
-        bool bAdjustToDo = DoAdjustments();
-        std::cout << "\rProcess (" << Daynum - DayStart + 2 << "/"
-                  << DayFinish - DayStart + 1 << ")" << std::flush;
-        //     Execute simulation for this day.
-        SimulateThisDay();
-        //     If there are pending plant adjustments, call
-        //     WriteStateVariables() to write
-        //  state variables of this day in a scratch file.
-        if (bAdjustToDo) WriteStateVariables(true);
-    }  // end while
-}
 ///////////////////////////////////////////////////////////////////////////////
 bool C2KApp::DoAdjustments()
 //     This function is called from DailySimulation(). It checks if plant

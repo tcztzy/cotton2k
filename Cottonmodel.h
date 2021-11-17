@@ -13,7 +13,6 @@ class C2KApp {
    public:
     C2KApp();
     void RunTheModel(const char *);
-    void DailySimulation();
     void SimulateThisDay();
     bool DoAdjustments();
 };
