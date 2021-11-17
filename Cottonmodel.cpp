@@ -6,7 +6,6 @@
 //    InitInstance()
 //    ExitInstance()
 //    GetProfilesList()
-//    RunTheModel()
 //    DailySimulation()
 //    DoAdjustments()
 //    SimulateThisDay()
@@ -28,18 +27,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // C2KApp construction
 C2KApp::C2KApp() {}
-/////////////////////////////////////////////////////////////////////////////
-void C2KApp::RunTheModel(const char *profile)
-//     This function calls the following functions for each profile:
-//          ReadInput(), DailySimulation()
-//     Global variables set: ProfileName
-//     Global variables referenced:  DayFinish, DayStart
-//
-{
-    ProfileName = profile;
-    //     Read the input data for this simulation
-    ReadInput();
-}
 ///////////////////////////////////////////////////////////////////////////////
 bool C2KApp::DoAdjustments()
 //     This function is called from DailySimulation(). It checks if plant
@@ -102,7 +89,7 @@ void C2KApp::SimulateThisDay()
 //     This function executes all the simulation computations in a day. It is
 //     called from
 //  DailySimulation(), and DoAdjustments().   It calls the following functions:
-//     DoyToDate(), ColumnShading(), DayClim(), SoilTemperature(),
+//     ColumnShading(), DayClim(), SoilTemperature(),
 //     SoilProcedures(), SoilNitrogen(), SoilSum(), PhysiologicalAge(), Pix(),
 //     Defoliate(), Stress(), GetNetPhotosynthesis(), PlantGrowth(),
 //     CottonPhenology(), PlantNitrogen(), CheckDryMatterBal(),
@@ -119,7 +106,6 @@ void C2KApp::SimulateThisDay()
     //    Compute Daynum (day of year), Date, and DayOfSimulation (days from
     //    start of simulation).
     Daynum++;
-    Date = DoyToDate(Daynum, iyear);
     DayOfSimulation = Daynum - DayStart + 1;
     //    Compute Kday (days from emergence).
     if (DayEmerge <= 0)

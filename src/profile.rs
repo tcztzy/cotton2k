@@ -44,6 +44,7 @@ pub struct Profile {
     pub light_intercept_parameters: Option<[f64; 20]>,
     pub soil_layers: [SoilLayer; 14],
     pub soil_hydraulic: SoilHydraulic,
+    pub plant_maps: Option<Vec<PlantMap>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -232,4 +233,15 @@ pub struct SoilHydraulicLayer {
     pub bulk_density: f64,
     pub clay: f64,
     pub sand: f64,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct PlantMap {
+    #[serde(deserialize_with = "from_isoformat")]
+    pub date: NaiveDate,
+    pub plant_height: f64,
+    pub main_stem_nodes: f64,
+    pub number_of_squares: f64,
+    pub number_of_bolls: f64,
+    pub number_of_nodes: f64,
 }

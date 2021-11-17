@@ -514,7 +514,7 @@ void PredictEmergence(int hour)
 //     SoilTemperature(). There is one referenced argument (hour).
 //
 //     The following global variables are referenced here:
-//       Daynum, dl, iyear, DayPlant, PlantRowColumn, nl, ProfileName, SoilPsi,
+//       Daynum, dl, iyear, DayPlant, PlantRowColumn, nl, SoilPsi,
 //       SoilTemp.
 //     The following global variables are set here:
 //       DayEmerge, isw, Kday.

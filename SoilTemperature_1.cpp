@@ -149,7 +149,7 @@ void SoilTemperature()
 //       ActualTranspiration, AirTemp, Date, DayEndMulchDaynum, DayPlant,
 //       DayStart, DayStartMulch, DewPointTemp, dl, FoliageTemp, isw,
 //       MulchIndicator, MulchTemp, nk, nl, PlantRowColumn,
-//       ProfileName, ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
+//       ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
 //       rracol, SitePar, thad, wk
 //     The following global variables are set here:
 //       ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es,
@@ -476,7 +476,7 @@ void SoilTemperatureInit(int &jt1, int &jt2)
 //  jt1, jt2 - input of start and stop of output of soil temperatures.
 //
 //     The following global variables are referenced here:
-//  Clim (structure), DayFinish, Daynum, DayStart, nl, ProfileName,
+//  Clim (structure), DayFinish, Daynum, DayStart, nl,
 //  SitePar.
 //     The following global variables are set here:
 //  DeepSoilTemperature, SoilTemp.

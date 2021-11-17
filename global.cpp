@@ -127,7 +127,7 @@ int MainStemNodes,        // number of main stem nodes.
                           // branch), per plant.
     NumWaterTableData;    // number of water table level input data.
 
-int pixday[10],    // Date (DOY) of PIX application.
+int pixday[10],  // Date (DOY) of PIX application.
     pixmth[10],  // code number for method of application of PIX: 0 = 'BANDED';
                  // 1 = 'SPKLER'; 2 = 'BDCAST'.
     PlantRowColumn,         // column number to the left of plant row location.
@@ -145,21 +145,11 @@ bool bEnd,                  // flag indicating abnormal simulation end.
 // not necessary if false, where jj is:   0 - for main stem nodes.
 // 1 - for plant height. 2 - for total site number. 3 - for square number.
 // 4 - for green boll number.
+
 //
-// std::string variables:
+// double variables:
 //
-std::string
-    AgrInputFileName,  // name of input file with agricultural input data
-    Date,  // date string formatted as "dd-MMM-yyyy", for example 25-JUN-2003
-    PlantmapFileName,  // name of input file with plant map adjustment data.
-    ProfileName,  // name of input file with profile data (without the extension
-                  // ".PRO").
-    SoilHydFileName,        // name of input file with soil hydrology data.
-    SoilInitFileName;       // name of input file with initial soil data.
-                            //
-                            // double variables:
-                            //
-                            // A
+// A
 double AbscisedFruitSites,  // total number of abscised fruit sites, per plant.
     AbscisedLeafWeight,     // weight of abscissed leaves, g per plant.
     AbscissionLag[20],      // the time (in physiological days) from tagging
@@ -191,8 +181,8 @@ double AbscisedFruitSites,  // total number of abscised fruit sites, per plant.
     AirTemp[24],  // hourly air temperatures, C.
     albedo[24],   // hourly albedo of a reference crop.
     alpha[9],     // parameter of the Van Genuchten equation.
-    AppliedWater,    // the amount of water to apply (mm), computed for a
-                     // predicted irrigation.
+    AppliedWater,        // the amount of water to apply (mm), computed for a
+                         // predicted irrigation.
     AverageLeafAge[20],  // area-weighted leaf age
     AverageLwp,      // running average of LwpMin + LwpMax for the last 3 days.
     AverageLwpMin,   // running average of LwpMin for the last 3 days.
@@ -520,7 +510,9 @@ double VarPar[61],      // array of cultivar specific constant parameters.
     WindSpeed[24],    // Hourly wind velocity, m per second.
     wk[maxk];         // horizontal width of a soil column (cm).
 
-double light_intercept_parameter, light_intercept_parameters[20];  // Parameter in light interception computation 1 - e^{p * LAI}
+double light_intercept_parameter,
+    light_intercept_parameters[20];  // Parameter in light interception
+                                     // computation 1 - e^{p * LAI}
 LIGHT_INTERCEPT_METHOD light_intercept_method;
 
 double TotalLeafWeight() {
@@ -529,24 +521,27 @@ double TotalLeafWeight() {
         result += 0.2;  // weight of cotyledons dry matter.
     }
     for (int i = 0; i < NumPreFruNodes; i++) result += LeafWeightPreFru[i];
-    for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
-        result += LeafWeightMainStem[k][l];
-        for (int m = 0; m < NumNodes[k][l]; m++) result += LeafWeightNodes[k][l][m];
-    }
+    for (int k = 0; k < NumVegBranches; k++)
+        for (int l = 0; l < NumFruitBranches[k]; l++) {
+            result += LeafWeightMainStem[k][l];
+            for (int m = 0; m < NumNodes[k][l]; m++)
+                result += LeafWeightNodes[k][l][m];
+        }
     return result;
 }
 
-
-double TotalLeafArea(){
+double TotalLeafArea() {
     // total leaf area, dm2 per plant.
     double result = 0;
     if (FirstSquare <= 0) {
         result += 0.20 * 0.6;
     }
     for (int i = 0; i < NumPreFruNodes; i++) result += LeafAreaPreFru[i];
-    for (int k = 0; k < NumVegBranches; k++) for (int l = 0; l < NumFruitBranches[k]; l++) {
-        result += LeafAreaMainStem[k][l];
-        for (int m = 0; m < NumNodes[k][l]; m++) result += LeafAreaNodes[k][l][m];
-    }
+    for (int k = 0; k < NumVegBranches; k++)
+        for (int l = 0; l < NumFruitBranches[k]; l++) {
+            result += LeafAreaMainStem[k][l];
+            for (int m = 0; m < NumNodes[k][l]; m++)
+                result += LeafAreaNodes[k][l][m];
+        }
     return result;
 }

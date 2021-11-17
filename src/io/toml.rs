@@ -1,7 +1,7 @@
 use crate::bindings::*;
 use crate::profile::{
-    AgronomyOperation, FertilizationMethod, IrrigationMethod, MulchType, Profile, SoilHydraulic,
-    SoilLayer, WeatherRecord,
+    AgronomyOperation, FertilizationMethod, IrrigationMethod, MulchType, PlantMap, Profile,
+    SoilHydraulic, SoilLayer, WeatherRecord,
 };
 use chrono::Datelike;
 use std::io::Read;
@@ -300,6 +300,13 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
     read_soil_impedance(&profile_path.parent().unwrap().join("soil_imp.csv"))?;
     unsafe {
         InitSoil(profile.soil_layers, profile.soil_hydraulic);
+        if profile.plant_maps.is_some() {
+            ReadPlantMapInput(profile.plant_maps.unwrap());
+        }
+        InitializeRootData();
+        //     initialize some variables at the start of simulation.
+        SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
+        PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight() + ReserveC;
     }
     Ok(())
 }
@@ -849,5 +856,25 @@ unsafe fn InitSoil(soil_layers: [SoilLayer; 14], soil_hydraulic: SoilHydraulic)
                 + dsandair * bsand * SandVolumeFraction[l]
                 + dclayair * bclay * ClayVolumeFraction[l])
             / (PoreSpace[l] + dsandair * SandVolumeFraction[l] + dclayair * ClayVolumeFraction[l]);
+    }
+}
+
+unsafe fn ReadPlantMapInput(plant_maps: Vec<PlantMap>)
+//     This sunbroutine opens and reads an ascii file with input of
+//  observed plant map adjustment data. It is used to adjust the simulation.
+//     It is called by ReadInput().
+//     The following global variables are referenced:    iyear, PlantmapFileName
+//     The following global variables are set:
+//       MapDataGreenBollNum[], MapDataDate[], MapDataMainStemNodes[],
+//       MapDataPlantHeight[], MapDataSquareNum[], MapDataAllSiteNum[];
+//
+{
+    for (i, plant_map) in plant_maps.iter().enumerate() {
+        MapDataDate[i] = plant_map.date.ordinal() as i32; // day of year
+        MapDataPlantHeight[i] = plant_map.plant_height; // Plant height, cm
+        MapDataMainStemNodes[i] = plant_map.main_stem_nodes; // Number of mainstem nodes
+        MapDataSquareNum[i] = plant_map.number_of_squares; // Number of squares per plant
+        MapDataGreenBollNum[i] = plant_map.number_of_bolls; // Number of green bolls per plant
+        MapDataAllSiteNum[i] = plant_map.number_of_nodes; // Number of total sites per plant
     }
 }

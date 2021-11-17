@@ -5,10 +5,7 @@ using namespace std;
 //
 //  definition of functions
 //  =======================
-std::string GetLineData(ifstream &DataFile);
 // Date conversion functions:
-int DateToDoy(std::string Date, int m_YearStart);
-std::string DoyToDate(int Doy, int m_YearStart);
 int LeapYear(int nYear);
 //  soil water functions:
 double qpsi(double psi, double qr, double qsat, double alpha, double beta);

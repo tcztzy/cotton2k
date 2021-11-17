@@ -49,7 +49,6 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].cumWaterDrained = CumWaterDrained;
     Scratch21[DayOfSimulation - 1].deadwt =
         AbscisedLeafWeight + BloomWeightLoss + GreenBollsLost + RootWeightLoss;
-    Scratch21[DayOfSimulation - 1].date = Date;
     Scratch21[DayOfSimulation - 1].daynum = Daynum;
     Scratch21[DayOfSimulation - 1].dayTimeTemp = DayTimeTemp;
     Scratch21[DayOfSimulation - 1].gbw =
@@ -331,7 +330,7 @@ void PlantAdjustments(int i, int jj)
                 //     AdjAddMSNodesRate will be used in function
                 //     AddFruitingBranch()
                 std::cout << " Apply plant adjustment for main stem nodes to date "
-                       << Date << std::endl;
+                       << Daynum << std::endl;
                 GoBack();
             }
             return;
@@ -375,7 +374,7 @@ void PlantAdjustments(int i, int jj)
                 //     AdjAddHeightRate will be used in function
                 //     AddPlantHeight()
                 std::cout << " Apply plant adjustment for stem height to date "
-                       << Date << std::endl;
+                       << Daynum << std::endl;
                 GoBack();
             }
             return;
@@ -422,7 +421,7 @@ void PlantAdjustments(int i, int jj)
                 //     AddFruitingNode()
                 std::cout << " Apply plant adjustment for total number of sites "
                           "to date "
-                       << Date << std::endl;
+                       << Daynum << std::endl;
                 GoBack();
             }
             return;
@@ -439,7 +438,7 @@ void PlantAdjustments(int i, int jj)
                 //     AdjSquareAbsc will be used in function AdjustAbscission()
                 std::cout
                     << " Apply plant adjustment for number of squares to date "
-                    << Date << std::endl;
+                    << Daynum << std::endl;
                 GoBack();
             } else
                 nadj[3] = false;
@@ -459,7 +458,7 @@ void PlantAdjustments(int i, int jj)
                 //     AdjustAbscission()
                 std::cout << " Apply plant adjustment for number of green bolls "
                           "to date "
-                       << Date << std::endl;
+                       << Daynum << std::endl;
                 GoBack();
             } else
                 nadj[4] = false;
@@ -506,7 +505,6 @@ void GoBack()
     CumTranspiration = Scratch21[irec].cumTranspiration;
     CumWaterAdded = Scratch21[irec].cumWaterAdded;
     CumWaterDrained = Scratch21[irec].cumWaterDrained;
-    Date = Scratch21[irec].date;
     Daynum = Scratch21[irec].daynum;
     DayTimeTemp = Scratch21[irec].dayTimeTemp;
     DeepSoilTemperature = Scratch21[irec].deepSoilTemperature;

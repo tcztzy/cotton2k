@@ -21,7 +21,6 @@ extern struct scratch {
         numSheddingTags, numVegBranches;
     int fruitingCode[3][30][5], lateralRootFlag[maxl], numFruitBranches[3],
         numNodes[3][30], rootColNumLeft[maxl], rootColNumRight[maxl];
-    std::string date;
     double abscisedFruitSites, abscisedLeafWeight, amitri, averageLwp,
         averageLwpMin, averageSoilPsi, avrgDailyTemp, bloomWeightLoss,
         burrNConc, burrNitrogen, burrWeightGreenBolls, burrWeightOpenBolls,
@@ -75,9 +74,6 @@ extern struct Irrigation {
     int day, method, LocationColumnDrip, LocationLayerDrip;
     double amount;
 } Irrig[150];
-////    Strings    ////
-extern std::string AgrInputFileName, Date, PlantmapFileName, ProfileName,
-    SoilHydFileName, SoilInitFileName;
 ////    Integers    ////
 extern int DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef,
     DayOfSimulation, Daynum, DayPlant, DayStart, DayStartCO2, DayStartMulch,

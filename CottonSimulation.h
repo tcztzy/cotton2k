@@ -22,7 +22,6 @@ void AdjustBollAbscission(int k, int l, int m, int jx, double gin1);
 //    gin1);
 void AdjustSquareAbscission(int k, int l, int m, double abscsq);
 void AdjustYoungBollAbscission(int k, int l, int m, double abscgb, double gin1);
-void AgricInputs();
 void ApplyFertilizer();
 void AverageAirTemperatures();
 double AveragePsi();
@@ -127,9 +126,6 @@ void PreFruitingNode(double stemNRatio);
 void PreFruitLeafAbscission(double droplf);
 double PsiOnTranspiration(double PsiAverage);
 // R
-void ReadInput();
-void ReadPlantMapInput();
-void ReadProfileFile();
 int ReadSoilHydraulicData();
 void RedistRootNewGrowth(int l, int k, double adwr1);
 double refalbed(double isrhr, double rad, double coszhr, double sunahr);

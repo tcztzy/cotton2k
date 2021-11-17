@@ -11,17 +11,12 @@ Genaral Framework:
           ExitInstance()
           GetJobFile()
           GetProfilesList()
-          RunTheModel()
           DailySimulation()
           DoAdjustments()
           SimulateThisDay()
 
-    File GeneralFunctions.cpp (functions which are used in several places in the model)
-       String handling -
-          GetLineData()
-       Date conversions - 
-          DateToDoy()
-          DoyToDate()
+    File GeneralFunctions.cpp (functions which are used in several places in the model)       Date conversions - 
+      Date conversions - 
           LeapYear()
        Soil functions -
           psiq()
@@ -51,19 +46,9 @@ Genaral Framework:
 Package B.
 Input Routines:
        
-    File GettingInput_1.cpp 
-          ReadInput()
-          ReadProfileFile()
-       
     File GettingInput_2.cpp
-          InitializeSoilData()
-          ReadSoilHydraulicData()
           InitializeRootData()
-          InitializeSoilTemperature()
           form()
-       
-    File GettingInput_3.cpp
-          ReadPlantMapInput()
        
 ===========================================================================================       
 

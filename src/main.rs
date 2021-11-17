@@ -3,15 +3,14 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 use pbr::ProgressBar;
-use std::ffi::CString;
 use std::path::Path;
 mod bindings;
 mod de;
 mod io;
 mod profile;
 use crate::bindings::{bEnd, C2KApp, DayFinish, DayStart, Daynum, WriteStateVariables};
-use crate::io::toml::read_profile;
 use crate::io::to_csv::*;
+use crate::io::toml::read_profile;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -20,12 +19,10 @@ fn main() {
     }
     let mut app: C2KApp = unsafe { C2KApp::new() };
     read_profile(Path::new(&args[1])).expect("Error in read_profile");
-    let filename = CString::new(args[2].to_string()).expect("Error");
     output_file_headers().unwrap();
     unsafe {
         let count = (DayFinish - DayStart + 1) as u64;
         let mut pb = ProgressBar::new(count);
-        app.RunTheModel(filename.as_ptr());
         // Do daily simulations
         Daynum = DayStart - 1;
         bEnd = false;
