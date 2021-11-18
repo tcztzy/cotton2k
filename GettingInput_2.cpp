@@ -6,8 +6,6 @@
 // InitializeSoilTemperature()
 // form()
 //
-#include <boost/algorithm/string.hpp>
-#include <iostream>
 
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"

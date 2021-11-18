@@ -11,7 +11,6 @@
 #include <math.h>
 
 #include <iostream>
-#include <string>
 
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
