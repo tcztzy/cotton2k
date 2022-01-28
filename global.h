@@ -1,6 +1,5 @@
 //   global.h
 #pragma once
-#include <string>
 //
 //  definition of global variables
 //  ==============================

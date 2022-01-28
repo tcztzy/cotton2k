@@ -11,10 +11,9 @@
 //  Extracting climate data -
 //      GetFromClim()
 //
-#include "GeneralFunctions.h"
-
 #include <math.h>
 
+#include "GeneralFunctions.h"
 #include "global.h"
 
 //
@@ -123,7 +122,7 @@ double wcond(double q, double qr, double qsat, double beta,
     //     Water content for saturated conductivity is minimum of PoreSpace and
     //     qsat. For very high values of water content (exceeding the saturated
     //  water content or pore space) conductivity is SaturatedHydCond.
-    double xsat = min(qsat, PoreSpace);
+    double xsat = fmin(qsat, PoreSpace);
     if (q >= xsat) return SaturatedHydCond;
     //      The following equation is used (in FORTRAN notation):
     //      WCOND = CONDSAT * ((Q-QR)/(XSAT-QR))**0.5

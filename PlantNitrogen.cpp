@@ -12,6 +12,8 @@
 // NitrogenUptakeRequirement()
 // PlantNitrogenBal()
 //
+#include <math.h>
+
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 //
@@ -224,8 +226,8 @@ void NitrogenSupply()
         //  it.
         //     The N reserves in leaves, petioles, stems, roots and burrs of
         //  green bolls are computed, and their N content updated.
-        leafrs =
-            (LeafNitrogen - vlfnmin * TotalLeafWeight()) * MobilizNFractionLeaves;
+        leafrs = (LeafNitrogen - vlfnmin * TotalLeafWeight()) *
+                 MobilizNFractionLeaves;
         if (leafrs < 0) leafrs = 0;
         LeafNitrogen -= leafrs;
         //     The petiole N content is subdivided to nitrate and non-nitrate.
@@ -377,7 +379,7 @@ void NitrogenAllocation()
     //  consecutively.
     double useofn;  // amount of nitrogen used in growth of a plant organ.
     if (rqnsed > 0) {
-        useofn = min(vseednmax * npool, rqnsed);
+        useofn = fmin(vseednmax * npool, rqnsed);
         SeedNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
@@ -386,13 +388,13 @@ void NitrogenAllocation()
     //     the
     //  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
     if (rqnbur > 0) {
-        useofn = min(vburnmax * npool, rqnbur);
+        useofn = fmin(vburnmax * npool, rqnbur);
         BurrNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
     }
     if (rqnsqr > 0) {
-        useofn = min(vsqrnmax * npool, rqnsqr);
+        useofn = fmin(vsqrnmax * npool, rqnsqr);
         SquareNitrogen += useofn;
         addnf += useofn;
         npool -= useofn;
@@ -401,19 +403,19 @@ void NitrogenAllocation()
     //  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for
     //  petioles, up to vpetnmax = 0.75
     if (rqnlef > 0) {
-        useofn = min(vlfnmax * npool, rqnlef);
+        useofn = fmin(vlfnmax * npool, rqnlef);
         LeafNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
     if (rqnstm > 0) {
-        useofn = min(vstmnmax * npool, rqnstm);
+        useofn = fmin(vstmnmax * npool, rqnstm);
         StemNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
     }
     if (rqnpet > 0) {
-        useofn = min(vpetnmax * npool, rqnpet);
+        useofn = fmin(vpetnmax * npool, rqnpet);
         PetioleNitrogen += useofn;
         addnv += useofn;
         npool -= useofn;
@@ -421,7 +423,7 @@ void NitrogenAllocation()
     //     The remaining npool goes to root growth. If any npool remains
     //  it is defined as xtran.
     if (rqnrut > 0) {
-        useofn = min(npool, rqnrut);
+        useofn = fmin(npool, rqnrut);
         RootNitrogen += useofn;
         addnr += useofn;
         npool -= useofn;
@@ -499,7 +501,8 @@ void PlantNitrogenContent()
     const double seedratio = 0.64;
     //     Compute N concentration in plant organs as the ratio of N content to
     //     weight of dry matter.
-    if (TotalLeafWeight() > 0.00001) LeafNConc = LeafNitrogen / TotalLeafWeight();
+    if (TotalLeafWeight() > 0.00001)
+        LeafNConc = LeafNitrogen / TotalLeafWeight();
     if (TotalPetioleWeight > 0.00001) {
         PetioleNConc = PetioleNitrogen / TotalPetioleWeight;
         PetioleNO3NConc = PetioleNConc * PetioleNitrateN();

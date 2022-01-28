@@ -81,7 +81,7 @@ void FruitingSitesAbscission()
     //  (i.e., shedding will occur sooner) when maximum temperatures are high.
     double tmax = GetFromClim(CLIMATE_METRIC_TMAX, Daynum);
     for (int lt = 0; lt < NumSheddingTags; lt++) {
-        AbscissionLag[lt] += max(DayInc, 0.40);
+        AbscissionLag[lt] += fmax(DayInc, 0.40);
         if (tmax > vabsfr[2])
             AbscissionLag[lt] += (tmax - vabsfr[2]) * vabsfr[3];
     }

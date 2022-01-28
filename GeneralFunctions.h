@@ -1,7 +1,6 @@
 //  General auxiliary functions
 //
 #include "global.h"  // Necessary for file I/O
-using namespace std;
 //
 //  definition of functions
 //  =======================

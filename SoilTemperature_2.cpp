@@ -7,12 +7,10 @@
 //       SoilMulchBalance()
 //
 #include <math.h>
-
-#include <iostream>
+#include <stdio.h>
 
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
-
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -118,8 +116,8 @@ void EnergyBalance(int ihr, int k, bool bMulchon, double ess, double etp1)
     wndhr = WindSpeed[ihr] * 100;
     double rocp;  // air density * specific heat at constant pressure = 0.24 * 2
                   // * 1013 / 5740 divided by tafk.
-    double c2;   // multiplier for sensible heat transfer (at plant surface).
-    double rsv;  // global radiation absorbed by the vegetation
+    double c2;    // multiplier for sensible heat transfer (at plant surface).
+    double rsv;   // global radiation absorbed by the vegetation
     if (sf >= 0.05)  // a shaded soil column
     {
         tv = FoliageTemp[k];  // vegetation temperature
@@ -323,18 +321,13 @@ double SensibleHeatTransfer(double tsf, double tenviron, double height,
         mtest++;
         //     Stop simulation if no convergence after 100 iterations.
         if (mtest > 100) {
-            std::cerr
-                << " Infinite loop in SensibleHeatTransfer(). Abnormal stop!! "
-                << std::endl;
-            char C1[12];
-            sprintf(C1, "%10.3g", tenviron);
-            std::cerr << " tenviron = " << C1 << std::endl;
-            sprintf(C1, "%10.3g", tsf);
-            std::cerr << " tsf      = " << C1 << std::endl;
-            sprintf(C1, "%10.3g", height);
-            std::cerr << " PlantHeight = " << C1 << std::endl;
-            sprintf(C1, "%10.3g", u);
-            std::cerr << " u = " << C1 << std::endl;
+            fprintf(
+                stderr,
+                " Infinite loop in SensibleHeatTransfer(). Abnormal stop!! \n");
+            fprintf(stderr, " tenviron = %10.3g\n", tenviron);
+            fprintf(stderr, " tsf      = %10.3g\n", tsf);
+            fprintf(stderr, " PlantHeight = %10.3g\n", height);
+            fprintf(stderr, " u = %10.3g\n", u);
             bEnd = true;
             return 0;
         }
@@ -500,17 +493,12 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss,
         mon++;
     }  // end while loop
        //     If (mon >= 50) send message on error and end simulation.
-    std::cerr << " Infinite loop in SoilSurfaceBalance(). Abnormal stop!! "
-              << std::endl;
-    char C1[12];
-    sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-    std::cerr << " Daynum, ihr, k = " << C1 << std::endl;
-    sprintf(C1, "%10.3g", so);
-    std::cerr << " so      = " << C1 << std::endl;
-    sprintf(C1, "%10.3g", so2);
-    std::cerr << " so2 = " << C1 << std::endl;
-    sprintf(C1, "%10.3g", so3);
-    std::cerr << " so3 = " << C1 << std::endl;
+    fprintf(stderr,
+            " Infinite loop in SoilSurfaceBalance(). Abnormal stop!! \n");
+    fprintf(stderr, "Daynum, ihr, k = %3d %3d %3d\n", Daynum, ihr, k);
+    fprintf(stderr, " so      = %10.g\n", so);
+    fprintf(stderr, " so2 = %10.g\n", so2);
+    fprintf(stderr, " so3 = %10.g\n", so3);
     bEnd = true;
 }
 /////////////////////////////////////////
@@ -619,16 +607,11 @@ bool SoilMulchBalance(int ihr, int k, double rlzero, double rsm, double rss,
             tm = 0.5 * (tm + tmold1);
         }
         if (mtnit > 30) {
-            std::cerr
-                << " Infinite loop in SoilMulchBalance(). Abnormal stop!! "
-                << std::endl;
-            char C1[12];
-            sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-            std::cerr << " Daynum, ihr, k = " << C1 << std::endl;
-            sprintf(C1, "%10.3g", so);
-            std::cerr << " so      = " << C1 << std::endl;
-            sprintf(C1, "%10.3g", tm);
-            std::cerr << " tm = " << C1 << std::endl;
+            fprintf(stderr,
+                    " Infinite loop in SoilMulchBalance(). Abnormal stop!! \n");
+            fprintf(stderr, " Daynum, ihr, k = %3d %3d %3d", Daynum, ihr, k);
+            fprintf(stderr, " so      = %10.3g", so);
+            fprintf(stderr, " tm = %10.3g", so);
             return true;
         }
     } while (fabs(tm - tmold1) > 0.05 || fabs(so - soold1) > 0.05);

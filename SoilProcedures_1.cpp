@@ -11,6 +11,8 @@
 // AveragePsi()
 // WaterTable()
 //
+#include <math.h>
+
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 
@@ -220,7 +222,8 @@ void ApplyFertilizer()
                 //     It is assumed that 70% of the amount of ammonium or urea
                 //     intercepted by the canopy
                 //  is added to the leaf N content (LeafNitrogen).
-                LeafNitrogen += 0.70 * LightIntercept *
+                LeafNitrogen +=
+                    0.70 * LightIntercept *
                     (NFertilizer[i].amtamm + NFertilizer[i].amtura) * 1000 /
                     PlantPopulation;
                 //     The amount not intercepted by the canopy is added to the
@@ -434,7 +437,8 @@ void PredictDripIrrigation(double TargetStress)
         //     this day.
         bool bIsIrr = false;
         for (int j = 0; j < NumIrrigations; j++) {
-            if (Irrig[j].day == Daynum || GetFromClim(CLIMATE_METRIC_RAIN, Daynum) > 1) {
+            if (Irrig[j].day == Daynum ||
+                GetFromClim(CLIMATE_METRIC_RAIN, Daynum) > 1) {
                 bIsIrr = true;  // there is an irrigation today
                 break;
             }
@@ -444,7 +448,7 @@ void PredictDripIrrigation(double TargetStress)
         //  or rain today, and water stress is not higher than 0.99
         if (!bIsIrr && WaterStress <= 0.99) {
             //     The first predicted drip irrigation is applied
-            AppliedWater = min(30., MaxIrrigation);
+            AppliedWater = fmin(30., MaxIrrigation);
             irr1st = true;
             RequiredWater = 0;
         }
@@ -599,9 +603,9 @@ double AveragePsi()
                 //  uptake, or if it exceeds a maximum value (vrcumax) this
                 //  maximum value is used for weighting.
                 sumwat[j] += VolWaterContent[l][k] * dl[l] * wk[k] *
-                             min(RootWtCapblUptake[l][k], vrcumax);
+                             fmin(RootWtCapblUptake[l][k], vrcumax);
                 psinum[j] +=
-                    dl[l] * wk[k] * min(RootWtCapblUptake[l][k], vrcumax);
+                    dl[l] * wk[k] * fmin(RootWtCapblUptake[l][k], vrcumax);
             }
         }
     }

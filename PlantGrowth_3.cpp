@@ -161,11 +161,11 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
             //  weight of vegetative shoot (stem + leaves). This equation is
             //  based on data from Avi Ben-Porath's PhD thesis.
             //     ratio is modified (calibrated) by vchbal[11].
-            ratio =
-                vchbal[8] + vchbal[9] * exp(-vchbal[10] *
-                                            (TotalStemWeight + TotalLeafWeight() +
-                                             TotalPetioleWeight) *
-                                            PerPlantArea);
+            ratio = vchbal[8] +
+                    vchbal[9] * exp(-vchbal[10] *
+                                    (TotalStemWeight + TotalLeafWeight() +
+                                     TotalPetioleWeight) *
+                                    PerPlantArea);
             ratio = ratio * vchbal[11];
             //     rtmax is the proportion of remaining available carbohydrates
             //     that can be supplied to
@@ -186,7 +186,7 @@ void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
             //     the
             //  remaining available carbohydrates.
             CarbonAllocatedForRootGrowth =
-                max((cdroot * frt), (cavail - cdstem));
+                fmax((cdroot * frt), (cavail - cdstem));
             cavail -= CarbonAllocatedForRootGrowth;
         } else
             CarbonAllocatedForRootGrowth = 0;
@@ -497,9 +497,9 @@ void CheckDryMatterBal()
     //     PlantWeight Is the total dry weight of all plant organs, including C
     //     reserves.
     PlantWeight = TotalRootWeight + TotalStemWeight + CottonWeightGreenBolls +
-                  BurrWeightGreenBolls + TotalLeafWeight() + TotalPetioleWeight +
-                  TotalSquareWeight + CottonWeightOpenBolls +
-                  BurrWeightOpenBolls + ReserveC;
+                  BurrWeightGreenBolls + TotalLeafWeight() +
+                  TotalPetioleWeight + TotalSquareWeight +
+                  CottonWeightOpenBolls + BurrWeightOpenBolls + ReserveC;
     //     Compute the "used" side as PlantWeight plus dry matter abscised as
     //     bolls,
     //  squares, leaves and dry matter of roots that died.

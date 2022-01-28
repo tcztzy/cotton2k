@@ -199,7 +199,7 @@ void PreFruitingNode(double stemNRatio)
     //
     if (AgeOfPreFruNode[NumPreFruNodes - 1] >= timeToNextPreFruNode) {
         NumPreFruNodes++;
-        NodeLayerPreFru[NumPreFruNodes - 1] = min(max((int)(PlantHeight / 5), 0), 20);
+        NodeLayerPreFru[NumPreFruNodes - 1] = fmin(fmax((int)(PlantHeight / 5), 0), 20);
         LeafAreaPreFru[NumPreFruNodes - 1] = VarPar[34];
         LeafWeightPreFru[NumPreFruNodes - 1] =
             LeafAreaPreFru[NumPreFruNodes - 1] * LeafWeightAreaRatio;
@@ -281,7 +281,7 @@ void CreateFirstSquare(double stemNRatio)
     //      FruitGrowthRatio, and AvrgNodeTemper.
     NumFruitBranches[0] = 1;
     NumNodes[0][0] = 1;
-    NodeLayer[0][0] = min(max((int)(PlantHeight / 5), 0), 20);
+    NodeLayer[0][0] = fmin(fmax((int)(PlantHeight / 5), 0), 20);
     FruitGrowthRatio = 1;
     AvrgNodeTemper[0][0][0] = AvrgDailyTemp;
     //     It is assumed that the cotyledons are dropped at time of first
@@ -365,7 +365,7 @@ void AddVegetativeBranch(double delayVegByCStress, double stemNRatio,
     AvrgNodeTemper[NumVegBranches - 1][0][0] = AvrgDailyTemp;
     NumFruitBranches[NumVegBranches - 1] = 1;
     NumNodes[NumVegBranches - 1][0] = 1;
-    NodeLayer[NumVegBranches - 1][0] = min(max((int)(PlantHeight / 5), 0), 20);
+    NodeLayer[NumVegBranches - 1][0] = fmin(fmax((int)(PlantHeight / 5), 0), 20);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
 void AddFruitingBranch(int k, double delayVegByCStress, double stemNRatio)
@@ -458,7 +458,7 @@ void AddFruitingBranch(int k, double delayVegByCStress, double stemNRatio)
         (LeafWeightMainStem[k][newbr] + LeafWeightNodes[k][newbr][0]) *
         stemNRatio;
     LeafNitrogen += addlfn;
-    NodeLayer[k][newbr] = min(max((int)(PlantHeight / 5), 0), 20);
+    NodeLayer[k][newbr] = fmin(fmax((int)(PlantHeight / 5), 0), 20);
     StemNitrogen -= addlfn;
     //      Begin computing AvrgNodeTemper of the new node and assign zero to
     //      DelayNewFruBranch.
@@ -636,7 +636,7 @@ void FruitingSite(int k, int l, int m, int& NodeRecentWhiteFlower)
                 FirstBloom = Daynum;
             //     Determine node of most recent white flower.
             if (k == 0 && m == 0)
-                NodeRecentWhiteFlower = max(NodeRecentWhiteFlower, l);
+                NodeRecentWhiteFlower = fmax(NodeRecentWhiteFlower, l);
         }
         return;
     }

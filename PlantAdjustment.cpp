@@ -6,11 +6,11 @@
 //       GoBack()
 //
 #include <math.h>
-#include <iostream>
+#include <stdio.h>
+
 #include "CottonSimulation.h"
 #include "Cottonmodel.h"
 #include "GeneralFunctions.h"
-
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -81,8 +81,10 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].petioleNO3NConc = PetioleNO3NConc;
     Scratch21[DayOfSimulation - 1].plantHeight = PlantHeight;
     Scratch21[DayOfSimulation - 1].plantWeight = PlantWeight;
-    Scratch21[DayOfSimulation - 1].rad = GetFromClim(CLIMATE_METRIC_IRRD, Daynum);
-    Scratch21[DayOfSimulation - 1].rain = GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
+    Scratch21[DayOfSimulation - 1].rad =
+        GetFromClim(CLIMATE_METRIC_IRRD, Daynum);
+    Scratch21[DayOfSimulation - 1].rain =
+        GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
     Scratch21[DayOfSimulation - 1].reserveC = ReserveC;
     Scratch21[DayOfSimulation - 1].rn = Rn;
     Scratch21[DayOfSimulation - 1].rootNConc = RootNConc;
@@ -90,8 +92,10 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].soilNitrogenLoss = SoilNitrogenLoss;
     Scratch21[DayOfSimulation - 1].stemNConc = StemNConc;
     Scratch21[DayOfSimulation - 1].sumNO3N90 = SumNO3N90;
-    Scratch21[DayOfSimulation - 1].tmax = GetFromClim(CLIMATE_METRIC_TMAX, Daynum);
-    Scratch21[DayOfSimulation - 1].tmin = GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
+    Scratch21[DayOfSimulation - 1].tmax =
+        GetFromClim(CLIMATE_METRIC_TMAX, Daynum);
+    Scratch21[DayOfSimulation - 1].tmin =
+        GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
     Scratch21[DayOfSimulation - 1].totalPetioleWeight = TotalPetioleWeight;
     Scratch21[DayOfSimulation - 1].totalRootWeight = TotalRootWeight;
     Scratch21[DayOfSimulation - 1].totalSquareWeight = TotalSquareWeight;
@@ -99,7 +103,8 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].totalStemWeight = TotalStemWeight;
     Scratch21[DayOfSimulation - 1].waterStress = WaterStress;
     Scratch21[DayOfSimulation - 1].waterStressStem = WaterStressStem;
-    Scratch21[DayOfSimulation - 1].wind = GetFromClim(CLIMATE_METRIC_WIND, Daynum);
+    Scratch21[DayOfSimulation - 1].wind =
+        GetFromClim(CLIMATE_METRIC_WIND, Daynum);
     //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {
@@ -329,8 +334,9 @@ void PlantAdjustments(int i, int jj)
                 nadj[0] = true;
                 //     AdjAddMSNodesRate will be used in function
                 //     AddFruitingBranch()
-                std::cout << " Apply plant adjustment for main stem nodes to date "
-                       << Daynum << std::endl;
+                printf(
+                    " Apply plant adjustment for main stem nodes to date %d\n",
+                    Daynum);
                 GoBack();
             }
             return;
@@ -373,8 +379,8 @@ void PlantAdjustments(int i, int jj)
                 nadj[1] = true;
                 //     AdjAddHeightRate will be used in function
                 //     AddPlantHeight()
-                std::cout << " Apply plant adjustment for stem height to date "
-                       << Daynum << std::endl;
+                printf(" Apply plant adjustment for stem height to date %d\n",
+                       Daynum);
                 GoBack();
             }
             return;
@@ -419,9 +425,10 @@ void PlantAdjustments(int i, int jj)
                 nadj[2] = true;
                 //     AdjAddSitesRate will be used in function
                 //     AddFruitingNode()
-                std::cout << " Apply plant adjustment for total number of sites "
-                          "to date "
-                       << Daynum << std::endl;
+                printf(
+                    " Apply plant adjustment for total number of sites to date "
+                    "%d\n",
+                    Daynum);
                 GoBack();
             }
             return;
@@ -436,9 +443,10 @@ void PlantAdjustments(int i, int jj)
                 AdjSquareAbsc = 1 - pow((MapDataSquareNum[i] / NumSquares),
                                         (1 / (double)NumAdjustDays));
                 //     AdjSquareAbsc will be used in function AdjustAbscission()
-                std::cout
-                    << " Apply plant adjustment for number of squares to date "
-                    << Daynum << std::endl;
+                printf(
+                    " Apply plant adjustment for number of squares to date "
+                    "%d\n",
+                    Daynum);
                 GoBack();
             } else
                 nadj[3] = false;
@@ -456,9 +464,10 @@ void PlantAdjustments(int i, int jj)
                 nadj[4] = true;
                 //     AdjGreenBollAbsc will be used in function
                 //     AdjustAbscission()
-                std::cout << " Apply plant adjustment for number of green bolls "
-                          "to date "
-                       << Daynum << std::endl;
+                printf(
+                    " Apply plant adjustment for number of green bolls to date "
+                    "%d\n",
+                    Daynum);
                 GoBack();
             } else
                 nadj[4] = false;

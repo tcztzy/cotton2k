@@ -9,8 +9,7 @@
 //       PredictEmergence()
 //
 #include <math.h>
-
-#include <iostream>
+#include <stdio.h>
 
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
@@ -128,15 +127,10 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
         mot++;
     }
     //     If reached 50 iterations there must be an error somewhere!
-    std::cerr << " Infinite loop in CanopyBalance(). Abnormal stop!! "
-              << std::endl;
-    char C1[12];
-    sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-    std::cerr << " Daynum, ihr, k = " << C1 << std::endl;
-    sprintf(C1, "%10.3g", so);
-    std::cerr << " so      = " << C1 << std::endl;
-    sprintf(C1, "%10.3g", tv);
-    std::cerr << " tv = " << C1 << std::endl;
+    fprintf(stderr, " Infinite loop in CanopyBalance(). Abnormal stop!! \n");
+    fprintf(stderr, " Daynum, ihr, k = %3d %3d %3d\n", Daynum, ihr, k);
+    fprintf(stderr, " so      = %10.3g\n", so);
+    fprintf(stderr, " tv = %10.3g\n", tv);
     bEnd = true;
 }
 /////////////////////////////////////////
@@ -224,15 +218,11 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm,
         //     Go to next iteration
     } while (mop < 50);
     //     If reached 50 iterations there must be an error somewhere!
-    std::cerr << " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! "
-              << std::endl;
-    char C1[12];
-    sprintf(C1, "%3d %3d %3d", Daynum, ihr, k);
-    std::cerr << " Daynum, ihr, k = " << C1 << std::endl;
-    sprintf(C1, "%10.3g", so);
-    std::cerr << " so      = " << C1 << std::endl;
-    sprintf(C1, "%10.3g", tm);
-    std::cerr << " tm = " << C1 << std::endl;
+    fprintf(stderr,
+            " Infinite loop in MulchSurfaceBalance(). Abnormal stop!! \n");
+    fprintf(stderr, " Daynum, ihr, k = %3d %3d %3d\n", Daynum, ihr, k);
+    fprintf(stderr, " so      = %10.3g\n", so);
+    fprintf(stderr, " tv = %10.3g\n", tv);
     bEnd = true;
 }
 ///////////////////////////////////////////////////////////////////
@@ -496,7 +486,7 @@ void HeatBalance(int nn)
 {
     double dabs = 0;  // Sum of absolute value of differences in heat content in
                       // the array between beginning and end of this time step.
-    double dev = 0;  // Sum of differences of heat amount in soil.
+    double dev = 0;   // Sum of differences of heat amount in soil.
     for (int i = 0; i < nn; i++) {
         dev += dz[i] * hcap[i] * (ts1[i] - ts0[i]);
         dabs += fabs(ts1[i] - ts0[i]);

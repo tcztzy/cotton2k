@@ -446,7 +446,7 @@ double dayrh(double tt, double tdew)
 //        tdew - dew point temperature C at this time of day.
 //
 {
-    double td = min(tt, tdew);  // the dew point temperature (C), is assumed to
+    double td = fmin(tt, tdew);  // the dew point temperature (C), is assumed to
                                 // be tt if tt < tdew.
     double esvp =
         VaporPressure(tt);  // the saturated vapor pressure in the air (mbar).

@@ -8,16 +8,59 @@ fn zero() -> f64 {
     0.
 }
 
+#[cfg(target_os = "windows")]
 #[inline]
 fn zero_i32() -> i32 {
     0
 }
 
+#[cfg(target_os = "windows")]
 #[derive(Deserialize, Debug)]
 pub struct Profile {
     pub name: Option<String>,
     #[serde(default = "zero_i32")]
     pub light_intercept_method: i32,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub elevation: f64,
+    #[serde(deserialize_with = "from_isoformat")]
+    pub start_date: NaiveDate,
+    #[serde(deserialize_with = "from_isoformat")]
+    pub stop_date: NaiveDate,
+    #[serde(default)]
+    #[serde(deserialize_with = "from_isoformat_option")]
+    pub emerge_date: Option<NaiveDate>,
+    #[serde(default)]
+    #[serde(deserialize_with = "from_isoformat_option")]
+    pub plant_date: Option<NaiveDate>,
+    pub co2_enrichment: Option<CO2Enrichment>,
+    pub mulch: Option<Mulch>,
+    pub weather_path: PathBuf,
+    pub site: Site,
+    pub cultivar_parameters: Vec<f64>,
+    pub row_space: f64,
+    #[serde(default = "zero")]
+    pub skip_row_width: f64,
+    pub plants_per_meter: f64,
+    pub agronomy_operations: Vec<AgronomyOperation>,
+    pub light_intercept_parameters: Option<[f64; 20]>,
+    pub soil_layers: [SoilLayer; 14],
+    pub soil_hydraulic: SoilHydraulic,
+    pub plant_maps: Option<Vec<PlantMap>>,
+}
+
+#[cfg(target_os = "linux")]
+#[inline]
+fn zero_u32() -> u32 {
+    0
+}
+
+#[cfg(target_os = "linux")]
+#[derive(Deserialize, Debug)]
+pub struct Profile {
+    pub name: Option<String>,
+    #[serde(default = "zero_u32")]
+    pub light_intercept_method: u32,
     pub latitude: f64,
     pub longitude: f64,
     pub elevation: f64,

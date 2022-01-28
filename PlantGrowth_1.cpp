@@ -177,8 +177,8 @@ void LeafWaterPotential()
     for (int l = 0; l < NumLayersWithRoots; l++)
         for (int k = RootColNumLeft[l]; k < RootColNumRight[l]; k++) {
             if (RootWtCapblUptake[l][k] >= vpsil[10]) {
-                psinum += min(RootWtCapblUptake[l][k], vpsil[11]);
-                sumlv += min(RootWtCapblUptake[l][k], vpsil[11]) * cmg;
+                psinum += fmin(RootWtCapblUptake[l][k], vpsil[11]);
+                sumlv += fmin(RootWtCapblUptake[l][k], vpsil[11]) * cmg;
                 rootvol += dl[l] * wk[k];
                 if (SoilPsi[l][k] <= vpsil[1])
                     rrl = vpsil[2] / cmg;
@@ -187,9 +187,9 @@ void LeafWaterPotential()
                         (vpsil[3] - SoilPsi[l][k] *
                                         (vpsil[4] + vpsil[5] * SoilPsi[l][k])) /
                         cmg;
-                rrlsum += min(RootWtCapblUptake[l][k], vpsil[11]) / rrl;
+                rrlsum += fmin(RootWtCapblUptake[l][k], vpsil[11]) / rrl;
                 vh2sum += VolWaterContent[l][k] *
-                          min(RootWtCapblUptake[l][k], vpsil[11]);
+                          fmin(RootWtCapblUptake[l][k], vpsil[11]);
             }
         }
     //     Compute average root resistance (rroot) and average soil water
@@ -263,7 +263,7 @@ void LeafWaterPotential()
     {
         if (ReferenceETP[ihr] > etmax) etmax = ReferenceETP[ihr];
     }
-    LwpMin = LwpMax - 0.1 * max(etmax, vpsil[12]) * rtotal;
+    LwpMin = LwpMax - 0.1 * fmax(etmax, vpsil[12]) * rtotal;
     //     Check for minimum and maximum values.
     if (LwpMin < vpsil[9]) LwpMin = vpsil[9];
     if (LwpMin > psild0) LwpMin = psild0;
@@ -362,7 +362,8 @@ void GetNetPhotosynthesis()  // computes net photosynthesis.
     //     Convert the average daily short wave radiation from langley per
     //  day, to Watts per square meter (wattsm).
     double wattsm;  // average daily global radiation, W m-2.
-    wattsm = GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 697.45 / (DayLength * 60);
+    wattsm =
+        GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 697.45 / (DayLength * 60);
     //     Compute pstand as an empirical function of wattsm (based on Baker et
     //     al., 1972).
     double pstand;  // gross photosynthesis for a non-stressed full canopy.
