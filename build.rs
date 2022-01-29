@@ -4,12 +4,42 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    // Tell cargo to tell rustc to link the system bzip2
-    // shared library.
-    println!("cargo:rustc-link-search=build");
+    let cpp_sources = vec![
+        "Cottonmodel.cpp",
+        "CottonPhenology.cpp",
+        "DailyClimate.cpp",
+        "FruitAbscission.cpp",
+        "GeneralFunctions.cpp",
+        "GettingInput_2.cpp",
+        "global.cpp",
+        "LeafAbscission.cpp",
+        "PlantAdjustment.cpp",
+        "PlantGrowth_1.cpp",
+        "PlantGrowth_2.cpp",
+        "PlantGrowth_3.cpp",
+        "PlantNitrogen.cpp",
+        "RootGrowth_1.cpp",
+        "RootGrowth_2.cpp",
+        "SoilNitrogen.cpp",
+        "SoilProcedures_1.cpp",
+        "SoilProcedures_2.cpp",
+        "SoilProcedures_3.cpp",
+        "SoilTemperature_1.cpp",
+        "SoilTemperature_2.cpp",
+        "SoilTemperature_3.cpp",
+    ];
+
+    let x = cpp_sources.clone();
+    cc::Build::new()
+        .cpp(true)
+        .files(cpp_sources)
+        .compile("cotton2k");
     println!("cargo:rustc-link-lib=cotton2k");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
+    for &s in x.iter() {
+        println!("cargo:rerun-if-changed={}", s);
+    }
     println!("cargo:rerun-if-changed=Cottonmodel.h");
     println!("cargo:rerun-if-changed=global.h");
     println!("cargo:rerun-if-changed=CottonSimulation.h");

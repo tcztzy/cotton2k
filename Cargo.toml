@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [build-dependencies]
 bindgen = "0.59.1"
+cc = { version = "1.0", features = ["parallel"] }
 
 [dependencies]
 chrono = "0.4"
