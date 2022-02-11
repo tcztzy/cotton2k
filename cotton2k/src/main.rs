@@ -5,7 +5,6 @@
 use pbr::ProgressBar;
 use std::path::Path;
 mod bindings;
-mod de;
 mod io;
 mod profile;
 use crate::bindings::{bEnd, C2KApp, DayFinish, DayStart, Daynum, WriteStateVariables};
