@@ -4,22 +4,8 @@ use crate::profile::{
     SoilHydraulic, SoilLayer, WeatherRecord,
 };
 use chrono::Datelike;
-use std::io::Read;
-use std::path::Path;
 
-pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
-    let mut file = std::fs::File::open(profile_path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    let mut profile: Profile = toml::from_str(&contents)?;
-    match profile.name {
-        None => {
-            profile.name = Some(String::from(
-                profile_path.file_stem().unwrap().to_str().unwrap(),
-            ));
-        }
-        Some(_) => {}
-    }
+pub fn read_profile(profile: Profile) -> Result<(), Box<dyn std::error::Error>> {
     unsafe {
         InitializeGlobal();
         light_intercept_method = profile.light_intercept_method;
@@ -149,12 +135,7 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
             }
         }
     }
-    let weather_path = if profile.weather_path.is_relative() {
-        profile_path.parent().unwrap().join(profile.weather_path)
-    } else {
-        profile.weather_path
-    };
-    let mut rdr = csv::Reader::from_path(weather_path)?;
+    let mut rdr = csv::Reader::from_path(profile.weather_path)?;
     let mut jdd: i32 = 0;
     for result in rdr.deserialize() {
         let record: WeatherRecord = result?;
@@ -297,7 +278,7 @@ pub fn read_profile(profile_path: &Path) -> Result<(), Box<dyn std::error::Error
             }
         }
     }
-    read_soil_impedance(&profile_path.parent().unwrap().join("soil_imp.csv"))?;
+    read_soil_impedance(profile.soil_impedance.as_ref().unwrap())?;
     unsafe {
         InitSoil(profile.soil_layers, profile.soil_hydraulic);
         if profile.plant_maps.is_some() {
@@ -535,7 +516,7 @@ unsafe fn InitializeGlobal()
     }
 }
 
-fn read_soil_impedance(path: &Path) -> Result<(), Box<dyn std::error::Error>>
+fn read_soil_impedance(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>>
 //     This function opens the soil root impedance data file and reads it.
 //  It is called from ReadInput(), and executed once at the beginning of the
 //  simulation. The variables read here are later used to compute soil impedance

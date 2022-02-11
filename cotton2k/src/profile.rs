@@ -95,6 +95,7 @@ pub struct Profile {
     pub co2_enrichment: Option<CO2Enrichment>,
     pub mulch: Option<Mulch>,
     pub weather_path: PathBuf,
+    pub soil_impedance: Option<PathBuf>,
     pub site: Site,
     pub cultivar_parameters: Vec<f64>,
     pub row_space: f64,

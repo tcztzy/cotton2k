@@ -6,14 +6,15 @@ use io::toml::read_profile;
 use pbr::ProgressBar;
 mod bindings;
 mod io;
-mod profile;
-use crate::bindings::{bEnd, C2KApp, DayFinish, DayStart, Daynum, WriteStateVariables};
-use crate::io::to_csv::*;
+pub mod profile;
+use bindings::{bEnd, C2KApp, DayFinish, DayStart, Daynum, WriteStateVariables};
+use io::to_csv::*;
+use profile::Profile;
 
-pub fn run(profile_path: &std::path::Path) {
+pub fn run(profile: Profile) -> Result<(), Box<dyn std::error::Error>> {
     let mut app: C2KApp = unsafe { C2KApp::new() };
-    read_profile(profile_path).expect("Error in read_profile");
-    output_file_headers().unwrap();
+    read_profile(profile).expect("Error in read_profile");
+    output_file_headers()?;
     unsafe {
         let count = (DayFinish - DayStart + 1) as u64;
         let mut pb = ProgressBar::new(count);
@@ -27,7 +28,7 @@ pub fn run(profile_path: &std::path::Path) {
             pb.inc();
             //     Execute simulation for this day.
             app.SimulateThisDay();
-            write_record().unwrap();
+            write_record()?;
             //     If there are pending plant adjustments, call
             //     WriteStateVariables() to write
             //  state variables of this day in a scratch file.
@@ -36,4 +37,5 @@ pub fn run(profile_path: &std::path::Path) {
             }
         } // end while
     }
+    Ok(())
 }
