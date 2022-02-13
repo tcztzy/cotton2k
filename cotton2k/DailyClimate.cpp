@@ -115,10 +115,6 @@ void DayClim()
         Clim[j].Rain = rainToday;
     }
     Scratch21[DayOfSimulation - 1].runoff = runoffToday;
-    //     Set period for detailed output of weather variables, if requested.
-    static int j1 = 0;
-    static int j2 = 0;
-    int jtout = 0;  // jtout > 0 if output is required
     //     Parameters for the daily wind function are now computed:
     //     Note:  SitePar[] are site specific parameters.
     double t1 = sunr + SitePar[1];  // the hour at which wind begins to blow
@@ -623,14 +619,8 @@ void EvapoTranspiration()
     ReferenceTransp = 0;
     Rn = 0;           // daily net radiation
     double rnet[24];  // hourly net radiation
-    double cltcoram =
-        CloudTypeCorr[iamhr];  //  cloud type correction during early morning
-    double cltcorpm =
-        CloudTypeCorr[ipmhr];  //  cloud type correction during late afternoon
-                               //
     for (int ihr = 0; ihr < 24; ihr++)  //  2nd hourly loop
     {
-        double ti = ihr + 0.5;  // middle of the hourly interval
         //      Compute saturated vapor pressure (svp), using function
         //      VaporPressure(). The actual vapor pressure (vp) is computed from
         //      svp and the
