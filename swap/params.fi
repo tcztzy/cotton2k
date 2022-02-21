@@ -1,0 +1,9 @@
+! File VersionID:
+!   $Id: params.fi 277 2016-01-28 20:48:55Z kroes006 $
+! ----------------------------------------------------------------------
+      real(8)   nihil
+      parameter (nihil=1.0d-10)
+      real(8)   small
+      parameter (small=1.0d-6)
+      real(8)   vlarge
+      parameter (vlarge=1.0d12)

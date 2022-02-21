@@ -7,3 +7,8 @@
 # Added by cargo
 
 /target
+*.o
+*.mod
+
+# Meson build
+/builddir/

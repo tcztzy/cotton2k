@@ -1,0 +1,33 @@
+=== Compiler_Settings_4.0.txt ================================================================
+
+==============================================================================
+This file is part of:
+
+program    :  SWAP
+version    :  4.0
+releasedate:  08-June-2017
+platform   :  windows7
+configuration: 2.0
+
+The executable Swap.exe was created using:
+
+Compiler: Intel(R) Visual Fortran Compiler XE 14.0.1.139 (IVF14).
+
+Compiler Command Line settings:
+/nologo /Od /fpscomp:general /fpe:0 /module:"Release\\" /object:"Release\\" 
+/traceback /check:bounds /check:uninit /libs:static /threads /c
+
+Linker Command Line settings:
+/OUT:"Release\swap4.exe" /INCREMENTAL:NO /NOLOGO 
+/MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" 
+/SUBSYSTEM:CONSOLE 
+
+The object-files of Swap were linked with the library of ttutil version 4.27.
+This ttutil-library was created using the settings:
+/nologo /Od /module:"Release\\" /object:"Release\\" /libs:static /threads /c
+
+J.G. (Joop) Kroes
+ALTERRA
+==============================================================================
+
+=== end of Compiler_Settings_4.0.txt  ========================================================

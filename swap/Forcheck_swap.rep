@@ -1,0 +1,872 @@
+      F O R C H E C K  (R)  V14.6.02
+Copyright (c) 1984-2015  Forcheck b.v. All rights reserved
+Licensed to: Alterra, Wageningen, nl
+Site license
+PC/Windows (+IDE), serial:  961330
+Maintenance has expired
+
+Date: 2017-06-12 Time: 12:23:46
+
+   -- compiler emulation file: C:\Program Files (x86)\Forcheck\share\intel11.cnf
+
+   -- INT compiler emulation
+
+   -- Fortran 95 syntax
+
+   -- environmental options: /BA/PW=100/PL=62
+
+   -- commandline argument: @C:\Users\kroes006\AppData\Local\Forcheck\fck.cmd
+
+Forcheck_swap.lst
+FCK-- existing file will replaced
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+/F03
+FCK-- Mind that Fortran 2003 syntax is not enabled
+
+   -- scanning input files
+
+      - file: src_Swap4\boundbottom.f90
+
+      - file: src_Swap4\boundtop.f90
+
+      - file: src_Swap4\calcgrid.f90
+
+      - file: src_Swap4\calcgwl.f90
+
+      - file: src_Swap4\checkmassbal.f90
+
+      - file: src_Swap4\convertdiscrvert.f90
+
+      - file: src_Swap4\cropgrowth.f90
+
+      - file: src_Swap4\divdra.f90
+
+      - file: src_Swap4\drainage.f90
+
+      - file: src_Swap4\fluxes.f90
+
+      - file: src_Swap4\frozencond.f90
+
+      - file: src_Swap4\functions.f90
+
+      - file: src_Swap4\headcalc.f90
+
+      - file: src_Swap4\hysteresis.f90
+
+      - file: src_Swap4\initialize.f90
+
+      - file: src_Swap4\integral.f90
+
+      - file: src_Swap4\irrigation.f90
+
+      - file: src_Swap4\macropore.f90
+
+      - file: src_Swap4\macroporeoutput.f90
+
+      - file: src_Swap4\macrorate.f90
+
+      - file: src_Swap4\management_soil.f90
+
+      - file: src_Swap4\meteoday.f90
+
+      - file: src_Swap4\meteodt.f90
+
+      - file: src_Swap4\oxygenstress.f90
+
+      - file: src_Swap4\penmon.f90
+
+      - file: src_Swap4\readmeteo.f90
+
+      - file: src_Swap4\readswap.f90
+
+      - file: src_Swap4\rootextraction.f90
+
+      - file: src_Swap4\sharedexchange.f90
+
+      - file: src_Swap4\sharedsimulation.f90
+
+      - file: src_Swap4\snow.f90
+
+      - file: src_Swap4\soilwater.f90
+
+      - file: src_Swap4\solute.f90
+
+      - file: src_Swap4\sptabulated.f90
+
+      - file: src_Swap4\surfacewater.f90
+
+      - file: src_Swap4\swap.f90
+
+      - file: src_Swap4\swapoutput.f90
+
+      - file: src_Swap4\temperature.f90
+
+      - file: src_Swap4\timecontrol.f90
+
+      - file: src_Swap4\tridag.f90
+
+      - file: src_Swap4\variables.f90
+
+      - file: src_Swap4\watstor.f90
+
+      - file: src_Swap4\wofost_soil_amendments.f90
+
+      - file: src_Swap4\wofost_soil_balancecheck.f90
+
+      - file: src_Swap4\wofost_soil_cropresidues.f90
+
+      - file: src_Swap4\wofost_soil_declarations.f90
+
+      - file: src_Swap4\wofost_soil_interface.f90
+
+      - file: src_Swap4\wofost_soil_orgmatn.f90
+
+      - file: src_Swap4\wofost_soil_parameters.f90
+
+      - file: src_Swap4\wofost_soil_rateconstants.f90
+
+      - file: src_Swap4\wofost_soil_watern.f90
+
+      - file: src_Swap4\wofostnut.f90
+
+   -- program unit analysis
+
+   -- file: src_Swap4\variables.f90
+
+      - program unit: VARIABLES
+
+   -- file: src_Swap4\boundbottom.f90
+
+      - program unit: BOUNDBOTTOM
+
+   -- file: src_Swap4\boundtop.f90
+
+      - program unit: BOUNDTOP
+
+      - program unit: PONDRUNOFF
+
+   -- file: src_Swap4\calcgrid.f90
+
+      - program unit: CALCGRID
+
+   -- file: src_Swap4\calcgwl.f90
+
+      - program unit: CALCGWL
+
+      - program unit: WATERTABLE
+
+      - program unit: LEVEL
+
+   -- file: src_Swap4\checkmassbal.f90
+
+      - program unit: CHECKMASSBAL
+
+   -- file: src_Swap4\convertdiscrvert.f90
+
+      - program unit: CONVERTDISCRVERT
+
+   -- file: src_Swap4\wofost_soil_interface.f90
+
+      - program unit: WOFOST_SOIL_INTERFACE
+
+   -- file: src_Swap4\cropgrowth.f90
+
+      - program unit: CROPGROWTH
+
+      - program unit: CROPFIXED
+
+      - program unit: CROPOUTPUT
+
+      - program unit: NOCROP
+
+      - program unit: WOFOST
+
+(file: src_Swap4\cropgrowth.f90, line: 534)
+  HARLOSNIT_DWRT
+**[323 I] variable unreferenced
+
+(file: src_Swap4\cropgrowth.f90, line: 532)
+  HARLOSORM_DWRT
+**[323 I] variable unreferenced
+
+      - program unit: GRASS
+
+      - program unit: WOFOSTARABLELANDGERM
+
+      - program unit: TOTASS
+
+      - program unit: ASSIM
+
+      - program unit: ASTRO
+
+      - program unit: OUTBALCROPN
+
+      - program unit: OUTBALCROPOM1
+
+      - program unit: OUTBALCROPOM2
+
+      - program unit: CHCKPRT
+
+      - program unit: CHCKCBL
+
+      - program unit: RELGRWT
+
+      - program unit: DEATHS
+
+      - program unit: DEATHA
+
+      - program unit: GLAI
+
+      - program unit: LVDTH
+
+      - program unit: LVSHFT
+
+      - program unit: LVWGLI
+
+      - program unit: MGTEMPRF
+
+      - program unit: MGPHOTOPRF
+
+      - program unit: SUMTTD
+
+   -- file: src_Swap4\divdra.f90
+
+      - program unit: DIVDRA
+
+      - program unit: LEV2COMP
+
+   -- file: src_Swap4\drainage.f90
+
+      - program unit: BOCODRB
+
+      - program unit: DRAINAGE
+
+      - program unit: BOCODRE
+
+   -- file: src_Swap4\fluxes.f90
+
+      - program unit: FLUXES
+
+   -- file: src_Swap4\frozencond.f90
+
+      - program unit: FROZENCOND
+
+      - program unit: FROZENBOUNDS
+
+   -- file: src_Swap4\functions.f90
+
+      - program unit: HCOMEAN
+
+      - program unit: WATCON
+
+      - program unit: MOISCAP
+
+      - program unit: DHCONDUC
+
+      - program unit: HCONDUC
+
+      - program unit: AFGEN
+
+      - program unit: PRHEAD
+
+      - program unit: STEPNR
+
+      - program unit: WLEVST
+
+      - program unit: SWSTLEV
+
+      - program unit: QHTAB
+
+      - program unit: RUNOFF
+
+      - program unit: INSW
+
+      - program unit: INTERPOL
+
+   -- file: src_Swap4\headcalc.f90
+
+      - program unit: HEADCALC
+
+      - program unit: DKMEAN
+
+   -- file: src_Swap4\hysteresis.f90
+
+      - program unit: HYSTERESIS
+
+   -- file: src_Swap4\initialize.f90
+
+      - program unit: INITIALIZE
+
+      - program unit: INITIALIZECROP
+
+   -- file: src_Swap4\integral.f90
+
+      - program unit: INTEGRAL
+
+   -- file: src_Swap4\irrigation.f90
+
+      - program unit: IRRIGATION
+
+   -- file: src_Swap4\macropore.f90
+
+      - program unit: MACROPORE
+
+      - program unit: MACROGEOM
+
+      - program unit: DEFINECOMPART
+
+      - program unit: DIAMPOLYG
+
+      - program unit: MACROINIT
+
+      - program unit: PARLANGE
+
+      - program unit: SHRINKPAR
+
+      - program unit: MACROINTEGRAL
+
+      - program unit: MACROSTATE
+
+      - program unit: SHRINK
+
+      - program unit: MACRORESET
+
+   -- file: src_Swap4\macroporeoutput.f90
+
+      - program unit: MACROPOREOUTPUT
+
+      - program unit: OUTBMA
+
+      - program unit: OUTSHRINKCHAR
+
+   -- file: src_Swap4\macrorate.f90
+
+      - program unit: MACRORATE
+
+      - program unit: SATFLOW
+
+      - program unit: ABSORPTION
+
+      - program unit: RAPIDDRAIN
+
+      - program unit: VOLUNDR
+
+   -- file: src_Swap4\wofost_soil_declarations.f90
+
+      - program unit: WOFOST_SOIL_DECLARATIONS
+
+   -- file: src_Swap4\management_soil.f90
+
+      - program unit: SOILMANAGEMENT
+
+(file: src_Swap4\management_soil.f90, line: 48)
+  FLNUPTJUVENIL
+**[323 I] variable unreferenced
+
+   -- file: src_Swap4\meteoday.f90
+
+      - program unit: METEODAY
+
+      - program unit: RESETMETFLX
+
+      - program unit: PROCESSMETEODAYS
+
+      - program unit: VONHHBRADEN
+
+      - program unit: GASH
+
+      - program unit: RUTTERVW
+
+      - program unit: MSW1EIC
+
+      - program unit: DIVINTERCEP
+
+      - program unit: REDUCEVA
+
+   -- file: src_Swap4\meteodt.f90
+
+      - program unit: METEODT
+
+      - program unit: PROCESSRAINEVENTS
+
+      - program unit: PROCESSMETEOTSTEPS
+
+      - program unit: ETSINE
+
+   -- file: src_Swap4\oxygenstress.f90
+
+      - program unit: OXYGENSTRESS
+
+      - program unit: GET_MAX_RESP_FACTOR
+
+      - program unit: TEMP_DEPENDENT_PARAMETERS
+
+      - program unit: FUNC
+
+      - program unit: FUNCTAB
+
+      - program unit: TRAPZD
+
+      - program unit: TRAPZDTAB
+
+      - program unit: WATERFILMTHICKNESS
+
+      - program unit: MICROBIAL_RESP
+
+      - program unit: MICRO
+
+      - program unit: MACRO
+
+      - program unit: SOLVE
+
+      - program unit: OXYGEN_DAT
+
+      - program unit: OXYGENREPROFUNCTION
+
+   -- file: src_Swap4\penmon.f90
+
+      - program unit: PENMON
+
+   -- file: src_Swap4\readmeteo.f90
+
+      - program unit: READMETEO
+
+      - program unit: READRAINEVENTS
+
+   -- file: src_Swap4\readswap.f90
+
+      - program unit: READSWAP
+
+      - program unit: RDDRB
+
+      - program unit: READCROPFIXED
+
+      - program unit: READWOFOST
+
+      - program unit: READGRASS
+
+      - program unit: RDDRE
+
+      - program unit: CHECKDATE
+
+   -- file: src_Swap4\rootextraction.f90
+
+      - program unit: ROOTEXTRACTION
+
+      - program unit: JONGVANLIER
+
+      - program unit: JONGVANLIERLOOP
+
+      - program unit: MATRICFLUX
+
+   -- file: src_Swap4\sharedexchange.f90
+
+      - program unit: FROMSWAP
+
+      - program unit: TOSWAP
+
+   -- file: src_Swap4\sharedsimulation.f90
+
+      - program unit: SHAREDSIMULATION
+
+   -- file: src_Swap4\snow.f90
+
+      - program unit: SNOW
+
+   -- file: src_Swap4\soilwater.f90
+
+      - program unit: SOILWATER
+
+      - program unit: SOILWATERSTATEVAR
+
+   -- file: src_Swap4\solute.f90
+
+      - program unit: SOLUTE
+
+      - program unit: AGETRACER
+
+   -- file: src_Swap4\sptabulated.f90
+
+      - program unit: EVALTABULATEDFUNCTION
+
+      - program unit: PREPROCTABULATEDFUNCTION
+
+      - program unit: DPCHIC
+
+      - program unit: DPCHCE
+
+      - program unit: DPCHCS
+
+(file: src_Swap4\sptabulated.f90, line: 883)
+**[ 96 W] obsolescent Fortran feature
+
+      - program unit: DPCHCI
+
+      - program unit: DPCHDF
+
+      - program unit: DPCHST
+
+      - program unit: DPCHSW
+
+   -- file: src_Swap4\surfacewater.f90
+
+      - program unit: SURFACEWATER
+
+      - program unit: WLEVBAL
+
+      - program unit: WBALLEV
+
+   -- file: src_Swap4\swap.f90
+
+      - program unit: SWAP
+
+   -- file: src_Swap4\swapoutput.f90
+
+      - program unit: SWAPOUTPUT
+
+      - program unit: SOILWATEROUTPUT
+
+      - program unit: OUTWBA
+
+      - program unit: OUTINC
+
+      - program unit: OUTSTR
+
+      - program unit: OUTVAP
+
+      - program unit: OUTROT
+
+      - program unit: OUTBAL
+
+      - program unit: OUTCROPFIXED
+
+      - program unit: OUTEND
+
+      - program unit: OUTWOFOST
+
+      - program unit: OUTGRASS
+
+      - program unit: SOLUTEOUTPUT
+
+      - program unit: OUTSBA
+
+      - program unit: AGETRACEROUTPUT
+
+      - program unit: OUTAGE
+
+      - program unit: TEMPERATUREOUTPUT
+
+      - program unit: OUTHEAPAR
+
+      - program unit: OUTSOILPHYS
+
+      - program unit: OUTTEM
+
+      - program unit: IRRIGATIONOUTPUT
+
+      - program unit: SNOWOUTPUT
+
+      - program unit: OUTBLC
+
+      - program unit: OUTAFO
+
+      - program unit: OUTAUN
+
+      - program unit: WRITESWAPOK
+
+      - program unit: SURFACEWATEROUTPUT
+
+      - program unit: OUTDRF
+
+      - program unit: OUTSWB
+
+      - program unit: WARN
+
+      - program unit: WRITEHEAD
+
+      - program unit: CLOSETEMPFIL
+
+      - program unit: CHECKDISCRVERT
+
+      - program unit: OUTPUTMODFLOW
+
+      - program unit: CAPRISEOUTPUT
+
+   -- file: src_Swap4\temperature.f90
+
+      - program unit: TEMPERATURE
+
+      - program unit: DEVRIES
+
+   -- file: src_Swap4\timecontrol.f90
+
+      - program unit: TIMECONTROL
+
+      - program unit: ITERTIME
+
+   -- file: src_Swap4\tridag.f90
+
+      - program unit: TRIDAG
+
+      - program unit: BANDEC
+
+      - program unit: BANBKS
+
+   -- file: src_Swap4\watstor.f90
+
+      - program unit: WATSTOR
+
+   -- file: src_Swap4\wofost_soil_amendments.f90
+
+      - program unit: WOFOST_SOILAMENDENTS
+
+   -- file: src_Swap4\wofost_soil_balancecheck.f90
+
+      - program unit: WOFOST_SOILBALANCECHECK
+
+   -- file: src_Swap4\wofost_soil_cropresidues.f90
+
+      - program unit: WOFOST_SOIL_CROPRESIDUES
+
+   -- file: src_Swap4\wofost_soil_orgmatn.f90
+
+      - program unit: WOFOST_SOILORGMATN
+
+   -- file: src_Swap4\wofost_soil_parameters.f90
+
+      - program unit: WOFOST_SOILPARAMETERS
+
+   -- file: src_Swap4\wofost_soil_rateconstants.f90
+
+      - program unit: WOFOST_SOILRATECONSTANTS
+
+      - program unit: FRED_T
+
+      - program unit: FRED_W
+
+   -- file: src_Swap4\wofost_soil_watern.f90
+
+      - program unit: WOFOST_SOILWATERN
+
+      - program unit: DETCOEF
+
+   -- file: src_Swap4\wofostnut.f90
+
+      - program unit: NUTRIE
+
+      - program unit: SUBPAR
+
+      - program unit: NOPTM
+
+      - program unit: NDEMND
+
+      - program unit: NTRLOC
+
+      - program unit: NTRANS
+
+      - program unit: RNUSUB
+
+      - program unit: RNLD
+
+      - program unit: NUTRINIT
+
+      - program unit: NUTREMRG
+
+      - program unit: NUTRSOW
+
+   -- reference structure
+
+   -- global program analysis
+
+(file: src_Swap4\functions.f90, line: 634)
+  EVALTABULATEDFUNCTION, referenced in PRHEAD, argument no  9 (XE)
+**[617 I] conditionally referenced argument is not defined
+          (The dummy argument is possibly referenced before defined)
+
+   -- program metrics:
+
+number of program units:                212
+number of (sub)modules:                   3
+number of subprograms:                  208
+number of source files:                  52
+number of include files:                  3
+
+   -- messages presented:
+
+      1x[ 96 W] obsolescent Fortran feature
+      3x[323 I] variable unreferenced
+      1x[617 I] conditionally referenced argument is not defined
+
+number of warnings:                       1
+number of informative messages:           4
+
+   -- internal table usage:
+
+number of metasymbols:               0
+number of symbols:                1294 (  1% of   200000)
+number of names:                  1289 (  1% of   200000)
+length of name list:             10488 (  0% of  8000000)
+construct level:                    22 (  0% of    10000)
+number of contexts:                  0 (  0% of    20000)
+number of contexts on stack:         0 (  0% of    20000)
+argument stack:                    376 (  9% of     4000)
+argument shape stack:                0 (  0% of     8000)
+argument vector value stack:         0 (  0% of     8000)
+argument key list:                   0 (  0% of    20000)
+number of references:             5082 (  1% of  1000000)
+maximal name length:                49
+
+Completed with warnings

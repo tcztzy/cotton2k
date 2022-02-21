@@ -1,0 +1,18 @@
+! File VersionID:
+!   $Id: description.fi 329 2017-06-12 08:09:14Z kroes006 $
+!   resource file with a description of the model
+!   Semantic Versioning, according to semver.org:
+!      Given a version number MAJOR.MINOR.PATCH, increment the:
+!         MAJOR version when you make incompatible API changes,
+!         MINOR version when you add functionality in a backwards-compatible manner, and
+!         PATCH version when you make backwards-compatible bug fixes.
+!   Version number assigned by the maintainer:
+      Version = '4.0.1'
+! -----------------------------------------------------------------------------
+! NameShort = 'SWAP'
+! NameLong = 'Soil-Water-Atmosphere-Plant'
+! Author = 'Wageningen-UR'
+! DescriptionShort = 'Dynamic simulation of the hydrological cycle in the upper part of the soil system'
+! Maintainer = 'Joop J.G. Kroes <joop.kroes@wur.nl>'
+! License = 'GPL Version 2 or later'
+! Built = 'Intel Fortran Compiler 14.0, Composer XE 2013 SP1'
