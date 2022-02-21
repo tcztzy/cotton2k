@@ -1,0 +1,59 @@
+Script for the Cultural Practices of GOSSYM
+@0
+Agricultural inputs data filename
+char(%8/)
+@1
+Description
+char(%8/)
+@2
+Date and time of simulation 
+char(%8/)
+@3
+Emergence date 
+date()
+@4
+Start date of simulation
+date()
+@5
+Stop date of simulation
+date(/)
+@6
+Latitude, degrees
+int()
+@7
+Plants per foot
+float(%7.2f)
+@8
+Skip row width, in.
+int()
+@9
+Row spacing, in.
+int()
+@10
+Total acreage
+int(%5d/)
+@11
+Dispersion routine trigger (0 = off; 1 = on)
+int()
+@12
+General in English units output flag
+int()
+@13
+Stress Factors output flag
+int()
+@14
+Partitioning/Weights output flag
+int()
+@15
+Water and ET output flag
+int()
+@16
+Weather in SI units output flag
+int()
+@17
+Weather in English units output flag
+int(%3d/)
+@18
+[CO2] in ppm (0=year based correction)
+int()
+@@

@@ -35,11 +35,12 @@ cd builddir
 meson compile
 ```
 
-## License
+## Licenses
 
-Cotton2K by Marani: GPLv2
-SWAP: GPLv2
-THIS REPO: GPLv3 or later
+* [Cotton2K by Marani: GPLv2](https://plantscience.agri.huji.ac.il/avishalom-marani/cotton2k_source)
+* [GOSSYM: CC0](https://data.nal.usda.gov/dataset/gossym)
+* [SWAP: GPLv2](https://www.swap.alterra.nl/DownloadRecent/swap4.0.1/Swap4.0.1.htm)
+* THIS REPO: GPLv3 or later
 
 ## Contributing
 
