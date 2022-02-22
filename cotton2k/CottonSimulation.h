@@ -47,7 +47,7 @@ void CottonPhenology();
 void CreateFirstSquare(double stemNRatio);
 // D
 void DayClim();
-double dayrad(double ti, double radsum, double sinb, double c11);
+double dayrad(double radsum, double sinb, double c11);
 double dayrh(double tt, double tdew);
 double DaysToFirstSquare();
 double daytmp(double ti);

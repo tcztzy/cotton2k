@@ -5,4 +5,4 @@ repos:
         name: Run test
         entry: cargo test
         language: rust
-        files: 'cotton2k/(?!src/main).+\.(rs|cpp|h)$'
+        files: 'cotton2k/(?!src/main).+\.rs$'

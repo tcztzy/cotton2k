@@ -31,7 +31,6 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -133,7 +132,7 @@ void DayClim()
         double sinb = sd + cd * cos(pi * (ti - SolarNoon) /
                                     12);  // sine of the solar elevation.
         //     Compute hourly global radiation, using function dayrad.
-        Radiation[ihr] = dayrad(ti, radsum, sinb, c11);
+        Radiation[ihr] = dayrad(radsum, sinb, c11);
         //     Compute hourly temperature, using function daytmp.
         AirTemp[ihr] = daytmp(ti);
         //     Compute hourly dew point temperature, using function tdewhour.
@@ -142,8 +141,8 @@ void DayClim()
         RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
         //     Compute hourly wind speed, using function daywnd, and daily sum
         //     of wind.
-        WindSpeed[ihr] =
-            daywnd(ti, GetFromClim(CLIMATE_METRIC_WIND, Daynum), t1, t2, t3, wnytf);
+        WindSpeed[ihr] = daywnd(ti, GetFromClim(CLIMATE_METRIC_WIND, Daynum),
+                                t1, t2, t3, wnytf);
     }
     //     Compute average daily temperature, using function
     //     AverageAirTemperatures.
@@ -213,7 +212,7 @@ void ComputeDayLength()
     suns = sunr + DayLength;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-double dayrad(double ti, double radsum, double sinb, double c11)
+double dayrad(double radsum, double sinb, double c11)
 //     Function dayrad() computes the hourly values of global radiation, in W
 //     m-2,
 //  using the measured daily total global radiation.
@@ -224,7 +223,6 @@ double dayrad(double ti, double radsum, double sinb, double c11)
 //  proportional to sinb * (1 + c11 * sinb), where the value of c11 is set as
 //  0.4 .
 //     Input arguments:
-//        ti - time of day (hours) at the middle of this hourly period.
 //        radsum - daily radiation integral.
 //        sinb - sine of the solar elevation.
 //        c11 - constant parameter (0.4).
@@ -325,22 +323,26 @@ double daytmp(double ti)
                                //
     if (ti <= sunr)            //  from midnight to sunrise
     {
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, im1) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
-              (1 +
-               (GetFromClim(CLIMATE_METRIC_TMAX, im1) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) / tkk);
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, im1) -
+               GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
+              (1 + (GetFromClim(CLIMATE_METRIC_TMAX, im1) -
+                    GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
+                       tkk);
         sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
         //  compute temperature at sunset:
         sst = GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - tkk / 2 +
               0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
-        HourlyTemperature =
-            (GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - sst * exp((DayLength - 24) / tcoef) +
-             (sst - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
-                 exp((suns - ti - 24) / tcoef)) /
-            (1 - exp((DayLength - 24) / tcoef));
+        HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, Daynum) -
+                             sst * exp((DayLength - 24) / tcoef) +
+                             (sst - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
+                                 exp((suns - ti - 24) / tcoef)) /
+                            (1 - exp((DayLength - 24) / tcoef));
     } else if (ti <= hmax)  //  from sunrise to hmax
     {
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
-              (1 + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+               GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) *
+              (1 + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+                    GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
                        tkk);
         st = sin(pi * (ti - SolarNoon + DayLength / 2.) /
                  (DayLength + 2 * SitePar[8]));
@@ -348,25 +350,30 @@ double daytmp(double ti)
                             0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
     } else if (ti <= suns)  //  from hmax to sunset
     {
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) *
-              (1 +
-               (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) / tkk);
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+               GetFromClim(CLIMATE_METRIC_TMIN, ip1)) *
+              (1 + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+                    GetFromClim(CLIMATE_METRIC_TMIN, ip1)) /
+                       tkk);
         st = sin(pi * (ti - SolarNoon + DayLength / 2) /
                  (DayLength + 2 * SitePar[8]));
         HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2 +
                             0.5 * sqrt(tkk * tkk + 4 * amp * tkk * st);
     } else  //  from sunset to midnight
     {
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) *
-              (1 +
-               (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) / tkk);
+        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+               GetFromClim(CLIMATE_METRIC_TMIN, ip1)) *
+              (1 + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+                    GetFromClim(CLIMATE_METRIC_TMIN, ip1)) /
+                       tkk);
         sts = sin(pi * DayLength / (DayLength + 2 * SitePar[8]));
         sst = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2 +
               0.5 * sqrt(tkk * tkk + 4 * amp * tkk * sts);
-        HourlyTemperature =
-            (GetFromClim(CLIMATE_METRIC_TMIN, ip1) - sst * exp((DayLength - 24) / tcoef) +
-             (sst - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) * exp((suns - ti) / tcoef)) /
-            (1. - exp((DayLength - 24) / tcoef));
+        HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, ip1) -
+                             sst * exp((DayLength - 24) / tcoef) +
+                             (sst - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) *
+                                 exp((suns - ti) / tcoef)) /
+                            (1. - exp((DayLength - 24) / tcoef));
     }
     return HourlyTemperature;
     //     Reference:
@@ -397,31 +404,37 @@ double tdewhour(double ti, double tt)
                                            //
     if (ti <= sunr)                        // from midnight to sunrise
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, im1) +
+        tdrange = SitePar[12] +
+                  SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, im1) +
                   SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
         if (tdrange < 0) tdrange = 0;
         tdmin = GetFromClim(CLIMATE_METRIC_TDEW, im1) - tdrange / 2;
-        tdewhr = tdmin +
-                 tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
-                     (GetFromClim(CLIMATE_METRIC_TMAX, im1) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
+        tdewhr = tdmin + tdrange *
+                             (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
+                             (GetFromClim(CLIMATE_METRIC_TMAX, im1) -
+                              GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
     } else if (ti <= hmax)  // from sunrise to hmax
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum) +
+        tdrange = SitePar[12] +
+                  SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum) +
                   SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
         if (tdrange < 0) tdrange = 0;
         tdmin = GetFromClim(CLIMATE_METRIC_TDEW, Daynum) - tdrange / 2;
-        tdewhr = tdmin + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
+        tdewhr = tdmin + tdrange *
+                             (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) /
                              (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
                               GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
     } else  //  from hmax to midnight
     {
-        tdrange = SitePar[12] + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum) +
+        tdrange = SitePar[12] +
+                  SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum) +
                   SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, ip1);
         if (tdrange < 0) tdrange = 0;
         tdmin = GetFromClim(CLIMATE_METRIC_TDEW, ip1) - tdrange / 2;
-        tdewhr = tdmin +
-                 tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) /
-                     (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1));
+        tdewhr = tdmin + tdrange *
+                             (tt - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) /
+                             (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) -
+                              GetFromClim(CLIMATE_METRIC_TMIN, ip1));
     }
     return tdewhr;
 }
@@ -443,7 +456,7 @@ double dayrh(double tt, double tdew)
 //
 {
     double td = fmin(tt, tdew);  // the dew point temperature (C), is assumed to
-                                // be tt if tt < tdew.
+                                 // be tt if tt < tdew.
     double esvp =
         VaporPressure(tt);  // the saturated vapor pressure in the air (mbar).
     double vpa =
@@ -617,8 +630,8 @@ void EvapoTranspiration()
     }  //   End of 1st hourly loop
        //     Zero some variables that will later be used for summation.
     ReferenceTransp = 0;
-    Rn = 0;           // daily net radiation
-    double rnet[24];  // hourly net radiation
+    Rn = 0;                             // daily net radiation
+    double rnet[24];                    // hourly net radiation
     for (int ihr = 0; ihr < 24; ihr++)  //  2nd hourly loop
     {
         //      Compute saturated vapor pressure (svp), using function
