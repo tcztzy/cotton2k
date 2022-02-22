@@ -1,4 +1,3 @@
-use cotton2k::{profile::Profile, run};
 use std::io::Read;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -10,7 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut file = std::fs::File::open(profile_path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    let mut profile: Profile = toml::from_str(&contents)?;
+    let mut profile: cotton2k::Profile = toml::from_str(&contents)?;
     match profile.name {
         None => {
             profile.name = Some(String::from(
@@ -26,5 +25,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         false => {}
     }
     profile.soil_impedance = Some(profile_path.parent().unwrap().join("soil_imp.csv"));
-    run(profile)
+    cotton2k::run(profile)
 }
