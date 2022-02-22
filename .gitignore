@@ -12,3 +12,6 @@
 
 # Meson build
 /builddir/
+
+# Pyenv
+.python-version
