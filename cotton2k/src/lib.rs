@@ -500,7 +500,7 @@ pub fn read_profile(profile: Profile) -> Result<(), Box<dyn std::error::Error>> 
         }
         unsafe {
             Clim[j as usize].nDay = jdd;
-            // convert \frac{MJ}{m^2} to langleys
+            // convert $MJ\ m^{-2}$ to langleys
             Clim[j as usize].Rad = record.irradiation * 23.884;
             Clim[j as usize].Tmax = record.tmax;
             Clim[j as usize].Tmin = record.tmin;
