@@ -25,5 +25,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         false => {}
     }
     profile.soil_impedance = Some(profile_path.parent().unwrap().join("soil_imp.csv"));
-    cotton2k::run(profile)
+    profile.run()
 }

@@ -5,4 +5,5 @@ repos:
         name: Run test
         entry: cargo test
         language: rust
-        always_run: true
+        files: \.(cpp|for|f90|h|rs)$
+        pass_filenames: false
