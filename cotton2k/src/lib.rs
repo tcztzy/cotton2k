@@ -1,4 +1,3 @@
-#![feature(panic_always_abort)]
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -584,50 +583,6 @@ unsafe fn InitializeGlobal()
     }
 }
 
-fn read_soil_impedance(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>>
-//     This function opens the soil root impedance data file and reads it.
-//  It is called from ReadInput(), and executed once at the beginning of the
-//  simulation. The variables read here are later used to compute soil impedance
-//  to root growth.
-//
-//     Global or file scope variables set:
-//        gh2oc, impede, inrim, ncurve, tstbd.
-//
-{
-    let mut rdr = csv::Reader::from_path(path)?;
-    unsafe {
-        ncurve = 0;
-        inrim = 0;
-    }
-    for result in rdr.records() {
-        let record = result?;
-        for (i, item) in record.iter().enumerate() {
-            if i == 0 {
-                let water_content: f64 = item.parse()?;
-                unsafe {
-                    gh2oc[ncurve as usize] = water_content;
-                }
-            } else {
-                unsafe {
-                    impede[i][ncurve as usize] = item.parse()?;
-                }
-            }
-        }
-        unsafe {
-            ncurve += 1;
-        }
-    }
-    for (j, header) in rdr.headers()?.iter().enumerate() {
-        if j > 0 {
-            unsafe {
-                for i in 0..ncurve as usize {
-                    tstbd[j - 1][i] = header.parse()?;
-                }
-            }
-        }
-    }
-    Ok(())
-}
 unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic)
 //     This function opens the initial soil data file and reads it. It is
 //     executed
@@ -1351,7 +1306,7 @@ impl Profile {
                 }
             }
         }
-        read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
+        self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
         unsafe {
             InitSoil(&self.soil_layers, &self.soil_hydraulic);
             if self.plant_maps.is_some() {
@@ -1361,6 +1316,56 @@ impl Profile {
             //     initialize some variables at the start of simulation.
             SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
             PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight() + ReserveC;
+        }
+        Ok(())
+    }
+
+    /// This function opens the soil root impedance data file and reads it. It is called from [Profile::initialize()]
+    /// and executed once at the beginning of the simulation. The variables read here are later used to compute soil
+    /// impedance to root growth.
+    ///
+    /// Global or file scope variables set:
+    /// * [gh2oc]
+    /// * [impede]
+    /// * [inrim]
+    /// * [ncurve]
+    /// * [tstbd].
+    ///
+    fn read_soil_impedance(
+        self: &Self,
+        path: &std::path::Path,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let mut rdr = csv::Reader::from_path(path)?;
+        unsafe {
+            ncurve = 0;
+            inrim = 0;
+        }
+        for result in rdr.records() {
+            let record = result?;
+            for (i, item) in record.iter().enumerate() {
+                if i == 0 {
+                    let water_content: f64 = item.parse()?;
+                    unsafe {
+                        gh2oc[ncurve as usize] = water_content;
+                    }
+                } else {
+                    unsafe {
+                        impede[i][ncurve as usize] = item.parse()?;
+                    }
+                }
+            }
+            unsafe {
+                ncurve += 1;
+            }
+        }
+        for (j, header) in rdr.headers()?.iter().enumerate() {
+            if j > 0 {
+                unsafe {
+                    for i in 0..ncurve as usize {
+                        tstbd[j - 1][i] = header.parse()?;
+                    }
+                }
+            }
         }
         Ok(())
     }
