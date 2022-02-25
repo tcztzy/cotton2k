@@ -852,26 +852,6 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     }
 }
 
-unsafe fn ReadPlantMapInput(plant_maps: &Vec<PlantMap>)
-//     This sunbroutine opens and reads an ascii file with input of
-//  observed plant map adjustment data. It is used to adjust the simulation.
-//     It is called by ReadInput().
-//     The following global variables are referenced:    iyear, PlantmapFileName
-//     The following global variables are set:
-//       MapDataGreenBollNum[], MapDataDate[], MapDataMainStemNodes[],
-//       MapDataPlantHeight[], MapDataSquareNum[], MapDataAllSiteNum[];
-//
-{
-    for (i, plant_map) in plant_maps.iter().enumerate() {
-        MapDataDate[i] = plant_map.date.ordinal() as i32; // day of year
-        MapDataPlantHeight[i] = plant_map.plant_height; // Plant height, cm
-        MapDataMainStemNodes[i] = plant_map.main_stem_nodes; // Number of mainstem nodes
-        MapDataSquareNum[i] = plant_map.number_of_squares; // Number of squares per plant
-        MapDataGreenBollNum[i] = plant_map.number_of_bolls; // Number of green bolls per plant
-        MapDataAllSiteNum[i] = plant_map.number_of_nodes; // Number of total sites per plant
-    }
-}
-
 impl Profile {
     /// Run this profile.
     pub fn run(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
@@ -1180,7 +1160,7 @@ impl Profile {
         unsafe {
             InitSoil(&self.soil_layers, &self.soil_hydraulic);
             if self.plant_maps.is_some() {
-                ReadPlantMapInput(self.plant_maps.as_ref().unwrap());
+                self.read_plant_map_input();
             }
             InitializeRootData();
             //     initialize some variables at the start of simulation.
@@ -1294,6 +1274,31 @@ impl Profile {
             }
         }
         Ok(())
+    }
+
+    /// This sunbroutine opens and reads an ascii file with input of observed plant map adjustment data. It is used to
+    /// adjust the simulation.
+    ///
+    /// It is called by [Profile::initialize()].
+    ///
+    /// The following global variables are set:
+    /// * [MapDataGreenBollNum]
+    /// * [MapDataDate],
+    /// * [MapDataMainStemNodes]
+    /// * [MapDataPlantHeight]
+    /// * [MapDataSquareNum]
+    /// * [MapDataAllSiteNum]
+    fn read_plant_map_input(&self) {
+        for (i, plant_map) in self.plant_maps.as_ref().unwrap().iter().enumerate() {
+            unsafe {
+                MapDataDate[i] = plant_map.date.ordinal() as i32; // day of year
+                MapDataPlantHeight[i] = plant_map.plant_height; // Plant height, cm
+                MapDataMainStemNodes[i] = plant_map.main_stem_nodes; // Number of mainstem nodes
+                MapDataSquareNum[i] = plant_map.number_of_squares; // Number of squares per plant
+                MapDataGreenBollNum[i] = plant_map.number_of_bolls; // Number of green bolls per plant
+                MapDataAllSiteNum[i] = plant_map.number_of_nodes; // Number of total sites per plant
+            }
+        }
     }
 
     fn write_record(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
@@ -1430,6 +1435,7 @@ impl Profile {
         }
         return true;
     }
+
     /// This function executes all the simulation computations in a day. It is called from [Profile::run()], and
     /// [Profile::adjust()].
     ///
@@ -1441,7 +1447,7 @@ impl Profile {
     /// * [SoilNitrogen()]
     /// * [SoilSum()]
     /// * [PhysiologicalAge()]
-    /// * [Pix()]
+    /// * [Profile::pix()]
     /// * [Defoliate()]
     /// * [Stress()]
     /// * [GetNetPhotosynthesis()]
@@ -1457,7 +1463,6 @@ impl Profile {
     /// * [DayEmerge]
     /// * [DayFinish]
     /// * [DayStart]
-    /// * [iyear]
     /// * [Kday]
     /// * [LastDayWeatherData]
     /// * [LeafAreaIndex]
@@ -1470,59 +1475,61 @@ impl Profile {
     /// * [DayOfSimulation]
     /// * [isw]
     /// * [Kday]
-    unsafe fn simulate_this_day(self: &Self) {
-        // Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
-        Daynum += 1;
-        DayOfSimulation = Daynum - DayStart + 1;
-        //    Compute Kday (days from emergence).
-        if DayEmerge <= 0 {
-            Kday = 0;
-        } else {
-            Kday = Daynum - DayEmerge + 1;
-        }
-        if Kday < 0 {
-            Kday = 0;
-        }
-        // The following functions are executed each day (also before emergence).
-        ColumnShading(); // computes light interception and soil shading.
-        DayClim(); // computes climate variables for today.
-        SoilTemperature(); // executes all modules of soil and canopy temperature.
-        SoilProcedures(); // executes all other soil processes.
-        SoilNitrogen(); // computes nitrogen transformations in the soil.
-        SoilSum(); // computes totals of water and N in the soil.
-
-        // The following is executed each day after plant emergence:
-        if Daynum >= DayEmerge && isw > 0 {
-            // If this day is after emergence, assign to isw the value of 2.
-            isw = 2;
-            DayInc = PhysiologicalAge(); // computes physiological age
-            if pixday[0] > 0 {
-                self.pix(); // effects of pix applied.
+    fn simulate_this_day(self: &Self) {
+        unsafe {
+            // Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
+            Daynum += 1;
+            DayOfSimulation = Daynum - DayStart + 1;
+            //    Compute Kday (days from emergence).
+            if DayEmerge <= 0 {
+                Kday = 0;
+            } else {
+                Kday = Daynum - DayEmerge + 1;
             }
-            Defoliate(); // effects of defoliants applied.
-            Stress(); // computes water stress factors.
-            GetNetPhotosynthesis(); // computes net photosynthesis.
-            PlantGrowth(); // executes all modules of plant growth.
-            CottonPhenology(); // executes all modules of plant phenology.
-            PlantNitrogen(); // computes plant nitrogen allocation.
-            CheckDryMatterBal(); // checks plant dry matter balance.
-
-            // If the relevant output flag is not zero, compute soil nitrogen balance and soil nitrogen averages by
-            // layer, and write this information to files.
-            if false {
-                PlantNitrogenBal(); // checks plant nitrogen balance.
-                SoilNitrogenBal(); // checks soil nitrogen balance.
-                SoilNitrogenAverage(); // computes average soil nitrogen by layers.
+            if Kday < 0 {
+                Kday = 0;
             }
-        }
-        // Check if the date to stop simulation has been reached, or if this is the last day with available weather
-        // data. Simulation will also stop when no leaves remain on the plant. bEnd = true indicates stopping this
-        // simulation.
-        if Daynum >= DayFinish
-            || Daynum >= LastDayWeatherData
-            || (Kday > 10 && LeafAreaIndex < 0.0002)
-        {
-            bEnd = true;
+            // The following functions are executed each day (also before emergence).
+            ColumnShading(); // computes light interception and soil shading.
+            DayClim(); // computes climate variables for today.
+            SoilTemperature(); // executes all modules of soil and canopy temperature.
+            SoilProcedures(); // executes all other soil processes.
+            SoilNitrogen(); // computes nitrogen transformations in the soil.
+            SoilSum(); // computes totals of water and N in the soil.
+
+            // The following is executed each day after plant emergence:
+            if Daynum >= DayEmerge && isw > 0 {
+                // If this day is after emergence, assign to isw the value of 2.
+                isw = 2;
+                DayInc = PhysiologicalAge(); // computes physiological age
+                if pixday[0] > 0 {
+                    self.pix(); // effects of pix applied.
+                }
+                Defoliate(); // effects of defoliants applied.
+                Stress(); // computes water stress factors.
+                GetNetPhotosynthesis(); // computes net photosynthesis.
+                PlantGrowth(); // executes all modules of plant growth.
+                CottonPhenology(); // executes all modules of plant phenology.
+                PlantNitrogen(); // computes plant nitrogen allocation.
+                CheckDryMatterBal(); // checks plant dry matter balance.
+
+                // If the relevant output flag is not zero, compute soil nitrogen balance and soil nitrogen averages by
+                // layer, and write this information to files.
+                if false {
+                    PlantNitrogenBal(); // checks plant nitrogen balance.
+                    SoilNitrogenBal(); // checks soil nitrogen balance.
+                    SoilNitrogenAverage(); // computes average soil nitrogen by layers.
+                }
+            }
+            // Check if the date to stop simulation has been reached, or if this is the last day with available weather
+            // data. Simulation will also stop when no leaves remain on the plant. bEnd = true indicates stopping this
+            // simulation.
+            if Daynum >= DayFinish
+                || Daynum >= LastDayWeatherData
+                || (Kday > 10 && LeafAreaIndex < 0.0002)
+            {
+                bEnd = true;
+            }
         }
     }
 
