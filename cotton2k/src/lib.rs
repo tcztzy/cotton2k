@@ -883,61 +883,6 @@ unsafe fn ReadPlantMapInput(plant_maps: &Vec<PlantMap>)
     }
 }
 
-pub fn output_file_headers() -> Result<(), Box<dyn std::error::Error>> {
-    let mut writer = csv::Writer::from_path("output.csv")?;
-    writer.write_field("date")?;
-    writer.write_field("light_interception")?;
-    writer.write_field("lint_yield")?;
-    writer.write_field("leaf_area_index")?;
-    writer.write_field("seed_cotton_yield")?;
-    writer.write_field("plant_height")?;
-    writer.write_field("main_stem_nodes")?;
-    writer.write_field("leaf_weight")?;
-    writer.write_field("petiole_weight")?;
-    writer.write_field("stem_weight")?;
-    writer.write_field("number_of_squares")?;
-    writer.write_field("number_of_green_bolls")?;
-    writer.write_field("number_of_open_bolls")?;
-    writer.write_field("square_weight")?;
-    writer.write_field("boll_weight")?;
-    writer.write_field("root_weight")?;
-    writer.write_field("plant_weight")?;
-    writer.write_field("swc0-10")?;
-    writer.write_field("swc0-20")?;
-    writer.write_field("swc0-30")?;
-    writer.write_field("swc1-10")?;
-    writer.write_field("swc1-20")?;
-    writer.write_field("swc1-30")?;
-    writer.write_field("swc2-10")?;
-    writer.write_field("swc2-20")?;
-    writer.write_field("swc2-30")?;
-    writer.write_field("swc3-10")?;
-    writer.write_field("swc3-20")?;
-    writer.write_field("swc3-30")?;
-    writer.write_field("lai00")?;
-    writer.write_field("lai01")?;
-    writer.write_field("lai02")?;
-    writer.write_field("lai03")?;
-    writer.write_field("lai04")?;
-    writer.write_field("lai05")?;
-    writer.write_field("lai06")?;
-    writer.write_field("lai07")?;
-    writer.write_field("lai08")?;
-    writer.write_field("lai09")?;
-    writer.write_field("lai10")?;
-    writer.write_field("lai11")?;
-    writer.write_field("lai12")?;
-    writer.write_field("lai13")?;
-    writer.write_field("lai14")?;
-    writer.write_field("lai15")?;
-    writer.write_field("lai16")?;
-    writer.write_field("lai17")?;
-    writer.write_field("lai18")?;
-    writer.write_field("lai19")?;
-    writer.write_record(None::<&[u8]>)?;
-    Ok(())
-}
-
 pub fn write_record() -> Result<(), Box<dyn std::error::Error>> {
     let mut f = std::fs::OpenOptions::new()
         .write(true)
@@ -1004,10 +949,11 @@ pub fn write_record() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 impl Profile {
+    /// Run this profile.
     pub fn run(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
         let mut app: C2KApp = unsafe { C2KApp::new() };
         self.initialize()?;
-        output_file_headers()?;
+        self.output_file_headers()?;
         unsafe {
             let count = (DayFinish - DayStart + 1) as u64;
             let mut pb = ProgressBar::new(count);
@@ -1317,6 +1263,61 @@ impl Profile {
             SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
             PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight() + ReserveC;
         }
+        Ok(())
+    }
+
+    pub fn output_file_headers(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
+        let mut writer = csv::Writer::from_path(format!("{}.csv", self.name.as_ref().unwrap()))?;
+        writer.write_field("date")?;
+        writer.write_field("light_interception")?;
+        writer.write_field("lint_yield")?;
+        writer.write_field("leaf_area_index")?;
+        writer.write_field("seed_cotton_yield")?;
+        writer.write_field("plant_height")?;
+        writer.write_field("main_stem_nodes")?;
+        writer.write_field("leaf_weight")?;
+        writer.write_field("petiole_weight")?;
+        writer.write_field("stem_weight")?;
+        writer.write_field("number_of_squares")?;
+        writer.write_field("number_of_green_bolls")?;
+        writer.write_field("number_of_open_bolls")?;
+        writer.write_field("square_weight")?;
+        writer.write_field("boll_weight")?;
+        writer.write_field("root_weight")?;
+        writer.write_field("plant_weight")?;
+        writer.write_field("swc0-10")?;
+        writer.write_field("swc0-20")?;
+        writer.write_field("swc0-30")?;
+        writer.write_field("swc1-10")?;
+        writer.write_field("swc1-20")?;
+        writer.write_field("swc1-30")?;
+        writer.write_field("swc2-10")?;
+        writer.write_field("swc2-20")?;
+        writer.write_field("swc2-30")?;
+        writer.write_field("swc3-10")?;
+        writer.write_field("swc3-20")?;
+        writer.write_field("swc3-30")?;
+        writer.write_field("lai00")?;
+        writer.write_field("lai01")?;
+        writer.write_field("lai02")?;
+        writer.write_field("lai03")?;
+        writer.write_field("lai04")?;
+        writer.write_field("lai05")?;
+        writer.write_field("lai06")?;
+        writer.write_field("lai07")?;
+        writer.write_field("lai08")?;
+        writer.write_field("lai09")?;
+        writer.write_field("lai10")?;
+        writer.write_field("lai11")?;
+        writer.write_field("lai12")?;
+        writer.write_field("lai13")?;
+        writer.write_field("lai14")?;
+        writer.write_field("lai15")?;
+        writer.write_field("lai16")?;
+        writer.write_field("lai17")?;
+        writer.write_field("lai18")?;
+        writer.write_field("lai19")?;
+        writer.write_record(None::<&[u8]>)?;
         Ok(())
     }
 
