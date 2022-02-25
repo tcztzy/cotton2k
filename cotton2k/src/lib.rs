@@ -598,16 +598,17 @@ unsafe fn InitializeGlobal() {
     }
 }
 
-unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic)
-//     This function opens the initial soil data file and reads it. It is
-//     executed
-//  once at the beginning of the simulation. It is called by ReadInput().
-//
-//     Global or file scope variables set:
-//        rnnh4, rnno3, oma, h2oint.
-{
-    let mut condfc = [0f64; 9]; // hydraulic conductivity at field capacity of horizon
-                                // layers, cm per day.
+/// This function opens the initial soil data file and reads it.
+/// It is executed once at the beginning of the simulation.
+/// It is called by [Profile::initialize()].
+///
+/// Global or file scope variables set:
+/// * [rnnh4]
+/// * [rnno3]
+/// * [oma]
+/// * [h2oint]
+unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic) {
+    let mut condfc = [0f64; 9]; // hydraulic conductivity at field capacity of horizon layers, cm per day.
     let mut h2oint = [0f64; 14]; // initial soil water content, percent of field capacity,
                                  // defined by input for consecutive 15 cm soil layers.
     let mut ldepth = [0f64; 9]; // depth from soil surface to the end of horizon layers, cm.
@@ -652,9 +653,7 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     if psidra > 0. {
         psidra = -psidra; // make sure it is negative
     }
-    //     -Reading next lines  -------------------------------------------
     for (il, layer) in soil_hydraulic.layers.iter().enumerate() {
-        //     First line for each layer
         ldepth[il] = layer.depth;
         condfc[il] = layer.hcfc;
         pclay[il] = layer.clay;
@@ -666,7 +665,7 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         SaturatedHydCond[il] = layer.hcs;
         BulkDensity[il] = layer.bulk_density;
     }
-    //
+
     let mut j = 0usize; // horizon number
     let mut sumdl = 0f64; // depth to the bottom this layer (cm);
     let rm = 2.65f64; // density of the solid fraction of the soil (g / cm3)
@@ -680,17 +679,15 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
             j += 1;
         }
         SoilHorizonNum[l] = j as i32;
-        //     bdl, thad, thts are defined for each soil layer, using the
-        //  respective input variables BulkDensity, airdr, thetas.
-        //      FieldCapacity, MaxWaterCapacity and thetar are computed for each
-        //      layer, as water
-        //  content (cm3 cm-3) of each layer corresponding to matric potentials
-        //  of psisfc (for field capacity), psidra (for free drainage) and -15
-        //  bars (for permanent wilting point), respectively, using function
-        //  qpsi.
-        //      pore space volume (PoreSpace) is also computed for each layer.
-        //      make sure that saturated water content is not more than pore
-        //      space.
+        // bdl, thad, thts are defined for each soil layer, using the respective input variables BulkDensity, airdr,
+        // thetas.
+        //
+        // FieldCapacity, MaxWaterCapacity and thetar are computed for each layer, as water content ($cm^3\ cm^{-3}$)
+        // of each layer corresponding to matric potentials of psisfc (for field capacity), psidra (for free drainage)
+        // and -15 bars (for permanent wilting point), respectively, using function qpsi.
+        //
+        // pore space volume (PoreSpace) is also computed for each layer. make sure that saturated water content is not
+        // more than pore space.
         bdl[l] = BulkDensity[j];
         PoreSpace[l] = 1. - BulkDensity[j] / rm;
         if thetas[j] > PoreSpace[l] {
@@ -701,34 +698,30 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         FieldCapacity[l] = qpsi(psisfc, thad[l], thts[l], alpha[j], beta[j]);
         MaxWaterCapacity[l] = qpsi(psidra, thad[l], thts[l], alpha[j], beta[j]);
         thetar[l] = qpsi(-15., thad[l], thts[l], alpha[j], beta[j]);
-        //     When the saturated hydraulic conductivity (SaturatedHydCond) is
-        //     not
-        //  given, it is computed from the hydraulic conductivity at field
-        //  capacity (condfc), using the wcond function.
+        // When the saturated hydraulic conductivity (SaturatedHydCond) is not given, it is computed from the hydraulic
+        // conductivity at field capacity (condfc), using the wcond function.
         if SaturatedHydCond[j] <= 0. {
             SaturatedHydCond[j] =
                 condfc[j] / wcond(FieldCapacity[l], thad[l], thts[l], beta[j], 1., 1.);
         }
     }
-    //     Loop for all soil layers. Compute depth from soil surface to
-    //  the end of each layer (sumdl).
+    // Loop for all soil layers. Compute depth from soil surface to the end of each layer (sumdl).
     sumdl = 0.;
     for l in 0..nl as usize {
         sumdl += dl[l];
-        //     At start of simulation compute estimated movable fraction of
-        //  nitrates in each soil layer, following the work of:
+        // At start of simulation compute estimated movable fraction of nitrates in each soil layer, following the work
+        // of:
         //     Bowen, W.T., Jones, J.W., Carsky, R.J., and Quintana, J.O. 1993.
         //  Evaluation of the nitrogen submodel of CERES-maize following legume
         //  green manure incorporation. Agron. J. 85:153-159.
-        //     The fraction of total nitrate in a layer that is in solution and
-        //  can move from one layer to the next with the downward flow of
-        //  water, FLOWNO3[l], is a function of the adsorption coefficient,
-        //  soil bulk density, and the volumetric soil water content at the
-        //  drained upper limit.
-        //     Adsorption coefficients are assumed to be 0.0 up to 30 cm depth,
-        //  and deeper than 30 cm - 0.2, 0.4, 0.8, 1.0, 1.2, and 1.6 for each
-        //  successive 15 cm layer.
-        // Adsorption coefficient
+        //
+        // The fraction of total nitrate in a layer that is in solution and can move from one layer to the next with
+        // the downward flow of water, FLOWNO3[l], is a function of the adsorption coefficient, soil bulk density, and
+        // the volumetric soil water content at the drained upper limit.
+        //
+        // Adsorption coefficients are assumed to be 0.0 up to 30 cm depth, and deeper than 30 cm - 0.2, 0.4, 0.8, 1.0,
+        // 1.2, and 1.6 for each successive 15 cm layer.
+
         let coeff: f64 = if sumdl <= 30. {
             0.
         } else if sumdl <= 45. {
@@ -747,11 +740,9 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
             1.6
         };
         NO3FlowFraction[l] = 1. / (1. + coeff * bdl[l] / MaxWaterCapacity[l]);
-        //     Determine the corresponding 15 cm layer of the input file.
-        //     Compute the initial volumetric water content (VolWaterContent) of
-        //     each
-        //  layer, and check that it will not be less than the air-dry value or
-        //  more than pore space volume.
+        // Determine the corresponding 15 cm layer of the input file. Compute the initial volumetric water content
+        // (VolWaterContent) of each layer, and check that it will not be less than the air-dry value or more than pore
+        // space volume.
         j = ((sumdl - 1.) / 15.).floor() as usize;
         if j > 13 {
             j = 13;
@@ -764,10 +755,8 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         if VolWaterContent[l][0] > PoreSpace[l] {
             VolWaterContent[l][0] = PoreSpace[l];
         }
-        //     Initial values of ammonium N (rnnh4, VolNh4NContent) and nitrate
-        //     N
-        //  (rnno3, VolNo3NContent) are converted from kgs per ha to mg / cm3
-        //  for each soil layer, after checking for minimal amounts.
+        // Initial values of ammonium N (rnnh4, VolNh4NContent) and nitrate N (rnno3, VolNo3NContent) are converted
+        // from kgs per ha to $mg\ cm^{-3}$ for each soil layer, after checking for minimal amounts.
         if rnno3[j] < 2.0 {
             rnno3[j] = 2.0;
         }
@@ -778,22 +767,19 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         VolNh4NContent[l][0] = rnnh4[j] / 15. * 0.01;
         // organic matter in mg / cm3 units.
         let om = (oma[j] / 100.) * bdl[l] * 1000.;
-        //     potom is the proportion of readily mineralizable om. it is a
-        //  function of soil depth (sumdl, in cm), modified from GOSSYM (where
-        //  it probably includes the 0.4 factor for organic C in om).
+        // potom is the proportion of readily mineralizable om. it is a function of soil depth (sumdl, in cm), modified
+        // from GOSSYM (where it probably includes the 0.4 factor for organic C in om).
         let mut potom = 0.15125 - 0.02878 * sumdl.ln();
         if potom < 0. {
             potom = 0.;
         }
-        //     FreshOrganicMatter is the readily mineralizable organic matter (=
-        //     "fresh organic
-        //  matter" in CERES models). HumusOrganicMatter is the remaining
-        //  organic matter, which is mineralized very slowly.
+        // FreshOrganicMatter is the readily mineralizable organic matter (="fresh organic matter" in CERES models).
+        // HumusOrganicMatter is the remaining organic matter, which is mineralized very slowly.
         FreshOrganicMatter[l][0] = om * potom;
         HumusOrganicMatter[l][0] = om * (1. - potom);
     }
-    //     Since the initial value has been set for the first column only
-    //  in each layer, these values are now assigned to all the other columns.
+    // Since the initial value has been set for the first column only in each layer, these values are now assigned to
+    // all the other columns.
     for l in 0..nl as usize {
         for k in 1..nk as usize {
             VolWaterContent[l][k] = VolWaterContent[l][0];
@@ -803,15 +789,13 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
             HumusOrganicMatter[l][k] = HumusOrganicMatter[l][0];
         }
     }
-    //     Total amounts of water (InitialTotalSoilWater), nitrate N
-    //     (TotalSoilNo3N), ammonium
-    //  N (TotalSoilNh4N), and urea N (TotalSoilUreaN) are computed for the
-    //  whole slab.
+    // Total amounts of water (InitialTotalSoilWater), nitrate N (TotalSoilNo3N), ammonium N (TotalSoilNh4N), and urea
+    // N (TotalSoilUreaN) are computed for the whole slab.
     InitialTotalSoilWater = 0.;
     TotalSoilNo3N = 0.;
     TotalSoilNh4N = 0.;
     TotalSoilUreaN = 0.;
-    //
+
     for l in 0..nl as usize {
         for k in 0..nk as usize {
             InitialTotalSoilWater += VolWaterContent[l][k] * dl[l] * wk[k];
@@ -820,7 +804,7 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
             VolUreaNContent[l][k] = 0.;
         }
     }
-    //     InitialTotalSoilWater is converted from cm3 per slab to mm.
+    // InitialTotalSoilWater is converted from cm3 per slab to mm.
     InitialTotalSoilWater = 10. * InitialTotalSoilWater / RowSpace;
     let bsand = 20f64; // heat conductivity of sand and silt (mcal cm-1 s-1 C-1).
     let bclay = 7f64; // heat conductivity of clay (mcal cm-1 s-1 C-1).
@@ -830,46 +814,42 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     let corg = 0.6f64; // heat capacity of the organic fraction of the soil.
     let ga = 0.144f64; // shape factor for air in pore spaces.
     let ro = 1.3f64; // specific weight of organic fraction of soil.
-                     //     Compute aggregation factors:
 
+    // Compute aggregation factors:
     dsand = form(bsand, ckw, ga); // aggregation factor for sand in water
     dclay = form(bclay, ckw, ga); // aggregation factor for clay in water
     let dsandair: f64 = form(bsand, cka, ga); // aggregation factor for sand in air
     let dclayair: f64 = form(bclay, cka, ga); // aggregation factor for clay in air
-                                              //     Loop over all soil layers, and define indices for some soil arrays.
+
+    // Loop over all soil layers, and define indices for some soil arrays.
 
     sumdl = 0.; // sum of depth of consecutive soil layers.
 
     for l in 0..nl as usize {
         sumdl += dl[l];
-        let mut j = ((sumdl + 14.) / 15.).floor() as usize - 1; //  layer definition for oma
+        let mut j = ((sumdl + 14.) / 15.).floor() as usize - 1; // layer definition for oma
         if j > 13 {
             j = 13;
         }
-        //     Using the values of the clay and organic matter percentages in
-        //     the soil, compute
-        //   mineral and organic fractions of the soil, by weight and by volume.
+        // Using the values of the clay and organic matter percentages in the soil, compute mineral and organic
+        // fractions of the soil, by weight and by volume.
         let mmo = oma[j] / 100.; // organic matter fraction of dry soil (by weight).
         let mm = 1. - mmo; // mineral fraction of dry soil (by weight).
-                           //     MarginalWaterContent is set as a function of the sand fraction of
-                           //     the soil.
+
+        // MarginalWaterContent is set as a function of the sand fraction of the soil.
         let ra = (mmo / ro) / (mm / rm); // volume ratio of organic to mineral soil fractions.
 
         let i1 = SoilHorizonNum[l] as usize; //  layer definition as in soil hydrology input file.
 
-        //     The volume fractions of clay (ClayVolumeFraction) and of sand
-        //     plus silt (SandVolumeFraction), are calculated.
+        // The volume fractions of clay (ClayVolumeFraction) and of sand plus silt (SandVolumeFraction), are calculated
         MarginalWaterContent[l] = 0.1 - 0.07 * psand[i1] / 100.;
         let xo = (1. - PoreSpace[l]) * ra / (1. + ra); // organic fraction of soil (by volume).
         let xm = (1. - PoreSpace[l]) - xo; // mineral fraction of soil (by volume).
         ClayVolumeFraction[l] = pclay[i1] * xm / mm / 100.;
         SandVolumeFraction[l] = 1. - PoreSpace[l] - ClayVolumeFraction[l];
-        //     Heat capacity of the solid soil fractions (mineral + organic, by
-        //     volume )
+        // Heat capacity of the solid soil fractions (mineral + organic, by volume )
         HeatCapacitySoilSolid[l] = xm * cmin + xo * corg;
-        //     The heat conductivity of dry soil (HeatCondDrySoil) is computed
-        //     using the
-        //  procedure suggested by De Vries.
+        // The heat conductivity of dry soil (HeatCondDrySoil) is computed using the procedure suggested by De Vries.
         HeatCondDrySoil[l] = 1.25
             * (PoreSpace[l] * cka
                 + dsandair * bsand * SandVolumeFraction[l]
