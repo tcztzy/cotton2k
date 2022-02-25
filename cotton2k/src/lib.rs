@@ -922,7 +922,8 @@ impl Profile {
                 None => {}
             }
             if self.emerge_date.is_none() {
-                // If the date of emergence has not been given, emergence will be simulated by the model. In this case, isw = 0, and a check is performed to make sure that the date of planting has been given.
+                // If the date of emergence has not been given, emergence will be simulated by the model. In this case,
+                // isw = 0, and a check is performed to make sure that the date of planting has been given.
                 if self.plant_date.is_none() {
                     panic!(
                         "one of planting date or emergence date must be given in the profile file!!"
@@ -989,9 +990,10 @@ impl Profile {
             };
             // PlantRowLocation is the distance from edge of slab, cm, of the plant row.
             PlantRowLocation = RowSpace / 2.;
-            // Compute PlantPopulation - number of plants per hectar, and
-            // PerPlantArea - the average surface area per plant, in dm2, and
-            // the empirical plant density factor (DensityFactor). This factor will be used to express the effect of plant density on some plant growth rate functions.  Note that DensityFactor =1 for 5 plants per sq m (or 50000 per ha).
+            // Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per
+            // plant, in $dm^2$, and the empirical plant density factor (DensityFactor). This factor will be used to
+            // express the effect of plant density on some plant growth rate functions.
+            // Note that DensityFactor =1 for 5 plants per sq m (or 50000 per ha).
             PlantPopulation = self.plants_per_meter / RowSpace * 1000000.;
             PerPlantArea = 1000000. / PlantPopulation;
             DensityFactor = (VarPar[1] * (5. - PlantPopulation / 10000.)).exp();
@@ -1361,7 +1363,8 @@ impl Profile {
     }
 
     /// This function is called from [Profile::run()].
-    /// It checks if plant adjustment data are available for this day and calls the necessary functions to compute adjustment.
+    /// It checks if plant adjustment data are available for this day and calls the necessary functions to compute
+    /// adjustment.
     ///
     /// It calls:
     /// * [PlantAdjustments()]
@@ -1392,12 +1395,14 @@ impl Profile {
         for i in 0..30 {
             unsafe {
                 if Daynum == MapDataDate[i] {
-                    // Compute NumAdjustDays, the number of days for retroactive adjustment. This can not be more than 12 days, limited by the date of the previous adjustment.
+                    // Compute NumAdjustDays, the number of days for retroactive adjustment. This can not be more than
+                    // 12 days, limited by the date of the previous adjustment.
                     NumAdjustDays = Kday - self.kprevadj as i32;
                     if NumAdjustDays > 12 {
                         NumAdjustDays = 12;
                     }
-                    // Loop for six possible adjustments. On each iteration call first PlantAdjustments(), which will assign true to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
+                    // Loop for six possible adjustments. On each iteration call first PlantAdjustments(), which will
+                    // assign true to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
                     for jj in 0..5 as usize {
                         PlantAdjustments(i as i32, jj as i32);
                         //     If adjustment is necessary, rerun the simulation for the
@@ -1413,7 +1418,8 @@ impl Profile {
                             }
                         }
                     }
-                    // After finishing this adjustment date, set kprevadj (date of previous adjustment, to be used for next adjustment), and assign zero to the present msadte, and to array nadj[].
+                    // After finishing this adjustment date, set kprevadj (date of previous adjustment, to be used for
+                    // next adjustment), and assign zero to the present msadte, and to array nadj[].
                     self.kprevadj = (MapDataDate[i] - DayEmerge + 1) as u32;
                     MapDataDate[i] = 0;
                     for jj in 0..5 {
@@ -1424,7 +1430,9 @@ impl Profile {
         }
         return true;
     }
-    /// This function executes all the simulation computations in a day. It is called from [Profile::run()], and [Profile::adjust()].
+    /// This function executes all the simulation computations in a day. It is called from [Profile::run()], and
+    /// [Profile::adjust()].
+    ///
     /// It calls the following functions:
     /// * [ColumnShading()]
     /// * [DayClim()]
@@ -1499,15 +1507,17 @@ impl Profile {
             PlantNitrogen(); // computes plant nitrogen allocation.
             CheckDryMatterBal(); // checks plant dry matter balance.
 
-            // If the relevant output flag is not zero, compute soil nitrogen balance and soil nitrogen averages by layer, and write this information to files.
+            // If the relevant output flag is not zero, compute soil nitrogen balance and soil nitrogen averages by
+            // layer, and write this information to files.
             if false {
                 PlantNitrogenBal(); // checks plant nitrogen balance.
                 SoilNitrogenBal(); // checks soil nitrogen balance.
                 SoilNitrogenAverage(); // computes average soil nitrogen by layers.
             }
         }
-        // Check if the date to stop simulation has been reached, or if this is the last day with available weather data.
-        // Simulation will also stop when no leaves remain on the plant. bEnd = true  indicates stopping this simulation.
+        // Check if the date to stop simulation has been reached, or if this is the last day with available weather
+        // data. Simulation will also stop when no leaves remain on the plant. bEnd = true indicates stopping this
+        // simulation.
         if Daynum >= DayFinish
             || Daynum >= LastDayWeatherData
             || (Kday > 10 && LeafAreaIndex < 0.0002)
