@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 #include "CottonSimulation.h"
-#include "Cottonmodel.h"
 #include "GeneralFunctions.h"
 
 #ifdef _DEBUG

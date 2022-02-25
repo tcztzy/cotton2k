@@ -4,17 +4,6 @@ The code of program CottonModel includes the following files and functions:
 Package A.
 Genaral Framework:
 
-    File CottonModel.cpp 
-       Class C2KApp:
-          Message map and constructor
-          InitInstance()
-          ExitInstance()
-          GetJobFile()
-          GetProfilesList()
-          DailySimulation()
-          DoAdjustments()
-          SimulateThisDay()
-
     File GeneralFunctions.cpp (functions which are used in several places in the model)       Date conversions - 
       Date conversions - 
           LeapYear()
@@ -36,7 +25,6 @@ Genaral Framework:
           GoBack()
 
     Header files:
-          CottonModel.h   
           CottonSimulation.h   
           GeneralFunctions.h   
           Global.h   

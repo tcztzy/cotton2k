@@ -5,7 +5,6 @@ use std::path::PathBuf;
 
 fn main() {
     let cpp_sources = vec![
-        "Cottonmodel.cpp",
         "CottonPhenology.cpp",
         "DailyClimate.cpp",
         "FruitAbscission.cpp",
@@ -40,7 +39,6 @@ fn main() {
     for &s in x.iter() {
         println!("cargo:rerun-if-changed={}", s);
     }
-    println!("cargo:rerun-if-changed=Cottonmodel.h");
     println!("cargo:rerun-if-changed=global.h");
     println!("cargo:rerun-if-changed=CottonSimulation.h");
     println!("cargo:rerun-if-changed=GeneralFunctions.h");
@@ -53,7 +51,6 @@ fn main() {
         // bindings for.
         .clang_arg("-xc++")
         .clang_arg("-std=c++14")
-        .header("Cottonmodel.h")
         .header("global.h")
         .header("CottonSimulation.h")
         .header("GeneralFunctions.h")
