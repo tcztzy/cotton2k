@@ -1489,7 +1489,7 @@ impl Profile {
             isw = 2;
             DayInc = PhysiologicalAge(); // computes physiological age
             if pixday[0] > 0 {
-                Pix(); // effects of pix applied.
+                self.pix(); // effects of pix applied.
             }
             Defoliate(); // effects of defoliants applied.
             Stress(); // computes water stress factors.
@@ -1515,4 +1515,9 @@ impl Profile {
             bEnd = true;
         }
     }
+
+    /// effects of pix applied.
+    ///
+    /// TODO
+    fn pix(self: &Self) {}
 }

@@ -6,7 +6,6 @@
 // ActualLeafGrowth()
 // AddPlantHeight()
 // CheckDryMatterBal()
-// *** Pix() *** to be added
 // Defoliate()
 //
 #include <math.h>
@@ -508,11 +507,6 @@ void CheckDryMatterBal()
            RootWeightLoss;
     //     chobal is whole plant C balance. It should be zero.
     double chobal = avail - used;
-}
-//////////////////////////
-void Pix()  // effects of pix applied.
-{
-    //  ***   to be added   ***
 }
 //////////////////////////
 void Defoliate()

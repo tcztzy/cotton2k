@@ -182,7 +182,6 @@ The Cotton Plant:
           ActualLeafGrowth()
           AddPlantHeight()
           CheckDryMatterBal()
-          *** Pix() *** To be added
           Defoliate()
 
     File CottonPhenology.cpp 
