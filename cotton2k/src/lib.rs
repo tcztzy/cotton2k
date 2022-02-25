@@ -1,3 +1,7 @@
+//! # Cotton2K
+//!
+//! Simulation model for cotton
+
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -171,9 +175,12 @@ pub struct CO2Enrichment {
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub enum MulchType {
     NoMulch,
-    All,                  // plastic layer on all soil surface
-    OneColumnLeftAtSide, // plastic layer on all soil surface except one column at each side of the plant row.
-    TwoColumnsLeftAtSide, // plastic layer on all soil surface except two columns at each side of the plant row.
+    /// plastic layer on all soil surface
+    All,
+    /// plastic layer on all soil surface except one column at each side of the plant row.
+    OneColumnLeftAtSide,
+    /// plastic layer on all soil surface except two columns at each side of the plant row.
+    TwoColumnsLeftAtSide,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -398,11 +405,13 @@ fn slab_horizontal_location(distance: f64) -> usize {
     }
     result
 }
-unsafe fn InitializeGlobal()
-//     This function initializes many "global" variables at the start of a
-//  simulation. It is called from ReadInput(). Note that initialization
-//  is needed at the start of each simulation (NOT at start of the run).
-{
+
+/// This function initializes many "global" variables at the start of a simulation.
+/// 
+/// It is called from [Profile::initialize()].
+/// 
+/// NOTE: that initialization is needed at the start of each simulation (NOT at start of the run).
+unsafe fn InitializeGlobal() {
     AbscisedFruitSites = 0.;
     AbscisedLeafWeight = 0.;
     addwtbl = 0.;
@@ -883,71 +892,6 @@ unsafe fn ReadPlantMapInput(plant_maps: &Vec<PlantMap>)
     }
 }
 
-pub fn write_record() -> Result<(), Box<dyn std::error::Error>> {
-    let mut f = std::fs::OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open("output.csv")?;
-    let mut record = vec![
-        unsafe {
-            chrono::NaiveDate::from_yo(iyear, Daynum as u32)
-                .format("%F")
-                .to_string()
-        },
-        unsafe { LightIntercept.to_string() },
-        unsafe { LintYield.to_string() },
-        unsafe { LeafAreaIndex.to_string() },
-        unsafe {
-            ((CottonWeightOpenBolls + CottonWeightGreenBolls) * PlantPopulation / 1000.).to_string()
-        },
-        unsafe { PlantHeight.to_string() },
-        unsafe { NumFruitBranches[0].to_string() },
-        unsafe { TotalLeafWeight().to_string() },
-        unsafe { TotalPetioleWeight.to_string() },
-        unsafe { TotalStemWeight.to_string() },
-        unsafe { NumSquares.to_string() },
-        unsafe { NumGreenBolls.to_string() },
-        unsafe { NumOpenBolls.to_string() },
-        unsafe { TotalSquareWeight.to_string() },
-        unsafe {
-            (CottonWeightOpenBolls
-                + CottonWeightGreenBolls
-                + BurrWeightGreenBolls
-                + BurrWeightOpenBolls)
-                .to_string()
-        },
-        unsafe { TotalRootWeight.to_string() },
-        unsafe {
-            (if Daynum >= DayEmerge && isw > 0 {
-                PlantWeight - TotalRootWeight
-            } else {
-                0.
-            } * PlantPopulation
-                / 1000.)
-                .to_string()
-        },
-        unsafe { VolWaterContent[3][0].to_string() },
-        unsafe { VolWaterContent[5][0].to_string() },
-        unsafe { VolWaterContent[7][0].to_string() },
-        unsafe { VolWaterContent[3][4].to_string() },
-        unsafe { VolWaterContent[5][4].to_string() },
-        unsafe { VolWaterContent[7][4].to_string() },
-        unsafe { VolWaterContent[3][8].to_string() },
-        unsafe { VolWaterContent[5][8].to_string() },
-        unsafe { VolWaterContent[7][8].to_string() },
-        unsafe { VolWaterContent[3][12].to_string() },
-        unsafe { VolWaterContent[5][12].to_string() },
-        unsafe { VolWaterContent[7][12].to_string() },
-    ];
-    unsafe {
-        for v in &LeafAreaIndexes {
-            record.push(v.to_string());
-        }
-    }
-    writeln!(f, "{}", record.join(","))?;
-    Ok(())
-}
-
 impl Profile {
     /// Run this profile.
     pub fn run(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
@@ -960,21 +904,19 @@ impl Profile {
             // Do daily simulations
             Daynum = DayStart - 1;
             bEnd = false;
-            //     Start the daily loop. If variable bEnd has been assigned a value
-            //  of true end simulation.
+            // Start the daily loop. If variable bEnd has been assigned a value of true end simulation.
             while !bEnd {
                 let bAdjustToDo = app.DoAdjustments();
                 pb.inc();
-                //     Execute simulation for this day.
+                // Execute simulation for this day.
                 app.SimulateThisDay();
-                write_record()?;
-                //     If there are pending plant adjustments, call
-                //     WriteStateVariables() to write
-                //  state variables of this day in a scratch file.
+                self.write_record()?;
+                // If there are pending plant adjustments, call WriteStateVariables() to write
+                // state variables of this day in a scratch file.
                 if bAdjustToDo {
                     WriteStateVariables(true);
                 }
-            } // end while
+            }
         }
         Ok(())
     }
@@ -1266,7 +1208,8 @@ impl Profile {
         Ok(())
     }
 
-    pub fn output_file_headers(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
+    /// Write the output CSV file's header.
+    fn output_file_headers(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
         let mut writer = csv::Writer::from_path(format!("{}.csv", self.name.as_ref().unwrap()))?;
         writer.write_field("date")?;
         writer.write_field("light_interception")?;
@@ -1368,6 +1311,72 @@ impl Profile {
                 }
             }
         }
+        Ok(())
+    }
+
+    fn write_record(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
+        let mut f = std::fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open("output.csv")?;
+        let mut record = vec![
+            unsafe {
+                chrono::NaiveDate::from_yo(iyear, Daynum as u32)
+                    .format("%F")
+                    .to_string()
+            },
+            unsafe { LightIntercept.to_string() },
+            unsafe { LintYield.to_string() },
+            unsafe { LeafAreaIndex.to_string() },
+            unsafe {
+                ((CottonWeightOpenBolls + CottonWeightGreenBolls) * PlantPopulation / 1000.)
+                    .to_string()
+            },
+            unsafe { PlantHeight.to_string() },
+            unsafe { NumFruitBranches[0].to_string() },
+            unsafe { TotalLeafWeight().to_string() },
+            unsafe { TotalPetioleWeight.to_string() },
+            unsafe { TotalStemWeight.to_string() },
+            unsafe { NumSquares.to_string() },
+            unsafe { NumGreenBolls.to_string() },
+            unsafe { NumOpenBolls.to_string() },
+            unsafe { TotalSquareWeight.to_string() },
+            unsafe {
+                (CottonWeightOpenBolls
+                    + CottonWeightGreenBolls
+                    + BurrWeightGreenBolls
+                    + BurrWeightOpenBolls)
+                    .to_string()
+            },
+            unsafe { TotalRootWeight.to_string() },
+            unsafe {
+                (if Daynum >= DayEmerge && isw > 0 {
+                    PlantWeight - TotalRootWeight
+                } else {
+                    0.
+                } * PlantPopulation
+                    / 1000.)
+                    .to_string()
+            },
+            unsafe { VolWaterContent[3][0].to_string() },
+            unsafe { VolWaterContent[5][0].to_string() },
+            unsafe { VolWaterContent[7][0].to_string() },
+            unsafe { VolWaterContent[3][4].to_string() },
+            unsafe { VolWaterContent[5][4].to_string() },
+            unsafe { VolWaterContent[7][4].to_string() },
+            unsafe { VolWaterContent[3][8].to_string() },
+            unsafe { VolWaterContent[5][8].to_string() },
+            unsafe { VolWaterContent[7][8].to_string() },
+            unsafe { VolWaterContent[3][12].to_string() },
+            unsafe { VolWaterContent[5][12].to_string() },
+            unsafe { VolWaterContent[7][12].to_string() },
+        ];
+        unsafe {
+            for v in &LeafAreaIndexes {
+                record.push(v.to_string());
+            }
+        }
+        writeln!(f, "{}", record.join(","))?;
         Ok(())
     }
 }
