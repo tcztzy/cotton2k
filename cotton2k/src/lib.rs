@@ -601,12 +601,6 @@ unsafe fn InitializeGlobal() {
 /// This function opens the initial soil data file and reads it.
 /// It is executed once at the beginning of the simulation.
 /// It is called by [Profile::initialize()].
-///
-/// Global or file scope variables set:
-/// * [rnnh4]
-/// * [rnno3]
-/// * [oma]
-/// * [h2oint]
 unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic) {
     let mut condfc = [0f64; 9]; // hydraulic conductivity at field capacity of horizon layers, cm per day.
     let mut h2oint = [0f64; 14]; // initial soil water content, percent of field capacity,
