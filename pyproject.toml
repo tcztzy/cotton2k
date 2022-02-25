@@ -3,7 +3,7 @@ name = "cotton2k"
 version = "5.0.0a8"
 
 [project.optional-dependencies]
-docs = ["sphinx", "sphinxcontrib-bibtex"]
+docs = ["myst-parser", "sphinx", "sphinxcontrib-bibtex"]
 
 [build-system]
 requires = ["pyproject-toml == 0.10.0"]
