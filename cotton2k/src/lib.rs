@@ -122,6 +122,9 @@ pub struct Profile {
     /// day after emergence of the previous plant map adjustment.
     #[serde(skip)]
     kprevadj: u32,
+    /// maximum leaf area index.
+    #[serde(skip)]
+    lmax: f64,
 }
 
 #[cfg(target_os = "linux")]
@@ -167,6 +170,9 @@ pub struct Profile {
     /// day after emergence of the previous plant map adjustment.
     #[serde(skip)]
     kprevadj: u32,
+    /// maximum leaf area index.
+    #[serde(skip)]
+    lmax: f64,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -1475,7 +1481,7 @@ impl Profile {
     /// * [DayOfSimulation]
     /// * [isw]
     /// * [Kday]
-    fn simulate_this_day(self: &Self) {
+    fn simulate_this_day(&mut self) {
         unsafe {
             // Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
             Daynum += 1;
@@ -1490,7 +1496,7 @@ impl Profile {
                 Kday = 0;
             }
             // The following functions are executed each day (also before emergence).
-            ColumnShading(); // computes light interception and soil shading.
+            self.column_shading(); // computes light interception and soil shading.
             DayClim(); // computes climate variables for today.
             SoilTemperature(); // executes all modules of soil and canopy temperature.
             SoilProcedures(); // executes all other soil processes.
@@ -1529,6 +1535,150 @@ impl Profile {
                 || (Kday > 10 && LeafAreaIndex < 0.0002)
             {
                 bEnd = true;
+            }
+        }
+    }
+
+    /// This function computes light interception by crop canopy and shading of soil columns by the plants. It is called from SimulateThisDay().
+    ///
+    /// The following global variables are referenced here:
+    /// * [DayEmerge]
+    /// * [Daynum]
+    /// * [isw]
+    /// * [LeafAreaIndex]
+    /// * [PlantHeight]
+    /// * [PlantRowColumn]
+    /// * [nk]
+    /// * [RowSpace]
+    ///
+    /// The following global variables are set here:
+    /// * [LightIntercept]
+    /// * [rracol]
+    unsafe fn column_shading(&mut self) {
+        // Before emergence: no light interception and no shading.
+        // LightIntercept is assigned zero, and the rracol array is assigned 1.
+        if Daynum < DayEmerge || isw <= 0 || DayEmerge <= 0 {
+            LightIntercept = 0.;
+            for k in 0..nk as usize {
+                rracol[k] = 1.;
+            }
+            return;
+        }
+        // Compute the maximum leaf area index until this day (lmax).
+        if Daynum <= DayEmerge {
+            self.lmax = 0.;
+        } else if LeafAreaIndex > self.lmax {
+            self.lmax = LeafAreaIndex;
+        }
+        // Light interception is computed by two methods:
+        //
+        // 1. It is assumed to be proportional to the ratio of plant height to
+        //    row spacing.
+
+        // light interception computed from plant height.
+        let zint = 1.0756 * PlantHeight / RowSpace;
+        if light_intercept_method == LIGHT_INTERCEPT_METHOD_LIGHT_INTERCEPT_METHOD_LAYERED {
+            for i in 0..20 {
+                LeafArea[i] = 0.;
+                AverageLeafAge[i] = 0.;
+            }
+            for i in 0..9 {
+                LeafArea[NodeLayerPreFru[i] as usize] += LeafAreaPreFru[i];
+                AverageLeafAge[NodeLayerPreFru[i] as usize] +=
+                    LeafAreaPreFru[i] * AgeOfPreFruNode[i];
+            }
+            for k in 0..NumVegBranches as usize {
+                for l in 0..NumFruitBranches[k] as usize {
+                    LeafArea[NodeLayer[k][l] as usize] += LeafAreaMainStem[k][l];
+                    AverageLeafAge[NodeLayer[k][l] as usize] +=
+                        LeafAreaMainStem[k][l] * LeafAge[k][l][0];
+                    for m in 0..NumNodes[k][l] as usize {
+                        LeafArea[NodeLayer[k][l] as usize] += LeafAreaNodes[k][l][m];
+                        AverageLeafAge[NodeLayer[k][l] as usize] +=
+                            LeafAreaNodes[k][l][m] * LeafAge[k][l][m];
+                    }
+                }
+            }
+            if FirstSquare <= 0 {
+                LeafArea[0] += 0.20 * 0.6;
+            }
+            let mut light_through = 0.;
+            for i in 0..20 {
+                AverageLeafAge[i] /= LeafArea[i];
+                LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
+                LightInterceptLayer[i] =
+                    1. - (light_intercept_parameters[i] * LeafAreaIndexes[i]).exp();
+                light_through += light_intercept_parameters[i] * LeafAreaIndexes[i];
+            }
+            LightIntercept = 1. - light_through.exp();
+        } else if light_intercept_method == LIGHT_INTERCEPT_METHOD_LIGHT_INTERCEPT_METHOD_FRY1980 {
+            LightIntercept = 0.39 * LeafAreaIndex.powf(0.68);
+        } else {
+            // 2. It is computed as a function of leaf area index. If LeafAreaIndex is not greater than 0.5 lfint is a
+            //    linear function of it.
+
+            // light interception computed from leaf area index.
+            let lfint = if LeafAreaIndex <= 0.5 {
+                0.80 * LeafAreaIndex
+            } else {
+                // If the leaf area index is greater than 0.5, lfint is computed as an exponential function of
+                // LeafAreaIndex.
+                1. - (0.07 - 1.16 * LeafAreaIndex).exp()
+            };
+            // If lfint is greater then zint, LightIntercept is their average value.
+            // Otherwise, if the LeafAreaIndex is decreasing, it is lfint. Else it is zint.
+            LightIntercept = if lfint > zint {
+                0.5 * (zint + lfint)
+            } else if LeafAreaIndex < self.lmax {
+                lfint
+            } else {
+                zint
+            };
+        }
+        // The value of LightIntercept is between zero and one.
+        if LightIntercept < 0. {
+            LightIntercept = 0.;
+        }
+        if LightIntercept > 1. {
+            LightIntercept = 1.;
+        }
+        // Loop of soil columns.
+        let mut sw = 0.; // sum of column widths
+        let mut sw0: f64 = 0.; // sum of column widths up to location of plant row.
+        let mut sw1: f64; // distance from middle of a column to the plant row, cm.
+        let mut j;
+        let mut k0; // number of columns from plant row location.
+        for k in 0..nk as usize {
+            if k <= PlantRowColumn as usize {
+                // When the column is on the left of the plant row.
+                j = (PlantRowColumn - k as i32) as usize;
+                sw += wk[j];
+                sw0 = sw;
+                sw1 = sw - wk[j] / 2.;
+                k0 = j;
+            } else {
+                // When the column is on the right of the plant row.
+                sw += wk[k];
+                sw1 = sw - sw0 - wk[k] / 2.;
+                k0 = k;
+            }
+
+            // Relative shading is computed as a function of sw1 and plant height, modified by LightIntercept.
+            // [rracol] is the fraction of radiation received by a soil column. Iys minimum value is 0.05 .
+
+            // relative shading of a soil column.
+            let shade = if sw1 >= PlantHeight {
+                0.
+            } else {
+                let mut result = 1. - (sw1 / PlantHeight).powi(2);
+                if LightIntercept < zint && LeafAreaIndex < self.lmax {
+                    result *= LightIntercept / zint;
+                }
+                result
+            };
+            rracol[k0] = 1. - shade;
+            if rracol[k0] < 0.05 {
+                rracol[k0] = 0.05;
             }
         }
     }

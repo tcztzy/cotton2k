@@ -1,6 +1,5 @@
 // File SoilTemperature_1.cpp
 //   List of functions in this file:
-//       ColumnShading()
 //       SoilTemperature()
 //       SoilTemperatureInit()
 //

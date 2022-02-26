@@ -112,7 +112,6 @@ Package E.
 Soil Temperature:
 
     File SoilTemperature_1.cpp
-          ColumnShading()
           SoilTemperature()
           SoilTemperatureInit()
 

@@ -37,7 +37,6 @@ void CheckDryMatterBal();
 double clcor(int ihr, double ck, double isrhr, double coszhr);
 double clearskyemiss(double vp, double tk);
 double cloudcov(double radihr, double isr, double cosz);
-void ColumnShading();
 void ComputeActualRootGrowth(double sumpdr);
 void ComputeDayLength();
 void ComputeIrrigation();
