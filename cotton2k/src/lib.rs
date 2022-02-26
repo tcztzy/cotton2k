@@ -1446,7 +1446,7 @@ impl Profile {
     /// [Profile::adjust()].
     ///
     /// It calls the following functions:
-    /// * [ColumnShading()]
+    /// * [Profile::column_shading()]
     /// * [DayClim()]
     /// * [SoilTemperature()]
     /// * [SoilProcedures()]
