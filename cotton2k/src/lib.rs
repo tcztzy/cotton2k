@@ -125,6 +125,12 @@ pub struct Profile {
     /// maximum leaf area index.
     #[serde(skip)]
     lmax: f64,
+    /// The effect of moisture stress on the photosynthetic rate
+    #[serde(skip)]
+    ptsred: f64,
+    /// correction factor for ambient CO2 in air
+    #[serde(skip)]
+    ambient_CO2_factor: f64,
 }
 
 #[cfg(target_os = "linux")]
@@ -173,6 +179,12 @@ pub struct Profile {
     /// maximum leaf area index.
     #[serde(skip)]
     lmax: f64,
+    /// The effect of moisture stress on the photosynthetic rate
+    #[serde(skip)]
+    ptsred: f64,
+    /// correction factor for ambient CO2 in air
+    #[serde(skip)]
+    ambient_CO2_factor: f64,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -858,6 +870,10 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     }
 }
 
+fn drop_leaf_age(lai: f64) -> f64 {
+    return 140. - 1. * lai;
+}
+
 impl Profile {
     /// Run this profile.
     pub fn run(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
@@ -1455,8 +1471,8 @@ impl Profile {
     /// * [PhysiologicalAge()]
     /// * [Profile::pix()]
     /// * [Defoliate()]
-    /// * [Stress()]
-    /// * [GetNetPhotosynthesis()]
+    /// * [Profile::stress()]
+    /// * [Profile::get_net_photosynthesis()]
     /// * [PlantGrowth()]
     /// * [CottonPhenology()]
     /// * [PlantNitrogen()]
@@ -1512,8 +1528,8 @@ impl Profile {
                     self.pix(); // effects of pix applied.
                 }
                 Defoliate(); // effects of defoliants applied.
-                Stress(); // computes water stress factors.
-                GetNetPhotosynthesis(); // computes net photosynthesis.
+                self.stress(); // computes water stress factors.
+                self.get_net_photosynthesis(); // computes net photosynthesis.
                 PlantGrowth(); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 PlantNitrogen(); // computes plant nitrogen allocation.
@@ -1687,4 +1703,249 @@ impl Profile {
     ///
     /// TODO
     fn pix(self: &Self) {}
+
+    /// This function simulates the net photosynthesis of cotton  plants. It is called daily by
+    /// [Profile::simulate_this_day()]. This is essentially the routine of GOSSYM with minor changes.
+    ///
+    /// The following global and file scope variables are referenced here:
+    /// * [BurrWeightOpenBolls]
+    /// * [CO2EnrichmentFactor]
+    /// * [CottonWeightOpenBolls]
+    /// * [DayLength]
+    /// * [Daynum]
+    /// * [DayEmerge]
+    /// * [DayEndCO2]
+    /// * [DayStartCO2]
+    /// * [DayTimeTemp]
+    /// * [iyear]
+    /// * [Kday]
+    /// * [LeafNConc]
+    /// * [LightIntercept]
+    /// * [PerPlantArea]
+    /// * [PlantWeight]
+    /// * [Profile::ptsred]
+    /// * [StemWeight]
+    /// * [TotalLeafWeight()]
+    ///
+    /// The following global variables are set here:
+    /// * [bEnd]
+    /// * [CumNetPhotosynth]
+    /// * [NetPhotosynthesis]
+    ///
+    /// References:
+    ///
+    /// * Baker et. al. (1972). Simulation of Growth and Yield in Cotton: I. Gross photosynthesis, respiration and
+    ///   growth. Crop Sci. 12:431-435.
+    /// * Harper et. al. (1973) Carbon dioxide and the photosynthesis of field crops. A metered carbon dioxide release
+    ///   in cotton under field conditions.  Agron. J. 65:7-11.
+    /// * Baker (1965) Effects of certain environmental factors on net assimilation in cotton. Crop Sci. 5:53-56 (Fig 5).
+    unsafe fn get_net_photosynthesis(&mut self) {
+        //  constants:
+        const gsubr: f64 = 0.375; // the growth resiration factor.
+        const rsubo: f64 = 0.0032; // maintenance respiration factor.
+        const vpnet: [f64; 4] = [1.30, 0.034, 0.010, 0.32];
+        const co2parm: [f64; 45] =
+            // parameters used to correct photosynthesis for ambient CO2 concentration.
+            [
+                1.0235, 1.0264, 1.0285, 1.0321, 1.0335, 1.0353, 1.0385, 1.0403, 1.0431, 1.0485,
+                1.0538, 1.0595, 1.0627, 1.0663, 1.0716, 1.0752, 1.0784, 1.0823, 1.0880, 1.0923,
+                1.0968, 1.1019, 1.1087, 1.1172, 1.1208, 1.1243, 1.1311, 1.1379, 1.1435, 1.1490,
+                1.1545, 1.1601, 1.1656, 1.1712, 1.1767, 1.1823, 1.1878, 1.1934, 1.1990, 1.2045,
+                1.2101, 1.2156, 1.2212, 1.2267, 1.2323,
+            ];
+        // Note: co2parm is for icrease in ambient CO2 concentration changes from 1959 (308 ppm).
+        // The first 28 values (up to 1987) are from GOSSYM. The other values (up to 2004) are derived from data of the
+        // Carbon Dioxide Information Analysis Center (CDIAC).
+        //
+        // Exit the function and end simulation if there are no leaves.
+
+        if TotalLeafWeight() <= 0. {
+            bEnd = true;
+            return;
+        }
+        // If this is the first time the function is executed, get the ambient CO2 correction.
+
+        if Daynum <= DayEmerge {
+            let co2indx = self.start_date.year() - 1960; // count of years from 1960.
+            self.ambient_CO2_factor = if co2indx < 0 {
+                1.
+            } else if co2indx < 45 {
+                // for years 1960 to 2004
+                co2parm[co2indx as usize]
+            } else {
+                // extrapolate for years after 2004
+                1.2323 + 0.004864 * (co2indx - 45) as f64
+            }
+        }
+        // Get the CO2 correction factor (pnetcor) for photosynthesis, using AmbientCO2Factor and a factor that may be
+        // variety specific (vpnet[0]).
+        // CO2EnrichmentFactor is used for CO2 enrichment simulations, between DOY dates DayStartCO2 and DayEndCO2.
+
+        // correction factor for gross photosynthesis.
+        let pnetcor = self.ambient_CO2_factor
+            * vpnet[0]
+            * if Daynum >= DayStartCO2 && Daynum <= DayEndCO2 && CO2EnrichmentFactor > 1. {
+                CO2EnrichmentFactor
+            } else {
+                1.
+            };
+        // Compute ptnfac, the effect of leaf N concentration on photosynthesis, using an empirical relationship.
+        // correction factor for low nitrogen content in leaves.
+        let mut ptnfac =
+            vpnet[3] + (LeafNConc - vpnet[2]) * (1. - vpnet[3]) / (vpnet[1] - vpnet[2]);
+        if ptnfac > 1. {
+            ptnfac = 1.;
+        }
+        if ptnfac < vpnet[3] {
+            ptnfac = vpnet[3];
+        }
+        // Convert the average daily short wave radiation from langley per day, to Watts per square meter (wattsm).
+        // average daily global radiation, W m-2.
+        let wattsm =
+            GetFromClim(CLIMATE_METRIC_CLIMATE_METRIC_IRRD, Daynum) * 697.45 / (DayLength * 60.);
+        // Compute pstand as an empirical function of wattsm (based on Baker et al., 1972).
+        // gross photosynthesis for a non-stressed full canopy.
+        let pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136);
+        // Convert it to gross photosynthesis per plant (pplant), using PerPlantArea and corrections for light
+        // interception by canopy, ambient CO2 concentration, water stress and low N in the leaves.
+        let mut pplant = 0.;
+        // actual gross photosynthetic rate, g per plant per day.
+        if light_intercept_method == LIGHT_INTERCEPT_METHOD_LIGHT_INTERCEPT_METHOD_LAYERED {
+            let mut pstand_remain = pstand;
+            for i in (0..20).rev() {
+                if pstand_remain <= 0. {
+                    break;
+                }
+                if LightInterceptLayer[i] <= 0. {
+                    continue;
+                }
+                let page = 1. - (AverageLeafAge[i] / drop_leaf_age(LeafArea[i])).powi(2);
+                let mut pplant_inc = 0.001
+                    * pstand_remain
+                    * LightInterceptLayer[i]
+                    * PerPlantArea
+                    * self.ptsred
+                    * pnetcor
+                    * ptnfac
+                    * page;
+                if pplant_inc > pstand_remain {
+                    pplant_inc = pstand_remain;
+                }
+                pplant += pplant_inc;
+                pstand_remain -= pplant_inc;
+            }
+        } else {
+            pplant =
+                0.001 * pstand * LightIntercept * PerPlantArea * self.ptsred * pnetcor * ptnfac;
+        };
+        // Compute the photorespiration factor (rsubl) as a linear function af average day time temperature.
+        let rsubl = 0.0032125 + 0.0066875 * DayTimeTemp; // photorespiration factor.
+
+        // Photorespiration (lytres) is computed as a proportion of gross photosynthetic rate.
+        let lytres = rsubl * pplant; // rate of photorespiration, g per plant per day.
+
+        // Old stems are those more than voldstm = 32 calendar days old.
+        // Maintenance respiration is computed on the basis of plant dry weight, minus the old stems and the dry tissue
+        // of opened bolls.
+        let voldstm = 32;
+        let kkday = Kday - voldstm; // day of least recent actively growing stems.
+
+        // weight of old stems.
+        let oldstmwt = if kkday < 1 {
+            0.
+        } else {
+            StemWeight[kkday as usize]
+        };
+        // maintenance respiration, g per plant per day.
+        let bmain = (PlantWeight - CottonWeightOpenBolls - BurrWeightOpenBolls - oldstmwt) * rsubo;
+        // Net photosynthesis is computed by substracting photo-respiration and maintenance respiration from the gross
+        // rate of photosynthesis. To avoid computational problems, make sure that pts is positive and non-zero.
+        // intermediate computation of NetPhotosynthesis.
+        let mut pts = pplant - lytres - bmain;
+        if pts < 0.00001 {
+            pts = 0.00001;
+        }
+        // The growth respiration (gsubr) supplies energy for converting the supplied carbohydrates to plant tissue dry
+        // matter. 0.68182 converts CO2 to CH2O. NetPhotosynthesis is the computed net photosynthesis, in g per plant
+        // per day.
+
+        NetPhotosynthesis = pts / (1. + gsubr) * 0.68182;
+        // CumNetPhotosynth is the cumulative value of NetPhotosynthesis, from day of emergence.
+        CumNetPhotosynth += NetPhotosynthesis;
+    }
+
+    /// This function computes the water stress variables affecting the cotton plants.
+    /// It is called by [Profile::simulate_this_day()] and calls [LeafWaterPotential()].
+    ///
+    /// The following global variables are referenced here:
+    /// * [Kday]
+    /// * [LwpMin]
+    /// * [LwpMax]
+    /// The following global variables are set here:
+    /// * [AverageLwp]
+    /// * [AverageLwpMin]
+    /// * [LwpMinX]
+    /// * [LwpX]
+    /// * [Profile::ptsred]
+    /// * [WaterStress]
+    /// * [WaterStressStem]
+    unsafe fn stress(&mut self) {
+        // The following constant parameters are used:
+        const vstrs: [f64; 9] = [-3.0, 3.229, 1.907, 0.321, -0.10, 1.230, 0.340, 0.30, 0.05];
+        // Call LeafWaterPotential() to compute leaf water potentials.
+        LeafWaterPotential();
+        // The running averages, for the last three days, are computed: AverageLwpMin is the average of LwpMin, and
+        // AverageLwp of LwpMin + LwpMax.
+        AverageLwpMin += (LwpMin - LwpMinX[2]) / 3.;
+        AverageLwp += (LwpMin + LwpMax - LwpX[2]) / 3.;
+        for i in [2, 1] {
+            LwpMinX[i] = LwpMinX[i - 1];
+            LwpX[i] = LwpX[i - 1];
+        }
+        LwpMinX[0] = LwpMin;
+        LwpX[0] = LwpMin + LwpMax;
+        //     No stress effects before 5th day after emergence.
+        if Kday < 5 {
+            self.ptsred = 1.;
+            WaterStress = 1.;
+            WaterStressStem = 1.;
+            return;
+        }
+        // The computation of ptsred, the effect of moisture stress on the photosynthetic rate, is based on the
+        // following work:
+        // * Ephrath, J.E., Marani, A., Bravdo, B.A., 1990. Effects of moisture stress on stomatal resistance and
+        //   photosynthetic rate in cotton (Gossypium hirsutum) 1. Controlled levels of stress. Field Crops Res.
+        //   23:117-131.
+        //
+        // It is a function of AverageLwpMin (average LwpMin for the last three days).
+        if AverageLwpMin < vstrs[0] {
+            AverageLwpMin = vstrs[0];
+        }
+        self.ptsred = vstrs[1] + AverageLwpMin * (vstrs[2] + vstrs[3] * AverageLwpMin);
+        if self.ptsred > 1. {
+            self.ptsred = 1.;
+        }
+        // The general moisture stress factor (WaterStress) is computed as an empirical function of AverageLwp. psilim,
+        // the value of AverageLwp at the maximum value of the function, is used for truncating it.
+
+        // The minimum value of WaterStress is 0.05, and the maximum is 1.
+        let psilim = -0.5 * vstrs[5] / vstrs[6]; // limiting value of AverageLwp.
+        if AverageLwp > psilim {
+            WaterStress = 1.;
+        } else {
+            WaterStress = vstrs[4] - AverageLwp * (vstrs[5] + vstrs[6] * AverageLwp);
+            if WaterStress > 1. {
+                WaterStress = 1.;
+            }
+            if WaterStress < 0.05 {
+                WaterStress = 0.05;
+            }
+        }
+        // Water stress affecting plant height and stem growth (WaterStressStem) is assumed to be more severe than
+        // WaterStress, especially at low WaterStress values.
+        WaterStressStem = WaterStress * (1. + vstrs[7] * (2. - WaterStress)) - vstrs[7];
+        if WaterStressStem < vstrs[8] {
+            WaterStressStem = vstrs[8];
+        }
+    }
 }

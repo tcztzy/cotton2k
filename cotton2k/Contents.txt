@@ -162,10 +162,8 @@ The Cotton Plant:
 
     File PlantGrowth_1.cpp
           PhysiologicalAge()
-          Stress()
           LeafWaterPotential()
           LeafResistance()
-          GetNetPhotosynthesis()
           PlantGrowth()
 
     File  PlantGrowth_2.cpp

@@ -71,7 +71,6 @@ void FruitingSitesAbscission();
 void FruitNodeLeafAbscission(int k, int l, int m, double droplf);
 // G, H
 double gam(double elev, double tt);
-void GetNetPhotosynthesis();
 void GetNitrogenStress();
 double GetTargetStress();
 void GoBack();
@@ -160,7 +159,6 @@ double SoilWaterOnRootGrowth(double psislk);
 void SortArray(int size, double InData[], int indexk[], int indexl[],
                int indexm[]);
 void SquareAbscission(int k, int l, int m, double abscissionRatio);
-void Stress();
 void sunangle(double ti, double &coszhr, double &sunahr);
 // T
 void TapRootGrowth();
