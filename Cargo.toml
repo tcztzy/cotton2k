@@ -1,2 +1,2 @@
 [workspace]
-members = ["cotton2k"]
+members = ["cotton2k", "python"]
