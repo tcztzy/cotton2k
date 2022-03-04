@@ -12,7 +12,8 @@ I use `TOML` as input file format and `CSV` as output file format. Documents com
 ## What about Python?
 
 I wrote a [Python version](https://github.com/tcztzy/cotton2k-core) before this. It works, but I have serious performance issues, it toke about 2min one single simulation, compared with 3s in C++ version. I tried to improve, but it is too difficult for me.
-I will provide Python API via PyO3 later.
+
+~~I will provide Python API via PyO3 later.~~ DONE!
 
 ## Roadmap
 
@@ -25,6 +26,8 @@ I will provide Python API via PyO3 later.
 ## Requirements
 
 C++ compiler (clang and msvc tested), Rust toolchain (nightly tested), FORTRAN compiler and Meson build.
+
+Additionally, you need to notice that [`LIBCLANG_PATH`](https://rust-lang.github.io/rust-bindgen/requirements.html#clang) should be satisfied. This dependency will be eventually removed after C++ codes are all refactored into Rust.
 
 ## Build
 
@@ -40,7 +43,7 @@ meson compile
 * [Cotton2K by Marani: GPLv2](https://plantscience.agri.huji.ac.il/avishalom-marani/cotton2k_source)
 * [GOSSYM: CC0](https://data.nal.usda.gov/dataset/gossym)
 * [SWAP: GPLv2](https://www.swap.alterra.nl/DownloadRecent/swap4.0.1/Swap4.0.1.htm)
-* THIS REPO: GPLv3 or later
+* [THIS REPO: GPLv3 or later](https://github.com/tcztzy/cotton2k)
 
 ## Contributing
 
