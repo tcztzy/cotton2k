@@ -5,6 +5,20 @@ on:
   pull_request:
 
 jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist --manifest-path python/Cargo.toml
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist
 
   windows:
     runs-on: windows-latest
@@ -24,7 +38,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ windows ]
+    needs: [ windows, linux ]
     steps:
       - uses: actions/download-artifact@v2
         with:
