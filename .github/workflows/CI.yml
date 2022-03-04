@@ -4,10 +4,6 @@ on:
   push:
   pull_request:
 
-defaults:
-  run:
-    working-directory: python
-
 jobs:
   linux:
     runs-on: ubuntu-latest
@@ -17,7 +13,7 @@ jobs:
       with:
         manylinux: auto
         command: build
-        args: --release -o dist
+        args: --release -o dist --manifest-path python/Cargo.toml
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -31,7 +27,7 @@ jobs:
     - uses: messense/maturin-action@v1
       with:
         command: build
-        args: --release --no-sdist -o dist
+        args: --release --no-sdist -o dist --manifest-path python/Cargo.toml
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -45,7 +41,7 @@ jobs:
     - uses: messense/maturin-action@v1
       with:
         command: build
-        args: --release --no-sdist -o dist --universal2
+        args: --release --no-sdist -o dist --universal2 --manifest-path python/Cargo.toml
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -67,4 +63,4 @@ jobs:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         with:
           command: upload
-          args: --skip-existing *
+          args: --skip-existing * --manifest-path python/Cargo.toml
