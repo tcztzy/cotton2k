@@ -276,7 +276,7 @@ pub enum FertilizationMethod {
     Drip = 3,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone, Copy)]
 pub enum PixMethod {
     Banded = 0,
     Sprinkler = 1,
@@ -336,7 +336,7 @@ pub enum AgronomyOperation {
     pix {
         #[serde(deserialize_with = "from_isoformat")]
         date: NaiveDate,
-        method: FertilizationMethod,
+        method: PixMethod,
         ppa: f64, // pints per acre
     },
     watertable {
