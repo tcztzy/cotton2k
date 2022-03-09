@@ -252,7 +252,7 @@ fn default_predict() -> bool {
 }
 
 #[inline]
-fn default_irrgation_method() -> IrrigationMethod {
+fn default_irrigation_method() -> IrrigationMethod {
     IrrigationMethod::Sprinkler
 }
 
@@ -292,7 +292,7 @@ pub enum AgronomyOperation {
         amount: f64,
         #[serde(default = "default_predict")]
         predict: bool,
-        #[serde(default = "default_irrgation_method")]
+        #[serde(default = "default_irrigation_method")]
         method: IrrigationMethod,
         #[serde(default = "zero")]
         drip_x: f64,
