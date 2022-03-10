@@ -9,7 +9,6 @@
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 use chrono::Datelike;
 use chrono::NaiveDate;
-use pbr::ProgressBar;
 use serde::Deserialize;
 use std::io::Write;
 use std::path::PathBuf;
@@ -880,15 +879,12 @@ impl Profile {
         self.initialize()?;
         self.output_file_headers()?;
         unsafe {
-            let count = (DayFinish - DayStart + 1) as u64;
-            let mut pb = ProgressBar::new(count);
             // Do daily simulations
             Daynum = DayStart - 1;
             bEnd = false;
             // Start the daily loop. If variable bEnd has been assigned a value of true end simulation.
             while !bEnd {
                 let bAdjustToDo = self.adjust();
-                pb.inc();
                 // Execute simulation for this day.
                 self.simulate_this_day();
                 self.write_record()?;
@@ -902,7 +898,7 @@ impl Profile {
         Ok(())
     }
 
-    fn initialize(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn initialize(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
         self.kprevadj = 0;
         unsafe {
             InitializeGlobal();
@@ -1193,7 +1189,7 @@ impl Profile {
     }
 
     /// Write the output CSV file's header.
-    fn output_file_headers(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn output_file_headers(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
         let mut writer = csv::Writer::from_path(format!("{}.csv", self.name.as_ref().unwrap()))?;
         writer.write_field("date")?;
         writer.write_field("light_interception")?;
@@ -1323,7 +1319,7 @@ impl Profile {
         }
     }
 
-    fn write_record(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn write_record(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
         let mut f = std::fs::OpenOptions::new()
             .write(true)
             .append(true)
@@ -1407,7 +1403,7 @@ impl Profile {
     /// * [MapDataDate]
     /// * [nadj]
     /// * [NumAdjustDays]
-    fn adjust(self: &mut Self) -> bool {
+    pub fn adjust(self: &mut Self) -> bool {
         // Check if plant map data are available for this day. If there are no more adjustments, return.
         let mut sumsad = 0; // sum for checking if any adjustments are due
         for i in 0..30 {
@@ -1497,7 +1493,7 @@ impl Profile {
     /// * [DayOfSimulation]
     /// * [isw]
     /// * [Kday]
-    fn simulate_this_day(&mut self) {
+    pub fn simulate_this_day(&mut self) {
         unsafe {
             // Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
             Daynum += 1;
