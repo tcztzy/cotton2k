@@ -1327,7 +1327,7 @@ impl Profile {
         let mut f = std::fs::OpenOptions::new()
             .write(true)
             .append(true)
-            .open("output.csv")?;
+            .open(format!("{}.csv", self.name.as_ref().unwrap()))?;
         let mut record = vec![
             unsafe {
                 chrono::NaiveDate::from_yo(iyear, Daynum as u32)

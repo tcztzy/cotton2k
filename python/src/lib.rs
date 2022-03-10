@@ -1,4 +1,3 @@
-
 use pyo3::prelude::*;
 use std::io::Read;
 
@@ -9,7 +8,17 @@ fn run(path: &str) -> PyResult<()> {
     let mut file = std::fs::File::open(profile_path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    let mut profile: cotton2k::Profile = toml::from_str(&contents).expect("Parse file error!");
+    let mut profile: cotton2k::Profile = match profile_path
+        .extension()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_lowercase()
+        .as_str()
+    {
+        "toml" => toml::from_str(&contents).expect("Parse file error!"),
+        _ => serde_json::from_str(&contents).expect("Parse file error!"),
+    };
     match profile.name {
         None => {
             profile.name = Some(String::from(
