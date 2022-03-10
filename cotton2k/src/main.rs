@@ -10,14 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     let mut profile: cotton2k::Profile = toml::from_str(&contents)?;
-    match profile.name {
-        None => {
-            profile.name = Some(String::from(
-                profile_path.file_stem().unwrap().to_str().unwrap(),
-            ));
-        }
-        Some(_) => {}
-    }
+    profile.path = profile_path.to_path_buf();
     match profile.weather_path.is_relative() {
         true => {
             profile.weather_path = profile_path.parent().unwrap().join(profile.weather_path);

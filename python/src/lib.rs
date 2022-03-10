@@ -19,14 +19,7 @@ fn run(path: &str) -> PyResult<()> {
         "toml" => toml::from_str(&contents).expect("Parse file error!"),
         _ => serde_json::from_str(&contents).expect("Parse file error!"),
     };
-    match profile.name {
-        None => {
-            profile.name = Some(String::from(
-                profile_path.file_stem().unwrap().to_str().unwrap(),
-            ));
-        }
-        Some(_) => {}
-    }
+    profile.path = profile_path.to_path_buf();
     match profile.weather_path.is_relative() {
         true => {
             profile.weather_path = profile_path.parent().unwrap().join(profile.weather_path);

@@ -87,7 +87,8 @@ fn zero_i32() -> i32 {
 #[cfg(target_os = "windows")]
 #[derive(Deserialize, Debug)]
 pub struct Profile {
-    pub name: Option<String>,
+    #[serde(skip)]
+    pub path: PathBuf,
     #[serde(default = "zero_i32")]
     pub light_intercept_method: i32,
     pub latitude: f64,
@@ -141,7 +142,8 @@ fn zero_u32() -> u32 {
 #[cfg(target_os = "linux")]
 #[derive(Deserialize, Debug)]
 pub struct Profile {
-    pub name: Option<String>,
+    #[serde(skip)]
+    pub path: PathBuf,
     #[serde(default = "zero_u32")]
     pub light_intercept_method: u32,
     pub latitude: f64,
@@ -1190,7 +1192,7 @@ impl Profile {
 
     /// Write the output CSV file's header.
     pub fn output_file_headers(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
-        let mut writer = csv::Writer::from_path(format!("{}.csv", self.name.as_ref().unwrap()))?;
+        let mut writer = csv::Writer::from_path(self.path.parent().unwrap().join("output.csv"))?;
         writer.write_field("date")?;
         writer.write_field("light_interception")?;
         writer.write_field("lint_yield")?;
@@ -1323,7 +1325,7 @@ impl Profile {
         let mut f = std::fs::OpenOptions::new()
             .write(true)
             .append(true)
-            .open(format!("{}.csv", self.name.as_ref().unwrap()))?;
+            .open(self.path.parent().unwrap().join("output.csv"))?;
         let mut record = vec![
             unsafe {
                 chrono::NaiveDate::from_yo(iyear, Daynum as u32)
