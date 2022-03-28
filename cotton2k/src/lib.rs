@@ -872,7 +872,7 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
 }
 
 fn drop_leaf_age(lai: f64) -> f64 {
-    return 140. - 1. * lai;
+    140. - 1. * lai
 }
 
 impl Profile {
