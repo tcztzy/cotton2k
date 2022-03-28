@@ -13,6 +13,17 @@ use serde::Deserialize;
 use std::io::Write;
 use std::path::PathBuf;
 
+#[derive(Debug)]
+pub struct Cotton2KError;
+
+impl std::fmt::Display for Cotton2KError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", "Cotton2KError")
+    }
+}
+
+impl std::error::Error for Cotton2KError {}
+
 struct NaiveDateVisitor;
 
 impl<'de> serde::de::Visitor<'de> for NaiveDateVisitor {
@@ -888,7 +899,7 @@ impl Profile {
             while !bEnd {
                 let bAdjustToDo = self.adjust();
                 // Execute simulation for this day.
-                self.simulate_this_day();
+                self.simulate_this_day()?;
                 self.write_record()?;
                 // If there are pending plant adjustments, call WriteStateVariables() to write
                 // state variables of this day in a scratch file.
@@ -1495,7 +1506,7 @@ impl Profile {
     /// * [DayOfSimulation]
     /// * [isw]
     /// * [Kday]
-    pub fn simulate_this_day(&mut self) {
+    pub fn simulate_this_day(&mut self) -> Result<(), Cotton2KError> {
         unsafe {
             // Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
             Daynum += 1;
@@ -1527,7 +1538,7 @@ impl Profile {
                 }
                 Defoliate(); // effects of defoliants applied.
                 self.stress(); // computes water stress factors.
-                self.get_net_photosynthesis(); // computes net photosynthesis.
+                self.get_net_photosynthesis()?; // computes net photosynthesis.
                 PlantGrowth(); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 PlantNitrogen(); // computes plant nitrogen allocation.
@@ -1551,6 +1562,7 @@ impl Profile {
                 bEnd = true;
             }
         }
+        Ok(())
     }
 
     /// This function computes light interception by crop canopy and shading of soil columns by the plants. It is called from SimulateThisDay().
@@ -1744,7 +1756,7 @@ impl Profile {
     /// * Harper et. al. (1973) Carbon dioxide and the photosynthesis of field crops. A metered carbon dioxide release
     ///   in cotton under field conditions.  Agron. J. 65:7-11.
     /// * Baker (1965) Effects of certain environmental factors on net assimilation in cotton. Crop Sci. 5:53-56 (Fig 5).
-    unsafe fn get_net_photosynthesis(&mut self) {
+    unsafe fn get_net_photosynthesis(&mut self) -> Result<(), Cotton2KError> {
         //  constants:
         const gsubr: f64 = 0.375; // the growth resiration factor.
         const rsubo: f64 = 0.0032; // maintenance respiration factor.
@@ -1765,8 +1777,7 @@ impl Profile {
         // Exit the function and end simulation if there are no leaves.
 
         if TotalLeafWeight() <= 0. {
-            bEnd = true;
-            return;
+            return Err(Cotton2KError);
         }
         // If this is the first time the function is executed, get the ambient CO2 correction.
 
@@ -1877,6 +1888,7 @@ impl Profile {
         NetPhotosynthesis = pts / (1. + gsubr) * 0.68182;
         // CumNetPhotosynth is the cumulative value of NetPhotosynthesis, from day of emergence.
         CumNetPhotosynth += NetPhotosynthesis;
+        Ok(())
     }
 
     /// This function computes the water stress variables affecting the cotton plants.
