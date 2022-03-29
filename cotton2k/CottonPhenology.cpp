@@ -167,7 +167,7 @@ void PreFruitingNode(double stemNRatio)
 //        DayInc, LeafWeightAreaRatio, VarPar.
 //     The following global variable are set here:
 //        AgeOfPreFruNode, LeafAreaPreFru, LeafNitrogen, LeafWeightPreFru,
-//        NumPreFruNodes, StemNitrogen, TotalLeafWeight, TotalStemWeight.
+//        NumPreFruNodes, StemNitrogen, TotalStemWeight.
 //     The following argument is used:
 //        stemNRatio - the ratio of N to dry matter in the stems.
 //
@@ -305,7 +305,7 @@ void AddVegetativeBranch(double delayVegByCStress, double stemNRatio,
 //        AvrgNodeTemper, FruitFraction, FruitingCode, LeafAreaMainStem,
 //        LeafAreaNodes, LeafNitrogen, LeafWeightMainStem, LeafWeightNodes,
 //        NumFruitBranches, NumNodes, NumVegBranches, StemNitrogen,
-//        TotalLeafWeight, TotalStemWeight.
+//        TotalStemWeight.
 //     Arguments used in this function:
 //        delayVegByCStress - delay in formation of new fruiting branches caused
 //        by carbohydrate stress. stemNRatio - the ratio of N to dry matter in
@@ -379,7 +379,7 @@ void AddFruitingBranch(int k, double delayVegByCStress, double stemNRatio)
 //        AvrgNodeTemper, DelayNewFruBranch, FruitFraction, FruitingCode,
 //        LeafAreaMainStem, LeafAreaNodes, LeafNitrogen, LeafWeightMainStem,
 //        LeafWeightNodes, NumFruitBranches, NumNodes, StemNitrogen,
-//        TotalLeafWeight, TotalStemWeight,
+//        TotalStemWeight,
 //     The following arguments are used in this function:
 //        delayVegByCStress - delay in formation of new fruiting branches caused
 //        by
@@ -476,7 +476,7 @@ void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio)
 //     The following global variable are set here:
 //        AvrgNodeTemper, DelayNewNode, FruitFraction, FruitingCode,
 //        LeafAreaNodes, LeafWeightNodes, NumNodes, LeafNitrogen, StemNitrogen,
-//        TotalLeafWeight, TotalStemWeight.
+//        TotalStemWeight.
 //     The following arguments are used in this function:
 //        delayFrtByCStress - delay caused by carbohydrate and nitrogen
 //        stresses. k, l - indices of this vegetative branch and fruiting

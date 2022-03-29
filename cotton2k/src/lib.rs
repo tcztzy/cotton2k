@@ -1558,8 +1558,7 @@ impl Profile {
                 }
             }
             // Check if the date to stop simulation has been reached, or if this is the last day with available weather
-            // data. Simulation will also stop when no leaves remain on the plant. bEnd = true indicates stopping this
-            // simulation.
+            // data. Simulation will also stop when no leaves remain on the plant.
             if Daynum >= LastDayWeatherData {
                 return Err(Cotton2KError {
                     message: String::from("No more weather data!"),
@@ -1974,6 +1973,206 @@ impl Profile {
         WaterStressStem = WaterStress * (1. + vstrs[7] * (2. - WaterStress)) - vstrs[7];
         if WaterStressStem < vstrs[8] {
             WaterStressStem = vstrs[8];
+        }
+    }
+}
+
+fn fmin(a: f64, b: f64) -> f64 {
+    if a < b {
+        a
+    } else {
+        b
+    }
+}
+fn fmax(a: f64, b: f64) -> f64 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
+
+/// This function simulates the leaf water potential of cotton plants. It has been adapted from the model of Moshe Meron (The relation of cotton leaf water potential to soil water content in the irrigated management range. PhD dissertation, UC Davis, 1984).
+///
+///  It is called from [Profile::stress()]. It calls [wcond()] and [LeafResistance()].
+///
+/// The following global variables are referenced here:
+/// * [AgeOfPreFruNode]
+/// * [AverageSoilPsi]
+/// * [beta]
+/// * [dl]
+/// * [Kday]
+/// * [LeafAge]
+/// * [NumFruitBranches]
+/// * [NumLayersWithRoots]
+/// * [NumNodes]
+/// * [NumPreFruNodes]
+/// * [NumVegBranches]
+/// * [PlantHeight]
+/// * [PoreSpace]
+/// * [ReferenceETP]
+/// * [RootColNumLeft]
+/// * [RootColNumRight]
+/// * [RootWtCapblUptake]
+/// * [SaturatedHydCond]
+/// * [SoilPsi]
+/// * [thad]
+/// * [thts]
+/// * [VolWaterContent]
+/// * [wk]
+///
+/// The following global variables are set here:
+/// * [LwpMin]
+/// * [LwpMax]
+fn LeafWaterPotential() {
+    // Constant parameters used:
+    const cmg: f64 = 3200.; // length in cm per g dry weight of roots, based on an average root diameter of 0.06 cm, and a specific weight of 0.11 g  dw per cubic cm.
+    const psild0: f64 = -1.32; // maximum values of LwpMin
+    const psiln0: f64 = -0.40; // maximum values of LwpMax.
+    const rtdiam: f64 = 0.06; // average root diameter in cm.
+    const vpsil: [f64; 13] = [
+        0.48, -5.0, 27000., 4000., 9200., 920., 0.000012, -0.15, -1.70, -3.5, 0.1e-9, 0.025, 0.80,
+    ];
+    // Leaf water potential is not computed during 10 days after emergence. Constant values are assumed for this period.
+    unsafe {
+        if Kday <= 10 {
+            LwpMax = psiln0;
+            LwpMin = psild0;
+            return;
+        }
+    }
+    // Compute shoot resistance (rshoot) as a function of plant height.
+    let rshoot: f64 = unsafe { vpsil[0] * PlantHeight / 100. }; // shoot resistance, Mpa hours per cm.
+
+    // Assign zero to summation variables
+    let mut psinum = 0f64; // sum of RootWtCapblUptake for all soil cells with roots.
+    let mut rootvol = 0f64; // sum of volume of all soil cells with roots.
+    let mut rrlsum = 0f64; // weighted sum of reciprocals of rrl.
+    let rroot; // root resistance, Mpa hours per cm.
+    let mut sumlv = 0f64; // weighted sum of root length, cm, for all soil cells with roots.
+    let mut vh2sum = 0f64; // weighted sum of soil water content, for all soil cells with roots.
+
+    // Loop over all soil cells with roots. Check if RootWtCapblUptake is greater than vpsil[10].
+    // All average values computed for the root zone, are weighted by RootWtCapblUptake (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
+    let mut rrl: f64; // root resistance per g of active roots.
+    unsafe {
+        for l in 0..NumLayersWithRoots as usize {
+            for k in (RootColNumLeft[l] as usize)..RootColNumLeft[l] as usize {
+                if RootWtCapblUptake[l][k] >= vpsil[10] {
+                    psinum += fmin(RootWtCapblUptake[l][k], vpsil[11]);
+                    sumlv += fmin(RootWtCapblUptake[l][k], vpsil[11]) * cmg;
+                    rootvol += dl[l] * wk[k];
+                    if SoilPsi[l][k] <= vpsil[1] {
+                        rrl = vpsil[2] / cmg;
+                    } else {
+                        rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k]))
+                            / cmg;
+                    }
+                    rrlsum += fmin(RootWtCapblUptake[l][k], vpsil[11]) / rrl;
+                    vh2sum += VolWaterContent[l][k] * fmin(RootWtCapblUptake[l][k], vpsil[11]);
+                }
+            }
+        }
+    }
+    // Compute average root resistance (rroot) and average soil water content (vh2).
+    let dumyrs: f64; // intermediate variable for computing cond.
+    let vh2: f64; // average of soil water content, for all soil soil cells with roots.
+    if psinum > 0. && sumlv > 0. {
+        rroot = psinum / rrlsum;
+        vh2 = vh2sum / psinum;
+        dumyrs = fmax(
+            1.001,
+            (1. / (std::f64::consts::PI * sumlv / rootvol)).sqrt() / rtdiam,
+        );
+    } else {
+        rroot = 0.;
+        vh2 = unsafe { thad[0] };
+        dumyrs = 1.001;
+    }
+    // Compute hydraulic conductivity (cond), and soil resistance near the root surface (rsoil). soil hydraulic conductivity near the root surface.
+    let cond = fmax(
+        unsafe {
+            wcond(
+                vh2,
+                thad[0],
+                thts[0],
+                beta[0],
+                SaturatedHydCond[0],
+                PoreSpace[0],
+            )
+        } / 24.
+            * 2.
+            * sumlv
+            / rootvol
+            / dumyrs.ln(),
+        vpsil[6],
+    );
+    let rsoil = 0.0001 / (2. * std::f64::consts::PI * cond); // soil resistance, Mpa hours per cm.
+
+    // Compute leaf resistance (LeafResistance) as the average of the resistances of all existing leaves. The resistance of an individual leaf is a function of its age. Function LeafResistance is called to compute it.
+    // This is executed for all the leaves of the plant.
+    let mut numl = 0; // number of leaves.
+    let mut sumrl = 0f64; // sum of leaf resistances for all the plant.
+    unsafe {
+        for j in 0..NumPreFruNodes as usize
+        // loop prefruiting nodes
+        {
+            numl += 1;
+            sumrl += LeafResistance(AgeOfPreFruNode[j]);
+        }
+    }
+    //
+    let mut nbrch: i32; // number of fruiting branches on a vegetative branch.
+    let mut nnid: i32; // number of nodes on a fruiting branch.
+    unsafe {
+        for k in 0..NumVegBranches as usize {
+            // loop for all other nodes
+            nbrch = NumFruitBranches[k];
+            for l in 0..nbrch as usize {
+                nnid = NumNodes[k][l];
+                for m in 0..nnid as usize {
+                    numl += 1;
+                    sumrl += LeafResistance(LeafAge[k][l][m]);
+                }
+            }
+        }
+    }
+    let rleaf = sumrl / numl as f64; // leaf resistance, Mpa hours per cm.
+
+    // The total resistance to transpiration, MPa hours per cm, (rtotal) is computed.
+    let rtotal = rsoil + rroot + rshoot + rleaf;
+    // Compute maximum (early morning) leaf water potential, LwpMax, from soil water potential (AverageSoilPsi, converted from bars to MPa).
+    // Check for minimum and maximum values.
+    unsafe {
+        LwpMax = vpsil[7] + 0.1 * AverageSoilPsi;
+        if LwpMax < vpsil[8] {
+            LwpMax = vpsil[8];
+        }
+        if LwpMax > psiln0 {
+            LwpMax = psiln0;
+        }
+    }
+    //     Compute minimum (at time of maximum transpiration rate) leaf water
+    //     potential, LwpMin, from
+    //  maximum transpiration rate (etmax) and total resistance to transpiration
+    //  (rtotal).
+    let mut etmax = 0f64; // the maximum hourly rate of evapotranspiration for this day.
+    for ihr in 0..24 {
+        //  hourly loop
+        unsafe {
+            if ReferenceETP[ihr] > etmax {
+                etmax = ReferenceETP[ihr];
+            }
+        }
+    }
+    unsafe {
+        LwpMin = LwpMax - 0.1 * fmax(etmax, vpsil[12]) * rtotal;
+        //     Check for minimum and maximum values.
+        if LwpMin < vpsil[9] {
+            LwpMin = vpsil[9];
+        }
+        if LwpMin > psild0 {
+            LwpMin = psild0;
         }
     }
 }
