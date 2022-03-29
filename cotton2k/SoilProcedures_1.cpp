@@ -8,7 +8,6 @@
 // PredictDripIrrigation()
 // PredictSurfaceIrrigation()
 // AveragePsi()
-// WaterTable()
 //
 #include <math.h>
 
@@ -518,69 +517,4 @@ double AveragePsi()
     else
         averagePsi = 0;
     return averagePsi;
-}
-/////////////////////////////////////////////////////////////////////////////
-void WaterTable()
-//     This function sets the water saturation of the soil layers below the
-//     water
-//  table, if it has been defined in the input. It is called from
-//  SoilProcedures() if water table data have been input.
-//
-//     The following global variables are referenced here:
-//       Daynum. dl, DayWaterTableInput, ElCondSatSoil, LevelsOfWaterTable,
-//       MaxWaterCapacity, nk, nl, NumWaterTableData, PoreSpace,
-//       MaxWaterCapacity, RowSpace, wk.
-//
-//     The following global variables are set here:
-//       addwtbl, ElCondSatSoilToday, WaterTableLayer, VolWaterContent.
-//
-{
-    if (NumWaterTableData <= 0) return;
-    //     Find the depth of water table for this day.
-    double lwtable = 201;  // level of water table on this day, cm
-    for (int i = 0; i < NumWaterTableData; i++) {
-        if (Daynum >= DayWaterTableInput[i]) {
-            lwtable = LevelsOfWaterTable[i];
-            ElCondSatSoilToday = ElCondSatSoil[i];
-        }
-    }
-    //     Find the number of the uppermost layer of water table
-    if (lwtable > 200)
-        WaterTableLayer = 1000;
-    else {
-        double sumdl = 0;  // sum of depth of consecutive soil layers
-        for (int l = 0; l < nl; l++) {
-            sumdl += dl[l];
-            if (sumdl > lwtable) {
-                WaterTableLayer = l;
-                break;
-            }
-        }
-    }
-    //     The total water entering the soil slab (addwtbl) is computed. It is
-    //     used to check
-    //  the water balance in the soil.
-    double vh2ocx;  // previous water content of a cell
-    for (int l = 0; l < nl; l++) {
-        if (l >= WaterTableLayer) {
-            for (int k = 0; k < nk; k++) {
-                vh2ocx = VolWaterContent[l][k];
-                VolWaterContent[l][k] = PoreSpace[l];
-                addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] *
-                           wk[k] / RowSpace;
-            }
-        } else {
-            //     Make sure that (in case water table was lowered) water
-            //     content is not
-            //  higher than MaxWaterCapacity and adjust addwtbl.
-            for (int k = 0; k < nk; k++) {
-                if (VolWaterContent[l][k] > MaxWaterCapacity[l]) {
-                    vh2ocx = VolWaterContent[l][k];
-                    VolWaterContent[l][k] = MaxWaterCapacity[l];
-                    addwtbl += 10 * (VolWaterContent[l][k] - vh2ocx) * dl[l] *
-                               wk[k] / RowSpace;
-                }
-            }
-        }
-    }
 }

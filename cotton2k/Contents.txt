@@ -76,7 +76,6 @@ Soil:
           PredictDripIrrigation()
           PredictSurfaceIrrigation()
           AveragePsi()
-          WaterTable()
 
     File SoilProcedures_2.cpp
           CapillaryFlow() 
