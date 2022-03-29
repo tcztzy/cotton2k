@@ -2042,7 +2042,7 @@ fn LeafWaterPotential() {
         }
     }
     // Compute shoot resistance (rshoot) as a function of plant height.
-    let rshoot: f64 = unsafe { vpsil[0] * PlantHeight / 100. }; // shoot resistance, Mpa hours per cm.
+    let rshoot: f64 = vpsil[0] * unsafe { PlantHeight } / 100.; // shoot resistance, Mpa hours per cm.
 
     // Assign zero to summation variables
     let mut psinum = 0f64; // sum of RootWtCapblUptake for all soil cells with roots.
@@ -2054,7 +2054,6 @@ fn LeafWaterPotential() {
 
     // Loop over all soil cells with roots. Check if RootWtCapblUptake is greater than vpsil[10].
     // All average values computed for the root zone, are weighted by RootWtCapblUptake (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
-    let mut rrl: f64; // root resistance per g of active roots.
     unsafe {
         for l in 0..NumLayersWithRoots as usize {
             for k in (RootColNumLeft[l] as usize)..RootColNumLeft[l] as usize {
@@ -2062,12 +2061,12 @@ fn LeafWaterPotential() {
                     psinum += fmin(RootWtCapblUptake[l][k], vpsil[11]);
                     sumlv += fmin(RootWtCapblUptake[l][k], vpsil[11]) * cmg;
                     rootvol += dl[l] * wk[k];
-                    if SoilPsi[l][k] <= vpsil[1] {
-                        rrl = vpsil[2] / cmg;
+                    // root resistance per g of active roots.
+                    let rrl = if SoilPsi[l][k] <= vpsil[1] {
+                        vpsil[2] / cmg
                     } else {
-                        rrl = (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k]))
-                            / cmg;
-                    }
+                        (vpsil[3] - SoilPsi[l][k] * (vpsil[4] + vpsil[5] * SoilPsi[l][k])) / cmg
+                    };
                     rrlsum += fmin(RootWtCapblUptake[l][k], vpsil[11]) / rrl;
                     vh2sum += VolWaterContent[l][k] * fmin(RootWtCapblUptake[l][k], vpsil[11]);
                 }
@@ -2173,6 +2172,165 @@ fn LeafWaterPotential() {
         }
         if LwpMin > psild0 {
             LwpMin = psild0;
+        }
+    }
+}
+
+/// This function manages all the soil related processes, and is executed once each day.
+/// 
+/// It is called from [Profile::simulate_this_day()] and it calls the following functions:
+/// * [ApplyFertilizer()]
+/// * [AveragePsi()]
+/// * [CapillaryFlow()]
+/// * [ComputeIrrigation()]
+/// * [DripFlow()]
+/// * [GravityFlow()]
+/// * [RootsCapableOfUptake()]
+/// * [WaterUptake()]
+/// * [WaterTable()]
+/// 
+/// The following global variables are referenced here:
+/// * [ActualTranspiration]
+/// * [Clim]
+/// * [DayEmerge]
+/// * [Daynum]
+/// * [DayStartPredIrrig]
+/// * [DayStopPredIrrig]
+/// * [dl]
+/// * [Irrig]
+/// * [IrrigMethod]
+/// * [isw]
+/// * [Kday]
+/// * [MaxIrrigation]
+/// * [nk]
+/// * [nl]
+/// * [NumIrrigations]
+/// * [NumWaterTableData]
+/// * [PerPlantArea]
+/// * [SoilPsi]
+/// * [RowSpace]
+/// * [SupplyNH4N]
+/// * [SupplyNO3N]
+/// * [VolWaterContent]
+/// * [wk]
+/// 
+/// The following global variables are set here:
+/// * [AverageSoilPsi]
+/// * [CumNitrogenUptake]
+/// * [CumTranspiration]
+/// * [CumWaterAdded]
+/// * [LocationColumnDrip]
+/// * [LocationLayerDrip]
+/// * [noitr]
+fn SoilProcedures() {
+    // The following constant parameters are used:
+    const cpardrip: f64 = 0.2;
+    const cparelse: f64 = 0.4;
+    // Call function ApplyFertilizer() for nitrogen fertilizer application.
+    unsafe {
+        ApplyFertilizer();
+    }
+    let mut DripWaterAmount = 0f64; // amount of water applied by drip irrigation
+
+    // amount of water applied by non-drip irrigation or rainfall
+    // Check if there is rain on this day
+    let mut WaterToApply = unsafe { GetFromClim(CLIMATE_METRIC_CLIMATE_METRIC_RAIN, Daynum) };
+    // If irrigation is to be predicted for this day, call ComputeIrrigation() to compute the actual amount of irrigation.
+    unsafe {
+        if MaxIrrigation > 0. {
+            if Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig {
+                ComputeIrrigation();
+                if IrrigMethod == 2 {
+                    DripWaterAmount = AppliedWater;
+                } else {
+                    WaterToApply += AppliedWater;
+                }
+                AppliedWater = 0.;
+            }
+        }
+    }
+    // When water is added by an irrigation defined in the input: update the amount of applied water.
+    unsafe {
+        for i in 0..NumIrrigations as usize {
+            if Daynum == Irrig[i].day {
+                if Irrig[i].method == 2 {
+                    DripWaterAmount += Irrig[i].amount;
+                    LocationColumnDrip = Irrig[i].LocationColumnDrip;
+                    LocationLayerDrip = Irrig[i].LocationLayerDrip;
+                } else {
+                    WaterToApply += Irrig[i].amount;
+                }
+                break;
+            }
+        }
+    }
+    unsafe {
+        CumWaterAdded += WaterToApply + DripWaterAmount;
+    }
+    unsafe {
+        if Kday > 0 {
+            Scratch21[(DayOfSimulation - 1) as usize].amitri = WaterToApply + DripWaterAmount;
+        }
+    }
+    unsafe {
+        // The following will be executed only after plant emergence
+        if Daynum >= DayEmerge && isw > 0 {
+            RootsCapableOfUptake(); // function computes roots capable of uptake for each soil cell
+            AverageSoilPsi = AveragePsi(); // function computes the average matric soil water potential in the root zone, weighted by the roots-capable-of-uptake.
+            WaterUptake(); // function  computes water and nitrogen uptake by plants.
+
+            // Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
+            CumTranspiration += ActualTranspiration;
+            CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10. * RowSpace / PerPlantArea;
+        }
+    }
+    // Call function WaterTable() for saturating soil below water table.
+    unsafe {
+        if NumWaterTableData > 0 {
+            WaterTable();
+        }
+    }
+    if WaterToApply > 0. {
+        // For rain or surface irrigation.
+        // The number of iterations is computed from the thickness of the first soil layer.
+        unsafe {
+            noitr = (cparelse * WaterToApply / (dl[0] + 2.) + 1.) as i32;
+        }
+        // the amount of water applied, mm per iteration.
+        let applywat = WaterToApply / unsafe { noitr } as f64;
+        // The following subroutines are called noitr times per day:
+        // If water is applied, GravityFlow() is called when the method of irrigation is not by drippers, followed by CapillaryFlow().
+        for _ in 0..unsafe { noitr } as usize {
+            unsafe {
+                GravityFlow(applywat);
+                CapillaryFlow();
+            }
+        }
+    }
+    if DripWaterAmount > 0. {
+        // For drip irrigation.
+        // The number of iterations is computed from the volume of the soil cell in which the water is applied.
+        unsafe {
+            noitr = (cpardrip * DripWaterAmount
+                / (dl[LocationLayerDrip as usize] * wk[LocationColumnDrip as usize])
+                + 1.) as i32;
+        }
+        // the amount of water applied, mm per iteration.
+        let applywat = DripWaterAmount / unsafe { noitr } as f64;
+        // If water is applied, DripFlow() is called followed by
+        // CapillaryFlow().
+        for _ in 0..unsafe { noitr } as usize {
+            unsafe {
+                DripFlow(applywat);
+                CapillaryFlow();
+            }
+        }
+    }
+    // When no water is added, there is only one iteration in this day.
+    if WaterToApply + DripWaterAmount <= 0. {
+        unsafe {
+            noitr = 1;
+            CapillaryFlow();
         }
     }
 }

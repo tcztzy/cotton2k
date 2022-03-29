@@ -1,7 +1,6 @@
 // File SoilProcedures_1.cpp
 //
 //   functions in this file:
-// SoilProcedures()
 // RootsCapableOfUptake()
 // ApplyFertilizer()
 // ComputeIrrigation()
@@ -19,121 +18,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-//////////////////////////
-void SoilProcedures()
-//     This function manages all the soil related processes, and is executed
-//     once each
-//  day. It is called from SimulateThisDay() and it calls the following
-//  functions: ApplyFertilizer(), AveragePsi(), CapillaryFlow(),
-//  ComputeIrrigation(), DripFlow(), GravityFlow(), RootsCapableOfUptake(),
-//  WaterUptake(), WaterTable()
-//
-//     The following global variables are referenced here:
-//       ActualTranspiration, Clim, DayEmerge, Daynum, DayStartPredIrrig,
-//       DayStopPredIrrig, dl, Irrig, IrrigMethod, isw, Kday, MaxIrrigation, nk,
-//       nl, NumIrrigations, NumWaterTableData, PerPlantArea, SoilPsi,
-//       RowSpace, SupplyNH4N, SupplyNO3N, VolWaterContent, wk.
-//     The following global variables are set here:
-//       AverageSoilPsi, CumNitrogenUptake, CumTranspiration, CumWaterAdded,
-//       LocationColumnDrip, LocationLayerDrip, noitr.
-{
-    //     The following constant parameters are used:
-    const double cpardrip = 0.2;
-    const double cparelse = 0.4;
-    //     Call function ApplyFertilizer() for nitrogen fertilizer application.
-    ApplyFertilizer();
-    double DripWaterAmount = 0;  // amount of water applied by drip irrigation
-    double WaterToApply;  // amount of water applied by non-drip irrigation or
-                          // rainfall
-                          //     Check if there is rain on this day
-    WaterToApply = GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
-    //     If irrigation is to be predicted for this day, call
-    //     ComputeIrrigation()
-    //  to compute the actual amount of irrigation.
-    if (MaxIrrigation > 0)
-        if (Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig) {
-            ComputeIrrigation();
-            if (IrrigMethod == 2)
-                DripWaterAmount = AppliedWater;
-            else
-                WaterToApply += AppliedWater;
-            AppliedWater = 0;
-        }
-    //     When water is added by an irrigation defined in the input: update the
-    //     amount
-    //  of applied water.
-    for (int i = 0; i < NumIrrigations; i++) {
-        if (Daynum == Irrig[i].day) {
-            if (Irrig[i].method == 2) {
-                DripWaterAmount += Irrig[i].amount;
-                LocationColumnDrip = Irrig[i].LocationColumnDrip;
-                LocationLayerDrip = Irrig[i].LocationLayerDrip;
-            } else
-                WaterToApply += Irrig[i].amount;
-            break;
-        }
-    }
-    CumWaterAdded += WaterToApply + DripWaterAmount;
-    if (Kday > 0)
-        Scratch21[DayOfSimulation - 1].amitri = WaterToApply + DripWaterAmount;
-    //     The following will be executed only after plant emergence
-    if (Daynum >= DayEmerge && isw > 0) {
-        RootsCapableOfUptake();  // function computes roots capable of uptake
-                                 // for each soil cell
-        AverageSoilPsi =
-            AveragePsi();  // function computes the average matric soil water
-        //                      potential in the root zone, weighted by the
-        //                      roots-capable-of-uptake.
-        WaterUptake();  // function  computes water and nitrogen uptake by
-                        // plants.
-        //     Update the cumulative sums of actual transpiration
-        //     (CumTranspiration, mm) and total uptake
-        //  of nitrogen (CumNitrogenUptake, mg N per slab, converted from total
-        //  N supply, g per plant).
-        CumTranspiration += ActualTranspiration;
-        CumNitrogenUptake +=
-            (SupplyNO3N + SupplyNH4N) * 10 * RowSpace / PerPlantArea;
-    }
-    //     Call function WaterTable() for saturating soil below water table.
-    if (NumWaterTableData > 0) WaterTable();
-    if (WaterToApply > 0) {
-        //     For rain or surface irrigation.
-        //     The number of iterations is computed from the thickness of the
-        //     first soil layer.
-        noitr = (int)(cparelse * WaterToApply / (dl[0] + 2) + 1);
-        double applywat;  // the amount of water applied, mm per iteration.
-        applywat = WaterToApply / noitr;
-        //     The following subroutines are called noitr times per day:
-        //  If water is applied, GravityFlow() is called when the method of
-        //  irrigation is not by drippers, followed by CapillaryFlow().
-        for (int iter = 0; iter < noitr; iter++) {
-            GravityFlow(applywat);
-            CapillaryFlow();
-        }
-    }
-    if (DripWaterAmount > 0) {
-        //     For drip irrigation.
-        //     The number of iterations is computed from the volume of the soil
-        //     cell in which
-        //  the water is applied.
-        noitr = (int)(cpardrip * DripWaterAmount /
-                          (dl[LocationLayerDrip] * wk[LocationColumnDrip]) +
-                      1);
-        double applywat;  // the amount of water applied, mm per iteration.
-        applywat = DripWaterAmount / noitr;
-        // If water is applied, DripFlow() is called followed by
-        // CapillaryFlow().
-        for (int iter = 0; iter < noitr; iter++) {
-            DripFlow(applywat);
-            CapillaryFlow();
-        }
-    }
-    //     When no water is added, there is only one iteration in this day.
-    if (WaterToApply + DripWaterAmount <= 0) {
-        noitr = 1;
-        CapillaryFlow();
-    }
-}
 /////////////////////////////////////////////////////////////////////////////////////////
 void RootsCapableOfUptake()
 //     This function computes the weight of roots capable of uptake for all soil

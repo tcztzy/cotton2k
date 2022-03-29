@@ -69,7 +69,6 @@ Package D.
 Soil:
 
     File SoilProcedures_1.cpp
-          SoilProcedures()
           RootsCapableOfUptake()
           ApplyFertilizer()
           ComputeIrrigation()

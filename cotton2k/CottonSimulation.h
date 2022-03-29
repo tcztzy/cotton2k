@@ -145,7 +145,6 @@ double SoilNitrateOnRootGrowth(double vno3lk);
 void SoilNitrogen();
 void SoilNitrogenAverage();
 void SoilNitrogenBal();
-void SoilProcedures();
 void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss,
                         double sf, double hsg, double &so, double &so2,
                         double &so3, double thet, double tm, double tv);
