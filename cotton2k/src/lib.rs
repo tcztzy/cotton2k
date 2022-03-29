@@ -14,7 +14,9 @@ use std::io::Write;
 use std::path::PathBuf;
 
 #[derive(Debug)]
-pub struct Cotton2KError;
+pub struct Cotton2KError {
+    message: String,
+}
 
 impl std::fmt::Display for Cotton2KError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -896,7 +898,7 @@ impl Profile {
             Daynum = DayStart - 1;
             bEnd = false;
             // Start the daily loop. If variable bEnd has been assigned a value of true end simulation.
-            while !bEnd {
+            for _ in DayStart..(DayFinish + 1) {
                 let bAdjustToDo = self.adjust();
                 // Execute simulation for this day.
                 self.simulate_this_day()?;
@@ -905,6 +907,9 @@ impl Profile {
                 // state variables of this day in a scratch file.
                 if bAdjustToDo {
                     WriteStateVariables(true);
+                }
+                if bEnd {
+                    break;
                 }
             }
         }
@@ -1447,7 +1452,7 @@ impl Profile {
                         //  variables in scratch structure.
                         if nadj[jj] {
                             for _j1 in 0..NumAdjustDays {
-                                self.simulate_this_day();
+                                self.simulate_this_day().unwrap();
                                 if Kday > 0 {
                                     WriteStateVariables(true);
                                 }
@@ -1555,11 +1560,15 @@ impl Profile {
             // Check if the date to stop simulation has been reached, or if this is the last day with available weather
             // data. Simulation will also stop when no leaves remain on the plant. bEnd = true indicates stopping this
             // simulation.
-            if Daynum >= DayFinish
-                || Daynum >= LastDayWeatherData
-                || (Kday > 10 && LeafAreaIndex < 0.0002)
-            {
-                bEnd = true;
+            if Daynum >= LastDayWeatherData {
+                return Err(Cotton2KError {
+                    message: String::from("No more weather data!"),
+                });
+            }
+            if Kday > 10 && LeafAreaIndex < 0.0002 {
+                return Err(Cotton2KError {
+                    message: String::from("Leaf area index is too small!"),
+                });
             }
         }
         Ok(())
@@ -1777,7 +1786,9 @@ impl Profile {
         // Exit the function and end simulation if there are no leaves.
 
         if TotalLeafWeight() <= 0. {
-            return Err(Cotton2KError);
+            return Err(Cotton2KError {
+                message: String::from("Leaf weight is less than 0!"),
+            });
         }
         // If this is the first time the function is executed, get the ambient CO2 correction.
 
