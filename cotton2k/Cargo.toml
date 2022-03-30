@@ -14,3 +14,4 @@ csv = "1.1"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.5"
 pbr = "1.0"
+ndarray = "0.15.4"

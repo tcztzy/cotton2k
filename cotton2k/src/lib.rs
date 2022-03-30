@@ -2495,7 +2495,7 @@ fn DripFlow(Drip: f64) {
             }
         }
     }
-    let mut defcit: [[f64; 20]; 40] = [[0f64;20];40]; // array of the difference between water capacity
+    let mut defcit = ndarray::Array2::<f64>::zeros((40, 20)); // array of the difference between water capacity
                                  // and actual water content in each cell of the ring
                                  //     Set VolWaterContent of the cell in which the drip is located to
                                  //     MaxWaterCapacity.
@@ -2541,9 +2541,9 @@ fn DripFlow(Drip: f64) {
                     sn1 += unsafe { VolNo3NContent[l][k] * dl[l] * wk[k] * NO3FlowFraction[l] };
                     su += unsafe { VolUreaNContent[l][k] * dl[l] * wk[k] };
                     su1 += unsafe { VolUreaNContent[l][k] * dl[l] * wk[k] * NO3FlowFraction[l] };
-                    defcit[l][k] = uplimit - unsafe { VolWaterContent[l][k] };
+                    defcit[[l, k]] = uplimit - unsafe { VolWaterContent[l][k] };
                 } else {
-                    defcit[l][k] = 0.;
+                    defcit[[l, k]] = 0.;
                 }
             } // end loop k
         } // end loop l
@@ -2564,9 +2564,9 @@ fn DripFlow(Drip: f64) {
                     dist = CellDistance(l, k, l0, k0);
                     if dist <= radius && dist > (radius - 6.) {
                         unsafe {
-                            VolWaterContent[l][k] += dripw[kr] * defcit[l][k] / h2odef;
-                            VolNo3NContent[l][k] += dripn[kr] * defcit[l][k] / h2odef;
-                            VolUreaNContent[l][k] += dripu[kr] * defcit[l][k] / h2odef;
+                            VolWaterContent[l][k] += dripw[kr] * defcit[[l, k]] / h2odef;
+                            VolNo3NContent[l][k] += dripn[kr] * defcit[[l, k]] / h2odef;
+                            VolUreaNContent[l][k] += dripu[kr] * defcit[[l, k]] / h2odef;
                         }
                     }
                 } // end loop k
