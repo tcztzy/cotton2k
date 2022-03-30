@@ -80,8 +80,6 @@ Soil:
     File SoilProcedures_2.cpp
           CapillaryFlow() 
           Drain()
-          DripFlow()    
-          CellDistance()
 
     File SoilProcedures_3.cpp
           GravityFlow()

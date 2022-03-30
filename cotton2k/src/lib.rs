@@ -2404,3 +2404,289 @@ fn WaterTable() {
         }
     }
 }
+
+/// This function computes the water redistribution in the soil after irrigation by a drip system.
+/// It also computes the resulting redistribution of nitrate and urea N.
+/// It is called by SoilProcedures() noitr times per day.
+/// It calls function CellDistrib().
+///
+/// The following argument is used:
+/// Drip - amount of irrigation applied by the drip method, mm.
+///
+/// The following global variables are referenced:
+/// dl, LocationColumnDrip, LocationLayerDrip, MaxWaterCapacity,
+//       nk, nl, NO3FlowFraction, PoreSpace, RowSpace, wk
+//
+//     The following global variables are set:
+//       CumWaterDrained, SoilNitrogenLoss, VolWaterContent, VolNo3NContent,
+//       VolUreaNContent
+//
+fn DripFlow(Drip: f64) {
+    let mut dripw: [f64; 40] = [0f64; 40]; // amount of water applied, or going from one ring of
+                          // soil cells to the next one, cm3. (array)
+    let mut dripn: [f64; 40] = [0f64; 40]; // amount of nitrate N applied, or going from one ring of
+                          // soil soil cells to the next one, mg. (array)
+    let mut dripu: [f64; 40] = [0f64; 40]; // amount of urea N applied, or going from one ring of
+                          // soil soil cells to the next one, mg. (array)
+    // Incoming flow of water (Drip, in mm) is converted to dripw(0), in cm^3 per slab.
+    dripw[0] = Drip * unsafe { RowSpace } * 0.10;
+    //     Wetting the cell in which the emitter is located.
+    let mut h2odef; // the difference between the maximum water capacity (at a
+                // water content of uplimit) of this ring of soil cell, and
+                // the actual water content, cm3.
+    let l0 = unsafe { LocationLayerDrip } as usize; //  layer where the drip emitter is situated
+    let k0 = unsafe { LocationColumnDrip } as usize; //  column where the drip emitter is situated
+                                                     //     It is assumed that wetting cannot exceed MaxWaterCapacity of this
+                                                     //     cell. Compute
+                                                     //  h2odef, the amount of water needed to saturate this cell.
+    h2odef = unsafe { (MaxWaterCapacity[l0] - VolWaterContent[l0][k0]) * dl[l0] * wk[k0] };
+    //      If maximum water capacity is not exceeded - update VolWaterContent
+    //      of
+    //  this cell and exit the function.
+    if dripw[0] <= h2odef {
+        unsafe {
+            VolWaterContent[l0][k0] += dripw[0] / (dl[l0] * wk[k0]);
+        }
+        return;
+    }
+    //      If maximum water capacity is exceeded - calculate the excess of
+    //      water flowing out of
+    //  this cell (in cm3 per slab) as dripw[1]. The next ring of cells (kr=1)
+    //  will receive it as incoming water flow.
+    dripw[1] = dripw[0] - h2odef;
+    //      Compute the movement of nitrate N to the next ring
+    let mut cnw; //  concentration of nitrate N in the outflowing water
+    if unsafe { VolNo3NContent[l0][k0] } > 1.0e-30 {
+        cnw = unsafe {
+            VolNo3NContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl[l0] * wk[k0]))
+        };
+        //     cnw is multiplied by dripw[1] to get dripn[1], the amount of
+        //     nitrate N going out
+        //  to the next ring of cells. It is assumed, however, that not more
+        //  than a proportion (NO3FlowFraction) of the nitrate N in this cell
+        //  can be removed in one iteration.
+        if unsafe { (cnw * MaxWaterCapacity[l0]) < (NO3FlowFraction[l0] * VolNo3NContent[l0][k0]) }
+        {
+            dripn[1] = unsafe { NO3FlowFraction[l0] * VolNo3NContent[l0][k0] * dl[l0] * wk[k0] };
+            unsafe { VolNo3NContent[l0][k0] = (1. - NO3FlowFraction[l0]) * VolNo3NContent[l0][k0] };
+        } else {
+            dripn[1] = dripw[1] * cnw;
+            unsafe {
+                VolNo3NContent[l0][k0] = MaxWaterCapacity[l0] * cnw;
+            }
+        }
+    }
+    // The movement of urea N to the next ring is computed similarly.
+    let mut cuw; //  concentration of urea N in the outflowing water
+    if unsafe { VolUreaNContent[l0][k0] } > 1.0e-30 {
+        cuw = unsafe {
+            VolUreaNContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl[l0] * wk[k0]))
+        };
+        if unsafe { (cuw * MaxWaterCapacity[l0]) < (NO3FlowFraction[l0] * VolUreaNContent[l0][k0]) }
+        {
+            dripu[1] = unsafe { NO3FlowFraction[l0] * VolUreaNContent[l0][k0] * dl[l0] * wk[k0] };
+            unsafe {
+                VolUreaNContent[l0][k0] = (1. - NO3FlowFraction[l0]) * VolUreaNContent[l0][k0];
+            }
+        } else {
+            dripu[1] = dripw[1] * cuw;
+            unsafe {
+                VolUreaNContent[l0][k0] = MaxWaterCapacity[l0] * cuw;
+            }
+        }
+    }
+    let mut defcit: [[f64; 20]; 40] = [[0f64;20];40]; // array of the difference between water capacity
+                                 // and actual water content in each cell of the ring
+                                 //     Set VolWaterContent of the cell in which the drip is located to
+                                 //     MaxWaterCapacity.
+    unsafe {
+        VolWaterContent[l0][k0] = MaxWaterCapacity[l0];
+    }
+    //     Loop of concentric rings of cells, starting from ring 1.
+    //     Assign zero to the sums sv, st, sn, sn1, su and su1.
+    for kr in 1..maxl as usize {
+        let mut uplimit; //  upper limit of soil water content in a soil cell
+        let mut sv = 0f64; // sum of actual water content in a ring of cells, cm3
+        let mut st = 0f64; // sum of total water capacity in a ring of cells, cm3
+        let mut sn = 0f64; // sum of nitrate N content in a ring of cells, mg.
+        let mut sn1 = 0f64; // sum of movable nitrate N content in a ring of cells, mg
+        let mut su = 0f64; // sum of urea N content in a ring of cells, mg
+        let mut su1 = 0f64; // sum of movable urea N content in a ring of cells, mg
+        let radius = (6 * kr) as f64; // radius (cm) of the wetting ring
+        let mut dist; // distance (cm) of a cell center from drip location
+                  //     Loop over all soil cells
+        for l in 1..unsafe { nl as usize } {
+            //     Upper limit of water content is the porespace volume in
+            //     layers below the water table,
+            //  MaxWaterCapacity in other layers.
+            if l >= unsafe { WaterTableLayer as usize } {
+                uplimit = unsafe {
+                    PoreSpace[l]
+                };
+            } else {
+                unsafe {
+                    uplimit = MaxWaterCapacity[l];
+                }
+            }
+            for k in 0..unsafe { nk as usize } {
+                //     Compute the sums sv, st, sn, sn1, su and su1 within the
+                //     radius limits of this ring. The
+                //  array defcit is the sum of difference between uplimit and
+                //  VolWaterContent of each cell.
+                dist = CellDistance(l, k, l0, k0);
+                if dist <= radius && dist > (radius - 6.) {
+                    sv += unsafe { VolWaterContent[l][k] * dl[l] * wk[k] };
+                    st += uplimit * unsafe { dl[l] * wk[k] };
+                    sn += unsafe { VolNo3NContent[l][k] * dl[l] * wk[k] };
+                    sn1 += unsafe { VolNo3NContent[l][k] * dl[l] * wk[k] * NO3FlowFraction[l] };
+                    su += unsafe { VolUreaNContent[l][k] * dl[l] * wk[k] };
+                    su1 += unsafe { VolUreaNContent[l][k] * dl[l] * wk[k] * NO3FlowFraction[l] };
+                    defcit[l][k] = uplimit - unsafe { VolWaterContent[l][k] };
+                } else {
+                    defcit[l][k] = 0.;
+                }
+            } // end loop k
+        } // end loop l
+          //     Compute the amount of water needed to saturate all the cells in
+          //     this ring (h2odef).
+        h2odef = st - sv;
+        //     Test if the amount of incoming flow, dripw(kr), is greater than
+        //     h2odef.
+        if dripw[kr] <= h2odef {
+            //     In this case, this will be the last wetted ring.
+            //     Update VolWaterContent in this ring, by wetting each cell in
+            //     proportion
+            //  to its defcit. Update VolNo3NContent and VolUreaNContent of the
+            //  cells in this ring by the same proportion. this is executed for
+            //  all the cells in the ring.
+            for l in 1..unsafe { nl } as usize {
+                for k in 0..unsafe { nk } as usize {
+                    dist = CellDistance(l, k, l0, k0);
+                    if dist <= radius && dist > (radius - 6.) {
+                        unsafe {
+                            VolWaterContent[l][k] += dripw[kr] * defcit[l][k] / h2odef;
+                            VolNo3NContent[l][k] += dripn[kr] * defcit[l][k] / h2odef;
+                            VolUreaNContent[l][k] += dripu[kr] * defcit[l][k] / h2odef;
+                        }
+                    }
+                } // end loop k
+            } // end loop l
+            return;
+        } // end if dripw
+          //     If dripw(kr) is greater than h2odef, calculate cnw and cuw as the
+          //     concentration of nitrate
+          //  and urea N in the total water of this ring after receiving the
+          //  incoming water and nitrogen.
+        cnw = (sn + dripn[kr]) / (sv + dripw[kr]);
+        cuw = (su + dripu[kr]) / (sv + dripw[kr]);
+        let drwout = dripw[kr] - h2odef; //  the amount of water going out of a ring, cm3.
+                                         //     Compute the nitrate and urea N going out of this ring, and their
+                                         //     amount lost from this
+                                         //  ring. It is assumed that not more than a certain part of the total
+                                         //  nitrate or urea N (previously computed as sn1 an su1) can be lost
+                                         //  from a ring in one iteration. drnout and xnloss are adjusted
+                                         //  accordingly. druout and xuloss are computed similarly for urea N.
+        let mut drnout = drwout * cnw; //  the amount of nitrate N going out of a ring, mg
+        let mut xnloss = 0f64; // the amount of nitrate N lost from a ring, mg
+        if drnout > dripn[kr] {
+            xnloss = drnout - dripn[kr];
+            if xnloss > sn1 {
+                xnloss = sn1;
+                drnout = dripn[kr] + xnloss;
+            }
+        }
+        let mut druout = drwout * cuw; //  the amount of urea N going out of a ring, mg
+        let mut xuloss = 0f64; // the amount of urea N lost from a ring, mg
+        if druout > dripu[kr] {
+            xuloss = druout - dripu[kr];
+            if xuloss > su1 {
+                xuloss = su1;
+                druout = dripu[kr] + xuloss;
+            }
+        }
+        //     For all the cells in the ring, as in the 1st cell, saturate
+        //     VolWaterContent to uplimit,
+        //  and update VolNo3NContent and VolUreaNContent.
+        for l in 1..unsafe { nl } as usize {
+            uplimit = unsafe {
+                if l >= WaterTableLayer as usize {
+                    PoreSpace[l]
+                } else {
+                    MaxWaterCapacity[l]
+                }
+            };
+            //
+            unsafe {
+                for k in 0..nk as usize {
+                    dist = CellDistance(l, k, l0, k0);
+                    if dist <= radius && dist > (radius - 6.) {
+                        VolWaterContent[l][k] = uplimit;
+                        VolNo3NContent[l][k] = if xnloss <= 0. {
+                            uplimit * cnw
+                        } else {
+                            VolNo3NContent[l][k] * (1. - xnloss / sn)
+                        };
+                        VolUreaNContent[l][k] = if xuloss <= 0. {
+                            uplimit * cuw
+                        } else {
+                            VolUreaNContent[l][k] * (1. - xuloss / su)
+                        };
+                    } // end if dist
+                } // end loop k
+            }
+        } // end loop l
+          //     The outflow of water, nitrate and urea from this ring will be the
+          //     inflow into the next ring.
+        if kr < (unsafe { nl } as usize - l0 - 1) && kr < maxl as usize - 1 {
+            dripw[kr + 1] = drwout;
+            dripn[kr + 1] = drnout;
+            dripu[kr + 1] = druout;
+        } else
+        //     If this is the last ring, the outflowing water will be added to
+        //     the drainage,
+        //  CumWaterDrained, the outflowing nitrogen to SoilNitrogenLoss.
+        {
+            unsafe {
+                CumWaterDrained += 10. * drwout / RowSpace;
+                SoilNitrogenLoss += drnout + druout;
+            }
+            return;
+        } // end if kr...
+          //     Repeat all these procedures for the next ring.
+    } // end loop kr
+}
+
+fn CellDistance(l: usize, k: usize, l0: usize, k0: usize) -> f64
+//     This function computes the distance between the centers of cells l,k an
+//     l0,k0
+//  It is called from DripFlow().
+{
+    //     Compute vertical distance between centers of l and l0
+    let mut xl = 0f64; // vertical distance (cm) between cells
+    if l > l0 {
+        for il in l0..(l + 1) {
+            xl += unsafe { dl[il] };
+        }
+        xl -= unsafe { dl[l] + dl[l0] } / 2.;
+    } else if l < l0 {
+        for il in l0..(l - 1) {
+            xl += unsafe { dl[il] };
+        }
+        xl -= unsafe { dl[l] + dl[l0] } / 2.;
+    }
+    //     Compute horizontal distance between centers of k and k0
+    let mut xk = 0f64; // horizontal distance (cm) between cells
+    if k > k0 {
+        for ik in k0..(k + 1) {
+            xk += unsafe { wk[ik] };
+        }
+        xk -= unsafe { wk[k] + wk[k0] } * 0.5;
+    } else if k < k0 {
+        for ik in k0..(k - 1) {
+            xk += unsafe { wk[ik] };
+        }
+        xk -= unsafe { wk[k] + wk[k0] } * 0.5;
+    }
+    // Compute diagonal distance between centers of cells
+    return (xl * xl + xk * xk).sqrt();
+}

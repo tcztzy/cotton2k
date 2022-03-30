@@ -32,7 +32,6 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
                    double c2, double sf, double so, double thet, double tm,
                    double &tv);
 void CapillaryFlow();
-double CellDistance(int l, int k, int l0, int k0);
 void CheckDryMatterBal();
 double clcor(int ihr, double ck, double isrhr, double coszhr);
 double clearskyemiss(double vp, double tk);
@@ -57,7 +56,6 @@ void DefoliationLeafAbscission();
 double del(double tk, double svp);
 void Denitrification(int l, int k);
 double Drain();
-void DripFlow(double WaterApplied);
 void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
                       double &cdroot);
 // E
