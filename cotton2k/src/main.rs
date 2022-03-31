@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         cotton2k::bEnd = false;
         // Start the daily loop. If variable bEnd has been assigned a value of true end simulation.
         for _ in cotton2k::DayStart..(cotton2k::DayFinish + 1) {
-            let need_to_adjust = profile.adjust();
+            let need_to_adjust = profile.adjust()?;
             pb.inc();
             // Execute simulation for this day.
             profile.simulate_this_day()?;
