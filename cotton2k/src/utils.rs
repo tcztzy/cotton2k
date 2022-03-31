@@ -3,6 +3,7 @@ use crate::Cotton2KError;
 fn depth_of_layer(l: usize) -> Result<f64, Cotton2KError> {
     if l >= 40 {
         Err(Cotton2KError {
+            level: 1,
             message: String::from("Out of index of soil layers!"),
         })
     } else {
@@ -21,6 +22,7 @@ fn depth_of_layer(l: usize) -> Result<f64, Cotton2KError> {
 fn width_of_column(k: usize, row_space: f64) -> Result<f64, Cotton2KError> {
     if k >= 20 {
         Err(Cotton2KError {
+            level: 1,
             message: String::from("Out of index of soil columns!"),
         })
     } else {
@@ -31,6 +33,7 @@ fn width_of_column(k: usize, row_space: f64) -> Result<f64, Cotton2KError> {
 fn depth(l: usize) -> Result<f64, Cotton2KError> {
     if l >= 40 {
         Err(Cotton2KError {
+            level: 1,
             message: String::from("Out of index of soil layers!"),
         })
     } else {
@@ -64,10 +67,12 @@ fn test_depth() -> Result<(), Cotton2KError> {
 fn width(k: usize, row_space: f64) -> Result<f64, Cotton2KError> {
     if k >= 20 {
         Err(Cotton2KError {
+            level: 1,
             message: String::from("Out of index of soil columns!"),
         })
     } else if row_space < 0. {
         Err(Cotton2KError {
+            level: 1,
             message: String::from("Negative row space!"),
         })
     } else {

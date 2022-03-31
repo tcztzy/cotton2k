@@ -16,6 +16,7 @@ use std::path::PathBuf;
 
 #[derive(Debug)]
 pub struct Cotton2KError {
+    level: u8,
     message: String,
 }
 
@@ -902,7 +903,15 @@ impl Profile {
             for _ in DayStart..(DayFinish + 1) {
                 let bAdjustToDo = self.adjust()?;
                 // Execute simulation for this day.
-                self.simulate_this_day()?;
+                match self.simulate_this_day() {
+                    Err(e) => {
+                        if e.level == 0 {
+                            println!("{}", e.message);
+                            break;
+                        }
+                    }
+                    _ => {}
+                }
                 self.write_record()?;
                 // If there are pending plant adjustments, call WriteStateVariables() to write
                 // state variables of this day in a scratch file.
@@ -1453,7 +1462,15 @@ impl Profile {
                         //  variables in scratch structure.
                         if nadj[jj] {
                             for _j1 in 0..NumAdjustDays {
-                                self.simulate_this_day()?;
+                                match self.simulate_this_day() {
+                                    Err(e) => {
+                                        if e.level == 0 {
+                                            println!("{}", e.message);
+                                            break;
+                                        }
+                                    }
+                                    _ => {}
+                                };
                                 if Kday > 0 {
                                     WriteStateVariables(true);
                                 }
@@ -1562,11 +1579,13 @@ impl Profile {
             // data. Simulation will also stop when no leaves remain on the plant.
             if Daynum >= LastDayWeatherData {
                 return Err(Cotton2KError {
+                    level: 0,
                     message: String::from("No more weather data!"),
                 });
             }
             if Kday > 10 && LeafAreaIndex < 0.0002 {
                 return Err(Cotton2KError {
+                    level: 0,
                     message: String::from("Leaf area index is too small!"),
                 });
             }
@@ -1787,6 +1806,7 @@ impl Profile {
 
         if TotalLeafWeight() <= 0. {
             return Err(Cotton2KError {
+                level: 0,
                 message: String::from("Leaf weight is less than 0!"),
             });
         }
@@ -2448,20 +2468,18 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
     let l0 = unsafe { LocationLayerDrip } as usize; //  layer where the drip emitter is situated
     let k0 = unsafe { LocationColumnDrip } as usize; //  column where the drip emitter is situated
 
-    //     It is assumed that wetting cannot exceed MaxWaterCapacity of this
-    //     cell. Compute
-    //  h2odef, the amount of water needed to saturate this cell.
+    // It is assumed that wetting cannot exceed MaxWaterCapacity of this cell.
+    // Compute h2odef, the amount of water needed to saturate this cell.
     h2odef = unsafe { (MaxWaterCapacity[l0] - VolWaterContent[l0][k0]) * dl[l0] * wk[k0] };
-    //      If maximum water capacity is not exceeded - update VolWaterContent
-    //      of
-    //  this cell and exit the function.
+    // If maximum water capacity is not exceeded - update VolWaterContent of this cell and exit the function.
     if dripw[0] <= h2odef {
         unsafe {
             VolWaterContent[l0][k0] += dripw[0] / (dl[l0] * wk[k0]);
         }
         return Ok(());
     }
-    // If maximum water capacity is exceeded - calculate the excess of water flowing out of this cell (in cm3 per slab) as dripw[1]. The next ring of cells (kr=1) will receive it as incoming water flow.
+    // If maximum water capacity is exceeded - calculate the excess of water flowing out of this cell (in cm3 per slab) as dripw[1].
+    // The next ring of cells (kr=1) will receive it as incoming water flow.
     dripw[1] = dripw[0] - h2odef;
     // Compute the movement of nitrate N to the next ring
     let mut cnw; // concentration of nitrate N in the outflowing water
