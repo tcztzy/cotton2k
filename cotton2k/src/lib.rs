@@ -2416,13 +2416,23 @@ fn WaterTable() {
 /// Drip - amount of irrigation applied by the drip method, mm.
 ///
 /// The following global variables are referenced:
-/// dl, LocationColumnDrip, LocationLayerDrip, MaxWaterCapacity,
-//       nk, nl, NO3FlowFraction, PoreSpace, RowSpace, wk
-//
-//     The following global variables are set:
-//       CumWaterDrained, SoilNitrogenLoss, VolWaterContent, VolNo3NContent,
-//       VolUreaNContent
-//
+/// * [dl]
+/// * [LocationColumnDrip]
+/// * [LocationLayerDrip]
+/// * [MaxWaterCapacity]
+/// * [nk]
+/// * [nl]
+/// * [NO3FlowFraction]
+/// * [PoreSpace]
+/// * [RowSpace]
+/// * [wk]
+///
+/// The following global variables are set:
+/// * [CumWaterDrained]
+/// * [SoilNitrogenLoss]
+/// * [VolWaterContent]
+/// * [VolNo3NContent]
+/// * [VolUreaNContent]
 fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
     let mut dripw: [f64; 40] = [0f64; 40]; // amount of water applied, or going from one ring of
                                            // soil cells to the next one, cm3. (array)
@@ -2430,17 +2440,17 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
                                            // soil soil cells to the next one, mg. (array)
     let mut dripu: [f64; 40] = [0f64; 40]; // amount of urea N applied, or going from one ring of
                                            // soil soil cells to the next one, mg. (array)
-                                           // Incoming flow of water (Drip, in mm) is converted to dripw(0), in cm^3 per slab.
+
+    // Incoming flow of water (Drip, in mm) is converted to dripw(0), in cm^3 per slab.
     dripw[0] = Drip * unsafe { RowSpace } * 0.10;
-    //     Wetting the cell in which the emitter is located.
-    let mut h2odef; // the difference between the maximum water capacity (at a
-                    // water content of uplimit) of this ring of soil cell, and
-                    // the actual water content, cm3.
+    // Wetting the cell in which the emitter is located.
+    let mut h2odef; // the difference between the maximum water capacity (at a water content of uplimit) of this ring of soil cell, and the actual water content, cm3.
     let l0 = unsafe { LocationLayerDrip } as usize; //  layer where the drip emitter is situated
     let k0 = unsafe { LocationColumnDrip } as usize; //  column where the drip emitter is situated
-                                                     //     It is assumed that wetting cannot exceed MaxWaterCapacity of this
-                                                     //     cell. Compute
-                                                     //  h2odef, the amount of water needed to saturate this cell.
+
+    //     It is assumed that wetting cannot exceed MaxWaterCapacity of this
+    //     cell. Compute
+    //  h2odef, the amount of water needed to saturate this cell.
     h2odef = unsafe { (MaxWaterCapacity[l0] - VolWaterContent[l0][k0]) * dl[l0] * wk[k0] };
     //      If maximum water capacity is not exceeded - update VolWaterContent
     //      of
@@ -2451,22 +2461,16 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
         }
         return Ok(());
     }
-    //      If maximum water capacity is exceeded - calculate the excess of
-    //      water flowing out of
-    //  this cell (in cm3 per slab) as dripw[1]. The next ring of cells (kr=1)
-    //  will receive it as incoming water flow.
+    // If maximum water capacity is exceeded - calculate the excess of water flowing out of this cell (in cm3 per slab) as dripw[1]. The next ring of cells (kr=1) will receive it as incoming water flow.
     dripw[1] = dripw[0] - h2odef;
-    //      Compute the movement of nitrate N to the next ring
-    let mut cnw; //  concentration of nitrate N in the outflowing water
+    // Compute the movement of nitrate N to the next ring
+    let mut cnw; // concentration of nitrate N in the outflowing water
     if unsafe { VolNo3NContent[l0][k0] } > 1.0e-30 {
         cnw = unsafe {
             VolNo3NContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl[l0] * wk[k0]))
         };
-        //     cnw is multiplied by dripw[1] to get dripn[1], the amount of
-        //     nitrate N going out
-        //  to the next ring of cells. It is assumed, however, that not more
-        //  than a proportion (NO3FlowFraction) of the nitrate N in this cell
-        //  can be removed in one iteration.
+        // cnw is multiplied by dripw[1] to get dripn[1], the amount of nitrate N going out to the next ring of cells.
+        // It is assumed, however, that not more than a proportion (NO3FlowFraction) of the nitrate N in this cell can be removed in one iteration.
         if unsafe { (cnw * MaxWaterCapacity[l0]) < (NO3FlowFraction[l0] * VolNo3NContent[l0][k0]) }
         {
             dripn[1] = unsafe { NO3FlowFraction[l0] * VolNo3NContent[l0][k0] * dl[l0] * wk[k0] };
@@ -2479,7 +2483,7 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
         }
     }
     // The movement of urea N to the next ring is computed similarly.
-    let mut cuw; //  concentration of urea N in the outflowing water
+    let mut cuw; // concentration of urea N in the outflowing water
     if unsafe { VolUreaNContent[l0][k0] } > 1.0e-30 {
         cuw = unsafe {
             VolUreaNContent[l0][k0] / (VolWaterContent[l0][k0] + dripw[0] / (dl[l0] * wk[k0]))
@@ -2515,11 +2519,9 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
         let mut su1 = 0f64; // sum of movable urea N content in a ring of cells, mg
         let radius = (6 * kr) as f64; // radius (cm) of the wetting ring
         let mut dist; // distance (cm) of a cell center from drip location
-                      //     Loop over all soil cells
+
         for l in 1..unsafe { nl as usize } {
-            //     Upper limit of water content is the porespace volume in
-            //     layers below the water table,
-            //  MaxWaterCapacity in other layers.
+            // Upper limit of water content is the porespace volume in layers below the water table, MaxWaterCapacity in other layers.
             if l >= unsafe { WaterTableLayer as usize } {
                 uplimit = unsafe { PoreSpace[l] };
             } else {
@@ -2602,11 +2604,10 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
                     MaxWaterCapacity[l]
                 }
             };
-            //
-            unsafe {
-                for k in 0..nk as usize {
-                    dist = utils::cell_distance(l, k, l0, k0, RowSpace)?;
-                    if dist <= radius && dist > (radius - 6.) {
+            for k in 0..unsafe { nk } as usize {
+                dist = utils::cell_distance(l, k, l0, k0, unsafe { RowSpace })?;
+                if dist <= radius && dist > (radius - 6.) {
+                    unsafe {
                         VolWaterContent[l][k] = uplimit;
                         VolNo3NContent[l][k] = if xnloss <= 0. {
                             uplimit * cnw
