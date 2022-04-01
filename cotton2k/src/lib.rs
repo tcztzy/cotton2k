@@ -1184,6 +1184,8 @@ impl Profile {
             SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
             PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight() + ReserveC;
         }
+        // If this is the first time the function is executed, get the ambient CO2 correction.
+        self.ambient_CO2_factor = utils::ambient_CO2_factor(self.start_date.year());
         Ok(())
     }
 
@@ -1781,20 +1783,7 @@ impl Profile {
                 message: String::from("Leaf weight is less than 0!"),
             });
         }
-        // If this is the first time the function is executed, get the ambient CO2 correction.
 
-        if Daynum <= DayEmerge {
-            let co2indx = self.start_date.year() - 1960; // count of years from 1960.
-            self.ambient_CO2_factor = if co2indx < 0 {
-                1.
-            } else if co2indx < 45 {
-                // for years 1960 to 2004
-                co2parm[co2indx as usize]
-            } else {
-                // extrapolate for years after 2004
-                1.2323 + 0.004864 * (co2indx - 45) as f64
-            }
-        }
         // Get the CO2 correction factor (pnetcor) for photosynthesis, using AmbientCO2Factor and a factor that may be
         // variety specific (vpnet[0]).
         // CO2EnrichmentFactor is used for CO2 enrichment simulations, between DOY dates DayStartCO2 and DayEndCO2.
