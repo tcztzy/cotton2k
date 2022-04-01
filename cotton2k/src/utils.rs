@@ -105,3 +105,32 @@ fn test_cell_distance() -> Result<(), Cotton2KError> {
     );
     Ok(())
 }
+
+pub fn slab_vertical_location(distance: f64) -> Result<usize, Cotton2KError> {
+    if distance > 200. || distance < 0. {
+        Err(Cotton2KError {
+            level: 1,
+            message: String::from("distance out of boundary!"),
+        })
+    } else {
+        let mut result: usize = 0;
+
+        for l in 0..40 {
+            if (depth(l)? + depth_of_layer(l)? / 2.) >= distance {
+                result = l;
+                break;
+            }
+        }
+
+        Ok(result)
+    }
+}
+
+#[test]
+fn test_slab_vertical_location() -> Result<(), Cotton2KError> {
+    assert_eq!(slab_vertical_location(5.)?, 2);
+    assert_eq!(slab_vertical_location(10.)?, 3);
+    assert_eq!(slab_vertical_location(108.)?, 23);
+    assert_eq!(slab_vertical_location(200.)?, 39);
+    Ok(())
+}

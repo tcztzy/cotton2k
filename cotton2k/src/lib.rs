@@ -416,21 +416,6 @@ fn estimate_dew_point(maxt: f64, site5: f64, site6: f64) -> f64 {
     }
 }
 
-fn slab_vertical_location(distance: f64) -> usize {
-    let mut sumdl = 0.;
-    let mut result: usize = 0;
-    unsafe {
-        for l in 0..nl as usize {
-            sumdl += dl[l];
-            if sumdl >= distance {
-                result = l;
-                break;
-            }
-        }
-    }
-    result
-}
-
 fn slab_horizontal_location(distance: f64) -> usize {
     let mut sumwk = 0.;
     let mut result: usize = 0;
@@ -1122,7 +1107,7 @@ impl Profile {
                             DayStopPredIrrig = stop_predict_date.unwrap().ordinal() as i32;
                             if let IrrigationMethod::Drip = method {
                                 LocationColumnDrip = slab_horizontal_location(*drip_x) as i32;
-                                LocationLayerDrip = slab_vertical_location(*drip_y) as i32;
+                                LocationLayerDrip = utils::slab_vertical_location(*drip_y)? as i32;
                             }
                             IrrigMethod = *method as i32;
                         } else {
@@ -1132,7 +1117,7 @@ impl Profile {
                                 Irrig[NumIrrigations as usize].LocationColumnDrip =
                                     slab_horizontal_location(*drip_x) as i32;
                                 Irrig[NumIrrigations as usize].LocationLayerDrip =
-                                    slab_vertical_location(*drip_y) as i32;
+                                    utils::slab_vertical_location(*drip_y)? as i32;
                             }
                             Irrig[NumIrrigations as usize].method = *method as i32;
                             NumIrrigations += 1;
@@ -1156,7 +1141,7 @@ impl Profile {
                                 NFertilizer[NumNitApps as usize].ksdr =
                                     slab_horizontal_location(*drip_x) as i32;
                                 NFertilizer[NumNitApps as usize].lsdr =
-                                    slab_vertical_location(*drip_y) as i32;
+                                    utils::slab_vertical_location(*drip_y)? as i32;
                             }
                             _ => {}
                         }
