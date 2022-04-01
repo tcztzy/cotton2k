@@ -134,3 +134,29 @@ fn test_slab_vertical_location() -> Result<(), Cotton2KError> {
     assert_eq!(slab_vertical_location(200.)?, 39);
     Ok(())
 }
+
+pub fn slab_horizontal_location(distance: f64, row_space: f64) -> Result<usize, Cotton2KError> {
+    if distance > row_space || distance < 0. {
+        Err(Cotton2KError {
+            level: 1,
+            message: String::from("distance out of boundary!"),
+        })
+    } else {
+        let mut result: usize = 0;
+
+        for l in 0..20 {
+            if (width(l, row_space)? + width_of_column(l, row_space)? / 2.) >= distance {
+                result = l;
+                break;
+            }
+        }
+
+        Ok(result)
+    }
+}
+#[test]
+fn test_slab_horizontal_location() -> Result<(), Cotton2KError> {
+    assert_eq!(slab_horizontal_location(10., 100.)?, 1);
+    assert_eq!(slab_horizontal_location(20., 100.)?, 3);
+    Ok(())
+}

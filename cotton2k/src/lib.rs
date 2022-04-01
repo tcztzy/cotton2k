@@ -416,21 +416,6 @@ fn estimate_dew_point(maxt: f64, site5: f64, site6: f64) -> f64 {
     }
 }
 
-fn slab_horizontal_location(distance: f64) -> usize {
-    let mut sumwk = 0.;
-    let mut result: usize = 0;
-    unsafe {
-        for k in 0..nk as usize {
-            sumwk += wk[k];
-            if sumwk >= distance {
-                result = k;
-                break;
-            }
-        }
-    }
-    result
-}
-
 /// This function initializes many "global" variables at the start of a simulation.
 ///
 /// It is called from [Profile::initialize()].
@@ -1106,7 +1091,8 @@ impl Profile {
                             DayStartPredIrrig = date.ordinal() as i32;
                             DayStopPredIrrig = stop_predict_date.unwrap().ordinal() as i32;
                             if let IrrigationMethod::Drip = method {
-                                LocationColumnDrip = slab_horizontal_location(*drip_x) as i32;
+                                LocationColumnDrip =
+                                    utils::slab_horizontal_location(*drip_x, RowSpace)? as i32;
                                 LocationLayerDrip = utils::slab_vertical_location(*drip_y)? as i32;
                             }
                             IrrigMethod = *method as i32;
@@ -1115,7 +1101,7 @@ impl Profile {
                             Irrig[NumIrrigations as usize].amount = *amount;
                             if let IrrigationMethod::Drip = method {
                                 Irrig[NumIrrigations as usize].LocationColumnDrip =
-                                    slab_horizontal_location(*drip_x) as i32;
+                                    utils::slab_horizontal_location(*drip_x, RowSpace)? as i32;
                                 Irrig[NumIrrigations as usize].LocationLayerDrip =
                                     utils::slab_vertical_location(*drip_y)? as i32;
                             }
@@ -1139,7 +1125,7 @@ impl Profile {
                         match method {
                             FertilizationMethod::Sidedress | FertilizationMethod::Drip => {
                                 NFertilizer[NumNitApps as usize].ksdr =
-                                    slab_horizontal_location(*drip_x) as i32;
+                                    utils::slab_horizontal_location(*drip_x, RowSpace)? as i32;
                                 NFertilizer[NumNitApps as usize].lsdr =
                                     utils::slab_vertical_location(*drip_y)? as i32;
                             }
