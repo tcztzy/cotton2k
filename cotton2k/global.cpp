@@ -40,7 +40,6 @@ struct Irrigation
 //
 int CultivationDate[5],  // Dates (DOY) of cultivatrion.
     DayEmerge,           // Date of emergence (DOY).
-    DayEndCO2,           // Last date (DOY) with CO2 enrichment.
     DayEndMulch,         // date (DOY) for ending of mulch.
     DayFinish,           // Date (DOY) to end simulation.
     DayFirstDef,         // Date (DOY) of first defoliation.
@@ -49,7 +48,6 @@ int CultivationDate[5],  // Dates (DOY) of cultivatrion.
              // = DOY)
     DayPlant,                // Date (DOY) of planting.
     DayStart,                // Date (DOY) to start simulation.
-    DayStartCO2,             // First date (DOY) with CO2 enrichment.
     DayStartMulch,           // Date (DOY) for beginning of mulch.
     DayStartPredIrrig,       // Date (DOY) for starting predicted irrigation.
     DayStopPredIrrig,        // Date (DOY) for stopping predicted irrigation.
@@ -210,7 +208,6 @@ double CarbonAllocatedForRootGrowth,  // available carbon allocated for root
     ClayVolumeFraction[maxl],  // fraction by volume of clay in the soil.
     CloudCoverRatio[24],       // cloud cover ratio (0 to 1).
     CloudTypeCorr[24],         // hourly cloud type correction.
-    CO2EnrichmentFactor,       // factor describing effect of CO2 enrichment.
     conmax,  // the maximum value for non-dimensional hydraulic conductivity
     CottonWeightGreenBolls,  // total weight of seedcotton in green bolls, g
                              // plant-1.

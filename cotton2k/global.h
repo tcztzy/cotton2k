@@ -82,8 +82,8 @@ extern struct Irrigation {
     double amount;
 } Irrig[150];
 ////    Integers    ////
-extern int DayEmerge, DayEndCO2, DayEndMulch, DayFinish, DayFirstDef,
-    DayOfSimulation, Daynum, DayPlant, DayStart, DayStartCO2, DayStartMulch,
+extern int DayEmerge, DayEndMulch, DayFinish, DayFirstDef,
+    DayOfSimulation, Daynum, DayPlant, DayStart, DayStartMulch,
     DayStartPredIrrig, DayStopPredIrrig, FirstBloom, FirstSquare, inrim,
     IrrigMethod, isw, iyear, Kday, KdayAdjust, LastDayWeatherData,
     LastIrrigation, LastTaprootLayer, LocationColumnDrip, LocationLayerDrip,
@@ -107,7 +107,7 @@ extern double AbscisedFruitSites, AbscisedLeafWeight, ActualBollGrowth,
     AppliedWater, AverageLwp, AverageLwpMin, AverageSoilPsi, AvrgDailyTemp,
     BloomWeightLoss, BurrNConc, BurrNitrogen, BurrWeightGreenBolls,
     BurrWeightOpenBolls, CarbonAllocatedForRootGrowth, CarbonStress,
-    CO2EnrichmentFactor, conmax, CottonWeightGreenBolls, CottonWeightOpenBolls,
+    conmax, CottonWeightGreenBolls, CottonWeightOpenBolls,
     CumEvaporation, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake,
     CumPlantNLoss, CumTranspiration, CumWaterAdded, CumWaterDrained,
     DailyRootLoss, DayInc, DayLength, DayTimeTemp, dclay, DeepSoilTemperature,

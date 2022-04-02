@@ -212,6 +212,16 @@ pub struct CO2Enrichment {
     pub stop_date: NaiveDate,
 }
 
+impl Default for CO2Enrichment {
+    fn default() -> Self {
+        CO2Enrichment {
+            factor: 1.,
+            start_date: NaiveDate::from_ymd(1900, 1, 1),
+            stop_date: NaiveDate::from_ymd(2100, 1, 1),
+        }
+    }
+}
+
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub enum MulchType {
     NoMulch,
@@ -436,7 +446,6 @@ unsafe fn InitializeGlobal() {
     BurrWeightOpenBolls = 0.;
 
     CarbonAllocatedForRootGrowth = 0.;
-    CO2EnrichmentFactor = 0.;
     CottonWeightGreenBolls = 0.;
     CottonWeightOpenBolls = 0.;
     CarbonStress = 1.;
@@ -935,14 +944,6 @@ impl Profile {
                 Kday = 1;
             }
             // For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates
-            match self.co2_enrichment {
-                Some(enrichment) => {
-                    CO2EnrichmentFactor = enrichment.factor;
-                    DayStartCO2 = enrichment.start_date.ordinal() as i32;
-                    DayEndCO2 = enrichment.stop_date.ordinal() as i32;
-                }
-                None => CO2EnrichmentFactor = 0.,
-            }
             // If soil mulch is used, read relevant parameters.
             match self.mulch {
                 Some(mulch) => match mulch.indicator {
@@ -1727,13 +1728,10 @@ impl Profile {
     ///
     /// The following global and file scope variables are referenced here:
     /// * [BurrWeightOpenBolls]
-    /// * [CO2EnrichmentFactor]
     /// * [CottonWeightOpenBolls]
     /// * [DayLength]
     /// * [Daynum]
     /// * [DayEmerge]
-    /// * [DayEndCO2]
-    /// * [DayStartCO2]
     /// * [DayTimeTemp]
     /// * [iyear]
     /// * [Kday]
@@ -1786,16 +1784,11 @@ impl Profile {
 
         // Get the CO2 correction factor (pnetcor) for photosynthesis, using AmbientCO2Factor and a factor that may be
         // variety specific (vpnet[0]).
-        // CO2EnrichmentFactor is used for CO2 enrichment simulations, between DOY dates DayStartCO2 and DayEndCO2.
 
         // correction factor for gross photosynthesis.
         let pnetcor = self.ambient_CO2_factor
             * vpnet[0]
-            * if Daynum >= DayStartCO2 && Daynum <= DayEndCO2 && CO2EnrichmentFactor > 1. {
-                CO2EnrichmentFactor
-            } else {
-                1.
-            };
+            * self.co2_enrichment.unwrap_or_default().factor;
         // Compute ptnfac, the effect of leaf N concentration on photosynthesis, using an empirical relationship.
         // correction factor for low nitrogen content in leaves.
         let mut ptnfac =
