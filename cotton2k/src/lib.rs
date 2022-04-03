@@ -7,6 +7,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+mod adjust;
 mod utils;
 use chrono::Datelike;
 use chrono::NaiveDate;
@@ -146,6 +147,8 @@ pub struct Profile {
     /// correction factor for ambient CO2 in air
     #[serde(skip)]
     ambient_CO2_factor: f64,
+    #[serde(skip)]
+    states: Vec<State>,
 }
 
 #[cfg(target_os = "linux")]
@@ -201,6 +204,8 @@ pub struct Profile {
     /// correction factor for ambient CO2 in air
     #[serde(skip)]
     ambient_CO2_factor: f64,
+    #[serde(skip)]
+    states: Vec<State>,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -413,6 +418,11 @@ pub struct PlantMap {
     pub number_of_squares: f64,
     pub number_of_bolls: f64,
     pub number_of_nodes: f64,
+}
+
+#[derive(Debug)]
+pub struct State {
+    pub plant_height: f64,
 }
 
 /// estimates the approximate daily average dewpoint temperature when it is not available.
@@ -1429,7 +1439,7 @@ impl Profile {
                     // Loop for six possible adjustments. On each iteration call first PlantAdjustments(), which will
                     // assign true to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
                     for jj in 0..5 as usize {
-                        PlantAdjustments(i as i32, jj as i32);
+                        adjust::PlantAdjustments(i, jj as i32);
                         //     If adjustment is necessary, rerun the simulation for the
                         //     previous NumAdjustDays (number
                         //  of days) and call WriteStateVariables() to write state
@@ -1786,9 +1796,8 @@ impl Profile {
         // variety specific (vpnet[0]).
 
         // correction factor for gross photosynthesis.
-        let pnetcor = self.ambient_CO2_factor
-            * vpnet[0]
-            * self.co2_enrichment.unwrap_or_default().factor;
+        let pnetcor =
+            self.ambient_CO2_factor * vpnet[0] * self.co2_enrichment.unwrap_or_default().factor;
         // Compute ptnfac, the effect of leaf N concentration on photosynthesis, using an empirical relationship.
         // correction factor for low nitrogen content in leaves.
         let mut ptnfac =

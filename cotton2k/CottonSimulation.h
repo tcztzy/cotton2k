@@ -102,7 +102,6 @@ void NitrogenUptakeRequirement();
 // P
 double PetioleNitrateN();
 double PhysiologicalAge();
-void PlantAdjustments(int i0, int jj);
 void PlantGrowth();
 void PlantNitrogen();
 void PlantNitrogenBal();

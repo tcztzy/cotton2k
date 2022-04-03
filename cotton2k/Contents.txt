@@ -21,7 +21,6 @@ Genaral Framework:
 
     File PlantAdjustment.cpp
           WriteStateVariables()
-          PlantAdjustments()
           GoBack()
 
     Header files:
