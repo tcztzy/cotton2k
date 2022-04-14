@@ -917,6 +917,7 @@ impl Profile {
 
     pub fn initialize(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
         self.kprevadj = 0;
+        self.lmax = 0.;
         unsafe {
             InitializeGlobal();
             light_intercept_method = self.light_intercept_method;
@@ -1337,11 +1338,9 @@ impl Profile {
             .append(true)
             .open(self.path.parent().unwrap().join("output.csv"))?;
         let mut record = vec![
-            unsafe {
-                chrono::NaiveDate::from_yo(iyear, Daynum as u32)
-                    .format("%F")
-                    .to_string()
-            },
+            chrono::NaiveDate::from_yo(unsafe { iyear }, unsafe { Daynum } as u32)
+                .format("%F")
+                .to_string(),
             unsafe { LightIntercept.to_string() },
             unsafe { LintYield.to_string() },
             unsafe { LeafAreaIndex.to_string() },
@@ -1519,11 +1518,11 @@ impl Profile {
             Daynum += 1;
             DayOfSimulation = Daynum - DayStart + 1;
             //    Compute Kday (days from emergence).
-            if DayEmerge <= 0 {
-                Kday = 0;
+            Kday = if DayEmerge <= 0 {
+                0
             } else {
-                Kday = Daynum - DayEmerge + 1;
-            }
+                Daynum - DayEmerge + 1
+            };
             if Kday < 0 {
                 Kday = 0;
             }
@@ -1604,9 +1603,7 @@ impl Profile {
                 return;
             }
             // Compute the maximum leaf area index until this day (lmax).
-            if Daynum <= DayEmerge {
-                self.lmax = 0.;
-            } else if LeafAreaIndex > self.lmax {
+            if LeafAreaIndex > self.lmax {
                 self.lmax = LeafAreaIndex;
             }
             // Light interception is computed by two methods:
