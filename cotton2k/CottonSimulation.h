@@ -72,7 +72,6 @@ double gam(double elev, double tt);
 void GetNitrogenStress();
 double GetTargetStress();
 void GoBack();
-void GravityFlow(double WaterApplied);
 double TemperatureOnLeafGrowthRate(double t);
 void HeatBalance(int nn);
 // I

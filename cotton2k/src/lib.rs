@@ -2618,3 +2618,32 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
     }
     Ok(())
 }
+
+/// This function computes the water redistribution in the soil or surface irrigation (by flooding or sprinklers).
+/// It is called by [SoilProcedures()].
+/// It calls function [Drain()].
+/// 
+/// The following argument is used:
+/// - applyWat = amount of water applied, mm.
+/// 
+/// The following global variables are referenced:
+/// * [dl]
+/// * [nk]
+/// * [RowSpace].
+/// 
+/// The following global variables are set:
+/// * [CumWaterDrained]
+/// * [VolWaterContent]
+unsafe fn GravityFlow(applywat: f64) {
+    // Add the applied amount of water to the top soil cell of each column.
+    for k in 0..nk as usize {
+        VolWaterContent[0][k] += 0.10 * applywat / dl[0];
+    }
+    // Call function Drain() to compute downflow of water.   
+    // water drained out of the slab, mm.
+    let WaterDrainedOut: f64 = Drain();
+    // If there is drainage out of the slab, transform it to mm, and update the cumulative drainage (CumWaterDrained)
+    if WaterDrainedOut > 0. {
+        CumWaterDrained += 10. * WaterDrainedOut / RowSpace;
+    }
+}

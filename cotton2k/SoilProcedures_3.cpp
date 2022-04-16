@@ -1,7 +1,6 @@
 //  SoilProcedures_3.cpp
 //
 //   functions in this file:
-// GravityFlow()
 // WaterUptake()
 // PsiOnTranspiration()
 // NitrogenUptake()
@@ -15,32 +14,7 @@
 #include "CottonSimulation.h"
 #include "GeneralFunctions.h"
 
-//
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-////////////////////////////////////////////////////////////////////////////
-void GravityFlow(double applywat)
-//     This function computes the water redistribution in the soil or surface
-//     irrigation
-//  (by flooding or sprinklers). It is called by SoilProcedures(). It calls
-//  function Drain().
-//     The following argument is used:          ApplyWat = amount of water
-//     applied, mm. The following global variables are referenced:
-//       dl, nk, RowSpace.
-//     The following global variables are set:
-//       CumWaterDrained, VolWaterContent.
-{
-    //     Add the applied amount of water to the top soil cell of each column.
-    for (int k = 0; k < nk; k++)
-        VolWaterContent[0][k] += 0.10 * applywat / dl[0];
-    //     Call function Drain() to compute downflow of water.
-    double WaterDrainedOut;  // water drained out of the slab, mm.
-    WaterDrainedOut = Drain();
-    //     If there is drainage out of the slab, transform it to mm,
-    //  and update the cumulative drainage (CumWaterDrained)
-    if (WaterDrainedOut > 0) CumWaterDrained += 10 * WaterDrainedOut / RowSpace;
-}
+
 ///////////////////////////////////////////////////////////////////////////////////
 void WaterUptake()
 //     This function computes the uptake of water by plant roots from the soil
