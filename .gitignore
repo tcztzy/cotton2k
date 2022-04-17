@@ -7,7 +7,7 @@
 
 # Added by cargo
 
-/target
+target/
 *.o
 *.mod
 

@@ -1,9 +1,0 @@
-repos:
-  - repo: local
-    hooks:
-      - id: Cargo test
-        name: Run test
-        entry: cargo test
-        language: rust
-        files: \.(cpp|for|f90|h|rs)$
-        pass_filenames: false

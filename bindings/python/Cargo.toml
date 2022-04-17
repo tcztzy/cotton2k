@@ -9,7 +9,7 @@ name = "cotton2k"
 crate-type = ["cdylib"]
 
 [dependencies]
-cotton2k = { path = "../cotton2k/" }
+cotton2k = { path = "../../cotton2k/" }
 toml = "0.5"
 serde_json = "1.0.79"
 
