@@ -69,7 +69,6 @@ Soil:
 
     File SoilProcedures_1.cpp
           RootsCapableOfUptake()
-          ApplyFertilizer()
           ComputeIrrigation()
           GetTargetStress()
           PredictDripIrrigation()

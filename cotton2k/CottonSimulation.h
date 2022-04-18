@@ -20,7 +20,6 @@ void AdjustBollAbscission(int k, int l, int m, int jx, double gin1);
 //    gin1);
 void AdjustSquareAbscission(int k, int l, int m, double abscsq);
 void AdjustYoungBollAbscission(int k, int l, int m, double abscgb, double gin1);
-void ApplyFertilizer();
 void AverageAirTemperatures();
 double AveragePsi();
 // B

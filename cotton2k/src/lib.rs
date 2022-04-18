@@ -2622,15 +2622,15 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
 /// This function computes the water redistribution in the soil or surface irrigation (by flooding or sprinklers).
 /// It is called by [SoilProcedures()].
 /// It calls function [Drain()].
-/// 
+///
 /// The following argument is used:
 /// - applyWat = amount of water applied, mm.
-/// 
+///
 /// The following global variables are referenced:
 /// * [dl]
 /// * [nk]
 /// * [RowSpace].
-/// 
+///
 /// The following global variables are set:
 /// * [CumWaterDrained]
 /// * [VolWaterContent]
@@ -2639,11 +2639,152 @@ unsafe fn GravityFlow(applywat: f64) {
     for k in 0..nk as usize {
         VolWaterContent[0][k] += 0.10 * applywat / dl[0];
     }
-    // Call function Drain() to compute downflow of water.   
+    // Call function Drain() to compute downflow of water.
     // water drained out of the slab, mm.
     let WaterDrainedOut: f64 = Drain();
     // If there is drainage out of the slab, transform it to mm, and update the cumulative drainage (CumWaterDrained)
     if WaterDrainedOut > 0. {
         CumWaterDrained += 10. * WaterDrainedOut / RowSpace;
+    }
+}
+/// This function simulates the application of nitrogen fertilizer on each date of application.
+/// It is called from [SoilProcedures()].
+/// 
+/// The following global variables are referenced here:
+/// * [Daynum]
+/// * [dl]
+/// * [LightIntercept]
+/// * [LocationColumnDrip]
+/// * [LocationLayerDrip]
+/// * [NFertilizer]
+/// * [nk]
+/// * [nl]
+/// * [NumNitApps]
+/// * [RowSpace]
+/// * [wk]
+/// 
+/// The following global variables are set here:
+/// * [CumFertilizerN]
+/// * [LeafNitrogen]
+/// * [VolNh4NContent]
+/// * [VolNo3NContent]
+/// * [VolUreaNContent]
+unsafe fn ApplyFertilizer() {
+    let ferc = 0.01; // constant used to convert kgs per ha to mg cm-2
+
+    // Loop over all fertilizer applications.
+    for i in 0..NumNitApps as usize {
+        // Check if fertilizer is to be applied on this day.
+        if Daynum == NFertilizer[i].day {
+            // Compute the sum of mineral N applied as fertilizer (CumFertilizerN, in mg per slab).
+            CumFertilizerN += ferc
+                * RowSpace
+                * (NFertilizer[i].amtamm + NFertilizer[i].amtnit + NFertilizer[i].amtura);
+            // If this is a BROADCAST fertilizer application:
+            if NFertilizer[i].mthfrt == 0 {
+                // Compute the number of layers affected by broadcast fertilizer incorporation (lplow), assuming that the depth of incorporation is 20 cm.
+                let mut lplow: usize = 0; // number of soil layers affected by cultivation
+                let mut sdl: f64 = 0.; // sum of depth of consecutive soil layers
+                for l in 0..nl as usize {
+                    sdl += dl[l];
+                    if sdl >= 20. {
+                        lplow = l + 1;
+                        break;
+                    }
+                }
+                // Calculate the actual depth of fertilizer incorporation in the soil (fertdp) as the sum of all soil layers affected by incorporation.
+                let mut fertdp = 0f64; // depth of broadcast fertilizer incorporation, cm
+                for l in 0..lplow {
+                    fertdp += dl[l];
+                }
+                // Update the nitrogen contents of all soil soil cells affected by this fertilizer application.
+                for l in 0..lplow {
+                    for k in 0..nk as usize {
+                        VolNh4NContent[l][k] += NFertilizer[i].amtamm * ferc / fertdp;
+                        VolNo3NContent[l][k] += NFertilizer[i].amtnit * ferc / fertdp;
+                        VolUreaNContent[l][k] += NFertilizer[i].amtura * ferc / fertdp;
+                    }
+                }
+            }
+            // If this is a FOLIAR fertilizer application:
+            else if NFertilizer[i].mthfrt == 2 {
+                // It is assumed that 70% of the amount of ammonium or urea intercepted by the canopy is added to the leaf N content (LeafNitrogen).
+                LeafNitrogen +=
+                    0.70 * LightIntercept * (NFertilizer[i].amtamm + NFertilizer[i].amtura) * 1000.
+                        / PlantPopulation;
+                // The amount not intercepted by the canopy is added to the soil. If the fertilizer is nitrate, it is assumed that all of it is added to the upper soil layer.
+                // Update nitrogen contents of the upper layer.
+                for k in 0..nk as usize {
+                    VolNh4NContent[0][k] +=
+                        NFertilizer[i].amtamm * (1. - 0.70 * LightIntercept) * ferc / dl[0];
+                    VolNo3NContent[0][k] += NFertilizer[i].amtnit * ferc / dl[0];
+                    VolUreaNContent[0][k] +=
+                        NFertilizer[i].amtura * (1. - 0.70 * LightIntercept) * ferc / dl[0];
+                }
+            }
+            // If this is a SIDE-DRESSING of N fertilizer:
+            else if NFertilizer[i].mthfrt == 1 {
+                // Define the soil column (ksdr) and the soil layer (lsdr) in which the side-dressed fertilizer is applied.
+                let ksdr = NFertilizer[i].ksdr as usize; // the column in which the side-dressed is applied
+                let lsdr = NFertilizer[i].ksdr as usize; // the layer in which the side-dressed is applied
+                let mut n00: u32 = 1; // number of soil soil cells in which side-dressed fertilizer is incorporated.
+                                  
+                // If the volume of this soil cell is less than 100 cm3, it is assumed that the fertilizer is also incorporated in the soil cells below and to the sides of it.
+                if (dl[lsdr] * wk[ksdr]) < 100. {
+                    if ksdr < (nk - 1) as usize {
+                        n00 += 1;
+                    }
+                    if ksdr > 0 {
+                        n00 += 1;
+                    }
+                    if lsdr < (nl - 1) as usize {
+                        n00 += 1;
+                    }
+                }
+                // amount of ammonium N added to the soil by sidedressing (mg per cell)
+                let addamm = NFertilizer[i].amtamm * ferc * RowSpace / n00 as f64;
+                // amount of nitrate N added to the soil by sidedressing (mg per cell)
+                let addnit = NFertilizer[i].amtnit * ferc * RowSpace / n00 as f64;
+                // amount of urea N added to the soil by  sidedressing (mg per cell)
+                let addnur = NFertilizer[i].amtura * ferc * RowSpace / n00 as f64;
+                // Update the nitrogen contents of these soil cells.
+                VolNo3NContent[lsdr][ksdr] += addnit / (dl[lsdr] * wk[ksdr]);
+                VolNh4NContent[lsdr][ksdr] += addamm / (dl[lsdr] * wk[ksdr]);
+                VolUreaNContent[lsdr][ksdr] += addnur / (dl[lsdr] * wk[ksdr]);
+                if (dl[lsdr] * wk[ksdr]) < 100. {
+                    if ksdr < (nk - 1) as usize {
+                        let kp1 = ksdr + 1; // column to the right of ksdr.
+                        VolNo3NContent[lsdr][kp1] += addnit / (dl[lsdr] * wk[kp1]);
+                        VolNh4NContent[lsdr][kp1] += addamm / (dl[lsdr] * wk[kp1]);
+                        VolUreaNContent[lsdr][kp1] += addnur / (dl[lsdr] * wk[kp1]);
+                    }
+                    if ksdr > 0 {
+                        let km1 = ksdr - 1; // column to the left of ksdr.
+                        VolNo3NContent[lsdr][km1] += addnit / (dl[lsdr] * wk[km1]);
+                        VolNh4NContent[lsdr][km1] += addamm / (dl[lsdr] * wk[km1]);
+                        VolUreaNContent[lsdr][km1] += addnur / (dl[lsdr] * wk[km1]);
+                    }
+                    if lsdr < (nl - 1) as usize {
+                        let lp1 = lsdr + 1;
+                        VolNo3NContent[lp1][ksdr] += addnit / (dl[lp1] * wk[ksdr]);
+                        VolNh4NContent[lp1][ksdr] += addamm / (dl[lp1] * wk[ksdr]);
+                        VolUreaNContent[lp1][ksdr] += addnur / (dl[lp1] * wk[ksdr]);
+                    }
+                }
+            }
+            // If this is FERTIGATION (N fertilizer applied in drip irrigation):
+            else if NFertilizer[i].mthfrt == 3 {
+                // Convert amounts added to mg cm-3, and update the nitrogen content of the soil cell in which the drip outlet is situated.
+                VolNh4NContent[LocationLayerDrip as usize][LocationColumnDrip as usize] +=
+                    NFertilizer[i].amtamm * ferc * RowSpace
+                        / (dl[LocationLayerDrip as usize] * wk[LocationColumnDrip as usize]);
+                VolNo3NContent[LocationLayerDrip as usize][LocationColumnDrip as usize] +=
+                    NFertilizer[i].amtnit * ferc * RowSpace
+                        / (dl[LocationLayerDrip as usize] * wk[LocationColumnDrip as usize]);
+                VolUreaNContent[LocationLayerDrip as usize][LocationColumnDrip as usize] +=
+                    NFertilizer[i].amtura * ferc * RowSpace
+                        / (dl[LocationLayerDrip as usize] * wk[LocationColumnDrip as usize]);
+            }
+        }
     }
 }
