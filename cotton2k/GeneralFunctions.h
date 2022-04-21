@@ -14,7 +14,5 @@ double psiq(double q, double qr, double qsat, double alpha, double beta);
 double PsiOsmotic(double q, double qsat, double ec);
 double GetFromClim(CLIMATE_METRIC item, int Doy);
 inline double drop_leaf_age(double lai) {
-    return (light_intercept_method == LIGHT_INTERCEPT_METHOD_LAYERED ? 80
-                                                                     : 140.) -
-           1. * lai;
+    return 140. - 1. * lai;
 }

@@ -510,7 +510,6 @@ double VarPar[61],      // array of cultivar specific constant parameters.
 double light_intercept_parameter,
     light_intercept_parameters[20];  // Parameter in light interception
                                      // computation 1 - e^{p * LAI}
-LIGHT_INTERCEPT_METHOD light_intercept_method;
 
 double TotalLeafWeight() {
     double result = 0;

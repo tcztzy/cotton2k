@@ -94,76 +94,17 @@ fn zero() -> f64 {
     0.
 }
 
-#[cfg(target_os = "windows")]
 #[inline]
-fn zero_i32() -> i32 {
-    0
+fn original_light_intercept_method() -> LightInterceptMethod {
+    LightInterceptMethod::Original
 }
 
-#[cfg(target_os = "windows")]
 #[derive(Deserialize, Debug)]
 pub struct Profile {
     #[serde(skip)]
     pub path: PathBuf,
-    #[serde(default = "zero_i32")]
-    pub light_intercept_method: i32,
-    pub latitude: f64,
-    pub longitude: f64,
-    pub elevation: f64,
-    #[serde(deserialize_with = "from_isoformat")]
-    pub start_date: NaiveDate,
-    #[serde(deserialize_with = "from_isoformat")]
-    pub stop_date: NaiveDate,
-    #[serde(default)]
-    #[serde(deserialize_with = "from_isoformat_option")]
-    pub emerge_date: Option<NaiveDate>,
-    #[serde(default)]
-    #[serde(deserialize_with = "from_isoformat_option")]
-    pub plant_date: Option<NaiveDate>,
-    pub co2_enrichment: Option<CO2Enrichment>,
-    pub mulch: Option<Mulch>,
-    pub weather_path: PathBuf,
-    pub soil_impedance: Option<PathBuf>,
-    pub site: Site,
-    pub cultivar_parameters: Vec<f64>,
-    pub row_space: f64,
-    #[serde(default = "zero")]
-    pub skip_row_width: f64,
-    pub plants_per_meter: f64,
-    pub agronomy_operations: Vec<AgronomyOperation>,
-    pub light_intercept_parameters: Option<[f64; 20]>,
-    pub soil_layers: [SoilLayer; 14],
-    pub soil_hydraulic: SoilHydraulic,
-    pub plant_maps: Option<Vec<PlantMap>>,
-    /// day after emergence of the previous plant map adjustment.
-    #[serde(skip)]
-    kprevadj: u32,
-    /// maximum leaf area index.
-    #[serde(skip)]
-    lmax: f64,
-    /// The effect of moisture stress on the photosynthetic rate
-    #[serde(skip)]
-    ptsred: f64,
-    /// correction factor for ambient CO2 in air
-    #[serde(skip)]
-    ambient_CO2_factor: f64,
-    #[serde(skip)]
-    states: Vec<State>,
-}
-
-#[cfg(target_os = "linux")]
-#[inline]
-fn zero_u32() -> u32 {
-    0
-}
-
-#[cfg(target_os = "linux")]
-#[derive(Deserialize, Debug)]
-pub struct Profile {
-    #[serde(skip)]
-    pub path: PathBuf,
-    #[serde(default = "zero_u32")]
-    pub light_intercept_method: u32,
+    #[serde(default = "original_light_intercept_method")]
+    pub light_intercept_method: LightInterceptMethod,
     pub latitude: f64,
     pub longitude: f64,
     pub elevation: f64,
@@ -236,6 +177,13 @@ pub enum MulchType {
     OneColumnLeftAtSide,
     /// plastic layer on all soil surface except two columns at each side of the plant row.
     TwoColumnsLeftAtSide,
+}
+
+#[derive(Deserialize, Debug, Clone, Copy)]
+pub enum LightInterceptMethod {
+    Original,
+    Fry1980,
+    Latered,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -920,7 +868,6 @@ impl Profile {
         self.lmax = 0.;
         unsafe {
             InitializeGlobal();
-            light_intercept_method = self.light_intercept_method;
             Latitude = self.latitude;
             Longitude = self.longitude;
             Elevation = self.elevation;
@@ -1177,12 +1124,15 @@ impl Profile {
                     }
                 }
             }
-            if self.light_intercept_method == 2 {
-                light_intercept_parameter = 0.;
-                for i in 0..20 {
-                    light_intercept_parameters[i] = self.light_intercept_parameters.unwrap()[i];
-                    light_intercept_parameter += light_intercept_parameters[i];
+            match self.light_intercept_method {
+                LightInterceptMethod::Latered => {
+                    light_intercept_parameter = 0.;
+                    for i in 0..20 {
+                        light_intercept_parameters[i] = self.light_intercept_parameters.unwrap()[i];
+                        light_intercept_parameter += light_intercept_parameters[i];
+                    }
                 }
+                _ => {}
             }
         }
         self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
@@ -1613,8 +1563,8 @@ impl Profile {
         }
         // light interception computed from plant height.
         let zint = unsafe { 1.0756 * PlantHeight / RowSpace };
-        unsafe {
-            if light_intercept_method == LIGHT_INTERCEPT_METHOD_LIGHT_INTERCEPT_METHOD_LAYERED {
+        match self.light_intercept_method {
+            LightInterceptMethod::Latered => unsafe {
                 for i in 0..20 {
                     LeafArea[i] = 0.;
                     AverageLeafAge[i] = 0.;
@@ -1648,32 +1598,36 @@ impl Profile {
                     light_through += light_intercept_parameters[i] * LeafAreaIndexes[i];
                 }
                 LightIntercept = 1. - light_through.exp();
-            } else if light_intercept_method
-                == LIGHT_INTERCEPT_METHOD_LIGHT_INTERCEPT_METHOD_FRY1980
-            {
+            },
+            LightInterceptMethod::Fry1980 => unsafe {
                 LightIntercept = 0.39 * LeafAreaIndex.powf(0.68);
-            } else {
-                // 2. It is computed as a function of leaf area index. If LeafAreaIndex is not greater than 0.5 lfint is a
-                //    linear function of it.
+            },
+            LightInterceptMethod::Original => {
+                unsafe {
+                    // 2. It is computed as a function of leaf area index. If LeafAreaIndex is not greater than 0.5 lfint is a
+                    //    linear function of it.
 
-                // light interception computed from leaf area index.
-                let lfint = if LeafAreaIndex <= 0.5 {
-                    0.80 * LeafAreaIndex
-                } else {
-                    // If the leaf area index is greater than 0.5, lfint is computed as an exponential function of
-                    // LeafAreaIndex.
-                    1. - (0.07 - 1.16 * LeafAreaIndex).exp()
-                };
-                // If lfint is greater then zint, LightIntercept is their average value.
-                // Otherwise, if the LeafAreaIndex is decreasing, it is lfint. Else it is zint.
-                LightIntercept = if lfint > zint {
-                    0.5 * (zint + lfint)
-                } else if LeafAreaIndex < self.lmax {
-                    lfint
-                } else {
-                    zint
-                };
+                    // light interception computed from leaf area index.
+                    let lfint = if LeafAreaIndex <= 0.5 {
+                        0.80 * LeafAreaIndex
+                    } else {
+                        // If the leaf area index is greater than 0.5, lfint is computed as an exponential function of
+                        // LeafAreaIndex.
+                        1. - (0.07 - 1.16 * LeafAreaIndex).exp()
+                    };
+                    // If lfint is greater then zint, LightIntercept is their average value.
+                    // Otherwise, if the LeafAreaIndex is decreasing, it is lfint. Else it is zint.
+                    LightIntercept = if lfint > zint {
+                        0.5 * (zint + lfint)
+                    } else if LeafAreaIndex < self.lmax {
+                        lfint
+                    } else {
+                        zint
+                    };
+                }
             }
+        }
+        unsafe {
             // The value of LightIntercept is between zero and one.
             if LightIntercept < 0. {
                 LightIntercept = 0.;
@@ -1816,34 +1770,37 @@ impl Profile {
         // interception by canopy, ambient CO2 concentration, water stress and low N in the leaves.
         let mut pplant = 0.;
         // actual gross photosynthetic rate, g per plant per day.
-        if light_intercept_method == LIGHT_INTERCEPT_METHOD_LIGHT_INTERCEPT_METHOD_LAYERED {
-            let mut pstand_remain = pstand;
-            for i in (0..20).rev() {
-                if pstand_remain <= 0. {
-                    break;
+        match self.light_intercept_method {
+            LightInterceptMethod::Latered => {
+                let mut pstand_remain = pstand;
+                for i in (0..20).rev() {
+                    if pstand_remain <= 0. {
+                        break;
+                    }
+                    if LightInterceptLayer[i] <= 0. {
+                        continue;
+                    }
+                    let page = 1. - (AverageLeafAge[i] / drop_leaf_age(LeafArea[i])).powi(2);
+                    let mut pplant_inc = 0.001
+                        * pstand_remain
+                        * LightInterceptLayer[i]
+                        * PerPlantArea
+                        * self.ptsred
+                        * pnetcor
+                        * ptnfac
+                        * page;
+                    if pplant_inc > pstand_remain {
+                        pplant_inc = pstand_remain;
+                    }
+                    pplant += pplant_inc;
+                    pstand_remain -= pplant_inc;
                 }
-                if LightInterceptLayer[i] <= 0. {
-                    continue;
-                }
-                let page = 1. - (AverageLeafAge[i] / drop_leaf_age(LeafArea[i])).powi(2);
-                let mut pplant_inc = 0.001
-                    * pstand_remain
-                    * LightInterceptLayer[i]
-                    * PerPlantArea
-                    * self.ptsred
-                    * pnetcor
-                    * ptnfac
-                    * page;
-                if pplant_inc > pstand_remain {
-                    pplant_inc = pstand_remain;
-                }
-                pplant += pplant_inc;
-                pstand_remain -= pplant_inc;
             }
-        } else {
-            pplant =
-                0.001 * pstand * LightIntercept * PerPlantArea * self.ptsred * pnetcor * ptnfac;
-        };
+            _ => {
+                pplant =
+                    0.001 * pstand * LightIntercept * PerPlantArea * self.ptsred * pnetcor * ptnfac;
+            }
+        }
         // Compute the photorespiration factor (rsubl) as a linear function af average day time temperature.
         let rsubl = 0.0032125 + 0.0066875 * DayTimeTemp; // photorespiration factor.
 

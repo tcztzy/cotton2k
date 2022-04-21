@@ -8,11 +8,6 @@
 const int maxl = 40;
 const int maxk = 20;
 const double pi = 3.14159;
-enum LIGHT_INTERCEPT_METHOD {
-    LIGHT_INTERCEPT_METHOD_ORIGIN = 0,
-    LIGHT_INTERCEPT_METHOD_FRY1980 = 1,
-    LIGHT_INTERCEPT_METHOD_LAYERED = 2,
-};
 enum CLIMATE_METRIC {
     CLIMATE_METRIC_TMAX = 0,
     CLIMATE_METRIC_TMIN = 1,
@@ -171,7 +166,6 @@ extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk],
     VolUreaNContent[maxl][maxk], VolWaterContent[maxl][maxk], WindSpeed[24],
     wk[maxk];
 extern double light_intercept_parameter, light_intercept_parameters[20];
-extern LIGHT_INTERCEPT_METHOD light_intercept_method;
 void WriteStateVariables(bool bAdjusting);
 double TotalLeafWeight();  // total leaf weight, g per plant.
 double TotalLeafArea();
