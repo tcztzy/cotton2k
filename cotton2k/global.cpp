@@ -41,7 +41,6 @@ int CultivationDate[5],  // Dates (DOY) of cultivatrion.
     DayStartMulch,           // Date (DOY) for beginning of mulch.
     DayStartPredIrrig,       // Date (DOY) for starting predicted irrigation.
     DayStopPredIrrig,        // Date (DOY) for stopping predicted irrigation.
-    DayWaterTableInput[20],  // Dates (DOY) of water table input data.
     DefoliationDate[5],      // Dates (DOY) of defoliant applications.
     DefoliationMethod[5];    // code number of method of application of
                              // defoliants: 0 = 'banded'; 1 = 'sprinkler'; 2 =
@@ -110,9 +109,8 @@ int MainStemNodes,        // number of main stem nodes.
                           // arrays defining fruit shedding (AbscissionLag,
                           // ShedByCarbonStress, ShedByNitrogenStress and
                           // ShedByWaterStress).
-    NumVegBranches,       // number of vegetative branches (including the main
+    NumVegBranches;       // number of vegetative branches (including the main
                           // branch), per plant.
-    NumWaterTableData;    // number of water table level input data.
 
 int pixday[10],  // Date (DOY) of PIX application.
     pixmth[10],  // code number for method of application of PIX: 0 = 'BANDED';
@@ -235,8 +233,7 @@ double DailyRootLoss,   // total weight of sloughed roots, g per plant per day.
     dl[maxl],              // the vertical width of a soil layer (cm).
     dsand;                 // aggregation factor for sand in water.
                            // E F G H
-double ElCondSatSoil[20],  // electrical conductivity of saturated soil extract
-                           // (mmho/cm)
+double
     ElCondSatSoilToday,    // electrical conductivity of saturated extract
                            // (mmho/cm) on this day.
     Elevation,             // elevation above sea level, m.
@@ -290,8 +287,6 @@ double impede[10][10],      // input table of soil impedance to root growth
     LeafWeightMainStem[3][30],  // mainstem leaf weight at each node, g.
     LeafWeightNodes[3][30][5],  // leaf weight at each fruiting site, g.
     LeafWeightPreFru[9],        // weight of prefruiting node leaves, g.
-    LevelsOfWaterTable[20],     // water table level input data (cm below soil
-                                // surface).
     LightIntercept,             // ratio of light interception by plant canopy.
     LightInterceptLayer[20],
     LintYield,   // yield of lint, kgs per hectare.

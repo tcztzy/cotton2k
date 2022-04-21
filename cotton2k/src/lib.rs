@@ -146,6 +146,8 @@ pub struct Profile {
     #[serde(skip)]
     ambient_CO2_factor: f64,
     #[serde(skip)]
+    num_watertable_data: usize,
+    #[serde(skip)]
     states: Vec<State>,
 }
 
@@ -310,8 +312,9 @@ pub enum AgronomyOperation {
         open_ratio: i32,
         #[serde(default = "default_predict")]
         predict: bool,
+        /// pints per acre
         #[serde(default = "zero")]
-        ppa: f64, // pints per acre
+        ppa: f64,
     },
     cultivation {
         #[serde(deserialize_with = "from_isoformat")]
@@ -322,12 +325,15 @@ pub enum AgronomyOperation {
         #[serde(deserialize_with = "from_isoformat")]
         date: NaiveDate,
         method: PixMethod,
-        ppa: f64, // pints per acre
+        /// pints per acre
+        ppa: f64,
     },
     watertable {
         #[serde(deserialize_with = "from_isoformat")]
         date: NaiveDate,
+        /// water table level input data (cm below soil surface).
         level: f64,
+        /// electrical conductivity of saturated soil extract (mmho/cm)
         ecs: f64,
     },
 }
@@ -447,7 +453,6 @@ unsafe fn InitializeGlobal() {
     NumPreFruNodes = 1;
     NumSheddingTags = 0;
     NumVegBranches = 1;
-    NumWaterTableData = 0;
     NStressFruiting = 1.;
     NStressRoots = 1.;
     NStressVeg = 1.;
@@ -543,9 +548,6 @@ unsafe fn InitializeGlobal() {
     //
     for i in 0..20 {
         AbscissionLag[i] = 0.;
-        DayWaterTableInput[i] = 0;
-        ElCondSatSoil[i] = 0.;
-        LevelsOfWaterTable[i] = 0.;
         ShedByCarbonStress[i] = 0.;
         ShedByNitrogenStress[i] = 0.;
         ShedByWaterStress[i] = 0.;
@@ -872,6 +874,7 @@ impl Profile {
     pub fn initialize(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
         self.kprevadj = 0;
         self.lmax = 0.;
+        self.num_watertable_data = 0;
         unsafe {
             InitializeGlobal();
             Latitude = self.latitude;
@@ -1031,7 +1034,6 @@ impl Profile {
         let mut ipix: usize = 0;
         unsafe {
             NumIrrigations = 0;
-            NumWaterTableData = 0;
             for i in 0..5 {
                 DefoliationDate[i] = 0;
                 DefoliationMethod[i] = 0;
@@ -1096,15 +1098,17 @@ impl Profile {
                         pixppa[ipix] = *ppa;
                         ipix += 1;
                     }
-                    AgronomyOperation::watertable { date, level, ecs } => {
-                        DayWaterTableInput[NumWaterTableData as usize] = date.ordinal() as i32;
-                        LevelsOfWaterTable[NumWaterTableData as usize] = *level;
-                        ElCondSatSoil[NumWaterTableData as usize] = *ecs;
-                        NumWaterTableData += 1;
-                    }
                     _ => {}
                 }
             }
+            self.num_watertable_data = self
+                .agronomy_operations
+                .iter()
+                .filter(|x| match x {
+                    AgronomyOperation::watertable { .. } => true,
+                    _ => false,
+                })
+                .count();
             match self.light_intercept_method {
                 LightInterceptMethod::Latered => {
                     light_intercept_parameter = 0.;
@@ -1922,7 +1926,6 @@ impl Profile {
     /// * [nk]
     /// * [nl]
     /// * [NumIrrigations]
-    /// * [NumWaterTableData]
     /// * [PerPlantArea]
     /// * [SoilPsi]
     /// * [RowSpace]
@@ -2001,10 +2004,8 @@ impl Profile {
             }
         }
         // Call function WaterTable() for saturating soil below water table.
-        unsafe {
-            if NumWaterTableData > 0 {
-                WaterTable();
-            }
+        if self.num_watertable_data > 0 {
+            self.watertable()?;
         }
         if water_to_apply > 0. {
             // For rain or surface irrigation.
@@ -2211,6 +2212,82 @@ impl Profile {
         }
         Ok(())
     }
+    /// This function sets the water saturation of the soil layers below the water table, if it has been defined in the input.
+    /// It is called from [Profile::soil_procedures()] if water table data have been input.
+    ///
+    /// The following global variables are referenced here:
+    /// * [Daynum]
+    /// * [dl]
+    /// * [MaxWaterCapacity]
+    /// * [nk]
+    /// * [nl]
+    /// * [PoreSpace]
+    /// * [MaxWaterCapacity]
+    /// * [RowSpace]
+    /// * [wk]
+    ///
+    /// The following global variables are set here:
+    /// * [addwtbl]
+    /// * [ElCondSatSoilToday]
+    /// * [WaterTableLayer]
+    /// * [VolWaterContent]
+    fn watertable(&mut self) -> Result<(), Cotton2KError> {
+        if self.num_watertable_data == 0 {
+            return Ok(());
+        }
+        // Find the depth of water table for this day.
+        let mut lwtable = 201f64; // level of water table on this day, cm
+        for ao in &self.agronomy_operations {
+            match ao {
+                AgronomyOperation::watertable { date, level, ecs } => unsafe {
+                    if Daynum as u32 >= date.ordinal() {
+                        lwtable = *level;
+                        ElCondSatSoilToday = *ecs;
+                    }
+                },
+                _ => {}
+            }
+        }
+        // Find the number of the uppermost layer of water table
+        unsafe {
+            WaterTableLayer = 1000;
+            let mut sumdl = 0f64; // sum of depth of consecutive soil layers
+            for l in 0..nl as usize {
+                sumdl += dl[l];
+                if sumdl > lwtable {
+                    WaterTableLayer = l as i32;
+                    break;
+                }
+            }
+        }
+        // The total water entering the soil slab (addwtbl) is computed. It is used to check the water balance in the soil.
+
+        unsafe {
+            for l in 0..nl as usize {
+                if l as i32 >= WaterTableLayer {
+                    for k in 0..nk as usize {
+                        // previous water content of a cell
+                        let vh2ocx = VolWaterContent[l][k];
+                        VolWaterContent[l][k] = PoreSpace[l];
+                        addwtbl +=
+                            10. * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / RowSpace;
+                    }
+                } else {
+                    // Make sure that (in case water table was lowered) water content is not higher than MaxWaterCapacity and adjust addwtbl.
+                    for k in 0..nk as usize {
+                        if VolWaterContent[l][k] > MaxWaterCapacity[l] {
+                            // previous water content of a cell
+                            let vh2ocx = VolWaterContent[l][k];
+                            VolWaterContent[l][k] = MaxWaterCapacity[l];
+                            addwtbl +=
+                                10. * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / RowSpace;
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 fn fmin(a: f64, b: f64) -> f64 {
@@ -2408,77 +2485,6 @@ fn LeafWaterPotential() {
         }
         if LwpMin > psild0 {
             LwpMin = psild0;
-        }
-    }
-}
-
-//     This function sets the water saturation of the soil layers below the
-//     water
-//  table, if it has been defined in the input. It is called from
-//  SoilProcedures() if water table data have been input.
-//
-//     The following global variables are referenced here:
-//       Daynum. dl, DayWaterTableInput, ElCondSatSoil, LevelsOfWaterTable,
-//       MaxWaterCapacity, nk, nl, NumWaterTableData, PoreSpace,
-//       MaxWaterCapacity, RowSpace, wk.
-//
-//     The following global variables are set here:
-//       addwtbl, ElCondSatSoilToday, WaterTableLayer, VolWaterContent.
-//
-fn WaterTable() {
-    if unsafe { NumWaterTableData } <= 0 {
-        return;
-    }
-    //     Find the depth of water table for this day.
-    let mut lwtable = 201f64; // level of water table on this day, cm
-    unsafe {
-        for i in 0..NumWaterTableData as usize {
-            if Daynum >= DayWaterTableInput[i] {
-                lwtable = LevelsOfWaterTable[i];
-                ElCondSatSoilToday = ElCondSatSoil[i];
-            }
-        }
-    }
-    //     Find the number of the uppermost layer of water table
-    if lwtable > 200. {
-        unsafe {
-            WaterTableLayer = 1000;
-        }
-    } else {
-        let mut sumdl = 0f64; // sum of depth of consecutive soil layers
-        for l in 0..unsafe { nl } as usize {
-            sumdl += unsafe { dl[l] };
-            if sumdl > lwtable {
-                unsafe {
-                    WaterTableLayer = l as i32;
-                }
-                break;
-            }
-        }
-    }
-    // The total water entering the soil slab (addwtbl) is computed. It is used to check the water balance in the soil.
-
-    unsafe {
-        for l in 0..nl as usize {
-            if l as i32 >= WaterTableLayer {
-                for k in 0..nk as usize {
-                    // previous water content of a cell
-                    let vh2ocx = VolWaterContent[l][k];
-                    VolWaterContent[l][k] = PoreSpace[l];
-                    addwtbl += 10. * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / RowSpace;
-                }
-            } else {
-                // Make sure that (in case water table was lowered) water content is not higher than MaxWaterCapacity and adjust addwtbl.
-                for k in 0..nk as usize {
-                    if VolWaterContent[l][k] > MaxWaterCapacity[l] {
-                        // previous water content of a cell
-                        let vh2ocx = VolWaterContent[l][k];
-                        VolWaterContent[l][k] = MaxWaterCapacity[l];
-                        addwtbl +=
-                            10. * (VolWaterContent[l][k] - vh2ocx) * dl[l] * wk[k] / RowSpace;
-                    }
-                }
-            }
         }
     }
 }
