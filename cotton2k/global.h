@@ -68,10 +68,6 @@ extern struct Climstruct {
     int nDay;
     double Rad, Tmax, Tmin, Rain, Wind, Tdew;
 } Clim[400];
-extern struct NitrogenFertilizer {
-    int day, mthfrt, ksdr, lsdr;
-    double amtamm, amtnit, amtura;
-} NFertilizer[150];
 extern struct Irrigation {
     int day, method, LocationColumnDrip, LocationLayerDrip;
     double amount;
@@ -84,7 +80,7 @@ extern int DayEmerge, DayEndMulch, DayFinish, DayFirstDef,
     LastIrrigation, LastTaprootLayer, LocationColumnDrip, LocationLayerDrip,
     MainStemNodes, MinDaysBetweenIrrig, MulchIndicator, ncurve, nk, nl, noitr,
     NumAbscisedLeaves, NumAdjustDays, NumFruitSites, NumIrrigations,
-    NumLayersWithRoots, NumNitApps, NumPreFruNodes, NumRootAgeGroups,
+    NumLayersWithRoots, NumPreFruNodes, NumRootAgeGroups,
     NumSheddingTags, NumVegBranches, NumWaterTableData, PlantRowColumn,
     WaterTableLayer;
 extern int CultivationDate[5], DayWaterTableInput[20], DefoliationDate[5],

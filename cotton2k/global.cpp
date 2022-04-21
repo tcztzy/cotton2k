@@ -17,16 +17,6 @@ struct Climstruct
 struct scratch Scratch21[400];  // structure used to store daily values of many
                                 // state variables,
                                 //  see details in file global.h
-struct NitrogenFertilizer NFertilizer
-    [150];  // nitrogen fertilizer application information for each day.
-            // int day = date of application (DOY)
-            // int mthfrt = method of application ( 0 = broadcast; 1 =
-            // sidedress; 2 = foliar; 3 = drip fertigation); int ksdr =
-            // horizontal placement of side-dressed fertilizer, cm. int lsdr =
-            // vertical placement of side-dressed fertilizer, cm. double amtamm
-            // = ammonium N applied, kg N per ha;
-// double amtnit = nitrate N applied, kg N per ha;
-// double amtura = urea N applied, kg N per ha;
 struct Irrigation
     Irrig[150];  // irrigation application information for each day.
                  // int day = date of application (DOY)
@@ -113,7 +103,6 @@ int MainStemNodes,        // number of main stem nodes.
     NumFruitSites,        // total number of fruiting sites per plant.
     NumIrrigations,       // number of irrigations.
     NumLayersWithRoots,   // number of soil layers with roots.
-    NumNitApps,           // number of applications of nitrogen fertilizer.
     NumNodes[3][30],      // number of nodes on each fruiting branch.
     NumPreFruNodes,       // number of prefruiting nodes, per plant.
     NumRootAgeGroups,     // the number of root classes defined in the model.
