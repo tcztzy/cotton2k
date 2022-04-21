@@ -12,7 +12,7 @@ jobs:
     - uses: messense/maturin-action@v1
       with:
         command: build
-        args: --release --no-sdist -o dist --manifest-path python/Cargo.toml
+        args: --release --no-sdist -o dist --manifest-path bindings/python/Cargo.toml
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -34,4 +34,4 @@ jobs:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         with:
           command: upload
-          args: --skip-existing * --manifest-path python/Cargo.toml
+          args: --skip-existing * --manifest-path bindings/python/Cargo.toml
