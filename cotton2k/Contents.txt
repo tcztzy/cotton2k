@@ -104,10 +104,6 @@ Soil:
 Package E.
 Soil Temperature:
 
-    File SoilTemperature_1.cpp
-          SoilTemperature()
-          SoilTemperatureInit()
-
     File SoilTemperature_2.cpp
           EnergyBalance()
           SensibleHeatTransfer()

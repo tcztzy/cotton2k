@@ -22,7 +22,6 @@ fn main() {
         "SoilProcedures_1.cpp",
         "SoilProcedures_2.cpp",
         "SoilProcedures_3.cpp",
-        "SoilTemperature_1.cpp",
         "SoilTemperature_2.cpp",
         "SoilTemperature_3.cpp",
     ];

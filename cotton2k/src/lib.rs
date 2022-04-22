@@ -9,6 +9,7 @@
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
 mod plant_growth;
+mod soil_temperature;
 mod utils;
 use chrono::Datelike;
 use chrono::NaiveDate;
@@ -17,6 +18,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use plant_growth::{PlantGrowth, PhysiologicalAge, LeafResistance};
+use soil_temperature::{SoilTemperature};
 
 #[derive(Debug)]
 pub struct Cotton2KError {

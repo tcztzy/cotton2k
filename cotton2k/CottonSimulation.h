@@ -142,8 +142,6 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss,
                         double &so3, double thet, double tm, double tv);
 void SoilSum();
 double SoilTemOnRootGrowth(double t);
-void SoilTemperature();
-void SoilTemperatureInit(int &jt1, int &jt2);
 void SoilWaterDataInp();
 double SoilWaterOnRootGrowth(double psislk);
 void SortArray(int size, double InData[], int indexk[], int indexl[],
