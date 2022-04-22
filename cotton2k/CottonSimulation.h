@@ -100,7 +100,6 @@ void NitrogenUptakeRequirement();
 // P
 double PetioleNitrateN();
 double PhysiologicalAge();
-void PlantGrowth();
 void PlantNitrogen();
 void PlantNitrogenBal();
 void PlantNitrogenContent();

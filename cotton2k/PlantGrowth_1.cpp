@@ -3,7 +3,6 @@
 //   functions in this file:
 // PhysiologicalAge()
 // LeafResistance()
-// PlantGrowth()
 //
 #include <math.h>
 
@@ -68,102 +67,4 @@ double LeafResistance(double agel)
         leafResistance = rlmin + (agel - agelo) * (ax - agel) / afac;
     }
     return leafResistance;
-}
-////////////////////////////////////////////////////////////////////////////
-void PlantGrowth()
-//     This function simulates the potential and actual growth of cotton plants.
-//  It is called from SimulateThisDay(), and it calls the following functions:
-//    ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(),
-//    AddPlantHeight(), DryMatterBalance(), PotentialFruitGrowth(),
-//    PotentialLeafGrowth(), PotentialRootGrowth(), PotentialStemGrowth().
-//
-//     The following global variables are referenced here:
-//        ActualStemGrowth, DayInc, FirstSquare, FruitingCode, Kday, pixdz,
-//        PerPlantArea, RowSpace, WaterStressStem.
-//
-//     The following global variables are set here:
-//        LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
-//        TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-{
-    //     Call PotentialLeafGrowth() to compute potential growth rate of
-    //     leaves.
-    PotentialLeafGrowth();
-    //     If it is after first square, call PotentialFruitGrowth() to compute
-    //     potential
-    //  growth rate of squares and bolls.
-    if (FruitingCode[0][0][0] > 0) PotentialFruitGrowth();
-    //     Active stem tissue (stemnew) is the difference between
-    //     TotalStemWeight
-    //  and the value of StemWeight(kkday).
-    int voldstm =
-        32;  // constant parameter (days for stem tissue to become "old")
-    int kkday = Kday - voldstm;  // age of young stem tissue
-    if (kkday < 1) kkday = 1;
-    double stemnew = TotalStemWeight -
-                     StemWeight[kkday];  // dry weight of active stem tissue.
-    //     Call PotentialStemGrowth() to compute PotGroStem, potential growth
-    //     rate of stems.
-    //  The effect of temperature is introduced, by multiplying potential growth
-    //  rate by DayInc. Stem growth is also affected by water stress
-    //  (WaterStressStem) and possible PIX application (pixdz).   PotGroStem is
-    //  limited by (maxstmgr * PerPlantArea) g per plant per day.
-    PotGroStem =
-        PotentialStemGrowth(stemnew) * DayInc * WaterStressStem * pixdz;
-    double maxstmgr =
-        0.067;  // maximum posible potential stem growth, g dm-2 day-1.
-    if (PotGroStem > maxstmgr * PerPlantArea)
-        PotGroStem = maxstmgr * PerPlantArea;
-    //	   Call PotentialRootGrowth() to compute potential growth rate of roots.
-    double sumpdr;  // total potential growth rate of roots in g per slab. this
-                    // is computed in PotentialRootGrowth() and used in
-                    // ActualRootGrowth().
-    sumpdr = PotentialRootGrowth();
-    //     Total potential growth rate of roots is converted from g per
-    //  slab (sumpdr) to g per plant (PotGroAllRoots).
-    PotGroAllRoots = sumpdr * 100 * PerPlantArea / RowSpace;
-    //     Limit PotGroAllRoots to (maxrtgr*PerPlantArea) g per plant per day.
-    double maxrtgr =
-        0.045;  // maximum possible potential root growth, g dm-2 day-1.
-    if (PotGroAllRoots > maxrtgr * PerPlantArea)
-        PotGroAllRoots = maxrtgr * PerPlantArea;
-    //     Call DryMatterBalance() to compute carbon balance, allocation of
-    //     carbon to
-    //  plant parts, and carbon stress. DryMatterBalance() also computes and
-    //  returns the values of the following arguments:
-    //     cdleaf is carbohydrate requirement for leaf growth, g per plant per
-    //     day. cdpet is carbohydrate requirement for petiole growth, g per
-    //     plant per day. cdroot is carbohydrate requirement for root growth, g
-    //     per plant per day. cdstem is carbohydrate requirement for stem
-    //     growth, g per plant per day.
-    double cdstem, cdleaf, cdpet, cdroot;
-    DryMatterBalance(cdstem, cdleaf, cdpet, cdroot);
-    //     If it is after first square, call ActualFruitGrowth() to compute
-    //     actual
-    //  growth rate of squares and bolls.
-    if (FruitingCode[0][0][0] > 0) ActualFruitGrowth();
-    //     Initialize TotalLeafWeight. It is assumed that cotyledons fall off
-    //  at time of first square. Also initialize TotalLeafArea and
-    //  TotalPetioleWeight.
-    TotalPetioleWeight = 0;
-    //     Call ActualLeafGrowth to compute actual growth rate of leaves and
-    //     compute leaf area index.
-    ActualLeafGrowth();
-    LeafAreaIndex = TotalLeafArea() / PerPlantArea;
-    //     Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday)
-    //     for this day.
-    TotalStemWeight += ActualStemGrowth;
-    StemWeight[Kday] = TotalStemWeight;
-    //     Plant density affects growth in height of tall plants.
-    double htdenf = 55;  // minimum plant height for plant density affecting
-                         // growth in height.
-    double z1;           // intermediate variable to compute denf2.
-    z1 = (PlantHeight - htdenf) / htdenf;
-    if (z1 < 0) z1 = 0;
-    if (z1 > 1) z1 = 1;
-    double denf2;  // effect of plant density on plant growth in height.
-    denf2 = 1 + z1 * (DensityFactor - 1);
-    //     Call AddPlantHeight to compute PlantHeight.
-    PlantHeight += AddPlantHeight(denf2);
-    //     Call ActualRootGrowth() to compute actual root growth.
-    ComputeActualRootGrowth(sumpdr);
 }

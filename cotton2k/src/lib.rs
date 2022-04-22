@@ -8,12 +8,15 @@
 #![allow(dead_code)]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
+mod plant_growth;
 mod utils;
 use chrono::Datelike;
 use chrono::NaiveDate;
 use serde::Deserialize;
 use std::io::Write;
 use std::path::PathBuf;
+
+use plant_growth::PlantGrowth;
 
 #[derive(Debug)]
 pub struct Cotton2KError {

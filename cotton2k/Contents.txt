@@ -156,7 +156,6 @@ The Cotton Plant:
     File PlantGrowth_1.cpp
           PhysiologicalAge()
           LeafResistance()
-          PlantGrowth()
 
     File  PlantGrowth_2.cpp
           PotentialStemGrowth()
