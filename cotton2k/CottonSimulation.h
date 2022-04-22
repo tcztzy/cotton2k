@@ -75,7 +75,6 @@ double TemperatureOnLeafGrowthRate(double t);
 void HeatBalance(int nn);
 // I
 void InitiateLateralRoots();
-void InitializeRootData();
 // L
 void LateralRootGrowthLeft(int l);
 void LateralRootGrowthRight(int l);

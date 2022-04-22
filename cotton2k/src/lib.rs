@@ -17,8 +17,8 @@ use serde::Deserialize;
 use std::io::Write;
 use std::path::PathBuf;
 
-use plant_growth::{PlantGrowth, PhysiologicalAge, LeafResistance};
-use soil_temperature::{SoilTemperature};
+use plant_growth::{LeafResistance, PhysiologicalAge, PlantGrowth};
+use soil_temperature::SoilTemperature;
 
 #[derive(Debug)]
 pub struct Cotton2KError {
@@ -2754,4 +2754,107 @@ unsafe fn GravityFlow(applywat: f64) {
     if WaterDrainedOut > 0. {
         CumWaterDrained += 10. * WaterDrainedOut / RowSpace;
     }
+}
+/// This function initializes the root submodel parameters and variables.
+/// It is called by ReadInput(). it is executed once at the beginning of the simulation.
+///
+/// Global or file scope variables referenced:
+/// dl, PlantRowColumn, nk, nl, PerPlantArea, RowSpace.
+///
+/// Global or file scope variables set:
+/// ActualRootGrowth[maxl][maxk], cgind[3], DepthLastRootLayer,
+/// LastTaprootLayer, LateralRootFlag[maxl], NumLayersWithRoots, NumRootAgeGroups,
+/// PotGroRoots[maxl][maxk], RootAge[maxl][maxk], RootColNumLeft[maxl],
+/// RootColNumRight[maxl], RootGroFactor[maxl][maxk],
+/// RootWeight[maxl][maxk][3], TapRootLength, TotalRootWeight.
+unsafe fn InitializeRootData() {
+    // The parameters of the root model are defined for each root class:
+    // grind(i), cuind(i), thtrn(i), trn(i), thdth(i), dth(i).
+    NumRootAgeGroups = 3;
+    cgind[0] = 1.;
+    cgind[1] = 1.;
+    cgind[2] = 0.10;
+    let rlint = 10.; // Vertical interval, in cm, along the taproot, for initiating lateral roots.
+    let mut ll = 1; // Counter for layers with lateral roots.
+    let mut sumdl = 0.; // Distance from soil surface to the middle of a soil layer.
+    for l in 0..nl as usize {
+        // Using the value of rlint (interval between lateral roots), the layers from which lateral roots may be initiated are now computed.
+        // LateralRootFlag[l] is assigned a value of 1 for these layers.
+        LateralRootFlag[l] = 0;
+        if l > 0 {
+            sumdl += 0.5 * dl[l - 1];
+        }
+        sumdl += 0.5 * dl[l];
+        if sumdl >= ll as f64 * rlint {
+            LateralRootFlag[l] = 1;
+            ll += 1;
+        }
+    }
+    // All the state variables of the root system are initialized to zero.
+    for l in 0..nl as usize {
+        if l < 3 {
+            RootColNumLeft[l] = PlantRowColumn - 1;
+            RootColNumRight[l] = PlantRowColumn + 2;
+        } else if l < 7 {
+            RootColNumLeft[l] = PlantRowColumn;
+            RootColNumRight[l] = PlantRowColumn + 1;
+        } else {
+            RootColNumLeft[l] = 0;
+            RootColNumRight[l] = 0;
+        }
+        //
+        for k in 0..nk as usize {
+            PotGroRoots[l][k] = 0.;
+            RootGroFactor[l][k] = 1.;
+            ActualRootGrowth[l][k] = 0.;
+            RootAge[l][k] = 0.;
+            for i in 0..3 {
+                RootWeight[l][k][i] = 0.;
+            }
+        }
+    }
+    //
+    RootWeight[0][(PlantRowColumn - 1) as usize][0] = 0.0020;
+    RootWeight[0][PlantRowColumn as usize][0] = 0.0070;
+    RootWeight[0][PlantRowColumn as usize + 1][0] = 0.0070;
+    RootWeight[0][PlantRowColumn as usize + 2][0] = 0.0020;
+    RootWeight[1][(PlantRowColumn - 1) as usize][0] = 0.0040;
+    RootWeight[1][PlantRowColumn as usize][0] = 0.0140;
+    RootWeight[1][PlantRowColumn as usize + 1][0] = 0.0140;
+    RootWeight[1][PlantRowColumn as usize + 2][0] = 0.0040;
+    RootWeight[2][(PlantRowColumn - 1) as usize][0] = 0.0060;
+    RootWeight[2][PlantRowColumn as usize][0] = 0.0210;
+    RootWeight[2][PlantRowColumn as usize + 1][0] = 0.0210;
+    RootWeight[2][PlantRowColumn as usize + 2][0] = 0.0060;
+    RootWeight[3][PlantRowColumn as usize][0] = 0.0200;
+    RootWeight[3][PlantRowColumn as usize + 1][0] = 0.0200;
+    RootWeight[4][PlantRowColumn as usize][0] = 0.0150;
+    RootWeight[4][PlantRowColumn as usize + 1][0] = 0.0150;
+    RootWeight[5][PlantRowColumn as usize][0] = 0.0100;
+    RootWeight[5][PlantRowColumn as usize + 1][0] = 0.0100;
+    RootWeight[6][PlantRowColumn as usize][0] = 0.0050;
+    RootWeight[6][PlantRowColumn as usize + 1][0] = 0.0050;
+    // Start loop for all soil layers containing roots.
+    DepthLastRootLayer = 0.;
+    TotalRootWeight = 0.;
+    for l in 0..7 {
+        DepthLastRootLayer += dl[l]; // compute total depth to the last layer with roots (DepthLastRootLayer).
+        for k in 0..nk as usize {
+            // For each soil soil cell with roots, compute total root weight per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
+            for i in 0..3 {
+                TotalRootWeight += RootWeight[l][k][i];
+                RootWeight[l][k][i] = RootWeight[l][k][i] * 0.01 * RowSpace / PerPlantArea;
+            }
+            // initialize RootAge to a non-zero value for each cell containing roots.
+            if RootWeight[l][k][0] > 0. {
+                RootAge[l][k] = 0.01;
+            }
+        }
+    }
+    //     Initial value of taproot length, TapRootLength, is computed to the
+    // middle of the last layer with roots. The last soil layer with
+    // taproot, LastTaprootLayer, is defined.
+    NumLayersWithRoots = 7;
+    TapRootLength = DepthLastRootLayer - 0.5 * dl[(NumLayersWithRoots - 1) as usize];
+    LastTaprootLayer = 6;
 }
