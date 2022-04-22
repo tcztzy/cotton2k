@@ -99,7 +99,6 @@ void NitrogenUptake(int l, int k, double reqnc);
 void NitrogenUptakeRequirement();
 // P
 double PetioleNitrateN();
-double PhysiologicalAge();
 void PlantNitrogen();
 void PlantNitrogenBal();
 void PlantNitrogenContent();

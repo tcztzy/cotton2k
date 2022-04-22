@@ -154,7 +154,6 @@ Package G.
 The Cotton Plant:    
 
     File PlantGrowth_1.cpp
-          PhysiologicalAge()
           LeafResistance()
 
     File  PlantGrowth_2.cpp
