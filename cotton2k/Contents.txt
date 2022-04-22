@@ -153,9 +153,6 @@ The Root System:
 Package G.
 The Cotton Plant:    
 
-    File PlantGrowth_1.cpp
-          LeafResistance()
-
     File  PlantGrowth_2.cpp
           PotentialStemGrowth()
           PotentialLeafGrowth()

@@ -13,7 +13,6 @@ fn main() {
         "global.cpp",
         "LeafAbscission.cpp",
         "PlantAdjustment.cpp",
-        "PlantGrowth_1.cpp",
         "PlantGrowth_2.cpp",
         "PlantGrowth_3.cpp",
         "PlantNitrogen.cpp",

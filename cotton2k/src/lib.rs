@@ -16,7 +16,7 @@ use serde::Deserialize;
 use std::io::Write;
 use std::path::PathBuf;
 
-use plant_growth::{PlantGrowth, PhysiologicalAge};
+use plant_growth::{PlantGrowth, PhysiologicalAge, LeafResistance};
 
 #[derive(Debug)]
 pub struct Cotton2KError {

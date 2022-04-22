@@ -82,7 +82,7 @@ pub unsafe fn PlantGrowth() {
     StemWeight[Kday as usize] = TotalStemWeight;
     // Plant density affects growth in height of tall plants.
     let htdenf = 55.; // minimum plant height for plant density affecting growth in height.
-    // intermediate variable to compute denf2.
+                      // intermediate variable to compute denf2.
     let mut z1 = (PlantHeight - htdenf) / htdenf;
     if z1 < 0. {
         z1 = 0.;
@@ -107,7 +107,7 @@ pub unsafe fn PhysiologicalAge() -> f64 {
     const p1: f64 = 12.; // threshold temperature, C
     const p2: f64 = 14.; // temperature, C, above p1, for one physiological day.
     const p3: f64 = 1.5; // maximum value of a physiological day.
-    // The threshold value is assumed to be 12 C (p1). One physiological day is equivalent to a day with an average temperature of 26 C, and therefore the heat units are divided by 14 (p2).
+                         // The threshold value is assumed to be 12 C (p1). One physiological day is equivalent to a day with an average temperature of 26 C, and therefore the heat units are divided by 14 (p2).
 
     // A linear relationship is assumed between temperature and heat unit accumulation in the range of 12 C (p1) to 33 C (p2*p3+p1).
     // The effect of temperatures higher than 33 C is assumed to be equivalent to that of 33 C.
@@ -123,4 +123,25 @@ pub unsafe fn PhysiologicalAge() -> f64 {
         dayfd += tfd;
     }
     return dayfd / 24.;
+}
+/// This function computes and returns the resistance of leaves of cotton
+/// plants to transpiration. It is assumed to be a function of leaf age.
+/// It is called from LeafWaterPotential().
+///
+/// The input argument (agel) is leaf age in physiological days.
+pub fn LeafResistance(agel: f64) -> f64 {
+    // The following constant parameters are used:
+    const afac: f64 = 160.; // factor used for computing leaf resistance.
+    const agehi: f64 = 94.; // higher limit for leaf age.
+    const agelo: f64 = 48.; // lower limit for leaf age.
+    const rlmin: f64 = 0.5; // minimum leaf resistance.
+
+    if agel <= agelo {
+        rlmin
+    } else if agel >= agehi {
+        rlmin + (agehi - agelo) * (agehi - agelo) / afac
+    } else {
+        let ax = 2. * agehi - agelo; // intermediate variable
+        rlmin + (agel - agelo) * (ax - agel) / afac
+    }
 }

@@ -80,7 +80,6 @@ void InitializeRootData();
 void LateralRootGrowthLeft(int l);
 void LateralRootGrowthRight(int l);
 void LeafAbscission();
-double LeafResistance(double agel);
 // M
 void MainStemLeafAbscission(int k, int l, double droplf);
 void MineralizeNitrogen(int l, int k);
