@@ -693,7 +693,7 @@ pub fn clearskyemiss(vp: f64, tk: f64) -> f64 {
     // Compute clear sky emissivity by the method of Idso (1981)
     let ea0 = 0.70 + 5.95e-05 * vp1 * (1500. / tk).exp();
     if ea0 > 1. {
-        1
+        1.
     } else {
         ea0
     }
