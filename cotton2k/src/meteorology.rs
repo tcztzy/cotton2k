@@ -684,38 +684,37 @@ unsafe fn EvapoTranspiration() {
 
 /// Function clearskyemiss() estimates clear sky emissivity for long wave radiation.
 /// Input arguments:
-/// vp - vapor pressure of the air in KPa
-/// tk - air temperature in K.
+/// * `vp` - vapor pressure of the air in KPa
+/// * `tk` - air temperature in K.
 pub fn clearskyemiss(vp: f64, tk: f64) -> f64 {
     // Convert vp to mbars
-    let vp1 = vp * 10.; // vapor pressure of the air in mbars.
-                        //     Compute clear sky emissivity by the method of Idso (1981)
-    let mut ea0 = 0.70 + 5.95e-05 * vp1 * (1500. / tk).exp();
+    // vapor pressure of the air in mbars.
+    let vp1 = vp * 10.;
+    // Compute clear sky emissivity by the method of Idso (1981)
+    let ea0 = 0.70 + 5.95e-05 * vp1 * (1500. / tk).exp();
     if ea0 > 1. {
-        ea0 = 1.;
+        1
+    } else {
+        ea0
     }
-    return ea0;
 }
 //    Reference:
 //      Idso, S.B. 1981. A set of equations for full spectrum and 8- to 14-um
 // and 10.5- to 12.5- um thermal radiation from cloudless skies. Water
 // Resources Res. 17:295.
 
-//     Function cloudcov() computes cloud cover for this hour from radiation
-//     data, using
-//  the CIMIS algorithm. The return value is cloud cover ratio ( 0 to 1 )
-//  Input arguments:
-//       radihr = hourly global radiation in W m-2 .
-//       isr = hourly extraterrestrial radiation in W m-2 .
-//       cosz = cosine of sun angle from zenith.
-//     This algorithm is described by Dong et al. (1988). Cloud cover fraction
-//     is estimated
-//  as a function of the ratio of actual solar radiation to extraterrestrial
-//  radiation. The parameters of this function have been based on California
-//  data.
-//      The equation is for daylight hours, when the sun is not less
-//  than 10 degrees above the horizon (coszhr > 0.1736).
-//
+/// Computes cloud cover for this hour from radiation data, using the CIMIS algorithm.
+/// The return value is cloud cover ratio ( 0 to 1 )
+/// Input arguments:
+/// * `radihr` - hourly global radiation in W m<sup>-2</sup>.
+/// * `isr` - hourly extraterrestrial radiation in W m<sup>-2</sup>.
+/// * `cosz` - cosine of sun angle from zenith.
+///
+/// This algorithm is described by Dong et al. (1988).
+/// Cloud cover fraction is estimated as a function of the ratio of actual solar radiation to extraterrestrial radiation.
+/// The parameters of this function have been based on California data.
+///
+/// The equation is for daylight hours, when the sun is not less than 10 degrees above the horizon (coszhr > 0.1736).
 fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64 {
     const p1: f64 = 1.333; //    p1, p2, p3 are constant parameters.
     const p2: f64 = 1.7778;
@@ -727,11 +726,7 @@ fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64 {
         rasi = radihr / isr;
     }
     if cosz > 0.1736 && rasi <= p1 / p2 {
-        if rasi >= 0.375 {
-            clcov = (p1 - p2 * rasi).powf(p3);
-        } else {
-            clcov = (p1 - p2 * 0.375).powf(p3);
-        }
+        clcov = (p1 - p2 * if rasi >= 0.375 { rasi } else { 0.375 }).powf(p3);
         if clcov < 0. {
             clcov = 0.;
         }
@@ -781,10 +776,8 @@ unsafe fn clcor(ihr: usize, ck: f64, isrhr: f64, coszhr: f64) -> f64 {
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp.
 // 58-79.
 
-//     Function del() computes the slope of the saturation vapor
-//  pressure (svp, in mb) versus air temperature (tk, in K).
-//     This algorithm is the same as used by CIMIS.
-//
+/// Computes the slope of the saturation vapor pressure (svp, in mb) versus air temperature (tk, in K).
+/// This algorithm is the same as used by CIMIS.
 fn del(tk: f64, svp: f64) -> f64 {
     let a = 10f64.powf(-0.0304 * tk);
     let b = tk.powi(2);
@@ -798,38 +791,37 @@ fn gam(elev: f64, tt: f64) -> f64 {
     let bp = 101.3 - 0.01152 * elev + 5.44e-07 * elev.powi(2); //  barometric pressure, KPa, at this elevation.
     return 0.000646 * bp * (1. + 0.000946 * tt);
 }
-//     Function refalbed() computes the reference crop albedo, using the
-//  CIMIS algorithm.
-//     This algorithm is described by Dong et al. (1988). Albedo is
-//  estimated as a function of sun elevation above the horizon (suna)
-//  for clear or partly cloudy sky (rasi >= 0.375) and when the sun is
-//  at least 10 degrees above the horizon.
-//     For very cloudy sky, or when solar altitude is below 10
-//  degrees, the following albedo value is assumed: (p4)+ 0.26
-//     Input arguments:
-//        isrhr = hourly extraterrestrial radiation in W m-2 .
-//        rad = hourly global radiation in W / m-2 .
-//        coszhr = cosine of sun angle from zenith.
-//        sunahr = sun angle from horizon, degrees.
-//
+/// Computes the reference crop albedo, using the CIMIS algorithm.
+///
+/// This algorithm is described by Dong et al. (1988). Albedo is estimated as a function of sun elevation above the horizon (suna) for clear or partly cloudy sky (rasi >= 0.375) and when the sun is at least 10 degrees above the horizon.
+///
+/// For very cloudy sky, or when solar altitude is below 10 degrees, the following albedo value is assumed: (p4)+ 0.26
+///
+/// Input arguments:
+/// * `isrhr` - hourly extraterrestrial radiation in W m-2 .
+/// * `rad` - hourly global radiation in W / m-2 .
+/// * `coszhr` - cosine of sun angle from zenith.
+/// * `sunahr` - sun angle from horizon, degrees.
 fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64 {
     const p1: f64 = 0.00158; //  p1 ... p4 are constant parameters.
     const p2: f64 = 0.386;
     const p3: f64 = 0.0188;
     const p4: f64 = 0.26;
     let mut rasi = 0.; //   ratio of rad to isrhr
-    let mut refalb = p4; // the reference albedo
 
     if isrhr > 0. {
         rasi = rad / isrhr;
     }
     if coszhr > 0.1736 && rasi >= 0.375 {
-        refalb = p1 * sunahr + p2 * (-p3 * sunahr).exp();
+        let refalb = p1 * sunahr + p2 * (-p3 * sunahr).exp();
         if refalb > p4 {
-            refalb = p4;
+            p4
+        } else {
+            refalb
         }
+    } else {
+        p4
     }
-    return refalb;
 }
 //      Reference:
 //      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
