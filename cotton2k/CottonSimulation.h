@@ -20,7 +20,6 @@ void AdjustBollAbscission(int k, int l, int m, int jx, double gin1);
 //    gin1);
 void AdjustSquareAbscission(int k, int l, int m, double abscsq);
 void AdjustYoungBollAbscission(int k, int l, int m, double abscgb, double gin1);
-void AverageAirTemperatures();
 double AveragePsi();
 // B
 void BollAbscission(int k, int l, int m, double abscissionRatio, double gin1);
@@ -32,34 +31,21 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
                    double &tv);
 void CapillaryFlow();
 void CheckDryMatterBal();
-double clcor(int ihr, double ck, double isrhr, double coszhr);
-double clearskyemiss(double vp, double tk);
-double cloudcov(double radihr, double isr, double cosz);
 void ComputeActualRootGrowth(double sumpdr);
-void ComputeDayLength();
 void ComputeIrrigation();
 void ComputeSiteNumbers();
 void cotplt(int nmap);
 void CottonPhenology();
 void CreateFirstSquare(double stemNRatio);
 // D
-void DayClim();
-double dayrad(double radsum, double sinb, double c11);
-double dayrh(double tt, double tdew);
 double DaysToFirstSquare();
-double daytmp(double ti);
-double daywnd(double ti, double wind, double t1, double t2, double t3,
-              double wnytf);
 void Defoliate();
 void DefoliationLeafAbscission();
-double del(double tk, double svp);
 void Denitrification(int l, int k);
 double Drain();
 void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
                       double &cdroot);
 // E
-void EnergyBalance(int ihr, int k, bool bMulchon, double ess, double etp1);
-void EvapoTranspiration();
 void ExtraNitrogenAllocation();
 // F
 double form(double c0, double d0, double g0);
@@ -67,7 +53,6 @@ void FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower);
 void FruitingSitesAbscission();
 void FruitNodeLeafAbscission(int k, int l, int m, double droplf);
 // G, H
-double gam(double elev, double tt);
 void GetNitrogenStress();
 double GetTargetStress();
 void GoBack();
@@ -113,7 +98,6 @@ double PsiOnTranspiration(double PsiAverage);
 // R
 int ReadSoilHydraulicData();
 void RedistRootNewGrowth(int l, int k, double adwr1);
-double refalbed(double isrhr, double rad, double coszhr, double sunahr);
 void RootAging(int l, int k);
 void RootCultivation(int j);
 void RootDeath(int l, int k);
@@ -123,7 +107,6 @@ void RootSummation();
 // S
 double SensibleHeatTransfer(double tsf, double tenviron, double PlantHeight,
                             double wndcanp);
-double SimulateRunoff(double rain);
 double SiteAbscissionRatio(int k, int l, int m, int lt);
 void sitecode();
 double SoilAirOnRootGrowth(double psislk, double poreSpace, double vh2olk);
@@ -146,16 +129,13 @@ double SoilWaterOnRootGrowth(double psislk);
 void SortArray(int size, double InData[], int indexk[], int indexl[],
                int indexm[]);
 void SquareAbscission(int k, int l, int m, double abscissionRatio);
-void sunangle(double ti, double &coszhr, double &sunahr);
 // T
 void TapRootGrowth();
-double tdewhour(double ti, double tt);
 double TemperatureOnFruitGrowthRate(double t);
 double SoilTemperatureEffect(double tt);
 double ThermalCondSoil(double q0, double t0, int l0);
 // U, V
 void UreaHydrolysis(int l, int k);
-double VaporPressure(double tt);
 // W
 void WaterBalance(double q1[], double qx[], double dd[], int nn);
 void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],

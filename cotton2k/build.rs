@@ -6,7 +6,6 @@ use std::path::PathBuf;
 fn main() {
     let cpp_sources = vec![
         "CottonPhenology.cpp",
-        "DailyClimate.cpp",
         "FruitAbscission.cpp",
         "GeneralFunctions.cpp",
         "GettingInput_2.cpp",

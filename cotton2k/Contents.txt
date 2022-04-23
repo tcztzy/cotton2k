@@ -38,31 +38,6 @@ Input Routines:
        
 ===========================================================================================       
 
-Package C.
-Climate:
-       
-    File DailyClimate.cpp 
-          DayClim() 
-          ComputeDayLength() 
-          dayrad() 
-          daytmp() 
-          tdewhour() 
-          dayrh() 
-          daywnd() 
-          AverageAirTemperatures() 
-          VaporPressure() 
-          EvapoTranspiration()
-          clearskyemiss()
-          cloudcov()
-          clcor()
-          del()
-          gam()
-          refalbed()
-          sunangle()
-          SimulateRunoff()
-       
-===========================================================================================       
-
 Package D.
 Soil:
 
@@ -104,7 +79,6 @@ Package E.
 Soil Temperature:
 
     File SoilTemperature_2.cpp
-          EnergyBalance()
           SensibleHeatTransfer()
           SoilSurfaceBalance()
           SoilMulchBalance()

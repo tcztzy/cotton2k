@@ -600,8 +600,8 @@ void FruitingSite(int k, int l, int m, int& NodeRecentWhiteFlower)
     if (FruitingCode[k][l][m] >= 3 && FruitingCode[k][l][m] <= 6) return;
     //     Age of node is modified for low minimum temperatures and for high
     //  maximum temperatures.
-    double tmin = GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
-    double tmax = GetFromClim(CLIMATE_METRIC_TMAX, Daynum);
+    double tmin = GetFromClim(TMIN, Daynum);
+    double tmax = GetFromClim(TMAX, Daynum);
     double ageinc = DayInc;  // daily addition to site age.
     //     Adjust leaf aging for low minimum twmperatures.
     if (tmin < vfrsite[2]) ageinc += vfrsite[3] * (vfrsite[2] - tmin);

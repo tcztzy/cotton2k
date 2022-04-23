@@ -173,17 +173,17 @@ double GetFromClim(CLIMATE_METRIC item, int Doy)
     //
     if (i > 399) i = 399;
     if (Doy < Clim[0].nDay) i = 0;
-    if (item == CLIMATE_METRIC_TMIN)
+    if (item == TMIN)
         return Clim[i].Tmin;
-    else if (item == CLIMATE_METRIC_TMAX)
+    else if (item == TMAX)
         return Clim[i].Tmax;
-    else if (item == CLIMATE_METRIC_IRRD)
+    else if (item == IRRD)
         return Clim[i].Rad;
-    else if (item == CLIMATE_METRIC_RAIN)
+    else if (item == RAIN)
         return Clim[i].Rain;
-    else if (item == CLIMATE_METRIC_WIND)
+    else if (item == WIND)
         return Clim[i].Wind;
-    else if (item == CLIMATE_METRIC_TDEW)
+    else if (item == TDEW)
         return Clim[i].Tdew;
     else
         return -99;

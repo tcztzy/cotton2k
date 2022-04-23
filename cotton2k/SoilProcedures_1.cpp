@@ -157,7 +157,7 @@ void PredictDripIrrigation(double TargetStress)
         bool bIsIrr = false;
         for (int j = 0; j < NumIrrigations; j++) {
             if (Irrig[j].day == Daynum ||
-                GetFromClim(CLIMATE_METRIC_RAIN, Daynum) > 1) {
+                GetFromClim(RAIN, Daynum) > 1) {
                 bIsIrr = true;  // there is an irrigation today
                 break;
             }
@@ -178,7 +178,7 @@ void PredictDripIrrigation(double TargetStress)
     //     to replace the water loss
     //  from the soil by evapotranspiration today.
     RequiredWater += ActualTranspiration + ActualSoilEvaporation -
-                     GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
+                     GetFromClim(RAIN, Daynum);
     if (RequiredWater < 0) RequiredWater = 0;
     if ((Daynum - MinDaysBetweenIrrig) >= LastIrrigation) {
         //     If the minimum number of days (MinDaysBetweenIrrig) have passed

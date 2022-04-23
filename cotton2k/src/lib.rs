@@ -8,6 +8,7 @@
 #![allow(dead_code)]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
+mod meteorology;
 mod plant_growth;
 mod soil_temperature;
 mod utils;
@@ -17,6 +18,7 @@ use serde::Deserialize;
 use std::io::Write;
 use std::path::PathBuf;
 
+use meteorology::DayClim;
 use plant_growth::{LeafResistance, PhysiologicalAge, PlantGrowth};
 use soil_temperature::SoilTemperature;
 
@@ -1751,8 +1753,7 @@ impl Profile {
         }
         // Convert the average daily short wave radiation from langley per day, to Watts per square meter (wattsm).
         // average daily global radiation, W m-2.
-        let wattsm =
-            GetFromClim(CLIMATE_METRIC_CLIMATE_METRIC_IRRD, Daynum) * 697.45 / (DayLength * 60.);
+        let wattsm = GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 697.45 / (DayLength * 60.);
         // Compute pstand as an empirical function of wattsm (based on Baker et al., 1972).
         // gross photosynthesis for a non-stressed full canopy.
         let pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136);
@@ -1957,7 +1958,7 @@ impl Profile {
 
         // amount of water applied by non-drip irrigation or rainfall
         // Check if there is rain on this day
-        let mut water_to_apply = unsafe { GetFromClim(CLIMATE_METRIC_CLIMATE_METRIC_RAIN, Daynum) };
+        let mut water_to_apply = unsafe { GetFromClim(CLIMATE_METRIC_RAIN, Daynum) };
         // If irrigation is to be predicted for this day, call ComputeIrrigation() to compute the actual amount of irrigation.
         unsafe {
             if MaxIrrigation > 0. {

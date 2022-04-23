@@ -81,9 +81,9 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].plantHeight = PlantHeight;
     Scratch21[DayOfSimulation - 1].plantWeight = PlantWeight;
     Scratch21[DayOfSimulation - 1].rad =
-        GetFromClim(CLIMATE_METRIC_IRRD, Daynum);
+        GetFromClim(IRRD, Daynum);
     Scratch21[DayOfSimulation - 1].rain =
-        GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
+        GetFromClim(RAIN, Daynum);
     Scratch21[DayOfSimulation - 1].reserveC = ReserveC;
     Scratch21[DayOfSimulation - 1].rn = Rn;
     Scratch21[DayOfSimulation - 1].rootNConc = RootNConc;
@@ -92,9 +92,9 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].stemNConc = StemNConc;
     Scratch21[DayOfSimulation - 1].sumNO3N90 = SumNO3N90;
     Scratch21[DayOfSimulation - 1].tmax =
-        GetFromClim(CLIMATE_METRIC_TMAX, Daynum);
+        GetFromClim(TMAX, Daynum);
     Scratch21[DayOfSimulation - 1].tmin =
-        GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
+        GetFromClim(TMIN, Daynum);
     Scratch21[DayOfSimulation - 1].totalPetioleWeight = TotalPetioleWeight;
     Scratch21[DayOfSimulation - 1].totalRootWeight = TotalRootWeight;
     Scratch21[DayOfSimulation - 1].totalSquareWeight = TotalSquareWeight;
@@ -103,7 +103,7 @@ void WriteStateVariables(bool bAdjusting)
     Scratch21[DayOfSimulation - 1].waterStress = WaterStress;
     Scratch21[DayOfSimulation - 1].waterStressStem = WaterStressStem;
     Scratch21[DayOfSimulation - 1].wind =
-        GetFromClim(CLIMATE_METRIC_WIND, Daynum);
+        GetFromClim(WIND, Daynum);
     //
     for (int l = 0; l < maxl; l++)
         for (int k = 0; k < maxk; k++) {

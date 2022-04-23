@@ -9,12 +9,12 @@ const int maxl = 40;
 const int maxk = 20;
 const double pi = 3.14159;
 enum CLIMATE_METRIC {
-    CLIMATE_METRIC_TMAX = 0,
-    CLIMATE_METRIC_TMIN = 1,
-    CLIMATE_METRIC_IRRD = 2,
-    CLIMATE_METRIC_RAIN = 3,
-    CLIMATE_METRIC_WIND = 4,
-    CLIMATE_METRIC_TDEW = 5,
+    TMAX = 0,
+    TMIN = 1,
+    IRRD = 2,
+    RAIN = 3,
+    WIND = 4,
+    TDEW = 5,
 };
 ////    Structures    ////
 extern struct scratch {
