@@ -1,5 +1,5 @@
 use crate::{
-    albedo, bPollinSwitch, es1hour, es2hour, fmin, iyear, AirTemp, AvrgDailyTemp,
+    albedo, bPollinSwitch, es1hour, es2hour, iyear, AirTemp, AvrgDailyTemp,
     ClayVolumeFraction, Clim, CloudCoverRatio, CloudTypeCorr, DayLength, DayOfSimulation, DayStart,
     DayTimeTemp, Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LastDayWeatherData, Latitude,
     LeapYear, Longitude, NightTimeTemp, NumIrrigations, Radiation, ReferenceETP, ReferenceTransp,
@@ -7,6 +7,7 @@ use crate::{
     CLIMATE_METRIC_RAIN, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN,
     CLIMATE_METRIC_WIND,
 };
+use crate::utils::fmin;
 /// daily declination angle, in radians.
 static mut declination: f64 = 0.;
 /// time of solar noon, hours.

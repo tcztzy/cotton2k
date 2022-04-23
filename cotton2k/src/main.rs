@@ -28,16 +28,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         cotton2k::bEnd = false;
         // Start the daily loop. If variable bEnd has been assigned a value of true end simulation.
         for _ in cotton2k::DayStart..(cotton2k::DayFinish + 1) {
-            let need_to_adjust = profile.adjust()?;
+            let mut state = cotton2k::State {
+                plant_height: cotton2k::PlantHeight,
+                rracol: cotton2k::rracol
+            };
+            // let need_to_adjust = profile.adjust()?;
             pb.inc();
             // Execute simulation for this day.
-            profile.simulate_this_day()?;
+            state.simulate_this_day(&mut profile)?;
             profile.write_record()?;
             // If there are pending plant adjustments, call WriteStateVariables() to write
             // state variables of this day in a scratch file.
-            if need_to_adjust {
-                cotton2k::WriteStateVariables(true);
-            }
+            // if need_to_adjust {
+            //     cotton2k::WriteStateVariables(true);
+            // }
+
             if cotton2k::bEnd {
                 break;
             }

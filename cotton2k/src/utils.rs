@@ -186,3 +186,19 @@ fn test_ambient_CO2_factor() {
     assert_eq!(ambient_CO2_factor(1959), 1.);
     assert_eq!(ambient_CO2_factor(1960), CO2_PARAMETER[0]);
 }
+
+pub fn fmin(a: f64, b: f64) -> f64 {
+    if a < b {
+        a
+    } else {
+        b
+    }
+}
+
+pub fn fmax(a: f64, b: f64) -> f64 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
