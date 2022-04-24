@@ -379,7 +379,7 @@ pub unsafe fn SoilTemperatureInit() {
     for i in idd as usize..(idd + 5) as usize {
         tsi1 += Clim[i].Tmax + Clim[i].Tmin;
     }
-    tsi1 = tsi1 / 10.;
+    tsi1 /= 10.;
     //     The temperature of the last soil layer (lower boundary) is computed
     //     as a sinusoidal function
     //  of day of year, with site-specific parameters.

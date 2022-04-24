@@ -113,14 +113,14 @@ pub unsafe fn PhysiologicalAge() -> f64 {
     // The effect of temperatures higher than 33 C is assumed to be equivalent to that of 33 C.
     let mut dayfd = 0.; // the daily contribution to physiological age (return value).
     for ihr in 0..24 {
-        let mut tfd = (AirTemp[ihr] - p1) / p2; // the hourly contribution to physiological age.
-        if tfd < 0. {
-            tfd = 0.;
-        }
-        if tfd > p3 {
-            tfd = p3;
-        }
-        dayfd += tfd;
+        let tfd = (AirTemp[ihr] - p1) / p2; // the hourly contribution to physiological age.
+        dayfd += if tfd < 0. {
+            0.
+        } else if tfd > p3 {
+            p3
+        } else {
+            tfd
+        };
     }
     return dayfd / 24.;
 }
@@ -136,12 +136,11 @@ pub fn LeafResistance(agel: f64) -> f64 {
     const agelo: f64 = 48.; // lower limit for leaf age.
     const rlmin: f64 = 0.5; // minimum leaf resistance.
 
-    if agel <= agelo {
-        rlmin
+    rlmin + if agel <= agelo {
+        0.
     } else if agel >= agehi {
-        rlmin + (agehi - agelo) * (agehi - agelo) / afac
+        (agehi - agelo).powi(2) / afac
     } else {
-        let ax = 2. * agehi - agelo; // intermediate variable
-        rlmin + (agel - agelo) * (ax - agel) / afac
+        (agel - agelo) * (2. * agehi - agelo - agel) / afac
     }
 }
