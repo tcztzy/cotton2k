@@ -99,7 +99,7 @@ impl State {
             }
             // The following functions are executed each day (also before emergence).
             self.column_shading(profile); // computes light interception and soil shading.
-            DayClim(); // computes climate variables for today.
+            DayClim(profile); // computes climate variables for today.
             self.soil_thermology(); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
             SoilNitrogen(); // computes nitrogen transformations in the soil.

@@ -1,13 +1,13 @@
+use crate::utils::fmin;
 use crate::{
-    albedo, bPollinSwitch, es1hour, es2hour, iyear, AirTemp, AvrgDailyTemp,
-    ClayVolumeFraction, Clim, CloudCoverRatio, CloudTypeCorr, DayLength, DayOfSimulation, DayStart,
-    DayTimeTemp, Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LastDayWeatherData, Latitude,
-    LeapYear, Longitude, NightTimeTemp, NumIrrigations, Radiation, ReferenceETP, ReferenceTransp,
+    albedo, bPollinSwitch, es1hour, es2hour, iyear, AirTemp, AvrgDailyTemp, ClayVolumeFraction,
+    Clim, CloudCoverRatio, CloudTypeCorr, DayLength, DayOfSimulation, DayStart, DayTimeTemp,
+    Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LastDayWeatherData, LeapYear,
+    Longitude, NightTimeTemp, NumIrrigations, Radiation, ReferenceETP, ReferenceTransp,
     RelativeHumidity, Rn, SandVolumeFraction, Scratch21, SitePar, WindSpeed, CLIMATE_METRIC_IRRD,
     CLIMATE_METRIC_RAIN, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN,
-    CLIMATE_METRIC_WIND,
+    CLIMATE_METRIC_WIND, Profile,
 };
-use crate::utils::fmin;
 /// daily declination angle, in radians.
 static mut declination: f64 = 0.;
 /// time of solar noon, hours.
@@ -37,11 +37,11 @@ static mut tmpisr: f64 = 0.;
 //         Global variables set:
 //    AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity,
 //    WindSpeed
-pub unsafe fn DayClim() {
+pub unsafe fn DayClim(profile: &Profile) {
     //     Compute day length and related variables:
-    ComputeDayLength();
+    ComputeDayLength(profile);
     //
-    let xlat = Latitude * std::f64::consts::PI / 180.; // latitude converted to radians.
+    let xlat = profile.latitude * std::f64::consts::PI / 180.; // latitude converted to radians.
     let cd = xlat.cos() * declination.cos(); // amplitude of the sine of the solar height.
     let sd = xlat.sin() * declination.sin(); // seasonal offset of the sine of the solar height.
                                              // The computation of the daily integral of global radiation (from sunrise to sunset) is based on Spitters et al. (1986).
@@ -118,17 +118,18 @@ pub unsafe fn DayClim() {
     //     AverageAirTemperatures.
     AverageAirTemperatures();
     //     Compute potential evapotranspiration.
-    EvapoTranspiration();
+    EvapoTranspiration(profile);
 }
 
-//     Function ComputeDayLength() computes day length, declination, time of
-//  solar noon, and extra-terrestrial radiation for this day. The CIMIS
-//  (California Irrigation Management Information System) algorithms are used.
-//     Global variables referenced here:
-//  Daynum, iyear, Latitude, Longitude, pi,
-//     Global variables set here:
-//  DayLength, declination
-unsafe fn ComputeDayLength() {
+/// Computes day length, declination, time of solar noon, and extra-terrestrial radiation for this day.
+/// The CIMIS (California Irrigation Management Information System) algorithms are used.
+/// 
+/// Global variables referenced here:
+/// Daynum, iyear, Longitude, pi,
+/// 
+/// Global variables set here:
+/// DayLength, declination
+unsafe fn ComputeDayLength(profile: &Profile) {
     //     Convert day of year to corresponding angle in radians (xday). It uses
     //     function
     //  LeapYear() (see file GeneralFunctions.cpp)
@@ -183,7 +184,7 @@ unsafe fn ComputeDayLength() {
     //     declination of
     //  this day. Times of sunrise and of sunset are computed from solar noon
     //  and day length.
-    let xlat = Latitude * std::f64::consts::PI / 180.;
+    let xlat = profile.latitude * std::f64::consts::PI / 180.;
     let mut ht = -xlat.tan() * declination.tan();
     if ht > 1. {
         ht = 1.; //  arctic circle
@@ -571,7 +572,7 @@ pub fn VaporPressure(tt: f64) -> f64 {
 //     ReferenceETP,
 //        es1hour, es2hour, ReferenceTransp.
 //     argument: jtout - index indicating if output is required.
-unsafe fn EvapoTranspiration() {
+unsafe fn EvapoTranspiration(profile: &Profile) {
     const stefb: f64 = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
     const c12: f64 = 0.125; // c12 ... c15 are constant parameters.
     const c13: f64 = 0.0439;
@@ -587,7 +588,7 @@ unsafe fn EvapoTranspiration() {
         let ti = ihr as f64 + 0.5; // middle of the hourly interval
                                    //      The following subroutines and functions are called for each
                                    //  hour: sunangle, cloudcov, clcor, refalbed .
-        sunangle(ti, &mut cosz, &mut suna);
+        sunangle(profile.latitude, ti, &mut cosz, &mut suna);
         isr = tmpisr * cosz;
         CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
         //      clcor is called to compute cloud-type correction.
@@ -720,46 +721,44 @@ fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64 {
     const p1: f64 = 1.333; //    p1, p2, p3 are constant parameters.
     const p2: f64 = 1.7778;
     const p3: f64 = 0.294118;
-    let mut rasi = 0.; // ratio of radihr to isr.
-    let mut clcov = 0.; // computed cloud cover.
-
-    if isr > 0. {
-        rasi = radihr / isr;
-    }
+    // ratio of radihr to isr.
+    let rasi = if isr > 0. { radihr / isr } else { 0. };
     if cosz > 0.1736 && rasi <= p1 / p2 {
-        clcov = (p1 - p2 * if rasi >= 0.375 { rasi } else { 0.375 }).powf(p3);
+        // computed cloud cover.
+        let clcov = (p1 - p2 * if rasi >= 0.375 { rasi } else { 0.375 }).powf(p3);
         if clcov < 0. {
-            clcov = 0.;
+            0.
+        } else {
+            clcov
         }
+    } else {
+        0.
     }
-    return clcov;
 }
 //      Reference:
 //      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp.
 // 58-79.
 
-///     Function clcor() computes cloud type correction, using the CIMIS
-//     algorithm. Input arguments:
-//            ck = cloud type correction factor (data for this location).
-//            coszhr = cosine of sun angle from zenith.
-//            ihr = time of day, hours.
-//            isrhr = hourly extraterrestrial radiation in W m-2 .
-//     Global variables used: DayLength, Radiation[], SolarNoon, pi
-//     Note: This algorithm is described by Dong et al. (1988). ck is the
-//  cloud-type correction used in the Monteith equation for estimating
-//  net radiation. The value of this correction depends on site and
-//  time of year. Regional ck values for California are given by Dong
-//  et al. (1988). In the San Joaquin valley of California ck is almost
-//  constant from April to October, with an average value of 60. The value
-//  of ck is site-dependant, assumed to be constant during the growing season.
-//     The daily ck is converted to an hourly value for
-//  clear or partly cloudy sky (rasi >= 0.375) and when the sun is at
-//  least 10 degrees above the horizon.
-//     Evening, night and early morning cloud type correction is temporarily
-//  assigned 0. It is later assigned the values of first or
-// last non-zero values (in the calling routine).
-//
+/// Computes cloud type correction, using the CIMIS algorithm.
+///
+/// Input arguments:
+/// * `ck` - cloud type correction factor (data for this location).
+/// * `coszhr` - cosine of sun angle from zenith.
+/// * `ihr` - time of day, hours.
+/// * `isrhr` - hourly extraterrestrial radiation in W m-2 .
+/// Global variables used: DayLength, Radiation[], SolarNoon, pi
+///
+/// NOTE: This algorithm is described by Dong et al. (1988).
+/// ck is the cloud-type correction used in the Monteith equation for estimating net radiation.
+/// The value of this correction depends on site and time of year.
+/// Regional ck values for California are given by Dong et al. (1988).
+/// In the San Joaquin valley of California ck is almost constant from April to October, with an average value of 60.
+/// The value of ck is site-dependant, assumed to be constant during the growing season.
+/// 
+/// The daily ck is converted to an hourly value for clear or partly cloudy sky (rasi >= 0.375) and when the sun is at least 10 degrees above the horizon.
+///
+/// Evening, night and early morning cloud type correction is temporarily assigned 0. It is later assigned the values of first or last non-zero values (in the calling routine).
 unsafe fn clcor(ihr: usize, ck: f64, isrhr: f64, coszhr: f64) -> f64 {
     let mut rasi = 0.; //  ratio of Radiation to isrhr.
     if isrhr > 0. {
@@ -828,16 +827,19 @@ fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64 {
 //      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
 
-//     sunangle.cpp : computes sun angle for any time of day.
-//     Input argument:
-//        ti = time of day, hours.
-//      Output arguments:
-//        coszhr = cosine of sun angle from zenith for this hour.
-//        sunahr = sun angle from horizon, degrees.
-//
-unsafe fn sunangle(ti: f64, coszhr: &mut f64, sunahr: &mut f64) {
+/// computes sun angle for any time of day.
+/// 
+/// Input argument:
+/// * `latitude` - latitude in degree.
+/// * `ti` - time of day, hours.
+/// 
+/// Output arguments:
+/// 
+/// * `coszhr` - cosine of sun angle from zenith for this hour.
+/// * `sunahr` - sun angle from horizon, degrees.
+unsafe fn sunangle(latitude: f64, ti: f64, coszhr: &mut f64, sunahr: &mut f64) {
     //      The latitude is converted to radians (xlat).
-    let xlat = Latitude * std::f64::consts::PI / 180.; // latitude in radians.
+    let xlat = latitude * std::f64::consts::PI / 180.; // latitude in radians.
                                                        // amplitude of the sine of the solar height, computed as the product of cosines of latitude and declination angles.
     let cd = xlat.cos() * declination.cos();
     // seasonal offset of the sine of the solar height, computed as the product of sines of latitude and declination angles.

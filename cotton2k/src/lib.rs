@@ -881,7 +881,6 @@ impl Profile {
         self.num_watertable_data = 0;
         unsafe {
             InitializeGlobal();
-            Latitude = self.latitude;
             Longitude = self.longitude;
             Elevation = self.elevation;
             iyear = self.start_date.year();
