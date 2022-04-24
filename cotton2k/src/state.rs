@@ -1,4 +1,4 @@
-use crate::meteorology::DayClim;
+use crate::meteorology::Meteorology;
 use crate::plant_growth::{PhysiologicalAge, PlantGrowth};
 use crate::soil_temperature::SoilThermology;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
@@ -49,7 +49,6 @@ impl State {
     ///
     /// It calls the following functions:
     /// * [Profile::column_shading()]
-    /// * [DayClim()]
     /// * [soil_thermology()]
     /// * [SoilProcedures()]
     /// * [SoilNitrogen()]
@@ -99,7 +98,7 @@ impl State {
             }
             // The following functions are executed each day (also before emergence).
             self.column_shading(profile); // computes light interception and soil shading.
-            DayClim(profile); // computes climate variables for today.
+            self.meteorology(profile); // computes climate variables for today.
             self.soil_thermology(); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
             SoilNitrogen(); // computes nitrogen transformations in the soil.

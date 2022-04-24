@@ -1,12 +1,13 @@
+use crate::state::State;
 use crate::utils::fmin;
 use crate::{
     albedo, bPollinSwitch, es1hour, es2hour, iyear, AirTemp, AvrgDailyTemp, ClayVolumeFraction,
     Clim, CloudCoverRatio, CloudTypeCorr, DayLength, DayOfSimulation, DayStart, DayTimeTemp,
-    Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LastDayWeatherData, LeapYear,
-    Longitude, NightTimeTemp, NumIrrigations, Radiation, ReferenceETP, ReferenceTransp,
+    Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LastDayWeatherData, LeapYear, Longitude,
+    NightTimeTemp, NumIrrigations, Profile, Radiation, ReferenceETP, ReferenceTransp,
     RelativeHumidity, Rn, SandVolumeFraction, Scratch21, SitePar, WindSpeed, CLIMATE_METRIC_IRRD,
     CLIMATE_METRIC_RAIN, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN,
-    CLIMATE_METRIC_WIND, Profile,
+    CLIMATE_METRIC_WIND,
 };
 /// daily declination angle, in radians.
 static mut declination: f64 = 0.;
@@ -18,35 +19,38 @@ static mut sunr: f64 = 0.;
 static mut suns: f64 = 0.;
 /// extraterrestrial radiation, W / m2.
 static mut tmpisr: f64 = 0.;
-//     All daily weather data, read from input file, are stored in the
-//     structure:
-//         Clim[400];    --  defined in global
-//     The values are extracted from this structure by function GetFromClim(),
-//     see
-//  file "GeneralFunctions.cpp"
 
-//     The function DayClim() is called daily from SimulateThisDay(). It calls
-//     the
-//  the following functions:
-//     ComputeDayLength(), GetFromClim(), SimulateRunoff(),
-//     AverageAirTemperatures(), dayrad(), daytemp(), EvapoTranspiration(),
-//     tdewhour(), dayrh(), daywnd()
-//         Global variables referenced:
-//    Daynum, DayFinish, DayStart, declination, LastDayWeatherData, Latitude,
-//    pi, SitePar
-//         Global variables set:
-//    AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity,
-//    WindSpeed
-pub unsafe fn DayClim(profile: &Profile) {
-    //     Compute day length and related variables:
-    ComputeDayLength(profile);
-    //
-    let xlat = profile.latitude * std::f64::consts::PI / 180.; // latitude converted to radians.
-    let cd = xlat.cos() * declination.cos(); // amplitude of the sine of the solar height.
-    let sd = xlat.sin() * declination.sin(); // seasonal offset of the sine of the solar height.
-                                             // The computation of the daily integral of global radiation (from sunrise to sunset) is based on Spitters et al. (1986).
-    const c11: f64 = 0.4; // constant parameter.
-    let radsum =            // daily radiation integral.
+pub trait Meteorology {
+    unsafe fn meteorology(&mut self, profile: &Profile);
+}
+
+impl Meteorology for State {
+    /// All daily weather data, read from input file, are stored in the structure:
+    /// Clim[400];    --  defined in global
+    /// The values are extracted from this structure by function GetFromClim()
+    /// 
+    /// The function DayClim() is called daily from SimulateThisDay().
+    /// It calls the the following functions:
+    /// ComputeDayLength(), GetFromClim(), SimulateRunoff(),
+    /// AverageAirTemperatures(), dayrad(), daytemp(), EvapoTranspiration(),
+    /// tdewhour(), dayrh(), daywnd()
+    /// 
+    /// Global variables referenced:
+    /// 
+    /// Daynum, DayFinish, DayStart, declination, LastDayWeatherData, SitePar
+    /// 
+    /// Global variables set:
+    /// AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
+    unsafe fn meteorology(&mut self, profile: &Profile) {
+        //     Compute day length and related variables:
+        ComputeDayLength(profile);
+        //
+        let xlat = profile.latitude * std::f64::consts::PI / 180.; // latitude converted to radians.
+        let cd = xlat.cos() * declination.cos(); // amplitude of the sine of the solar height.
+        let sd = xlat.sin() * declination.sin(); // seasonal offset of the sine of the solar height.
+                                                 // The computation of the daily integral of global radiation (from sunrise to sunset) is based on Spitters et al. (1986).
+        const c11: f64 = 0.4; // constant parameter.
+        let radsum =            // daily radiation integral.
     if (sd / cd).abs() >= 1. {
         //  arctic circle
         0.
@@ -61,72 +65,73 @@ pub unsafe fn DayClim(profile: &Profile) {
         //      11.630287 = 1000000 / 3600 / 23.884
         GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 11.630287 / dsbe
     };
-    // Set 'pollination switch' for rainy days (as in GOSSYM).
-    // The amount of rain today, mm
-    let mut rainToday = GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
-    bPollinSwitch = rainToday < 2.5;
-    //     Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
-    //     Note: this is modified from the original GOSSYM - RRUNOFF routine. It
-    //     is called here
-    //  for rainfall only, but it is not activated when irrigation is applied.
-    let mut runoffToday = 0.; // amount of runoff today, mm
-    if rainToday >= 2. {
-        runoffToday = SimulateRunoff(rainToday);
-        if runoffToday < rainToday {
-            rainToday -= runoffToday;
-        } else {
-            rainToday = 0.;
+        // Set 'pollination switch' for rainy days (as in GOSSYM).
+        // The amount of rain today, mm
+        let mut rainToday = GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
+        bPollinSwitch = rainToday < 2.5;
+        //     Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
+        //     Note: this is modified from the original GOSSYM - RRUNOFF routine. It
+        //     is called here
+        //  for rainfall only, but it is not activated when irrigation is applied.
+        let mut runoffToday = 0.; // amount of runoff today, mm
+        if rainToday >= 2. {
+            runoffToday = SimulateRunoff(rainToday);
+            if runoffToday < rainToday {
+                rainToday -= runoffToday;
+            } else {
+                rainToday = 0.;
+            }
+            let j = Daynum - DayStart; // days from start of simulation
+            Clim[j as usize].Rain = rainToday;
         }
-        let j = Daynum - DayStart; // days from start of simulation
-        Clim[j as usize].Rain = rainToday;
+        Scratch21[(DayOfSimulation - 1) as usize].runoff = runoffToday;
+        //     Parameters for the daily wind function are now computed:
+        //     Note:  SitePar[] are site specific parameters.
+        let t1 = sunr + SitePar[1]; // the hour at which wind begins to blow
+                                    // (SitePar(1) hours after sunrise).
+        let t2 = SolarNoon + SitePar[2]; // the hour at which wind speed is maximum
+                                         // (SitePar(2) hours after solar noon).
+        let t3 = suns + SitePar[3]; // the hour at which wind stops to blow
+                                    // (SitePar(3) hours after sunset).
+        let wnytf = SitePar[4]; // used for estimating night time wind (from
+                                // time t3 to time t1 next day).
+                                //
+        for ihr in 0..24 as usize {
+            let ti = ihr as f64 + 0.5; // time in the middle of each hourly interval.
+            let sinb = sd + cd * (std::f64::consts::PI * (ti - SolarNoon) / 12.).cos(); // sine of the solar elevation.
+                                                                                        //     Compute hourly global radiation, using function dayrad.
+            Radiation[ihr] = dayrad(radsum, sinb, c11);
+            //     Compute hourly temperature, using function daytmp.
+            AirTemp[ihr] = daytmp(ti);
+            //     Compute hourly dew point temperature, using function tdewhour.
+            DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr]);
+            //     Compute hourly relative humidity, using function dayrh.
+            RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
+            //     Compute hourly wind speed, using function daywnd, and daily sum
+            //     of wind.
+            WindSpeed[ihr] = daywnd(
+                ti,
+                GetFromClim(CLIMATE_METRIC_WIND, Daynum),
+                t1,
+                t2,
+                t3,
+                wnytf,
+            );
+        }
+        //     Compute average daily temperature, using function
+        //     AverageAirTemperatures.
+        AverageAirTemperatures();
+        //     Compute potential evapotranspiration.
+        EvapoTranspiration(profile);
     }
-    Scratch21[(DayOfSimulation - 1) as usize].runoff = runoffToday;
-    //     Parameters for the daily wind function are now computed:
-    //     Note:  SitePar[] are site specific parameters.
-    let t1 = sunr + SitePar[1]; // the hour at which wind begins to blow
-                                // (SitePar(1) hours after sunrise).
-    let t2 = SolarNoon + SitePar[2]; // the hour at which wind speed is maximum
-                                     // (SitePar(2) hours after solar noon).
-    let t3 = suns + SitePar[3]; // the hour at which wind stops to blow
-                                // (SitePar(3) hours after sunset).
-    let wnytf = SitePar[4]; // used for estimating night time wind (from
-                            // time t3 to time t1 next day).
-                            //
-    for ihr in 0..24 as usize {
-        let ti = ihr as f64 + 0.5; // time in the middle of each hourly interval.
-        let sinb = sd + cd * (std::f64::consts::PI * (ti - SolarNoon) / 12.).cos(); // sine of the solar elevation.
-                                                                                    //     Compute hourly global radiation, using function dayrad.
-        Radiation[ihr] = dayrad(radsum, sinb, c11);
-        //     Compute hourly temperature, using function daytmp.
-        AirTemp[ihr] = daytmp(ti);
-        //     Compute hourly dew point temperature, using function tdewhour.
-        DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr]);
-        //     Compute hourly relative humidity, using function dayrh.
-        RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
-        //     Compute hourly wind speed, using function daywnd, and daily sum
-        //     of wind.
-        WindSpeed[ihr] = daywnd(
-            ti,
-            GetFromClim(CLIMATE_METRIC_WIND, Daynum),
-            t1,
-            t2,
-            t3,
-            wnytf,
-        );
-    }
-    //     Compute average daily temperature, using function
-    //     AverageAirTemperatures.
-    AverageAirTemperatures();
-    //     Compute potential evapotranspiration.
-    EvapoTranspiration(profile);
 }
 
 /// Computes day length, declination, time of solar noon, and extra-terrestrial radiation for this day.
 /// The CIMIS (California Irrigation Management Information System) algorithms are used.
-/// 
+///
 /// Global variables referenced here:
 /// Daynum, iyear, Longitude, pi,
-/// 
+///
 /// Global variables set here:
 /// DayLength, declination
 unsafe fn ComputeDayLength(profile: &Profile) {
@@ -755,7 +760,7 @@ fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64 {
 /// Regional ck values for California are given by Dong et al. (1988).
 /// In the San Joaquin valley of California ck is almost constant from April to October, with an average value of 60.
 /// The value of ck is site-dependant, assumed to be constant during the growing season.
-/// 
+///
 /// The daily ck is converted to an hourly value for clear or partly cloudy sky (rasi >= 0.375) and when the sun is at least 10 degrees above the horizon.
 ///
 /// Evening, night and early morning cloud type correction is temporarily assigned 0. It is later assigned the values of first or last non-zero values (in the calling routine).
@@ -828,13 +833,13 @@ fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64 {
 // daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
 
 /// computes sun angle for any time of day.
-/// 
+///
 /// Input argument:
 /// * `latitude` - latitude in degree.
 /// * `ti` - time of day, hours.
-/// 
+///
 /// Output arguments:
-/// 
+///
 /// * `coszhr` - cosine of sun angle from zenith for this hour.
 /// * `sunahr` - sun angle from horizon, degrees.
 unsafe fn sunangle(latitude: f64, ti: f64, coszhr: &mut f64, sunahr: &mut f64) {
