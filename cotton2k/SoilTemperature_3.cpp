@@ -500,7 +500,7 @@ void HeatBalance(int nn)
 ////////////////////////////////////////////////////////////////////////////////////
 void PredictEmergence(int hour)
 //     This function predicts date of emergence. It is called from
-//     SoilTemperature(). There is one referenced argument (hour).
+//     soil_thermology(). There is one referenced argument (hour).
 //
 //     The following global variables are referenced here:
 //       Daynum, dl, iyear, DayPlant, PlantRowColumn, nl, SoilPsi,

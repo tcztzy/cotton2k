@@ -20,7 +20,6 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use plant_growth::LeafResistance;
-use soil_temperature::SoilTemperature;
 pub use state::State;
 
 #[derive(Debug)]

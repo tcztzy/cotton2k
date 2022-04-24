@@ -1,5 +1,6 @@
 use crate::meteorology::DayClim;
 use crate::plant_growth::{PhysiologicalAge, PlantGrowth};
+use crate::soil_temperature::SoilThermology;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
     addwtbl, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday, rracol, thad,
@@ -18,9 +19,9 @@ use crate::{
     NumPreFruNodes, NumVegBranches, PerPlantArea, PlantHeight, PlantNitrogen, PlantNitrogenBal,
     PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile, ReferenceETP, RootColNumLeft,
     RootWtCapblUptake, RootsCapableOfUptake, RowSpace, SaturatedHydCond, Scratch21, SoilNitrogen,
-    SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum, SoilTemperature,
-    StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
-    VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
+    SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum, StemWeight,
+    SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent, VolUreaNContent,
+    VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
     CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
 use chrono::Datelike;
@@ -35,10 +36,12 @@ impl Default for State {
     fn default() -> Self {
         State {
             plant_height: 4.0,
-            rracol: [1.;20]
+            rracol: [1.; 20],
         }
     }
 }
+
+impl SoilThermology for State {}
 
 impl State {
     /// This function executes all the simulation computations in a day. It is called from [Profile::run()], and
@@ -47,7 +50,7 @@ impl State {
     /// It calls the following functions:
     /// * [Profile::column_shading()]
     /// * [DayClim()]
-    /// * [SoilTemperature()]
+    /// * [soil_thermology()]
     /// * [SoilProcedures()]
     /// * [SoilNitrogen()]
     /// * [SoilSum()]
@@ -97,7 +100,7 @@ impl State {
             // The following functions are executed each day (also before emergence).
             self.column_shading(profile); // computes light interception and soil shading.
             DayClim(); // computes climate variables for today.
-            SoilTemperature(); // executes all modules of soil and canopy temperature.
+            self.soil_thermology(); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
             SoilNitrogen(); // computes nitrogen transformations in the soil.
             SoilSum(); // computes totals of water and N in the soil.
@@ -926,6 +929,7 @@ impl State {
         Ok(())
     }
 }
+
 
 /// This function computes the water redistribution in the soil or surface irrigation (by flooding or sprinklers).
 /// It is called by [SoilProcedures()].
