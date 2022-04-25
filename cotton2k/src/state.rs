@@ -85,7 +85,7 @@ impl State {
             // Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
             Daynum += 1;
             DayOfSimulation = Daynum - DayStart + 1;
-            //    Compute Kday (days from emergence).
+            // Compute Kday (days from emergence).
             Kday = if DayEmerge <= 0 {
                 0
             } else {
@@ -175,8 +175,7 @@ impl State {
             }
             // Light interception is computed by two methods:
             //
-            // 1. It is assumed to be proportional to the ratio of plant height to
-            //    row spacing.
+            // 1. It is assumed to be proportional to the ratio of plant height to row spacing.
         }
         // light interception computed from plant height.
         let zint = unsafe { 1.0756 * PlantHeight / RowSpace };
@@ -221,15 +220,13 @@ impl State {
             },
             LightInterceptMethod::Original => {
                 unsafe {
-                    // 2. It is computed as a function of leaf area index. If LeafAreaIndex is not greater than 0.5 lfint is a
-                    //    linear function of it.
+                    // 2. It is computed as a function of leaf area index. If LeafAreaIndex is not greater than 0.5 lfint is a linear function of it.
 
                     // light interception computed from leaf area index.
                     let lfint = if LeafAreaIndex <= 0.5 {
                         0.80 * LeafAreaIndex
                     } else {
-                        // If the leaf area index is greater than 0.5, lfint is computed as an exponential function of
-                        // LeafAreaIndex.
+                        // If the leaf area index is greater than 0.5, lfint is computed as an exponential function of LeafAreaIndex.
                         1. - (0.07 - 1.16 * LeafAreaIndex).exp()
                     };
                     // If lfint is greater then zint, LightIntercept is their average value.
@@ -432,8 +429,7 @@ impl State {
             }
             // the amount of water applied, mm per iteration.
             let applywat = drip_water_amount / unsafe { noitr } as f64;
-            // If water is applied, DripFlow() is called followed by
-            // CapillaryFlow().
+            // If water is applied, DripFlow() is called followed by CapillaryFlow().
             for _ in 0..unsafe { noitr } as usize {
                 unsafe {
                     DripFlow(applywat)?;
@@ -773,8 +769,7 @@ impl State {
         // Compute pstand as an empirical function of wattsm (based on Baker et al., 1972).
         // gross photosynthesis for a non-stressed full canopy.
         let pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136);
-        // Convert it to gross photosynthesis per plant (pplant), using PerPlantArea and corrections for light
-        // interception by canopy, ambient CO2 concentration, water stress and low N in the leaves.
+        // Convert it to gross photosynthesis per plant (pplant), using PerPlantArea and corrections for light interception by canopy, ambient CO2 concentration, water stress and low N in the leaves.
         let mut pplant = 0.;
         // actual gross photosynthetic rate, g per plant per day.
         match profile.light_intercept_method {
@@ -820,8 +815,7 @@ impl State {
         let lytres = rsubl * pplant; // rate of photorespiration, g per plant per day.
 
         // Old stems are those more than voldstm = 32 calendar days old.
-        // Maintenance respiration is computed on the basis of plant dry weight, minus the old stems and the dry tissue
-        // of opened bolls.
+        // Maintenance respiration is computed on the basis of plant dry weight, minus the old stems and the dry tissue of opened bolls.
         let voldstm = 32;
         let kkday = Kday - voldstm; // day of least recent actively growing stems.
 
@@ -833,8 +827,7 @@ impl State {
         };
         // maintenance respiration, g per plant per day.
         let bmain = (PlantWeight - CottonWeightOpenBolls - BurrWeightOpenBolls - oldstmwt) * rsubo;
-        // Net photosynthesis is computed by substracting photo-respiration and maintenance respiration from the gross
-        // rate of photosynthesis. To avoid computational problems, make sure that pts is positive and non-zero.
+        // Net photosynthesis is computed by substracting photo-respiration and maintenance respiration from the gross rate of photosynthesis. To avoid computational problems, make sure that pts is positive and non-zero.
         // intermediate computation of NetPhotosynthesis.
         let mut pts = pplant - lytres - bmain;
         if pts < 0.00001 {
