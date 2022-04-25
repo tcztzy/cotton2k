@@ -1,4 +1,5 @@
 use crate::meteorology::{clearskyemiss, VaporPressure};
+use crate::state::State;
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, rracol, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
@@ -10,6 +11,10 @@ use crate::{
 };
 
 pub trait SoilThermology {
+    unsafe fn soil_thermology(&mut self);
+}
+
+impl SoilThermology for State {
     /// This is the main part of the soil temperature sub-model. It is called daily from SimulateThisDay(). It calls the following functions:
     /// EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
     ///

@@ -41,8 +41,6 @@ impl Default for State {
     }
 }
 
-impl SoilThermology for State {}
-
 impl State {
     /// This function executes all the simulation computations in a day. It is called from [Profile::run()], and
     /// [Profile::adjust()].
@@ -928,7 +926,6 @@ impl State {
         Ok(())
     }
 }
-
 
 /// This function computes the water redistribution in the soil or surface irrigation (by flooding or sprinklers).
 /// It is called by [SoilProcedures()].
