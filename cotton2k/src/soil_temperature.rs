@@ -351,31 +351,20 @@ pub trait SoilThermology {
   Soil Sci. Soc. Am. Proc. 33:354-360.
 */
 
-//     This function is called from soil_thermology() at the start of the
-//     simulation. It sets
-//  initial values to soil and canopy temperatures.
-//     The following arguments are set in this function:
-//  jt1, jt2 - input of start and stop of output of soil temperatures.
-//
-//     The following global variables are referenced here:
-//  Clim (structure), DayFinish, Daynum, DayStart, nl,
-//  SitePar.
-//     The following global variables are set here:
-//  DeepSoilTemperature, SoilTemp.
+/// Called from soil_thermology() at the start of the simulation.
+/// It sets initial values to soil and canopy temperatures.
+///
+/// The following global variables are referenced here:
+/// Clim (structure), DayFinish, Daynum, DayStart, nl, SitePar.
+///
+/// The following global variables are set here:
+/// DeepSoilTemperature, SoilTemp.
 pub unsafe fn SoilTemperatureInit() {
-    //     If there is an output flag for soil temperatures, an error message
-    //     pops up for defining
-    //  the start and stop dates for this output.
-    //     Compute initial values of soil temperature: It is assumed that at the
-    //     start of simulation
-    //  the temperature of the first soil layer (upper boundary) is equal to the
-    //  average air temperature of the previous five days (if climate data not
-    //  available - start from first climate data).
-    //     NOTE: For a good simulation of soil temperature, it is recommended to
-    //     start simulation at
-    //  least 10 days before planting date. This means that climate data should
-    //  be available for this period. This is especially important if emergence
-    //  date has to be simulated.
+    // If there is an output flag for soil temperatures, an error message pops up for defining the start and stop dates for this output.
+    // Compute initial values of soil temperature: It is assumed that at the start of simulation the temperature of the first soil layer (upper boundary) is equal to the average air temperature of the previous five days (if climate data not available - start from first climate data).
+    //
+    // NOTE: For a good simulation of soil temperature, it is recommended to start simulation at least 10 days before planting date.
+    // This means that climate data should be available for this period. This is especially important if emergence date has to be simulated.
     let mut idd = Daynum - 4 - DayStart; // number of days minus 4 from start of simulation.
     if idd < 0 {
         idd = 0;
@@ -385,18 +374,15 @@ pub unsafe fn SoilTemperatureInit() {
         tsi1 += Clim[i].Tmax + Clim[i].Tmin;
     }
     tsi1 /= 10.;
-    //     The temperature of the last soil layer (lower boundary) is computed
-    //     as a sinusoidal function
-    //  of day of year, with site-specific parameters.
+    // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
     DeepSoilTemperature = SitePar[9]
         + SitePar[10] * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin();
-    //     SoilTemp is assigned to all columns, converted to degrees K.
+    // SoilTemp is assigned to all columns, converted to degrees K.
     tsi1 += 273.161;
     DeepSoilTemperature += 273.161;
     for l in 0..nl as usize {
-        //     The temperatures of the other soil layers are linearly
-        //     interpolated.
-        //  tsi = computed initial soil temperature, C, for each layer
+        // The temperatures of the other soil layers are linearly interpolated.
+        // computed initial soil temperature, C, for each layer
         let tsi = ((nl as usize - l - 1) as f64 * tsi1 + l as f64 * DeepSoilTemperature)
             / (nl - 1) as f64;
         for k in 0..nk as usize {
@@ -404,44 +390,50 @@ pub unsafe fn SoilTemperatureInit() {
         }
     }
 }
-unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f64)
-//     This function solves the energy balance equations at the soil surface,
-//     and at the
-//  foliage / atmosphere interface. It computes the resulting temperatures of
-//  the soil surface, plastic mulch (if exists) and the plant canopy.
-//     Units for all energy fluxes are: cal cm-2 sec-1.
-//     It is called from soil_thermology(), on each hourly time step and for
-//     each soil column. It calls functions clearskyemiss(), VaporPressure(),
-//     SensibleHeatTransfer(),
-//  SoilMulchBalance(), SoilSurfaceBalance() and CanopyBalance.()
-//
-//     The following arguments are used in this function:
-//       ihr - the time of day in hours.
-//       k - soil column number.
-//       bMulchon - is true if this column is covered with plastic mulch, false
-//       if not. ess - evaporation from surface of a soil column (mm / sec).
-//       etp1 - actual transpiration rate (mm / sec).
-//     The following global variables are referenced here:
-//       AirTemp, albedo, CloudCoverRatio, CloudTypeCorr, FieldCapacity,
-//       MulchTemp, MulchTranSW, PlantHeight, Radiation, RelativeHumidity,
-//       rracol, SitePar, thad, VolWaterContent, WindSpeed.
-//    The following global variables are set here:
-//       bEnd, SoilTemp, FoliageTemp, MulchTemp.
-{
+
+/// Solves the energy balance equations at the soil surface, and at the foliage/atmosphere interface.
+/// It computes the resulting temperatures of the soil surface, plastic mulch (if exists) and the plant canopy.
+///
+/// Units for all energy fluxes are: cal cm-2 sec-1.
+///
+/// It is called from soil_thermology(), on each hourly time step and for each soil column.
+/// It calls functions clearskyemiss(), VaporPressure(), SensibleHeatTransfer(), SoilMulchBalance(), SoilSurfaceBalance() and CanopyBalance().
+///
+/// The following arguments are used in this function:
+/// * `ihr` - the time of day in hours.
+/// * `k` - soil column number.
+/// * `bMulchon` - is true if this column is covered with plastic mulch, false if not.
+/// * `ess` - evaporation from surface of a soil column (mm / sec).
+/// * `etp1` - actual transpiration rate (mm / sec).
+///
+/// The following global variables are referenced here:
+///
+/// AirTemp, albedo, CloudCoverRatio, CloudTypeCorr, FieldCapacity,
+/// MulchTemp, MulchTranSW, PlantHeight, Radiation, RelativeHumidity,
+/// rracol, SitePar, thad, VolWaterContent, WindSpeed.
+///
+/// The following global variables are set here:
+/// bEnd, SoilTemp, FoliageTemp, MulchTemp.
+unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f64) {
     // Stefan-Boltsman constant.
     const stefa1: f64 = 1.38e-12;
     // Ratio of wind speed under partial canopy cover.
     const wndfac: f64 = 0.60;
     // proportion of short wave radiation (on fully shaded soil surface)intercepted by the canopy.
     const cswint: f64 = 0.75;
-    //     Set initial values
-    let sf = 1. - rracol[k]; // fraction of shaded soil area
-    let thet = AirTemp[ihr] + 273.161; // air temperature, K
-    let mut so = SoilTemp[0][k]; // soil surface temperature, K
-    let mut so2 = SoilTemp[1][k]; // 2nd soil layer temperature, K
-    let mut so3 = SoilTemp[2][k]; // 3rd soil layer temperature, K
-                                  //     Compute soil surface albedo (based on Horton and Chung, 1991):
-                                  // albedo of the soil surface
+    // Set initial values
+    // fraction of shaded soil area
+    let sf = 1. - rracol[k];
+    // air temperature, K
+    let thet = AirTemp[ihr] + 273.161;
+    // soil surface temperature, K
+    let mut so = SoilTemp[0][k];
+    // 2nd soil layer temperature, K
+    let mut so2 = SoilTemp[1][k];
+    // 3rd soil layer temperature, K
+    let mut so3 = SoilTemp[2][k];
+    // Compute soil surface albedo (based on Horton and Chung, 1991):
+    // albedo of the soil surface
     let ag = if VolWaterContent[0][k] <= thad[0] {
         SitePar[15]
     } else if VolWaterContent[0][k] >= FieldCapacity[0] {
@@ -452,9 +444,9 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
                 / (FieldCapacity[0] - thad[0])
     };
     //  ****   SHORT WAVE RADIATION ENERGY BALANCE   ****
-    //     Division by 41880 (= 698 * 60) converts from Joules per sq m to
+    // Division by 41880 (= 698 * 60) converts from Joules per sq m to
     // langley (= calories per sq cm) Or: from Watt per sq m to langley per sec.
-    //     Modify incoming short wave radiation to mulched soil surface.
+    // Modify incoming short wave radiation to mulched soil surface.
     let rzero = Radiation[ihr] / 41880.; // short wave (global) radiation (ly / sec).
     let rss0 = rzero * (1. - sf * cswint); // global radiation after passing through canopy
     let mut tm; // temperature of mulch (K)
@@ -463,12 +455,11 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
     let rss; // global radiation absorbed by soil surface
     if bMulchon {
         tm = MulchTemp[k];
-        //     Assume all non transfered radiation is absorbed by mulch
+        // Assume all non transfered radiation is absorbed by mulch
         rss = rss0 * MulchTranSW * (1. - ag); // absorbed by soil surface
-        rsm = rss0 * (1. - MulchTranSW)        // absorbed by mulch
-              + rss0 * MulchTranSW * ag *
-                    (1. - MulchTranSW); // reflected up from soil surface and
-                                        // absorbed by mulch
+        rsm = rss0 * (1. - MulchTranSW) // absorbed by mulch
+              + rss0 * MulchTranSW * ag * (1. - MulchTranSW) // reflected up from soil surface and absorbed by mulch
+              ;
         rsup = rss0 * MulchTranSW * ag * MulchTranSW; // reflected up from soil surface through mulch
     } else {
         tm = 0.;
@@ -476,47 +467,40 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
         rsup = rss0 * ag; // reflected up from soil surface
     }
     //   ****   LONG WAVE RADIATION EMITTED FROM SKY    ****
-    let vp = 0.01 * RelativeHumidity[ihr] * VaporPressure(AirTemp[ihr]); // air vapor pressure, KPa.
-    let ea0 = clearskyemiss(vp, thet); // sky emissivity from clear portions of the sky.
-                                       // incoming long wave radiation (ly / sec).
+    // air vapor pressure, KPa.
+    let vp = 0.01 * RelativeHumidity[ihr] * VaporPressure(AirTemp[ihr]);
+    // sky emissivity from clear portions of the sky.
+    let ea0 = clearskyemiss(vp, thet);
+    // incoming long wave radiation (ly / sec).
     let rlzero = (ea0 * (1. - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefa1 * thet.powi(4)
-        - CloudTypeCorr[ihr] / 41880.; // CloudTypeCorr converted from W m-2 to ly sec-1.
-                                       //
-                                       //     Set initial values of canopy temperature and air temperature in
-                                       //     canopy.
+        - CloudTypeCorr[ihr] / 41880. // CloudTypeCorr converted from W m-2 to ly sec-1.
+        ;
+    //
+    // Set initial values of canopy temperature and air temperature in canopy.
     let mut tv = 0.; // temperature of plant foliage (K)
     let mut tafk; // temperature (K) of air inside the canopy.
-    if sf < 0.05
-    // no vegetation
-    {
+    if sf < 0.05 {
+        // no vegetation
         tv = thet;
         tafk = thet;
     }
-    //     Wind velocity in canopy is converted to cm / s.
-    // wind speed in cm /sec
+    // Wind velocity in canopy is converted to cm / s.
     let wndhr = WindSpeed[ihr] * 100.;
-    let mut rocp; // air density * specific heat at constant pressure = 0.24 * 2
-                  // * 1013 / 5740 divided by tafk.
+    let mut rocp; // air density * specific heat at constant pressure = 0.24 * 2 * 1013 / 5740 divided by tafk.
     let mut c2 = 0.; // multiplier for sensible heat transfer (at plant surface).
     let mut rsv = 0.; // global radiation absorbed by the vegetation
-    if sf >= 0.05
-    // a shaded soil column
-    {
-        tv = FoliageTemp[k]; // vegetation temperature
-                             //     Short wave radiation intercepted by the canopy:
+    if sf >= 0.05 {
+        // a shaded soil column
+        // vegetation temperature
+        tv = FoliageTemp[k];
+        // Short wave radiation intercepted by the canopy:
         rsv = rzero * (1. - albedo[ihr]) * sf * cswint  //  from above
               + rsup * (1. - albedo[ihr]) * sf * cswint //  reflected from soil surface
               ;
-        //     Air temperature inside canopy is the average of soil, air, and
-        //     plant temperatures,
-        //  weighted by 0.1, 0.3, and 0.6, respectively. In case of mulch, mulch
-        //  temperature replaces soil temperature.
-        tafk = if bMulchon {
-            (1. - sf) * thet + sf * (0.1 * tm + 0.3 * thet + 0.6 * tv)
-        } else {
-            (1. - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv)
-        };
-        //
+        // Air temperature inside canopy is the average of soil, air, and plant temperatures,
+        // weighted by 0.1, 0.3, and 0.6, respectively. In case of mulch, mulch temperature replaces soil temperature.
+        tafk =
+            (1. - sf) * thet + sf * (0.1 * if bMulchon { tm } else { so } + 0.3 * thet + 0.6 * tv);
         // Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2 for sensible heat transfer: 2 sides of leaf plus stems and petioles.
         // sensible heat transfer coefficient for soil
         let varcc = SensibleHeatTransfer(tv, tafk, PlantHeight, wndhr); // canopy to air
@@ -526,17 +510,20 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
         rocp = 0.08471 / tafk;
         c2 = 2.2 * sf * rocp * varcc;
     }
-    let mut menit: usize = 0; // counter of iteration number
-    let mut soold = so; // previous value of soil surface temperature
-    let mut tvold = tv; // previous value of vegetation temperature
-    let mut tmold = tm; // previous value of temperature of mulch (K)
-                        //     Starting iterations for soil, mulch and canopy energy balance
+    // counter of iteration number
+    let mut menit: usize = 0;
+    // previous value of soil surface temperature
+    let mut soold = so;
+    // previous value of vegetation temperature
+    let mut tvold = tv;
+    // previous value of temperature of mulch (K)
+    let mut tmold = tm;
+    // Starting iterations for soil, mulch and canopy energy balance
     loop {
         soold = so;
         let wndcanp = (1. - sf * (1. - wndfac)) * wndhr; // estimated wind speed under canopy
         if bMulchon {
-            //     This section executed for mulched columns: call
-            //     SoilMulchBalance() for soil / mulch interface.
+            // This section executed for mulched columns: call SoilMulchBalance() for soil / mulch interface.
             tmold = tm;
             bEnd = SoilMulchBalance(
                 ihr as i32, k as i32, rlzero, rsm, rss, sf, &mut so, &mut so2, &mut so3, thet,
@@ -546,9 +533,8 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
                 return;
             }
         } else {
-            //     This section executed for non-mulched columns
-            //     Call SensibleHeatTransfer() to compute sensible heat transfer
-            //     for soil surface to air
+            // This section executed for non-mulched columns
+            // Call SensibleHeatTransfer() to compute sensible heat transfer for soil surface to air
             tafk = (1. - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
             // sensible heat transfer coefficientS for soil
             let varc = SensibleHeatTransfer(so, tafk, 0., wndcanp);
@@ -556,10 +542,9 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
                 return;
             }
             rocp = 0.08471 / tafk;
-            let hsg = rocp * varc; // multiplier for computing sensible heat
-                                   // transfer soil to air.
-                                   //     Call SoilSurfaceBalance() for energy balance in soil surface
-                                   //     / air interface.
+            // multiplier for computing sensible heat transfer soil to air.
+            let hsg = rocp * varc;
+            // Call SoilSurfaceBalance() for energy balance in soil surface/air interface.
             SoilSurfaceBalance(
                 ihr as i32, k as i32, ess, rlzero, rss, sf, hsg, &mut so, &mut so2, &mut so3, thet,
                 0., tv,
@@ -568,18 +553,17 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
                 return;
             }
         }
-        //
         if sf >= 0.05 {
-            //     This section executed for shaded columns only.
+            // This section executed for shaded columns only.
             tvold = tv;
-            //     Compute canopy energy balance for shaded columns
+            // Compute canopy energy balance for shaded columns
             CanopyBalance(
                 ihr as i32, k as i32, etp1, rlzero, rsv, c2, sf, so, thet, tm, &mut tv,
             );
-            //     Increment the number of iterations.
+            // Increment the number of iterations.
             menit += 1;
             if menit > 10 {
-                //     The following is used to reduce fluctuations.
+                // The following is used to reduce fluctuations.
                 so = 0.5 * (so + soold);
                 if bMulchon {
                     tm = 0.5 * (tm + tmold);
@@ -587,17 +571,16 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
                 tv = 0.5 * (tv + tvold);
             }
             if menit > 30 {
-                //     If more than 30 iterations are needed - stop simulation.
+                // If more than 30 iterations are needed - stop simulation.
                 bEnd = true;
                 return;
             }
-        } // end if sf
+        }
         if !((tv - tvold).abs() > 0.05 || (so - soold).abs() > 0.05 || (tm - tmold).abs() > 0.05) {
             break;
         }
     }
-    //     After convergence - set global variables for the following
-    //     temperatures:
+    // After convergence - set global variables for the following temperatures:
     if sf >= 0.05 {
         FoliageTemp[k] = tv;
     }
