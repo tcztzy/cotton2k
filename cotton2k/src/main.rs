@@ -28,9 +28,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         cotton2k::bEnd = false;
         // Start the daily loop. If variable bEnd has been assigned a value of true end simulation.
         for _ in cotton2k::DayStart..(cotton2k::DayFinish + 1) {
-            let mut state = cotton2k::State {
-                plant_height: cotton2k::PlantHeight,
-                rracol: cotton2k::rracol
+            let mut state = if profile.states.len() > 0 {
+                let mut new_state = profile.states.last().unwrap().clone();
+                new_state.date = new_state.date.succ();
+                new_state
+            } else {
+                cotton2k::State::new(chrono::NaiveDate::from_yo(cotton2k::iyear, cotton2k::DayStart as u32))
             };
             // let need_to_adjust = profile.adjust()?;
             pb.inc();

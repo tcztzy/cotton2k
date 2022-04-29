@@ -24,24 +24,25 @@ use crate::{
     VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
     CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
-use chrono::Datelike;
+use chrono::{Datelike, NaiveDate};
 
 #[derive(Debug, Clone, Copy)]
 pub struct State {
+    pub date: NaiveDate,
+
     pub plant_height: f64,
     pub rracol: [f64; 20],
 }
 
-impl Default for State {
-    fn default() -> Self {
+impl State {
+    pub fn new(date: NaiveDate) -> Self {
         State {
+            date,
             plant_height: 4.0,
             rracol: [1.; 20],
         }
     }
-}
 
-impl State {
     /// This function executes all the simulation computations in a day. It is called from [Profile::run()], and
     /// [Profile::adjust()].
     ///

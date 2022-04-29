@@ -155,7 +155,7 @@ pub struct Profile {
     #[serde(skip)]
     num_watertable_data: usize,
     #[serde(skip)]
-    states: Vec<State>,
+    pub states: Vec<State>,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -846,9 +846,11 @@ impl Profile {
             for _ in DayStart..(DayFinish + 1) {
                 // let bAdjustToDo = self.adjust()?;
                 let mut state = if self.states.len() > 0 {
-                    self.states.last().unwrap().clone()
+                    let mut new_state = self.states.last().unwrap().clone();
+                    new_state.date = new_state.date.succ();
+                    new_state
                 } else {
-                    State::default()
+                    State::new(NaiveDate::from_yo(iyear, DayStart as u32))
                 };
                 // Execute simulation for this day.
                 match state.simulate_this_day(self) {
