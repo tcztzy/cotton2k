@@ -3,12 +3,12 @@ use crate::utils::fmin;
 use crate::{
     albedo, bPollinSwitch, es1hour, es2hour, iyear, AirTemp, AvrgDailyTemp, ClayVolumeFraction,
     Clim, CloudCoverRatio, CloudTypeCorr, DayLength, DayOfSimulation, DayStart, DayTimeTemp,
-    Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LastDayWeatherData, LeapYear, Longitude,
-    NightTimeTemp, NumIrrigations, Profile, Radiation, ReferenceETP, ReferenceTransp,
-    RelativeHumidity, Rn, SandVolumeFraction, Scratch21, SitePar, WindSpeed, CLIMATE_METRIC_IRRD,
-    CLIMATE_METRIC_RAIN, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN,
-    CLIMATE_METRIC_WIND,
+    Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LeapYear, Longitude, NightTimeTemp,
+    NumIrrigations, Profile, Radiation, ReferenceETP, ReferenceTransp, RelativeHumidity, Rn,
+    SandVolumeFraction, Scratch21, SitePar, WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
+    CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
 };
+use chrono::Datelike;
 /// daily declination angle, in radians.
 static mut declination: f64 = 0.;
 /// time of solar noon, hours.
@@ -22,23 +22,25 @@ static mut tmpisr: f64 = 0.;
 
 pub trait Meteorology {
     unsafe fn meteorology(&mut self, profile: &Profile);
+    unsafe fn daytmp(&mut self, profile: &Profile, ti: f64) -> f64;
+    unsafe fn tdewhour(&mut self, profile: &Profile, ti: f64, tt: f64) -> f64;
 }
 
 impl Meteorology for State {
     /// All daily weather data, read from input file, are stored in the structure:
     /// Clim[400];    --  defined in global
     /// The values are extracted from this structure by function GetFromClim()
-    /// 
+    ///
     /// The function DayClim() is called daily from SimulateThisDay().
     /// It calls the the following functions:
     /// ComputeDayLength(), GetFromClim(), SimulateRunoff(),
     /// AverageAirTemperatures(), dayrad(), daytemp(), EvapoTranspiration(),
     /// tdewhour(), dayrh(), daywnd()
-    /// 
+    ///
     /// Global variables referenced:
-    /// 
-    /// Daynum, DayFinish, DayStart, declination, LastDayWeatherData, SitePar
-    /// 
+    ///
+    /// Daynum, DayFinish, DayStart, declination, SitePar
+    ///
     /// Global variables set:
     /// AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
     unsafe fn meteorology(&mut self, profile: &Profile) {
@@ -102,9 +104,9 @@ impl Meteorology for State {
                                                                                         //     Compute hourly global radiation, using function dayrad.
             Radiation[ihr] = dayrad(radsum, sinb, c11);
             //     Compute hourly temperature, using function daytmp.
-            AirTemp[ihr] = daytmp(ti);
+            AirTemp[ihr] = self.daytmp(profile, ti);
             //     Compute hourly dew point temperature, using function tdewhour.
-            DewPointTemp[ihr] = tdewhour(ti, AirTemp[ihr]);
+            DewPointTemp[ihr] = self.tdewhour(profile, ti, AirTemp[ihr]);
             //     Compute hourly relative humidity, using function dayrh.
             RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
             //     Compute hourly wind speed, using function daywnd, and daily sum
@@ -123,6 +125,206 @@ impl Meteorology for State {
         AverageAirTemperatures();
         //     Compute potential evapotranspiration.
         EvapoTranspiration(profile);
+    }
+
+    /// Computes and returns the hourly values of air temperature, using the measured daily maximum and minimum.
+    ///
+    /// The algorithm is described in Ephrath et al. (1996).
+    /// It is based on the following assumptions:
+    /// * The time of minimum daily temperature is at sunrise.
+    /// * The time of maximum daily temperature is SitePar[8] hours after solar noon.
+    /// 
+    /// Many models assume a sinusoidal curve of the temperature during the day, but actual data deviate from the sinusoidal curve in the following characteristic way:
+    /// a faster increase right after sunrise, a near plateau maximum during several hours in the middle of the day, and a rather fast decrease by sunset.
+    /// The physical reason for this is a more efficient mixing of heated air from ground level into the atmospheric boundary layer, driven by strong lapse temperature gradients buoyancy.
+    ///
+    /// Note: ** will be used for "power" as in Fortran notation.
+    ///
+    /// A first order approximation is
+    ///     daytmp = tmin + (tmax-tmin) * st * tkk / (tkk + daytmp - tmin)
+    /// where
+    ///     st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * SitePar[8]))
+    ///
+    /// Since daytmp appears on both sides of the first equation, it can be solved and written explicitly as:
+    ///     daytmp = tmin - tkk/2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * st)
+    /// where the amplitude of tmin and tmax is calculated as
+    ///     amp = (tmax - tmin) * (1 + (tmax - tmin) / tkk)
+    ///
+    /// This ensures that temperature still passes through tmin and tmax values.
+    ///
+    /// The value of tkk was determined by calibration as 15.
+    /// 
+    /// This algorithm is used for the period from sunrise to the time of maximum temperature, hmax.
+    /// A similar algorithm is used for the time from hmax to sunset, but the value of the minimum temperature of the next day (mint_tomorrow) is used instead of mint_today.
+    /// 
+    /// Night air temperature is described by an exponentially declining curve.
+    ///
+    /// For the time from sunset to mid-night:
+    ///     daytmp = (mint_tomorrow - sst * exp((dayl - 24) / tcoef)
+    ///              + (sst - mint_tomorrow) * exp((suns - ti) / tcoef))
+    ///              / (1 - exp((dayl - 24) / tcoef))
+    /// where
+    ///       tcoef is a time coefficient, determined by calibration as 4
+    ///       sst is the sunset temperature, determined by the daytime equation as:
+    ///       sst = mint_tomorrow - tkk / 2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * sts)
+    /// where
+    ///       sts  = sin(pi * dayl / (dayl + 2 * SitePar[8]))
+    ///       amp = (tmax - mint_tomorrow) * (1 + (tmax - mint_tomorrow) / tkk)
+    ///
+    /// For the time from midnight to sunrise, similar equations are used,
+    /// but the minimum temperature of this day (mint_today) is used instead of mint_tomorrow,
+    /// and the maximum temperature of the previous day (maxt_yesterday) is used instead of maxt_today.
+    /// Also, (suns-ti-24) is used for the time variable instead of (suns-ti).
+    /// 
+    /// These exponential equations for night-time temperature ensure that the curve will be continuous with the daytime equation at sunset, and will pass through the minimum temperature at sunrise.
+    ///
+    /// Input argument:
+    /// * `ti` - time of day (hours).
+    /// Global variables used:
+    /// 
+    /// DayLength, Daynum, pi, SitePar, SolarNoon, sunr, suns
+    unsafe fn daytmp(&mut self, profile: &Profile, ti: f64) -> f64 {
+        const tkk: f64 = 15.; // The temperature increase at which the sensible heat flux is doubled, in comparison with the situation without buoyancy.
+        const tcoef: f64 = 4.; // time coefficient for the exponential part of the equation.
+        let hmax = SolarNoon + SitePar[8]; // hour of maximum temperature
+        let im1 = Daynum - 1; // day of year yesterday
+        let mut ip1 = Daynum + 1; // day of year tomorrow
+        if ip1 > profile.last_day_weather_data.ordinal() as i32 {
+            ip1 = Daynum;
+        }
+        let amp; // amplitude of temperatures for a period.
+        let sst; // the temperature at sunset.
+        let st; // computed from time of day, used for daytime temperature.
+        let sts; // intermediate variable for computing sst.
+        let HourlyTemperature; // computed temperature at time ti.
+                               //
+        if ti <= sunr {
+            //  from midnight to sunrise
+            amp = (GetFromClim(CLIMATE_METRIC_TMAX, im1)
+                - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                * (1.
+                    + (GetFromClim(CLIMATE_METRIC_TMAX, im1)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                        / tkk);
+            sts = (std::f64::consts::PI * DayLength / (DayLength + 2. * SitePar[8])).sin();
+            //  compute temperature at sunset:
+            sst = GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - tkk / 2.
+                + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();
+            HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, Daynum)
+                - sst * ((DayLength - 24.) / tcoef).exp()
+                + (sst - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                    * ((suns - ti - 24.) / tcoef).exp())
+                / (1. - ((DayLength - 24.) / tcoef).exp());
+        } else if ti <= hmax {
+            //  from sunrise to hmax
+            amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                * (1.
+                    + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                        / tkk);
+            st = (std::f64::consts::PI * (ti - SolarNoon + DayLength / 2.)
+                / (DayLength + 2. * SitePar[8]))
+                .sin();
+            HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - tkk / 2.
+                + 0.5 * (tkk * tkk + 4. * amp * tkk * st).sqrt();
+        } else if ti <= suns {
+            //  from hmax to sunset
+            amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
+                * (1.
+                    + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
+                        / tkk);
+            st = (std::f64::consts::PI * (ti - SolarNoon + DayLength / 2.)
+                / (DayLength + 2. * SitePar[8]))
+                .sin();
+            HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2.
+                + 0.5 * (tkk * tkk + 4. * amp * tkk * st).sqrt();
+        } else
+        //  from sunset to midnight
+        {
+            amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
+                * (1.
+                    + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
+                        / tkk);
+            sts = (std::f64::consts::PI * DayLength / (DayLength + 2. * SitePar[8])).sin();
+            sst = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2.
+                + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();
+            HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, ip1)
+                - sst * ((DayLength - 24.) / tcoef).exp()
+                + (sst - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) * ((suns - ti) / tcoef).exp())
+                / (1. - ((DayLength - 24.) / tcoef).exp());
+        }
+        return HourlyTemperature;
+        //     Reference:
+        //     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
+        //  diurnal patterns of air temperature, radiation, wind speed and
+        //  relative humidity by equations from daily characteristics.
+        //  Agricultural Systems 51:377-393.
+    }
+    /// Computes the hourly values of dew point temperature from average dew-point and the daily estimated range.
+    /// This range is computed as a regression on maximum and minimum temperatures.
+    /// Input arguments:
+    /// * `ti` - time of day (hours).
+    /// * `tt` - air temperature C at this time of day.
+    /// Global variables used:
+    /// 
+    /// Daynum SitePar, SolarNoon, sunr, suns.
+    unsafe fn tdewhour(&mut self, profile: &Profile, ti: f64, tt: f64) -> f64 {
+        let im1 = Daynum - 1; // day of year yeaterday
+        let mut ip1 = Daynum + 1; // day of year tomorrow
+        if ip1 > profile.last_day_weather_data.ordinal() as i32 {
+            ip1 = Daynum;
+        }
+        let tdewhr; // the dew point temperature (c) of this hour.
+        let tdmin; // minimum of dew point temperature.
+        let mut tdrange; // range of dew point temperature.
+        let hmax = SolarNoon + SitePar[8]; // time of maximum air temperature
+
+        if ti <= sunr {
+            // from midnight to sunrise
+            tdrange = SitePar[12]
+                + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, im1)
+                + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
+            if tdrange < 0. {
+                tdrange = 0.;
+            }
+            tdmin = GetFromClim(CLIMATE_METRIC_TDEW, im1) - tdrange / 2.;
+            tdewhr = tdmin
+                + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                    / (GetFromClim(CLIMATE_METRIC_TMAX, im1)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
+        } else if ti <= hmax {
+            // from sunrise to hmax
+            tdrange = SitePar[12]
+                + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
+            if tdrange < 0. {
+                tdrange = 0.;
+            }
+            tdmin = GetFromClim(CLIMATE_METRIC_TDEW, Daynum) - tdrange / 2.;
+            tdewhr = tdmin
+                + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                    / (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
+        } else {
+            // from hmax to midnight
+            tdrange = SitePar[12]
+                + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, ip1);
+            if tdrange < 0. {
+                tdrange = 0.;
+            }
+            tdmin = GetFromClim(CLIMATE_METRIC_TDEW, ip1) - tdrange / 2.;
+            tdewhr = tdmin
+                + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
+                    / (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, ip1));
+        }
+        return tdewhr;
     }
 }
 
@@ -221,217 +423,15 @@ fn dayrad(radsum: f64, sinb: f64, c11: f64) -> f64 {
     } else {
         HourlyRadiation
     }
-}
-//      References:
-//      Spitters, C.J.T., Toussaint, H.A.J.M. and Goudriaan, J. 1986.
-// Separating the diffuse and direct component of global radiation and
-// its implications for modeling canopy photosynthesis. Part I.
-// Components of incoming radiation. Agric. For. Meteorol. 38:217-229.
-//     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
-//  diurnal patterns of air temperature, radiation, wind speed and
-//  relative humidity by equations from daily characteristics.
-//  Agricultural Systems 51:377-393.
-
-//     Function daytmp() computes and returns the hourly values of air
-//     temperature,
-//  using the measured daily maximum and minimum.
-//     The algorithm is described in Ephrath et al. (1996). It is based on
-//  the following assumptions:
-//     The time of minimum daily temperature is at sunrise.
-//     The time of maximum daily temperature is SitePar[8] hours after solar
-//     noon. Many models assume a sinusoidal curve of the temperature during the
-//     day,
-//  but actual data deviate from the sinusoidal curve in the following
-//  characteristic way: a faster increase right after sunrise, a near plateau
-//  maximum during several hours in the middle of the day, and a rather fast
-//  decrease by sunset. The physical reason for this is a more efficient mixing
-//  of heated air from ground level into the atmospheric boundary layer, driven
-//  by strong lapse temperature gradients buoyancy.
-//     Note: ** will be used for "power" as in Fortran notation.
-//     A first order approximation is
-//       daytmp = tmin + (tmax-tmin) * st * tkk / (tkk + daytmp - tmin)
-//  where
-//       st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * SitePar[8]))
-//     Since daytmp appears on both sides of the first equation, it
-//  can be solved and written explicitly as:
-//      daytmp = tmin - tkk/2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * st)
-//  where the amplitude of tmin and tmax is calculated as
-//      amp = (tmax - tmin) * (1 + (tmax - tmin) / tkk)
-//     This ensures that temperature still passes through tmin and tmax values.
-//     The value of tkk was determined by calibration as 15.
-//     This algorithm is used for the period from sunrise to the time of maximum
-//     temperature,
-//  hmax. A similar algorithm is used for the time from hmax to sunset, but the
-//  value of the minimum temperature of the next day (mint_tomorrow) is used
-//  instead of mint_today.
-//     Night air temperature is described by an exponentially declining curve.
-//     For the time from sunset to mid-night:
-//        daytmp = (mint_tomorrow - sst * exp((dayl - 24) / tcoef)
-//               + (sst - mint_tomorrow) * exp((suns - ti) / tcoef))
-//               / (1 - exp((dayl - 24) / tcoef))
-//  where
-//        tcoef is a time coefficient, determined by calibration as 4
-//        sst is the sunset temperature, determined by the daytime equation as:
-//        sst = mint_tomorrow - tkk / 2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk *
-//        sts)
-//  where
-//        sts  = sin(pi * dayl / (dayl + 2 * SitePar[8]))
-//        amp = (tmax - mint_tomorrow) * (1 + (tmax - mint_tomorrow) / tkk)
-//      For the time from midnight to sunrise, similar equations are used, but
-//      the minimum
-//  temperature of this day (mint_today) is used instead of mint_tomorrow, and
-//  the maximum temperature of the previous day (maxt_yesterday) is used instead
-//  of maxt_today. Also, (suns-ti-24) is used for the time variable instead of
-//  (suns-ti).
-//      These exponential equations for night-time temperature ensure that the
-//      curve will
-//  be continuous with the daytime equation at sunset, and will pass through the
-//  minimum temperature at sunrise.
-//
-//  Input argument:
-//     ti - time of day (hours).
-//  Global variables used:
-//     DayLength, Daynum, LastDayWeatherData, pi, SitePar, SolarNoon, sunr, suns
-//
-unsafe fn daytmp(ti: f64) -> f64 {
-    const tkk: f64 = 15.; // The temperature increase at which the sensible heat flux is doubled, in comparison with the situation without buoyancy.
-    const tcoef: f64 = 4.; // time coefficient for the exponential part of the equation.
-    let hmax = SolarNoon + SitePar[8]; // hour of maximum temperature
-    let im1 = Daynum - 1; // day of year yesterday
-    let mut ip1 = Daynum + 1; // day of year tomorrow
-    if ip1 > LastDayWeatherData {
-        ip1 = Daynum;
-    }
-    let amp; // amplitude of temperatures for a period.
-    let sst; // the temperature at sunset.
-    let st; // computed from time of day, used for daytime temperature.
-    let sts; // intermediate variable for computing sst.
-    let HourlyTemperature; // computed temperature at time ti.
-                           //
-    if ti <= sunr {
-        //  from midnight to sunrise
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, im1) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
-            * (1.
-                + (GetFromClim(CLIMATE_METRIC_TMAX, im1)
-                    - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
-                    / tkk);
-        sts = (std::f64::consts::PI * DayLength / (DayLength + 2. * SitePar[8])).sin();
-        //  compute temperature at sunset:
-        sst = GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - tkk / 2.
-            + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();
-        HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, Daynum)
-            - sst * ((DayLength - 24.) / tcoef).exp()
-            + (sst - GetFromClim(CLIMATE_METRIC_TMIN, Daynum)) * ((suns - ti - 24.) / tcoef).exp())
-            / (1. - ((DayLength - 24.) / tcoef).exp());
-    } else if ti <= hmax {
-        //  from sunrise to hmax
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
-            * (1.
-                + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                    - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
-                    / tkk);
-        st = (std::f64::consts::PI * (ti - SolarNoon + DayLength / 2.)
-            / (DayLength + 2. * SitePar[8]))
-            .sin();
-        HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, Daynum) - tkk / 2.
-            + 0.5 * (tkk * tkk + 4. * amp * tkk * st).sqrt();
-    } else if ti <= suns {
-        //  from hmax to sunset
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
-            * (1.
-                + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                    - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
-                    / tkk);
-        st = (std::f64::consts::PI * (ti - SolarNoon + DayLength / 2.)
-            / (DayLength + 2. * SitePar[8]))
-            .sin();
-        HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2.
-            + 0.5 * (tkk * tkk + 4. * amp * tkk * st).sqrt();
-    } else
-    //  from sunset to midnight
-    {
-        amp = (GetFromClim(CLIMATE_METRIC_TMAX, Daynum) - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
-            * (1.
-                + (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                    - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
-                    / tkk);
-        sts = (std::f64::consts::PI * DayLength / (DayLength + 2. * SitePar[8])).sin();
-        sst = GetFromClim(CLIMATE_METRIC_TMIN, ip1) - tkk / 2.
-            + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();
-        HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, ip1)
-            - sst * ((DayLength - 24.) / tcoef).exp()
-            + (sst - GetFromClim(CLIMATE_METRIC_TMIN, ip1)) * ((suns - ti) / tcoef).exp())
-            / (1. - ((DayLength - 24.) / tcoef).exp());
-    }
-    return HourlyTemperature;
-    //     Reference:
+    //      References:
+    //      Spitters, C.J.T., Toussaint, H.A.J.M. and Goudriaan, J. 1986.
+    // Separating the diffuse and direct component of global radiation and
+    // its implications for modeling canopy photosynthesis. Part I.
+    // Components of incoming radiation. Agric. For. Meteorol. 38:217-229.
     //     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
     //  diurnal patterns of air temperature, radiation, wind speed and
     //  relative humidity by equations from daily characteristics.
     //  Agricultural Systems 51:377-393.
-}
-
-//     Function tdewhour() computes the hourly values of dew point
-//  temperature from average dew-point and the daily estimated range.
-//  This range is computed as a regression on maximum and minimum temperatures.
-//  Input arguments:
-//     ti - time of day (hours).
-//     tt - air temperature C at this time of day.
-//  Global variables used:
-//    Daynum, LastDayWeatherData, SitePar, SolarNoon, sunr, suns.
-//
-unsafe fn tdewhour(ti: f64, tt: f64) -> f64 {
-    let im1 = Daynum - 1; // day of year yeaterday
-    let mut ip1 = Daynum + 1; // day of year tomorrow
-    if ip1 > LastDayWeatherData {
-        ip1 = Daynum;
-    }
-    let tdewhr; // the dew point temperature (c) of this hour.
-    let tdmin; // minimum of dew point temperature.
-    let mut tdrange; // range of dew point temperature.
-    let hmax = SolarNoon + SitePar[8]; // time of maximum air temperature
-
-    if ti <= sunr {
-        // from midnight to sunrise
-        tdrange = SitePar[12]
-            + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, im1)
-            + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
-        if tdrange < 0. {
-            tdrange = 0.;
-        }
-        tdmin = GetFromClim(CLIMATE_METRIC_TDEW, im1) - tdrange / 2.;
-        tdewhr = tdmin
-            + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
-                / (GetFromClim(CLIMATE_METRIC_TMAX, im1)
-                    - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
-    } else if ti <= hmax {
-        // from sunrise to hmax
-        tdrange = SitePar[12]
-            + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-            + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
-        if tdrange < 0. {
-            tdrange = 0.;
-        }
-        tdmin = GetFromClim(CLIMATE_METRIC_TDEW, Daynum) - tdrange / 2.;
-        tdewhr = tdmin
-            + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
-                / (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                    - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
-    } else {
-        //  from hmax to midnight
-        tdrange = SitePar[12]
-            + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-            + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, ip1);
-        if tdrange < 0. {
-            tdrange = 0.;
-        }
-        tdmin = GetFromClim(CLIMATE_METRIC_TDEW, ip1) - tdrange / 2.;
-        tdewhr = tdmin
-            + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
-                / (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                    - GetFromClim(CLIMATE_METRIC_TMIN, ip1));
-    }
-    return tdewhr;
 }
 
 ///     Function dayrh() computes the hourly values of relative humidity, using

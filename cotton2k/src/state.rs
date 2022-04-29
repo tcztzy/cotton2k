@@ -10,7 +10,7 @@ use crate::{
     CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration,
     CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayLength, DayOfSimulation, DayStart,
     DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
-    FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LastDayWeatherData,
+    FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday,
     LeafAge, LeafArea, LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes,
     LeafAreaPreFru, LeafNConc, LeafNitrogen, LeafResistance, LightIntercept, LightInterceptLayer,
     LightInterceptMethod, LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX,
@@ -70,7 +70,6 @@ impl State {
     /// * [DayFinish]
     /// * [DayStart]
     /// * [Kday]
-    /// * [LastDayWeatherData]
     /// * [LeafAreaIndex]
     /// * [pixday]
     ///
@@ -129,7 +128,7 @@ impl State {
             }
             // Check if the date to stop simulation has been reached, or if this is the last day with available weather
             // data. Simulation will also stop when no leaves remain on the plant.
-            if Daynum >= LastDayWeatherData {
+            if self.date >= profile.last_day_weather_data {
                 return Err(Cotton2KError {
                     level: 0,
                     message: String::from("No more weather data!"),

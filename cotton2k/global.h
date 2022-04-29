@@ -76,7 +76,7 @@ extern struct Irrigation {
 extern int DayEmerge, DayEndMulch, DayFinish, DayFirstDef,
     DayOfSimulation, Daynum, DayPlant, DayStart, DayStartMulch,
     DayStartPredIrrig, DayStopPredIrrig, FirstBloom, FirstSquare, inrim,
-    IrrigMethod, isw, iyear, Kday, KdayAdjust, LastDayWeatherData,
+    IrrigMethod, isw, iyear, Kday, KdayAdjust,
     LastIrrigation, LastTaprootLayer, LocationColumnDrip, LocationLayerDrip,
     MainStemNodes, MinDaysBetweenIrrig, MulchIndicator, ncurve, nk, nl, noitr,
     NumAbscisedLeaves, NumAdjustDays, NumFruitSites, NumIrrigations,

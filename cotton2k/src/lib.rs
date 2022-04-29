@@ -106,6 +106,11 @@ fn original_light_intercept_method() -> LightInterceptMethod {
     LightInterceptMethod::Original
 }
 
+#[inline]
+fn default_last_day_weather_data() -> NaiveDate {
+    NaiveDate::from_yo(1970, 1)
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Profile {
     #[serde(skip)]
@@ -156,6 +161,9 @@ pub struct Profile {
     num_watertable_data: usize,
     #[serde(skip)]
     pub states: Vec<State>,
+    #[serde(skip)]
+    #[serde(default = "default_last_day_weather_data")]
+    pub last_day_weather_data: NaiveDate,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -1003,16 +1011,16 @@ impl Profile {
             }
         }
         let mut rdr = csv::Reader::from_path(&self.weather_path)?;
-        let mut jdd: i32 = 0;
+        let mut jdd: u32 = 0;
         for result in rdr.deserialize() {
             let record: WeatherRecord = result?;
-            jdd = record.date.ordinal() as i32;
-            let j = jdd - unsafe { DayStart };
+            jdd = record.date.ordinal();
+            let j = jdd as i32 - unsafe { DayStart };
             if j < 0 {
                 continue;
             }
             unsafe {
-                Clim[j as usize].nDay = jdd;
+                Clim[j as usize].nDay = jdd as i32;
                 // convert $MJ\ m^{-2}$ to langleys
                 Clim[j as usize].Rad = record.irradiation * 23.884;
                 Clim[j as usize].Tmax = record.tmax;
@@ -1031,9 +1039,7 @@ impl Profile {
                 Clim[j as usize].Rain = record.rain;
             }
         }
-        unsafe {
-            LastDayWeatherData = jdd;
-        }
+        self.last_day_weather_data = NaiveDate::from_yo(unsafe { iyear }, jdd);
         let mut idef: usize = 0;
         let mut icult: usize = 0;
         let mut ipix: usize = 0;
@@ -1336,82 +1342,82 @@ impl Profile {
         Ok(())
     }
 
-//     /// This function is called from [Profile::run()].
-//     /// It checks if plant adjustment data are available for this day and calls the necessary functions to compute
-//     /// adjustment.
-//     ///
-//     /// It calls:
-//     /// * [PlantAdjustments()]
-//     /// * [Profile::simulate_this_day()]
-//     /// * [WriteStateVariables()]
-//     ///
-//     /// The following global variable are referenced:
-//     /// * [DayEmerge]
-//     /// * [Daynum]
-//     /// * [Kday]
-//     ///
-//     /// The following global variable are set:
-//     /// * [MapDataDate]
-//     /// * [nadj]
-//     /// * [NumAdjustDays]
-//     pub fn adjust(&mut self) -> Result<bool, Cotton2KError> {
-//         // Check if plant map data are available for this day. If there are no more adjustments, return.
-//         let mut sumsad = 0; // sum for checking if any adjustments are due
-//         for i in 0..30 {
-//             unsafe {
-//                 sumsad += MapDataDate[i];
-//             }
-//         }
-//         if sumsad <= 0 {
-//             return Ok(false);
-//         }
-//         // Loop for all adjustment data, and check if there is an adjustment for this day.
-//         for i in 0..30 {
-//             unsafe {
-//                 if Daynum == MapDataDate[i] {
-//                     // Compute NumAdjustDays, the number of days for retroactive adjustment. This can not be more than
-//                     // 12 days, limited by the date of the previous adjustment.
-//                     NumAdjustDays = Kday - self.kprevadj as i32;
-//                     if NumAdjustDays > 12 {
-//                         NumAdjustDays = 12;
-//                     }
-//                     // Loop for six possible adjustments. On each iteration call first PlantAdjustments(), which will
-//                     // assign true to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
-//                     for jj in 0..5 as usize {
-//                         adjust::PlantAdjustments(i, jj as i32);
-//                         //     If adjustment is necessary, rerun the simulation for the
-//                         //     previous NumAdjustDays (number
-//                         //  of days) and call WriteStateVariables() to write state
-//                         //  variables in scratch structure.
-//                         if nadj[jj] {
-//                             for _j1 in 0..NumAdjustDays {
-//                                 match self.states.last().unwrap().simulate_this_day(self) {
-//                                     Err(e) => {
-//                                         if e.level == 0 {
-//                                             println!("{}", e.message);
-//                                             break;
-//                                         }
-//                                     }
-//                                     _ => {}
-//                                 };
-//                                 if Kday > 0 {
-//                                     WriteStateVariables(true);
-//                                 }
-//                             }
-//                         }
-//                     }
-//                     // After finishing this adjustment date, set kprevadj (date of previous adjustment, to be used for
-//                     // next adjustment), and assign zero to the present msadte, and to array nadj[].
-//                     self.kprevadj = (MapDataDate[i] - DayEmerge + 1) as u32;
-//                     MapDataDate[i] = 0;
-//                     for jj in 0..5 {
-//                         nadj[jj] = false;
-//                     }
-//                 }
-//             }
-//         }
-//         return Ok(true);
-//     }
+    //     /// This function is called from [Profile::run()].
+    //     /// It checks if plant adjustment data are available for this day and calls the necessary functions to compute
+    //     /// adjustment.
+    //     ///
+    //     /// It calls:
+    //     /// * [PlantAdjustments()]
+    //     /// * [Profile::simulate_this_day()]
+    //     /// * [WriteStateVariables()]
+    //     ///
+    //     /// The following global variable are referenced:
+    //     /// * [DayEmerge]
+    //     /// * [Daynum]
+    //     /// * [Kday]
+    //     ///
+    //     /// The following global variable are set:
+    //     /// * [MapDataDate]
+    //     /// * [nadj]
+    //     /// * [NumAdjustDays]
+    //     pub fn adjust(&mut self) -> Result<bool, Cotton2KError> {
+    //         // Check if plant map data are available for this day. If there are no more adjustments, return.
+    //         let mut sumsad = 0; // sum for checking if any adjustments are due
+    //         for i in 0..30 {
+    //             unsafe {
+    //                 sumsad += MapDataDate[i];
+    //             }
+    //         }
+    //         if sumsad <= 0 {
+    //             return Ok(false);
+    //         }
+    //         // Loop for all adjustment data, and check if there is an adjustment for this day.
+    //         for i in 0..30 {
+    //             unsafe {
+    //                 if Daynum == MapDataDate[i] {
+    //                     // Compute NumAdjustDays, the number of days for retroactive adjustment. This can not be more than
+    //                     // 12 days, limited by the date of the previous adjustment.
+    //                     NumAdjustDays = Kday - self.kprevadj as i32;
+    //                     if NumAdjustDays > 12 {
+    //                         NumAdjustDays = 12;
+    //                     }
+    //                     // Loop for six possible adjustments. On each iteration call first PlantAdjustments(), which will
+    //                     // assign true to nadj(jj) if adjustment is necessary, and compute the necessary parameters.
+    //                     for jj in 0..5 as usize {
+    //                         adjust::PlantAdjustments(i, jj as i32);
+    //                         //     If adjustment is necessary, rerun the simulation for the
+    //                         //     previous NumAdjustDays (number
+    //                         //  of days) and call WriteStateVariables() to write state
+    //                         //  variables in scratch structure.
+    //                         if nadj[jj] {
+    //                             for _j1 in 0..NumAdjustDays {
+    //                                 match self.states.last().unwrap().simulate_this_day(self) {
+    //                                     Err(e) => {
+    //                                         if e.level == 0 {
+    //                                             println!("{}", e.message);
+    //                                             break;
+    //                                         }
+    //                                     }
+    //                                     _ => {}
+    //                                 };
+    //                                 if Kday > 0 {
+    //                                     WriteStateVariables(true);
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                     // After finishing this adjustment date, set kprevadj (date of previous adjustment, to be used for
+    //                     // next adjustment), and assign zero to the present msadte, and to array nadj[].
+    //                     self.kprevadj = (MapDataDate[i] - DayEmerge + 1) as u32;
+    //                     MapDataDate[i] = 0;
+    //                     for jj in 0..5 {
+    //                         nadj[jj] = false;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         return Ok(true);
+    //     }
 }
 
 /// This function initializes the root submodel parameters and variables.

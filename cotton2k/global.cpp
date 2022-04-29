@@ -65,7 +65,6 @@ int FirstBloom,   // Date (DOY) of first bloom.
     Kday,        // number of days since emergence.
     KdayAdjust,  // days since emergence to start retroactive plant map
                  // adjustment.
-    LastDayWeatherData,     // last date (DOY) with weather data.
     LastIrrigation,         // date (Doy) of last irrigation (for prediction).
     LastTaprootLayer,       // last soil layer with taproot.
     LateralRootFlag[maxl],  // flags indicating presence of lateral roots in
