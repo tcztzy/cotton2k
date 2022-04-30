@@ -2,9 +2,10 @@ use crate::{
     pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AddPlantHeight, AirTemp,
     ComputeActualRootGrowth, DayInc, DensityFactor, DryMatterBalance, FruitingCode, Kday,
     LeafAreaIndex, PerPlantArea, PlantHeight, PotGroAllRoots, PotGroStem, PotentialFruitGrowth,
-    PotentialLeafGrowth, PotentialRootGrowth, PotentialStemGrowth, RowSpace, StemWeight,
+    PotentialLeafGrowth, PotentialStemGrowth, RowSpace, StemWeight,
     TotalLeafArea, TotalPetioleWeight, TotalStemWeight, WaterStressStem,
 };
+use crate::root::PotentialRootGrowth;
 /// This function simulates the potential and actual growth of cotton plants.
 /// It is called from [Profile::simulate_this_day()], and it calls the following functions:
 /// ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(),

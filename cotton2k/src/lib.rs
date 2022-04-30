@@ -10,6 +10,7 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
 mod meteorology;
 mod plant_growth;
+mod root;
 mod soil_temperature;
 mod state;
 mod utils;

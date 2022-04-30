@@ -87,7 +87,6 @@ void PlantNitrogenBal();
 void PlantNitrogenContent();
 void PotentialFruitGrowth();
 void PotentialLeafGrowth();
-double PotentialRootGrowth();
 double PotentialStemGrowth(double stemnew);
 void PredictEmergence(int hour);
 void PredictDripIrrigation(double TargetStress);
