@@ -31,7 +31,6 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
                    double &tv);
 void CapillaryFlow();
 void CheckDryMatterBal();
-void ComputeActualRootGrowth(double sumpdr);
 void ComputeIrrigation();
 void ComputeSiteNumbers();
 void cotplt(int nmap);

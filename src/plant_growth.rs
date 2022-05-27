@@ -1,102 +1,109 @@
+use crate::root::{PotentialRootGrowth, RootGrowth};
+use crate::state::State;
 use crate::{
-    pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AddPlantHeight, AirTemp,
-    ComputeActualRootGrowth, DayInc, DensityFactor, DryMatterBalance, FruitingCode, Kday,
-    LeafAreaIndex, PerPlantArea, PlantHeight, PotGroAllRoots, PotGroStem, PotentialFruitGrowth,
-    PotentialLeafGrowth, PotentialStemGrowth, RowSpace, StemWeight,
-    TotalLeafArea, TotalPetioleWeight, TotalStemWeight, WaterStressStem,
+    pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AddPlantHeight, AirTemp, DayInc,
+    DensityFactor, DryMatterBalance, FruitingCode, Kday, LeafAreaIndex, PerPlantArea, PlantHeight,
+    PotGroAllRoots, PotGroStem, PotentialFruitGrowth, PotentialLeafGrowth, PotentialStemGrowth,
+    RowSpace, StemWeight, TotalLeafArea, TotalPetioleWeight, TotalStemWeight, WaterStressStem,
 };
-use crate::root::PotentialRootGrowth;
-/// This function simulates the potential and actual growth of cotton plants.
-/// It is called from [Profile::simulate_this_day()], and it calls the following functions:
-/// ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(),
-/// AddPlantHeight(), DryMatterBalance(), PotentialFruitGrowth(),
-/// PotentialLeafGrowth(), PotentialRootGrowth(), PotentialStemGrowth(), TotalLeafWeight().
-///
-/// The following global variables are referenced here:
-/// ActualStemGrowth, DayInc, FirstSquare, FruitingCode, Kday, pixdz,
-/// PerPlantArea, RowSpace, WaterStressStem.
-///
-/// The following global variables are set here:
-/// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
-/// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-pub unsafe fn PlantGrowth() {
-    //     Call PotentialLeafGrowth() to compute potential growth rate of
-    //     leaves.
-    PotentialLeafGrowth();
-    //     If it is after first square, call PotentialFruitGrowth() to compute
-    //     potential
-    //  growth rate of squares and bolls.
-    if FruitingCode[0][0][0] > 0 {
-        PotentialFruitGrowth();
-    }
-    //     Active stem tissue (stemnew) is the difference between
-    //     TotalStemWeight
-    //  and the value of StemWeight(kkday).
-    let voldstm = 32i32; // constant parameter (days for stem tissue to become "old")
-    let mut kkday = Kday - voldstm; // age of young stem tissue
-    if kkday < 1 {
-        kkday = 1;
-    }
-    let stemnew = TotalStemWeight - StemWeight[kkday as usize]; // dry weight of active stem tissue.
 
-    //     Call PotentialStemGrowth() to compute PotGroStem, potential growth
-    //     rate of stems.
-    //  The effect of temperature is introduced, by multiplying potential growth
-    //  rate by DayInc. Stem growth is also affected by water stress
-    //  (WaterStressStem) and possible PIX application (pixdz).   PotGroStem is
-    //  limited by (maxstmgr * PerPlantArea) g per plant per day.
-    PotGroStem = PotentialStemGrowth(stemnew) * DayInc * WaterStressStem * pixdz;
-    let maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
-    if PotGroStem > maxstmgr * PerPlantArea {
-        PotGroStem = maxstmgr * PerPlantArea;
+pub trait PlantGrowth {
+    unsafe fn plant_growth(&mut self);
+}
+
+impl PlantGrowth for State {
+    /// This function simulates the potential and actual growth of cotton plants.
+    /// It is called from [Profile::simulate_this_day()], and it calls the following functions:
+    /// ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(),
+    /// AddPlantHeight(), DryMatterBalance(), PotentialFruitGrowth(),
+    /// PotentialLeafGrowth(), PotentialRootGrowth(), PotentialStemGrowth(), TotalLeafWeight().
+    ///
+    /// The following global variables are referenced here:
+    /// ActualStemGrowth, DayInc, FirstSquare, FruitingCode, Kday, pixdz,
+    /// PerPlantArea, RowSpace, WaterStressStem.
+    ///
+    /// The following global variables are set here:
+    /// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
+    /// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
+    unsafe fn plant_growth(&mut self) {
+        //     Call PotentialLeafGrowth() to compute potential growth rate of
+        //     leaves.
+        PotentialLeafGrowth();
+        //     If it is after first square, call PotentialFruitGrowth() to compute
+        //     potential
+        //  growth rate of squares and bolls.
+        if FruitingCode[0][0][0] > 0 {
+            PotentialFruitGrowth();
+        }
+        //     Active stem tissue (stemnew) is the difference between
+        //     TotalStemWeight
+        //  and the value of StemWeight(kkday).
+        let voldstm = 32i32; // constant parameter (days for stem tissue to become "old")
+        let mut kkday = Kday - voldstm; // age of young stem tissue
+        if kkday < 1 {
+            kkday = 1;
+        }
+        let stemnew = TotalStemWeight - StemWeight[kkday as usize]; // dry weight of active stem tissue.
+
+        //     Call PotentialStemGrowth() to compute PotGroStem, potential growth
+        //     rate of stems.
+        //  The effect of temperature is introduced, by multiplying potential growth
+        //  rate by DayInc. Stem growth is also affected by water stress
+        //  (WaterStressStem) and possible PIX application (pixdz).   PotGroStem is
+        //  limited by (maxstmgr * PerPlantArea) g per plant per day.
+        PotGroStem = PotentialStemGrowth(stemnew) * DayInc * WaterStressStem * pixdz;
+        let maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
+        if PotGroStem > maxstmgr * PerPlantArea {
+            PotGroStem = maxstmgr * PerPlantArea;
+        }
+        // Call PotentialRootGrowth() to compute potential growth rate of roots.
+        // total potential growth rate of roots in g per slab. this
+        // is computed in PotentialRootGrowth() and used in
+        // ActualRootGrowth().
+        let sumpdr = PotentialRootGrowth();
+        // Total potential growth rate of roots is converted from g per slab (sumpdr) to g per plant (PotGroAllRoots).
+        PotGroAllRoots = sumpdr * 100. * PerPlantArea / RowSpace;
+        // Limit PotGroAllRoots to (maxrtgr*PerPlantArea) g per plant per day.
+        let maxrtgr = 0.045; // maximum possible potential root growth, g dm-2 day-1.
+        if PotGroAllRoots > maxrtgr * PerPlantArea {
+            PotGroAllRoots = maxrtgr * PerPlantArea;
+        }
+        // Call DryMatterBalance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress. DryMatterBalance() also computes and returns the values of the following arguments:
+        // cdleaf is carbohydrate requirement for leaf growth, g per plant per day. cdpet is carbohydrate requirement for petiole growth, g per plant per day. cdroot is carbohydrate requirement for root growth, g per plant per day. cdstem is carbohydrate requirement for stem growth, g per plant per day.
+        let mut cdstem = 0.;
+        let mut cdleaf = 0.;
+        let mut cdpet = 0.;
+        let mut cdroot = 0.;
+        DryMatterBalance(&mut cdstem, &mut cdleaf, &mut cdpet, &mut cdroot);
+        // If it is after first square, call ActualFruitGrowth() to compute actual growth rate of squares and bolls.
+        if FruitingCode[0][0][0] > 0 {
+            ActualFruitGrowth();
+        }
+        // Initialize TotalLeafWeight. It is assumed that cotyledons fall off at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
+        TotalPetioleWeight = 0.;
+        // Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
+        ActualLeafGrowth();
+        LeafAreaIndex = TotalLeafArea() / PerPlantArea;
+        // Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
+        TotalStemWeight += ActualStemGrowth;
+        StemWeight[Kday as usize] = TotalStemWeight;
+        // Plant density affects growth in height of tall plants.
+        let htdenf = 55.; // minimum plant height for plant density affecting growth in height.
+                          // intermediate variable to compute denf2.
+        let mut z1 = (PlantHeight - htdenf) / htdenf;
+        if z1 < 0. {
+            z1 = 0.;
+        }
+        if z1 > 1. {
+            z1 = 1.;
+        }
+        // effect of plant density on plant growth in height.
+        let denf2 = 1. + z1 * (DensityFactor - 1.);
+        // Call AddPlantHeight to compute PlantHeight.
+        PlantHeight += AddPlantHeight(denf2);
+        // Call ActualRootGrowth() to compute actual root growth.
+        self.compute_actual_root_growth(sumpdr);
     }
-    // Call PotentialRootGrowth() to compute potential growth rate of roots.
-    // total potential growth rate of roots in g per slab. this
-    // is computed in PotentialRootGrowth() and used in
-    // ActualRootGrowth().
-    let sumpdr = PotentialRootGrowth();
-    // Total potential growth rate of roots is converted from g per slab (sumpdr) to g per plant (PotGroAllRoots).
-    PotGroAllRoots = sumpdr * 100. * PerPlantArea / RowSpace;
-    // Limit PotGroAllRoots to (maxrtgr*PerPlantArea) g per plant per day.
-    let maxrtgr = 0.045; // maximum possible potential root growth, g dm-2 day-1.
-    if PotGroAllRoots > maxrtgr * PerPlantArea {
-        PotGroAllRoots = maxrtgr * PerPlantArea;
-    }
-    // Call DryMatterBalance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress. DryMatterBalance() also computes and returns the values of the following arguments:
-    // cdleaf is carbohydrate requirement for leaf growth, g per plant per day. cdpet is carbohydrate requirement for petiole growth, g per plant per day. cdroot is carbohydrate requirement for root growth, g per plant per day. cdstem is carbohydrate requirement for stem growth, g per plant per day.
-    let mut cdstem = 0.;
-    let mut cdleaf = 0.;
-    let mut cdpet = 0.;
-    let mut cdroot = 0.;
-    DryMatterBalance(&mut cdstem, &mut cdleaf, &mut cdpet, &mut cdroot);
-    // If it is after first square, call ActualFruitGrowth() to compute actual growth rate of squares and bolls.
-    if FruitingCode[0][0][0] > 0 {
-        ActualFruitGrowth();
-    }
-    // Initialize TotalLeafWeight. It is assumed that cotyledons fall off at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
-    TotalPetioleWeight = 0.;
-    // Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
-    ActualLeafGrowth();
-    LeafAreaIndex = TotalLeafArea() / PerPlantArea;
-    // Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
-    TotalStemWeight += ActualStemGrowth;
-    StemWeight[Kday as usize] = TotalStemWeight;
-    // Plant density affects growth in height of tall plants.
-    let htdenf = 55.; // minimum plant height for plant density affecting growth in height.
-                      // intermediate variable to compute denf2.
-    let mut z1 = (PlantHeight - htdenf) / htdenf;
-    if z1 < 0. {
-        z1 = 0.;
-    }
-    if z1 > 1. {
-        z1 = 1.;
-    }
-    // effect of plant density on plant growth in height.
-    let denf2 = 1. + z1 * (DensityFactor - 1.);
-    // Call AddPlantHeight to compute PlantHeight.
-    PlantHeight += AddPlantHeight(denf2);
-    // Call ActualRootGrowth() to compute actual root growth.
-    ComputeActualRootGrowth(sumpdr);
 }
 /// Computes physiological age.
 /// This function returns the daily 'physiological age' increment, based on hourly temperatures. It is called each day by SimulateThisDay().
@@ -137,11 +144,12 @@ pub fn LeafResistance(agel: f64) -> f64 {
     const agelo: f64 = 48.; // lower limit for leaf age.
     const rlmin: f64 = 0.5; // minimum leaf resistance.
 
-    rlmin + if agel <= agelo {
-        0.
-    } else if agel >= agehi {
-        (agehi - agelo).powi(2) / afac
-    } else {
-        (agel - agelo) * (2. * agehi - agelo - agel) / afac
-    }
+    rlmin
+        + if agel <= agelo {
+            0.
+        } else if agel >= agehi {
+            (agehi - agelo).powi(2) / afac
+        } else {
+            (agel - agelo) * (2. * agehi - agelo - agel) / afac
+        }
 }

@@ -103,7 +103,6 @@ The Root System:
           SoilAirOnRootGrowth()
           SoilNitrateOnRootGrowth()
           SoilWaterOnRootGrowth()
-          ComputeActualRootGrowth()
        
     File RootGrowth_2.cpp
           RedistRootNewGrowth()

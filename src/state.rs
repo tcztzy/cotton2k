@@ -32,6 +32,8 @@ pub struct State {
 
     pub plant_height: f64,
     pub rracol: [f64; 20],
+    /// residual available carbon for root growth from previous day.
+    pub pavail: f64,
 }
 
 impl State {
@@ -40,6 +42,7 @@ impl State {
             date,
             plant_height: 4.0,
             rracol: [1.; 20],
+            pavail: 0.,
         }
     }
 
@@ -57,7 +60,7 @@ impl State {
     /// * [Defoliate()]
     /// * [Profile::stress()]
     /// * [Profile::get_net_photosynthesis()]
-    /// * [PlantGrowth()]
+    /// * [State::plant_growth()]
     /// * [CottonPhenology()]
     /// * [PlantNitrogen()]
     /// * [CheckDryMatterBal()]
@@ -113,7 +116,7 @@ impl State {
                 Defoliate(); // effects of defoliants applied.
                 self.stress(profile); // computes water stress factors.
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
-                PlantGrowth(); // executes all modules of plant growth.
+                self.plant_growth(); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 PlantNitrogen(); // computes plant nitrogen allocation.
                 CheckDryMatterBal(); // checks plant dry matter balance.
