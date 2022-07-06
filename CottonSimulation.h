@@ -44,15 +44,12 @@ void Denitrification(int l, int k);
 double Drain();
 void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
                       double &cdroot);
-// E
-void ExtraNitrogenAllocation();
 // F
 double form(double c0, double d0, double g0);
 void FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower);
 void FruitingSitesAbscission();
 void FruitNodeLeafAbscission(int k, int l, int m, double droplf);
 // G, H
-void GetNitrogenStress();
 double GetTargetStress();
 void GoBack();
 double TemperatureOnLeafGrowthRate(double t);
@@ -72,18 +69,10 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm,
 // N
 void NewBollFormation(int k, int l, int m);
 void Nitrification(int l, int k, double DepthOfLayer);
-void NitrogenAllocation();
 void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[],
                   double nur[]);
-void NitrogenRequirement();
-void NitrogenSupply();
 void NitrogenUptake(int l, int k, double reqnc);
-void NitrogenUptakeRequirement();
 // P
-double PetioleNitrateN();
-void PlantNitrogen();
-void PlantNitrogenBal();
-void PlantNitrogenContent();
 void PotentialFruitGrowth();
 void PotentialLeafGrowth();
 double PotentialStemGrowth(double stemnew);

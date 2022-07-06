@@ -166,15 +166,3 @@ The Cotton Plant:
           FruitNodeLeafAbscission()
           DefoliationLeafAbscission()
           SortArray()
-
-    File  PlantNitrogen.cpp
-          PlantNitrogen()
-          NitrogenRequirement()
-          NitrogenSupply()
-          PetioleNitrateN()
-          NitrogenAllocation()
-          ExtraNitrogenAllocation()
-          PlantNitrogenContent()
-          GetNitrogenStress()
-          NitrogenUptakeRequirement()
-          PlantNitrogenBal()

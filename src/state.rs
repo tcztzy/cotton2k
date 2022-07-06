@@ -1,5 +1,6 @@
 use crate::meteorology::Meteorology;
 use crate::plant_growth::{PhysiologicalAge, PlantGrowth};
+use crate::plant_nitrogen::PlantNitrogen;
 use crate::soil_temperature::SoilThermology;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
@@ -10,19 +11,18 @@ use crate::{
     CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration,
     CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayLength, DayOfSimulation, DayStart,
     DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
-    FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday,
-    LeafAge, LeafArea, LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes,
-    LeafAreaPreFru, LeafNConc, LeafNitrogen, LeafResistance, LightIntercept, LightInterceptLayer,
-    LightInterceptMethod, LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX,
-    MaxIrrigation, MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer,
-    NodeLayerPreFru, NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes,
-    NumPreFruNodes, NumVegBranches, PerPlantArea, PlantHeight, PlantNitrogen, PlantNitrogenBal,
-    PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile, ReferenceETP, RootColNumLeft,
-    RootWtCapblUptake, RootsCapableOfUptake, RowSpace, SaturatedHydCond, Scratch21, SoilNitrogen,
-    SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum, StemWeight,
-    SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent, VolUreaNContent,
-    VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
-    CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
+    FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea,
+    LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc,
+    LeafNitrogen, LeafResistance, LightIntercept, LightInterceptLayer, LightInterceptMethod,
+    LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation,
+    MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru,
+    NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches,
+    PerPlantArea, PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile,
+    ReferenceETP, RootColNumLeft, RootWtCapblUptake, RootsCapableOfUptake, RowSpace,
+    SaturatedHydCond, Scratch21, SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal,
+    SoilNitrogenLoss, SoilPsi, SoilSum, StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight,
+    VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem,
+    WaterTableLayer, WaterUptake, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
 use chrono::{Datelike, NaiveDate};
 
@@ -34,6 +34,50 @@ pub struct State {
     pub rracol: [f64; 20],
     /// residual available carbon for root growth from previous day.
     pub pavail: f64,
+
+    // for plant_nitrogen
+    /// daily added nitrogen to fruit, g per plant.
+    pub addnf: f64,
+    /// daily added nitrogen to root, g per plant.
+    pub addnr: f64,
+    /// daily added nitrogen to vegetative shoot, g per plant.
+    pub addnv: f64,
+    /// amount of nitrogen not used for growth of plant parts.
+    pub xtran: f64,
+    /// reserve N in leaves, in g per plant.
+    pub leafrs: f64,
+    /// reserve N in petioles, in g per plant.
+    pub petrs: f64,
+    /// reserve N in stems, in g per plant.
+    pub stemrs: f64,
+    /// reserve N in roots, in g per plant.
+    pub rootrs: f64,
+    /// reserve N in burrs, in g per plant.
+    pub burres: f64,
+    /// nitrogen requirement for fruit growth.
+    pub reqf: f64,
+    /// total nitrogen requirement for plant growth.
+    pub reqtot: f64,
+    /// nitrogen requirement for vegetative shoot growth.
+    pub reqv: f64,
+    /// nitrogen requirement for burr growth.
+    pub rqnbur: f64,
+    /// nitrogen requirement for leaf growth.
+    pub rqnlef: f64,
+    /// nitrogen requirement for petiole growth.
+    pub rqnpet: f64,
+    /// nitrogen requirement for root growth.
+    pub rqnrut: f64,
+    /// nitrogen requirement for seed growth.
+    pub rqnsed: f64,
+    /// nitrogen requirement for square growth.
+    pub rqnsqr: f64,
+    /// nitrogen requirement for stem growth.
+    pub rqnstm: f64,
+    /// total nitrogen available for growth.
+    pub npool: f64,
+    /// nitrogen uptake from the soil, g per plant.
+    pub uptn: f64,
 }
 
 impl State {
@@ -43,6 +87,27 @@ impl State {
             plant_height: 4.0,
             rracol: [1.; 20],
             pavail: 0.,
+            addnf: 0.,
+            addnr: 0.,
+            addnv: 0.,
+            xtran: 0.,
+            leafrs: 0.,
+            petrs: 0.,
+            stemrs: 0.,
+            rootrs: 0.,
+            burres: 0.,
+            reqf: 0.,
+            reqtot: 0.,
+            reqv: 0.,
+            rqnbur: 0.,
+            rqnlef: 0.,
+            rqnpet: 0.,
+            rqnrut: 0.,
+            rqnsed: 0.,
+            rqnsqr: 0.,
+            rqnstm: 0.,
+            npool: 0.,
+            uptn: 0.,
         }
     }
 
@@ -60,11 +125,11 @@ impl State {
     /// * [Defoliate()]
     /// * [Profile::stress()]
     /// * [Profile::get_net_photosynthesis()]
-    /// * [State::plant_growth()]
+    /// * [PlantGrowth::plant_growth()]
     /// * [CottonPhenology()]
-    /// * [PlantNitrogen()]
+    /// * [PlantNitrogen::plant_nitrogen()]
     /// * [CheckDryMatterBal()]
-    /// * [PlantNitrogenBal()]
+    /// * [PlantNitrogen::plant_nitrogen_balance()]
     /// * [SoilNitrogenBal()]
     /// * [SoilNitrogenAverage()]
     ///
@@ -118,13 +183,13 @@ impl State {
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
                 self.plant_growth(); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
-                PlantNitrogen(); // computes plant nitrogen allocation.
+                self.plant_nitrogen(); // computes plant nitrogen allocation.
                 CheckDryMatterBal(); // checks plant dry matter balance.
 
                 // If the relevant output flag is not zero, compute soil nitrogen balance and soil nitrogen averages by
                 // layer, and write this information to files.
                 if false {
-                    PlantNitrogenBal(); // checks plant nitrogen balance.
+                    self.plant_nitrogen_balance(); // checks plant nitrogen balance.
                     SoilNitrogenBal(); // checks soil nitrogen balance.
                     SoilNitrogenAverage(); // computes average soil nitrogen by layers.
                 }

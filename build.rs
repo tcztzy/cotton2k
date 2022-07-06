@@ -14,7 +14,6 @@ fn main() {
         "PlantAdjustment.cpp",
         "PlantGrowth_2.cpp",
         "PlantGrowth_3.cpp",
-        "PlantNitrogen.cpp",
         "RootGrowth_1.cpp",
         "RootGrowth_2.cpp",
         "SoilNitrogen.cpp",
