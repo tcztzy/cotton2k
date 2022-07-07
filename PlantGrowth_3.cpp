@@ -4,7 +4,6 @@
 // DryMatterBalance()
 // ActualFruitGrowth()
 // ActualLeafGrowth()
-// AddPlantHeight()
 // CheckDryMatterBal()
 // Defoliate()
 //
@@ -402,78 +401,6 @@ void ActualLeafGrowth()
             }  // loop m
         }      // loopl
     }          // loop k
-}
-//////////////////////////
-double AddPlantHeight(double denf2)
-//     This function simulates the growth in height of the main stem of cotton
-//     plants.
-//  It is called from PlantGrowth(). It returns the added plant height (cm).
-//     The following global variables are referenced here:
-//       AdjAddHeightRate, AgeOfPreFruNode, AgeOfSite, CarbonStress, DayInc,
-//       FruitingCode, Kday, KdayAdjust, nadj, NumAdjustDays, NumFruitBranches,
-//       NumPreFruNodes, NStressVeg, pixdz, VarPar, WaterStressStem.
-//     The argument used:
-//        denf2 - effect of plant density on plant growth in height.
-{
-    //     The following constant parameters are used:
-    const double vhtpar[7] = {1.0, 0.27, 0.60, 0.20, 0.10, 0.26, 0.32};
-    double addz;  // daily plant height growth increment, cm.
-    //     Calculate vertical growth of main stem before the square on the
-    //     second fruiting branch
-    //  has appeared. Added stem height (addz) is a function of the age of the
-    //  last prefruiting node.
-    if (FruitingCode[0][1][0] == 0) {
-        addz = vhtpar[0] - vhtpar[1] * AgeOfPreFruNode[NumPreFruNodes - 1];
-        if (addz > vhtpar[2]) addz = vhtpar[2];
-        if (addz < 0) addz = 0;
-        //     It is assumed that the previous prefruiting node is also
-        //  capable of growth, and its growth (dz2) is added to addz.
-        if (NumPreFruNodes > 1) {
-            double dz2;  // plant height growth increment due to growth of the
-                         // second node from the top.
-            dz2 = VarPar[19] - VarPar[20] * AgeOfPreFruNode[NumPreFruNodes - 2];
-            if (dz2 < 0) dz2 = 0;
-            if (dz2 > vhtpar[3]) dz2 = vhtpar[3];
-            addz += dz2;
-        }
-        //     The effect of water stress on stem height at this stage is
-        //  less than at a later stage (as modified by vhtpar(4)).
-        addz = addz * (1. - vhtpar[4] * (1 - WaterStressStem));
-    } else {
-        //     Calculate vertical growth of main stem after the second square
-        //     has appeared.
-        //  Added stem height (addz) is a function of the average  age (agetop)
-        //  of the upper three main stem nodes.
-        int l, l1, l2;  // node numbers of top three nodes.
-        l = NumFruitBranches[0] - 1;
-        l1 = l - 1;
-        if (l < 1) l1 = 0;
-        l2 = l - 2;
-        if (l < 2) l2 = 0;
-        double agetop;  // average physiological age of top three nodes.
-        agetop =
-            (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) /
-            3;
-        addz = VarPar[21] + agetop * (VarPar[22] + VarPar[23] * agetop);
-        if (agetop > (-0.5 * VarPar[22] / VarPar[23])) addz = VarPar[24];
-        if (addz < VarPar[24]) addz = VarPar[24];
-        if (addz > VarPar[25]) addz = VarPar[25];
-        //     addz is affected by water, carbohydrate and nitrogen stresses.
-        addz = addz * WaterStressStem;
-        addz = addz * (1 - vhtpar[5] * (1 - CarbonStress));
-        addz = addz * (1 - vhtpar[6] * (1 - NStressVeg));
-    }
-    //     The effect of temperature is expressed by DayInc. there are also
-    //     effects of
-    //  pix, plant density, and of a variety-specific calibration parameter
-    //  (VarPar(26)).
-    addz = addz * VarPar[26] * pixdz * DayInc * denf2;
-    //    Apply adjustment to addz if plant map data have been read
-    int kdadjustend = KdayAdjust + NumAdjustDays;
-    if (Kday > KdayAdjust && Kday <= kdadjustend)
-        if (nadj[1]) addz = addz * AdjAddHeightRate;
-    //
-    return addz;
 }
 //////////////////////////
 void CheckDryMatterBal()

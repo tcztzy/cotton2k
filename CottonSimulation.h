@@ -11,7 +11,6 @@ void ActualFruitGrowth();
 void ActualLeafGrowth();
 void AddFruitingBranch(int k, double delayVegByCStress, double stemNRatio);
 void AddFruitingNode(int k, int l, double delayFrtByCStress, double stemNRatio);
-double AddPlantHeight(double denf2);
 void AddVegetativeBranch(double delayVegByCStress, double stemNRatio,
                          double DaysTo1stSqare);
 void AdjustAbscission();

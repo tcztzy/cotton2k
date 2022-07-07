@@ -129,7 +129,6 @@ The Cotton Plant:
           DryMatterBalance()
           ActualFruitGrowth()
           ActualLeafGrowth()
-          AddPlantHeight()
           CheckDryMatterBal()
           Defoliate()
 
