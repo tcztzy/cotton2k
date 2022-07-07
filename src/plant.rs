@@ -1,4 +1,3 @@
-use crate::state::State;
 use crate::utils::fmin;
 use crate::{
     ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth, AgeOfPreFruNode,
@@ -11,20 +10,93 @@ use crate::{
     SupplyNO3N, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafWeight,
     TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSquareWeight, TotalStemWeight,
 };
-pub trait PlantNitrogen {
-    fn plant_nitrogen(&mut self);
-    fn nitrogen_requirement(&mut self);
-    fn nitrogen_supply(&mut self);
-    fn nitrogen_allocation(&mut self);
-    fn extra_nitrogen_allocation(&mut self);
-    fn plant_nitrogen_content(&mut self);
-    fn get_nitrogen_stress(&mut self);
-    fn nitrogen_uptake_requirement(&mut self);
-    fn petiole_nitrate(&mut self) -> f64;
-    fn plant_nitrogen_balance(&mut self);
+
+#[derive(Debug, Clone, Copy)]
+pub struct Plant {
+    pub nitrogen: PlantNitrogen,
 }
 
-impl PlantNitrogen for State {
+impl Plant {
+    pub fn new() -> Self {
+        Plant {
+            nitrogen: PlantNitrogen::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct PlantNitrogen {
+    // for plant_nitrogen
+    /// daily added nitrogen to fruit, g per plant.
+    pub addnf: f64,
+    /// daily added nitrogen to root, g per plant.
+    pub addnr: f64,
+    /// daily added nitrogen to vegetative shoot, g per plant.
+    pub addnv: f64,
+    /// amount of nitrogen not used for growth of plant parts.
+    pub xtran: f64,
+    /// reserve N in leaves, in g per plant.
+    pub leafrs: f64,
+    /// reserve N in petioles, in g per plant.
+    pub petrs: f64,
+    /// reserve N in stems, in g per plant.
+    pub stemrs: f64,
+    /// reserve N in roots, in g per plant.
+    pub rootrs: f64,
+    /// reserve N in burrs, in g per plant.
+    pub burres: f64,
+    /// nitrogen requirement for fruit growth.
+    pub reqf: f64,
+    /// total nitrogen requirement for plant growth.
+    pub reqtot: f64,
+    /// nitrogen requirement for vegetative shoot growth.
+    pub reqv: f64,
+    /// nitrogen requirement for burr growth.
+    pub rqnbur: f64,
+    /// nitrogen requirement for leaf growth.
+    pub rqnlef: f64,
+    /// nitrogen requirement for petiole growth.
+    pub rqnpet: f64,
+    /// nitrogen requirement for root growth.
+    pub rqnrut: f64,
+    /// nitrogen requirement for seed growth.
+    pub rqnsed: f64,
+    /// nitrogen requirement for square growth.
+    pub rqnsqr: f64,
+    /// nitrogen requirement for stem growth.
+    pub rqnstm: f64,
+    /// total nitrogen available for growth.
+    pub npool: f64,
+    /// nitrogen uptake from the soil, g per plant.
+    pub uptn: f64,
+}
+
+impl PlantNitrogen {
+    fn new() -> Self {
+        PlantNitrogen {
+            addnf: 0.,
+            addnr: 0.,
+            addnv: 0.,
+            xtran: 0.,
+            leafrs: 0.,
+            petrs: 0.,
+            stemrs: 0.,
+            rootrs: 0.,
+            burres: 0.,
+            reqf: 0.,
+            reqtot: 0.,
+            reqv: 0.,
+            rqnbur: 0.,
+            rqnlef: 0.,
+            rqnpet: 0.,
+            rqnrut: 0.,
+            rqnsed: 0.,
+            rqnsqr: 0.,
+            rqnstm: 0.,
+            npool: 0.,
+            uptn: 0.,
+        }
+    }
     /// This function simulates the nitrogen accumulation and distribution in cotton plants, and computes nitrogen stresses. It is called from SimulateThisDay().
     ///
     /// The maximum and minimum N concentrations for the various organs are modified from those reported by: Jones et. al. (1974): Development of a nitrogen balance for cotton growth models: a first approximation. Crop Sci. 14:541-546.
@@ -53,7 +125,7 @@ impl PlantNitrogen for State {
     /// addnf, addnr, addnv, burres, leafrs, npool, petrs, reqf, reqtot, reqv,
     /// rootrs, rqnbur, rqnlef, rqnpet, rqnrut, rqnsed, rqnsqr, rqnstm, stemrs,
     /// uptn, xtran.
-    fn plant_nitrogen(&mut self) {
+    pub fn run(&mut self) {
         //     Assign zero to some variables.
         self.leafrs = 0.;
         self.petrs = 0.;
@@ -79,13 +151,8 @@ impl PlantNitrogen for State {
         self.nitrogen_requirement(); //  computes the N requirements for growth.
         self.nitrogen_supply(); //  computes the supply of N from uptake and reserves.
         self.nitrogen_allocation(); //  computes the allocation of N in the plant.
-        if self.xtran > 0. {
-            // computes the further allocation of N in the plant
-            self.extra_nitrogen_allocation();
-        }
-
-        self.plant_nitrogen_content(); // computes the concentrations of N in plant dry matter.
-        self.get_nitrogen_stress(); //  computes nitrogen stress factors.
+        self.nitrogen_content(); // computes the concentrations of N in plant dry matter.
+        self.nitrogen_stress(); //  computes nitrogen stress factors.
         self.nitrogen_uptake_requirement(); // computes N requirements for uptake
     }
     /// This function computes the N requirements for growth. It is called from [PlantNitrogen::plant_nitrogen()].
@@ -212,7 +279,7 @@ impl PlantNitrogen for State {
             // for redistribution.
             //
             // ratio of NO3 N to total N in petioles.
-            let rpetno3 = self.petiole_nitrate();
+            let rpetno3 = self.nitrogen_petiole_nitrate();
             // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
             let mut petrs1 =
                 unsafe { PetioleNitrogen * (1. - rpetno3) - vpetnmin * TotalPetioleWeight }
@@ -371,6 +438,10 @@ impl PlantNitrogen for State {
             self.npool -= useofn;
         }
         self.xtran = self.npool;
+        if self.xtran > 0. {
+            // computes the further allocation of N in the plant
+            self.extra_nitrogen_allocation();
+        }
     }
     /// This function computes the allocation of extra nitrogen to the plant parts.
     /// It is called from [PlantNitrogen::plant_nitrogen()] if there is a non-zero [xtran].
@@ -423,8 +494,8 @@ impl PlantNitrogen for State {
             BurrNitrogen += addbur;
         }
     }
-    // This function computes the concentrations of nitrogen in the dry matter of the plant parts. 
-    fn plant_nitrogen_content(&mut self) {
+    // This function computes the concentrations of nitrogen in the dry matter of the plant parts.
+    fn nitrogen_content(&mut self) {
         // The following constant parameter is used:
         const seedratio: f64 = 0.64;
         //     Compute N concentration in plant organs as the ratio of N content to
@@ -435,7 +506,7 @@ impl PlantNitrogen for State {
             }
             if TotalPetioleWeight > 0.00001 {
                 PetioleNConc = PetioleNitrogen / TotalPetioleWeight;
-                PetioleNO3NConc = PetioleNConc * self.petiole_nitrate();
+                PetioleNO3NConc = PetioleNConc * self.nitrogen_petiole_nitrate();
             }
             if TotalStemWeight > 0. {
                 StemNConc = StemNitrogen / TotalStemWeight;
@@ -459,7 +530,7 @@ impl PlantNitrogen for State {
         }
     }
     /// This function computes the nitrogen stress factors.
-    fn get_nitrogen_stress(&mut self) {
+    fn nitrogen_stress(&mut self) {
         unsafe {
             //     Set the default values for the nitrogen stress coefficients to 1.
             NStressVeg = 1.;
@@ -562,7 +633,7 @@ impl PlantNitrogen for State {
         }
     }
     /// This function computes the ratio of NO3 nitrogen to total N in the petioles.
-    fn petiole_nitrate(&mut self) -> f64 {
+    fn nitrogen_petiole_nitrate(&mut self) -> f64 {
         // The following constant parameters are used:
         //
         // the maximum ratio (of NO3 to total N in petioles).
@@ -606,9 +677,9 @@ impl PlantNitrogen for State {
     /// This function calculates the nitrogen balance in the cotton plant, for diagnostic purposes. It is called from SimulateThisDay().
     ///
     ///  Units are g per plant.
-    fn plant_nitrogen_balance(&mut self) {
+    pub fn balance(&mut self) {
         // addn is the cumulative supply of nitrogen from the soil, including N content of the seedling at emergence.
-        /* 
+        /*
         static double addn;
         if (Kday == 1) {addn = RootNitrogen + StemNitrogen + LeafNitrogen;}
         addn += SupplyNO3N + SupplyNH4N;
