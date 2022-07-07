@@ -9,9 +9,7 @@
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
 mod meteorology;
-mod plant_growth;
 mod plant;
-mod root;
 mod soil_temperature;
 mod state;
 mod utils;
@@ -21,7 +19,6 @@ use serde::Deserialize;
 use std::io::Write;
 use std::path::PathBuf;
 
-use plant_growth::LeafResistance;
 pub use state::State;
 
 #[derive(Debug)]

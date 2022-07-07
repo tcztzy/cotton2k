@@ -1,6 +1,6 @@
 use crate::meteorology::Meteorology;
-use crate::plant_growth::{PhysiologicalAge, PlantGrowth};
 use crate::plant::Plant;
+use crate::plant::growth::PlantGrowth;
 use crate::soil_temperature::SoilThermology;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
@@ -13,7 +13,7 @@ use crate::{
     DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
     FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea,
     LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc,
-    LeafNitrogen, LeafResistance, LightIntercept, LightInterceptLayer, LightInterceptMethod,
+    LeafNitrogen, LightIntercept, LightInterceptLayer, LightInterceptMethod,
     LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation,
     MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru,
     NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches,
@@ -24,6 +24,7 @@ use crate::{
     VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem,
     WaterTableLayer, WaterUptake, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
+use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use chrono::{Datelike, NaiveDate};
 
 #[derive(Debug, Clone, Copy)]
@@ -32,8 +33,6 @@ pub struct State {
 
     pub plant_height: f64,
     pub rracol: [f64; 20],
-    /// residual available carbon for root growth from previous day.
-    pub pavail: f64,
 
     pub plant: Plant,
 }
@@ -44,7 +43,6 @@ impl State {
             date,
             plant_height: 4.0,
             rracol: [1.; 20],
-            pavail: 0.,
             plant: Plant::new(),
         }
     }
@@ -119,7 +117,7 @@ impl State {
                 Defoliate(); // effects of defoliants applied.
                 self.stress(profile); // computes water stress factors.
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
-                self.plant_growth(); // executes all modules of plant growth.
+                self.plant.growth(); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 self.plant.nitrogen.run(); // computes plant nitrogen allocation.
                 CheckDryMatterBal(); // checks plant dry matter balance.

@@ -1,5 +1,4 @@
-use crate::root::{PotentialRootGrowth, RootGrowth};
-use crate::state::State;
+use crate::plant::root::{PotentialRootGrowth, RootGrowth};
 use crate::{
     pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AddPlantHeight, AirTemp, DayInc,
     DensityFactor, DryMatterBalance, FruitingCode, Kday, LeafAreaIndex, PerPlantArea, PlantHeight,
@@ -7,11 +6,13 @@ use crate::{
     RowSpace, StemWeight, TotalLeafArea, TotalPetioleWeight, TotalStemWeight, WaterStressStem,
 };
 
+use super::Plant;
+
 pub trait PlantGrowth {
-    unsafe fn plant_growth(&mut self);
+    unsafe fn growth(&mut self);
 }
 
-impl PlantGrowth for State {
+impl PlantGrowth for Plant {
     /// This function simulates the potential and actual growth of cotton plants.
     /// It is called from [Profile::simulate_this_day()], and it calls the following functions:
     /// ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(),
@@ -25,7 +26,7 @@ impl PlantGrowth for State {
     /// The following global variables are set here:
     /// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
     /// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-    unsafe fn plant_growth(&mut self) {
+    unsafe fn growth(&mut self) {
         //     Call PotentialLeafGrowth() to compute potential growth rate of
         //     leaves.
         PotentialLeafGrowth();

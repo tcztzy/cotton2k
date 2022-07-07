@@ -10,20 +10,6 @@ use crate::{
     SupplyNO3N, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafWeight,
     TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSquareWeight, TotalStemWeight,
 };
-
-#[derive(Debug, Clone, Copy)]
-pub struct Plant {
-    pub nitrogen: PlantNitrogen,
-}
-
-impl Plant {
-    pub fn new() -> Self {
-        Plant {
-            nitrogen: PlantNitrogen::new(),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy)]
 pub struct PlantNitrogen {
     // for plant_nitrogen
@@ -72,7 +58,7 @@ pub struct PlantNitrogen {
 }
 
 impl PlantNitrogen {
-    fn new() -> Self {
+    pub fn new() -> Self {
         PlantNitrogen {
             addnf: 0.,
             addnr: 0.,

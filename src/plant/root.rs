@@ -52,11 +52,13 @@ use crate::{
     RootCultivation, RootDeath, RootGroFactor, RootImpedance, RootNConc, RootNitrogen,
     RootSummation, RootWeight, RootWeightLoss, RowSpace, SoilAirOnRootGrowth,
     SoilMechanicResistance, SoilNitrateOnRootGrowth, SoilPsi, SoilTemOnRootGrowth,
-    SoilTempDailyAvrg, SoilWaterOnRootGrowth, State, TapRootGrowth, TapRootLength, VolNo3NContent,
+    SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootGrowth, TapRootLength, VolNo3NContent,
     VolWaterContent,
 };
 use ndarray::prelude::*;
 use ndarray::{Array, Array2, Ix2};
+
+use super::Plant;
 
 /// Calculates the potential root growth rate.
 /// The return value is the sum of potential root growth rates for the whole slab (sumpdr).
@@ -130,7 +132,7 @@ pub unsafe fn PotentialRootGrowth() -> f64 {
 pub trait RootGrowth {
     unsafe fn compute_actual_root_growth(&mut self, sumpdr: f64);
 }
-impl RootGrowth for State {
+impl RootGrowth for Plant {
     /// This function calculates the actual root growth rate.
     /// It is called from function PlantGrowth().
     /// It calls the following functions:  InitiateLateralRoots(), LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), RootCultivation(), RootDeath(), RootSummation(), TapRootGrowth().
