@@ -3,10 +3,10 @@ use crate::utils::fmin;
 use crate::{
     albedo, bPollinSwitch, es1hour, es2hour, iyear, AirTemp, AvrgDailyTemp, ClayVolumeFraction,
     Clim, CloudCoverRatio, CloudTypeCorr, DayLength, DayOfSimulation, DayStart, DayTimeTemp,
-    Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, LeapYear, Longitude, NightTimeTemp,
-    NumIrrigations, Profile, Radiation, ReferenceETP, ReferenceTransp, RelativeHumidity, Rn,
-    SandVolumeFraction, Scratch21, SitePar, WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
-    CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
+    Daynum, DewPointTemp, Elevation, GetFromClim, Irrig, Longitude, NightTimeTemp, NumIrrigations,
+    Profile, Radiation, ReferenceETP, ReferenceTransp, RelativeHumidity, Rn, SandVolumeFraction,
+    Scratch21, SitePar, WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN, CLIMATE_METRIC_TDEW,
+    CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
 };
 use chrono::Datelike;
 /// daily declination angle, in radians.
@@ -133,7 +133,7 @@ impl Meteorology for State {
     /// It is based on the following assumptions:
     /// * The time of minimum daily temperature is at sunrise.
     /// * The time of maximum daily temperature is SitePar[8] hours after solar noon.
-    /// 
+    ///
     /// Many models assume a sinusoidal curve of the temperature during the day, but actual data deviate from the sinusoidal curve in the following characteristic way:
     /// a faster increase right after sunrise, a near plateau maximum during several hours in the middle of the day, and a rather fast decrease by sunset.
     /// The physical reason for this is a more efficient mixing of heated air from ground level into the atmospheric boundary layer, driven by strong lapse temperature gradients buoyancy.
@@ -153,10 +153,10 @@ impl Meteorology for State {
     /// This ensures that temperature still passes through tmin and tmax values.
     ///
     /// The value of tkk was determined by calibration as 15.
-    /// 
+    ///
     /// This algorithm is used for the period from sunrise to the time of maximum temperature, hmax.
     /// A similar algorithm is used for the time from hmax to sunset, but the value of the minimum temperature of the next day (mint_tomorrow) is used instead of mint_today.
-    /// 
+    ///
     /// Night air temperature is described by an exponentially declining curve.
     ///
     /// For the time from sunset to mid-night:
@@ -175,13 +175,13 @@ impl Meteorology for State {
     /// but the minimum temperature of this day (mint_today) is used instead of mint_tomorrow,
     /// and the maximum temperature of the previous day (maxt_yesterday) is used instead of maxt_today.
     /// Also, (suns-ti-24) is used for the time variable instead of (suns-ti).
-    /// 
+    ///
     /// These exponential equations for night-time temperature ensure that the curve will be continuous with the daytime equation at sunset, and will pass through the minimum temperature at sunrise.
     ///
     /// Input argument:
     /// * `ti` - time of day (hours).
     /// Global variables used:
-    /// 
+    ///
     /// DayLength, Daynum, pi, SitePar, SolarNoon, sunr, suns
     unsafe fn daytmp(&mut self, profile: &Profile, ti: f64) -> f64 {
         const tkk: f64 = 15.; // The temperature increase at which the sensible heat flux is doubled, in comparison with the situation without buoyancy.
@@ -271,7 +271,7 @@ impl Meteorology for State {
     /// * `ti` - time of day (hours).
     /// * `tt` - air temperature C at this time of day.
     /// Global variables used:
-    /// 
+    ///
     /// Daynum SitePar, SolarNoon, sunr, suns.
     unsafe fn tdewhour(&mut self, profile: &Profile, ti: f64, tt: f64) -> f64 {
         let im1 = Daynum - 1; // day of year yeaterday
@@ -337,10 +337,9 @@ impl Meteorology for State {
 /// Global variables set here:
 /// DayLength, declination
 unsafe fn ComputeDayLength(profile: &Profile) {
-    //     Convert day of year to corresponding angle in radians (xday). It uses
-    //     function
-    //  LeapYear() (see file GeneralFunctions.cpp)
-    let xday = 2. * std::f64::consts::PI * (Daynum - 1) as f64 / (365 + LeapYear(iyear)) as f64;
+    // Convert day of year to corresponding angle in radians (xday).
+    let xday = 2. * std::f64::consts::PI * (Daynum - 1) as f64
+        / chrono::NaiveDate::from_ymd(iyear, 12, 31).ordinal() as f64;
     //     Compute declination angle for this day. The equation used here for
     //     computing it
     //  is taken from the CIMIS algorithm.

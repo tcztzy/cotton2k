@@ -4,8 +4,6 @@
 //
 //  definition of functions
 //  =======================
-// Date conversion functions:
-int LeapYear(int nYear);
 //  soil water functions:
 double qpsi(double psi, double qr, double qsat, double alpha, double beta);
 double wcond(double q, double qr, double qsat, double beta,

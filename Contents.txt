@@ -5,8 +5,6 @@ Package A.
 Genaral Framework:
 
     File GeneralFunctions.cpp (functions which are used in several places in the model)       Date conversions - 
-      Date conversions - 
-          LeapYear()
        Soil functions -
           psiq()
           qpsi()
