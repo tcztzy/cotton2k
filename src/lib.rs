@@ -10,7 +10,7 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
 mod meteorology;
 mod plant;
-mod soil_temperature;
+mod soil;
 mod state;
 mod utils;
 use chrono::Datelike;

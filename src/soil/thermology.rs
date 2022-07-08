@@ -1,5 +1,4 @@
 use crate::meteorology::{clearskyemiss, VaporPressure};
-use crate::state::State;
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
@@ -10,11 +9,12 @@ use crate::{
     RelativeHumidity, RowSpace, Scratch21, SensibleHeatTransfer, SitePar, SoilSurfaceBalance,
     SoilTemp, SoilTempDailyAvrg, ThermalCondSoil, VolWaterContent, WindSpeed,
 };
-
 const maxl: usize = 40;
 
 #[derive(Debug, Clone, Copy)]
-pub struct Soil {
+pub struct SoilThermology {
+    /// the relative radiation received by a soil column, as affected by shading by plant canopy.
+    pub rracol: [f64; 20],
     numiter: u64,
     /// equal to the dl array in a columnn, or wk in a row.
     dz: [f64; maxl],
@@ -26,19 +26,18 @@ pub struct Soil {
     hcap: [f64; maxl],
 }
 
-pub trait SoilThermology {
-    unsafe fn soil_thermology(&mut self);
-    unsafe fn soil_energy_balance(
-        &mut self,
-        ihr: usize,
-        k: usize,
-        bMulchon: bool,
-        ess: f64,
-        etp1: f64,
-    );
-}
+impl SoilThermology {
+    pub fn new() -> Self {
+        SoilThermology {
+            rracol: [1.; 20],
+            numiter: 0,
+            dz: [0.; 40],
+            ts0: [0.; 40],
+            ts1: [0.; 40],
+            hcap: [0.; 40],
+        }
+    }
 
-impl SoilThermology for State {
     /// This is the main part of the soil temperature sub-model. It is called daily from SimulateThisDay(). It calls the following functions:
     /// EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
     ///
@@ -52,7 +51,7 @@ impl SoilThermology for State {
     /// The following global variables are set here:
     /// ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es,
     /// SoilTemp, SoilTempDailyAvrg, VolWaterContent,
-    unsafe fn soil_thermology(&mut self) {
+    pub unsafe fn soil_thermology(&mut self) {
         if Daynum <= DayStart {
             SoilTemperatureInit();
         }
@@ -178,7 +177,7 @@ impl SoilThermology for State {
             let mut tsolav: [f64; 40] = [0.; 40]; // hourly average soil temperature C, of a soil layer.
             for k in 0..kk {
                 // Loop over kk columns, and call SoilHeatFlux().
-                self.soil.heat_flux(dlt, iv, nn, layer, k);
+                self.heat_flux(dlt, iv, nn, layer, k);
             }
             // If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the value computed for the first column. Also, do the same for array memebers of VolWaterContent.
             if isw <= 1 {
@@ -202,7 +201,7 @@ impl SoilThermology for State {
                 nn = nk as usize;
                 for l in 0..nl as usize {
                     layer = l;
-                    self.soil.heat_flux(dlt, iv, nn, layer, l);
+                    self.heat_flux(dlt, iv, nn, layer, l);
                 }
             }
             //     Compute average temperature of soil layers, in degrees C.
@@ -448,307 +447,6 @@ impl SoilThermology for State {
             MulchTemp[k] = if bMulchon { tm } else { 0. };
         }
     }
-}
-
-/*
-                           References.
-
-     Benjamin, J.G., Ghaffarzadeh, M.R. and Cruse, R.M. 1990.
-  Coupled water and heat transport in ridged soils. Soil Sci. Soc.
-  Am. J. 54:963-969.
-
-     Chen, J. 1984. Uncoupled multi-layer model for the transfer of
-  sensible and latent heat flux densities from vegetation. Boundary-
-  Layer Meteorology 28:213-225.
-
-     Chen, J. 1985. A graphical extrapolation method to determine
-  canopy resistance from measured temperature and humidity profiles
-  above a crop canopy. Agric. For. Meteorol. 37:75-88.
-
-     Clothier, B.E., Clawson, K.L., Pinter, P.J.Jr., Moran, M.S.,
-  Reginato, R.J. and Jackson, R.D. 1986. Estimation of soil heat flux
-  from net radiation during the growth of alfalfa. Agric. For.
-  Meteorol. 37:319-329.
-
-     Costello, T.A. and Braud, H.J. Jr. 1989. Thermal diffusivity
-  of soil by nonlinear regression analysis of soil temperature data.
-  Trans. ASAE 32:1281-1286.
-
-     De Vries, D.A. 1963. Thermal properties of soils. In: W.R. Van
-  Wijk (ed) Physics of plant environment, North Holland, Amsterdam,
-  pp 210-235.
-
-     Deardorff, J.W. 1978. Efficient prediction of ground surface
-  temperature and moisture with inclusion of a layer of vegetation.
-  J. Geophys. Res. 83 (C4):1889-1903.
-
-     Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
-  daily and hourly net radiation. CIMIS Final Report June 1988, pp.
-  58-79.
-
-     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
-  diurnal patterns of air temperature, radiation, wind speed and
-  relative humidity by equations from daily characteristics.
-  Agricultural Systems 51:377-393.
-
-     Hadas, A. 1974. Problem involved in measuring the soil thermal
-  conductivity and diffusivity in a moist soil. Agric. Meteorol.
-  13:105-113.
-
-     Hadas, A. 1977. Evaluation of theoretically predicted thermal
-  conductivities of soils under field and laboratory conditions. Soil
-  Sci. Soc. Am. J. 41:460-466.
-
-     Hanks, R.J., Austin, D.D. and Ondrechen, W.T. 1971. Soil
-  temperature estimation by a numerical method. Soil Sci. Soc. Am.
-  Proc. 35:665-667.
-
-     Hares, M.A. and Novak, M.D. 1992. Simulation of surface energy
-  balance and soil temperature under strip tillage: I. Model
-  description. Soil Sci. Soc. Am. J. 56:22-29.
-
-     Hares, M.A. and Novak, M.D. 1992. Simulation of surface energy
-  balance and soil temperature under strip tillage: II. Field test.
-  Soil Sci. Soc. Am. J. 56:29-36.
-
-     Horton, E. and Wierenga, P.J. 1983. Estimating the soil heat
-  flux from observations of soil temperature near the surface. Soil
-  Sci. Soc. Am. J. 47:14-20.
-
-     Horton, E., Wierenga, P.J. and Nielsen, D.R. 1983. Evaluation
-  of methods for determining apparent thermal diffusivity of soil
-  near the surface. Soil Sci. Soc. Am. J. 47:25-32.
-
-     Horton, R. 1989. Canopy shading effects on soil heat and water
-  flow. Soil Sci. Soc. Am. J. 53:669-679.
-
-     Horton, R., and Chung, S-O, 1991. Soil Heat Flow. Ch. 17 in: Hanks,
-  J., and Ritchie, J.T., (Eds.) Modeling Plant and Soil Systems. Am. Soc.
-  Agron., Madison, WI, pp 397-438.
-
-     Iqbal, M. 1983. An Introduction to Solar Radiation. Academic
-  Press.
-
-     Kimball, B.A., Jackson, R.D., Reginato, R.J., Nakayama, F.S.
-  and Idso, S.B. 1976. Comparison of field-measured and calculated
-  soil heat fluxes. Soil Sci. Soc. Am. J. 40:18-28.
-
-     Lettau, B. 1971. Determination of the thermal diffusivity in
-  the upper layers of a natural ground cover. Soil Sci. 112:173-177.
-
-     Mahrer, Y. 1979. Prediction of soil temperatures of a soil
-  mulched with transparent polyethylene. J. Appl. Meteorol. 18:1263-
-  1267.
-
-     Mahrer, Y. 1980. A numerical model for calculating the soil
-  temperature regime under transparent polyethylene mulches. Agric.
-  Meteorol. 22:227-234.
-
-     Mahrer, Y., Naot, O., Rawitz, E. and Katan, J. 1984.
-  Temperature and moisture regimes in soils mulched with transparent
-  polyethylene. Soil Sci. Soc. Amer. J. 48:362-367.
-
-     Monin, A.S. 1973. Boundary layers in planetary atmospheres. In:
-  P. Morrel (ed.), Dynamic meteorology, D. Reidel Publishing Company,
-  Boston, pp. 419-458.
-
-     Spitters, C.J.T., Toussaint, H.A.J.M. and Goudriaan, J. 1986.
-  Separating the diffuse and direct component of global radiation and
-  its implications for modeling canopy photosynthesis. Part I.
-  Components of incoming radiation. Agric. For. Meteorol. 38:217-229.
-
-     Wierenga, P.J. and de Wit, C.T. 1970. Simulation of heat flow
-  in soils. Soil Sci. Soc. Am. Proc. 34:845-848.
-
-     Wierenga, P.J., Hagan, R.M. and Nielsen, D.R. 1970. Soil
-  temperature profiles during infiltration and redistribution of cool
-  and warm irrigation water. Water Resour. Res. 6:230-238.
-
-     Wierenga, P.J., Nielsen, D.R. and Hagan, R.M. 1969. Thermal
-  properties of soil based upon field and laboratory measurements.
-  Soil Sci. Soc. Am. Proc. 33:354-360.
-*/
-
-/// Called from soil_thermology() at the start of the simulation.
-/// It sets initial values to soil and canopy temperatures.
-///
-/// The following global variables are referenced here:
-/// Clim (structure), DayFinish, Daynum, DayStart, nl, SitePar.
-///
-/// The following global variables are set here:
-/// DeepSoilTemperature, SoilTemp.
-pub unsafe fn SoilTemperatureInit() {
-    // If there is an output flag for soil temperatures, an error message pops up for defining the start and stop dates for this output.
-    // Compute initial values of soil temperature: It is assumed that at the start of simulation the temperature of the first soil layer (upper boundary) is equal to the average air temperature of the previous five days (if climate data not available - start from first climate data).
-    //
-    // NOTE: For a good simulation of soil temperature, it is recommended to start simulation at least 10 days before planting date.
-    // This means that climate data should be available for this period. This is especially important if emergence date has to be simulated.
-    let mut idd = Daynum - 4 - DayStart; // number of days minus 4 from start of simulation.
-    if idd < 0 {
-        idd = 0;
-    }
-    let mut tsi1 = 0.; // Upper boundary (surface layer) initial soil temperature, C.
-    for i in idd as usize..(idd + 5) as usize {
-        tsi1 += Clim[i].Tmax + Clim[i].Tmin;
-    }
-    tsi1 /= 10.;
-    // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
-    DeepSoilTemperature = SitePar[9]
-        + SitePar[10] * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin();
-    // SoilTemp is assigned to all columns, converted to degrees K.
-    tsi1 += 273.161;
-    DeepSoilTemperature += 273.161;
-    for l in 0..nl as usize {
-        // The temperatures of the other soil layers are linearly interpolated.
-        // computed initial soil temperature, C, for each layer
-        let tsi = ((nl as usize - l - 1) as f64 * tsi1 + l as f64 * DeepSoilTemperature)
-            / (nl - 1) as f64;
-        for k in 0..nk as usize {
-            SoilTemp[l][k] = tsi;
-        }
-    }
-}
-/// This function solves the energy balance equations at the interface of
-/// the soil surface and the plastic mulch cover and computes the resulting
-/// temperatures of the soil surface and of the plastic mulch.
-/// It is called from [EnergyBalance()], on each time step and for each
-/// soil column, if this column is covered with a plastic mulch.  It calls functions
-//  SensibleHeatTransfer(), SoilSurfaceBalance() and MulchSurfaceBalance().
-///
-/// Units for all energy fluxes are: cal cm-2 sec-1.
-///
-/// If the return value is true, it means there was an error and simulation will end.
-///
-/// The following global variables are referenced here:
-///
-/// bEnd, Daynum, MulchTranLW, .
-///
-/// The following arguments are set in this function:
-///
-/// so - temperature of soil surface.
-/// so2 - temperature of soil 2nd layer
-/// so3 - temperature of soil 3rd layer
-/// tm - temperature of plastic mulch (K). When tm = 0 there is no plastic mulch.
-///
-/// The following arguments are referenced in this function:
-///
-/// ihr - the time in hours.
-/// k - soil column number.
-/// rlzero - incoming long wave radiation (ly / sec).
-/// rsm - global radiation absorbed by mulch
-/// rss - global radiation absorbed by soil surface
-/// sf - fraction of shaded soil area
-/// thet - air temperature (K).
-/// tv - temperature of plant canopy (K).
-/// wndcanp - estimated wind speed under canopy
-fn SoilMulchBalance(
-    ihr: i32,
-    k: i32,
-    rlzero: f64,
-    rsm: f64,
-    rss: f64,
-    sf: f64,
-    so: &mut f64,
-    so2: &mut f64,
-    so3: &mut f64,
-    thet: f64,
-    tm: &mut f64,
-    tv: f64,
-    wndcanp: f64,
-) -> Result<bool, Cotton2KError> {
-    // Constant variables:
-    // emissivity of the foliage surface.
-    const ef: f64 = 0.95;
-    // emissivity of the soil surface.
-    const eg: f64 = 0.95;
-    // stefan-boltsman constant.
-    const stefa1: f64 = 1.38e-12;
-    // Compute long wave radiation reaching the surface mulch from above, and the air temperature above it.
-    let rlsp0; // long wave radiation reaching the mulch from above.
-    let tafk; //  temperature (K) of air inside the canopy.
-    if sf > 0.05
-    // shaded column
-    {
-        rlsp0 = (1. - sf) * (1. - unsafe {MulchTranLW}) * rlzero  // from sky in unshaded segment
-+ sf * (1. - unsafe {MulchTranLW}) * ef * stefa1 * tv.powi(4); // from foliage in shaded segment
-        tafk = (1. - sf) * thet + sf * (0.1 * *tm + 0.3 * thet + 0.6 * tv);
-    } else
-    // unshaded column
-    {
-        rlsp0 = (1. - unsafe { MulchTranLW }) * rlzero;
-        tafk = thet;
-    }
-    // rls5 is the multiplier of tm**4 for emitted long wave radiation from mulch, sum of upward and downward emittance.
-    // multiplier for emitted long wave radiation from mulch,
-    let rls5 = 2. * (1. - unsafe { MulchTranLW }) * stefa1;
-    // Call SensibleHeatTransfer() to compute sensible heat transfer between plastic mulch and air sensible heat transfer coefficients for mulch to air (before multiplying by ROCP).
-    let varcm = unsafe { SensibleHeatTransfer(*tm, tafk, 0., wndcanp) };
-    if unsafe { bEnd } {
-        return Ok(true);
-    }
-    // multiplier for computing sensible heat transfer from soil to mulch.
-    let mut hsgm;
-    // air density * specific heat at constant pressure [= 0.24 * 2 * 1013 / (5740 * tk) ]
-    let mut rocp = 0.08471 / tafk;
-    // multiplier for computing sensible heat transfer from mulch to air.
-    let hsgp = rocp * varcm;
-    // Compute sensible heat transfer between plastic mulch and soil surface
-    if *tm > 0. {
-        rocp = 0.08471 / *tm;
-    }
-    let mut mtnit = 0; // counter for numbet of iterations
-    let mut soold1; // previous value of temperature of soil surface (k)
-    let mut tmold1; // previous value of temperature of mulch (k)
-
-    loop {
-        soold1 = *so;
-        tmold1 = *tm;
-        // Energy balance for soil surface (mulch interface)
-        hsgm = 2. * rocp * (*so - *tm).abs();
-        unsafe {
-            SoilSurfaceBalance(
-                ihr, k, 0., rlzero, rss, sf, hsgm, so, so2, so3, thet, *tm, tv,
-            )
-        };
-        if unsafe { bEnd } {
-            return Ok(true);
-        }
-        // Add Long wave radiation reaching the mulch from the soil: total long wave radiation reaching the mulch.
-        let rlsp = rlsp0 + (1. - unsafe { MulchTranLW }) * eg * stefa1 * so.powi(4);
-        // Energy balance for mulch (soil and air interface)
-        hsgm = 2. * rocp * (*so - *tm).abs();
-        unsafe { MulchSurfaceBalance(ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, *so, thet, tm, tv) };
-        if unsafe { bEnd } {
-            return Ok(true);
-        }
-        // Check number of iterations - do not exceed 30 iterations.
-        mtnit += 1;
-        if mtnit > 8 {
-            *so = (*so + soold1) / 2.;
-            *tm = (*tm + tmold1) / 2.;
-        }
-        if mtnit > 30 {
-            return Err(Cotton2KError {
-                level: 0,
-                message: String::from("Infinite loop in SoilMulchBalance(). Abnormal stop!! \n"),
-            });
-        }
-        if (*tm - tmold1).abs() <= 0.05 && (*so - soold1).abs() <= 0.05 {
-            return Ok(false);
-        }
-    }
-}
-
-impl Soil {
-    pub fn new() -> Self {
-        Soil {
-            numiter: 0,
-            dz: [0.; 40],
-            ts0: [0.; 40],
-            ts1: [0.; 40],
-            hcap: [0.; 40],
-        }
-    }
 
     /// This function computes heat flux in one direction between soil cells.
     /// It is called from SoilTemperature(), and calls ThermalCondSoil() and
@@ -947,6 +645,295 @@ impl Soil {
                 self.ts1[i] -=
                     (self.ts1[i] - self.ts0[i]).abs() * dev / (dabs * self.dz[i] * self.hcap[i]);
             }
+        }
+    }
+}
+
+/*
+                           References.
+
+     Benjamin, J.G., Ghaffarzadeh, M.R. and Cruse, R.M. 1990.
+  Coupled water and heat transport in ridged soils. Soil Sci. Soc.
+  Am. J. 54:963-969.
+
+     Chen, J. 1984. Uncoupled multi-layer model for the transfer of
+  sensible and latent heat flux densities from vegetation. Boundary-
+  Layer Meteorology 28:213-225.
+
+     Chen, J. 1985. A graphical extrapolation method to determine
+  canopy resistance from measured temperature and humidity profiles
+  above a crop canopy. Agric. For. Meteorol. 37:75-88.
+
+     Clothier, B.E., Clawson, K.L., Pinter, P.J.Jr., Moran, M.S.,
+  Reginato, R.J. and Jackson, R.D. 1986. Estimation of soil heat flux
+  from net radiation during the growth of alfalfa. Agric. For.
+  Meteorol. 37:319-329.
+
+     Costello, T.A. and Braud, H.J. Jr. 1989. Thermal diffusivity
+  of soil by nonlinear regression analysis of soil temperature data.
+  Trans. ASAE 32:1281-1286.
+
+     De Vries, D.A. 1963. Thermal properties of soils. In: W.R. Van
+  Wijk (ed) Physics of plant environment, North Holland, Amsterdam,
+  pp 210-235.
+
+     Deardorff, J.W. 1978. Efficient prediction of ground surface
+  temperature and moisture with inclusion of a layer of vegetation.
+  J. Geophys. Res. 83 (C4):1889-1903.
+
+     Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
+  daily and hourly net radiation. CIMIS Final Report June 1988, pp.
+  58-79.
+
+     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
+  diurnal patterns of air temperature, radiation, wind speed and
+  relative humidity by equations from daily characteristics.
+  Agricultural Systems 51:377-393.
+
+     Hadas, A. 1974. Problem involved in measuring the soil thermal
+  conductivity and diffusivity in a moist soil. Agric. Meteorol.
+  13:105-113.
+
+     Hadas, A. 1977. Evaluation of theoretically predicted thermal
+  conductivities of soils under field and laboratory conditions. Soil
+  Sci. Soc. Am. J. 41:460-466.
+
+     Hanks, R.J., Austin, D.D. and Ondrechen, W.T. 1971. Soil
+  temperature estimation by a numerical method. Soil Sci. Soc. Am.
+  Proc. 35:665-667.
+
+     Hares, M.A. and Novak, M.D. 1992. Simulation of surface energy
+  balance and soil temperature under strip tillage: I. Model
+  description. Soil Sci. Soc. Am. J. 56:22-29.
+
+     Hares, M.A. and Novak, M.D. 1992. Simulation of surface energy
+  balance and soil temperature under strip tillage: II. Field test.
+  Soil Sci. Soc. Am. J. 56:29-36.
+
+     Horton, E. and Wierenga, P.J. 1983. Estimating the soil heat
+  flux from observations of soil temperature near the surface. Soil
+  Sci. Soc. Am. J. 47:14-20.
+
+     Horton, E., Wierenga, P.J. and Nielsen, D.R. 1983. Evaluation
+  of methods for determining apparent thermal diffusivity of soil
+  near the surface. Soil Sci. Soc. Am. J. 47:25-32.
+
+     Horton, R. 1989. Canopy shading effects on soil heat and water
+  flow. Soil Sci. Soc. Am. J. 53:669-679.
+
+     Horton, R., and Chung, S-O, 1991. Soil Heat Flow. Ch. 17 in: Hanks,
+  J., and Ritchie, J.T., (Eds.) Modeling Plant and Soil Systems. Am. Soc.
+  Agron., Madison, WI, pp 397-438.
+
+     Iqbal, M. 1983. An Introduction to Solar Radiation. Academic
+  Press.
+
+     Kimball, B.A., Jackson, R.D., Reginato, R.J., Nakayama, F.S.
+  and Idso, S.B. 1976. Comparison of field-measured and calculated
+  soil heat fluxes. Soil Sci. Soc. Am. J. 40:18-28.
+
+     Lettau, B. 1971. Determination of the thermal diffusivity in
+  the upper layers of a natural ground cover. Soil Sci. 112:173-177.
+
+     Mahrer, Y. 1979. Prediction of soil temperatures of a soil
+  mulched with transparent polyethylene. J. Appl. Meteorol. 18:1263-
+  1267.
+
+     Mahrer, Y. 1980. A numerical model for calculating the soil
+  temperature regime under transparent polyethylene mulches. Agric.
+  Meteorol. 22:227-234.
+
+     Mahrer, Y., Naot, O., Rawitz, E. and Katan, J. 1984.
+  Temperature and moisture regimes in soils mulched with transparent
+  polyethylene. Soil Sci. Soc. Amer. J. 48:362-367.
+
+     Monin, A.S. 1973. Boundary layers in planetary atmospheres. In:
+  P. Morrel (ed.), Dynamic meteorology, D. Reidel Publishing Company,
+  Boston, pp. 419-458.
+
+     Spitters, C.J.T., Toussaint, H.A.J.M. and Goudriaan, J. 1986.
+  Separating the diffuse and direct component of global radiation and
+  its implications for modeling canopy photosynthesis. Part I.
+  Components of incoming radiation. Agric. For. Meteorol. 38:217-229.
+
+     Wierenga, P.J. and de Wit, C.T. 1970. Simulation of heat flow
+  in soils. Soil Sci. Soc. Am. Proc. 34:845-848.
+
+     Wierenga, P.J., Hagan, R.M. and Nielsen, D.R. 1970. Soil
+  temperature profiles during infiltration and redistribution of cool
+  and warm irrigation water. Water Resour. Res. 6:230-238.
+
+     Wierenga, P.J., Nielsen, D.R. and Hagan, R.M. 1969. Thermal
+  properties of soil based upon field and laboratory measurements.
+  Soil Sci. Soc. Am. Proc. 33:354-360.
+*/
+/// Called from soil_thermology() at the start of the simulation.
+/// It sets initial values to soil and canopy temperatures.
+///
+/// The following global variables are referenced here:
+/// Clim (structure), DayFinish, Daynum, DayStart, nl, SitePar.
+///
+/// The following global variables are set here:
+/// DeepSoilTemperature, SoilTemp.
+pub unsafe fn SoilTemperatureInit() {
+    // If there is an output flag for soil temperatures, an error message pops up for defining the start and stop dates for this output.
+    // Compute initial values of soil temperature: It is assumed that at the start of simulation the temperature of the first soil layer (upper boundary) is equal to the average air temperature of the previous five days (if climate data not available - start from first climate data).
+    //
+    // NOTE: For a good simulation of soil temperature, it is recommended to start simulation at least 10 days before planting date.
+    // This means that climate data should be available for this period. This is especially important if emergence date has to be simulated.
+    let mut idd = Daynum - 4 - DayStart; // number of days minus 4 from start of simulation.
+    if idd < 0 {
+        idd = 0;
+    }
+    let mut tsi1 = 0.; // Upper boundary (surface layer) initial soil temperature, C.
+    for i in idd as usize..(idd + 5) as usize {
+        tsi1 += Clim[i].Tmax + Clim[i].Tmin;
+    }
+    tsi1 /= 10.;
+    // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
+    DeepSoilTemperature = SitePar[9]
+        + SitePar[10] * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin();
+    // SoilTemp is assigned to all columns, converted to degrees K.
+    tsi1 += 273.161;
+    DeepSoilTemperature += 273.161;
+    for l in 0..nl as usize {
+        // The temperatures of the other soil layers are linearly interpolated.
+        // computed initial soil temperature, C, for each layer
+        let tsi = ((nl as usize - l - 1) as f64 * tsi1 + l as f64 * DeepSoilTemperature)
+            / (nl - 1) as f64;
+        for k in 0..nk as usize {
+            SoilTemp[l][k] = tsi;
+        }
+    }
+}
+
+/// This function solves the energy balance equations at the interface of
+/// the soil surface and the plastic mulch cover and computes the resulting
+/// temperatures of the soil surface and of the plastic mulch.
+/// It is called from [EnergyBalance()], on each time step and for each
+/// soil column, if this column is covered with a plastic mulch.  It calls functions
+//  SensibleHeatTransfer(), SoilSurfaceBalance() and MulchSurfaceBalance().
+///
+/// Units for all energy fluxes are: cal cm-2 sec-1.
+///
+/// If the return value is true, it means there was an error and simulation will end.
+///
+/// The following global variables are referenced here:
+///
+/// bEnd, Daynum, MulchTranLW, .
+///
+/// The following arguments are set in this function:
+///
+/// so - temperature of soil surface.
+/// so2 - temperature of soil 2nd layer
+/// so3 - temperature of soil 3rd layer
+/// tm - temperature of plastic mulch (K). When tm = 0 there is no plastic mulch.
+///
+/// The following arguments are referenced in this function:
+///
+/// ihr - the time in hours.
+/// k - soil column number.
+/// rlzero - incoming long wave radiation (ly / sec).
+/// rsm - global radiation absorbed by mulch
+/// rss - global radiation absorbed by soil surface
+/// sf - fraction of shaded soil area
+/// thet - air temperature (K).
+/// tv - temperature of plant canopy (K).
+/// wndcanp - estimated wind speed under canopy
+fn SoilMulchBalance(
+    ihr: i32,
+    k: i32,
+    rlzero: f64,
+    rsm: f64,
+    rss: f64,
+    sf: f64,
+    so: &mut f64,
+    so2: &mut f64,
+    so3: &mut f64,
+    thet: f64,
+    tm: &mut f64,
+    tv: f64,
+    wndcanp: f64,
+) -> Result<bool, Cotton2KError> {
+    // Constant variables:
+    // emissivity of the foliage surface.
+    const ef: f64 = 0.95;
+    // emissivity of the soil surface.
+    const eg: f64 = 0.95;
+    // stefan-boltsman constant.
+    const stefa1: f64 = 1.38e-12;
+    // Compute long wave radiation reaching the surface mulch from above, and the air temperature above it.
+    let rlsp0; // long wave radiation reaching the mulch from above.
+    let tafk; //  temperature (K) of air inside the canopy.
+    if sf > 0.05
+    // shaded column
+    {
+        rlsp0 = (1. - sf) * (1. - unsafe {MulchTranLW}) * rlzero  // from sky in unshaded segment
++ sf * (1. - unsafe {MulchTranLW}) * ef * stefa1 * tv.powi(4); // from foliage in shaded segment
+        tafk = (1. - sf) * thet + sf * (0.1 * *tm + 0.3 * thet + 0.6 * tv);
+    } else
+    // unshaded column
+    {
+        rlsp0 = (1. - unsafe { MulchTranLW }) * rlzero;
+        tafk = thet;
+    }
+    // rls5 is the multiplier of tm**4 for emitted long wave radiation from mulch, sum of upward and downward emittance.
+    // multiplier for emitted long wave radiation from mulch,
+    let rls5 = 2. * (1. - unsafe { MulchTranLW }) * stefa1;
+    // Call SensibleHeatTransfer() to compute sensible heat transfer between plastic mulch and air sensible heat transfer coefficients for mulch to air (before multiplying by ROCP).
+    let varcm = unsafe { SensibleHeatTransfer(*tm, tafk, 0., wndcanp) };
+    if unsafe { bEnd } {
+        return Ok(true);
+    }
+    // multiplier for computing sensible heat transfer from soil to mulch.
+    let mut hsgm;
+    // air density * specific heat at constant pressure [= 0.24 * 2 * 1013 / (5740 * tk) ]
+    let mut rocp = 0.08471 / tafk;
+    // multiplier for computing sensible heat transfer from mulch to air.
+    let hsgp = rocp * varcm;
+    // Compute sensible heat transfer between plastic mulch and soil surface
+    if *tm > 0. {
+        rocp = 0.08471 / *tm;
+    }
+    let mut mtnit = 0; // counter for numbet of iterations
+    let mut soold1; // previous value of temperature of soil surface (k)
+    let mut tmold1; // previous value of temperature of mulch (k)
+
+    loop {
+        soold1 = *so;
+        tmold1 = *tm;
+        // Energy balance for soil surface (mulch interface)
+        hsgm = 2. * rocp * (*so - *tm).abs();
+        unsafe {
+            SoilSurfaceBalance(
+                ihr, k, 0., rlzero, rss, sf, hsgm, so, so2, so3, thet, *tm, tv,
+            )
+        };
+        if unsafe { bEnd } {
+            return Ok(true);
+        }
+        // Add Long wave radiation reaching the mulch from the soil: total long wave radiation reaching the mulch.
+        let rlsp = rlsp0 + (1. - unsafe { MulchTranLW }) * eg * stefa1 * so.powi(4);
+        // Energy balance for mulch (soil and air interface)
+        hsgm = 2. * rocp * (*so - *tm).abs();
+        unsafe { MulchSurfaceBalance(ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, *so, thet, tm, tv) };
+        if unsafe { bEnd } {
+            return Ok(true);
+        }
+        // Check number of iterations - do not exceed 30 iterations.
+        mtnit += 1;
+        if mtnit > 8 {
+            *so = (*so + soold1) / 2.;
+            *tm = (*tm + tmold1) / 2.;
+        }
+        if mtnit > 30 {
+            return Err(Cotton2KError {
+                level: 0,
+                message: String::from("Infinite loop in SoilMulchBalance(). Abnormal stop!! \n"),
+            });
+        }
+        if (*tm - tmold1).abs() <= 0.05 && (*so - soold1).abs() <= 0.05 {
+            return Ok(false);
         }
     }
 }

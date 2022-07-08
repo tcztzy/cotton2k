@@ -2,7 +2,7 @@ use crate::meteorology::Meteorology;
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
-use crate::soil_temperature::{Soil, SoilThermology};
+use crate::soil::Soil;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
     addwtbl, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday, thad, thts,
@@ -32,8 +32,6 @@ pub struct State {
     pub date: NaiveDate,
 
     pub plant_height: f64,
-    /// the relative radiation received by a soil column, as affected by shading by plant canopy.
-    pub rracol: [f64; 20],
 
     pub plant: Plant,
     pub soil: Soil,
@@ -44,7 +42,6 @@ impl State {
         State {
             date,
             plant_height: 4.0,
-            rracol: [1.; 20],
             plant: Plant::new(),
             soil: Soil::new(),
         }
@@ -104,7 +101,7 @@ impl State {
             // The following functions are executed each day (also before emergence).
             self.column_shading(profile); // computes light interception and soil shading.
             self.meteorology(profile); // computes climate variables for today.
-            self.soil_thermology(); // executes all modules of soil and canopy temperature.
+            self.soil.thermology.soil_thermology(); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
             SoilNitrogen(); // computes nitrogen transformations in the soil.
             SoilSum(); // computes totals of water and N in the soil.
@@ -172,7 +169,7 @@ impl State {
             if Daynum < DayEmerge || isw <= 0 || DayEmerge <= 0 {
                 LightIntercept = 0.;
                 for k in 0..nk as usize {
-                    self.rracol[k] = 1.;
+                    self.soil.thermology.rracol[k] = 1.;
                 }
                 return;
             }
@@ -292,9 +289,9 @@ impl State {
                     }
                     result
                 };
-                self.rracol[k0] = 1. - shade;
-                if self.rracol[k0] < 0.05 {
-                    self.rracol[k0] = 0.05;
+                self.soil.thermology.rracol[k0] = 1. - shade;
+                if self.soil.thermology.rracol[k0] < 0.05 {
+                    self.soil.thermology.rracol[k0] = 0.05;
                 }
             }
         }
