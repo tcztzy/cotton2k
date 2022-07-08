@@ -96,9 +96,6 @@ double SiteAbscissionRatio(int k, int l, int m, int lt);
 void sitecode();
 double SoilAirOnRootGrowth(double psislk, double poreSpace, double vh2olk);
 double SoilMechanicResistance(int l, int k);
-bool SoilMulchBalance(int ihr, int k, double rlzero, double rsm, double rss,
-                      double sf, double &so, double &so2, double &so3,
-                      double thet, double &tm, double tv, double wndcanp);
 double SoilNitrateOnRootGrowth(double vno3lk);
 void SoilNitrogen();
 void SoilNitrogenAverage();

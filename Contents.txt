@@ -79,7 +79,6 @@ Soil Temperature:
     File SoilTemperature_2.cpp
           SensibleHeatTransfer()
           SoilSurfaceBalance()
-          SoilMulchBalance()
 
     File SoilTemperature_3.cpp
           CanopyBalance()

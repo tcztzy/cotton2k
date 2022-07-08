@@ -3,12 +3,12 @@ use crate::state::State;
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, rracol, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
-    CumEvaporation, DayEndMulch, DayOfSimulation, DayPlant, DayStart, DayStartMulch, Daynum,
-    DeepSoilTemperature, FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, Kday, MulchIndicator,
-    MulchTemp, MulchTranSW, PlantHeight, PlantRowColumn, PoreSpace, PredictEmergence, Radiation,
-    ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace, Scratch21, SensibleHeatTransfer,
-    SitePar, SoilMulchBalance, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg, ThermalCondSoil,
-    VolWaterContent, WindSpeed,
+    Cotton2KError, CumEvaporation, DayEndMulch, DayOfSimulation, DayPlant, DayStart, DayStartMulch,
+    Daynum, DeepSoilTemperature, FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, Kday,
+    MulchIndicator, MulchSurfaceBalance, MulchTemp, MulchTranLW, MulchTranSW, PlantHeight,
+    PlantRowColumn, PoreSpace, PredictEmergence, Radiation, ReferenceETP, ReferenceTransp,
+    RelativeHumidity, RowSpace, Scratch21, SensibleHeatTransfer, SitePar, SoilSurfaceBalance,
+    SoilTemp, SoilTempDailyAvrg, ThermalCondSoil, VolWaterContent, WindSpeed,
 };
 
 const maxl: usize = 40;
@@ -527,7 +527,8 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
             bEnd = SoilMulchBalance(
                 ihr as i32, k as i32, rlzero, rsm, rss, sf, &mut so, &mut so2, &mut so3, thet,
                 &mut tm, tv, wndcanp,
-            );
+            )
+            .unwrap();
             if bEnd {
                 return;
             }
@@ -587,6 +588,136 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
     SoilTemp[1][k] = so2;
     SoilTemp[2][k] = so3;
     MulchTemp[k] = if bMulchon { tm } else { 0. };
+}
+/// This function solves the energy balance equations at the interface of
+/// the soil surface and the plastic mulch cover and computes the resulting
+/// temperatures of the soil surface and of the plastic mulch.
+/// It is called from [EnergyBalance()], on each time step and for each
+/// soil column, if this column is covered with a plastic mulch.  It calls functions
+//  SensibleHeatTransfer(), SoilSurfaceBalance() and MulchSurfaceBalance().
+///
+/// Units for all energy fluxes are: cal cm-2 sec-1.
+///
+/// If the return value is true, it means there was an error and simulation will end.
+///
+/// The following global variables are referenced here:
+///
+/// bEnd, Daynum, MulchTranLW, .
+///
+/// The following arguments are set in this function:
+///
+/// so - temperature of soil surface.
+/// so2 - temperature of soil 2nd layer
+/// so3 - temperature of soil 3rd layer
+/// tm - temperature of plastic mulch (K). When tm = 0 there is no plastic mulch.
+///
+/// The following arguments are referenced in this function:
+///
+/// ihr - the time in hours.
+/// k - soil column number.
+/// rlzero - incoming long wave radiation (ly / sec).
+/// rsm - global radiation absorbed by mulch
+/// rss - global radiation absorbed by soil surface
+/// sf - fraction of shaded soil area
+/// thet - air temperature (K).
+/// tv - temperature of plant canopy (K).
+/// wndcanp - estimated wind speed under canopy
+fn SoilMulchBalance(
+    ihr: i32,
+    k: i32,
+    rlzero: f64,
+    rsm: f64,
+    rss: f64,
+    sf: f64,
+    so: &mut f64,
+    so2: &mut f64,
+    so3: &mut f64,
+    thet: f64,
+    tm: &mut f64,
+    tv: f64,
+    wndcanp: f64,
+) -> Result<bool, Cotton2KError> {
+    // Constant variables:
+    // emissivity of the foliage surface.
+    const ef: f64 = 0.95;
+    // emissivity of the soil surface.
+    const eg: f64 = 0.95;
+    // stefan-boltsman constant.
+    const stefa1: f64 = 1.38e-12;
+    // Compute long wave radiation reaching the surface mulch from above, and the air temperature above it.
+    let rlsp0; // long wave radiation reaching the mulch from above.
+    let tafk; //  temperature (K) of air inside the canopy.
+    if sf > 0.05
+    // shaded column
+    {
+        rlsp0 = (1. - sf) * (1. - unsafe {MulchTranLW}) * rlzero  // from sky in unshaded segment
++ sf * (1. - unsafe {MulchTranLW}) * ef * stefa1 * tv.powi(4); // from foliage in shaded segment
+        tafk = (1. - sf) * thet + sf * (0.1 * *tm + 0.3 * thet + 0.6 * tv);
+    } else
+    // unshaded column
+    {
+        rlsp0 = (1. - unsafe { MulchTranLW }) * rlzero;
+        tafk = thet;
+    }
+    // rls5 is the multiplier of tm**4 for emitted long wave radiation from mulch, sum of upward and downward emittance.
+    // multiplier for emitted long wave radiation from mulch,
+    let rls5 = 2. * (1. - unsafe { MulchTranLW }) * stefa1;
+    // Call SensibleHeatTransfer() to compute sensible heat transfer between plastic mulch and air sensible heat transfer coefficients for mulch to air (before multiplying by ROCP).
+    let varcm = unsafe { SensibleHeatTransfer(*tm, tafk, 0., wndcanp) };
+    if unsafe { bEnd } {
+        return Ok(true);
+    }
+    // multiplier for computing sensible heat transfer from soil to mulch.
+    let mut hsgm;
+    // air density * specific heat at constant pressure [= 0.24 * 2 * 1013 / (5740 * tk) ]
+    let mut rocp = 0.08471 / tafk;
+    // multiplier for computing sensible heat transfer from mulch to air.
+    let hsgp = rocp * varcm;
+    // Compute sensible heat transfer between plastic mulch and soil surface
+    if *tm > 0. {
+        rocp = 0.08471 / *tm;
+    }
+    let mut mtnit = 0; // counter for numbet of iterations
+    let mut soold1; // previous value of temperature of soil surface (k)
+    let mut tmold1; // previous value of temperature of mulch (k)
+
+    loop {
+        soold1 = *so;
+        tmold1 = *tm;
+        // Energy balance for soil surface (mulch interface)
+        hsgm = 2. * rocp * (*so - *tm).abs();
+        unsafe {
+            SoilSurfaceBalance(
+                ihr, k, 0., rlzero, rss, sf, hsgm, so, so2, so3, thet, *tm, tv,
+            )
+        };
+        if unsafe { bEnd } {
+            return Ok(true);
+        }
+        // Add Long wave radiation reaching the mulch from the soil: total long wave radiation reaching the mulch.
+        let rlsp = rlsp0 + (1. - unsafe { MulchTranLW }) * eg * stefa1 * so.powi(4);
+        // Energy balance for mulch (soil and air interface)
+        hsgm = 2. * rocp * (*so - *tm).abs();
+        unsafe { MulchSurfaceBalance(ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, *so, thet, tm, tv) };
+        if unsafe { bEnd } {
+            return Ok(true);
+        }
+        // Check number of iterations - do not exceed 30 iterations.
+        mtnit += 1;
+        if mtnit > 8 {
+            *so = (*so + soold1) / 2.;
+            *tm = (*tm + tmold1) / 2.;
+        }
+        if mtnit > 30 {
+            return Err(Cotton2KError {
+                level: 0,
+                message: String::from("Infinite loop in SoilMulchBalance(). Abnormal stop!! \n"),
+            });
+        }
+        if (*tm - tmold1).abs() <= 0.05 && (*so - soold1).abs() <= 0.05 {
+            return Ok(false);
+        }
+    }
 }
 
 impl Soil {
