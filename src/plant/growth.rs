@@ -11,7 +11,7 @@ use crate::{
 use super::Plant;
 
 pub trait PlantGrowth {
-    unsafe fn growth(&mut self);
+    unsafe fn grow(&mut self);
     unsafe fn plant_height_increment(&mut self, x: f64) -> f64;
 }
 
@@ -29,7 +29,7 @@ impl PlantGrowth for Plant {
     /// The following global variables are set here:
     /// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
     /// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-    unsafe fn growth(&mut self) {
+    unsafe fn grow(&mut self) {
         //     Call PotentialLeafGrowth() to compute potential growth rate of
         //     leaves.
         PotentialLeafGrowth();

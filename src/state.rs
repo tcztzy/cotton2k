@@ -117,7 +117,7 @@ impl State {
                 Defoliate(); // effects of defoliants applied.
                 self.stress(profile); // computes water stress factors.
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
-                self.plant.growth(); // executes all modules of plant growth.
+                self.plant.grow(); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 self.plant.nitrogen.run(); // computes plant nitrogen allocation.
                 CheckDryMatterBal(); // checks plant dry matter balance.
