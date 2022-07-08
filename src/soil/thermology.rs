@@ -27,7 +27,52 @@ pub struct SoilThermology {
 }
 
 impl SoilThermology {
+    /// Called from soil_thermology() at the start of the simulation.
+    /// It sets initial values to soil and canopy temperatures.
+    ///
+    /// The following global variables are referenced here:
+    /// Clim (structure), DayFinish, Daynum, DayStart, nl, SitePar.
+    ///
+    /// The following global variables are set here:
+    /// DeepSoilTemperature, SoilTemp.
     pub fn new() -> Self {
+        // If there is an output flag for soil temperatures, an error message pops up for defining the start and stop dates for this output.
+        // Compute initial values of soil temperature: It is assumed that at the start of simulation the temperature of the first soil layer (upper boundary) is equal to the average air temperature of the previous five days (if climate data not available - start from first climate data).
+        //
+        // NOTE: For a good simulation of soil temperature, it is recommended to start simulation at least 10 days before planting date.
+        // This means that climate data should be available for this period. This is especially important if emergence date has to be simulated.
+        let mut idd = unsafe { Daynum - 4 - DayStart }; // number of days minus 4 from start of simulation.
+        if idd < 0 {
+            idd = 0;
+        }
+        let mut tsi1 = 0.; // Upper boundary (surface layer) initial soil temperature, C.
+        for i in idd as usize..(idd + 5) as usize {
+            tsi1 += unsafe { Clim[i].Tmax + Clim[i].Tmin };
+        }
+        tsi1 /= 10.;
+        // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
+        unsafe {
+            DeepSoilTemperature = SitePar[9]
+                + SitePar[10]
+                    * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin();
+        }
+        // SoilTemp is assigned to all columns, converted to degrees K.
+        tsi1 += 273.161;
+        unsafe {
+            DeepSoilTemperature += 273.161;
+        }
+        for l in 0..unsafe { nl } as usize {
+            // The temperatures of the other soil layers are linearly interpolated.
+            // computed initial soil temperature, C, for each layer
+            let tsi = ((unsafe { nl } as usize - l - 1) as f64 * tsi1
+                + l as f64 * unsafe { DeepSoilTemperature })
+                / (unsafe { nl } - 1) as f64;
+            for k in 0..unsafe { nk } as usize {
+                unsafe {
+                    SoilTemp[l][k] = tsi;
+                }
+            }
+        }
         SoilThermology {
             rracol: [1.; 20],
             numiter: 0,
@@ -52,9 +97,6 @@ impl SoilThermology {
     /// ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es,
     /// SoilTemp, SoilTempDailyAvrg, VolWaterContent,
     pub unsafe fn soil_thermology(&mut self) {
-        if Daynum <= DayStart {
-            SoilTemperatureInit();
-        }
         //     Compute dts, the daily change in deep soil temperature (C), as
         //  a site-dependent function of Daynum.
         let dts = 2. * std::f64::consts::PI * SitePar[10] / 365.
@@ -767,45 +809,6 @@ impl SoilThermology {
   properties of soil based upon field and laboratory measurements.
   Soil Sci. Soc. Am. Proc. 33:354-360.
 */
-/// Called from soil_thermology() at the start of the simulation.
-/// It sets initial values to soil and canopy temperatures.
-///
-/// The following global variables are referenced here:
-/// Clim (structure), DayFinish, Daynum, DayStart, nl, SitePar.
-///
-/// The following global variables are set here:
-/// DeepSoilTemperature, SoilTemp.
-pub unsafe fn SoilTemperatureInit() {
-    // If there is an output flag for soil temperatures, an error message pops up for defining the start and stop dates for this output.
-    // Compute initial values of soil temperature: It is assumed that at the start of simulation the temperature of the first soil layer (upper boundary) is equal to the average air temperature of the previous five days (if climate data not available - start from first climate data).
-    //
-    // NOTE: For a good simulation of soil temperature, it is recommended to start simulation at least 10 days before planting date.
-    // This means that climate data should be available for this period. This is especially important if emergence date has to be simulated.
-    let mut idd = Daynum - 4 - DayStart; // number of days minus 4 from start of simulation.
-    if idd < 0 {
-        idd = 0;
-    }
-    let mut tsi1 = 0.; // Upper boundary (surface layer) initial soil temperature, C.
-    for i in idd as usize..(idd + 5) as usize {
-        tsi1 += Clim[i].Tmax + Clim[i].Tmin;
-    }
-    tsi1 /= 10.;
-    // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
-    DeepSoilTemperature = SitePar[9]
-        + SitePar[10] * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin();
-    // SoilTemp is assigned to all columns, converted to degrees K.
-    tsi1 += 273.161;
-    DeepSoilTemperature += 273.161;
-    for l in 0..nl as usize {
-        // The temperatures of the other soil layers are linearly interpolated.
-        // computed initial soil temperature, C, for each layer
-        let tsi = ((nl as usize - l - 1) as f64 * tsi1 + l as f64 * DeepSoilTemperature)
-            / (nl - 1) as f64;
-        for k in 0..nk as usize {
-            SoilTemp[l][k] = tsi;
-        }
-    }
-}
 
 /// This function solves the energy balance equations at the interface of
 /// the soil surface and the plastic mulch cover and computes the resulting
