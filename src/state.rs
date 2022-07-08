@@ -1,4 +1,4 @@
-use crate::meteorology::Meteorology;
+use crate::atmosphere::Meteorology;
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;

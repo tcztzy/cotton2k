@@ -1,4 +1,4 @@
-use crate::meteorology::{clearskyemiss, VaporPressure};
+use crate::atmosphere::{clearskyemiss, VaporPressure};
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,

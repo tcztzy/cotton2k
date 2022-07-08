@@ -8,9 +8,9 @@
 #![allow(dead_code)]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
-mod meteorology;
-mod plant;
 mod soil;
+mod plant;
+mod atmosphere;
 mod state;
 mod utils;
 use chrono::Datelike;
