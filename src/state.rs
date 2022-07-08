@@ -5,8 +5,8 @@ use crate::plant::Plant;
 use crate::soil_temperature::{Soil, SoilThermology};
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
-    addwtbl, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday, rracol, thad,
-    thts, wcond, wk, ActualTranspiration, AgeOfPreFruNode, AgronomyOperation, AppliedWater,
+    addwtbl, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday, thad, thts,
+    wcond, wk, ActualTranspiration, AgeOfPreFruNode, AgronomyOperation, AppliedWater,
     AverageLeafAge, AverageLwp, AverageLwpMin, AveragePsi, AverageSoilPsi, BurrWeightOpenBolls,
     CapillaryFlow, CheckDryMatterBal, ComputeIrrigation, Cotton2KError, CottonPhenology,
     CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration,
@@ -32,6 +32,7 @@ pub struct State {
     pub date: NaiveDate,
 
     pub plant_height: f64,
+    /// the relative radiation received by a soil column, as affected by shading by plant canopy.
     pub rracol: [f64; 20],
 
     pub plant: Plant,
@@ -171,7 +172,7 @@ impl State {
             if Daynum < DayEmerge || isw <= 0 || DayEmerge <= 0 {
                 LightIntercept = 0.;
                 for k in 0..nk as usize {
-                    rracol[k] = 1.;
+                    self.rracol[k] = 1.;
                 }
                 return;
             }
@@ -291,9 +292,9 @@ impl State {
                     }
                     result
                 };
-                rracol[k0] = 1. - shade;
-                if rracol[k0] < 0.05 {
-                    rracol[k0] = 0.05;
+                self.rracol[k0] = 1. - shade;
+                if self.rracol[k0] < 0.05 {
+                    self.rracol[k0] = 0.05;
                 }
             }
         }

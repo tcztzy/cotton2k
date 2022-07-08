@@ -419,9 +419,7 @@ double Radiation[24],  // hourly global radiation, W / m2.
     RootWeightLoss,  // total cumulative weight of sloughed roots, g per plant.
     RootWtCapblUptake[maxl][maxk],  // root weight capable of uptake, in g per
                                     // soil cell.
-    RowSpace,                       // average row spacing, cm.
-    rracol[maxk];  // the relative radiation received by a soil column, as
-                   // affected by shading by plant canopy.
+    RowSpace;                       // average row spacing, cm.
                    // S
 double SandVolumeFraction[maxl],  // fraction by volume of sand plus silt in the
                                   // soil.
