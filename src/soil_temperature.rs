@@ -4,11 +4,27 @@ use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, rracol, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
     CumEvaporation, DayEndMulch, DayOfSimulation, DayPlant, DayStart, DayStartMulch, Daynum,
-    DeepSoilTemperature, FieldCapacity, FoliageTemp, Kday, MulchIndicator, MulchTemp, MulchTranSW,
-    PlantHeight, PlantRowColumn, PredictEmergence, Radiation, ReferenceETP, ReferenceTransp,
-    RelativeHumidity, RowSpace, Scratch21, SensibleHeatTransfer, SitePar, SoilHeatFlux,
-    SoilMulchBalance, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg, VolWaterContent, WindSpeed,
+    DeepSoilTemperature, FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, Kday, MulchIndicator,
+    MulchTemp, MulchTranSW, PlantHeight, PlantRowColumn, PoreSpace, PredictEmergence, Radiation,
+    ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace, Scratch21, SensibleHeatTransfer,
+    SitePar, SoilMulchBalance, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg, ThermalCondSoil,
+    VolWaterContent, WindSpeed,
 };
+
+const maxl: usize = 40;
+
+#[derive(Debug, Clone, Copy)]
+pub struct Soil {
+    numiter: u64,
+    /// equal to the dl array in a columnn, or wk in a row.
+    dz: [f64; maxl],
+    /// array of previous soil temperatures.
+    ts0: [f64; maxl],
+    /// array of soil temperatures.
+    ts1: [f64; maxl],
+    /// heat capacity of soil layer (cal cm-3 oC-1).
+    hcap: [f64; maxl],
+}
 
 pub trait SoilThermology {
     unsafe fn soil_thermology(&mut self);
@@ -48,7 +64,7 @@ impl SoilThermology for State {
         if isw > 1 {
             let mut shadetot = 0.; // sum of shaded area in all shaded soil columns.
             let mut nshadedcol = 0; // number of at least partially shaded soil columns.
-            kk = nk;
+            kk = nk as usize;
             for k in 0..nk as usize {
                 if rracol[k] <= 0.99 {
                     shadetot += 1. - rracol[k];
@@ -81,8 +97,6 @@ impl SoilThermology for State {
             } else {
                 0.
             };
-            let mut tmav = 0.; // average mulch temperature.
-            let mut kmulch = 0u32; // number of soil columns covered with mulch.
 
             // Compute vertical transport for each column
             for k in 0..kk as usize {
@@ -146,24 +160,17 @@ impl SoilThermology for State {
                 if bEnd {
                     return;
                 }
-                if bMulchon {
-                    tmav += MulchTemp[k] - 273.161;
-                    kmulch += 1;
-                }
             }
 
-            if kmulch > 0 {
-                tmav /= kmulch as f64;
-            }
             // Compute soil temperature flux in the vertical direction.
             // Assign iv = 1, layer = 0, nn = nl.
             let mut iv = 1; // indicates vertical (=1) or horizontal (=0) flux.
-            let mut nn = nl; // number of array members for heat flux.
+            let mut nn = nl as usize; // number of array members for heat flux.
             let mut layer = 0; // soil layer number
             let mut tsolav: [f64; 40] = [0.; 40]; // hourly average soil temperature C, of a soil layer.
             for k in 0..kk {
                 // Loop over kk columns, and call SoilHeatFlux().
-                SoilHeatFlux(dlt, iv, nn, layer, k);
+                self.soil.heat_flux(dlt, iv, nn, layer, k);
             }
             // If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the value computed for the first column. Also, do the same for array memebers of VolWaterContent.
             if isw <= 1 {
@@ -184,10 +191,10 @@ impl SoilThermology for State {
             // and call SoilHeatFlux.
             if isw > 1 {
                 iv = 0;
-                nn = nk;
-                for l in 0..nl {
+                nn = nk as usize;
+                for l in 0..nl as usize {
                     layer = l;
-                    SoilHeatFlux(dlt, iv, nn, layer, l);
+                    self.soil.heat_flux(dlt, iv, nn, layer, l);
                 }
             }
             //     Compute average temperature of soil layers, in degrees C.
@@ -197,18 +204,6 @@ impl SoilThermology for State {
                     tsolav[l] += SoilTemp[l][k] - 273.161;
                 }
                 tsolav[l] = tsolav[l] / nk as f64;
-            }
-            // Compute average temperature of foliage, in degrees C. The average is weighted by the canopy shading of each column, only columns which are shaded 5% or more by canopy are used.
-            let mut tfc = 0.; // average foliage temperature, weighted by shading in each column
-            let mut shading = 0.; // sum of shaded area in all shaded columns, used to compute TFC
-            for k in 0..nk as usize {
-                if rracol[k] <= 0.95 {
-                    tfc += (FoliageTemp[k] - 273.161) * (1. - rracol[k]);
-                    shading += 1. - rracol[k];
-                }
-            }
-            if shading >= 0.01 {
-                tfc /= shading;
             }
             // If emergence date is to be simulated, call PredictEmergence().
             if isw == 0 && Daynum >= DayPlant {
@@ -487,7 +482,6 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
     if sf < 0.05 {
         // no vegetation
         tv = thet;
-        tafk = thet;
     }
     // Wind velocity in canopy is converted to cm / s.
     let wndhr = WindSpeed[ihr] * 100.;
@@ -518,7 +512,7 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
     // counter of iteration number
     let mut menit: usize = 0;
     // previous value of soil surface temperature
-    let mut soold = so;
+    let mut soold;
     // previous value of vegetation temperature
     let mut tvold = tv;
     // previous value of temperature of mulch (K)
@@ -593,4 +587,216 @@ unsafe fn EnergyBalance(ihr: usize, k: usize, bMulchon: bool, ess: f64, etp1: f6
     SoilTemp[1][k] = so2;
     SoilTemp[2][k] = so3;
     MulchTemp[k] = if bMulchon { tm } else { 0. };
+}
+
+impl Soil {
+    pub fn new() -> Self {
+        Soil {
+            numiter: 0,
+            dz: [0.; 40],
+            ts0: [0.; 40],
+            ts1: [0.; 40],
+            hcap: [0.; 40],
+        }
+    }
+
+    /// This function computes heat flux in one direction between soil cells.
+    /// It is called from SoilTemperature(), and calls ThermalCondSoil() and
+    /// [Soil::heat_balance()].
+    ///
+    /// Note: the units are: thermal conductivity = cal cm-1 s-1 oC-1;
+    ///                      heat capacity = cal cm-3 oC-1;
+    ///                      thermal diffusivity = cm2 s-1;
+    ///                      ckx and cky are dimensionless;
+    ///
+    /// The following global variables are referenced here:
+    ///
+    /// dl, HeatCapacitySoilSolid, maxl, PoreSpace, VolWaterContent, wk.
+    ///
+    /// The following global variable is set here:    SoilTemp.
+    ///
+    /// The following input arguments are used in this function:
+    ///
+    /// dlt - time (seconds) of one iteration.
+    /// iv -  = 1 for vertical flux, = 0 for horizontal flux.
+    /// layer - soil layer number.
+    /// n0 - number of layer or column of this array
+    /// nn - number of soil cells in the array.
+    unsafe fn heat_flux(&mut self, dlt: f64, iv: i32, nn: usize, layer: usize, n0: usize) {
+        // Constant parameters:
+        // weighting factor for the implicit method of computation.
+        const beta1: f64 = 0.90;
+        // heat capacity of air (cal cm-3 oC-1).
+        const ca: f64 = 0.0003;
+        // Set soil layer number l (needed to define HeatCapacitySoilSolid, PoreSpace, ThermalCondSoil).
+        // Compute for each soil cell the heat capacity and heat diffusivity.
+        let mut l = layer; // soil layer number.
+        let mut q1: [f64; 40] = [0.; 40]; // array of water content.
+        let mut asoi: [f64; 40] = [0.; 40]; // array of thermal diffusivity of soil cells (cm2 s-1).
+        for i in 0..nn {
+            if iv == 1 {
+                l = i;
+                q1[i] = VolWaterContent[i][n0];
+                self.ts1[i] = SoilTemp[i][n0];
+                self.dz[i] = dl[i];
+            } else {
+                q1[i] = VolWaterContent[n0][i];
+                self.ts1[i] = SoilTemp[n0][i];
+                self.dz[i] = wk[i];
+            }
+            self.hcap[i] = HeatCapacitySoilSolid[l] + q1[i] + (PoreSpace[l] - q1[i]) * ca;
+            asoi[i] = ThermalCondSoil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
+        }
+        // The numerical solution of the flow equation is a combination of the implicit method (weighted by beta1) and the explicit method (weighted by 1-beta1).
+        let mut dltt; // computed time step required.
+        let mut avdif: [f64; maxl] = [0.; maxl]; // average thermal diffusivity between adjacent cells.
+        let mut dy: [f64; maxl] = [0.; maxl]; // array of distances between centers of adjacent cells (cm).
+        let mut dltmin = dlt; // minimum time step for the explicit solution.
+        for i in 1..nn {
+            // Compute average diffusivities avdif between layer i and the previous (i-1),
+            //  and dy(i), distance (cm) between centers of layer i and the previous
+            //  (i-1)
+            avdif[i] = (asoi[i] + asoi[i - 1]) / 2.;
+            dy[i] = (self.dz[i - 1] + self.dz[i]) / 2.;
+            //     Determine the minimum time step required for the explicit
+            //     solution.
+            dltt = 0.2 * dy[i] * self.dz[i] / avdif[i] / (1. - beta1);
+            if dltt < dltmin {
+                dltmin = dltt;
+            }
+        }
+        //     Use time step of dlt1 seconds, for iterx iterations
+        let mut iterx = (dlt / dltmin) as usize; // computed number of iterations.
+        if dltmin < dlt {
+            iterx += 1;
+        }
+        let dlt1 = dlt / iterx as f64; // computed time (seconds) of an iteration.
+                                       // start iterations. Store temperature data in array ts0. count iterations.
+        for _ in 0..iterx {
+            for i in 0..nn {
+                self.ts0[i] = self.ts1[i];
+                if iv == 1 {
+                    l = i;
+                }
+                asoi[i] = ThermalCondSoil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
+                if i > 0 {
+                    avdif[i] = (asoi[i] + asoi[i - 1]) / 2.;
+                }
+            }
+            self.numiter += 1;
+            // The solution of the simultaneous equations in the implicit method alternates between
+            // the two directions along the arrays. The reason for this is because
+            // the direction of the solution may cause some cumulative bias. The
+            // counter numiter determines the direction of the solution.
+            let mut cau: [f64; maxl] = [0.; maxl];
+            let mut dau: [f64; maxl] = [0.; maxl]; // arrays used for the implicit numerical solution.
+            let mut ckx = 0.;
+            let mut cky = 0.; // nondimensional diffusivities to next and previous layers.
+            let mut vara;
+            let mut varb; // used for computing the implicit solution.
+            if (self.numiter % 2) == 0 {
+                // 1st direction of computation, for an even iteration number:
+                dau[0] = 0.;
+                cau[0] = self.ts1[0];
+                // Loop from the second to the last but one soil cells. Compute nondimensional diffusivities to next and previous layers.
+                for i in 1..(nn - 1) {
+                    ckx = avdif[i + 1] * dlt1 / (self.dz[i] * dy[i + 1]);
+                    cky = avdif[i] * dlt1 / (self.dz[i] * dy[i]);
+                    // Correct value of layer 1 for explicit heat movement to/from layer 2
+                    if i == 1 {
+                        cau[0] = self.ts1[0]
+                            - (1. - beta1) * (self.ts1[0] - self.ts1[1]) * cky * self.dz[1]
+                                / self.dz[0];
+                    }
+                    vara = 1. + beta1 * (ckx + cky) - beta1 * ckx * dau[i - 1];
+                    dau[i] = beta1 * cky / vara;
+                    varb = self.ts1[i]
+                        + (1. - beta1)
+                            * (cky * self.ts1[i - 1] + ckx * self.ts1[i + 1]
+                                - (cky + ckx) * self.ts1[i]);
+                    cau[i] = (varb + beta1 * ckx * cau[i - 1]) / vara;
+                }
+                // Correct value of last layer (nn-1) for explicit heat movement to/from layer nn-2
+                self.ts1[nn - 1] = self.ts1[nn - 1]
+                    - (1. - beta1) * (self.ts1[nn - 1] - self.ts1[nn - 2]) * ckx * self.dz[nn - 2]
+                        / self.dz[nn - 1];
+                // Continue with the implicit solution
+                for i in (0..nn - 1).rev() {
+                    self.ts1[i] = dau[i] * self.ts1[i + 1] + cau[i];
+                }
+            } else {
+                // Alternate direction of computation for odd iteration number
+                dau[nn - 1] = 0.;
+                cau[nn - 1] = self.ts1[nn - 1];
+                for i in (0..nn - 1).rev() {
+                    ckx = avdif[i + 1] * dlt1 / (self.dz[i] * dy[i + 1]);
+                    cky = avdif[i] * dlt1 / (self.dz[i] * dy[i]);
+                    if i == nn - 2 {
+                        cau[nn - 1] = self.ts1[nn - 1]
+                            - (1. - beta1)
+                                * (self.ts1[nn - 1] - self.ts1[nn - 2])
+                                * ckx
+                                * self.dz[nn - 2]
+                                / self.dz[nn - 1];
+                    }
+                    vara = 1. + beta1 * (ckx + cky) - beta1 * cky * dau[i + 1];
+                    dau[i] = beta1 * ckx / vara;
+                    varb = self.ts1[i]
+                        + (1. - beta1)
+                            * (ckx * self.ts1[i + 1] + cky * self.ts1[i - 1]
+                                - (cky + ckx) * self.ts1[i]);
+                    cau[i] = (varb + beta1 * cky * cau[i + 1]) / vara;
+                }
+                self.ts1[0] = self.ts1[0]
+                    - (1. - beta1) * (self.ts1[0] - self.ts1[1]) * cky * self.dz[1] / self.dz[0];
+                for i in 1..nn {
+                    self.ts1[i] = dau[i] * self.ts1[i - 1] + cau[i];
+                }
+            }
+            // Call self.heat_balance to correct quantitative deviations caused by the imlicit part of the solution.
+            self.heat_balance(nn);
+        }
+        // Set values of SoiTemp
+        for i in 0..nn {
+            if iv == 1 {
+                SoilTemp[i][n0] = self.ts1[i];
+            } else {
+                SoilTemp[n0][i] = self.ts1[i];
+            }
+        }
+    }
+    /// Checks and corrects the heat balance in the soil soil cells, within
+    /// a soil layer. It is called by function SoilHeatFlux() only for
+    /// horizontal flux.
+    ///
+    /// The implicit part of the solution may cause some deviation in the total
+    /// heat sum to occur. This module corrects the heat balance if the sum of
+    /// absolute deviations is not zero, so that the total amount of heat in
+    /// the array does not change. The correction is proportional to the
+    /// difference between the previous and present heat amounts.
+    ///
+    /// The following arguments are referenced here:
+    ///
+    /// nn - the number of soil cells in this layer or column.
+    ///
+    /// The following global or file scope variables are referenced:
+    ///
+    /// dz, hcap, ts0
+    ///
+    /// The following file scope variable is set:    ts1
+    fn heat_balance(&mut self, nn: usize) {
+        let mut dabs = 0.; // Sum of absolute value of differences in heat content in
+                           // the array between beginning and end of this time step.
+        let mut dev = 0.; // Sum of differences of heat amount in soil.
+        for i in 0..nn {
+            dev += self.dz[i] * self.hcap[i] * (self.ts1[i] - self.ts0[i]);
+            dabs += (self.ts1[i] - self.ts0[i]).abs();
+        }
+        if dabs > 0. {
+            for i in 0..nn {
+                self.ts1[i] -=
+                    (self.ts1[i] - self.ts0[i]).abs() * dev / (dabs * self.dz[i] * self.hcap[i]);
+            }
+        }
+    }
 }

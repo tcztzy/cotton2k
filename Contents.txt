@@ -84,9 +84,7 @@ Soil Temperature:
     File SoilTemperature_3.cpp
           CanopyBalance()
           MulchSurfaceBalance()
-          SoilHeatFlux()
           ThermalCondSoil()
-          HeatBalance()
           PredictEmergence()
        
 ================================================================================       

@@ -52,7 +52,6 @@ void FruitNodeLeafAbscission(int k, int l, int m, double droplf);
 double GetTargetStress();
 void GoBack();
 double TemperatureOnLeafGrowthRate(double t);
-void HeatBalance(int nn);
 // I
 void InitiateLateralRoots();
 // L
@@ -96,7 +95,6 @@ double SensibleHeatTransfer(double tsf, double tenviron, double PlantHeight,
 double SiteAbscissionRatio(int k, int l, int m, int lt);
 void sitecode();
 double SoilAirOnRootGrowth(double psislk, double poreSpace, double vh2olk);
-void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0);
 double SoilMechanicResistance(int l, int k);
 bool SoilMulchBalance(int ihr, int k, double rlzero, double rsm, double rss,
                       double sf, double &so, double &so2, double &so3,

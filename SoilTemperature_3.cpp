@@ -3,9 +3,7 @@
 //   List of functions in this file:
 //       CanopyBalance()
 //       MulchSurfaceBalance()
-//       SoilHeatFlux()
 //       ThermalCondSoil()
-//       HeatBalance()
 //       PredictEmergence()
 //
 #include <math.h>
@@ -18,11 +16,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-//  arrays with file scope:
-double dz[maxl];    // equal to the dl array in a columnn, or wk in a row.
-double ts1[maxl];   // array of soil temperatures.
-double ts0[maxl];   // array of previous soil temperatures.
-double hcap[maxl];  // heat capacity of soil layer (cal cm-3 oC-1).
 /////////////////////////////////////////
 void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
                    double c2, double sf, double so, double thet, double tm,
@@ -225,160 +218,6 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm,
     fprintf(stderr, " tv = %10.3g\n", tv);
     bEnd = true;
 }
-///////////////////////////////////////////////////////////////////
-void SoilHeatFlux(double dlt, int iv, int nn, int layer, int n0)
-//     This function computes heat flux in one direction between soil cells.
-//  It is called from SoilTemperature(), and calls ThermalCondSoil() and
-//  HeatBalance().
-//     Note: the units are: thermal conductivity = cal cm-1 s-1 oC-1;
-//                          heat capacity = cal cm-3 oC-1;
-//                      	thermal diffusivity = cm2 s-1;
-//                          ckx and cky are dimensionless;
-//
-//     The following global variables are referenced here:
-//       dl, HeatCapacitySoilSolid, maxl, PoreSpace, VolWaterContent, wk.
-//     The following global variable is set here:    SoilTemp.
-//     The following input arguments are used in this function:
-//       dlt - time (seconds) of one iteration.
-//       iv -  = 1 for vertical flux, = 0 for horizontal flux.
-//       layer - soil layer number.
-//       n0 - number of layer or column of this array
-//       nn - number of soil cells in the array.
-{
-    //     Constant parameters:
-    const double beta1 =
-        0.90;  // weighting factor for the implicit method of computation.
-    const double ca = 0.0003;  // heat capacity of air (cal cm-3 oC-1).
-    //     Set soil layer number l (needed to define HeatCapacitySoilSolid,
-    //     PoreSpace, ThermalCondSoil).
-    //  Compute for each soil cell the heat capacity and heat diffusivity.
-    static long numiter = 0;  // number of this iteration.
-    int l = layer;            // soil layer number.
-    double q1[maxl];          // array of water content.
-    double asoi[maxl];  // array of thermal diffusivity of soil cells (cm2 s-1).
-    for (int i = 0; i < nn; i++) {
-        if (iv == 1) {
-            l = i;
-            q1[i] = VolWaterContent[i][n0];
-            ts1[i] = SoilTemp[i][n0];
-            dz[i] = dl[i];
-        } else {
-            q1[i] = VolWaterContent[n0][i];
-            ts1[i] = SoilTemp[n0][i];
-            dz[i] = wk[i];
-        }
-        hcap[i] =
-            HeatCapacitySoilSolid[l] + q1[i] + (PoreSpace[l] - q1[i]) * ca;
-        asoi[i] = ThermalCondSoil(q1[i], ts1[i], l) / hcap[i];
-    }
-    //     The numerical solution of the flow equation is a combination of the
-    //     implicit method
-    //  (weighted by beta1) and the explicit method (weighted by 1-beta1).
-    double dltt;         // computed time step required.
-    double avdif[maxl];  // average thermal diffusivity between adjacent cells.
-    double
-        dy[maxl];  // array of distances between centers of adjacent cells (cm).
-    double dltmin = dlt;  // minimum time step for the explicit solution.
-    avdif[0] = 0;
-    dy[0] = 0;
-    for (int i = 1; i < nn; i++) {
-        //     Compute average diffusivities avdif between layer i and the
-        //     previous (i-1),
-        //  and dy(i), distance (cm) between centers of layer i and the previous
-        //  (i-1)
-        avdif[i] = (asoi[i] + asoi[i - 1]) / 2;
-        dy[i] = (dz[i - 1] + dz[i]) / 2;
-        //     Determine the minimum time step required for the explicit
-        //     solution.
-        dltt = 0.2 * dy[i] * dz[i] / avdif[i] / (1 - beta1);
-        if (dltt < dltmin) dltmin = dltt;
-    }
-    //     Use time step of dlt1 seconds, for iterx iterations
-    int iterx = (int)(dlt / dltmin);  // computed number of iterations.
-    if (dltmin < dlt) iterx++;
-    double dlt1 = dlt / iterx;  // computed time (seconds) of an iteration.
-    // start iterations. Store temperature data in array ts0. count iterations.
-    for (int ii = 0; ii < iterx; ii++) {
-        for (int i = 0; i < nn; i++) {
-            ts0[i] = ts1[i];
-            if (iv == 1) l = i;
-            asoi[i] = ThermalCondSoil(q1[i], ts1[i], l) / hcap[i];
-            if (i > 0) avdif[i] = (asoi[i] + asoi[i - 1]) / 2;
-        }
-        numiter++;
-        //     The solution of the simultaneous equations in the implicit method
-        //     alternates between
-        //  the two directions along the arrays. The reason for this is because
-        //  the direction of the solution may cause some cumulative bias. The
-        //  counter numiter determines the direction of the solution.
-        double cau[maxl],
-            dau[maxl];  // arrays used for the implicit numerical solution.
-        double ckx,
-            cky;  // nondimensional diffusivities to next and previous layers.
-        double vara, varb;  // used for computing the implicit solution.
-        if ((numiter % 2) == 0) {
-            //     1st direction of computation, for an even iteration number:
-            dau[0] = 0;
-            cau[0] = ts1[0];
-            //     Loop from the second to the last but one soil cells. Compute
-            //  nondimensional diffusivities to next and previous layers.
-            for (int i = 1; i < nn - 1; i++) {
-                ckx = avdif[i + 1] * dlt1 / (dz[i] * dy[i + 1]);
-                cky = avdif[i] * dlt1 / (dz[i] * dy[i]);
-                //     Correct value of layer 1 for explicit heat movement
-                //     to/from layer 2
-                if (i == 1)
-                    cau[0] = ts1[0] - (1 - beta1) * (ts1[0] - ts1[1]) * cky *
-                                          dz[1] / dz[0];
-                vara = 1 + beta1 * (ckx + cky) - beta1 * ckx * dau[i - 1];
-                dau[i] = beta1 * cky / vara;
-                varb = ts1[i] +
-                       (1 - beta1) * (cky * ts1[i - 1] + ckx * ts1[i + 1] -
-                                      (cky + ckx) * ts1[i]);
-                cau[i] = (varb + beta1 * ckx * cau[i - 1]) / vara;
-            }
-            //     Correct value of last layer (nn-1) for explicit heat movement
-            //     to/from layer nn-2
-            ts1[nn - 1] = ts1[nn - 1] - (1 - beta1) *
-                                            (ts1[nn - 1] - ts1[nn - 2]) * ckx *
-                                            dz[nn - 2] / dz[nn - 1];
-            //     Continue with the implicit solution
-            for (int i = nn - 2; i >= 0; i--)
-                ts1[i] = dau[i] * ts1[i + 1] + cau[i];
-        } else {
-            //     Alternate direction of computation for odd iteration number
-            dau[nn - 1] = 0;
-            cau[nn - 1] = ts1[nn - 1];
-            for (int i = nn - 2; i > 0; i--) {
-                ckx = avdif[i + 1] * dlt1 / (dz[i] * dy[i + 1]);
-                cky = avdif[i] * dlt1 / (dz[i] * dy[i]);
-                if (i == nn - 2)
-                    cau[nn - 1] = ts1[nn - 1] -
-                                  (1 - beta1) * (ts1[nn - 1] - ts1[nn - 2]) *
-                                      ckx * dz[nn - 2] / dz[nn - 1];
-                vara = 1 + beta1 * (ckx + cky) - beta1 * cky * dau[i + 1];
-                dau[i] = beta1 * ckx / vara;
-                varb = ts1[i] +
-                       (1 - beta1) * (ckx * ts1[i + 1] + cky * ts1[i - 1] -
-                                      (cky + ckx) * ts1[i]);
-                cau[i] = (varb + beta1 * cky * cau[i + 1]) / vara;
-            }
-            ts1[0] =
-                ts1[0] - (1 - beta1) * (ts1[0] - ts1[1]) * cky * dz[1] / dz[0];
-            for (int i = 1; i < nn; i++) ts1[i] = dau[i] * ts1[i - 1] + cau[i];
-        }  // end if numiter
-        //     Call HeatBalance to correct quantitative deviations caused by the
-        //  imlicit part of the solution.
-        HeatBalance(nn);
-    }  // end of iterx loop
-       //     Set values of SoiTemp
-    for (int i = 0; i < nn; i++) {
-        if (iv == 1)
-            SoilTemp[i][n0] = ts1[i];
-        else
-            SoilTemp[n0][i] = ts1[i];
-    }
-}
 /////////////////////////////////////////
 double ThermalCondSoil(double q0, double t0, int l0)
 //     This function computes and returns the thermal conductivity of the soil
@@ -464,38 +303,6 @@ double ThermalCondSoil(double q0, double t0, int l0)
        //     The result is hcond converted from mcal to cal.
     double result = hcond / 1000;
     return result;
-}
-////////////////////////////////////////////////////////////////////////////////////
-void HeatBalance(int nn)
-//     This function checks and corrects the heat balance in the soil soil
-//     cells, within
-//  a soil layer. It is called by function SoilHeatFlux() only for horizontal
-//  flux.
-//     The implicit part of the solution may cause some deviation in the total
-//     heat sum
-//  to occur. This module corrects the heat balance if the sum of absolute
-//  deviations is not zero, so that the total amount of heat in the array does
-//  not change. The correction is proportional to the difference between the
-//  previous and present heat amounts.
-//
-//     The following arguments are referenced here:
-//       nn - the number of soil cells in this layer or column.
-//     The following global or file scope variables are referenced:
-//       dz, hcap, ts0
-//     The following file scope variable is set:    ts1
-{
-    double dabs = 0;  // Sum of absolute value of differences in heat content in
-                      // the array between beginning and end of this time step.
-    double dev = 0;   // Sum of differences of heat amount in soil.
-    for (int i = 0; i < nn; i++) {
-        dev += dz[i] * hcap[i] * (ts1[i] - ts0[i]);
-        dabs += fabs(ts1[i] - ts0[i]);
-    }
-    if (dabs > 0) {
-        for (int i = 0; i < nn; i++)
-            ts1[i] =
-                ts1[i] - fabs(ts1[i] - ts0[i]) * dev / (dabs * dz[i] * hcap[i]);
-    }
 }
 ////////////////////////////////////////////////////////////////////////////////////
 void PredictEmergence(int hour)

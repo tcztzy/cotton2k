@@ -1,7 +1,8 @@
 use crate::meteorology::Meteorology;
-use crate::plant::Plant;
 use crate::plant::growth::PlantGrowth;
-use crate::soil_temperature::SoilThermology;
+use crate::plant::growth::{LeafResistance, PhysiologicalAge};
+use crate::plant::Plant;
+use crate::soil_temperature::{Soil, SoilThermology};
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
     addwtbl, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday, rracol, thad,
@@ -13,18 +14,17 @@ use crate::{
     DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
     FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea,
     LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc,
-    LeafNitrogen, LightIntercept, LightInterceptLayer, LightInterceptMethod,
-    LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation,
-    MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru,
-    NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches,
-    PerPlantArea, PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile,
-    ReferenceETP, RootColNumLeft, RootWtCapblUptake, RootsCapableOfUptake, RowSpace,
-    SaturatedHydCond, Scratch21, SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal,
-    SoilNitrogenLoss, SoilPsi, SoilSum, StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight,
-    VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem,
-    WaterTableLayer, WaterUptake, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
+    LeafNitrogen, LightIntercept, LightInterceptLayer, LightInterceptMethod, LocationColumnDrip,
+    LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation, MaxWaterCapacity,
+    NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru, NumFruitBranches,
+    NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, PerPlantArea,
+    PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile, ReferenceETP,
+    RootColNumLeft, RootWtCapblUptake, RootsCapableOfUptake, RowSpace, SaturatedHydCond, Scratch21,
+    SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum,
+    StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
+    VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
+    CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
-use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use chrono::{Datelike, NaiveDate};
 
 #[derive(Debug, Clone, Copy)]
@@ -35,6 +35,7 @@ pub struct State {
     pub rracol: [f64; 20],
 
     pub plant: Plant,
+    pub soil: Soil,
 }
 
 impl State {
@@ -44,6 +45,7 @@ impl State {
             plant_height: 4.0,
             rracol: [1.; 20],
             plant: Plant::new(),
+            soil: Soil::new(),
         }
     }
 
