@@ -44,37 +44,39 @@ impl Meteorology for State {
     /// Global variables set:
     /// AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
     unsafe fn meteorology(&mut self, profile: &Profile) {
-        //     Compute day length and related variables:
+        // Compute day length and related variables:
         ComputeDayLength(profile);
-        //
-        let xlat = profile.latitude * std::f64::consts::PI / 180.; // latitude converted to radians.
-        let cd = xlat.cos() * declination.cos(); // amplitude of the sine of the solar height.
-        let sd = xlat.sin() * declination.sin(); // seasonal offset of the sine of the solar height.
-                                                 // The computation of the daily integral of global radiation (from sunrise to sunset) is based on Spitters et al. (1986).
-        const c11: f64 = 0.4; // constant parameter.
-        let radsum =            // daily radiation integral.
-    if (sd / cd).abs() >= 1. {
-        //  arctic circle
-        0.
-    } else {
-        //     dsbe is the integral of sinb * (1 + c11 * sinb) from sunrise to
-        //     sunset,
-        let dsbe = (-sd / cd).acos() * 24. / std::f64::consts::PI * (sd + c11 * sd * sd + 0.5 * c11 * cd * cd) + 12. * (cd * (2. + 3. * c11 * sd)) * (1. - (sd / cd) * (sd / cd)).sqrt() / std::f64::consts::PI;
-        //     The daily radiation integral is computed for later use in
-        //     function Radiation.
-        //  Daily radiation intedral is converted from langleys to Watt m-2, and
-        //  divided by dsbe.
-        //      11.630287 = 1000000 / 3600 / 23.884
-        GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 11.630287 / dsbe
-    };
+        // latitude converted to radians.
+        let xlat = profile.latitude.to_radians();
+        // amplitude of the sine of the solar height.
+        let cd = xlat.cos() * declination.cos();
+        // seasonal offset of the sine of the solar height.
+        let sd = xlat.sin() * declination.sin();
+        // The computation of the daily integral of global radiation (from sunrise to sunset) is based on Spitters et al. (1986).
+        // constant parameter.
+        const c11: f64 = 0.4;
+        // daily radiation integral.
+        let radsum = if (sd / cd).abs() >= 1. {
+            //  arctic circle
+            0.
+        } else {
+            // dsbe is the integral of sinb * (1 + c11 * sinb) from sunrise to sunset,
+            let dsbe = (-sd / cd).acos() * 24. / std::f64::consts::PI
+                * (sd + c11 * sd * sd + 0.5 * c11 * cd * cd)
+                + 12. * (cd * (2. + 3. * c11 * sd)) * (1. - (sd / cd) * (sd / cd)).sqrt()
+                    / std::f64::consts::PI;
+            // The daily radiation integral is computed for later use in function Radiation.
+            // Daily radiation intedral is converted from langleys to Watt m-2, and divided by dsbe.
+            //   11.630287 = 1000000 / 3600 / 23.884
+            GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 11.630287 / dsbe
+        };
         // Set 'pollination switch' for rainy days (as in GOSSYM).
         // The amount of rain today, mm
         let mut rainToday = GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
         bPollinSwitch = rainToday < 2.5;
-        //     Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
-        //     Note: this is modified from the original GOSSYM - RRUNOFF routine. It
-        //     is called here
-        //  for rainfall only, but it is not activated when irrigation is applied.
+        // Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
+        // Note: this is modified from the original GOSSYM - RRUNOFF routine.
+        // It is called here for rainfall only, but it is not activated when irrigation is applied.
         let mut runoffToday = 0.; // amount of runoff today, mm
         if rainToday >= 2. {
             runoffToday = SimulateRunoff(rainToday);
@@ -87,8 +89,8 @@ impl Meteorology for State {
             Clim[j as usize].Rain = rainToday;
         }
         Scratch21[(DayOfSimulation - 1) as usize].runoff = runoffToday;
-        //     Parameters for the daily wind function are now computed:
-        //     Note:  SitePar[] are site specific parameters.
+        // Parameters for the daily wind function are now computed:
+        // Note:  SitePar[] are site specific parameters.
         let t1 = sunr + SitePar[1]; // the hour at which wind begins to blow
                                     // (SitePar(1) hours after sunrise).
         let t2 = SolarNoon + SitePar[2]; // the hour at which wind speed is maximum
@@ -401,20 +403,16 @@ unsafe fn ComputeDayLength(profile: &Profile) {
     sunr = SolarNoon - DayLength / 2.;
     suns = sunr + DayLength;
 }
-//     Function dayrad() computes the hourly values of global radiation, in W
-//     m-2,
-//  using the measured daily total global radiation.
-//     The algorithm follows the paper of Spitters et al. (1986). It assumes
-//  that atmospheric transmission of radiation is lower near the margins of
-//  the daylight period, because of an increase in the path length through
-//  the atmosphere at lower solar heights. Radiation is therefore assumed to be
-//  proportional to sinb * (1 + c11 * sinb), where the value of c11 is set as
-//  0.4 .
-//     Input arguments:
-//        radsum - daily radiation integral.
-//        sinb - sine of the solar elevation.
-//        c11 - constant parameter (0.4).
-//
+/// Computes the hourly values of global radiation, in W m-2, using the measured daily total global radiation.
+/// The algorithm follows the paper of Spitters et al. (1986).
+/// It assumes that atmospheric transmission of radiation is lower near the margins of the daylight period,
+/// because of an increase in the path length through the atmosphere at lower solar heights.
+/// Radiation is therefore assumed to be proportional to sinb * (1 + c11 * sinb), where the value of c11 is set as 0.4 .
+///
+/// Input arguments:
+/// radsum - daily radiation integral.
+/// sinb - sine of the solar elevation.
+/// c11 - constant parameter (0.4).
 fn dayrad(radsum: f64, sinb: f64, c11: f64) -> f64 {
     let HourlyRadiation = radsum * sinb * (1. + c11 * sinb);
     if HourlyRadiation < 0. {
@@ -433,20 +431,15 @@ fn dayrad(radsum: f64, sinb: f64, c11: f64) -> f64 {
     //  Agricultural Systems 51:377-393.
 }
 
-///     Function dayrh() computes the hourly values of relative humidity, using
-//     the hourly air
-//  and dew point temperatures. It calls function VaporPressure().
-//     If the estimated dew point is higher than the actual air temperature, its
-//     value is
-//  taken as the air temperature (relative humidity 100%).
-//     The relative humidity is calculated as the percentage ratio of the
-//     saturated vapor
-//  pressure at dew point temperature and the saturated vapor pressure at actual
-//  air temperature.
-//     Input arguments:
-//        tt - air temperature C at this time of day.
-//        tdew - dew point temperature C at this time of day.
-//
+/// Computes the hourly values of relative humidity, using the hourly air and dew point temperatures.
+/// It calls function [VaporPressure()].
+/// If the estimated dew point is higher than the actual air temperature, its value is taken as the air temperature (relative humidity 100%).
+///
+/// The relative humidity is calculated as the percentage ratio of the saturated vapor pressure at dew point temperature and the saturated vapor pressure at actual air temperature.
+///
+/// Input arguments:
+/// tt - air temperature C at this time of day.
+/// tdew - dew point temperature C at this time of day.
 fn dayrh(tt: f64, tdew: f64) -> f64 {
     let td = fmin(tt, tdew); // the dew point temperature (C), is assumed to
                              // be tt if tt < tdew.
@@ -467,52 +460,58 @@ fn dayrh(tt: f64, tdew: f64) -> f64 {
     //  Agricultural Systems 51:377-393.
 }
 
-//     The daywnd function computes the hourly values of wind speed
-//  (m / sec), estimated from the measured total daily wind run.
-//     Input arguments:
-//       t1 = the hour at which day-time wind begins to blow.
-//       t2 = the hour at which day-time wind speed is maximum.
-//       t3 = the hour at which day-time wind ceases to blow.
-//       ti = the hour of the day.
-//       wind = the daily total wind run (km per day).
-//       wnytf = Factor for estimating night-time wind (from time
-//               t3 to time t1 next day).
-//
-//     The algorithm is described by Ephrath et al. (1996). It is based on the
-//	following assumptions:
-//     Although the variability of wind speed during any day is very
-//  large, the diurnal wind speed curves appear to be characterized by
-//  the following repetitive pattern: increase in wind speed from time
-//  t1 in the morning to time t2 in the afternoon, decrease from t2 to t3
-//  in the evening, and a low constant wind speed at night, from t3 to t1
-//  in the next day.
-//     The values of t1, t2, and t3 have been determined in the calling routine:
-//  t1 is SitePar(1) hours after sunrise, t2 is SitePar(2) hours after solar
-//  noon, and t3 is SitePar(3) hours after sunset. These parameters are site-
-//  specific. They are 1, 3, and 0, respectively, for the San Joaquin valley of
-//  California and for Arizona, and 1, 4, and 2, respectively, for the coastal
-//  plain of israel.
-//     The wind speed during the night, from t3 to t1 next day (wmin)
-//  is assumed to be proportional to the daily total wind run. The
-//  ratio wnytf is also site-specific, SitePar(4), ( 0.008 for San Joaquin
-//  and Arizona, 0.0025 for the coastal plain of Israel). wmin is the minimum
-//  wind speed from t1 to t3.
-//      wtday is computed by subtracting the daily integral of wmin, after
-//  converting it from m/sec to km/day, from the total daily wind run (wndt).
-//      wmax, the maximum wind speed at time t2 (minus wmin), is
-//  computed from wtday and converted to m/sec.
-//      daywnd from t1 to t2 is now computed as an increasing
-//  sinusoidal function from wmin to wmin + wmax, and it is computed from
-//  t2 to t3 as a decreasing sinusoidal function from wmin + wmax to  wmin.
-//
+/// Computes the hourly values of wind speed (m / sec), estimated from the measured total daily wind run.
+///
+/// Input arguments:
+///
+/// t1 = the hour at which day-time wind begins to blow.
+/// t2 = the hour at which day-time wind speed is maximum.
+/// t3 = the hour at which day-time wind ceases to blow.
+/// ti = the hour of the day.
+/// wind = the daily total wind run (km per day).
+/// wnytf = Factor for estimating night-time wind (from time t3 to time t1 next day).
+///
+/// The algorithm is described by Ephrath et al. (1996). It is based on the following assumptions:
+///
+/// Although the variability of wind speed during any day is very large, the diurnal wind speed curves appear to be characterized by
+/// the following repetitive pattern: increase in wind speed from time
+/// t1 in the morning to time t2 in the afternoon, decrease from t2 to t3
+/// in the evening, and a low constant wind speed at night, from t3 to t1
+/// in the next day.
+///
+/// The values of t1, t2, and t3 have been determined in the calling routine:
+/// t1 is SitePar(1) hours after sunrise, t2 is SitePar(2) hours after solar
+/// noon, and t3 is SitePar(3) hours after sunset. These parameters are site-
+/// specific. They are 1, 3, and 0, respectively, for the San Joaquin valley of
+/// California and for Arizona, and 1, 4, and 2, respectively, for the coastal
+/// plain of israel.
+///
+/// The wind speed during the night, from t3 to t1 next day (wmin)
+/// is assumed to be proportional to the daily total wind run. The
+/// ratio wnytf is also site-specific, SitePar(4), ( 0.008 for San Joaquin
+/// and Arizona, 0.0025 for the coastal plain of Israel). wmin is the minimum
+/// wind speed from t1 to t3.
+///
+/// wtday is computed by subtracting the daily integral of wmin, after
+/// converting it from m/sec to km/day, from the total daily wind run (wndt).
+///
+/// wmax, the maximum wind speed at time t2 (minus wmin), is
+/// computed from wtday and converted to m/sec.
+
+/// daywnd from t1 to t2 is now computed as an increasing
+/// sinusoidal function from wmin to wmin + wmax, and it is computed from
+/// t2 to t3 as a decreasing sinusoidal function from wmin + wmax to  wmin.
 fn daywnd(ti: f64, wind: f64, t1: f64, t2: f64, t3: f64, wnytf: f64) -> f64 {
     let HourlyWind;
-    //   constants related to t1, t2, t3 :
+    // constants related to t1, t2, t3 :
     let sf1 = 4. * (t2 - t1);
     let sf2 = 4. * (t3 - t2);
-    let wmin = wind * wnytf; //  the constant minimum wind speed during the night (m/sec).
-    let wtday = wind - wmin * 3.6 * 24.; //  integral of wind run from t1 to t3, minus wmin (km).
-    let wmax = wtday * 2. * std::f64::consts::PI / 3.6 / (sf1 + sf2); //  the maximum wind speed (m per sec), above wmin.
+    // the constant minimum wind speed during the night (m/sec).
+    let wmin = wind * wnytf;
+    // integral of wind run from t1 to t3, minus wmin (km).
+    let wtday = wind - wmin * 3.6 * 24.;
+    // the maximum wind speed (m per sec), above wmin.
+    let wmax = wtday * 2. * std::f64::consts::PI / 3.6 / (sf1 + sf2);
 
     if ti >= t1 && ti < t2 {
         HourlyWind = wmin + wmax * (2. * std::f64::consts::PI * (ti - t1) / sf1).sin();
@@ -522,22 +521,14 @@ fn daywnd(ti: f64, wind: f64, t1: f64, t2: f64, t3: f64, wnytf: f64) -> f64 {
         HourlyWind = wmin;
     }
     return HourlyWind;
-    //
-    //     Reference:
+    // Reference:
     //     Ephrath, J.E., Goudriaan, J. and Marani, A. 1996. Modelling
     //  diurnal patterns of air temperature, radiation, wind speed and
     //  relative humidity by equations from daily characteristics.
     //  Agricultural Systems 51:377-393.
 }
 
-//     Function AverageAirTemperatures() calculates daily average temperatures,
-//     daytime
-//  average and night time average.
-//     Global variables referenced:
-//        AirTemp[], Radiation[].
-//     Global variables computed:
-//        AvrgDailyTemp, NightTimeTemp, DayTimeTemp.
-//
+/// Calculates daily average temperatures, daytime average and night time average.
 unsafe fn AverageAirTemperatures() {
     let mut nn1 = 0; // counter of night hours
     let mut nn2 = 0; // counter of daytime hours
@@ -555,27 +546,17 @@ unsafe fn AverageAirTemperatures() {
             nn2 += 1;
         }
     }
-    //
     AvrgDailyTemp = AvrgDailyTemp / 24.;
     NightTimeTemp /= nn1 as f64;
     DayTimeTemp /= nn2 as f64;
 }
-/// VaporPressure() computes the water vapor pressure in the air (in KPa units) as a function of the air at temperature tt (C). This equation is widely used.
+/// Computes the water vapor pressure in the air (in KPa units) as a function of the air at temperature tt (C). This equation is widely used.
 pub fn VaporPressure(tt: f64) -> f64 {
     0.61078 * (17.269 * tt / (tt + 237.3)).exp()
 }
-///     Function EvapoTranspiration() computes the rate of reference
-//     evapotranspiration
-//  and related variables. The following subroutines and functions are called
-//  for each hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(),
-//  clearskyemiss(), del(), gam().
-//     Global variables used:
-//        declination, Elevation, Latitude, pi, Radiation, RelativeHumidity,
-//        SitePar, AirTemp.
-//     Global variables computed: CloudCoverRatio, CloudTypeCorr, albedo, rnet,
-//     ReferenceETP,
-//        es1hour, es2hour, ReferenceTransp.
-//     argument: jtout - index indicating if output is required.
+/// Computes the rate of reference evapotranspiration and related variables.
+/// The following subroutines and functions are called for each hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(),
+/// [clearskyemiss()], [del()], [gam()].
 unsafe fn EvapoTranspiration(profile: &Profile) {
     const stefb: f64 = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
     const c12: f64 = 0.125; // c12 ... c15 are constant parameters.
@@ -613,82 +594,73 @@ unsafe fn EvapoTranspiration(profile: &Profile) {
     Rn = 0.; // daily net radiation
     let mut rnet: [f64; 24] = [0.; 24]; // hourly net radiation
     for ihr in 0..24 as usize {
-        //      Compute saturated vapor pressure (svp), using function
-        //      VaporPressure(). The actual vapor pressure (vp) is computed from
-        //      svp and the
-        //  relative humidity. Compute vapor pressure deficit (vpd). This
-        //  procedure is based on the CIMIS algorithm.
-        let svp = VaporPressure(AirTemp[ihr]); // saturated vapor pressure, mb
-        let vp = 0.01 * RelativeHumidity[ihr] * svp; // vapor pressure, mb
-        let vpd = svp - vp; // vapor pressure deficit, mb.
-                            //   Get cloud cover and cloud correction for night hours
+        // Compute saturated vapor pressure (svp), using function VaporPressure().
+        // The actual vapor pressure (vp) is computed from svp and the relative humidity.
+        // Compute vapor pressure deficit (vpd). This procedure is based on the CIMIS algorithm.
+        //
+        // saturated vapor pressure, mb
+        let svp = VaporPressure(AirTemp[ihr]);
+        // vapor pressure, mb
+        let vp = 0.01 * RelativeHumidity[ihr] * svp;
+        // vapor pressure deficit, mb.
+        let vpd = svp - vp;
+        // Get cloud cover and cloud correction for night hours
         if ihr < iamhr || ihr > ipmhr {
             CloudCoverRatio[ihr] = 0.;
             CloudTypeCorr[ihr] = 0.;
         }
-        //     The hourly net radiation is computed using the CIMIS algorithm
-        //     (Dong et al., 1988): rlonin, the hourly incoming long wave
-        //     radiation, is computed from ea0, cloud cover
-        //  (CloudCoverRatio), air temperature (tk),  stefb, and cloud type
-        //  correction (CloudTypeCorr).
-        //     rnet, the hourly net radiation, W m-2, is computed from the
-        //     global radiation, the albedo,
-        //  the incoming long wave radiation, and the outgoing longwave
-        //  radiation.
-        let tk = AirTemp[ihr] + 273.161; // hourly air temperature in Kelvin.
-        let ea0 = clearskyemiss(vp, tk); // clear sky emissivity for long wave radiation
-                                         //     Compute incoming long wave radiation:
+        // The hourly net radiation is computed using the CIMIS algorithm (Dong et al., 1988): rlonin, the hourly incoming long wave
+        // radiation, is computed from ea0, cloud cover
+        // (CloudCoverRatio), air temperature (tk),  stefb, and cloud type
+        // correction (CloudTypeCorr).
+        //
+        // rnet, the hourly net radiation, W m-2, is computed from the  global radiation, the albedo, the incoming long wave radiation, and the outgoing longwave radiation.
+        // hourly air temperature in Kelvin.
+        let tk = AirTemp[ihr] + 273.161;
+        // clear sky emissivity for long wave radiation
+        let ea0 = clearskyemiss(vp, tk);
+        // Compute incoming long wave radiation:
         let rlonin =
             (ea0 * (1. - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefb * tk.powi(4)
                 - CloudTypeCorr[ihr];
         rnet[ihr] = (1. - albedo[ihr]) * Radiation[ihr] + rlonin - stefb * tk.powi(4);
         Rn += rnet[ihr];
-        //     The hourly reference evapotranspiration ReferenceETP is computed
-        //     by the
-        //  CIMIS algorithm using the modified Penman equation:
-        //     The weighting ratio (w) is computed from the functions del() (the
-        //     slope of the saturation
-        //  vapor pressure versus air temperature) and gam() (the psychometric
-        //  constant).
-        let w = del(tk, svp) / (del(tk, svp) + gam(Elevation, AirTemp[ihr])); // coefficient of the Penman equation
-                                                                              //     The wind function (fu2) is computed using different sets of
-                                                                              //     parameters
-                                                                              //  for day-time and night-time. The parameter values are as suggested
-                                                                              //  by CIMIS.
-                                                                              // wind function for computing evapotranspiration
+        // The hourly reference evapotranspiration ReferenceETP is computed by the CIMIS algorithm using the modified Penman equation:
+        // The weighting ratio (w) is computed from the functions del() (the slope of the saturation vapor pressure versus air temperature) and gam() (the psychometric constant).
+        //
+        // coefficient of the Penman equation
+        let w = del(tk, svp) / (del(tk, svp) + gam(Elevation, AirTemp[ihr]));
+        // The wind function (fu2) is computed using different sets of parameters for day-time and night-time.
+        // The parameter values are as suggested by CIMIS.
+        //
+        // wind function for computing evapotranspiration
         let fu2 = if Radiation[ihr] <= 0. {
             c12 + c13 * WindSpeed[ihr]
         } else {
             c14 + c15 * WindSpeed[ihr]
         };
-        //     hlathr, the latent heat for evaporation of water (W m-2 per mm at
-        //     this hour) is
-        //  computed as a function of temperature.
+        // hlathr, the latent heat for evaporation of water (W m-2 per mm at this hour) is computed as a function of temperature.
         let hlathr = 878.61 - 0.66915 * (AirTemp[ihr] + 273.161);
-        //     ReferenceETP, the hourly reference evapotranspiration, is now
-        //     computed by the
-        //  modified Penman equation.
+        // ReferenceETP, the hourly reference evapotranspiration, is now computed by the modified Penman equation.
         ReferenceETP[ihr] = w * rnet[ihr] / hlathr + (1. - w) * vpd * fu2;
         if ReferenceETP[ihr] < 0. {
             ReferenceETP[ihr] = 0.;
         }
-        //     ReferenceTransp is the sum of ReferenceETP
+        // ReferenceTransp is the sum of ReferenceETP
         ReferenceTransp += ReferenceETP[ihr];
-        //     es1hour and es2hour are computed as the hourly potential
-        //     evapotranspiration due to
-        //  radiative and aerodynamic factors, respectively.
-        //     es1hour and ReferenceTransp are not computed for periods of
-        //     negative net radiation.
+        // es1hour and es2hour are computed as the hourly potential evapotranspiration due to radiative and aerodynamic factors, respectively.
+        // es1hour and ReferenceTransp are not computed for periods of negative net radiation.
         es2hour[ihr] = (1. - w) * vpd * fu2;
         if rnet[ihr] > 0. {
             es1hour[ihr] = w * rnet[ihr] / hlathr;
         } else {
             es1hour[ihr] = 0.;
         }
-    } //   end of 2nd hourly loop
+    }
 }
 
 /// Function clearskyemiss() estimates clear sky emissivity for long wave radiation.
+///
 /// Input arguments:
 /// * `vp` - vapor pressure of the air in KPa
 /// * `tk` - air temperature in K.
@@ -703,11 +675,11 @@ pub fn clearskyemiss(vp: f64, tk: f64) -> f64 {
     } else {
         ea0
     }
+    // Reference:
+    // Idso, S.B. 1981. A set of equations for full spectrum and 8- to 14-um
+    // and 10.5- to 12.5- um thermal radiation from cloudless skies. Water
+    // Resources Res. 17:295.
 }
-//    Reference:
-//      Idso, S.B. 1981. A set of equations for full spectrum and 8- to 14-um
-// and 10.5- to 12.5- um thermal radiation from cloudless skies. Water
-// Resources Res. 17:295.
 
 /// Computes cloud cover for this hour from radiation data, using the CIMIS algorithm.
 /// The return value is cloud cover ratio ( 0 to 1 )
@@ -738,11 +710,10 @@ fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64 {
     } else {
         0.
     }
+    // Reference:
+    // Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of daily and hourly net radiation.
+    // CIMIS Final Report June 1988, pp.58-79.
 }
-//      Reference:
-//      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
-// daily and hourly net radiation. CIMIS Final Report June 1988, pp.
-// 58-79.
 
 /// Computes cloud type correction, using the CIMIS algorithm.
 ///
@@ -774,11 +745,10 @@ unsafe fn clcor(ihr: usize, ck: f64, isrhr: f64, coszhr: f64) -> f64 {
     } else {
         0.
     }
+    // Reference:
+    // Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of daily and hourly net radiation.
+    // CIMIS Final Report June 1988, pp.58-79.
 }
-//      Reference:
-//      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
-// daily and hourly net radiation. CIMIS Final Report June 1988, pp.
-// 58-79.
 
 /// Computes the slope of the saturation vapor pressure (svp, in mb) versus air temperature (tk, in K).
 /// This algorithm is the same as used by CIMIS.
@@ -826,12 +796,12 @@ fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64 {
     } else {
         p4
     }
+    // Reference:
+    // Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of daily and hourly net radiation.
+    // CIMIS Final Report June 1988, pp. 58-79.
 }
-//      Reference:
-//      Dong, A., Prashar, C.K. and Grattan, S.R. 1988. Estimation of
-// daily and hourly net radiation. CIMIS Final Report June 1988, pp. 58-79.
 
-/// computes sun angle for any time of day.
+/// Computes sun angle for any time of day.
 ///
 /// Input argument:
 /// * `latitude` - latitude in degree.
@@ -842,13 +812,14 @@ fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64 {
 /// * `coszhr` - cosine of sun angle from zenith for this hour.
 /// * `sunahr` - sun angle from horizon, degrees.
 unsafe fn sunangle(latitude: f64, ti: f64, coszhr: &mut f64, sunahr: &mut f64) {
-    //      The latitude is converted to radians (xlat).
-    let xlat = latitude * std::f64::consts::PI / 180.; // latitude in radians.
-                                                       // amplitude of the sine of the solar height, computed as the product of cosines of latitude and declination angles.
+    // The latitude is converted to radians (xlat).
+    let xlat = latitude.to_radians();
+    // amplitude of the sine of the solar height, computed as the product of cosines of latitude and declination angles.
     let cd = xlat.cos() * declination.cos();
     // seasonal offset of the sine of the solar height, computed as the product of sines of latitude and declination angles.
     let sd = xlat.sin() * declination.sin();
-    let hrangle = 15. * (ti - SolarNoon) * std::f64::consts::PI / 180.; // hourly angle converted to radians
+    // hourly angle converted to radians
+    let hrangle = 15. * (ti - SolarNoon) * std::f64::consts::PI / 180.;
     *coszhr = sd + cd * hrangle.cos();
     if *coszhr <= 0. {
         *coszhr = 0.;
@@ -861,58 +832,54 @@ unsafe fn sunangle(latitude: f64, ti: f64, coszhr: &mut f64, sunahr: &mut f64) {
     }
 }
 
-//     This function is called from DayClim() and is executed on each day with
-//     raifall more
-//  than 2 mm. It computes the runoff and the retained portion of the rainfall.
-//  Note: This function is based on the code of GOSSYM. No changes have been
-//  made from the original GOSSYM code (except translation to C++). It has not
-//  been validated by actual field measurement.
-//     It calculates the portion of rainfall that is lost to runoff, and reduces
-//     rainfall to the
-//  amount which is actually infiltrated into the soil. It uses the soil
-//  conservation service method of estimating runoff.
-//     References:
-//  - Brady, Nyle C. 1984. The nature and properties of soils, 9th ed. Macmillan
-//  Publishing Co.
-//  - Schwab, Frevert, Edminster, and Barnes. 1981. Soil and water conservation
-//  engineering, 3rd ed. John Wiley & Sons, Inc.
-//
-//     The following global variables are referenced here:
-//  ClayVolumeFraction, Daynum, DayStart, Irrig (structure), NumIrrigations,
-//  SandVolumeFraction.
-//     The argument used here:  rain = today,s rainfall.
-//     The return value:  the amount of water (mm) lost by runoff.
+/// This function is called from DayClim() and is executed on each day with raifall more than 2 mm.
+/// It computes the runoff and the retained portion of the rainfall.
+///
+/// Note: This function is based on the code of GOSSYM. No changes have been made from the original GOSSYM code (except translation to C++).
+/// It has not been validated by actual field measurement.
+///
+/// It calculates the portion of rainfall that is lost to runoff, and reduces rainfall to the amount which is actually infiltrated into the soil.
+/// It uses the soil conservation service method of estimating runoff.
+/// References:
+/// - Brady, Nyle C. 1984. The nature and properties of soils, 9th ed. Macmillan Publishing Co.
+/// - Schwab, Frevert, Edminster, and Barnes. 1981. Soil and water conservation engineering, 3rd ed. John Wiley & Sons, Inc.
+///
+/// The following global variables are referenced here:
+/// ClayVolumeFraction, Daynum, DayStart, Irrig (structure), NumIrrigations, SandVolumeFraction.
+///
+/// The argument used here:  rain = today,s rainfall.
+/// The return value:  the amount of water (mm) lost by runoff.
 unsafe fn SimulateRunoff(rain: f64) -> f64 {
-    static mut bFirst: bool = true; // if this is the first time the function is called.
-    static mut iGroup: i32 = 0; // soil group number (by clay and sand in upper soil layer)
-    static mut d01: f64 = 0.; // Adjustment of curve number for soil groups A,B,C.
-                              //     The following is computed only the first time the function is called.
-                              //     Infiltration rate is estimated from the percent sand and percent clay
-                              //     in the Ap layer.
-                              //  If clay content is greater than 35%, the soil is assumed to have a
-                              //  higher runoff potential, if clay content is less than 15% and sand is
-                              //  greater than 70%, a lower runoff potential is assumed. Other soils
-                              //  (loams) assumed moderate runoff potential. No 'impermeable' (group D)
-                              //  soils are assumed.  References: Schwab, Brady.
+    // if this is the first time the function is called.
+    static mut bFirst: bool = true;
+    // soil group number (by clay and sand in upper soil layer)
+    static mut iGroup: i32 = 0;
+    // Adjustment of curve number for soil groups A,B,C.
+    static mut d01: f64 = 0.;
+    // The following is computed only the first time the function is called.
+    // Infiltration rate is estimated from the percent sand and percent clay in the Ap layer.
+    // If clay content is greater than 35%, the soil is assumed to have a
+    // higher runoff potential, if clay content is less than 15% and sand is
+    // greater than 70%, a lower runoff potential is assumed. Other soils
+    // (loams) assumed moderate runoff potential. No 'impermeable' (group D)
+    // soils are assumed.  References: Schwab, Brady.
     if bFirst {
         if SandVolumeFraction[0] > 0.70 && ClayVolumeFraction[0] < 0.15 {
-            //     Soil group A = 1, low runoff potential
+            // Soil group A = 1, low runoff potential
             iGroup = 1;
             d01 = 1.0;
         } else if ClayVolumeFraction[0] > 0.35 {
-            //     Soil group C = 3, high runoff potential
+            // Soil group C = 3, high runoff potential
             iGroup = 3;
             d01 = 1.14;
         } else {
-            //     Soil group B = 2, moderate runoff potential
+            // Soil group B = 2, moderate runoff potential
             iGroup = 2;
             d01 = 1.09;
         }
         bFirst = false;
     }
-    //     Loop to accumulate 5-day antecedent rainfall (mm) which will affect
-    //     the soil's ability
-    //  to accept new rainfall. This also includes all irrigations.
+    // Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability to accept new rainfall. This also includes all irrigations.
     let mut i01 = Daynum - 5;
     if i01 < DayStart {
         i01 = DayStart;
@@ -930,7 +897,7 @@ unsafe fn SimulateRunoff(rain: f64) -> f64 {
     }
     // Adjusting curve number for antecedent rainfall conditions.
     let d02: f64 = if PreviousWetting < 36. {
-        //  low moisture, low runoff potential.
+        // low moisture, low runoff potential.
         if iGroup == 1 {
             0.71
         } else if iGroup == 2 {
@@ -941,7 +908,7 @@ unsafe fn SimulateRunoff(rain: f64) -> f64 {
             1.
         }
     } else if PreviousWetting > 53. {
-        //  wet conditions, high runoff potential.
+        // wet conditions, high runoff potential.
         if iGroup == 1 {
             1.24
         } else if iGroup == 2 {
@@ -952,12 +919,13 @@ unsafe fn SimulateRunoff(rain: f64) -> f64 {
             1.
         }
     } else {
-        //  moderate conditions
+        // moderate conditions
         1.
     };
-    //  Assuming straight rows, and good cropping practice:
-    let crvnum = 78.0 * d01 * d02; // Runoff curve number, adjusted for moisture and soil type.
-                                   // maximum potential difference between rainfall and runoff.
+    // Assuming straight rows, and good cropping practice:
+    // Runoff curve number, adjusted for moisture and soil type.
+    let crvnum = 78.0 * d01 * d02;
+    // maximum potential difference between rainfall and runoff.
     let d03 = 25400. / crvnum - 254.;
     if rain <= 0.2 * d03 {
         0.
