@@ -628,13 +628,12 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: Atm
     const c15: f64 = 0.0576;
     let mut iamhr: usize = 0; // earliest time in day for computing cloud cover
     let mut ipmhr: usize = 0; // latest time in day for computing cloud cover
-    let mut cosz: f64 = 0.; // cosine of sun angle from zenith for this hour
-    let mut suna: f64 = 0.; // sun angle from horizon, degrees at this hour
     let mut isr: f64; // hourly extraterrestrial radiation in W / m**2
 
     for ihr in 0..24 as usize {
         // The following subroutines and functions are called for each hour: sunangle, cloudcov, clcor, refalbed .
-        sunangle(
+        // cosine of sun angle from zenith for this hour
+        let cosz = sunangle(
             profile.latitude,
             atmosphere
                 .timezone
@@ -643,9 +642,9 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: Atm
                 .unwrap(),
             atmosphere.declination,
             atmosphere.solar_noon,
-            &mut cosz,
-            &mut suna,
         );
+        // sun angle from horizon, degrees at this hour
+        let suna = (cosz.acos().to_degrees() - 90.).abs();
         isr = atmosphere.tmpisr * cosz;
         CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
         //      clcor is called to compute cloud-type correction.
@@ -900,14 +899,12 @@ fn refalbed(isrhr: f64, rad: f64, coszhr: f64, sunahr: f64) -> f64 {
 ///
 /// * `coszhr` - cosine of sun angle from zenith for this hour.
 /// * `sunahr` - sun angle from horizon, degrees.
-unsafe fn sunangle(
+fn sunangle(
     latitude: f64,
     ti: DateTime<FixedOffset>,
     declination: f64,
     solar_noon: DateTime<FixedOffset>,
-    coszhr: &mut f64,
-    sunahr: &mut f64,
-) {
+) -> f64 {
     // The latitude is converted to radians (xlat).
     let xlat = latitude.to_radians();
     // amplitude of the sine of the solar height, computed as the product of cosines of latitude and declination angles.
@@ -915,16 +912,14 @@ unsafe fn sunangle(
     // seasonal offset of the sine of the solar height, computed as the product of sines of latitude and declination angles.
     let sd = xlat.sin() * declination.sin();
     // hourly angle converted to radians
-    let hrangle = 15. * num_hours(ti - solar_noon) * std::f64::consts::PI / 180.;
-    *coszhr = sd + cd * hrangle.cos();
-    if *coszhr <= 0. {
-        *coszhr = 0.;
-        *sunahr = 0.;
-    } else if *coszhr >= 1. {
-        *coszhr = 1.;
-        *sunahr = 90.;
+    let hrangle = 15. * num_hours(ti - solar_noon).to_radians();
+    let result = sd + cd * hrangle.cos();
+    if result <= 0. {
+        0.
+    } else if result >= 1. {
+        1.
     } else {
-        *sunahr = (coszhr.acos() * 180. / std::f64::consts::PI - 90.).abs();
+        result
     }
 }
 
