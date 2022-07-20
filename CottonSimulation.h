@@ -71,7 +71,6 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[],
                   double nur[]);
 void NitrogenUptake(int l, int k, double reqnc);
 // P
-void PotentialFruitGrowth();
 void PotentialLeafGrowth();
 double PotentialStemGrowth(double stemnew);
 void PredictEmergence(int hour);

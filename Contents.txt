@@ -119,7 +119,6 @@ The Cotton Plant:
           PotentialStemGrowth()
           PotentialLeafGrowth()
           TemperatureOnLeafGrowthRate()
-          PotentialFruitGrowth()
           TemperatureOnFruitGrowthRate()
 
     File PlantGrowth_3.cpp

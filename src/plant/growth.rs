@@ -1,11 +1,13 @@
 use crate::plant::root::{PotentialRootGrowth, RootGrowth};
 use crate::{
     nadj, pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AdjAddHeightRate,
-    AgeOfPreFruNode, AgeOfSite, AirTemp, CarbonStress, DayInc, DensityFactor, DryMatterBalance,
-    FruitingCode, Kday, KdayAdjust, LeafAreaIndex, NStressVeg, NumAdjustDays, NumFruitBranches,
-    NumPreFruNodes, PerPlantArea, PlantHeight, PotGroAllRoots, PotGroStem, PotentialFruitGrowth,
-    PotentialLeafGrowth, PotentialStemGrowth, RowSpace, StemWeight, TotalLeafArea,
-    TotalPetioleWeight, TotalStemWeight, VarPar, WaterStressStem,
+    AgeOfBoll, AgeOfPreFruNode, AgeOfSite, AirTemp, CarbonStress, DayInc, DayLength, DayTimeTemp,
+    DensityFactor, DryMatterBalance, FruitFraction, FruitingCode, Kday, KdayAdjust, LeafAreaIndex,
+    NStressVeg, NightTimeTemp, NumAdjustDays, NumFruitBranches, NumNodes, NumPreFruNodes,
+    NumVegBranches, PerPlantArea, PlantHeight, PotGroAllBolls, PotGroAllBurrs, PotGroAllRoots,
+    PotGroAllSquares, PotGroBolls, PotGroBurrs, PotGroSquares, PotGroStem, PotentialLeafGrowth,
+    PotentialStemGrowth, RowSpace, StemWeight, TemperatureOnFruitGrowthRate, TotalLeafArea,
+    TotalPetioleWeight, TotalStemWeight, VarPar, WaterStress, WaterStressStem,
 };
 
 use super::Plant;
@@ -238,4 +240,143 @@ pub fn LeafResistance(agel: f64) -> f64 {
         } else {
             (agel - agelo) * (2. * agehi - agelo - agel) / afac
         }
+}
+/// Simulates the potential growth of fruiting sites of cotton plants.
+/// It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
+///
+/// The following gobal variables are referenced here:
+///       AgeOfBoll, AgeOfSite, DayLength, FruitingCode, FruitFraction,
+///       NumFruitBranches, NumNodes,  NumVegBranches, DayTimeTemp,
+///       NightTimeTemp, VarPar, WaterStress.
+///    The following global variables are set here:
+///       PotGroAllBolls, PotGroAllBurrs, PotGroAllSquares, PotGroBolls,
+///       PotGroBurrs, PotGroSquares.
+///References:
+///* Marani, A. 1979. Growth rate of cotton bolls and their
+///components. Field Crops Res. 2:169-175.
+///* Marani, A., Phene, C.J. and Cardon, G.E. 1992. CALGOS, a
+///version of GOSSYM adapted for irrigated cotton.  III. leaf and boll
+///growth routines. Beltwide Cotton Grow, Res. Conf. 1992:1361-1363.
+unsafe fn PotentialFruitGrowth() {
+    //     The constant parameters used:
+    const vpotfrt: [f64; 5] = [0.72, 0.30, 3.875, 0.125, 0.17];
+    //    Compute tfrt for the effect of temperature on boll and burr growth
+    //    rates. Function
+    // TemperatureOnFruitGrowthRate() is used (with parameters derived from
+    // GOSSYM), for day time and night time temperatures, weighted by day and
+    // night lengths.
+    // the effect of temperature on rate of boll, burr or square growth.
+    let tfrt = (DayLength * TemperatureOnFruitGrowthRate(DayTimeTemp)
+        + (24. - DayLength) * TemperatureOnFruitGrowthRate(NightTimeTemp))
+        / 24.;
+    //     Assign zero to sums of potential growth of squares, bolls and burrs.
+    PotGroAllSquares = 0.;
+    PotGroAllBolls = 0.;
+    PotGroAllBurrs = 0.;
+    //     Assign values for the boll growth equation parameters. These are
+    //     cultivar - specific.
+    let agemax = VarPar[9]; // maximum boll growth period (physiological days).
+    let rbmax = VarPar[10]; // maximum rate of boll (seed and lint) growth,
+                            // g per boll per physiological day.
+    let wbmax = VarPar[11]; // maximum possible boll (seed and lint) weight,
+                            // g per boll.
+                            //     Loop for all vegetative stems.
+    for k in 0..NumVegBranches as usize {
+        let nbrch = NumFruitBranches[k] as usize; // number of fruiting branches on a vegetative stem.
+        for l in 0..nbrch
+        // loop of fruiting branches
+        {
+            let nnid = NumNodes[k][l] as usize; // number of nodes on a fruiting branch.
+            for m in 0..nnid {
+                //     Calculate potential square growth for node (k,l,m).
+                //     Sum potential growth rates of squares as
+                //     PotGroAllSquares.
+                if FruitingCode[k][l][m] == 1 {
+                    //     ratesqr is the rate of square growth, g per square
+                    //     per day.
+                    //  The routine for this is derived from GOSSYM, and so are
+                    //  the parameters used.
+                    let ratesqr =
+                        tfrt * vpotfrt[3] * (-vpotfrt[2] + vpotfrt[3] * AgeOfSite[k][l][m]).exp();
+                    PotGroSquares[k][l][m] = ratesqr * FruitFraction[k][l][m];
+                    PotGroAllSquares += PotGroSquares[k][l][m];
+                }
+                //     Growth of seedcotton is simulated separately from the
+                //     growth of burrs.
+                //  The logistic function is used to simulate growth of
+                //  seedcotton. The constants of this function for cultivar
+                //  'Acala-SJ2', are based on the data of Marani (1979); they
+                //  are derived from calibration for other cultivars
+                //     agemax is the age of the boll (in physiological days
+                //     after
+                //  bloom) at the time when the boll growth rate is maximal.
+                //     rbmax is the potential maximum rate of boll growth (g
+                //     seeds
+                //  plus lint dry weight per physiological day) at this age.
+                //     wbmax is the maximum potential weight of seed plus lint
+                //     (g dry
+                //  weight per boll).
+                //     The auxiliary variable pex is computed as
+                //            pex = exp(-4 * rbmax * (t - agemax) / wbmax)
+                //  where t is the physiological age of the boll after bloom (=
+                //  agebol).
+                //     Boll weight (seed plus lint) at age T, according to the
+                //  logistic function is:
+                //            wbol = wbmax / (1 + pex)
+                //  and the potential boll growth rate at this age will be the
+                //  derivative of this function:
+                //            ratebol = 4 * rbmax * pex / (1. + pex)**2
+                else if FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7 {
+                    //     pex is an intermediate variable to compute boll
+                    //     growth.
+                    let pex = (-4. * rbmax * (AgeOfBoll[k][l][m] - agemax) / wbmax).exp();
+                    //  ratebol is the rate of boll (seed and lint) growth, g
+                    //  per boll per day.
+                    let ratebol = 4. * rbmax * pex / (1. + pex).powi(2) * tfrt;
+                    //     Potential growth rate of the burrs is assumed to be
+                    //     constant (vpotfrt[4] g dry weight
+                    //  per day) until the boll reaches its final volume. This
+                    //  occurs at the age of 22 physiological days in
+                    //  'Acala-SJ2'. Both ratebol and ratebur are modified by
+                    //  temperature (tfrt) and ratebur is also affected by water
+                    //  stress (wfdb).
+                    //     Compute wfdb for the effect of water stress on burr
+                    //     growth rate.
+                    //  wfdb is the effect of water stress on rate of burr
+                    //  growth.
+                    let mut wfdb = vpotfrt[0] + vpotfrt[1] * WaterStress;
+                    if wfdb < 0. {
+                        wfdb = 0.;
+                    }
+                    if wfdb > 1. {
+                        wfdb = 1.;
+                    }
+                    // rate of burr growth, g per boll per day.
+                    let ratebur = if AgeOfBoll[k][l][m] >= 22. {
+                        0.
+                    } else {
+                        vpotfrt[4] * tfrt * wfdb
+                    };
+                    //     Potential boll (seeds and lint) growth rate (ratebol)
+                    //     and
+                    //  potential burr growth rate (ratebur) are multiplied by
+                    //  FruitFraction to compute PotGroBolls and PotGroBurrs for
+                    //  node (k,l,m).
+                    PotGroBolls[k][l][m] = ratebol * FruitFraction[k][l][m];
+                    PotGroBurrs[k][l][m] = ratebur * FruitFraction[k][l][m];
+                    //     Sum potential growth rates of bolls and burrs as
+                    //     PotGroAllBolls and
+                    //  PotGroAllBurrs, respectively.
+                    PotGroAllBolls += PotGroBolls[k][l][m];
+                    PotGroAllBurrs += PotGroBurrs[k][l][m];
+                }
+                //     If these are not green bolls, their potential growth is
+                //     0. End loop.
+                else {
+                    PotGroBolls[k][l][m] = 0.;
+                    PotGroBurrs[k][l][m] = 0.;
+                } // if FruitingCode
+            } // for m
+        } // for l
+    } // for k
 }
