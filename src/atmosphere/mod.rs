@@ -1,4 +1,3 @@
-use crate::state::State;
 use crate::utils::fmin;
 use crate::{
     albedo, es1hour, es2hour, AirTemp, AvrgDailyTemp, CloudCoverRatio, CloudTypeCorr, DayLength,
@@ -25,7 +24,103 @@ pub trait Meteorology {
     ) -> f64;
 }
 
-impl Meteorology for State {
+#[derive(Debug, Clone, Copy)]
+pub struct Atmosphere {
+    date: NaiveDate,
+    /// daily declination angle, in radians.
+    pub declination: f64,
+    timezone: FixedOffset,
+    sunrise: DateTime<FixedOffset>,
+    solar_noon: DateTime<FixedOffset>,
+    sunset: DateTime<FixedOffset>,
+    daylength: Duration,
+    /// extraterrestrial radiation, W / m2.
+    tmpisr: f64,
+}
+
+fn num_hours(duration: Duration) -> f64 {
+    duration.num_seconds() as f64 / Duration::hours(1).num_seconds() as f64
+}
+
+fn hour(datetime: DateTime<FixedOffset>, tz: FixedOffset) -> f64 {
+    let localtime = datetime.with_timezone(&tz);
+    (localtime.hour() * 3600 + localtime.minute() * 60 + localtime.second()) as f64 / 3600.
+}
+
+fn hours(hours: f64) -> Duration {
+    Duration::seconds((hours * 3600.).round() as i64)
+}
+
+impl Atmosphere {
+    /// Computes day length, declination, time of solar noon, and extra-terrestrial radiation for this day.
+    /// The CIMIS (California Irrigation Management Information System) algorithms are used.
+    pub fn new(date: NaiveDate, longitude: f64, latitude: f64) -> Self {
+        let xday = 2. * std::f64::consts::PI * date.ordinal0() as f64
+            / chrono::NaiveDate::from_ymd(date.year(), 12, 31).ordinal() as f64;
+        // Compute declination angle for this day. The equation used here for computing it is taken from the CIMIS algorithm.
+        let declination = 0.006918 - 0.399912 * xday.cos() + 0.070257 * xday.sin()
+            - 0.006758 * (2. * xday).cos()
+            + 0.000907 * (2. * xday).sin()
+            - 0.002697 * (3. * xday).cos()
+            + 0.001480 * (3. * xday).sin();
+        // Compute extraterrestrial radiation in W m-2. The 'solar constant' (average value = 1367 W m-2) is corrected for this day's distance between earth and the sun. The equation used here is from the CIMIS algorithm, which is based on the work of Iqbal (1983).
+        let tmpisr = 1367.
+            * (1.00011
+                + 0.034221 * xday.cos()
+                + 0.00128 * xday.sin()
+                + 0.000719 * (2. * xday).cos()
+                + 0.000077 * (2. * xday).sin());
+        // Time of solar noon is computed by the CIMIS algorithm, using a correction for longitude (f), and the date correction (exday).
+        //
+        // It is assumed that the time zone is "geographically correct".
+        //
+        // For example, longitude between 22.5 and 37.5 East is in time zone GMT+2, and longitude between 112.5 and 127.5 West is in time zone GMT-8.
+        //
+        // All daily times in the model are computed by this method.
+        let exday = (0.000075 + 0.001868 * xday.cos()
+            - 0.032077 * xday.sin()
+            - 0.014615 * (2. * xday).cos()
+            - 0.04089 * (2. * xday).sin())
+        .to_degrees();
+        let timezone = FixedOffset::east(
+            ((longitude + 7.5) / 15.).floor() as i32 * Duration::hours(1).num_seconds() as i32,
+        );
+        let solar_noon = FixedOffset::east(((longitude + exday) * 240.).round() as i32)
+            .from_local_date(&date)
+            .unwrap()
+            .and_hms(12, 0, 0);
+        // Compute day length, by commonly used equations, from latitude and declination of this day.
+        // Times of sunrise and of sunset are computed from solar noon and day length.
+        let xlat = latitude.to_radians();
+        let ht = -xlat.tan() * declination.tan();
+        let daylength = Duration::seconds(
+            (2. * ((if ht > 1. {
+                1.
+            } else if ht < -1. {
+                -1.
+            } else {
+                ht
+            })
+            .acos())
+            .to_degrees()
+                * 240.) as i64,
+        );
+        unsafe {
+            DayLength = num_hours(daylength);
+        }
+        let sunrise = solar_noon - daylength / 2;
+        let sunset = sunrise + daylength;
+        Atmosphere {
+            date,
+            declination,
+            timezone,
+            sunrise,
+            solar_noon,
+            sunset,
+            daylength,
+            tmpisr,
+        }
+    }
     /// All daily weather data, read from input file, are stored in the structure:
     /// Clim[400];    --  defined in global
     /// The values are extracted from this structure by function GetFromClim()
@@ -42,7 +137,7 @@ impl Meteorology for State {
     ///
     /// Global variables set:
     /// AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
-    unsafe fn meteorology(&mut self, profile: &Profile) {
+    pub unsafe fn meteorology(&mut self, profile: &Profile) {
         // Compute day length and related variables:
         let atmosphere = Atmosphere::new(self.date, profile.longitude, profile.latitude);
         // latitude converted to radians.
@@ -334,103 +429,6 @@ impl Meteorology for State {
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1));
         }
         return tdewhr;
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct Atmosphere {
-    /// daily declination angle, in radians.
-    pub declination: f64,
-    timezone: FixedOffset,
-    sunrise: DateTime<FixedOffset>,
-    solar_noon: DateTime<FixedOffset>,
-    sunset: DateTime<FixedOffset>,
-    daylength: Duration,
-    /// extraterrestrial radiation, W / m2.
-    tmpisr: f64,
-}
-
-fn num_hours(duration: Duration) -> f64 {
-    duration.num_seconds() as f64 / Duration::hours(1).num_seconds() as f64
-}
-
-fn hour(datetime: DateTime<FixedOffset>, tz: FixedOffset) -> f64 {
-    let localtime = datetime.with_timezone(&tz);
-    (localtime.hour() * 3600 + localtime.minute() * 60 + localtime.second()) as f64 / 3600.
-}
-
-fn hours(hours: f64) -> Duration {
-    Duration::seconds((hours * 3600.).round() as i64)
-}
-
-impl Atmosphere {
-    /// Computes day length, declination, time of solar noon, and extra-terrestrial radiation for this day.
-    /// The CIMIS (California Irrigation Management Information System) algorithms are used.
-    pub fn new(date: NaiveDate, longitude: f64, latitude: f64) -> Self {
-        let xday = 2. * std::f64::consts::PI * date.ordinal0() as f64
-            / chrono::NaiveDate::from_ymd(date.year(), 12, 31).ordinal() as f64;
-        // Compute declination angle for this day. The equation used here for computing it is taken from the CIMIS algorithm.
-        let declination = 0.006918 - 0.399912 * xday.cos() + 0.070257 * xday.sin()
-            - 0.006758 * (2. * xday).cos()
-            + 0.000907 * (2. * xday).sin()
-            - 0.002697 * (3. * xday).cos()
-            + 0.001480 * (3. * xday).sin();
-        // Compute extraterrestrial radiation in W m-2. The 'solar constant' (average value = 1367 W m-2) is corrected for this day's distance between earth and the sun. The equation used here is from the CIMIS algorithm, which is based on the work of Iqbal (1983).
-        let tmpisr = 1367.
-            * (1.00011
-                + 0.034221 * xday.cos()
-                + 0.00128 * xday.sin()
-                + 0.000719 * (2. * xday).cos()
-                + 0.000077 * (2. * xday).sin());
-        // Time of solar noon is computed by the CIMIS algorithm, using a correction for longitude (f), and the date correction (exday).
-        //
-        // It is assumed that the time zone is "geographically correct".
-        //
-        // For example, longitude between 22.5 and 37.5 East is in time zone GMT+2, and longitude between 112.5 and 127.5 West is in time zone GMT-8.
-        //
-        // All daily times in the model are computed by this method.
-        let exday = (0.000075 + 0.001868 * xday.cos()
-            - 0.032077 * xday.sin()
-            - 0.014615 * (2. * xday).cos()
-            - 0.04089 * (2. * xday).sin())
-        .to_degrees();
-        let timezone = FixedOffset::east(
-            ((longitude + 7.5) / 15.).floor() as i32 * Duration::hours(1).num_seconds() as i32,
-        );
-        let solar_noon = FixedOffset::east(((longitude + exday) * 240.).round() as i32)
-            .from_local_date(&date)
-            .unwrap()
-            .and_hms(12, 0, 0);
-        // Compute day length, by commonly used equations, from latitude and declination of this day.
-        // Times of sunrise and of sunset are computed from solar noon and day length.
-        let xlat = latitude.to_radians();
-        let ht = -xlat.tan() * declination.tan();
-        let daylength = Duration::seconds(
-            (2. * ((if ht > 1. {
-                1.
-            } else if ht < -1. {
-                -1.
-            } else {
-                ht
-            })
-            .acos())
-            .to_degrees()
-                * 240.) as i64,
-        );
-        unsafe {
-            DayLength = num_hours(daylength);
-        }
-        let sunrise = solar_noon - daylength / 2;
-        let sunset = sunrise + daylength;
-        Atmosphere {
-            declination,
-            timezone,
-            sunrise,
-            solar_noon,
-            sunset,
-            daylength,
-            tmpisr,
-        }
     }
 }
 /// Computes the hourly values of global radiation, in W m-2, using the measured daily total global radiation.

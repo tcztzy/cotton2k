@@ -1,4 +1,4 @@
-use crate::atmosphere::Meteorology;
+use crate::atmosphere::Atmosphere;
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
@@ -33,17 +33,19 @@ pub struct State {
 
     pub plant_height: f64,
 
-    pub plant: Plant,
     pub soil: Soil,
+    pub plant: Plant,
+    pub atmosphere: Atmosphere,
 }
 
 impl State {
-    pub fn new(date: NaiveDate) -> Self {
+    pub fn new(date: NaiveDate, longitude: f64, latitude: f64) -> Self {
         State {
             date,
             plant_height: 4.0,
             plant: Plant::new(),
             soil: Soil::new(),
+            atmosphere: Atmosphere::new(date, longitude, latitude)
         }
     }
 
@@ -100,7 +102,7 @@ impl State {
             }
             // The following functions are executed each day (also before emergence).
             self.column_shading(profile); // computes light interception and soil shading.
-            self.meteorology(profile); // computes climate variables for today.
+            self.atmosphere.meteorology(profile); // computes climate variables for today.
             self.soil.thermology.soil_thermology(); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
             SoilNitrogen(); // computes nitrogen transformations in the soil.

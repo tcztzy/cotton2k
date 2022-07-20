@@ -33,7 +33,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 new_state.date = new_state.date.succ();
                 new_state
             } else {
-                cotton2k::State::new(chrono::NaiveDate::from_yo(cotton2k::iyear, cotton2k::DayStart as u32))
+                cotton2k::State::new(
+                    chrono::NaiveDate::from_yo(cotton2k::iyear, cotton2k::DayStart as u32),
+                    profile.longitude,
+                    profile.latitude,
+                )
             };
             // let need_to_adjust = profile.adjust()?;
             pb.inc();

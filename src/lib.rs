@@ -8,9 +8,9 @@
 #![allow(dead_code)]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod adjust;
-mod soil;
-mod plant;
 mod atmosphere;
+mod plant;
+mod soil;
 mod state;
 mod utils;
 use chrono::Datelike;
@@ -857,7 +857,11 @@ impl Profile {
                     new_state.date = new_state.date.succ();
                     new_state
                 } else {
-                    State::new(NaiveDate::from_yo(iyear, DayStart as u32))
+                    State::new(
+                        NaiveDate::from_yo(iyear, DayStart as u32),
+                        self.longitude,
+                        self.latitude,
+                    )
                 };
                 // Execute simulation for this day.
                 match state.simulate_this_day(self) {
