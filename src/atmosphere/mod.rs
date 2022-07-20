@@ -1,12 +1,10 @@
 use crate::state::State;
 use crate::utils::fmin;
 use crate::{
-    albedo, bPollinSwitch, es1hour, es2hour, AirTemp, AvrgDailyTemp, ClayVolumeFraction, Clim,
-    CloudCoverRatio, CloudTypeCorr, DayLength, DayOfSimulation, DayStart, DayTimeTemp, Daynum,
-    DewPointTemp, Elevation, GetFromClim, Irrig, NightTimeTemp, NumIrrigations, Profile, Radiation,
-    ReferenceETP, ReferenceTransp, RelativeHumidity, Rn, SandVolumeFraction, Scratch21, SitePar,
-    WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX,
-    CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
+    albedo, es1hour, es2hour, AirTemp, AvrgDailyTemp, CloudCoverRatio, CloudTypeCorr, DayLength,
+    DayTimeTemp, Daynum, DewPointTemp, Elevation, GetFromClim, NightTimeTemp, Profile, Radiation,
+    ReferenceETP, ReferenceTransp, RelativeHumidity, Rn, SitePar, WindSpeed, CLIMATE_METRIC_IRRD,
+    CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
 };
 use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Timelike};
 
@@ -71,25 +69,6 @@ impl Meteorology for State {
             //   11.630287 = 1000000 / 3600 / 23.884
             GetFromClim(CLIMATE_METRIC_IRRD, self.date.ordinal() as i32) * 11.630287 / dsbe
         };
-        // Set 'pollination switch' for rainy days (as in GOSSYM).
-        // The amount of rain today, mm
-        let mut rainToday = GetFromClim(CLIMATE_METRIC_RAIN, self.date.ordinal() as i32);
-        bPollinSwitch = rainToday < 2.5;
-        // Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
-        // Note: this is modified from the original GOSSYM - RRUNOFF routine.
-        // It is called here for rainfall only, but it is not activated when irrigation is applied.
-        let mut runoffToday = 0.; // amount of runoff today, mm
-        if rainToday >= 2. {
-            runoffToday = SimulateRunoff(rainToday);
-            if runoffToday < rainToday {
-                rainToday -= runoffToday;
-            } else {
-                rainToday = 0.;
-            }
-            let j = Daynum - DayStart; // days from start of simulation
-            Clim[j as usize].Rain = rainToday;
-        }
-        Scratch21[(DayOfSimulation - 1) as usize].runoff = runoffToday;
         // Parameters for the daily wind function are now computed:
         // Note:  SitePar[] are site specific parameters.
         let t1 = atmosphere.sunrise + hours(SitePar[1]); // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
@@ -920,107 +899,5 @@ fn sunangle(
         1.
     } else {
         result
-    }
-}
-
-/// This function is called from DayClim() and is executed on each day with raifall more than 2 mm.
-/// It computes the runoff and the retained portion of the rainfall.
-///
-/// Note: This function is based on the code of GOSSYM. No changes have been made from the original GOSSYM code (except translation to C++).
-/// It has not been validated by actual field measurement.
-///
-/// It calculates the portion of rainfall that is lost to runoff, and reduces rainfall to the amount which is actually infiltrated into the soil.
-/// It uses the soil conservation service method of estimating runoff.
-/// References:
-/// - Brady, Nyle C. 1984. The nature and properties of soils, 9th ed. Macmillan Publishing Co.
-/// - Schwab, Frevert, Edminster, and Barnes. 1981. Soil and water conservation engineering, 3rd ed. John Wiley & Sons, Inc.
-///
-/// The following global variables are referenced here:
-/// ClayVolumeFraction, Daynum, DayStart, Irrig (structure), NumIrrigations, SandVolumeFraction.
-///
-/// The argument used here:  rain = today,s rainfall.
-/// The return value:  the amount of water (mm) lost by runoff.
-unsafe fn SimulateRunoff(rain: f64) -> f64 {
-    // if this is the first time the function is called.
-    static mut bFirst: bool = true;
-    // soil group number (by clay and sand in upper soil layer)
-    static mut iGroup: i32 = 0;
-    // Adjustment of curve number for soil groups A,B,C.
-    static mut d01: f64 = 0.;
-    // The following is computed only the first time the function is called.
-    // Infiltration rate is estimated from the percent sand and percent clay in the Ap layer.
-    // If clay content is greater than 35%, the soil is assumed to have a
-    // higher runoff potential, if clay content is less than 15% and sand is
-    // greater than 70%, a lower runoff potential is assumed. Other soils
-    // (loams) assumed moderate runoff potential. No 'impermeable' (group D)
-    // soils are assumed.  References: Schwab, Brady.
-    if bFirst {
-        if SandVolumeFraction[0] > 0.70 && ClayVolumeFraction[0] < 0.15 {
-            // Soil group A = 1, low runoff potential
-            iGroup = 1;
-            d01 = 1.0;
-        } else if ClayVolumeFraction[0] > 0.35 {
-            // Soil group C = 3, high runoff potential
-            iGroup = 3;
-            d01 = 1.14;
-        } else {
-            // Soil group B = 2, moderate runoff potential
-            iGroup = 2;
-            d01 = 1.09;
-        }
-        bFirst = false;
-    }
-    // Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability to accept new rainfall. This also includes all irrigations.
-    let mut i01 = Daynum - 5;
-    if i01 < DayStart {
-        i01 = DayStart;
-    }
-    let i02 = Daynum;
-    let mut PreviousWetting = 0.; // five day total (before this day) of rain and irrigation, mm
-    for Dayn in i01..i02 {
-        let mut amtirr = 0.; // mm water applied on this day by irrigation
-        for i in 0..NumIrrigations as usize {
-            if Dayn == Irrig[i].day {
-                amtirr = Irrig[i].amount;
-            }
-        }
-        PreviousWetting += amtirr + GetFromClim(CLIMATE_METRIC_RAIN, Dayn);
-    }
-    // Adjusting curve number for antecedent rainfall conditions.
-    let d02: f64 = if PreviousWetting < 36. {
-        // low moisture, low runoff potential.
-        if iGroup == 1 {
-            0.71
-        } else if iGroup == 2 {
-            0.78
-        } else if iGroup == 3 {
-            0.83
-        } else {
-            1.
-        }
-    } else if PreviousWetting > 53. {
-        // wet conditions, high runoff potential.
-        if iGroup == 1 {
-            1.24
-        } else if iGroup == 2 {
-            1.15
-        } else if iGroup == 3 {
-            1.1
-        } else {
-            1.
-        }
-    } else {
-        // moderate conditions
-        1.
-    };
-    // Assuming straight rows, and good cropping practice:
-    // Runoff curve number, adjusted for moisture and soil type.
-    let crvnum = 78.0 * d01 * d02;
-    // maximum potential difference between rainfall and runoff.
-    let d03 = 25400. / crvnum - 254.;
-    if rain <= 0.2 * d03 {
-        0.
-    } else {
-        (rain - 0.2 * d03).powi(2) / (rain + 0.8 * d03)
     }
 }

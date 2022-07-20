@@ -5,10 +5,10 @@ use crate::plant::Plant;
 use crate::soil::Soil;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
-    addwtbl, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday, thad, thts,
-    wcond, wk, ActualTranspiration, AgeOfPreFruNode, AgronomyOperation, AppliedWater,
+    addwtbl, bPollinSwitch, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday,
+    thad, thts, wcond, wk, ActualTranspiration, AgeOfPreFruNode, AgronomyOperation, AppliedWater,
     AverageLeafAge, AverageLwp, AverageLwpMin, AveragePsi, AverageSoilPsi, BurrWeightOpenBolls,
-    CapillaryFlow, CheckDryMatterBal, ComputeIrrigation, Cotton2KError, CottonPhenology,
+    CapillaryFlow, CheckDryMatterBal, Clim, ComputeIrrigation, Cotton2KError, CottonPhenology,
     CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration,
     CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayLength, DayOfSimulation, DayStart,
     DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
@@ -351,6 +351,31 @@ impl State {
 
         // amount of water applied by non-drip irrigation or rainfall
         // Check if there is rain on this day
+        // Set 'pollination switch' for rainy days (as in GOSSYM).
+        // The amount of rain today, mm
+        let mut rainToday = unsafe { GetFromClim(CLIMATE_METRIC_RAIN, self.date.ordinal() as i32) };
+        unsafe {
+            bPollinSwitch = rainToday < 2.5;
+        }
+        // Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
+        // Note: this is modified from the original GOSSYM - RRUNOFF routine.
+        // It is called here for rainfall only, but it is not activated when irrigation is applied.
+        let mut runoffToday = 0.; // amount of runoff today, mm
+        if rainToday >= 2. {
+            runoffToday = self.soil.hydrology.runoff(rainToday);
+            if runoffToday < rainToday {
+                rainToday -= runoffToday;
+            } else {
+                rainToday = 0.;
+            }
+            let j = unsafe { Daynum - DayStart }; // days from start of simulation
+            unsafe {
+                Clim[j as usize].Rain = rainToday;
+            }
+        }
+        unsafe {
+            Scratch21[(DayOfSimulation - 1) as usize].runoff = runoffToday;
+        }
         let mut water_to_apply = unsafe { GetFromClim(CLIMATE_METRIC_RAIN, Daynum) };
         // If irrigation is to be predicted for this day, call ComputeIrrigation() to compute the actual amount of irrigation.
         unsafe {
