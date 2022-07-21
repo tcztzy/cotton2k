@@ -1,4 +1,4 @@
-use crate::atmosphere::Atmosphere;
+use crate::atmosphere::{num_hours, Atmosphere};
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
@@ -10,7 +10,7 @@ use crate::{
     AverageLeafAge, AverageLwp, AverageLwpMin, AveragePsi, AverageSoilPsi, BurrWeightOpenBolls,
     CapillaryFlow, CheckDryMatterBal, Clim, ComputeIrrigation, Cotton2KError, CottonPhenology,
     CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration,
-    CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayLength, DayOfSimulation, DayStart,
+    CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart,
     DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
     FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea,
     LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc,
@@ -45,7 +45,7 @@ impl State {
             plant_height: 4.0,
             plant: Plant::new(),
             soil: Soil::new(),
-            atmosphere: Atmosphere::new(date, longitude, latitude)
+            atmosphere: Atmosphere::new(date, longitude, latitude),
         }
     }
 
@@ -119,7 +119,7 @@ impl State {
                 Defoliate(); // effects of defoliants applied.
                 self.stress(profile); // computes water stress factors.
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
-                self.plant.grow(); // executes all modules of plant growth.
+                self.plant.grow(self.atmosphere); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 self.plant.nitrogen.run(); // computes plant nitrogen allocation.
                 CheckDryMatterBal(); // checks plant dry matter balance.
@@ -724,7 +724,6 @@ impl State {
     /// The following global and file scope variables are referenced here:
     /// * [BurrWeightOpenBolls]
     /// * [CottonWeightOpenBolls]
-    /// * [DayLength]
     /// * [Daynum]
     /// * [DayEmerge]
     /// * [DayTimeTemp]
@@ -796,7 +795,8 @@ impl State {
         }
         // Convert the average daily short wave radiation from langley per day, to Watts per square meter (wattsm).
         // average daily global radiation, W m-2.
-        let wattsm = GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 697.45 / (DayLength * 60.);
+        let wattsm = GetFromClim(CLIMATE_METRIC_IRRD, Daynum) * 697.45
+            / (num_hours(self.atmosphere.daylength) * 60.);
         // Compute pstand as an empirical function of wattsm (based on Baker et al., 1972).
         // gross photosynthesis for a non-stressed full canopy.
         let pstand = 2.3908 + wattsm * (1.37379 - wattsm * 0.00054136);

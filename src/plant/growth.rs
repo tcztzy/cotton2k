@@ -1,7 +1,8 @@
+use crate::atmosphere::Atmosphere;
 use crate::plant::root::{PotentialRootGrowth, RootGrowth};
 use crate::{
     nadj, pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AdjAddHeightRate,
-    AgeOfBoll, AgeOfPreFruNode, AgeOfSite, AirTemp, CarbonStress, DayInc, DayLength, DayTimeTemp,
+    AgeOfBoll, AgeOfPreFruNode, AgeOfSite, AirTemp, CarbonStress, DayInc, DayTimeTemp,
     DensityFactor, DryMatterBalance, FruitFraction, FruitingCode, Kday, KdayAdjust, LeafAreaIndex,
     NStressVeg, NightTimeTemp, NumAdjustDays, NumFruitBranches, NumNodes, NumPreFruNodes,
     NumVegBranches, PerPlantArea, PlantHeight, PotGroAllBolls, PotGroAllBurrs, PotGroAllRoots,
@@ -11,9 +12,11 @@ use crate::{
 };
 
 use super::Plant;
+use crate::atmosphere::num_hours;
+use chrono::Duration;
 
 pub trait PlantGrowth {
-    unsafe fn grow(&mut self);
+    unsafe fn grow(&mut self, atmosphere: Atmosphere);
     unsafe fn plant_height_increment(&mut self, x: f64) -> f64;
 }
 
@@ -31,7 +34,7 @@ impl PlantGrowth for Plant {
     /// The following global variables are set here:
     /// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
     /// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-    unsafe fn grow(&mut self) {
+    unsafe fn grow(&mut self, atmosphere: Atmosphere) {
         //     Call PotentialLeafGrowth() to compute potential growth rate of
         //     leaves.
         PotentialLeafGrowth();
@@ -39,7 +42,7 @@ impl PlantGrowth for Plant {
         //     potential
         //  growth rate of squares and bolls.
         if FruitingCode[0][0][0] > 0 {
-            PotentialFruitGrowth();
+            PotentialFruitGrowth(atmosphere.daylength);
         }
         //     Active stem tissue (stemnew) is the difference between
         //     TotalStemWeight
@@ -244,43 +247,37 @@ pub fn LeafResistance(agel: f64) -> f64 {
 /// Simulates the potential growth of fruiting sites of cotton plants.
 /// It is called from PlantGrowth(). It calls TemperatureOnFruitGrowthRate()
 ///
-/// The following gobal variables are referenced here:
-///       AgeOfBoll, AgeOfSite, DayLength, FruitingCode, FruitFraction,
+/// The following global variables are referenced here:
+///       AgeOfBoll, AgeOfSite, FruitingCode, FruitFraction,
 ///       NumFruitBranches, NumNodes,  NumVegBranches, DayTimeTemp,
 ///       NightTimeTemp, VarPar, WaterStress.
-///    The following global variables are set here:
+/// The following global variables are set here:
 ///       PotGroAllBolls, PotGroAllBurrs, PotGroAllSquares, PotGroBolls,
 ///       PotGroBurrs, PotGroSquares.
-///References:
-///* Marani, A. 1979. Growth rate of cotton bolls and their
-///components. Field Crops Res. 2:169-175.
-///* Marani, A., Phene, C.J. and Cardon, G.E. 1992. CALGOS, a
-///version of GOSSYM adapted for irrigated cotton.  III. leaf and boll
-///growth routines. Beltwide Cotton Grow, Res. Conf. 1992:1361-1363.
-unsafe fn PotentialFruitGrowth() {
+/// References:
+/// * Marani, A. 1979. Growth rate of cotton bolls and their components. Field Crops Res. 2:169-175.
+/// * Marani, A., Phene, C.J. and Cardon, G.E. 1992. CALGOS, a version of GOSSYM adapted for irrigated cotton.  III. leaf and boll growth routines. Beltwide Cotton Grow, Res. Conf. 1992:1361-1363.
+unsafe fn PotentialFruitGrowth(daylength: Duration) {
     //     The constant parameters used:
     const vpotfrt: [f64; 5] = [0.72, 0.30, 3.875, 0.125, 0.17];
-    //    Compute tfrt for the effect of temperature on boll and burr growth
-    //    rates. Function
-    // TemperatureOnFruitGrowthRate() is used (with parameters derived from
-    // GOSSYM), for day time and night time temperatures, weighted by day and
-    // night lengths.
+    // Compute tfrt for the effect of temperature on boll and burr growth rates.
+    // Function [TemperatureOnFruitGrowthRate()] is used (with parameters derived from GOSSYM), for day time and night time temperatures, weighted by day and night lengths.
     // the effect of temperature on rate of boll, burr or square growth.
-    let tfrt = (DayLength * TemperatureOnFruitGrowthRate(DayTimeTemp)
-        + (24. - DayLength) * TemperatureOnFruitGrowthRate(NightTimeTemp))
+    let tfrt = (num_hours(daylength) * TemperatureOnFruitGrowthRate(DayTimeTemp)
+        + (24. - num_hours(daylength)) * TemperatureOnFruitGrowthRate(NightTimeTemp))
         / 24.;
-    //     Assign zero to sums of potential growth of squares, bolls and burrs.
+    // Assign zero to sums of potential growth of squares, bolls and burrs.
     PotGroAllSquares = 0.;
     PotGroAllBolls = 0.;
     PotGroAllBurrs = 0.;
-    //     Assign values for the boll growth equation parameters. These are
-    //     cultivar - specific.
-    let agemax = VarPar[9]; // maximum boll growth period (physiological days).
-    let rbmax = VarPar[10]; // maximum rate of boll (seed and lint) growth,
-                            // g per boll per physiological day.
-    let wbmax = VarPar[11]; // maximum possible boll (seed and lint) weight,
-                            // g per boll.
-                            //     Loop for all vegetative stems.
+    // Assign values for the boll growth equation parameters.
+    // These are cultivar - specific.
+    // maximum boll growth period (physiological days).
+    let agemax = VarPar[9];
+    // maximum rate of boll (seed and lint) growth,g per boll per physiological day.
+    let rbmax = VarPar[10];
+    // maximum possible boll (seed and lint) weight, g per boll.
+    let wbmax = VarPar[11];
     for k in 0..NumVegBranches as usize {
         let nbrch = NumFruitBranches[k] as usize; // number of fruiting branches on a vegetative stem.
         for l in 0..nbrch

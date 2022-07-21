@@ -1,8 +1,8 @@
 use crate::utils::fmin;
 use crate::{
-    albedo, es1hour, es2hour, AirTemp, AvrgDailyTemp, CloudCoverRatio, CloudTypeCorr, DayLength,
-    DayTimeTemp, Daynum, DewPointTemp, Elevation, GetFromClim, NightTimeTemp, Profile, Radiation,
-    ReferenceETP, ReferenceTransp, RelativeHumidity, Rn, SitePar, WindSpeed, CLIMATE_METRIC_IRRD,
+    albedo, es1hour, es2hour, AirTemp, AvrgDailyTemp, CloudCoverRatio, CloudTypeCorr, DayTimeTemp,
+    Daynum, DewPointTemp, Elevation, GetFromClim, NightTimeTemp, Profile, Radiation, ReferenceETP,
+    ReferenceTransp, RelativeHumidity, Rn, SitePar, WindSpeed, CLIMATE_METRIC_IRRD,
     CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
 };
 use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Timelike};
@@ -33,12 +33,12 @@ pub struct Atmosphere {
     sunrise: DateTime<FixedOffset>,
     solar_noon: DateTime<FixedOffset>,
     sunset: DateTime<FixedOffset>,
-    daylength: Duration,
+    pub daylength: Duration,
     /// extraterrestrial radiation, W / m2.
     tmpisr: f64,
 }
 
-fn num_hours(duration: Duration) -> f64 {
+pub fn num_hours(duration: Duration) -> f64 {
     duration.num_seconds() as f64 / Duration::hours(1).num_seconds() as f64
 }
 
@@ -105,9 +105,6 @@ impl Atmosphere {
             .to_degrees()
                 * 240.) as i64,
         );
-        unsafe {
-            DayLength = num_hours(daylength);
-        }
         let sunrise = solar_noon - daylength / 2;
         let sunset = sunrise + daylength;
         Atmosphere {
@@ -127,7 +124,7 @@ impl Atmosphere {
     ///
     /// The function DayClim() is called daily from SimulateThisDay().
     /// It calls the the following functions:
-    /// ComputeDayLength(), GetFromClim(), SimulateRunoff(),
+    /// GetFromClim(), SimulateRunoff(),
     /// AverageAirTemperatures(), dayrad(), daytemp(), EvapoTranspiration(),
     /// tdewhour(), dayrh(), daywnd()
     ///
@@ -137,15 +134,13 @@ impl Atmosphere {
     ///
     /// Global variables set:
     /// AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
-    pub unsafe fn meteorology(&mut self, profile: &Profile) {
-        // Compute day length and related variables:
-        let atmosphere = Atmosphere::new(self.date, profile.longitude, profile.latitude);
+    pub unsafe fn meteorology(&self, profile: &Profile) {
         // latitude converted to radians.
         let xlat = profile.latitude.to_radians();
         // amplitude of the sine of the solar height.
-        let cd = xlat.cos() * atmosphere.declination.cos();
+        let cd = xlat.cos() * self.declination.cos();
         // seasonal offset of the sine of the solar height.
-        let sd = xlat.sin() * atmosphere.declination.sin();
+        let sd = xlat.sin() * self.declination.sin();
         // The computation of the daily integral of global radiation (from sunrise to sunset) is based on Spitters et al. (1986).
         // constant parameter.
         const c11: f64 = 0.4;
@@ -166,28 +161,28 @@ impl Atmosphere {
         };
         // Parameters for the daily wind function are now computed:
         // Note:  SitePar[] are site specific parameters.
-        let t1 = atmosphere.sunrise + hours(SitePar[1]); // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
-        let t2 = atmosphere.solar_noon + hours(SitePar[2]); // the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
-        let t3 = atmosphere.sunset + hours(SitePar[3]); // the hour at which wind stops to blow (SitePar(3) hours after sunset).
+        let t1 = self.sunrise + hours(SitePar[1]); // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
+        let t2 = self.solar_noon + hours(SitePar[2]); // the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
+        let t3 = self.sunset + hours(SitePar[3]); // the hour at which wind stops to blow (SitePar(3) hours after sunset).
         let wnytf = SitePar[4]; // used for estimating night time wind (from time t3 to time t1 next day).
         for ihr in 0..24 as usize {
             // time in the middle of each hourly interval.
-            let ti = atmosphere
+            let ti = self
                 .timezone
                 .from_local_date(&self.date)
                 .and_hms_opt(ihr as u32, 30, 0)
                 .unwrap();
-            let sinb = sd + cd * ((num_hours(ti - atmosphere.solar_noon) * 15.).to_radians()).cos(); // sine of the solar elevation.
-                                                                                                     //     Compute hourly global radiation, using function dayrad.
+            // sine of the solar elevation.
+            let sinb = sd + cd * ((num_hours(ti - self.solar_noon) * 15.).to_radians()).cos();
+            // Compute hourly global radiation, using function dayrad.
             Radiation[ihr] = dayrad(radsum, sinb, c11);
-            //     Compute hourly temperature, using function daytmp.
-            AirTemp[ihr] = self.daytmp(profile, ti, atmosphere);
-            //     Compute hourly dew point temperature, using function tdewhour.
-            DewPointTemp[ihr] = self.tdewhour(profile, ti, atmosphere, AirTemp[ihr]);
-            //     Compute hourly relative humidity, using function dayrh.
+            // Compute hourly temperature, using function daytmp.
+            AirTemp[ihr] = self.daytmp(profile, ti);
+            // Compute hourly dew point temperature, using function tdewhour.
+            DewPointTemp[ihr] = self.tdewhour(profile, ti, AirTemp[ihr]);
+            // Compute hourly relative humidity, using function dayrh.
             RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
-            //     Compute hourly wind speed, using function daywnd, and daily sum
-            //     of wind.
+            // Compute hourly wind speed, using function daywnd, and daily sum of wind.
             WindSpeed[ihr] = daywnd(
                 ti,
                 GetFromClim(CLIMATE_METRIC_WIND, Daynum),
@@ -195,14 +190,14 @@ impl Atmosphere {
                 t2,
                 t3,
                 wnytf,
-                atmosphere.timezone,
+                self.timezone,
             );
         }
         //     Compute average daily temperature, using function
         //     AverageAirTemperatures.
         AverageAirTemperatures();
         //     Compute potential evapotranspiration.
-        EvapoTranspiration(profile, self.date, atmosphere);
+        EvapoTranspiration(profile, self.date, self);
     }
 
     /// Computes and returns the hourly values of air temperature, using the measured daily maximum and minimum.
@@ -260,19 +255,18 @@ impl Atmosphere {
     /// * `ti` - time of day (hours).
     /// Global variables used:
     ///
-    /// DayLength, Daynum, pi, SitePar, SolarNoon, sunr, suns
+    /// Daynum, pi, SitePar, SolarNoon, sunr, suns
     unsafe fn daytmp(
-        &mut self,
+        &self,
         profile: &Profile,
         ti: DateTime<FixedOffset>,
-        atmosphere: Atmosphere,
     ) -> f64 {
         // The temperature increase at which the sensible heat flux is doubled, in comparison with the situation without buoyancy.
         const tkk: f64 = 15.;
         // time coefficient for the exponential part of the equation.
         const tcoef: f64 = 4.;
         // hour of maximum temperature
-        let hmax = atmosphere.solar_noon + hours(SitePar[8]);
+        let hmax = self.solar_noon + hours(SitePar[8]);
         // day of year yesterday
         let im1 = self.date.ordinal0();
         // day of year tomorrow
@@ -288,7 +282,7 @@ impl Atmosphere {
         let HourlyTemperature; // computed temperature at time ti.
         let one_day = Duration::days(1);
         //
-        if ti <= atmosphere.sunrise {
+        if ti <= self.sunrise {
             //  from midnight to sunrise
             amp = (GetFromClim(CLIMATE_METRIC_TMAX, im1 as i32)
                 - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
@@ -296,17 +290,17 @@ impl Atmosphere {
                     + (GetFromClim(CLIMATE_METRIC_TMAX, im1 as i32)
                         - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
                         / tkk);
-            sts = (std::f64::consts::PI * atmosphere.daylength.num_seconds() as f64
-                / (atmosphere.daylength + hours(2. * SitePar[8])).num_seconds() as f64)
+            sts = (std::f64::consts::PI * self.daylength.num_seconds() as f64
+                / (self.daylength + hours(2. * SitePar[8])).num_seconds() as f64)
                 .sin();
             //  compute temperature at sunset:
             sst = GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32) - tkk / 2.
                 + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();
             HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32)
-                - sst * (num_hours(atmosphere.daylength - one_day) / tcoef).exp()
+                - sst * (num_hours(self.daylength - one_day) / tcoef).exp()
                 + (sst - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
-                    * (num_hours(atmosphere.sunset - ti - one_day) / tcoef).exp())
-                / (1. - (num_hours(atmosphere.daylength - one_day) / tcoef).exp());
+                    * (num_hours(self.sunset - ti - one_day) / tcoef).exp())
+                / (1. - (num_hours(self.daylength - one_day) / tcoef).exp());
         } else if ti <= hmax {
             //  from sunrise to hmax
             amp = (GetFromClim(CLIMATE_METRIC_TMAX, self.date.ordinal() as i32)
@@ -316,13 +310,13 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
                         / tkk);
             st = (std::f64::consts::PI
-                * num_hours(ti - atmosphere.solar_noon + atmosphere.daylength / 2)
-                / num_hours(atmosphere.daylength + hours(2. * SitePar[8])))
+                * num_hours(ti - self.solar_noon + self.daylength / 2)
+                / num_hours(self.daylength + hours(2. * SitePar[8])))
             .sin();
             HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32)
                 - tkk / 2.
                 + 0.5 * (tkk * tkk + 4. * amp * tkk * st).sqrt();
-        } else if ti <= atmosphere.sunset {
+        } else if ti <= self.sunset {
             //  from hmax to sunset
             amp = (GetFromClim(CLIMATE_METRIC_TMAX, self.date.ordinal() as i32)
                 - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
@@ -331,8 +325,8 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
                         / tkk);
             st = (std::f64::consts::PI
-                * num_hours(ti - atmosphere.solar_noon + atmosphere.daylength / 2)
-                / num_hours(atmosphere.daylength + hours(2. * SitePar[8])))
+                * num_hours(ti - self.solar_noon + self.daylength / 2)
+                / num_hours(self.daylength + hours(2. * SitePar[8])))
             .sin();
             HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32) - tkk / 2.
                 + 0.5 * (tkk * tkk + 4. * amp * tkk * st).sqrt();
@@ -345,16 +339,16 @@ impl Atmosphere {
                     + (GetFromClim(CLIMATE_METRIC_TMAX, self.date.ordinal() as i32)
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
                         / tkk);
-            sts = (std::f64::consts::PI * atmosphere.daylength.num_seconds() as f64
-                / (atmosphere.daylength + hours(2. * SitePar[8])).num_seconds() as f64)
+            sts = (std::f64::consts::PI * self.daylength.num_seconds() as f64
+                / (self.daylength + hours(2. * SitePar[8])).num_seconds() as f64)
                 .sin();
             sst = GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32) - tkk / 2.
                 + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();
             HourlyTemperature = (GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32)
-                - sst * (num_hours(atmosphere.daylength - one_day) / tcoef).exp()
+                - sst * (num_hours(self.daylength - one_day) / tcoef).exp()
                 + (sst - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
-                    * (num_hours(atmosphere.sunset - ti) / tcoef).exp())
-                / (1. - (num_hours(atmosphere.daylength - one_day) / tcoef).exp());
+                    * (num_hours(self.sunset - ti) / tcoef).exp())
+                / (1. - (num_hours(self.daylength - one_day) / tcoef).exp());
         }
         return HourlyTemperature;
         //     Reference:
@@ -371,13 +365,7 @@ impl Atmosphere {
     /// Global variables used:
     ///
     /// Daynum SitePar, SolarNoon, sunr, suns.
-    unsafe fn tdewhour(
-        &mut self,
-        profile: &Profile,
-        ti: DateTime<FixedOffset>,
-        atmosphere: Atmosphere,
-        tt: f64,
-    ) -> f64 {
+    unsafe fn tdewhour(&self, profile: &Profile, ti: DateTime<FixedOffset>, tt: f64) -> f64 {
         let im1 = Daynum - 1; // day of year yeaterday
         let mut ip1 = Daynum + 1; // day of year tomorrow
         if ip1 > profile.last_day_weather_data.ordinal() as i32 {
@@ -386,9 +374,9 @@ impl Atmosphere {
         let tdewhr; // the dew point temperature (c) of this hour.
         let tdmin; // minimum of dew point temperature.
         let mut tdrange; // range of dew point temperature.
-        let hmax = atmosphere.solar_noon + hours(SitePar[8]); // time of maximum air temperature
+        let hmax = self.solar_noon + hours(SitePar[8]); // time of maximum air temperature
 
-        if ti <= atmosphere.sunrise {
+        if ti <= self.sunrise {
             // from midnight to sunrise
             tdrange = SitePar[12]
                 + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, im1)
@@ -597,7 +585,7 @@ pub fn VaporPressure(tt: f64) -> f64 {
 /// Computes the rate of reference evapotranspiration and related variables.
 /// The following subroutines and functions are called for each hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(),
 /// [clearskyemiss()], [del()], [gam()].
-unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: Atmosphere) {
+unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &Atmosphere) {
     const stefb: f64 = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
     const c12: f64 = 0.125; // c12 ... c15 are constant parameters.
     const c13: f64 = 0.0439;
@@ -777,7 +765,7 @@ fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64 {
 /// * `coszhr` - cosine of sun angle from zenith.
 /// * `ihr` - time of day, hours.
 /// * `isrhr` - hourly extraterrestrial radiation in W m-2 .
-/// Global variables used: DayLength, Radiation[], SolarNoon, pi
+/// Global variables used: Radiation[], SolarNoon, pi
 ///
 /// NOTE: This algorithm is described by Dong et al. (1988).
 /// ck is the cloud-type correction used in the Monteith equation for estimating net radiation.
