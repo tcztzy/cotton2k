@@ -48,7 +48,7 @@ use crate::{
     CultivationDate, CumPlantNLoss, DailyRootLoss, DayEmerge, Daynum, DepthLastRootLayer,
     ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag, LateralRootGrowthLeft,
     LateralRootGrowthRight, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants,
-    PlantRowColumn, PoreSpace, PotGroRoots, RedistRootNewGrowth, RootAge, RootAging,
+    PlantRowColumn, PoreSpace, PotGroRoots, RootAge, RootAging, RootColNumLeft, RootColNumRight,
     RootCultivation, RootDeath, RootGroFactor, RootImpedance, RootNConc, RootNitrogen,
     RootSummation, RootWeight, RootWeightLoss, RowSpace, SoilAirOnRootGrowth,
     SoilMechanicResistance, SoilNitrateOnRootGrowth, SoilPsi, SoilTemOnRootGrowth,
@@ -132,6 +132,7 @@ pub unsafe fn PotentialRootGrowth() -> f64 {
 pub trait RootGrowth {
     unsafe fn compute_actual_root_growth(&mut self, sumpdr: f64);
 }
+
 impl RootGrowth for Plant {
     /// This function calculates the actual root growth rate.
     /// It is called from function PlantGrowth().
@@ -151,54 +152,46 @@ impl RootGrowth for Plant {
     /// The following argument is used:
     /// * `sumpdr` - Sum of potential root growth rate for the whole slab.
     unsafe fn compute_actual_root_growth(&mut self, sumpdr: f64) {
-        //     The following constant parameters are used:
-        //     The index for the relative partitioning of root mass produced by new
-        //     growth to class i.
+        // The following constant parameters are used:
+        // The index for the relative partitioning of root mass produced by new growth to class i.
         const RootGrowthIndex: [f64; 3] = [1.0, 0.0, 0.0];
-        const rtminc: f64 = 0.0000001; // the threshold ratio of root mass capable of growth
-                                       // to soil cell volume (g/cm3); when this threshold is
-                                       // reached, a
-                                       // part of root growth in this cell may be extended to adjoining cells.
-                                       //     Assign zero to pavail if this is the day of emergence.
+        // the threshold ratio of root mass capable of growth to soil cell volume (g/cm3); when this threshold is reached, a part of root growth in this cell may be extended to adjoining cells.
+        const rtminc: f64 = 0.0000001;
+        // Assign zero to pavail if this is the day of emergence.
         if Daynum <= DayEmerge {
             self.pavail = 0.;
         }
-        let mut adwr1 = Array2::zeros([maxl as usize, maxk as usize]); // actual growth rate from roots existing in this
-                                                                       // soil cell.
-                                                                       //     Assign zero to the arrays of actual root growth rate.
+        let mut adwr1 = Array2::zeros([maxl as usize, maxk as usize]); // actual growth rate from roots existing in this soil cell.
+                                                                       // Assign zero to the arrays of actual root growth rate.
         for l in 0..nl as usize {
             for k in 0..nk as usize {
                 ActualRootGrowth[l][k] = 0.;
             }
         }
-        //     The amount of carbon allocated for root growth is calculated from
-        //  CarbonAllocatedForRootGrowth, converted to g dry matter per slab, and
-        //  added to previously allocated carbon that has not been used for growth
-        //  (pavail). if there is no potential root growth, this will be stored in
-        //  pavail. Otherwise, zero is assigned to pavail.
+        // The amount of carbon allocated for root growth is calculated from
+        // CarbonAllocatedForRootGrowth, converted to g dry matter per slab, and
+        // added to previously allocated carbon that has not been used for growth
+        // (pavail). If there is no potential root growth, this will be stored in
+        // pavail. Otherwise, zero is assigned to pavail.
         if sumpdr <= 0. {
             self.pavail += CarbonAllocatedForRootGrowth * 0.01 * RowSpace / PerPlantArea;
             return;
         }
         // actual growth factor (ratio of available C to potential growth).
-        //     The ratio of available C to potential root growth (actgf) is
-        //     calculated.
-        //  pavail (if not zero) is used here, and zeroed after being used.
+        // The ratio of available C to potential root growth (actgf) is calculated.
+        // pavail (if not zero) is used here, and zeroed after being used.
         let actgf =
             (self.pavail + CarbonAllocatedForRootGrowth * 0.01 * RowSpace / PerPlantArea) / sumpdr;
         self.pavail = 0.;
-        //
         for l in 0..NumLayersWithRoots as usize {
             for k in 0..nk as usize {
-                //     adwr1(l,k), is proportional to the potential growth rate of
-                //     roots in this cell.
+                // adwr1(l,k), is proportional to the potential growth rate of roots in this cell.
                 if RootAge[l][k] > 0. {
                     adwr1.slice_mut(s![l, k]).fill(PotGroRoots[l][k] * actgf);
                 }
             }
         }
-        //     If extra carbon is available, it is assumed to be added to the
-        //     taproot.
+        // If extra carbon is available, it is assumed to be added to the taproot.
         if ExtraCarbon > 0. {
             // available carbon for taproot growth, in g dry matter per slab.
             //  ExtraCarbon is converted to availt (g dry matter per slab).
@@ -207,14 +200,11 @@ impl RootGrowth for Plant {
             // distance from the tip of the taproot, cm.
             let mut tpwt = Array::<f64, Ix2>::zeros([maxl as usize, 2]); // proportionality factors for allocating added dry matter among taproot soil cells.
             let mut sumwt = 0.; // sum of the tpwt array.
-                                //     Extra Carbon (availt) is added to soil cells with roots in the
-                                //     columns immediately to the
-                                //  left and to the right of the location of the plant row.
+                                // Extra Carbon (availt) is added to soil cells with roots in the columns immediately to
+                                // the left and to the right of the location of the plant row.
             for l in (0..LastTaprootLayer as usize + 1).rev() {
-                //     The weighting factors for allocating the carbon (tpwt) are
-                //     proportional to the volume
-                //  of each soil cell and its distance (sdl) from the tip of the
-                //  taproot.
+                // The weighting factors for allocating the carbon (tpwt) are proportional to the
+                // volume of each soil cell and its distance (sdl) from the tip of the taproot.
                 sdl += dl[l];
                 tpwt.slice_mut(s![l, 0])
                     .fill(sdl * dl[l] * wk[PlantRowColumn as usize]);
@@ -222,9 +212,7 @@ impl RootGrowth for Plant {
                     .fill(sdl * dl[l] * wk[PlantRowColumn as usize + 1]);
                 sumwt += tpwt.slice(s![l, 0..2usize]).sum();
             }
-            //     The proportional amount of mass is added to the mass of the last
-            //     (inactive)
-            //  root class in each soil cell.
+            // The proportional amount of mass is added to the mass of the last (inactive) root class in each soil cell.
             for l in 0..LastTaprootLayer as usize + 1 {
                 RootWeight[l][PlantRowColumn as usize][NumRootAgeGroups as usize - 1] +=
                     availt * tpwt.slice(s![l, 0]).first().unwrap() / sumwt;
@@ -232,12 +220,10 @@ impl RootGrowth for Plant {
                     availt * tpwt.slice(s![l, 1]).first().unwrap() / sumwt;
             }
         }
-        //     Check each cell if the ratio of root weight capable of growth to cell
-        //     volume (rtconc)
-        //  exceeds the threshold rtminc, and call RedistRootNewGrowth() for this
-        //  cell. Otherwise, all new growth is contained in the same cell, and the
-        //  actual growth in this cell, ActualRootGrowth(l,k) will be equal to
-        //  adwr1(l,k).
+        // Check each cell if the ratio of root weight capable of growth to cell volume (rtconc)
+        // exceeds the threshold rtminc, and call RedistRootNewGrowth() for this cell.
+        // Otherwise, all new growth is contained in the same cell, and the actual growth in this
+        // cell, ActualRootGrowth(l,k) will be equal to adwr1(l,k).
         for l in 0..nl as usize {
             for k in 0..nk as usize {
                 if RootAge[l][k] > 0. {
@@ -248,18 +234,16 @@ impl RootGrowth for Plant {
                     }
                     rtconc /= dl[l] * wk[k];
                     if rtconc > rtminc {
-                        RedistRootNewGrowth(l as i32, k as i32, adwr1[[l, k]]);
+                        RedistRootNewGrowth(l, k, adwr1[[l, k]]);
                     } else {
                         ActualRootGrowth[l][k] += adwr1[[l, k]];
                     }
                 }
             }
         }
-        //     The new actual growth ActualRootGrowth(l,k) in each cell is
-        //     partitioned among the root
-        //  classes in it in proportion to the parameters RootGrowthIndex(i), and
-        //  the previous values of RootWeight(k,l,i), and added to
-        //  RootWeight(k,l,i).
+        // The new actual growth ActualRootGrowth(l,k) in each cell is partitioned among the root
+        // classes in it in proportion to the parameters RootGrowthIndex(i), and the previous values
+        // of RootWeight(k,l,i), and added to RootWeight(k,l,i).
         let mut sumind = 0.; // sum of the growth index for all classes in a cell.
         for i in 0..NumRootAgeGroups as usize {
             sumind += RootGrowthIndex[i];
@@ -285,12 +269,12 @@ impl RootGrowth for Plant {
                 }
             }
         }
-        //     Call function TapRootGrowth() for taproot elongation, if the taproot
-        //  has not already reached the bottom of the slab.
+        // Call function TapRootGrowth() for taproot elongation, if the taproot has not already
+        // reached the bottom of the slab.
         if LastTaprootLayer < nl - 1 || TapRootLength < DepthLastRootLayer {
             TapRootGrowth();
         }
-        //     Call functions for growth of lateral roots
+        // Call functions for growth of lateral roots
         InitiateLateralRoots();
         for l in 0..LastTaprootLayer as usize {
             if LateralRootFlag[l] == 2 {
@@ -298,38 +282,145 @@ impl RootGrowth for Plant {
                 LateralRootGrowthRight(l as i32);
             }
         }
-        //     Initialize DailyRootLoss (weight of sloughed roots) for this day.
+        // Initialize DailyRootLoss (weight of sloughed roots) for this day.
         DailyRootLoss = 0.;
         for l in 0..NumLayersWithRoots as usize {
             for k in 0..nk as usize {
-                //     Check RootAge to determine if this soil cell contains roots,
-                //     and then compute root
-                //  aging and root death by calling RootAging() and RootDeath() for
-                //  each soil cell with roots.
+                // Check RootAge to determine if this soil cell contains roots,
+                // and then compute root aging and root death by calling RootAging() and RootDeath()
+                // for each soil cell with roots.
                 if RootAge[l][k] > 0. {
                     RootAging(l as i32, k as i32);
                     RootDeath(l as i32, k as i32);
                 }
             }
         }
-        //     Check if cultivation is executed in this day and call
-        //     RootCultivation().
+        // Check if cultivation is executed in this day and call RootCultivation().
         for j in 0..5 {
             if CultivationDate[j] == Daynum {
                 RootCultivation(j as i32);
             }
         }
-        //     Convert DailyRootLoss to g per plant units and add it to
-        //     RootWeightLoss.
+        // Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
         DailyRootLoss = DailyRootLoss * 100. * PerPlantArea / RowSpace;
         RootWeightLoss += DailyRootLoss;
-        //     Adjust RootNitrogen (root N content) and PixInPlants (plant Pix
-        //     content)
-        //  for loss by death of roots.
+        // Adjust RootNitrogen (root N content) and PixInPlants (plant Pix content)
+        // for loss by death of roots.
         RootNitrogen -= DailyRootLoss * RootNConc;
         CumPlantNLoss += DailyRootLoss * RootNConc;
         PixInPlants -= DailyRootLoss * pixcon;
-        //     Call function RootSummation().
+        // Call function RootSummation().
         RootSummation();
+    }
+}
+
+/// Computes the redistribution of new growth of roots into adjacent soil cells.
+/// It is called from ActualRootGrowth().
+///
+/// Redistribution is affected by the factors rgfdn, rgfsd, rgfup.
+/// and the values of RootGroFactor(l,k) in this soil cell and in the adjacent cells.
+/// The values of ActualRootGrowth(l,k) for this and for the adjacent soil cells are computed.
+/// The code of this module is based, with major changes, on the code of GOSSYM.
+///
+/// The following arguments are referenced:
+/// * `addwt` - actual growth rate of roots in this soil cell.
+/// * `k`, `l` - column and layer numbers.
+///
+/// The following global variables are referenced here:
+/// * [dl]
+/// * [nk]
+/// * [nl]
+/// * [PlantRowColumn]
+/// * [RootGroFactor]
+/// * [wk]
+///
+/// The following global variables are set here:
+/// * [ActualRootGrowth]
+/// * [DepthLastRootLayer]
+/// * [LastTaprootLayer]
+/// * [NumLayersWithRoots]
+/// * [RootAge]
+/// * [RootColNumLeft]
+/// * [RootColNumRight]
+/// * [TapRootLength]
+unsafe fn RedistRootNewGrowth(l: usize, k: usize, addwt: f64) {
+    // The following constant parameters are used.
+    // These are relative factors for root growth to adjoining cells, downwards, sideways, and upwards, respectively.
+    // These factors are relative to the volume of the soil cell from which growth originates.
+    const rgfdn: f64 = 900.;
+    const rgfsd: f64 = 600.;
+    const rgfup: f64 = 10.;
+    // Set the number of layer above and below this layer, and the number of columns to the right and to the left of this column.
+    // layer above and below layer l.
+    let lp1 = if l == nl as usize - 1 { l } else { l + 1 };
+    let lm1 = if l == 0 { l } else { l - 1 };
+    // column to the left and to the right of column k.
+    let kp1 = if k == nk as usize - 1 { k } else { k + 1 };
+    let km1 = if k == 0 { k } else { k - 1 };
+    // Compute proportionality factors (efac1, efacl, efacr, efacu, efacd) as the product of RootGroFactor and the geotropic factors in the respective soil cells.
+    // Note that the geotropic factors are relative to the volume of the soil cell.
+    // Compute the sum srwp of the proportionality factors.
+    // product of RootGroFactor and geotropic factor for this cell.
+    let efac1 = dl[l] * wk[k] * RootGroFactor[l][k];
+    // as efac1 for the cell to the left of this cell.
+    let efacl = rgfsd * RootGroFactor[l][km1];
+    // as efac1 for the cell to the right of this cell.
+    let efacr = rgfsd * RootGroFactor[l][kp1];
+    // as efac1 for the cell above this cell.
+    let efacu = rgfup * RootGroFactor[lm1][k];
+    // as efac1 for the cell below this cell.
+    let efacd = rgfdn * RootGroFactor[lp1][k];
+    // sum of all efac values.
+    let srwp = efac1 + efacl + efacr + efacu + efacd;
+    // If srwp is very small, all the added weight will be in the
+    // same soil soil cell, and execution of this function is ended.
+    if srwp < 1e-10 {
+        ActualRootGrowth[l][k] = addwt;
+        return;
+    }
+    // Allocate the added dry matter to this and the adjoining soil cells in proportion to the EFAC factors.
+    ActualRootGrowth[l][k] += addwt * efac1 / srwp;
+    ActualRootGrowth[l][km1] += addwt * efacl / srwp;
+    ActualRootGrowth[l][kp1] += addwt * efacr / srwp;
+    ActualRootGrowth[lm1][k] += addwt * efacu / srwp;
+    ActualRootGrowth[lp1][k] += addwt * efacd / srwp;
+    // If roots are growing into new soil soil cells, initialize their RootAge to 0.01.
+    if RootAge[l][km1] == 0. {
+        RootAge[l][km1] = 0.01;
+    }
+    if RootAge[l][kp1] == 0. {
+        RootAge[l][kp1] = 0.01;
+    }
+    if RootAge[lm1][k] == 0. {
+        RootAge[lm1][k] = 0.01;
+    }
+    // If this new compartment is in a new layer with roots, also initialize its RootColNumLeft and RootColNumRight values.
+    if RootAge[lp1][k] == 0. && efacd > 0. {
+        RootAge[lp1][k] = 0.01;
+        if RootColNumLeft[lp1] == 0 || k < RootColNumLeft[lp1] as usize {
+            RootColNumLeft[lp1] = k as i32;
+        }
+        if RootColNumRight[lp1] == 0 || k > RootColNumRight[lp1] as usize {
+            RootColNumRight[lp1] = k as i32;
+        }
+    }
+    // If this is in the location of the taproot, and the roots reach a new soil layer,
+    // update the taproot parameters TapRootLength, DepthLastRootLayer, and LastTaprootLayer.
+    if k == PlantRowColumn as usize || k == PlantRowColumn as usize + 1 {
+        if lp1 > LastTaprootLayer as usize && efacd > 0. {
+            TapRootLength = DepthLastRootLayer + 0.01;
+            DepthLastRootLayer += dl[lp1];
+            LastTaprootLayer = lp1 as i32;
+        }
+    }
+    // Update NumLayersWithRoots, if necessary, and the values of RootColNumLeft and RootColNumRight for this layer.
+    if NumLayersWithRoots <= l as i32 && efacd > 0. {
+        NumLayersWithRoots = l as i32 + 1;
+    }
+    if km1 < RootColNumLeft[l] as usize {
+        RootColNumLeft[l] = km1 as i32;
+    }
+    if kp1 > RootColNumRight[l] as usize {
+        RootColNumRight[l] = kp1 as i32;
     }
 }

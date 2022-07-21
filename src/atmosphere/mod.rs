@@ -7,23 +7,6 @@ use crate::{
 };
 use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Timelike};
 
-pub trait Meteorology {
-    unsafe fn meteorology(&mut self, profile: &Profile);
-    unsafe fn daytmp(
-        &mut self,
-        profile: &Profile,
-        ti: DateTime<FixedOffset>,
-        atmosphere: Atmosphere,
-    ) -> f64;
-    unsafe fn tdewhour(
-        &mut self,
-        profile: &Profile,
-        ti: DateTime<FixedOffset>,
-        atmosphere: Atmosphere,
-        tt: f64,
-    ) -> f64;
-}
-
 #[derive(Debug, Clone, Copy)]
 pub struct Atmosphere {
     date: NaiveDate,
@@ -256,11 +239,7 @@ impl Atmosphere {
     /// Global variables used:
     ///
     /// Daynum, pi, SitePar, SolarNoon, sunr, suns
-    unsafe fn daytmp(
-        &self,
-        profile: &Profile,
-        ti: DateTime<FixedOffset>,
-    ) -> f64 {
+    unsafe fn daytmp(&self, profile: &Profile, ti: DateTime<FixedOffset>) -> f64 {
         // The temperature increase at which the sensible heat flux is doubled, in comparison with the situation without buoyancy.
         const tkk: f64 = 15.;
         // time coefficient for the exponential part of the equation.
@@ -309,8 +288,7 @@ impl Atmosphere {
                     + (GetFromClim(CLIMATE_METRIC_TMAX, self.date.ordinal() as i32)
                         - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
                         / tkk);
-            st = (std::f64::consts::PI
-                * num_hours(ti - self.solar_noon + self.daylength / 2)
+            st = (std::f64::consts::PI * num_hours(ti - self.solar_noon + self.daylength / 2)
                 / num_hours(self.daylength + hours(2. * SitePar[8])))
             .sin();
             HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32)
@@ -324,8 +302,7 @@ impl Atmosphere {
                     + (GetFromClim(CLIMATE_METRIC_TMAX, self.date.ordinal() as i32)
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
                         / tkk);
-            st = (std::f64::consts::PI
-                * num_hours(ti - self.solar_noon + self.daylength / 2)
+            st = (std::f64::consts::PI * num_hours(ti - self.solar_noon + self.daylength / 2)
                 / num_hours(self.daylength + hours(2. * SitePar[8])))
             .sin();
             HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32) - tkk / 2.
@@ -448,7 +425,7 @@ fn dayrad(radsum: f64, sinb: f64, c11: f64) -> f64 {
 }
 
 /// Computes the hourly values of relative humidity, using the hourly air and dew point temperatures.
-/// It calls function [VaporPressure()].
+/// It calls function [vapor_pressure()].
 /// If the estimated dew point is higher than the actual air temperature, its value is taken as the air temperature (relative humidity 100%).
 ///
 /// The relative humidity is calculated as the percentage ratio of the saturated vapor pressure at dew point temperature and the saturated vapor pressure at actual air temperature.
@@ -459,8 +436,8 @@ fn dayrad(radsum: f64, sinb: f64, c11: f64) -> f64 {
 fn dayrh(tt: f64, tdew: f64) -> f64 {
     let td = fmin(tt, tdew); // the dew point temperature (C), is assumed to
                              // be tt if tt < tdew.
-    let esvp = VaporPressure(tt); // the saturated vapor pressure in the air (mbar).
-    let vpa = VaporPressure(td); // the actual vapor pressure in the air (mbar).
+    let esvp = vapor_pressure(tt); // the saturated vapor pressure in the air (mbar).
+    let vpa = vapor_pressure(td); // the actual vapor pressure in the air (mbar).
     let mut RelHumHour = 100. * vpa / esvp; // relative humidity at this time of day, %.
     if RelHumHour < 1. {
         RelHumHour = 1.;
@@ -579,11 +556,11 @@ unsafe fn AverageAirTemperatures() {
     DayTimeTemp /= nn2 as f64;
 }
 /// Computes the water vapor pressure in the air (in KPa units) as a function of the air at temperature tt (C). This equation is widely used.
-pub fn VaporPressure(tt: f64) -> f64 {
+pub fn vapor_pressure(tt: f64) -> f64 {
     0.61078 * (17.269 * tt / (tt + 237.3)).exp()
 }
 /// Computes the rate of reference evapotranspiration and related variables.
-/// The following subroutines and functions are called for each hour: sunangle, cloudcov(), clcor(), refalbed(), VaporPressure(),
+/// The following subroutines and functions are called for each hour: sunangle, cloudcov(), clcor(), refalbed(), [vapor_pressure()],
 /// [clearskyemiss()], [del()], [gam()].
 unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &Atmosphere) {
     const stefb: f64 = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
@@ -637,12 +614,12 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
     Rn = 0.; // daily net radiation
     let mut rnet: [f64; 24] = [0.; 24]; // hourly net radiation
     for ihr in 0..24 as usize {
-        // Compute saturated vapor pressure (svp), using function VaporPressure().
+        // Compute saturated vapor pressure (svp), using function vapor_pressure().
         // The actual vapor pressure (vp) is computed from svp and the relative humidity.
         // Compute vapor pressure deficit (vpd). This procedure is based on the CIMIS algorithm.
         //
         // saturated vapor pressure, mb
-        let svp = VaporPressure(AirTemp[ihr]);
+        let svp = vapor_pressure(AirTemp[ihr]);
         // vapor pressure, mb
         let vp = 0.01 * RelativeHumidity[ihr] * svp;
         // vapor pressure deficit, mb.

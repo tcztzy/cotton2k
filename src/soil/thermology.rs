@@ -1,4 +1,4 @@
-use crate::atmosphere::{clearskyemiss, VaporPressure};
+use crate::atmosphere::{clearskyemiss, vapor_pressure};
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
@@ -285,7 +285,7 @@ impl SoilThermology {
     /// Units for all energy fluxes are: cal cm-2 sec-1.
     ///
     /// It is called from soil_thermology(), on each hourly time step and for each soil column.
-    /// It calls functions clearskyemiss(), VaporPressure(), SensibleHeatTransfer(), SoilMulchBalance(), SoilSurfaceBalance() and CanopyBalance().
+    /// It calls functions [clearskyemiss()], [vapor_pressure()], SensibleHeatTransfer(), SoilMulchBalance(), SoilSurfaceBalance() and CanopyBalance().
     ///
     /// The following arguments are used in this function:
     /// * `ihr` - the time of day in hours.
@@ -364,7 +364,7 @@ impl SoilThermology {
             }
             //   ****   LONG WAVE RADIATION EMITTED FROM SKY    ****
             // air vapor pressure, KPa.
-            let vp = 0.01 * RelativeHumidity[ihr] * VaporPressure(AirTemp[ihr]);
+            let vp = 0.01 * RelativeHumidity[ihr] * vapor_pressure(AirTemp[ihr]);
             // sky emissivity from clear portions of the sky.
             let ea0 = clearskyemiss(vp, thet);
             // incoming long wave radiation (ly / sec).

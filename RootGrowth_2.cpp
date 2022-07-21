@@ -1,7 +1,6 @@
 //  RootGrowth_2.cpp
 //
 //   functions in this file:
-// RedistRootNewGrowth()
 // TapRootGrowth()
 // InitiateLateralRoots()
 // LateralRootGrowthLeft()
@@ -21,118 +20,6 @@
 #define new DEBUG_NEW
 #endif
 //
-//////////////////////////////////////////////////
-void RedistRootNewGrowth(int l, int k, double addwt)
-//     This function computes the redistribution of new growth of
-//  roots into adjacent soil cells. It is called from ActualRootGrowth().
-//     Redistribution is affected by the factors rgfdn, rgfsd, rgfup.
-//  and the values of RootGroFactor(l,k) in this soil cell and in the adjacent
-//  cells. The values of ActualRootGrowth(l,k) for this and for the adjacent
-//  soil cells are computed. The code of this module is based, with
-//  major changes, on the code of GOSSYM.
-//
-//     The following arguments are referenced:
-//       addwt - actual growth rate of roots in this soil cell.
-//       k, l - column and layer numbers.
-//     The following global variables are referenced here:
-//       dl, nk, nl, PlantRowColumn, RootGroFactor, wk.
-//     The following global variables are set here:
-//       ActualRootGrowth, DepthLastRootLayer, LastTaprootLayer,
-//       NumLayersWithRoots, RootAge, RootColNumLeft, RootColNumRight,
-//       TapRootLength.
-{
-    //     The following constant parameters are used. These are relative
-    //     factors for root growth
-    // to adjoining cells, downwards, sideways, and upwards, respectively. These
-    // factors are relative to the volume of the soil cell from which growth
-    // originates.
-    const double rgfdn = 900;
-    const double rgfsd = 600;
-    const double rgfup = 10;
-    //     Set the number of layer above and below this layer, and
-    //  the number of columns to the right and to the left of this column.
-    int lm1, lp1;  // layer above and below layer l.
-    if (l == nl - 1)
-        lp1 = l;
-    else
-        lp1 = l + 1;
-    if (l == 0)
-        lm1 = l;
-    else
-        lm1 = l - 1;
-    //
-    int km1, kp1;  // column to the left and to the right of column k.
-    if (k == nk - 1)
-        kp1 = k;
-    else
-        kp1 = k + 1;
-    if (k == 0)
-        km1 = k;
-    else
-        km1 = k - 1;
-    //     Compute proportionality factors (efac1, efacl, efacr, efacu, efacd)
-    //     as the product
-    //  of RootGroFactor and the geotropic factors in the respective soil cells.
-    //  Note that the geotropic factors are relative to the volume of the soil
-    //  cell.
-    //     Compute the sum srwp of the proportionality factors.
-    double
-        efac1;  // product of RootGroFactor and geotropic factor for this cell.
-    double efacd;  // as efac1 for the cell below this cell.
-    double efacl;  // as efac1 for the cell to the left of this cell.
-    double efacr;  // as efac1 for the cell to the right of this cell.
-    double efacu;  // as efac1 for the cell above this cell.
-    double srwp;   // sum of all efac values.
-    efac1 = dl[l] * wk[k] * RootGroFactor[l][k];
-    efacl = rgfsd * RootGroFactor[l][km1];
-    efacr = rgfsd * RootGroFactor[l][kp1];
-    efacu = rgfup * RootGroFactor[lm1][k];
-    efacd = rgfdn * RootGroFactor[lp1][k];
-    srwp = efac1 + efacl + efacr + efacu + efacd;
-    //     If srwp is very small, all the added weight will be in the
-    //  same soil soil cell, and execution of this function is ended.
-    if (srwp < 1e-10) {
-        ActualRootGrowth[l][k] = addwt;
-        return;
-    }
-    //     Allocate the added dry matter to this and the adjoining
-    //  soil cells in proportion to the EFAC factors.
-    ActualRootGrowth[l][k] += addwt * efac1 / srwp;
-    ActualRootGrowth[l][km1] += addwt * efacl / srwp;
-    ActualRootGrowth[l][kp1] += addwt * efacr / srwp;
-    ActualRootGrowth[lm1][k] += addwt * efacu / srwp;
-    ActualRootGrowth[lp1][k] += addwt * efacd / srwp;
-    //     If roots are growing into new soil soil cells, initialize
-    //  their RootAge to 0.01.
-    if (RootAge[l][km1] == 0) RootAge[l][km1] = 0.01;
-    if (RootAge[l][kp1] == 0) RootAge[l][kp1] = 0.01;
-    if (RootAge[lm1][k] == 0) RootAge[lm1][k] = 0.01;
-    //     If this new compartmment is in a new layer with roots, also
-    //  initialize its RootColNumLeft and RootColNumRight values.
-    if (RootAge[lp1][k] == 0 && efacd > 0) {
-        RootAge[lp1][k] = 0.01;
-        if (RootColNumLeft[lp1] == 0 || k < RootColNumLeft[lp1])
-            RootColNumLeft[lp1] = k;
-        if (RootColNumRight[lp1] == 0 || k > RootColNumRight[lp1])
-            RootColNumRight[lp1] = k;
-    }
-    //     If this is in the location of the taproot, and the roots reach a new
-    //     soil layer,
-    //  update the taproot parameters TapRootLength, DepthLastRootLayer, and
-    //  LastTaprootLayer.
-    if (k == PlantRowColumn || k == PlantRowColumn + 1)
-        if (lp1 > LastTaprootLayer && efacd > 0) {
-            TapRootLength = DepthLastRootLayer + 0.01;
-            DepthLastRootLayer += dl[lp1];
-            LastTaprootLayer = lp1;
-        }
-    //     Update NumLayersWithRoots, if necessary, and the values of
-    //     RootColNumLeft and RootColNumRight for
-    //  this layer.
-    if (NumLayersWithRoots <= l && efacd > 0) NumLayersWithRoots = l + 1;
-    if (km1 < RootColNumLeft[l]) RootColNumLeft[l] = km1;
-    if (kp1 > RootColNumRight[l]) RootColNumRight[l] = kp1;
-}
 //////////////////////////////
 void TapRootGrowth()
 //     This function computes the elongation of the taproot. It is

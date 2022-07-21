@@ -100,7 +100,6 @@ The Root System:
           SoilWaterOnRootGrowth()
        
     File RootGrowth_2.cpp
-          RedistRootNewGrowth()
           TapRootGrowth()
           InitiateLateralRoots()
           LateralRootGrowthLeft()
