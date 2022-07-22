@@ -44,15 +44,14 @@
 //     LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 use crate::{
-    cgind, dl, maxk, maxl, nk, nl, pixcon, wk, ActualRootGrowth, CarbonAllocatedForRootGrowth,
-    CultivationDate, CumPlantNLoss, DailyRootLoss, DayEmerge, Daynum, DepthLastRootLayer,
-    ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag, LateralRootGrowthLeft,
-    LateralRootGrowthRight, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants,
-    PlantRowColumn, PoreSpace, PotGroRoots, RootAge, RootColNumLeft, RootColNumRight,
-    RootCultivation, RootGroFactor, RootImpedance, RootNConc, RootNitrogen, RootSummation,
-    RootWeight, RootWeightLoss, RowSpace, SoilAirOnRootGrowth, SoilMechanicResistance,
-    SoilNitrateOnRootGrowth, SoilPsi, SoilTemOnRootGrowth, SoilTempDailyAvrg,
-    SoilWaterOnRootGrowth, TapRootGrowth, TapRootLength, VolNo3NContent, VolWaterContent,
+    cgind, dl, maxk, maxl, nk, nl, pixcon, rlat1, rlat2, wk, ActualRootGrowth,
+    CarbonAllocatedForRootGrowth, CultivationDate, CumPlantNLoss, DailyRootLoss, DayEmerge, Daynum,
+    DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag,
+    NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants, PlantRowColumn, PoreSpace,
+    PotGroRoots, RootAge, RootColNumLeft, RootColNumRight, RootCultivation, RootGroFactor,
+    RootImpedance, RootNConc, RootNitrogen, RootSummation, RootWeight, RootWeightLoss, RowSpace,
+    SoilAirOnRootGrowth, SoilMechanicResistance, SoilNitrateOnRootGrowth, SoilPsi,
+    SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootLength, VolNo3NContent, VolWaterContent,
 };
 use ndarray::prelude::*;
 use ndarray::{Array, Array2, Ix2};
@@ -277,8 +276,8 @@ impl RootGrowth for Plant {
         InitiateLateralRoots();
         for l in 0..LastTaprootLayer as usize {
             if LateralRootFlag[l] == 2 {
-                LateralRootGrowthLeft(l as i32);
-                LateralRootGrowthRight(l as i32);
+                LateralRootGrowthLeft(l);
+                LateralRootGrowthRight(l);
             }
         }
         // Initialize DailyRootLoss (weight of sloughed roots) for this day.
@@ -496,6 +495,274 @@ unsafe fn RootDeath(l: usize, k: usize) {
             }
             DailyRootLoss += RootWeight[l][k][i] * dthfac;
             RootWeight[l][k][i] -= RootWeight[l][k][i] * dthfac;
+        }
+    }
+}
+
+/// Computes the elongation of the taproot. It is called from ActualRootGrowth(). It calls SoilTemOnRootGrowth().
+///
+/// The following global variables are referenced here:
+///      dl, nl, NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
+///      SoilTempDailyAvrg, VolWaterContent.
+///    The following global variables are set here:
+///      DepthLastRootLayer, LastTaprootLayer, NumLayersWithRoots, RootAge,
+///      RootColNumLeft, RootColNumRight, RootWeight, TapRootLength.
+unsafe fn TapRootGrowth() {
+    //     The following constant parameters are used:
+    const p1: f64 = 0.10; // constant parameter.
+    const rtapr: f64 = 4.; // potential growth rate of the taproot, cm/day.
+                           //     It is assumed that taproot elongation takes place irrespective
+                           //  of the supply of carbon to the roots. This elongation occurs in the
+                           //  two columns of the slab where the plant is located.
+                           //     Tap root elongation does not occur in water logged soil (water
+                           //     table).
+                           //
+                           // the second column in which taproot growth occurs.
+    let klocp1 = PlantRowColumn as usize + 1;
+    if VolWaterContent[LastTaprootLayer as usize][PlantRowColumn as usize]
+        >= PoreSpace[LastTaprootLayer as usize]
+        || VolWaterContent[LastTaprootLayer as usize][klocp1]
+            >= PoreSpace[LastTaprootLayer as usize]
+    {
+        return;
+    }
+    //     Average soil resistance (avres) is computed at the root tip.
+    // avres = average value of RootGroFactor for the two soil cells at the tip
+    // of the taproot.
+    let avres = (RootGroFactor[LastTaprootLayer as usize][PlantRowColumn as usize]
+        + RootGroFactor[LastTaprootLayer as usize][klocp1])
+        / 2.;
+    //     It is assumed that a linear empirical function of avres controls the
+    //     rate of
+    //  taproot elongation. The potential elongation rate of the taproot is also
+    //  modified by soil temperature (SoilTemOnRootGrowth function), soil
+    //  resistance, and soil moisture near the root tip.
+    //     Actual growth is added to the taproot length TapRootLength.
+    // daily average soil temperature (C) at root tip.
+    let stday = 0.5
+        * (SoilTempDailyAvrg[LastTaprootLayer as usize][PlantRowColumn as usize]
+            + SoilTempDailyAvrg[LastTaprootLayer as usize][klocp1])
+        - 273.161;
+    // added taproot length, cm
+    let addtaprt = rtapr * (1. - p1 + avres * p1) * SoilTemOnRootGrowth(stday);
+    TapRootLength += addtaprt;
+    //     DepthLastRootLayer, the depth (in cm) to the end of the last layer
+    //     with
+    //  roots, is used to check if the taproot reaches a new soil layer.
+    //  When the new value of TapRootLength is greater than DepthLastRootLayer -
+    //  it means that the roots penetrate to a new soil layer. In this case, and
+    //  if this is not the last layer in the slab, the following is executed:
+    //     LastTaprootLayer and DepthLastRootLayer are incremented. If this is a
+    //     new layer with
+    //  roots, NumLayersWithRoots is also redefined and two soil cells of the
+    //  new layer are defined as containing roots (by initializing
+    //  RootColNumLeft and RootColNumRight).
+    if LastTaprootLayer > nl - 2 || TapRootLength <= DepthLastRootLayer {
+        return;
+    }
+    //     The following is executed when the taproot reaches a new soil layer.
+    LastTaprootLayer += 1;
+    DepthLastRootLayer += dl[LastTaprootLayer as usize];
+    if LastTaprootLayer > NumLayersWithRoots - 1 {
+        NumLayersWithRoots = LastTaprootLayer + 1;
+        if NumLayersWithRoots > nl {
+            NumLayersWithRoots = nl;
+        }
+    }
+    if RootColNumLeft[LastTaprootLayer as usize] == 0
+        || RootColNumLeft[LastTaprootLayer as usize] > PlantRowColumn
+    {
+        RootColNumLeft[LastTaprootLayer as usize] = PlantRowColumn;
+    }
+    if RootColNumRight[LastTaprootLayer as usize] == 0
+        || RootColNumRight[LastTaprootLayer as usize] < klocp1 as i32
+    {
+        RootColNumRight[LastTaprootLayer as usize] = klocp1 as i32;
+    }
+    //     RootAge is initialized for these soil cells.
+    RootAge[LastTaprootLayer as usize][PlantRowColumn as usize] = 0.01;
+    RootAge[LastTaprootLayer as usize][klocp1] = 0.01;
+    //     Some of the mass of class 1 roots is transferred downwards to
+    //  the new cells. The transferred mass is proportional to 2 cm of
+    //  layer width, but it is not more than half the existing mass in the
+    //  last layer.
+    for i in 0..NumRootAgeGroups as usize {
+        // root mass transferred to the cell below when the
+        // elongating taproot reaches a new soil layer.
+        // first column
+        let mut tran = RootWeight[LastTaprootLayer as usize - 1][PlantRowColumn as usize][i] * 2.
+            / dl[LastTaprootLayer as usize - 1];
+        if tran > 0.5 * RootWeight[LastTaprootLayer as usize - 1][PlantRowColumn as usize][i] {
+            tran = 0.5 * RootWeight[LastTaprootLayer as usize - 1][PlantRowColumn as usize][i];
+        }
+        RootWeight[LastTaprootLayer as usize][PlantRowColumn as usize][i] += tran;
+        RootWeight[LastTaprootLayer as usize - 1][PlantRowColumn as usize][i] -= tran;
+        // second column
+        tran = RootWeight[LastTaprootLayer as usize - 1][klocp1][i] * 2.
+            / dl[LastTaprootLayer as usize - 1];
+        if tran > 0.5 * RootWeight[LastTaprootLayer as usize - 1][klocp1][i] {
+            tran = 0.5 * RootWeight[LastTaprootLayer as usize - 1][klocp1][i];
+        }
+        RootWeight[LastTaprootLayer as usize][klocp1][i] += tran;
+        RootWeight[LastTaprootLayer as usize - 1][klocp1][i] -= tran;
+    }
+}
+///     This function computes the elongation of the lateral roots
+/// in a soil layer(l) to the left. It is called from ActualRootGrowth().
+///    It calls function SoilTemOnRootGrowth().
+///
+///    The following global variables are referenced here:
+///      NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
+///      SoilTempDailyAvrg, VolWaterContent, wk.
+///    The following global variables are set here:
+///      RootAge, RootColNumLeft, RootWeight.
+///    The argument used:     l - layer number in the soil slab.
+unsafe fn LateralRootGrowthLeft(l: usize) {
+    //     The following constant parameters are used:
+    const p1: f64 = 0.10; // constant parameter.
+    const rlatr: f64 = 3.6; // potential growth rate of lateral roots, cm/day.
+    const rtran: f64 = 0.2; // the ratio of root mass transferred to a new soil
+                            // soil cell, when a lateral root grows into it.
+                            //     On its initiation, lateral root length is assumed to be equal to the
+                            //  width of a soil column soil cell at the location of the taproot.
+    if rlat1[l] <= 0. {
+        rlat1[l] = wk[PlantRowColumn as usize];
+    }
+    // daily average soil temperature (C) at root tip.
+    let stday = SoilTempDailyAvrg[l][PlantRowColumn as usize] - 273.161;
+    // the effect of soil temperature on root growth.
+    let temprg = SoilTemOnRootGrowth(stday);
+    //     Define the column with the tip of this lateral root (ktip)
+    let mut ktip = 0usize; // column with the tips of the laterals to the left
+    let mut sumwk = 0.; // summation of columns width
+    for k in (0..PlantRowColumn as usize + 1).rev() {
+        sumwk += wk[k];
+        if sumwk >= rlat1[l] {
+            ktip = k;
+            break;
+        }
+    }
+    //     Compute growth of the lateral root to the left. Potential
+    //  growth rate (u) is modified by the soil temperature function,
+    //  and the linearly modified effect of soil resistance (RootGroFactor).
+    //     Lateral root elongation does not occur in water logged soil.
+    if VolWaterContent[l][ktip] < PoreSpace[l] {
+        rlat1[l] += rlatr * temprg * (1. - p1 + RootGroFactor[l][ktip] * p1);
+        //     If the lateral reaches a new soil soil cell: a proportion (tran)
+        //     of
+        //	mass of roots is transferred to the new soil cell.
+        if rlat1[l] > sumwk && ktip > 0 {
+            // column into which the tip of the lateral grows to
+            // left.
+            let newktip = ktip - 1;
+            for i in 0..NumRootAgeGroups as usize {
+                let tran = RootWeight[l][ktip][i] * rtran;
+                RootWeight[l][ktip][i] -= tran;
+                RootWeight[l][newktip][i] += tran;
+            }
+            //     RootAge is initialized for this soil cell.
+            //     RootColNumLeft of this layer is redefined.
+            if RootAge[l][newktip] == 0. {
+                RootAge[l][newktip] = 0.01;
+            }
+            if newktip < RootColNumLeft[l] as usize {
+                RootColNumLeft[l] = newktip as i32;
+            }
+        }
+    }
+}
+/// Computes the elongation of the lateral roots in a soil layer(l) to the right. It is called from ActualRootGrowth().
+/// It calls function SoilTemOnRootGrowth().
+///
+///     The following global variables are referenced here:
+/// nk, NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
+/// SoilTempDailyAvrg, VolWaterContent, wk.
+///    The following global variables are set here:
+/// RootAge, RootColNumRight, RootWeight.
+///    The argument used:      l - layer number in the soil slab.
+unsafe fn LateralRootGrowthRight(l: usize) {
+    //     The following constant parameters are used:
+    const p1: f64 = 0.10; // constant parameter.
+    const rlatr: f64 = 3.6; // potential growth rate of lateral roots, cm/day.
+    const rtran: f64 = 0.2; // the ratio of root mass transferred to a new soil
+                            // soil cell, when a lateral root grows into it.
+                            //     On its initiation, lateral root length is assumed to be equal to the
+                            //     width
+                            //  of a soil column soil cell at the location of the taproot.
+    let klocp1 = PlantRowColumn as usize + 1;
+    if rlat2[l] <= 0. {
+        rlat2[l] = wk[klocp1];
+    }
+    // daily average soil temperature (C) at root tip.
+    let stday = SoilTempDailyAvrg[l][klocp1] - 273.161;
+    // the effect of soil temperature on root growth.
+    let temprg = SoilTemOnRootGrowth(stday);
+    // define the column with the tip of this lateral root (ktip)
+    let mut ktip = 0usize; // column with the tips of the laterals to the right
+    let mut sumwk = 0.;
+    for k in klocp1..nk as usize {
+        sumwk += wk[k];
+        if sumwk >= rlat2[l] {
+            ktip = k;
+            break;
+        }
+    }
+    //     Compute growth of the lateral root to the right. Potential
+    //  growth rate is modified by the soil temperature function,
+    //  and the linearly modified effect of soil resistance (RootGroFactor).
+    //     Lateral root elongation does not occur in water logged soil.
+    if VolWaterContent[l][ktip] < PoreSpace[l] {
+        rlat2[l] += rlatr * temprg * (1. - p1 + RootGroFactor[l][ktip] * p1);
+        //     If the lateral reaches a new soil soil cell: a proportion (tran)
+        //     of
+        //	mass of roots is transferred to the new soil cell.
+        if rlat2[l] > sumwk && ktip < nk as usize - 1 {
+            // column into which the tip of the lateral grows to left.
+            let newktip = ktip + 1; // column into which the tip of the lateral grows to left.
+            for i in 0..NumRootAgeGroups as usize {
+                let tran = RootWeight[l][ktip][i] * rtran;
+                RootWeight[l][ktip][i] -= tran;
+                RootWeight[l][newktip][i] += tran;
+            }
+            //     RootAge is initialized for this soil cell.
+            //     RootColNumLeft of this layer is redefined.
+            if RootAge[l][newktip] == 0. {
+                RootAge[l][newktip] = 0.01;
+            }
+            if newktip > RootColNumRight[l] as usize {
+                RootColNumRight[l] = newktip as i32;
+            }
+        }
+    }
+}
+/// Called from [PotentialRootGrowth()], [TapRootGrowth()], [LateralRootGrowthLeft()] and [LateralRootGrowthRight()].
+/// It computes the effects of soil temperature on the rate growth.
+/// It is essentially based on the usage of GOSSYM, but relative values are computed here.
+/// The computed value returned by this function is between 0 and 1.
+///
+/// It is assumed that maximum root growth occurs at or above 30 C, and no root growth occurs at or below 13.5 C.
+/// A quadratic response to temperature between these limits is assumed.
+///
+/// The following argument is used:
+/// * `t` - Soil temperature (C), daily average.
+///
+/// The parameters used are p1, p2, p3, with the following results:
+/// t =      14    16    18    20    22    24    26    28    30
+/// trf =  .053  .261  .443  .600  .731  .837  .917  .971  1.00
+unsafe fn SoilTemOnRootGrowth(t: f64) -> f64 {
+    const p1: f64 = -2.12;
+    const p2: f64 = 0.2;
+    const p3: f64 = -0.0032;
+    if t >= 30. {
+        1.
+    } else {
+        let trf = p1 + t * (p2 + p3 * t);
+        if trf > 1. {
+            1.
+        } else if trf < 0. {
+            0.
+        } else {
+            trf
         }
     }
 }

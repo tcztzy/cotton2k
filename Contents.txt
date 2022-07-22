@@ -93,17 +93,13 @@ The Root System:
 
     File RootGrowth_1.cpp
           RootImpedance()
-          SoilTemOnRootGrowth()
           SoilMechanicResistance()
           SoilAirOnRootGrowth()
           SoilNitrateOnRootGrowth()
           SoilWaterOnRootGrowth()
        
     File RootGrowth_2.cpp
-          TapRootGrowth()
           InitiateLateralRoots()
-          LateralRootGrowthLeft()
-          LateralRootGrowthRight()
           RootCultivation()
           RootSummation()
        

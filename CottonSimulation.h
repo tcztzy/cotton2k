@@ -55,8 +55,6 @@ double TemperatureOnLeafGrowthRate(double t);
 // I
 void InitiateLateralRoots();
 // L
-void LateralRootGrowthLeft(int l);
-void LateralRootGrowthRight(int l);
 void LeafAbscission();
 // M
 void MainStemLeafAbscission(int k, int l, double droplf);
@@ -100,14 +98,12 @@ void SoilSurfaceBalance(int ihr, int k, double ess, double rlzero, double rss,
                         double sf, double hsg, double &so, double &so2,
                         double &so3, double thet, double tm, double tv);
 void SoilSum();
-double SoilTemOnRootGrowth(double t);
 void SoilWaterDataInp();
 double SoilWaterOnRootGrowth(double psislk);
 void SortArray(int size, double InData[], int indexk[], int indexl[],
                int indexm[]);
 void SquareAbscission(int k, int l, int m, double abscissionRatio);
 // T
-void TapRootGrowth();
 double TemperatureOnFruitGrowthRate(double t);
 double SoilTemperatureEffect(double tt);
 double ThermalCondSoil(double q0, double t0, int l0);
