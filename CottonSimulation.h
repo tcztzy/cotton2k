@@ -81,7 +81,6 @@ double PsiOnTranspiration(double PsiAverage);
 int ReadSoilHydraulicData();
 void RootCultivation(int j);
 void RootImpedance();
-void RootsCapableOfUptake();
 void RootSummation();
 // S
 double SensibleHeatTransfer(double tsf, double tenviron, double PlantHeight,

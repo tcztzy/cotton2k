@@ -1,7 +1,6 @@
 // File SoilProcedures_1.cpp
 //
 //   functions in this file:
-// RootsCapableOfUptake()
 // ComputeIrrigation()
 // GetTargetStress()
 // PredictDripIrrigation()
@@ -16,33 +15,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-/////////////////////////////////////////////////////////////////////////////////////////
-void RootsCapableOfUptake()
-//     This function computes the weight of roots capable of uptake for all soil
-//     cells.
-//  It is called from SoilProcedures().
-//
-//     The following global variables are referenced here:
-//       nk, nl, NumLayersWithRoots, RootColNumLeft, RootColNumRight,
-//       RootWeight.
-//     The following global variable is set here:     RootWtCapblUptake
-{
-    const double cuind[3] = {
-        1, 0.5,
-        0};  // the indices for the relative capability of uptake
-             // (between 0 and 1) of water and nutrients by root age classes.
-    for (int l = 0; l < nl; l++)
-        for (int k = 0; k < nk; k++) RootWtCapblUptake[l][k] = 0;
-    //     Loop for all soil soil cells with roots. compute for each soil cell
-    //     root-weight capable
-    //  of uptake (RootWtCapblUptake) as the sum of products of root weight and
-    //  capability of uptake index (cuind) for each root class in it.
-    for (int l = 0; l < NumLayersWithRoots; l++)
-        for (int k = RootColNumLeft[l]; k <= RootColNumRight[l]; k++)
-            for (int i = 0; i < 3; i++)
-                if (RootWeight[l][k][i] > 1.e-15)
-                    RootWtCapblUptake[l][k] += RootWeight[l][k][i] * cuind[i];
-}
 ////////////////////////////////////////////////////////////////////////////////
 void ComputeIrrigation()
 //     This function computes the amount of water (mm) applied by a predicted

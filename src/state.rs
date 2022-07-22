@@ -19,9 +19,9 @@ use crate::{
     NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru, NumFruitBranches,
     NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, PerPlantArea,
     PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile, ReferenceETP,
-    RootColNumLeft, RootWtCapblUptake, RootsCapableOfUptake, RowSpace, SaturatedHydCond, Scratch21,
-    SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum,
-    StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
+    RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace, SaturatedHydCond,
+    Scratch21, SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi,
+    SoilSum, StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
     VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
     CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
@@ -1398,4 +1398,38 @@ fn DripFlow(Drip: f64) -> Result<(), Cotton2KError> {
 
 fn drop_leaf_age(lai: f64) -> f64 {
     140. - 1. * lai
+}
+//     This function computes the weight of roots capable of uptake for all soil
+//     cells.
+//  It is called from SoilProcedures().
+//
+//     The following global variables are referenced here:
+//       nk, nl, NumLayersWithRoots, RootColNumLeft, RootColNumRight,
+//       RootWeight.
+//     The following global variable is set here:     RootWtCapblUptake
+fn RootsCapableOfUptake() {
+    // the indices for the relative capability of uptake (between 0 and 1) of water and nutrients by root age classes.
+    const cuind: [f64; 3] = [1., 0.5, 0.];
+    for l in 0..unsafe { nl } as usize {
+        for k in 0..unsafe { nk } as usize {
+            unsafe {
+                RootWtCapblUptake[l][k] = 0.;
+            }
+        }
+    }
+    //     Loop for all soil soil cells with roots. compute for each soil cell
+    //     root-weight capable
+    //  of uptake (RootWtCapblUptake) as the sum of products of root weight and
+    //  capability of uptake index (cuind) for each root class in it.
+    for l in 0..unsafe { NumLayersWithRoots } as usize {
+        for k in unsafe { RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 } {
+            for i in 0..3 {
+                if unsafe { RootWeight[l][k][i] } > 1.0e-15 {
+                    unsafe {
+                        RootWtCapblUptake[l][k] += RootWeight[l][k][i] * cuind[i];
+                    }
+                }
+            }
+        }
+    }
 }

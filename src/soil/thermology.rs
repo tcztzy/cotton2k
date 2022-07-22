@@ -205,7 +205,7 @@ impl SoilThermology {
                     ess = escol1k / dlt;
                 }
                 // Call EnergyBalance to compute soil surface and canopy temperature.
-                self.soil_energy_balance(ihr, k, bMulchon, ess, etp1);
+                self.soil_energy_balance(ihr, k, bMulchon, ess, etp1).unwrap();
                 if bEnd {
                     return;
                 }
@@ -398,7 +398,7 @@ impl SoilThermology {
             // sensible heat transfer coefficient for soil
             let varcc = SensibleHeatTransfer(tv, tafk, PlantHeight, wndhr); // canopy to air
             if bEnd {
-                return;
+                return Ok(());
             }
             rocp = 0.08471 / tafk;
             c2 = 2.2 * sf * rocp * varcc;
@@ -423,7 +423,7 @@ impl SoilThermology {
                     &mut tm, tv, wndcanp,
                 )?;
                 if bEnd {
-                    return;
+                    return Ok(());
                 }
             } else {
                 // This section executed for non-mulched columns
@@ -432,7 +432,7 @@ impl SoilThermology {
                 // sensible heat transfer coefficientS for soil
                 let varc = SensibleHeatTransfer(so, tafk, 0., wndcanp);
                 if bEnd {
-                    return;
+                    return Ok(());
                 }
                 rocp = 0.08471 / tafk;
                 // multiplier for computing sensible heat transfer soil to air.
@@ -443,7 +443,7 @@ impl SoilThermology {
                     thet, 0., tv,
                 );
                 if bEnd {
-                    return;
+                    return Ok(());
                 }
             }
             if sf >= 0.05 {
@@ -466,7 +466,7 @@ impl SoilThermology {
                 if menit > 30 {
                     // If more than 30 iterations are needed - stop simulation.
                     bEnd = true;
-                    return;
+                    return Ok(());
                 }
             }
             if !((tv - tvold).abs() > 0.05
