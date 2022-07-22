@@ -104,7 +104,6 @@ The Root System:
           InitiateLateralRoots()
           LateralRootGrowthLeft()
           LateralRootGrowthRight()
-          RootAging()
           RootDeath()
           RootCultivation()
           RootSummation()

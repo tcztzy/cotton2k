@@ -5,7 +5,6 @@
 // InitiateLateralRoots()
 // LateralRootGrowthLeft()
 // LateralRootGrowthRight()
-// RootAging()
 // RootDeath()
 // RootCultivation()
 // RootSummation()
@@ -267,43 +266,6 @@ void LateralRootGrowthRight(int l)
             //     RootColNumLeft of this layer is redefined.
             if (RootAge[l][newktip] == 0) RootAge[l][newktip] = 0.01;
             if (newktip > RootColNumRight[l]) RootColNumRight[l] = newktip;
-        }
-    }
-}
-///////////////////////////////////////////////////////////////////////////////
-void RootAging(int l, int k)
-//     This function is called from ActualRootGrowth(). It updates the variable
-//     celage(l,k)
-//  for the age of roots in each soil cell containing roots. When root age
-//  reaches a threshold thtrn(i), a transformation of root tissue from class i
-//  to class i+1 occurs. The proportion transformed is trn(i).
-//     It has been adapted from the code of GOSSYM, but the threshold
-//  age for this process is based on the time from when the roots first
-//  grew into each soil cell (whereas the time from emergence was used
-//  in GOSSYM). Note: only 3 root age groups are assumed here.
-//
-//     The following global variable is referenced here: SoilTempDailyAvrg. The
-//     following global variables are set here:        RootAge, RootWeight. The
-//     arguments k, l - are column and layer numbers.
-{
-    //     The following constant parameters are used:
-    const double thtrn[2] = {20.0,
-                             40.0};  // the time threshold, from the initial
-    // penetration of roots to a soil cell, after which some of the root
-    // mass of class i may be transferred into the next class (i+1).
-    const double trn[2] = {0.0060,
-                           0.0050};  //  the daily proportion of this transfer.
-                                     //
-    double stday;  // daily average soil temperature (c) of soil cell.
-    stday = SoilTempDailyAvrg[l][k] - 273.161;
-    RootAge[l][k] += SoilTemOnRootGrowth(stday);
-    //
-    for (int i = 0; i < 2; i++) {
-        if (RootAge[l][k] > thtrn[i]) {
-            double xtr;  // root mass transferred from one class to the next.
-            xtr = trn[i] * RootWeight[l][k][i];
-            RootWeight[l][k][i + 1] += xtr;
-            RootWeight[l][k][i] -= xtr;
         }
     }
 }

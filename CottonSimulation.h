@@ -81,7 +81,6 @@ void PreFruitLeafAbscission(double droplf);
 double PsiOnTranspiration(double PsiAverage);
 // R
 int ReadSoilHydraulicData();
-void RootAging(int l, int k);
 void RootCultivation(int j);
 void RootDeath(int l, int k);
 void RootImpedance();

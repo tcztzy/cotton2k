@@ -48,7 +48,7 @@ use crate::{
     CultivationDate, CumPlantNLoss, DailyRootLoss, DayEmerge, Daynum, DepthLastRootLayer,
     ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag, LateralRootGrowthLeft,
     LateralRootGrowthRight, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants,
-    PlantRowColumn, PoreSpace, PotGroRoots, RootAge, RootAging, RootColNumLeft, RootColNumRight,
+    PlantRowColumn, PoreSpace, PotGroRoots, RootAge, RootColNumLeft, RootColNumRight,
     RootCultivation, RootDeath, RootGroFactor, RootImpedance, RootNConc, RootNitrogen,
     RootSummation, RootWeight, RootWeightLoss, RowSpace, SoilAirOnRootGrowth,
     SoilMechanicResistance, SoilNitrateOnRootGrowth, SoilPsi, SoilTemOnRootGrowth,
@@ -290,7 +290,7 @@ impl RootGrowth for Plant {
                 // and then compute root aging and root death by calling RootAging() and RootDeath()
                 // for each soil cell with roots.
                 if RootAge[l][k] > 0. {
-                    RootAging(l as i32, k as i32);
+                    RootAging(l, k);
                     RootDeath(l as i32, k as i32);
                 }
             }
@@ -422,5 +422,36 @@ unsafe fn RedistRootNewGrowth(l: usize, k: usize, addwt: f64) {
     }
     if kp1 > RootColNumRight[l] as usize {
         RootColNumRight[l] = kp1 as i32;
+    }
+}
+/// Called from ActualRootGrowth(). It updates the variable celage(l,k) for the age of roots in each soil cell containing roots. When root age
+/// reaches a threshold thtrn(i), a transformation of root tissue from class i to class i+1 occurs. The proportion transformed is trn(i).
+///
+/// It has been adapted from the code of GOSSYM, but the threshold
+/// age for this process is based on the time from when the roots first
+/// grew into each soil cell (whereas the time from emergence was used
+/// in GOSSYM). Note: only 3 root age groups are assumed here.
+///
+/// The following global variable is referenced here: SoilTempDailyAvrg. The
+/// following global variables are set here:        RootAge, RootWeight. The
+/// arguments k, l - are column and layer numbers.
+unsafe fn RootAging(l: usize, k: usize) {
+    //     The following constant parameters are used:
+    const thtrn: [f64; 2] = [20.0, 40.0]; // the time threshold, from the initial
+                                          // penetration of roots to a soil cell, after which some of the root
+                                          // mass of class i may be transferred into the next class (i+1).
+    const trn: [f64; 2] = [0.0060, 0.0050]; //  the daily proportion of this transfer.
+                                            //
+                                            // daily average soil temperature (c) of soil cell.
+    let stday = SoilTempDailyAvrg[l][k] - 273.161;
+    RootAge[l][k] += SoilTemOnRootGrowth(stday);
+    //
+    for i in 0..2 {
+        if RootAge[l][k] > thtrn[i] {
+            // root mass transferred from one class to the next.
+            let xtr = trn[i] * RootWeight[l][k][i];
+            RootWeight[l][k][i + 1] += xtr;
+            RootWeight[l][k][i] -= xtr;
+        }
     }
 }
