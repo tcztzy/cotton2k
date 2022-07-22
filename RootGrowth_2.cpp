@@ -270,58 +270,6 @@ void LateralRootGrowthRight(int l)
     }
 }
 //////////////////////////////
-void RootDeath(int l, int k) {
-    //     This function computes the death of root tissue in each soil cell
-    //     containing roots.
-    //  When root age reaches a threshold thdth(i), a proportion dth(i) of the
-    //  roots in class i dies. The mass of dead roots is added to DailyRootLoss.
-    //     It has been adapted from GOSSYM, but the threshold age for this
-    //     process is based on
-    //  the time from when the roots first grew into each soil cell.
-    //     It is assumed that root death rate is greater in dry soil, for all
-    //     root classes except
-    //  class 1. Root death rate is increased to the maximum value in soil
-    //  saturated with water.
-    //
-    //     The following global variables are referenced here:
-    //       RootAge, PoreSpace, SoilPsi, VolWaterContent
-    //     The following global variables are set here:
-    //       RootWeight, DailyRootLoss
-    //     The arguments k, l - are column and layer numbers.
-    //
-    //     The constant parameters are used:
-    const double aa =
-        0.008;  // a parameter in the equation for computing dthfac.
-    const double dth[3] = {
-        0.0001, 0.0002,
-        0.0001};  // the daily proportion of death of root tissue.
-    const double dthmax =
-        0.10;  // a parameter in the equation for computing dthfac.
-    const double psi0 =
-        -14.5;  // a parameter in the equation for computing dthfac.
-    const double thdth[3] = {
-        30.0, 50.0, 100.0};  // the time threshold, from the initial
-                             // penetration of roots to a soil cell, after
-                             // which death of root tissue of class i may occur.
-                             //
-    for (int i = 0; i < 3; i++) {
-        if (RootAge[l][k] > thdth[i]) {
-            double dthfac;  // the computed proportion of roots dying in each
-                            // class.
-            dthfac = dth[i];
-            if (VolWaterContent[l][k] >= PoreSpace[l])
-                dthfac = dthmax;
-            else {
-                if (i <= 1 && SoilPsi[l][k] <= psi0)
-                    dthfac += aa * (psi0 - SoilPsi[l][k]);
-                if (dthfac > dthmax) dthfac = dthmax;
-            }
-            DailyRootLoss += RootWeight[l][k][i] * dthfac;
-            RootWeight[l][k][i] -= RootWeight[l][k][i] * dthfac;
-        }
-    }
-}
-//////////////////////////////
 void RootCultivation(int j)
 //     This function is executed on the day of soil cultivation. It is called
 //     from

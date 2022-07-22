@@ -49,11 +49,10 @@ use crate::{
     ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag, LateralRootGrowthLeft,
     LateralRootGrowthRight, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants,
     PlantRowColumn, PoreSpace, PotGroRoots, RootAge, RootColNumLeft, RootColNumRight,
-    RootCultivation, RootDeath, RootGroFactor, RootImpedance, RootNConc, RootNitrogen,
-    RootSummation, RootWeight, RootWeightLoss, RowSpace, SoilAirOnRootGrowth,
-    SoilMechanicResistance, SoilNitrateOnRootGrowth, SoilPsi, SoilTemOnRootGrowth,
-    SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootGrowth, TapRootLength, VolNo3NContent,
-    VolWaterContent,
+    RootCultivation, RootGroFactor, RootImpedance, RootNConc, RootNitrogen, RootSummation,
+    RootWeight, RootWeightLoss, RowSpace, SoilAirOnRootGrowth, SoilMechanicResistance,
+    SoilNitrateOnRootGrowth, SoilPsi, SoilTemOnRootGrowth, SoilTempDailyAvrg,
+    SoilWaterOnRootGrowth, TapRootGrowth, TapRootLength, VolNo3NContent, VolWaterContent,
 };
 use ndarray::prelude::*;
 use ndarray::{Array, Array2, Ix2};
@@ -291,7 +290,7 @@ impl RootGrowth for Plant {
                 // for each soil cell with roots.
                 if RootAge[l][k] > 0. {
                     RootAging(l, k);
-                    RootDeath(l as i32, k as i32);
+                    RootDeath(l, k);
                 }
             }
         }
@@ -452,6 +451,51 @@ unsafe fn RootAging(l: usize, k: usize) {
             let xtr = trn[i] * RootWeight[l][k][i];
             RootWeight[l][k][i + 1] += xtr;
             RootWeight[l][k][i] -= xtr;
+        }
+    }
+}
+/// Computes the death of root tissue in each soil cell containing roots.
+///
+/// When root age reaches a threshold thdth(i), a proportion dth(i) of the roots in class i dies.
+/// The mass of dead roots is added to DailyRootLoss.
+/// It has been adapted from GOSSYM, but the threshold age for this process is based on the time from when the roots first grew into each soil cell.
+/// It is assumed that root death rate is greater in dry soil, for all root classes except class 1.
+/// Root death rate is increased to the maximum value in soil saturated with water.
+///
+///    The following global variables are referenced here:
+///      RootAge, PoreSpace, SoilPsi, VolWaterContent
+///    The following global variables are set here:
+///      RootWeight, DailyRootLoss
+///    The arguments k, l - are column and layer numbers.
+unsafe fn RootDeath(l: usize, k: usize) {
+    // The constant parameters are used:
+    // a parameter in the equation for computing dthfac.
+    const aa: f64 = 0.008;
+    // the daily proportion of death of root tissue.
+    const dth: [f64; 3] = [0.0001, 0.0002, 0.0001];
+    // a parameter in the equation for computing dthfac.
+    const dthmax: f64 = 0.10;
+    // a parameter in the equation for computing dthfac.
+    const psi0: f64 = -14.5;
+    // the time threshold, from the initial penetration of roots to a soil cell, after which death of root tissue of class i may occur.
+    const thdth: [f64; 3] = [30.0, 50.0, 100.0];
+    for i in 0..3 {
+        if RootAge[l][k] > thdth[i] {
+            // the computed proportion of roots dying in each
+            // class.
+            let mut dthfac = dth[i];
+            if VolWaterContent[l][k] >= PoreSpace[l] {
+                dthfac = dthmax;
+            } else {
+                if i <= 1 && SoilPsi[l][k] <= psi0 {
+                    dthfac += aa * (psi0 - SoilPsi[l][k]);
+                }
+                if dthfac > dthmax {
+                    dthfac = dthmax;
+                }
+            }
+            DailyRootLoss += RootWeight[l][k][i] * dthfac;
+            RootWeight[l][k][i] -= RootWeight[l][k][i] * dthfac;
         }
     }
 }

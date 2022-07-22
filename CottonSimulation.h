@@ -82,7 +82,6 @@ double PsiOnTranspiration(double PsiAverage);
 // R
 int ReadSoilHydraulicData();
 void RootCultivation(int j);
-void RootDeath(int l, int k);
 void RootImpedance();
 void RootsCapableOfUptake();
 void RootSummation();
