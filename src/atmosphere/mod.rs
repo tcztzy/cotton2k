@@ -608,8 +608,8 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
         //      refalbed is called to compute the reference albedo for each
         //      hour.
         albedo[ihr] = refalbed(isr, Radiation[ihr], cosz, suna);
-    } //   End of 1st hourly loop
-      //     Zero some variables that will later be used for summation.
+    }
+    // Zero some variables that will later be used for summation.
     ReferenceTransp = 0.;
     Rn = 0.; // daily net radiation
     let mut rnet: [f64; 24] = [0.; 24]; // hourly net radiation
@@ -684,6 +684,9 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
 /// Input arguments:
 /// * `vp` - vapor pressure of the air in KPa
 /// * `tk` - air temperature in K.
+///
+/// References:
+/// * https://doi.org/10.1029/WR017i002p00295
 pub fn clearskyemiss(vp: f64, tk: f64) -> f64 {
     // Convert vp to mbars
     // vapor pressure of the air in mbars.
@@ -695,14 +698,11 @@ pub fn clearskyemiss(vp: f64, tk: f64) -> f64 {
     } else {
         ea0
     }
-    // Reference:
-    // Idso, S.B. 1981. A set of equations for full spectrum and 8- to 14-um
-    // and 10.5- to 12.5- um thermal radiation from cloudless skies. Water
-    // Resources Res. 17:295.
 }
 
 /// Computes cloud cover for this hour from radiation data, using the CIMIS algorithm.
 /// The return value is cloud cover ratio ( 0 to 1 )
+///
 /// Input arguments:
 /// * `radihr` - hourly global radiation in W m<sup>-2</sup>.
 /// * `isr` - hourly extraterrestrial radiation in W m<sup>-2</sup>.

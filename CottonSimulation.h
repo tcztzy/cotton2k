@@ -103,7 +103,6 @@ void SortArray(int size, double InData[], int indexk[], int indexl[],
                int indexm[]);
 void SquareAbscission(int k, int l, int m, double abscissionRatio);
 // T
-double TemperatureOnFruitGrowthRate(double t);
 double SoilTemperatureEffect(double tt);
 double ThermalCondSoil(double q0, double t0, int l0);
 // U, V

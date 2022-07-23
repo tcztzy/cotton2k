@@ -7,8 +7,8 @@ use crate::{
     NStressVeg, NightTimeTemp, NumAdjustDays, NumFruitBranches, NumNodes, NumPreFruNodes,
     NumVegBranches, PerPlantArea, PlantHeight, PotGroAllBolls, PotGroAllBurrs, PotGroAllRoots,
     PotGroAllSquares, PotGroBolls, PotGroBurrs, PotGroSquares, PotGroStem, PotentialLeafGrowth,
-    PotentialStemGrowth, RowSpace, StemWeight, TemperatureOnFruitGrowthRate, TotalLeafArea,
-    TotalPetioleWeight, TotalStemWeight, VarPar, WaterStress, WaterStressStem,
+    PotentialStemGrowth, RowSpace, StemWeight, TotalLeafArea, TotalPetioleWeight, TotalStemWeight,
+    VarPar, WaterStress, WaterStressStem,
 };
 
 use super::Plant;
@@ -279,12 +279,8 @@ unsafe fn PotentialFruitGrowth(daylength: Duration) {
     // maximum possible boll (seed and lint) weight, g per boll.
     let wbmax = VarPar[11];
     for k in 0..NumVegBranches as usize {
-        let nbrch = NumFruitBranches[k] as usize; // number of fruiting branches on a vegetative stem.
-        for l in 0..nbrch
-        // loop of fruiting branches
-        {
-            let nnid = NumNodes[k][l] as usize; // number of nodes on a fruiting branch.
-            for m in 0..nnid {
+        for l in 0..NumFruitBranches[k] as usize {
+            for m in 0..NumNodes[k][l] as usize {
                 //     Calculate potential square growth for node (k,l,m).
                 //     Sum potential growth rates of squares as
                 //     PotGroAllSquares.
@@ -298,12 +294,12 @@ unsafe fn PotentialFruitGrowth(daylength: Duration) {
                     PotGroSquares[k][l][m] = ratesqr * FruitFraction[k][l][m];
                     PotGroAllSquares += PotGroSquares[k][l][m];
                 }
-                //     Growth of seedcotton is simulated separately from the
-                //     growth of burrs.
-                //  The logistic function is used to simulate growth of
-                //  seedcotton. The constants of this function for cultivar
-                //  'Acala-SJ2', are based on the data of Marani (1979); they
-                //  are derived from calibration for other cultivars
+                // Growth of seedcotton is simulated separately from the growth of burrs.
+                //
+                // The logistic function is used to simulate growth of seedcotton.
+                //
+                // The constants of this function for cultivar 'Acala-SJ2', are based on the data of Marani (1979);
+                // they are derived from calibration for other cultivars
                 //     agemax is the age of the boll (in physiological days
                 //     after
                 //  bloom) at the time when the boll growth rate is maximal.
@@ -324,56 +320,73 @@ unsafe fn PotentialFruitGrowth(daylength: Duration) {
                 //  derivative of this function:
                 //            ratebol = 4 * rbmax * pex / (1. + pex)**2
                 else if FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7 {
-                    //     pex is an intermediate variable to compute boll
-                    //     growth.
+                    // pex is an intermediate variable to compute boll growth.
                     let pex = (-4. * rbmax * (AgeOfBoll[k][l][m] - agemax) / wbmax).exp();
-                    //  ratebol is the rate of boll (seed and lint) growth, g
-                    //  per boll per day.
+                    // ratebol is the rate of boll (seed and lint) growth, g per boll per day.
                     let ratebol = 4. * rbmax * pex / (1. + pex).powi(2) * tfrt;
-                    //     Potential growth rate of the burrs is assumed to be
-                    //     constant (vpotfrt[4] g dry weight
-                    //  per day) until the boll reaches its final volume. This
-                    //  occurs at the age of 22 physiological days in
-                    //  'Acala-SJ2'. Both ratebol and ratebur are modified by
-                    //  temperature (tfrt) and ratebur is also affected by water
-                    //  stress (wfdb).
-                    //     Compute wfdb for the effect of water stress on burr
-                    //     growth rate.
-                    //  wfdb is the effect of water stress on rate of burr
-                    //  growth.
-                    let mut wfdb = vpotfrt[0] + vpotfrt[1] * WaterStress;
-                    if wfdb < 0. {
-                        wfdb = 0.;
-                    }
-                    if wfdb > 1. {
-                        wfdb = 1.;
-                    }
+                    // Potential growth rate of the burrs is assumed to be constant (vpotfrt[4] g dry weight per day) until the boll reaches its final volume.
+                    // This occurs at the age of 22 physiological days in 'Acala-SJ2'.
+                    // Both ratebol and ratebur are modified by temperature (tfrt) and ratebur is also affected by water stress (wfdb).
+
                     // rate of burr growth, g per boll per day.
                     let ratebur = if AgeOfBoll[k][l][m] >= 22. {
                         0.
                     } else {
-                        vpotfrt[4] * tfrt * wfdb
+                        // Compute wfdb for the effect of water stress on burr growth rate.
+                        // wfdb is the effect of water stress on rate of burr growth.
+                        let wfdb = vpotfrt[0] + vpotfrt[1] * WaterStress;
+                        vpotfrt[4]
+                            * tfrt
+                            * if wfdb < 0. {
+                                0.
+                            } else if wfdb > 1. {
+                                1.
+                            } else {
+                                wfdb
+                            }
                     };
-                    //     Potential boll (seeds and lint) growth rate (ratebol)
-                    //     and
-                    //  potential burr growth rate (ratebur) are multiplied by
-                    //  FruitFraction to compute PotGroBolls and PotGroBurrs for
-                    //  node (k,l,m).
+                    // Potential boll (seeds and lint) growth rate (ratebol) and potential burr growth rate (ratebur) are multiplied by FruitFraction to compute PotGroBolls and PotGroBurrs for node (k,l,m).
                     PotGroBolls[k][l][m] = ratebol * FruitFraction[k][l][m];
                     PotGroBurrs[k][l][m] = ratebur * FruitFraction[k][l][m];
-                    //     Sum potential growth rates of bolls and burrs as
-                    //     PotGroAllBolls and
-                    //  PotGroAllBurrs, respectively.
+                    // Sum potential growth rates of bolls and burrs as PotGroAllBolls and PotGroAllBurrs, respectively.
                     PotGroAllBolls += PotGroBolls[k][l][m];
                     PotGroAllBurrs += PotGroBurrs[k][l][m];
                 }
-                //     If these are not green bolls, their potential growth is
-                //     0. End loop.
+                // If these are not green bolls, their potential growth is 0. End loop.
                 else {
                     PotGroBolls[k][l][m] = 0.;
                     PotGroBurrs[k][l][m] = 0.;
-                } // if FruitingCode
-            } // for m
-        } // for l
-    } // for k
+                }
+            }
+        }
+    }
+}
+/// Computes the effect of air temperature (t) on growth rate of bolls in cotton plants.
+/// It is called from PotentialFruitGrowth().
+///
+/// Some values computed by this function:
+///
+/// | t (C)  |      tfr        |
+/// |--------|-----------------|
+/// | 12     | 0.              |
+/// | 15     | 0.336           |
+/// | 20     | 0.751           |
+/// | 25     | 0.978           |
+/// | 26     | 1.              |
+/// | 28.5   | 1.024 (maximum) |
+/// | 30     | 1.016           |
+/// | 35     | 0.866           |
+/// | 40     | 0.527           |
+/// | 45     | 0.              |
+fn TemperatureOnFruitGrowthRate(t: f64) -> f64 {
+    const p1: f64 = -2.041;
+    const p2: f64 = 0.215;
+    const p3: f64 = 0.00377;
+    let tfr = p1 + t * (p2 - p3 * t);
+
+    if tfr < 0. {
+        0.
+    } else {
+        tfr
+    }
 }
