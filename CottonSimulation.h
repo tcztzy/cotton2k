@@ -70,7 +70,6 @@ void NitrogenFlow(int nn, double q01[], double q1[], double dd[], double nit[],
 void NitrogenUptake(int l, int k, double reqnc);
 // P
 void PotentialLeafGrowth();
-double PotentialStemGrowth(double stemnew);
 void PredictEmergence(int hour);
 void PredictDripIrrigation(double TargetStress);
 void PredictSurfaceIrrigation(double TargetStress);

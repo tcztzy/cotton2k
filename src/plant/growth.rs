@@ -1,5 +1,6 @@
 use crate::atmosphere::Atmosphere;
 use crate::plant::root::{PotentialRootGrowth, RootGrowth};
+use crate::utils::fmax;
 use crate::{
     nadj, pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AdjAddHeightRate,
     AgeOfBoll, AgeOfPreFruNode, AgeOfSite, AirTemp, CarbonStress, DayInc, DayTimeTemp,
@@ -7,8 +8,8 @@ use crate::{
     NStressVeg, NightTimeTemp, NumAdjustDays, NumFruitBranches, NumNodes, NumPreFruNodes,
     NumVegBranches, PerPlantArea, PlantHeight, PotGroAllBolls, PotGroAllBurrs, PotGroAllRoots,
     PotGroAllSquares, PotGroBolls, PotGroBurrs, PotGroSquares, PotGroStem, PotentialLeafGrowth,
-    PotentialStemGrowth, RowSpace, StemWeight, TotalLeafArea, TotalPetioleWeight, TotalStemWeight,
-    VarPar, WaterStress, WaterStressStem,
+    RowSpace, StemWeight, TotalLeafArea, TotalPetioleWeight, TotalStemWeight, VarPar, WaterStress,
+    WaterStressStem,
 };
 
 use super::Plant;
@@ -255,10 +256,10 @@ pub fn LeafResistance(agel: f64) -> f64 {
 ///       PotGroAllBolls, PotGroAllBurrs, PotGroAllSquares, PotGroBolls,
 ///       PotGroBurrs, PotGroSquares.
 /// References:
-/// * Marani, A. 1979. Growth rate of cotton bolls and their components. Field Crops Res. 2:169-175.
-/// * Marani, A., Phene, C.J. and Cardon, G.E. 1992. CALGOS, a version of GOSSYM adapted for irrigated cotton.  III. leaf and boll growth routines. Beltwide Cotton Grow, Res. Conf. 1992:1361-1363.
+/// * https://doi.org/10.1016/0378-4290(79)90019-4
+/// * https://agris.fao.org/agris-search/search.do?recordID=US9323856
 unsafe fn PotentialFruitGrowth(daylength: Duration) {
-    //     The constant parameters used:
+    // The constant parameters used:
     const vpotfrt: [f64; 5] = [0.72, 0.30, 3.875, 0.125, 0.17];
     // Compute tfrt for the effect of temperature on boll and burr growth rates.
     // Function [TemperatureOnFruitGrowthRate()] is used (with parameters derived from GOSSYM), for day time and night time temperatures, weighted by day and night lengths.
@@ -281,14 +282,11 @@ unsafe fn PotentialFruitGrowth(daylength: Duration) {
     for k in 0..NumVegBranches as usize {
         for l in 0..NumFruitBranches[k] as usize {
             for m in 0..NumNodes[k][l] as usize {
-                //     Calculate potential square growth for node (k,l,m).
-                //     Sum potential growth rates of squares as
-                //     PotGroAllSquares.
+                // Calculate potential square growth for node (k,l,m).
+                // Sum potential growth rates of squares as PotGroAllSquares.
                 if FruitingCode[k][l][m] == 1 {
-                    //     ratesqr is the rate of square growth, g per square
-                    //     per day.
-                    //  The routine for this is derived from GOSSYM, and so are
-                    //  the parameters used.
+                    // ratesqr is the rate of square growth, g per square per day.
+                    // The routine for this is derived from GOSSYM, and so are the parameters used.
                     let ratesqr =
                         tfrt * vpotfrt[3] * (-vpotfrt[2] + vpotfrt[3] * AgeOfSite[k][l][m]).exp();
                     PotGroSquares[k][l][m] = ratesqr * FruitFraction[k][l][m];
@@ -299,26 +297,26 @@ unsafe fn PotentialFruitGrowth(daylength: Duration) {
                 // The logistic function is used to simulate growth of seedcotton.
                 //
                 // The constants of this function for cultivar 'Acala-SJ2', are based on the data of Marani (1979);
-                // they are derived from calibration for other cultivars
-                //     agemax is the age of the boll (in physiological days
-                //     after
-                //  bloom) at the time when the boll growth rate is maximal.
-                //     rbmax is the potential maximum rate of boll growth (g
-                //     seeds
-                //  plus lint dry weight per physiological day) at this age.
-                //     wbmax is the maximum potential weight of seed plus lint
-                //     (g dry
-                //  weight per boll).
-                //     The auxiliary variable pex is computed as
-                //            pex = exp(-4 * rbmax * (t - agemax) / wbmax)
-                //  where t is the physiological age of the boll after bloom (=
-                //  agebol).
-                //     Boll weight (seed plus lint) at age T, according to the
-                //  logistic function is:
-                //            wbol = wbmax / (1 + pex)
-                //  and the potential boll growth rate at this age will be the
-                //  derivative of this function:
-                //            ratebol = 4 * rbmax * pex / (1. + pex)**2
+                // they are derived from calibration for other cultivars agemax is the age of the boll (in physiological days after bloom) at the time when the boll growth rate is maximal.
+                //
+                // rbmax is the potential maximum rate of boll growth (g seeds plus lint dry weight per physiological day) at this age.
+                //
+                // wbmax is the maximum potential weight of seed plus lint (g dry weight per boll).
+                //
+                // The auxiliary variable pex is computed as:
+                //
+                //     pex = exp(-4 * rbmax * (t - agemax) / wbmax)
+                //
+                //  where t is the physiological age of the boll after bloom (=agebol).
+                //
+                // Boll weight (seed plus lint) at age T, according to the logistic function is:
+                //
+                //     wbol = wbmax / (1 + pex)
+                //
+                // and the potential boll growth rate at this age will be the
+                // derivative of this function:
+                //
+                //     ratebol = 4 * rbmax * pex / (1. + pex)**2
                 else if FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7 {
                     // pex is an intermediate variable to compute boll growth.
                     let pex = (-4. * rbmax * (AgeOfBoll[k][l][m] - agemax) / wbmax).exp();
@@ -388,5 +386,31 @@ fn TemperatureOnFruitGrowthRate(t: f64) -> f64 {
         0.
     } else {
         tfr
+    }
+}
+/// Computes and returns the potential stem growth of cotton plants.
+/// It is called from PlantGrowth().
+/// 
+/// The following argument is used:
+/// * `stemnew` - dry weight of active stem tissue.
+/// The following global variables are referenced here:
+/// * [DensityFactor]
+/// * [FruitingCode]
+/// * [Kday]
+/// * [VarPar]
+unsafe fn PotentialStemGrowth(stemnew: f64) -> f64 {
+    // There are two periods for computation of potential stem growth:
+    // (1) Before the appearance of a square on the third fruiting branch.
+    // Potential stem growth is a functon of plant age (Kday, days from emergence).
+    if FruitingCode[0][2][0] == 0 {
+        VarPar[12] * (VarPar[13] + VarPar[14] * Kday as f64)
+    }
+    // (2) After the appearance of a square on the third fruiting branch.
+    // It is assumed that all stem tissue that is more than 32 days old is not active.
+    // Potential stem growth is a function of active stem tissue weight (stemnew), and plant density (denfac).
+    else {
+        // effect of plant density on stem growth rate.
+        let denfac = 1. - VarPar[15] * (1. - DensityFactor);
+        fmax(denfac, 0.2) * VarPar[16] * (VarPar[17] + VarPar[18] * stemnew)
     }
 }

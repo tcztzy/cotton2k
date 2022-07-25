@@ -108,7 +108,6 @@ Package G.
 The Cotton Plant:    
 
     File  PlantGrowth_2.cpp
-          PotentialStemGrowth()
           PotentialLeafGrowth()
           TemperatureOnLeafGrowthRate()
 
