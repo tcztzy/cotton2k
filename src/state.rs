@@ -20,8 +20,8 @@ use crate::{
     NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, PerPlantArea,
     PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile, ReferenceETP,
     RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace, SaturatedHydCond,
-    Scratch21, SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi,
-    SoilSum, StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
+    SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum,
+    StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
     VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
     CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
@@ -375,9 +375,7 @@ impl State {
                 Clim[j as usize].Rain = rainToday;
             }
         }
-        unsafe {
-            Scratch21[(DayOfSimulation - 1) as usize].runoff = runoffToday;
-        }
+        self.soil.hydrology.runoff = runoffToday;
         let mut water_to_apply = unsafe { GetFromClim(CLIMATE_METRIC_RAIN, Daynum) };
         // If irrigation is to be predicted for this day, call ComputeIrrigation() to compute the actual amount of irrigation.
         unsafe {
@@ -410,12 +408,6 @@ impl State {
         }
         unsafe {
             CumWaterAdded += water_to_apply + drip_water_amount;
-        }
-        unsafe {
-            if Kday > 0 {
-                Scratch21[(DayOfSimulation - 1) as usize].amitri =
-                    water_to_apply + drip_water_amount;
-            }
         }
         unsafe {
             // The following will be executed only after plant emergence

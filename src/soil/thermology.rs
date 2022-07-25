@@ -2,12 +2,12 @@ use crate::atmosphere::{clearskyemiss, vapor_pressure};
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
-    Cotton2KError, CumEvaporation, DayEndMulch, DayOfSimulation, DayPlant, DayStart, DayStartMulch,
-    Daynum, DeepSoilTemperature, FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, Kday,
-    MulchIndicator, MulchSurfaceBalance, MulchTemp, MulchTranLW, MulchTranSW, PlantHeight,
-    PlantRowColumn, PoreSpace, PredictEmergence, Radiation, ReferenceETP, ReferenceTransp,
-    RelativeHumidity, RowSpace, Scratch21, SensibleHeatTransfer, SitePar, SoilSurfaceBalance,
-    SoilTemp, SoilTempDailyAvrg, ThermalCondSoil, VolWaterContent, WindSpeed,
+    Cotton2KError, CumEvaporation, DayEndMulch, DayPlant, DayStart, DayStartMulch, Daynum,
+    DeepSoilTemperature, FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, MulchIndicator,
+    MulchSurfaceBalance, MulchTemp, MulchTranLW, MulchTranSW, PlantHeight, PlantRowColumn,
+    PoreSpace, PredictEmergence, Radiation, ReferenceETP, ReferenceTransp, RelativeHumidity,
+    RowSpace, SensibleHeatTransfer, SitePar, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg,
+    ThermalCondSoil, VolWaterContent, WindSpeed,
 };
 const maxl: usize = 40;
 
@@ -24,6 +24,8 @@ pub struct SoilThermology {
     ts1: [f64; maxl],
     /// heat capacity of soil layer (cal cm-3 oC-1).
     hcap: [f64; maxl],
+    /// potential evaporation rate, mm day-1
+    es: f64,
 }
 
 impl SoilThermology {
@@ -80,6 +82,7 @@ impl SoilThermology {
             ts0: [0.; 40],
             ts1: [0.; 40],
             hcap: [0.; 40],
+            es: 0.,
         }
     }
 
@@ -130,10 +133,8 @@ impl SoilThermology {
                 SoilTempDailyAvrg[l][k] = 0.;
             }
         }
-        //     es and ActualSoilEvaporation are computed as the average for the
-        //     whole soil
-        //  slab, weighted by column widths.
-        let mut es = 0f64; // potential evaporation rate, mm day-1
+        // es and ActualSoilEvaporation are computed as the average for the whole soil slab, weighted by column widths.
+        self.es = 0.;
         ActualSoilEvaporation = 0.;
         //     Start hourly loop of iterations.
         for ihr in 0..iter1 {
@@ -194,7 +195,7 @@ impl SoilThermology {
                     // vapor deficit component of the Penman equation (es2hour).
                     // potential evaporation fron soil surface of a column, mm per hour.
                     let mut escol1k = es1hour[ihr] * self.rracol[k] + es2hour[ihr];
-                    es += escol1k * wk[k];
+                    self.es += escol1k * wk[k];
                     // Compute actual evaporation from soil surface. Update VolWaterContent of the soil soil cell, and add to daily sum of actual evaporation.
                     let evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10. * dl[0]; // maximum possible evaporatio from a soil cell near the surface.
                     if escol1k > evapmax {
@@ -205,7 +206,8 @@ impl SoilThermology {
                     ess = escol1k / dlt;
                 }
                 // Call EnergyBalance to compute soil surface and canopy temperature.
-                self.soil_energy_balance(ihr, k, bMulchon, ess, etp1).unwrap();
+                self.soil_energy_balance(ihr, k, bMulchon, ess, etp1)
+                    .unwrap();
                 if bEnd {
                     return;
                 }
@@ -261,17 +263,13 @@ impl SoilThermology {
         }
         // At the end of the day compute actual daily evaporation and its cumulative sum.
         if kk == 1 {
-            es /= wk[1];
+            self.es /= wk[1];
             ActualSoilEvaporation = ActualSoilEvaporation / wk[1];
         } else {
-            es /= RowSpace;
+            self.es /= RowSpace;
             ActualSoilEvaporation = ActualSoilEvaporation / RowSpace;
         }
         CumEvaporation += ActualSoilEvaporation;
-        if Kday > 0 {
-            Scratch21[(DayOfSimulation - 1) as usize].es = es;
-            Scratch21[(DayOfSimulation - 1) as usize].cumEvaporation = CumEvaporation;
-        }
         // compute daily averages.
         for l in 0..nl as usize {
             for k in 0..nk as usize {

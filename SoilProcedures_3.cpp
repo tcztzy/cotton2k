@@ -38,7 +38,6 @@ void WaterUptake()
     //     The potential transpiration is the product of the daytime Penman
     //     equation and LightInter1.
     double PotentialTranspiration = ReferenceTransp * LightInter1;
-    Scratch21[DayOfSimulation - 1].ep = PotentialTranspiration;
     double upf[40]
               [20];  // uptake factor, computed as a ratio, for each soil cell
     double uptk[40]

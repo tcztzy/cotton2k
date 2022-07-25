@@ -105,10 +105,6 @@ void RootSummation()
             for (int i = 0; i < 3; i++) rootsv[l][k] += RootWeight[l][k][i];
             roots += rootsv[l][k];
         }
-    //
-    for (int l = 0; l < maxl; l++)
-        for (int k = 0; k < maxk; k++)
-            Scratch21[DayOfSimulation - 1].rootsv[l][k] = rootsv[l][k];
     //     Convert total root weight from g per slab to g per plant.
     TotalRootWeight = roots * 100 * PerPlantArea / RowSpace;
 }

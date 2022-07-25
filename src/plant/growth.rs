@@ -390,7 +390,7 @@ fn TemperatureOnFruitGrowthRate(t: f64) -> f64 {
 }
 /// Computes and returns the potential stem growth of cotton plants.
 /// It is called from PlantGrowth().
-/// 
+///
 /// The following argument is used:
 /// * `stemnew` - dry weight of active stem tissue.
 /// The following global variables are referenced here:

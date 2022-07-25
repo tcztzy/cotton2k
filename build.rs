@@ -11,7 +11,6 @@ fn main() {
         "GettingInput_2.cpp",
         "global.cpp",
         "LeafAbscission.cpp",
-        "PlantAdjustment.cpp",
         "PlantGrowth_2.cpp",
         "PlantGrowth_3.cpp",
         "RootGrowth_1.cpp",

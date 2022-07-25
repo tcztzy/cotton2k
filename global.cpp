@@ -14,9 +14,6 @@ struct Climstruct
                 // double Tdew = dew point temperature, C.
                 // double Rain = daily rainfall, mm.
                 // double Wind = daily wind run, km.
-struct scratch Scratch21[400];  // structure used to store daily values of many
-                                // state variables,
-                                //  see details in file global.h
 struct Irrigation
     Irrig[150];  // irrigation application information for each day.
                  // int day = date of application (DOY)

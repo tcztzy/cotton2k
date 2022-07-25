@@ -17,52 +17,6 @@ enum CLIMATE_METRIC {
     TDEW = 5,
 };
 ////    Structures    ////
-extern struct scratch {
-    int daynum, kday, firstBloom, firstSquare, lastTaprootLayer, mainStemNodes,
-        numAbscisedLeaves, numFruitSites, numLayersWithRoots, numPreFruNodes,
-        numSheddingTags, numVegBranches;
-    int fruitingCode[3][30][5], lateralRootFlag[maxl], numFruitBranches[3],
-        numNodes[3][30], rootColNumLeft[maxl], rootColNumRight[maxl];
-    double abscisedFruitSites, abscisedLeafWeight, amitri, averageLwp,
-        averageLwpMin, averageSoilPsi, avrgDailyTemp, bloomWeightLoss,
-        burrNConc, burrNitrogen, burrWeightGreenBolls, burrWeightOpenBolls,
-        carbonStress, cottonWeightGreenBolls, cottonWeightOpenBolls,
-        cumEvaporation, cumFertilizerN, cumNetPhotosynth, cumNitrogenUptake,
-        cumPlantNLoss, cumTranspiration, cumWaterAdded, cumWaterDrained,
-        dayTimeTemp, deadwt, deepSoilTemperature, ep, es, extraCarbon,
-        fruitGrowthRatio, greenBollsLost, gbw, gintot, h2obal, leafAreaIndex,
-        leafNConc, leafNitrogen, lightIntercept, lintYield, lwpMin,
-        mineralizedOrganicN, netPhotosynthesis, nightTimeTemp, nitrogenStress,
-        nStressFruiting, nStressRoots, nStressVeg, numGreenBolls, numSquares,
-        numOpenBolls, petioleNConc, petioleNO3NConc, petioleNitrogen,
-        PixInPlants, plantHeight, plantWeight, rad, rain, reserveC, rn,
-        rootNConc, rootNitrogen, rootWeightLoss, runoff, seedNConc,
-        seedNitrogen, soilNitrogenLoss, squareNConc, squareNitrogen, stemNConc,
-        stemNitrogen, sumNO3N90, supplyNH4N, supplyNO3N, tapRootLength, tmax,
-        tmin, totalPetioleWeight, totalRequiredN, totalRootWeight,
-        totalSoilNh4N, totalSoilNo3N, totalSoilUreaN, totalSoilWater,
-        totalSquareWeight, totalStemWeight, waterStress, waterStressStem, wind;
-    double abscissionLag[20], ageOfBoll[3][30][5], ageOfPreFruNode[9],
-        ageOfSite[3][30][5], avrgNodeTemper[3][30][5], bollWeight[3][30][5],
-        burrWeight[3][30][5], delayNewFruBranch[3], delayNewNode[3][30],
-        foliageTemp[maxk], freshOrganicMatter[maxl][maxk],
-        freshOrganicNitrogen[maxl][maxk], fruitFraction[3][30][5],
-        humusOrganicMatter[maxl][maxk], leafAge[3][30][5],
-        leafAreaMainStem[3][30], leafAreaNodes[3][30][5], leafAreaPreFru[9],
-        leafWeightMainStem[3][30], leafWeightNodes[3][30][5],
-        leafWeightPreFru[9], lwpMinX[3], lwpX[3], mulchTemp[maxk],
-        nhum[maxl][maxk], petioleWeightMainStem[3][30],
-        petioleWeightNodes[3][30][5], petioleWeightPreFru[9],
-        potGroLeafAreaMainStem[3][30], potGroLeafWeightMainStem[3][30],
-        potGroPetioleWeightMainStem[3][30], rootAge[maxl][maxk],
-        rootsv[maxl][maxk], rootWeight[maxl][maxk][3],
-        rootWtCapblUptake[maxl][maxk], shedByCarbonStress[20],
-        shedByNitrogenStress[20], shedByWaterStress[20], soilPsi[maxl][maxk],
-        soilTemp[maxl][maxk], soilTempDailyAvrg[maxl][maxk],
-        squareWeight[3][30][5], volWaterContent[maxl][maxk],
-        volNh4NContent[maxl][maxk], volNo3NContent[maxl][maxk],
-        volUreaNContent[maxl][maxk];
-} Scratch21[400];
 //
 extern struct Climstruct {
     int nDay;

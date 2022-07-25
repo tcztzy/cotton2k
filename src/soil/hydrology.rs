@@ -13,6 +13,7 @@ enum RunoffPotential {
 #[derive(Debug, Clone, Copy)]
 pub struct SoilHydrology {
     runoff_potential: RunoffPotential,
+    pub runoff: f64,
 }
 
 impl SoilHydrology {
@@ -35,7 +36,10 @@ impl SoilHydrology {
                 // Soil group B = 2, moderate runoff potential
                 RunoffPotential::Moderate
             };
-        SoilHydrology { runoff_potential }
+        SoilHydrology {
+            runoff_potential,
+            runoff: 0.,
+        }
     }
     /// This function is called from DayClim() and is executed on each day with raifall more than 2 mm.
     /// It computes the runoff and the retained portion of the rainfall.

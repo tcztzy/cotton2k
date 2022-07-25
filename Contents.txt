@@ -17,10 +17,6 @@ Genaral Framework:
        Defines all global ("common") variables.
        (This file also serves as a "dictionary" for these variables.)
 
-    File PlantAdjustment.cpp
-          WriteStateVariables()
-          GoBack()
-
     Header files:
           CottonSimulation.h   
           GeneralFunctions.h   
