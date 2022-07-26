@@ -13,7 +13,7 @@ I use `TOML` as input file format and `CSV` as output file format. Documents com
 
 I wrote a [Python version](https://github.com/tcztzy/cotton2k-core) before this. It works, but I have serious performance issues, it toke about 2min one single simulation, compared with 3s in C++ version. I tried to improve, but it is too difficult for me.
 
-~~I will provide Python API via PyO3 later.~~ DONE!
+I provided Python API via PyO3! see `bindings` directory in the root of this repository.
 
 ## Roadmap
 
@@ -33,9 +33,6 @@ Additionally, you need to notice that [`LIBCLANG_PATH`](https://rust-lang.github
 
 ```
 cargo build
-meson setup buildir
-cd builddir
-meson compile
 ```
 
 ## Licenses
