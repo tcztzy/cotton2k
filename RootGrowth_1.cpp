@@ -1,7 +1,6 @@
 //  RootGrowth_1.cpp
 //
 //   functions in this file:
-// RootImpedance()
 // SoilMechanicResistance()
 // SoilAirOnRootGrowth()
 // SoilNitrateOnRootGrowth()
@@ -16,75 +15,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-//////////////////////////
-void RootImpedance()
-//     This function calculates soil mechanical impedance to root growth,
-//     rtimpd(l,k),
-//  for all soil cells. It is called from PotentialRootGrowth(). The impedance
-//  is a function of bulk density and water content in each soil soil cell. No
-//  changes have been made in the original GOSSYM code.
-//
-//     The following global variables are referenced here:
-//  BulkDensity, gh2oc, impede, inrim, ncurve, nk, nl,
-//  SoilHorizonNum, tstbd, VolWaterContent.
-//     The following global variables are set here:    RootImpede.
-{
-    for (int l = 0; l < nl; l++) {
-        int j = SoilHorizonNum[l];
-        double Bd = BulkDensity[j];  // bulk density for this layer
-                                     //
-        int jj;
-        for (jj = 0; jj < inrim; jj++) {
-            if (Bd <= tstbd[jj][0]) break;
-        }
-        int j1 = jj;
-        if (j1 > inrim - 1) j1 = inrim - 1;
-        int j0 = jj - 1;
-        if (j0 < 0) j0 = 0;
-        //
-        for (int k = 0; k < nk; k++) {
-            double Vh2o = VolWaterContent[l][k] / Bd;
-            int ik;
-            for (ik = 0; ik < ncurve; ik++) {
-                if (Vh2o <= gh2oc[ik]) break;
-            }
-            int i1 = ik;
-            if (i1 > ncurve - 1) i1 = ncurve - 1;
-            int i0 = ik - 1;
-            if (i0 < 0) i0 = 0;
-            //
-            if (j1 == 0) {
-                if (i1 == 0 || Vh2o <= gh2oc[i1])
-                    RootImpede[l][k] = impede[j1][i1];
-                else
-                    RootImpede[l][k] =
-                        impede[j1][i0] - (impede[j1][i0] - impede[j1][i1]) *
-                                             (Vh2o - gh2oc[i0]) /
-                                             (gh2oc[i1] - gh2oc[i0]);
-            } else {
-                if (i1 == 0 || Vh2o <= gh2oc[i1])
-                    RootImpede[l][k] =
-                        impede[j0][i1] - (impede[j0][i1] - impede[j1][i1]) *
-                                             (tstbd[j0][i1] - Bd) /
-                                             (tstbd[j0][i1] - tstbd[j1][i1]);
-                else {
-                    double temp1 =
-                        impede[j0][i1] - (impede[j0][i1] - impede[j1][i1]) *
-                                             (tstbd[j0][i1] - Bd) /
-                                             (tstbd[j0][i1] - tstbd[j1][i1]);
-                    double temp2 =
-                        impede[j0][i0] - (impede[j0][i0] - impede[j1][i1]) *
-                                             (tstbd[j0][i0] - Bd) /
-                                             (tstbd[j0][i0] - tstbd[j1][i0]);
-                    RootImpede[l][k] = temp2 + (temp1 - temp2) *
-                                                   (Vh2o - gh2oc[i0]) /
-                                                   (gh2oc[i1] - gh2oc[i0]);
-                }
-            }
-        }
-    }
-    //
-}
 //////////////////////////
 double SoilMechanicResistance(int l, int k)
 //     This function calculates soil mechanical resistance of cell l,k. It is

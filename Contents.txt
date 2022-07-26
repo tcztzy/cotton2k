@@ -87,7 +87,6 @@ Package F.
 The Root System:    
 
     File RootGrowth_1.cpp
-          RootImpedance()
           SoilMechanicResistance()
           SoilAirOnRootGrowth()
           SoilNitrateOnRootGrowth()

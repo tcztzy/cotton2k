@@ -44,19 +44,80 @@
 //     LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootCultivation(), RootSummation().
 use crate::{
-    cgind, dl, maxk, maxl, nk, nl, pixcon, rlat1, rlat2, wk, ActualRootGrowth,
-    CarbonAllocatedForRootGrowth, CultivationDate, CumPlantNLoss, DailyRootLoss, DayEmerge, Daynum,
-    DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag,
-    NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants, PlantRowColumn, PoreSpace,
-    PotGroRoots, RootAge, RootColNumLeft, RootColNumRight, RootCultivation, RootGroFactor,
-    RootImpedance, RootNConc, RootNitrogen, RootSummation, RootWeight, RootWeightLoss, RowSpace,
-    SoilAirOnRootGrowth, SoilMechanicResistance, SoilNitrateOnRootGrowth, SoilPsi,
-    SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootLength, VolNo3NContent, VolWaterContent,
+    cgind, dl, gh2oc, impede, inrim, maxk, maxl, ncurve, nk, nl, pixcon, rlat1, rlat2, tstbd, wk,
+    ActualRootGrowth, BulkDensity, CarbonAllocatedForRootGrowth, CultivationDate, CumPlantNLoss,
+    DailyRootLoss, DayEmerge, Daynum, DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots,
+    LastTaprootLayer, LateralRootFlag, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea,
+    PixInPlants, PlantRowColumn, PoreSpace, PotGroRoots, RootAge, RootColNumLeft, RootColNumRight,
+    RootCultivation, RootGroFactor, RootImpede, RootNConc, RootNitrogen, RootSummation, RootWeight,
+    RootWeightLoss, RowSpace, SoilAirOnRootGrowth, SoilHorizonNum, SoilMechanicResistance,
+    SoilNitrateOnRootGrowth, SoilPsi, SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootLength,
+    VolNo3NContent, VolWaterContent,
 };
 use ndarray::prelude::*;
 use ndarray::{Array, Array2, Ix2};
 
 use super::Plant;
+
+/// Calculates soil mechanical impedance to root growth, rtimpd(l,k), for all soil cells.
+///
+/// It is called from PotentialRootGrowth().
+/// The impedance is a function of bulk density and water content in each soil soil cell.
+/// No changes have been made in the original GOSSYM code.
+///
+/// The following global variables are referenced here:
+/// BulkDensity, gh2oc, impede, inrim, ncurve, nk, nl,
+/// SoilHorizonNum, tstbd, VolWaterContent.
+///
+/// The following global variables are set here:    RootImpede.
+unsafe fn RootImpedance() {
+    for l in 0..nl as usize {
+        let j = SoilHorizonNum[l] as usize;
+        let Bd = BulkDensity[j]; // bulk density for this layer
+        let jj = tstbd.iter().position(|&x| Bd <= x[0]).unwrap();
+        let j1 = if jj > inrim as usize - 1 {
+            inrim as usize - 1
+        } else {
+            jj
+        };
+        let j0 = jj - 1;
+        for k in 0..nk as usize {
+            let Vh2o = VolWaterContent[l][k] / Bd;
+            let ik = gh2oc.iter().position(|&x| Vh2o <= x).unwrap();
+            let i1 = if ik > ncurve as usize - 1 {
+                ncurve as usize - 1
+            } else {
+                ik
+            };
+            let i0 = ik - 1;
+            if j1 == 0 {
+                if i1 == 0 || Vh2o <= gh2oc[i1] {
+                    RootImpede[l][k] = impede[j1][i1];
+                } else {
+                    RootImpede[l][k] = impede[j1][i0]
+                        - (impede[j1][i0] - impede[j1][i1]) * (Vh2o - gh2oc[i0])
+                            / (gh2oc[i1] - gh2oc[i0]);
+                }
+            } else {
+                if i1 == 0 || Vh2o <= gh2oc[i1] {
+                    RootImpede[l][k] = impede[j0][i1]
+                        - (impede[j0][i1] - impede[j1][i1]) * (tstbd[j0][i1] - Bd)
+                            / (tstbd[j0][i1] - tstbd[j1][i1]);
+                } else {
+                    let temp1 = impede[j0][i1]
+                        - (impede[j0][i1] - impede[j1][i1]) * (tstbd[j0][i1] - Bd)
+                            / (tstbd[j0][i1] - tstbd[j1][i1]);
+                    let temp2 = impede[j0][i0]
+                        - (impede[j0][i0] - impede[j1][i1]) * (tstbd[j0][i0] - Bd)
+                            / (tstbd[j0][i0] - tstbd[j1][i0]);
+                    RootImpede[l][k] =
+                        temp2 + (temp1 - temp2) * (Vh2o - gh2oc[i0]) / (gh2oc[i1] - gh2oc[i0]);
+                }
+            }
+        }
+    }
+    //
+}
 
 /// Calculates the potential root growth rate.
 /// The return value is the sum of potential root growth rates for the whole slab (sumpdr).
