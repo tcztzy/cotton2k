@@ -39,13 +39,13 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(date: NaiveDate, longitude: f64, latitude: f64) -> Self {
+    pub fn new(profile: &Profile, date: NaiveDate) -> Self {
         State {
             date,
             plant_height: 4.0,
             plant: Plant::new(),
             soil: Soil::new(),
-            atmosphere: Atmosphere::new(date, longitude, latitude),
+            atmosphere: Atmosphere::new(date, profile.longitude, profile.latitude),
         }
     }
 

@@ -144,10 +144,10 @@ impl Atmosphere {
         };
         // Parameters for the daily wind function are now computed:
         // Note:  SitePar[] are site specific parameters.
-        let t1 = self.sunrise + hours(SitePar[1]); // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
-        let t2 = self.solar_noon + hours(SitePar[2]); // the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
-        let t3 = self.sunset + hours(SitePar[3]); // the hour at which wind stops to blow (SitePar(3) hours after sunset).
-        let wnytf = SitePar[4]; // used for estimating night time wind (from time t3 to time t1 next day).
+        let t1 = self.sunrise + hours(profile.site.wind_blow_after_sunrise); // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
+        let t2 = self.solar_noon + hours(profile.site.wind_max_after_noon); // the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
+        let t3 = self.sunset + hours(profile.site.wind_stop_after_sunset); // the hour at which wind stops to blow (SitePar(3) hours after sunset).
+        let wnytf = profile.site.night_time_wind_factor; // used for estimating night time wind (from time t3 to time t1 next day).
         for ihr in 0..24 as usize {
             // time in the middle of each hourly interval.
             let ti = self
@@ -188,7 +188,7 @@ impl Atmosphere {
     /// The algorithm is described in Ephrath et al. (1996).
     /// It is based on the following assumptions:
     /// * The time of minimum daily temperature is at sunrise.
-    /// * The time of maximum daily temperature is SitePar[8] hours after solar noon.
+    /// * The time of maximum daily temperature is [Profile.site.max_temperature_after_noon] hours after solar noon.
     ///
     /// Many models assume a sinusoidal curve of the temperature during the day, but actual data deviate from the sinusoidal curve in the following characteristic way:
     /// a faster increase right after sunrise, a near plateau maximum during several hours in the middle of the day, and a rather fast decrease by sunset.
@@ -199,7 +199,7 @@ impl Atmosphere {
     /// A first order approximation is
     ///     daytmp = tmin + (tmax-tmin) * st * tkk / (tkk + daytmp - tmin)
     /// where
-    ///     st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * SitePar[8]))
+    ///     st = sin(pi * (ti - SolarNoon + dayl / 2) / (dayl + 2 * Profile.site.max_temperature_after_noon))
     ///
     /// Since daytmp appears on both sides of the first equation, it can be solved and written explicitly as:
     ///     daytmp = tmin - tkk/2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * st)
@@ -224,7 +224,7 @@ impl Atmosphere {
     ///       sst is the sunset temperature, determined by the daytime equation as:
     ///       sst = mint_tomorrow - tkk / 2 + 0.5 * sqrt(tkk**2 + 4 * amp * tkk * sts)
     /// where
-    ///       sts  = sin(pi * dayl / (dayl + 2 * SitePar[8]))
+    ///       sts  = sin(pi * dayl / (dayl + 2 * Profile.site.max_temperature_after_noon))
     ///       amp = (tmax - mint_tomorrow) * (1 + (tmax - mint_tomorrow) / tkk)
     ///
     /// For the time from midnight to sunrise, similar equations are used,
@@ -245,7 +245,7 @@ impl Atmosphere {
         // time coefficient for the exponential part of the equation.
         const tcoef: f64 = 4.;
         // hour of maximum temperature
-        let hmax = self.solar_noon + hours(SitePar[8]);
+        let hmax = self.solar_noon + hours(profile.site.max_temperature_after_noon);
         // day of year yesterday
         let im1 = self.date.ordinal0();
         // day of year tomorrow
@@ -270,7 +270,7 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
                         / tkk);
             sts = (std::f64::consts::PI * self.daylength.num_seconds() as f64
-                / (self.daylength + hours(2. * SitePar[8])).num_seconds() as f64)
+                / (self.daylength + hours(2. * profile.site.max_temperature_after_noon)).num_seconds() as f64)
                 .sin();
             //  compute temperature at sunset:
             sst = GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32) - tkk / 2.
@@ -289,7 +289,7 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
                         / tkk);
             st = (std::f64::consts::PI * num_hours(ti - self.solar_noon + self.daylength / 2)
-                / num_hours(self.daylength + hours(2. * SitePar[8])))
+                / num_hours(self.daylength + hours(2. * profile.site.max_temperature_after_noon)))
             .sin();
             HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32)
                 - tkk / 2.
@@ -303,7 +303,7 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
                         / tkk);
             st = (std::f64::consts::PI * num_hours(ti - self.solar_noon + self.daylength / 2)
-                / num_hours(self.daylength + hours(2. * SitePar[8])))
+                / num_hours(self.daylength + hours(2. * profile.site.max_temperature_after_noon)))
             .sin();
             HourlyTemperature = GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32) - tkk / 2.
                 + 0.5 * (tkk * tkk + 4. * amp * tkk * st).sqrt();
@@ -317,7 +317,7 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
                         / tkk);
             sts = (std::f64::consts::PI * self.daylength.num_seconds() as f64
-                / (self.daylength + hours(2. * SitePar[8])).num_seconds() as f64)
+                / (self.daylength + hours(2. * profile.site.max_temperature_after_noon)).num_seconds() as f64)
                 .sin();
             sst = GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32) - tkk / 2.
                 + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();
@@ -351,7 +351,7 @@ impl Atmosphere {
         let tdewhr; // the dew point temperature (c) of this hour.
         let tdmin; // minimum of dew point temperature.
         let mut tdrange; // range of dew point temperature.
-        let hmax = self.solar_noon + hours(SitePar[8]); // time of maximum air temperature
+        let hmax = self.solar_noon + hours(profile.site.max_temperature_after_noon); // time of maximum air temperature
 
         if ti <= self.sunrise {
             // from midnight to sunrise
@@ -593,7 +593,7 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
         //      iamhr and ipmhr are set.
         CloudTypeCorr[ihr] = clcor(
             ihr,
-            SitePar[7],
+            profile.site.cloud_type_correction_factor,
             isr,
             cosz,
             atmosphere.solar_noon,

@@ -34,9 +34,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 new_state
             } else {
                 cotton2k::State::new(
+                    &profile,
                     chrono::NaiveDate::from_yo(cotton2k::iyear, cotton2k::DayStart as u32),
-                    profile.longitude,
-                    profile.latitude,
                 )
             };
             // let need_to_adjust = profile.adjust()?;

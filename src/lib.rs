@@ -853,9 +853,8 @@ impl Profile {
                     new_state
                 } else {
                     State::new(
+                        self,
                         NaiveDate::from_yo(iyear, DayStart as u32),
-                        self.longitude,
-                        self.latitude,
                     )
                 };
                 // Execute simulation for this day.
@@ -935,12 +934,6 @@ impl Profile {
                     MulchIndicator = MulchType::NoMulch as i32;
                 }
             }
-            SitePar[1] = self.site.wind_blow_after_sunrise;
-            SitePar[2] = self.site.wind_max_after_noon;
-            SitePar[3] = self.site.wind_stop_after_sunset;
-            SitePar[4] = self.site.night_time_wind_factor;
-            SitePar[7] = self.site.cloud_type_correction_factor;
-            SitePar[8] = self.site.max_temperature_after_noon;
             SitePar[9] = self.site.deep_soil_temperature.0;
             SitePar[10] = self.site.deep_soil_temperature.1;
             SitePar[11] = self.site.deep_soil_temperature.2;

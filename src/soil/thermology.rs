@@ -9,6 +9,9 @@ use crate::{
     RowSpace, SensibleHeatTransfer, SitePar, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg,
     ThermalCondSoil, VolWaterContent, WindSpeed,
 };
+use uom::si::f64::ThermodynamicTemperature;
+use uom::si::thermodynamic_temperature::{degree_celsius,kelvin};
+
 const maxl: usize = 40;
 
 #[derive(Debug, Clone, Copy)]
@@ -53,15 +56,15 @@ impl SoilThermology {
         }
         tsi1 /= 10.;
         // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
-        unsafe {
-            DeepSoilTemperature = SitePar[9]
+        let deep_soil_temperature = ThermodynamicTemperature::new::<degree_celsius>(unsafe {
+            SitePar[9]
                 + SitePar[10]
-                    * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin();
-        }
+                    * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin()
+        });
         // SoilTemp is assigned to all columns, converted to degrees K.
         tsi1 += 273.161;
         unsafe {
-            DeepSoilTemperature += 273.161;
+            DeepSoilTemperature = deep_soil_temperature.get::<kelvin>();
         }
         for l in 0..unsafe { nl } as usize {
             // The temperatures of the other soil layers are linearly interpolated.
