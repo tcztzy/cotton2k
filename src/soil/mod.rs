@@ -1,4 +1,4 @@
-mod hydrology;
+pub mod hydrology;
 mod thermology;
 
 use crate::soil::hydrology::SoilHydrology;

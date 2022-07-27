@@ -3,6 +3,7 @@ use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
 use crate::soil::Soil;
+use crate::soil::hydrology::WaterUptake;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
     addwtbl, bPollinSwitch, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday,
@@ -22,7 +23,7 @@ use crate::{
     RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace, SaturatedHydCond,
     SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum,
     StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
-    VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer, WaterUptake,
+    VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer,
     CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
 use chrono::{Datelike, NaiveDate};

@@ -110,6 +110,5 @@ void WaterBalance(double q1[], double qx[], double dd[], int nn);
 void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
                double qs1[], double pp1[], int nn, int iv, int ll,
                long numiter);
-void WaterUptake();  // UPTAKE
 double SoilWaterEffect(int l, int k, double xx);
 void WriteStateVariables(bool bAdjusting);

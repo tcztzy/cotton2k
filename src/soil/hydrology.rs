@@ -1,7 +1,14 @@
+use crate::utils::{fmax, fmin};
 use crate::{
-    ClayVolumeFraction, DayStart, Daynum, GetFromClim, Irrig, NumIrrigations, SandVolumeFraction,
-    CLIMATE_METRIC_RAIN,
+    alpha, beta, dl, psiq, qpsi, thad, thetar, thts, wk, ActualTranspiration, AverageSoilPsi,
+    ClayVolumeFraction, DayStart, Daynum, ElCondSatSoilToday, GetFromClim, Irrig, LightIntercept,
+    NitrogenUptake, NumIrrigations, NumLayersWithRoots, PsiOnTranspiration, PsiOsmotic,
+    ReferenceTransp, RootColNumLeft, RootColNumRight, RootWtCapblUptake, RowSpace,
+    SandVolumeFraction, SoilHorizonNum, SoilPsi, SupplyNH4N, SupplyNO3N, TotalRequiredN,
+    VolWaterContent, CLIMATE_METRIC_RAIN,
 };
+use ndarray::prelude::*;
+use ndarray::Array;
 
 #[derive(Debug, Clone, Copy)]
 enum RunoffPotential {
@@ -109,6 +116,124 @@ impl SoilHydrology {
             0.
         } else {
             (rain - 0.2 * d03).powi(2) / (rain + 0.8 * d03)
+        }
+    }
+}
+/// Computes the uptake of water by plant roots from the soil
+/// (i.e., actual transpiration rate). It is called from SoilProcedures().
+///
+/// It calls PsiOnTranspiration(), psiq(), PsiOsmotic().
+///
+/// The following global variables are referenced:
+///
+/// dl, LightIntercept, nk, nl, NumLayersWithRoots, ReferenceTransp,
+/// RootColNumLeft, RootColNumRight, RowSpace, SoilHorizonNum, thetar,
+/// TotalRequiredN, wk.
+///
+/// The following global variables are set:
+/// ActualTranspiration, SoilPsi, VolWaterContent.
+pub unsafe fn WaterUptake() {
+    // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate.
+    // modified light interception factor by canopy
+    let LightInter1 = fmin(fmax(LightIntercept * 1.55 - 0.32, LightIntercept), 1.);
+    // The potential transpiration is the product of the daytime Penman equation and LightInter1.
+    let PotentialTranspiration = ReferenceTransp * LightInter1;
+    // uptake factor, computed as a ratio, for each soil cell
+    let mut upf = Array::zeros([40, 20]);
+    // actual transpiration from each soil cell, cm3 per day
+    let mut uptk = Array::<f64, _>::zeros([40, 20]);
+    // sum of actual transpiration from all soil soil cells, cm3 per day.
+    let mut sumep = 0.;
+    // Compute the reduction due to soil moisture supply by function PsiOnTranspiration().
+    // the actual transpiration converted to cm3 per slab units.
+    let mut Transp = 0.10 * RowSpace * PotentialTranspiration * PsiOnTranspiration(AverageSoilPsi);
+    // the cumulative difference between computed transpiration and actual transpiration, in cm3, due to limitation of PWP.
+    let mut difupt;
+
+    loop {
+        let mut supf = 0.; // sum of upf for all soil cells
+        for l in 0..NumLayersWithRoots as usize {
+            let j = SoilHorizonNum[l] as usize;
+            // Compute, for each layer, the lower and upper water content limits for the transpiration function.
+            // These are set from limiting soil water potentials (-15 to -1 bars).
+            // lower limit of water content for the transpiration function
+            let vh2lo;
+            // upper limit of water content for the transpiration function
+            let vh2hi;
+            vh2lo = qpsi(-15., thad[l], thts[l], alpha[j], beta[j]);
+            vh2hi = qpsi(-1., thad[l], thts[l], alpha[j], beta[j]);
+            for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
+                // reduction factor for water uptake, caused by low levels of soil water, as a linear function of VolWaterContent, between vh2lo and vh2hi.
+                let redfac = fmin(
+                    fmax((VolWaterContent[l][k] - vh2lo) / (vh2hi - vh2lo), 0.),
+                    1.,
+                );
+                // The computed 'uptake factor' (upf) for each soil cell is the product of 'root weight capable of uptake' and redfac.
+                upf.slice_mut(s![l, k])
+                    .fill(RootWtCapblUptake[l][k] * redfac);
+                supf += upf.slice(s![l, k]).first().unwrap();
+            }
+        }
+        difupt = 0.;
+        for l in 0..NumLayersWithRoots as usize {
+            for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
+                if upf.slice(s![l, k]).first().unwrap() > &0. && VolWaterContent[l][k] > thetar[l] {
+                    // The amount of water extracted from each cell is proportional to its 'uptake factor'.
+                    // transpiration from a soil cell, cm3 per day
+                    let mut upth2o = Transp * upf.slice(s![l, k]).first().unwrap() / supf;
+                    // Update VolWaterContent cell, storing its previous value as vh2ocx.
+                    // previous value of VolWaterContent of this cell
+                    let vh2ocx = VolWaterContent[l][k];
+                    VolWaterContent[l][k] -= upth2o / (dl[l] * wk[k]);
+                    // If the new value of VolWaterContent is less than the permanent wilting point, modify the value of upth2o so that VolWaterContent will be equal to it.
+                    if VolWaterContent[l][k] < thetar[l] {
+                        VolWaterContent[l][k] = thetar[l];
+                        // Compute the difference due to this correction and add it to difupt.
+                        // intermediate computation of upth2o
+                        let xupt = (vh2ocx - thetar[l]) * dl[l] * wk[k];
+                        difupt += upth2o - xupt;
+                        upth2o = xupt;
+                    }
+                    if upth2o < 0. {
+                        upth2o = 0.;
+                    }
+                    // Compute sumep as the sum of the actual amount of water extracted from all soil cells.
+                    // Recalculate uptk of this soil cell as cumulative upth2o.
+                    sumep += upth2o;
+                    uptk.slice_mut(s![l, k]).mapv_inplace(|x| x + upth2o);
+                }
+            }
+        }
+        // If difupt is greater than zero, redefine the variable Transp as difuptfor use in next loop.
+        if difupt > 0. {
+            Transp = difupt;
+        } else {
+            break;
+        }
+    }
+    // recompute SoilPsi for all soil cells with roots by calling function PSIQ,
+    for l in 0..NumLayersWithRoots as usize {
+        let j = SoilHorizonNum[l] as usize;
+        for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
+            SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], beta[j])
+                - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+        }
+    }
+    // compute ActualTranspiration as actual water transpired, in mm.
+    ActualTranspiration = sumep * 10. / RowSpace;
+    // Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
+    SupplyNH4N = 0.;
+    SupplyNO3N = 0.;
+    // Compute the proportional N requirement from each soil cell with roots, and call function NitrogenUptake() to compute nitrogen uptake.
+    if sumep > 0. && TotalRequiredN > 0. {
+        for l in 0..NumLayersWithRoots as usize {
+            for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
+                if uptk.slice(s![l, k]).first().unwrap() > &0. {
+                    // proportional allocation of TotalRequiredN to each cell
+                    let reqnc = TotalRequiredN * uptk.slice(s![l, k]).first().unwrap() / sumep;
+                    NitrogenUptake(l as i32, k as i32, reqnc);
+                }
+            }
         }
     }
 }

@@ -47,7 +47,6 @@ Soil:
           Drain()
 
     File SoilProcedures_3.cpp
-          WaterUptake()
           PsiOnTranspiration()
           NitrogenUptake()
           WaterFlux()
