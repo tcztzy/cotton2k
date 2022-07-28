@@ -17,7 +17,7 @@ impl Plant {
         Plant {
             pavail: 0.,
             nitrogen: PlantNitrogen::new(),
-            height: 4,
+            height: 4.,
         }
     }
 }

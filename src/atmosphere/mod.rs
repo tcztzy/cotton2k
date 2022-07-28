@@ -270,7 +270,8 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32))
                         / tkk);
             sts = (std::f64::consts::PI * self.daylength.num_seconds() as f64
-                / (self.daylength + hours(2. * profile.site.max_temperature_after_noon)).num_seconds() as f64)
+                / (self.daylength + hours(2. * profile.site.max_temperature_after_noon))
+                    .num_seconds() as f64)
                 .sin();
             //  compute temperature at sunset:
             sst = GetFromClim(CLIMATE_METRIC_TMIN, self.date.ordinal() as i32) - tkk / 2.
@@ -317,7 +318,8 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32))
                         / tkk);
             sts = (std::f64::consts::PI * self.daylength.num_seconds() as f64
-                / (self.daylength + hours(2. * profile.site.max_temperature_after_noon)).num_seconds() as f64)
+                / (self.daylength + hours(2. * profile.site.max_temperature_after_noon))
+                    .num_seconds() as f64)
                 .sin();
             sst = GetFromClim(CLIMATE_METRIC_TMIN, ip1 as i32) - tkk / 2.
                 + 0.5 * (tkk * tkk + 4. * amp * tkk * sts).sqrt();

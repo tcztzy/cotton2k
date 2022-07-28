@@ -1,9 +1,9 @@
 pub mod hydrology;
 mod thermology;
 
+use crate::atmosphere::Atmosphere;
 use crate::soil::hydrology::SoilHydrology;
 use crate::soil::thermology::SoilThermology;
-use crate::atmosphere::Atmosphere;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Soil {

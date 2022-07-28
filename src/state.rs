@@ -2,29 +2,29 @@ use crate::atmosphere::{num_hours, Atmosphere};
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
+use crate::profile::{AgronomyOperation, FertilizationMethod, LightInterceptMethod, Profile};
 use crate::soil::hydrology::{ComputeIrrigation, WaterUptake};
 use crate::soil::Soil;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
     addwtbl, bPollinSwitch, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday,
-    thad, thts, wcond, wk, ActualTranspiration, AgeOfPreFruNode, AgronomyOperation, AppliedWater,
-    AverageLeafAge, AverageLwp, AverageLwpMin, AveragePsi, AverageSoilPsi, BurrWeightOpenBolls,
-    CapillaryFlow, CheckDryMatterBal, Clim, Cotton2KError, CottonPhenology, CottonWeightOpenBolls,
-    CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration, CumWaterAdded,
-    CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart, DayStartPredIrrig,
-    DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
-    FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea,
-    LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc,
-    LeafNitrogen, LightIntercept, LightInterceptLayer, LightInterceptMethod, LocationColumnDrip,
-    LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation, MaxWaterCapacity,
-    NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru, NumFruitBranches,
-    NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, PerPlantArea,
-    PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, Profile, ReferenceETP,
-    RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace, SaturatedHydCond,
-    SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum,
-    StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
-    VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer,
-    CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
+    thad, thts, wcond, wk, ActualTranspiration, AgeOfPreFruNode, AppliedWater, AverageLeafAge,
+    AverageLwp, AverageLwpMin, AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow,
+    CheckDryMatterBal, Clim, Cotton2KError, CottonPhenology, CottonWeightOpenBolls, CumFertilizerN,
+    CumNetPhotosynth, CumNitrogenUptake, CumTranspiration, CumWaterAdded, CumWaterDrained,
+    DayEmerge, DayInc, DayOfSimulation, DayStart, DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp,
+    Daynum, Defoliate, Drain, ElCondSatSoilToday, FirstSquare, GetFromClim, Irrig, IrrigMethod,
+    Kday, LeafAge, LeafArea, LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes,
+    LeafAreaPreFru, LeafNConc, LeafNitrogen, LightIntercept, LightInterceptLayer,
+    LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation,
+    MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru,
+    NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches,
+    PerPlantArea, PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace,
+    ReferenceETP, RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace,
+    SaturatedHydCond, SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss,
+    SoilPsi, SoilSum, StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent,
+    VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem,
+    WaterTableLayer, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
 use chrono::{Datelike, NaiveDate};
 
