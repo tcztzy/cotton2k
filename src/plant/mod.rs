@@ -9,6 +9,7 @@ pub struct Plant {
     /// residual available carbon for root growth from previous day.
     pub pavail: f64,
     pub nitrogen: PlantNitrogen,
+    pub height: f64,
 }
 
 impl Plant {
@@ -16,6 +17,7 @@ impl Plant {
         Plant {
             pavail: 0.,
             nitrogen: PlantNitrogen::new(),
+            height: 4,
         }
     }
 }

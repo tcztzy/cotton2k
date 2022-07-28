@@ -1,7 +1,6 @@
 // File SoilProcedures_1.cpp
 //
 //   functions in this file:
-// ComputeIrrigation()
 // GetTargetStress()
 // PredictDripIrrigation()
 // PredictSurfaceIrrigation()
@@ -15,30 +14,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-////////////////////////////////////////////////////////////////////////////////
-void ComputeIrrigation()
-//     This function computes the amount of water (mm) applied by a predicted
-//  irrigation. It is called from SoilProcedures().
-//     It calls GetTargetStress(), PredictDripIrrigation(),
-//     PredictSurfaceIrrigation(),
-//     The following global variables are referenced here:
-//       AppliedWater, Daynum, IrrigMethod.
-//     The following global variable is set here:       LastIrrigation.
-{
-    double TargetStress = GetTargetStress();
-    if (TargetStress == -9999) return;
-    //
-    if (IrrigMethod == 2)
-        PredictDripIrrigation(TargetStress);
-    else
-        PredictSurfaceIrrigation(TargetStress);
-    //     If the amount of water to be applied (AppliedWater) is non zero
-    //     update the date of
-    //  last irrigation, and write report in output file *.B01.
-    if (AppliedWater > 0.00001) {
-        LastIrrigation = Daynum;
-    }
-}
 ///////////////////////////////////////////////////////////////////////
 double GetTargetStress()
 //     This function computes and returns the target water stress factor.

@@ -2,17 +2,17 @@ use crate::atmosphere::{num_hours, Atmosphere};
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
+use crate::soil::hydrology::{ComputeIrrigation, WaterUptake};
 use crate::soil::Soil;
-use crate::soil::hydrology::WaterUptake;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
     addwtbl, bPollinSwitch, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday,
     thad, thts, wcond, wk, ActualTranspiration, AgeOfPreFruNode, AgronomyOperation, AppliedWater,
     AverageLeafAge, AverageLwp, AverageLwpMin, AveragePsi, AverageSoilPsi, BurrWeightOpenBolls,
-    CapillaryFlow, CheckDryMatterBal, Clim, ComputeIrrigation, Cotton2KError, CottonPhenology,
-    CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration,
-    CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart,
-    DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
+    CapillaryFlow, CheckDryMatterBal, Clim, Cotton2KError, CottonPhenology, CottonWeightOpenBolls,
+    CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration, CumWaterAdded,
+    CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart, DayStartPredIrrig,
+    DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate, Drain, ElCondSatSoilToday,
     FertilizationMethod, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea,
     LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc,
     LeafNitrogen, LightIntercept, LightInterceptLayer, LightInterceptMethod, LocationColumnDrip,
@@ -32,8 +32,6 @@ use chrono::{Datelike, NaiveDate};
 pub struct State {
     pub date: NaiveDate,
 
-    pub plant_height: f64,
-
     pub soil: Soil,
     pub plant: Plant,
     pub atmosphere: Atmosphere,
@@ -41,12 +39,12 @@ pub struct State {
 
 impl State {
     pub fn new(profile: &Profile, date: NaiveDate) -> Self {
+        let atmosphere = Atmosphere::new(date, profile.longitude, profile.latitude);
         State {
             date,
-            plant_height: 4.0,
+            atmosphere,
+            soil: Soil::new(atmosphere),
             plant: Plant::new(),
-            soil: Soil::new(),
-            atmosphere: Atmosphere::new(date, profile.longitude, profile.latitude),
         }
     }
 

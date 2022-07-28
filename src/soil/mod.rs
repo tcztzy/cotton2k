@@ -3,6 +3,7 @@ mod thermology;
 
 use crate::soil::hydrology::SoilHydrology;
 use crate::soil::thermology::SoilThermology;
+use crate::atmosphere::Atmosphere;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Soil {
@@ -11,7 +12,7 @@ pub struct Soil {
 }
 
 impl Soil {
-    pub fn new() -> Self {
+    pub fn new(atmosphere: Atmosphere) -> Self {
         Soil {
             thermology: SoilThermology::new(),
             hydrology: SoilHydrology::new(),

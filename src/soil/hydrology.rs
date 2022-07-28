@@ -1,11 +1,12 @@
 use crate::utils::{fmax, fmin};
 use crate::{
-    alpha, beta, dl, psiq, qpsi, thad, thetar, thts, wk, ActualTranspiration, AverageSoilPsi,
-    ClayVolumeFraction, DayStart, Daynum, ElCondSatSoilToday, GetFromClim, Irrig, LightIntercept,
-    NitrogenUptake, NumIrrigations, NumLayersWithRoots, PsiOnTranspiration, PsiOsmotic,
-    ReferenceTransp, RootColNumLeft, RootColNumRight, RootWtCapblUptake, RowSpace,
-    SandVolumeFraction, SoilHorizonNum, SoilPsi, SupplyNH4N, SupplyNO3N, TotalRequiredN,
-    VolWaterContent, CLIMATE_METRIC_RAIN,
+    alpha, beta, dl, psiq, qpsi, thad, thetar, thts, wk, ActualTranspiration, AppliedWater,
+    AverageSoilPsi, ClayVolumeFraction, DayStart, Daynum, ElCondSatSoilToday, GetFromClim,
+    GetTargetStress, Irrig, IrrigMethod, LastIrrigation, LightIntercept, NitrogenUptake,
+    NumIrrigations, NumLayersWithRoots, PredictDripIrrigation, PredictSurfaceIrrigation,
+    PsiOnTranspiration, PsiOsmotic, ReferenceTransp, RootColNumLeft, RootColNumRight,
+    RootWtCapblUptake, RowSpace, SandVolumeFraction, SoilHorizonNum, SoilPsi, SupplyNH4N,
+    SupplyNO3N, TotalRequiredN, VolWaterContent, CLIMATE_METRIC_RAIN,
 };
 use ndarray::prelude::*;
 use ndarray::Array;
@@ -119,6 +120,36 @@ impl SoilHydrology {
         }
     }
 }
+/// Computes the amount of water (mm) applied by a predicted irrigation.
+///
+/// It is called from SoilProcedures().
+///
+/// It calls GetTargetStress(), PredictDripIrrigation(), PredictSurfaceIrrigation(),
+///
+/// The following global variables are referenced here:
+///
+/// * [AppliedWater]
+/// * [Daynum]
+/// * [IrrigMethod]
+///
+/// The following global variable is set here:
+/// * [LastIrrigation]
+pub unsafe fn ComputeIrrigation() {
+    let TargetStress = GetTargetStress();
+    if TargetStress == -9999. {
+        return;
+    }
+    if IrrigMethod == 2 {
+        PredictDripIrrigation(TargetStress);
+    } else {
+        PredictSurfaceIrrigation(TargetStress);
+    }
+    // If the amount of water to be applied (AppliedWater) is non zero update the date of last irrigation, and write report in output file *.B01.
+    if AppliedWater > 1e-5 {
+        LastIrrigation = Daynum;
+    }
+}
+
 /// Computes the uptake of water by plant roots from the soil
 /// (i.e., actual transpiration rate). It is called from SoilProcedures().
 ///
