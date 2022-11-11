@@ -5,7 +5,7 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [build-dependencies]
-bindgen = "0.59"
+bindgen = "0.61"
 cc = { version = "1.0", features = ["parallel"] }
 
 [dependencies]
@@ -15,4 +15,4 @@ serde = { version = "1.0", features = ["derive"] }
 toml = "0.5"
 pbr = "1.0"
 ndarray = "0.15"
-uom = "0.32"
+uom = "0.33"

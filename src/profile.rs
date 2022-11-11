@@ -247,23 +247,7 @@ pub enum PixMethod {
 #[derive(Deserialize, Debug, Clone, Copy)]
 #[serde(tag = "type")]
 pub enum AgronomyOperation {
-    irrigation {
-        #[serde(deserialize_with = "from_isoformat")]
-        date: NaiveDate,
-        amount: f64,
-        #[serde(default = "default_predict")]
-        predict: bool,
-        #[serde(default = "default_irrigation_method")]
-        method: IrrigationMethod,
-        #[serde(default = "zero")]
-        drip_x: f64,
-        #[serde(default = "zero")]
-        drip_y: f64,
-        max_amount: Option<f64>,
-        #[serde(default)]
-        #[serde(deserialize_with = "from_isoformat_option")]
-        stop_predict_date: Option<NaiveDate>,
-    },
+    irrigation(AgronomyOperationIrrigation),
     /// nitrogen fertilizer application information for each day.
     fertilization {
         /// date of application
@@ -308,14 +292,35 @@ pub enum AgronomyOperation {
         /// pints per acre
         ppa: f64,
     },
-    watertable {
-        #[serde(deserialize_with = "from_isoformat")]
-        date: NaiveDate,
-        /// water table level input data (cm below soil surface).
-        level: f64,
-        /// electrical conductivity of saturated soil extract (mmho/cm)
-        ecs: f64,
-    },
+    watertable(AgronomyOperationWaterTable),
+}
+#[derive(Deserialize, Debug, Clone, Copy)]
+pub struct AgronomyOperationIrrigation {
+    #[serde(deserialize_with = "from_isoformat")]
+    date: NaiveDate,
+    amount: f64,
+    #[serde(default = "default_predict")]
+    predict: bool,
+    #[serde(default = "default_irrigation_method")]
+    method: IrrigationMethod,
+    #[serde(default = "zero")]
+    drip_x: f64,
+    #[serde(default = "zero")]
+    drip_y: f64,
+    max_amount: Option<f64>,
+    #[serde(default)]
+    #[serde(deserialize_with = "from_isoformat_option")]
+    stop_predict_date: Option<NaiveDate>,
+}
+
+#[derive(Deserialize, Debug, Clone, Copy)]
+pub struct AgronomyOperationWaterTable {
+    #[serde(deserialize_with = "from_isoformat")]
+    pub date: NaiveDate,
+    /// water table level input data (cm below soil surface).
+    pub level: f64,
+    /// electrical conductivity of saturated soil extract (mmho/cm)
+    pub ecs: f64,
 }
 
 #[derive(Deserialize, Debug)]
@@ -824,36 +829,27 @@ impl Profile {
 
             for ao in &self.agronomy_operations {
                 match ao {
-                    AgronomyOperation::irrigation {
-                        date,
-                        amount,
-                        predict,
-                        method,
-                        drip_x,
-                        drip_y,
-                        max_amount,
-                        stop_predict_date,
-                    } => {
-                        if *predict {
-                            MaxIrrigation = max_amount.unwrap();
-                            DayStartPredIrrig = date.ordinal() as i32;
-                            DayStopPredIrrig = stop_predict_date.unwrap().ordinal() as i32;
-                            if let IrrigationMethod::Drip = method {
+                    AgronomyOperation::irrigation(irrigation) => {
+                        if irrigation.predict {
+                            MaxIrrigation = irrigation.max_amount.unwrap();
+                            DayStartPredIrrig = irrigation.date.ordinal() as i32;
+                            DayStopPredIrrig = irrigation.stop_predict_date.unwrap().ordinal() as i32;
+                            if let IrrigationMethod::Drip = irrigation.method {
                                 LocationColumnDrip =
-                                    utils::slab_horizontal_location(*drip_x, RowSpace)? as i32;
-                                LocationLayerDrip = utils::slab_vertical_location(*drip_y)? as i32;
+                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)? as i32;
+                                LocationLayerDrip = utils::slab_vertical_location(irrigation.drip_y)? as i32;
                             }
-                            IrrigMethod = *method as i32;
+                            IrrigMethod = irrigation.method as i32;
                         } else {
-                            Irrig[NumIrrigations as usize].day = date.ordinal() as i32;
-                            Irrig[NumIrrigations as usize].amount = *amount;
-                            if let IrrigationMethod::Drip = method {
+                            Irrig[NumIrrigations as usize].day = irrigation.date.ordinal() as i32;
+                            Irrig[NumIrrigations as usize].amount = irrigation.amount;
+                            if let IrrigationMethod::Drip = irrigation.method {
                                 Irrig[NumIrrigations as usize].LocationColumnDrip =
-                                    utils::slab_horizontal_location(*drip_x, RowSpace)? as i32;
+                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)? as i32;
                                 Irrig[NumIrrigations as usize].LocationLayerDrip =
-                                    utils::slab_vertical_location(*drip_y)? as i32;
+                                    utils::slab_vertical_location(irrigation.drip_y)? as i32;
                             }
-                            Irrig[NumIrrigations as usize].method = *method as i32;
+                            Irrig[NumIrrigations as usize].method = irrigation.method as i32;
                             NumIrrigations += 1;
                         }
                     }

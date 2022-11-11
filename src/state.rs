@@ -891,10 +891,10 @@ impl State {
         let mut lwtable = 201f64; // level of water table on this day, cm
         for ao in &profile.agronomy_operations {
             match ao {
-                AgronomyOperation::watertable { date, level, ecs } => unsafe {
-                    if Daynum as u32 >= date.ordinal() {
-                        lwtable = *level;
-                        ElCondSatSoilToday = *ecs;
+                AgronomyOperation::watertable(watertable) => unsafe {
+                    if Daynum as u32 >= watertable.date.ordinal() {
+                        lwtable = watertable.level;
+                        ElCondSatSoilToday = watertable.ecs;
                     }
                 },
                 _ => {}
