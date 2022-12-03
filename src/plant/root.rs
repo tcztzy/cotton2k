@@ -668,16 +668,27 @@ unsafe fn TapRootGrowth() {
         RootWeight[LastTaprootLayer as usize - 1][klocp1][i] -= tran;
     }
 }
-///     This function computes the elongation of the lateral roots
+/// This function computes the elongation of the lateral roots
 /// in a soil layer(l) to the left. It is called from ActualRootGrowth().
-///    It calls function SoilTemOnRootGrowth().
 ///
-///    The following global variables are referenced here:
-///      NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
-///      SoilTempDailyAvrg, VolWaterContent, wk.
-///    The following global variables are set here:
-///      RootAge, RootColNumLeft, RootWeight.
-///    The argument used:     l - layer number in the soil slab.
+/// It calls function SoilTemOnRootGrowth().
+///
+/// The following global variables are referenced here:
+/// * NumRootAgeGroups
+/// * PlantRowColumn
+/// * PoreSpace
+/// * RootGroFactor
+/// * SoilTempDailyAvrg
+/// * VolWaterContent
+/// * wk
+///
+/// The following global variables are set here:
+/// * RootAge
+/// * RootColNumLeft
+/// * RootWeight
+///
+/// The argument used:
+/// l - layer number in the soil slab.
 unsafe fn LateralRootGrowthLeft(l: usize) {
     //     The following constant parameters are used:
     const p1: f64 = 0.10; // constant parameter.
@@ -735,12 +746,14 @@ unsafe fn LateralRootGrowthLeft(l: usize) {
 /// Computes the elongation of the lateral roots in a soil layer(l) to the right. It is called from ActualRootGrowth().
 /// It calls function SoilTemOnRootGrowth().
 ///
-///     The following global variables are referenced here:
+/// The following global variables are referenced here:
 /// nk, NumRootAgeGroups, PlantRowColumn, PoreSpace, RootGroFactor,
 /// SoilTempDailyAvrg, VolWaterContent, wk.
-///    The following global variables are set here:
+///
+/// The following global variables are set here:
 /// RootAge, RootColNumRight, RootWeight.
-///    The argument used:      l - layer number in the soil slab.
+///
+/// The argument used:      l - layer number in the soil slab.
 unsafe fn LateralRootGrowthRight(l: usize) {
     //     The following constant parameters are used:
     const p1: f64 = 0.10; // constant parameter.
