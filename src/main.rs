@@ -30,12 +30,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         for _ in cotton2k::DayStart..(cotton2k::DayFinish + 1) {
             let mut state = if profile.states.len() > 0 {
                 let mut new_state = profile.states.last().unwrap().clone();
-                new_state.date = new_state.date.succ();
+                new_state.date = new_state.date.succ_opt().unwrap();
                 new_state
             } else {
                 cotton2k::State::new(
                     &profile,
-                    chrono::NaiveDate::from_yo(cotton2k::iyear, cotton2k::DayStart as u32),
+                    chrono::NaiveDate::from_yo_opt(cotton2k::iyear, cotton2k::DayStart as u32).unwrap(),
                 )
             };
             // let need_to_adjust = profile.adjust()?;

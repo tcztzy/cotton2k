@@ -76,7 +76,7 @@ fn original_light_intercept_method() -> LightInterceptMethod {
 
 #[inline]
 fn default_last_day_weather_data() -> NaiveDate {
-    NaiveDate::from_yo(1970, 1)
+    NaiveDate::from_yo_opt(1970, 1).unwrap()
 }
 
 #[derive(Deserialize, Debug)]
@@ -144,8 +144,8 @@ impl Default for CO2Enrichment {
     fn default() -> Self {
         CO2Enrichment {
             factor: 1.,
-            start_date: NaiveDate::from_ymd(1900, 1, 1),
-            stop_date: NaiveDate::from_ymd(2100, 1, 1),
+            start_date: NaiveDate::from_ymd_opt(1900, 1, 1).unwrap(),
+            stop_date: NaiveDate::from_ymd_opt(2100, 1, 1).unwrap(),
         }
     }
 }
@@ -643,10 +643,10 @@ impl Profile {
             for _ in DayStart..(DayFinish + 1) {
                 let mut state = if self.states.len() > 0 {
                     let mut new_state = self.states.last().unwrap().clone();
-                    new_state.date = new_state.date.succ();
+                    new_state.date = new_state.date.succ_opt().unwrap();
                     new_state
                 } else {
-                    State::new(self, NaiveDate::from_yo(iyear, DayStart as u32))
+                    State::new(self, NaiveDate::from_yo_opt(iyear, DayStart as u32).unwrap())
                 };
                 // Execute simulation for this day.
                 match state.simulate_this_day(self) {
@@ -815,7 +815,7 @@ impl Profile {
                 Clim[j as usize].Rain = record.rain;
             }
         }
-        self.last_day_weather_data = NaiveDate::from_yo(unsafe { iyear }, jdd);
+        self.last_day_weather_data = NaiveDate::from_yo_opt(unsafe { iyear }, jdd).unwrap();
         let mut idef: usize = 0;
         let mut icult: usize = 0;
         let mut ipix: usize = 0;
@@ -1051,7 +1051,8 @@ impl Profile {
             .append(true)
             .open(self.path.parent().unwrap().join("output.csv"))?;
         let mut record = vec![
-            chrono::NaiveDate::from_yo(unsafe { iyear }, unsafe { Daynum } as u32)
+            chrono::NaiveDate::from_yo_opt(unsafe { iyear }, unsafe { Daynum } as u32)
+                .unwrap()
                 .format("%F")
                 .to_string(),
             unsafe { LightIntercept.to_string() },

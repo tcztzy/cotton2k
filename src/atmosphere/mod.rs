@@ -39,7 +39,7 @@ impl Atmosphere {
     /// The CIMIS (California Irrigation Management Information System) algorithms are used.
     pub fn new(date: NaiveDate, longitude: f64, latitude: f64) -> Self {
         let xday = 2. * std::f64::consts::PI * date.ordinal0() as f64
-            / chrono::NaiveDate::from_ymd(date.year(), 12, 31).ordinal() as f64;
+            / chrono::NaiveDate::from_ymd_opt(date.year(), 12, 31).unwrap().ordinal() as f64;
         // Compute declination angle for this day. The equation used here for computing it is taken from the CIMIS algorithm.
         let declination = 0.006918 - 0.399912 * xday.cos() + 0.070257 * xday.sin()
             - 0.006758 * (2. * xday).cos()
@@ -65,13 +65,13 @@ impl Atmosphere {
             - 0.014615 * (2. * xday).cos()
             - 0.04089 * (2. * xday).sin())
         .to_degrees();
-        let timezone = FixedOffset::east(
+        let timezone = FixedOffset::east_opt(
             ((longitude + 7.5) / 15.).floor() as i32 * Duration::hours(1).num_seconds() as i32,
-        );
-        let solar_noon = FixedOffset::east(((longitude + exday) * 240.).round() as i32)
-            .from_local_date(&date)
+        ).unwrap();
+        let solar_noon = FixedOffset::east_opt(((longitude + exday) * 240.).round() as i32)
             .unwrap()
-            .and_hms(12, 0, 0);
+            .from_local_datetime(&date.and_hms_opt(12, 0, 0).unwrap())
+            .unwrap();
         // Compute day length, by commonly used equations, from latitude and declination of this day.
         // Times of sunrise and of sunset are computed from solar noon and day length.
         let xlat = latitude.to_radians();
@@ -152,8 +152,7 @@ impl Atmosphere {
             // time in the middle of each hourly interval.
             let ti = self
                 .timezone
-                .from_local_date(&self.date)
-                .and_hms_opt(ihr as u32, 30, 0)
+                .from_local_datetime(&self.date.and_hms_opt(ihr as u32, 30, 0).unwrap())
                 .unwrap();
             // sine of the solar elevation.
             let sinb = sd + cd * ((num_hours(ti - self.solar_noon) * 15.).to_radians()).cos();
@@ -581,8 +580,7 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
             profile.latitude,
             atmosphere
                 .timezone
-                .from_local_date(&date)
-                .and_hms_opt(ihr as u32, 30, 0)
+                .from_local_datetime(&date.and_hms_opt(ihr as u32, 30, 0).unwrap())
                 .unwrap(),
             atmosphere.declination,
             atmosphere.solar_noon,
