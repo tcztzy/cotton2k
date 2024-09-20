@@ -8,13 +8,13 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: messense/maturin-action@v1
+    - uses: actions/checkout@v4.1.7
+    - uses: messense/maturin-action@v1.44.0
       with:
         command: build
         args: --release --no-sdist -o dist --manifest-path bindings/python/Cargo.toml
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3.2.1-node20
       with:
         name: wheels
         path: dist
@@ -25,11 +25,11 @@ jobs:
     if: "startsWith(github.ref, 'refs/tags/')"
     needs: [ windows ]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.8
         with:
           name: wheels
       - name: Publish to PyPI
-        uses: messense/maturin-action@v1
+        uses: messense/maturin-action@v1.44.0
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         with:
