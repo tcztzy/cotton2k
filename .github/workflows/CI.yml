@@ -7,15 +7,21 @@ on:
 jobs:
   windows:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]
+        target: [x86_64-pc-windows-msvc, x86_64-pc-windows-gnu, i686-pc-windows-msvc, i686-pc-windows-gnu]
     steps:
     - uses: actions/checkout@v4.2.0
     - uses: actions/setup-python@v5.2.0
       with:
-        python-version: '3.10'
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
     - uses: messense/maturin-action@v1.44.0
       with:
         command: build
-        args: --release --no-sdist -o dist --manifest-path bindings/python/Cargo.toml
+        target: ${{ matrix.target }}
+        args: --release -i python${{ matrix.python-version }} --no-sdist -o dist --manifest-path bindings/python/Cargo.toml
     - name: Upload wheels
       uses: actions/upload-artifact@v3.2.1-node20
       with:
