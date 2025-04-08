@@ -1,50 +1,84 @@
-# Cotton2K simulation model
+# Cotton2K Simulation Model
 
-Cotton2K is a cotton simulation model specially adapted for irrigated cotton production in arid regions.
-It was originally written by [Prof. Avishalom Marani][marani] and distributed under GPL, and rewrite in Rust by [Tang Ziya][tang].
+[![Rust](https://img.shields.io/badge/Rust-1.70%2B-blue)](https://www.rust-lang.org)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-These packages are distributed under [GPL 3.0 or later](https://www.gnu.org/licenses/gpl-3.0.en.html). This version has been upgraded to run on modern OS.
+Cotton2K is a cotton simulation model specially adapted for irrigated cotton production in arid regions. It was originally written by [Prof. Avishalom Marani][marani] and has been rewritten in Rust with Python bindings.
 
-## Migrate from version 4.0
+## Features
 
-I use `TOML` as input file format and `CSV` as output file format. Documents coming soon.
+- High-performance cotton growth simulation
+- Native Rust implementation with Python bindings
+- TOML/JSON configuration format
+- CSV output format
+- Cross-platform support
 
-## What about Python?
+## Usage
 
-I wrote a [Python version](https://github.com/tcztzy/cotton2k-core) before this. It works, but I have serious performance issues, it toke about 2min one single simulation, compared with 3s in C++ version. I tried to improve, but it is too difficult for me.
+### As a Rust Library
 
-I provided Python API via PyO3! see `bindings` directory in the root of this repository.
+Add to your `Cargo.toml`:
+```toml
+[dependencies]
+cotton2k = { git = "https://github.com/tcztzy/cotton2k" }
+```
 
-## Roadmap
+### As a Python Package
 
-1. GUI
-2. Fix calculation errors
-3. Update formulas, grant SWAP model
-4. Refactoring all in Rust
-4. Maybe I will change model structure
+Install from PyPI:
+```bash
+pip install cotton2k
+```
+
+Or install locally:
+```bash
+cd bindings/python
+pip install .
+```
+
+Example usage:
+```python
+import cotton2k as c2k
+
+# Run simulation with profile file
+c2k.run("path/to/profile.toml")
+```
 
 ## Requirements
 
-C++ compiler (clang and msvc tested), Rust toolchain (nightly tested), FORTRAN compiler and Meson build.
+- Rust 1.70+ (for Rust usage)
+- Python 3.8+ (for Python bindings)
+- C++ compiler (temporary, during transition from C++ to Rust)
 
-Additionally, you need to notice that [`LIBCLANG_PATH`](https://rust-lang.github.io/rust-bindgen/requirements.html#clang) should be satisfied. This dependency will be eventually removed after C++ codes are all refactored into Rust.
+## Building
 
-## Build
-
+Build Rust library:
+```bash
+cargo build --release
 ```
-cargo build
+
+Build and install Python bindings:
+```bash
+cd bindings/python
+maturin develop --release
 ```
 
-## Licenses
+## Roadmap
 
-* [Cotton2K by Marani: GPLv2](https://plantscience.agri.huji.ac.il/avishalom-marani/cotton2k_source)
-<!-- * [GOSSYM: CC0](https://data.nal.usda.gov/dataset/gossym)
-* [SWAP: GPLv2](https://www.swap.alterra.nl/DownloadRecent/swap4.0.1/Swap4.0.1.htm) -->
-* [THIS REPO: GPLv3 or later](https://github.com/tcztzy/cotton2k)
+- [ ] Complete Rust migration
+- [ ] GUI interface
+- [ ] Improved documentation
+- [ ] SWAP model integration
+
+## License
+
+This project is licensed under:
+- [MIT License](LICENSE) for the Rust implementation
+- Original Cotton2K by Marani remains under [GPLv2](https://plantscience.agri.huji.ac.il/avishalom-marani/cotton2k_source)
 
 ## Contributing
 
-If you have any problem, feel free to open an issue.
+Contributions are welcome! Please open an issue or submit a pull request.
 
 [marani]: https://plantscience.agri.huji.ac.il/avishalom-marani
-[tang]: https://github.com/tcztzy

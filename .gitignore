@@ -16,3 +16,9 @@ target/
 
 # Pyenv
 .python-version
+
+# macOS
+.DS_Store
+
+# Aider
+.aider*
