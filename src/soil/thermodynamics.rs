@@ -16,7 +16,7 @@ use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
 const maxl: usize = 40;
 
 #[derive(Debug, Clone, Copy)]
-pub struct SoilThermology {
+pub struct SoilThermodynamics {
     /// the relative radiation received by a soil column, as affected by shading by plant canopy.
     pub rracol: [f64; 20],
     numiter: u64,
@@ -32,8 +32,8 @@ pub struct SoilThermology {
     es: f64,
 }
 
-impl SoilThermology {
-    /// Called from soil_thermology() at the start of the simulation.
+impl SoilThermodynamics {
+    /// Called from [crate::soil::Soil::new] at the start of the simulation.
     /// It sets initial values to soil and canopy temperatures.
     ///
     /// The following global variables are referenced here:
@@ -77,7 +77,7 @@ impl SoilThermology {
                 }
             }
         }
-        SoilThermology {
+        SoilThermodynamics {
             rracol: [1.; 20],
             numiter: 0,
             dz: [0.; 40],
@@ -93,7 +93,7 @@ impl SoilThermology {
         mean + amplitude * (2. * std::f64::consts::PI * (daynum as f64 - phase) / 365.).sin()
     }
 
-    /// This is the main part of the soil temperature sub-model. It is called daily from SimulateThisDay(). It calls the following functions:
+    /// This is the main part of the soil temperature sub-model. It is called daily from [crate::state::State::simulate_this_day()]. It calls the following functions:
     /// EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
     ///
     /// The following global variables are referenced here:
@@ -106,7 +106,7 @@ impl SoilThermology {
     /// The following global variables are set here:
     /// ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es,
     /// SoilTemp, SoilTempDailyAvrg, VolWaterContent,
-    pub unsafe fn soil_thermology(&mut self, profile: &Profile) {
+    pub unsafe fn simulate(&mut self, profile: &Profile) {
         //     Compute dts, the daily change in deep soil temperature (C), as
         //  a site-dependent function of Daynum.
         let (_, amplitude, phase) = profile.site.deep_soil_temperature;
@@ -290,7 +290,7 @@ impl SoilThermology {
     ///
     /// Units for all energy fluxes are: cal cm-2 sec-1.
     ///
-    /// It is called from soil_thermology(), on each hourly time step and for each soil column.
+    /// It is called from [`SoilThermodynamics::simulate()`], on each hourly time step and for each soil column.
     /// It calls functions [clearskyemiss()], [vapor_pressure()], SensibleHeatTransfer(), SoilMulchBalance(), SoilSurfaceBalance() and CanopyBalance().
     ///
     /// The following arguments are used in this function:

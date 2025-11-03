@@ -53,8 +53,8 @@ impl State {
     ///
     /// It calls the following functions:
     /// * [Profile::column_shading()]
-    /// * [soil_thermology()]
-    /// * [SoilProcedures()]
+    /// * [crate::soil::thermodynamics::SoilThermodynamics::simulate()]
+    /// * [`State::soil_procedures()`]
     /// * [SoilNitrogen()]
     /// * [SoilSum()]
     /// * [PhysiologicalAge()]
@@ -72,7 +72,6 @@ impl State {
     ///
     /// The following global variables are referenced here:
     /// * [DayEmerge]
-    /// * [DayFinish]
     /// * [DayStart]
     /// * [Kday]
     /// * [LeafAreaIndex]
@@ -102,7 +101,7 @@ impl State {
             // The following functions are executed each day (also before emergence).
             self.column_shading(profile); // computes light interception and soil shading.
             self.atmosphere.meteorology(profile); // computes climate variables for today.
-            self.soil.thermology.soil_thermology(profile); // executes all modules of soil and canopy temperature.
+            self.soil.thermodynamics.simulate(profile); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
             SoilNitrogen(); // computes nitrogen transformations in the soil.
             SoilSum(); // computes totals of water and N in the soil.
@@ -170,7 +169,7 @@ impl State {
             if Daynum < DayEmerge || isw <= 0 || DayEmerge <= 0 {
                 LightIntercept = 0.;
                 for k in 0..nk as usize {
-                    self.soil.thermology.rracol[k] = 1.;
+                    self.soil.thermodynamics.rracol[k] = 1.;
                 }
                 return;
             }
@@ -294,9 +293,9 @@ impl State {
                     }
                     result
                 };
-                self.soil.thermology.rracol[k0] = 1. - shade;
-                if self.soil.thermology.rracol[k0] < 0.05 {
-                    self.soil.thermology.rracol[k0] = 0.05;
+                self.soil.thermodynamics.rracol[k0] = 1. - shade;
+                if self.soil.thermodynamics.rracol[k0] < 0.05 {
+                    self.soil.thermodynamics.rracol[k0] = 0.05;
                 }
             }
         }
@@ -474,7 +473,7 @@ impl State {
     }
 
     /// This function simulates the application of nitrogen fertilizer on each date of application.
-    /// It is called from [SoilProcedures()].
+    /// It is called from [`State::soil_procedures()`].
     ///
     /// The following global variables are referenced here:
     /// * [Daynum]
@@ -947,7 +946,7 @@ impl State {
 }
 
 /// This function computes the water redistribution in the soil or surface irrigation (by flooding or sprinklers).
-/// It is called by [SoilProcedures()].
+/// It is called by [`State::soil_procedures()`].
 /// It calls function [Drain()].
 ///
 /// The following argument is used:
@@ -1160,7 +1159,7 @@ fn LeafWaterPotential() {
 }
 /// This function computes the water redistribution in the soil after irrigation by a drip system.
 /// It also computes the resulting redistribution of nitrate and urea N.
-/// It is called by SoilProcedures() noitr times per day.
+/// It is called by [`State::soil_procedures()`] `noitr` times per day.
 /// It calls function CellDistrib().
 ///
 /// The following argument is used:
@@ -1396,7 +1395,7 @@ fn drop_leaf_age(lai: f64) -> f64 {
 }
 //     This function computes the weight of roots capable of uptake for all soil
 //     cells.
-//  It is called from SoilProcedures().
+//  It is called from [`State::soil_procedures()`].
 //
 //     The following global variables are referenced here:
 //       nk, nl, NumLayersWithRoots, RootColNumLeft, RootColNumRight,
