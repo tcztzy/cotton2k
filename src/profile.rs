@@ -488,8 +488,8 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         //  green manure incorporation. Agron. J. 85:153-159.
         //
         // The fraction of total nitrate in a layer that is in solution and can move from one layer to the next with
-        // the downward flow of water, FLOWNO3[l], is a function of the adsorption coefficient, soil bulk density, and
-        // the volumetric soil water content at the drained upper limit.
+        // the downward flow of water is a function of the adsorption coefficient, soil bulk density, and the
+        // volumetric soil water content at the drained upper limit.
         //
         // Adsorption coefficients are assumed to be 0.0 up to 30 cm depth, and deeper than 30 cm - 0.2, 0.4, 0.8, 1.0,
         // 1.2, and 1.6 for each successive 15 cm layer.
@@ -646,7 +646,10 @@ impl Profile {
                     new_state.date = new_state.date.succ_opt().unwrap();
                     new_state
                 } else {
-                    State::new(self, NaiveDate::from_yo_opt(iyear, DayStart as u32).unwrap())
+                    State::new(
+                        self,
+                        NaiveDate::from_yo_opt(iyear, DayStart as u32).unwrap(),
+                    )
                 };
                 // Execute simulation for this day.
                 match state.simulate_this_day(self) {
@@ -673,8 +676,6 @@ impl Profile {
         self.num_watertable_data = 0;
         unsafe {
             InitializeGlobal();
-            Longitude = self.longitude;
-            Elevation = self.elevation;
             iyear = self.start_date.year();
             DayStart = self.start_date.ordinal() as i32;
             DayFinish = self.stop_date.ordinal() as i32;
@@ -725,14 +726,6 @@ impl Profile {
                     MulchIndicator = MulchType::NoMulch as i32;
                 }
             }
-            SitePar[9] = self.site.deep_soil_temperature.0;
-            SitePar[10] = self.site.deep_soil_temperature.1;
-            SitePar[11] = self.site.deep_soil_temperature.2;
-            SitePar[12] = self.site.dew_point_range.0;
-            SitePar[13] = self.site.dew_point_range.1;
-            SitePar[14] = self.site.dew_point_range.2;
-            SitePar[15] = self.site.albedo_range.1;
-            SitePar[16] = self.site.albedo_range.0;
             for pair in self.cultivar_parameters.iter().enumerate() {
                 VarPar[pair.0 + 1] = *pair.1;
             }
@@ -833,11 +826,14 @@ impl Profile {
                         if irrigation.predict {
                             MaxIrrigation = irrigation.max_amount.unwrap();
                             DayStartPredIrrig = irrigation.date.ordinal() as i32;
-                            DayStopPredIrrig = irrigation.stop_predict_date.unwrap().ordinal() as i32;
+                            DayStopPredIrrig =
+                                irrigation.stop_predict_date.unwrap().ordinal() as i32;
                             if let IrrigationMethod::Drip = irrigation.method {
                                 LocationColumnDrip =
-                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)? as i32;
-                                LocationLayerDrip = utils::slab_vertical_location(irrigation.drip_y)? as i32;
+                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)?
+                                        as i32;
+                                LocationLayerDrip =
+                                    utils::slab_vertical_location(irrigation.drip_y)? as i32;
                             }
                             IrrigMethod = irrigation.method as i32;
                         } else {
@@ -845,7 +841,8 @@ impl Profile {
                             Irrig[NumIrrigations as usize].amount = irrigation.amount;
                             if let IrrigationMethod::Drip = irrigation.method {
                                 Irrig[NumIrrigations as usize].LocationColumnDrip =
-                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)? as i32;
+                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)?
+                                        as i32;
                                 Irrig[NumIrrigations as usize].LocationLayerDrip =
                                     utils::slab_vertical_location(irrigation.drip_y)? as i32;
                             }
@@ -887,15 +884,12 @@ impl Profile {
                     _ => false,
                 })
                 .count();
-            match self.light_intercept_method {
-                LightInterceptMethod::Latered => {
-                    light_intercept_parameter = 0.;
-                    for i in 0..20 {
-                        light_intercept_parameters[i] = self.light_intercept_parameters.unwrap()[i];
-                        light_intercept_parameter += light_intercept_parameters[i];
-                    }
-                }
-                _ => {}
+            if matches!(self.light_intercept_method, LightInterceptMethod::Latered)
+                && self.light_intercept_parameters.is_none()
+            {
+                panic!(
+                    "light_intercept_parameters must be provided when using the Latered light intercept method"
+                );
             }
         }
         self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;

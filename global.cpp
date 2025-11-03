@@ -231,7 +231,6 @@ double DailyRootLoss,   // total weight of sloughed roots, g per plant per day.
 double
     ElCondSatSoilToday,    // electrical conductivity of saturated extract
                            // (mmho/cm) on this day.
-    Elevation,             // elevation above sea level, m.
     es1hour[24],  // part of hourly Penman evapotranspiration affected by net
                   // radiation, in mm per hour.
     es2hour[24],  // part of hourly Penman evapotranspiration affected by wind
@@ -284,7 +283,6 @@ double impede[10][10],      // input table of soil impedance to root growth
     LightIntercept,             // ratio of light interception by plant canopy.
     LightInterceptLayer[20],
     LintYield,   // yield of lint, kgs per hectare.
-    Longitude,   // longitude, degrees.
     LwpMax,      // maximum (dawn) leaf water potential, MPa.
     LwpMin,      // minimum (noon) leaf water potential, MPa.
     LwpMinX[3],  // array of values of LwpMin for the last 3 days.
@@ -425,7 +423,6 @@ double SandVolumeFraction[maxl],  // fraction by volume of sand plus silt in the
     ShedByCarbonStress[20],    // the effect of carbohydrate stress on shedding
     ShedByNitrogenStress[20],  // the effect of nitrogen stress on shedding.
     ShedByWaterStress[20],     // the effect of moisture stress on shedding.
-    SitePar[21],               // array of site specific constant parameters.
     SoilNitrogenAtStart,   // total soil nitrogen at the start of simulation, mg
                            // per slab.
     SoilNitrogenLoss,      // cumulative loss of nitrogen by drainage out of the
@@ -482,10 +479,6 @@ double VarPar[61],      // array of cultivar specific constant parameters.
     WaterStressStem,  // water stress index for stem growth (0 to 1).
     WindSpeed[24],    // Hourly wind velocity, m per second.
     wk[maxk];         // horizontal width of a soil column (cm).
-
-double light_intercept_parameter,
-    light_intercept_parameters[20];  // Parameter in light interception
-                                     // computation 1 - e^{p * LAI}
 
 double TotalLeafWeight() {
     double result = 0;

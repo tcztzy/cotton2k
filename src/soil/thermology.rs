@@ -1,4 +1,5 @@
 use crate::atmosphere::{clearskyemiss, vapor_pressure};
+use crate::profile::Profile;
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, thad, wk, ActualSoilEvaporation,
     ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
@@ -6,11 +7,11 @@ use crate::{
     DeepSoilTemperature, FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, MulchIndicator,
     MulchSurfaceBalance, MulchTemp, MulchTranLW, MulchTranSW, PlantHeight, PlantRowColumn,
     PoreSpace, PredictEmergence, Radiation, ReferenceETP, ReferenceTransp, RelativeHumidity,
-    RowSpace, SensibleHeatTransfer, SitePar, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg,
+    RowSpace, SensibleHeatTransfer, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg,
     ThermalCondSoil, VolWaterContent, WindSpeed,
 };
 use uom::si::f64::ThermodynamicTemperature;
-use uom::si::thermodynamic_temperature::{degree_celsius,kelvin};
+use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
 
 const maxl: usize = 40;
 
@@ -36,11 +37,11 @@ impl SoilThermology {
     /// It sets initial values to soil and canopy temperatures.
     ///
     /// The following global variables are referenced here:
-    /// Clim (structure), DayFinish, Daynum, DayStart, nl, SitePar.
+    /// Clim (structure), DayFinish, Daynum, DayStart, nl.
     ///
     /// The following global variables are set here:
     /// DeepSoilTemperature, SoilTemp.
-    pub fn new() -> Self {
+    pub fn new(profile: &Profile) -> Self {
         // If there is an output flag for soil temperatures, an error message pops up for defining the start and stop dates for this output.
         // Compute initial values of soil temperature: It is assumed that at the start of simulation the temperature of the first soil layer (upper boundary) is equal to the average air temperature of the previous five days (if climate data not available - start from first climate data).
         //
@@ -56,11 +57,9 @@ impl SoilThermology {
         }
         tsi1 /= 10.;
         // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
-        let deep_soil_temperature = ThermodynamicTemperature::new::<degree_celsius>(unsafe {
-            SitePar[9]
-                + SitePar[10]
-                    * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).sin()
-        });
+        let deep_soil_temperature = ThermodynamicTemperature::new::<degree_celsius>(
+            Self::deep_soil_temperature_for_day(profile, unsafe { Daynum }),
+        );
         // SoilTemp is assigned to all columns, converted to degrees K.
         tsi1 += 273.161;
         unsafe {
@@ -89,6 +88,11 @@ impl SoilThermology {
         }
     }
 
+    fn deep_soil_temperature_for_day(profile: &Profile, daynum: i32) -> f64 {
+        let (mean, amplitude, phase) = profile.site.deep_soil_temperature;
+        mean + amplitude * (2. * std::f64::consts::PI * (daynum as f64 - phase) / 365.).sin()
+    }
+
     /// This is the main part of the soil temperature sub-model. It is called daily from SimulateThisDay(). It calls the following functions:
     /// EnergyBalance(), PredictEmergence(), SoilHeatFlux(), SoilTemperatureInit().
     ///
@@ -97,16 +101,17 @@ impl SoilThermology {
     /// DayStart, DayStartMulch, DewPointTemp, dl, FoliageTemp, isw,
     /// MulchIndicator, MulchTemp, nk, nl, PlantRowColumn,
     /// ReferenceETP, ReferenceTransp, RelativeHumidity, RowSpace,
-    /// rracol, SitePar, thad, wk
+    /// rracol, thad, wk
     ///
     /// The following global variables are set here:
     /// ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es,
     /// SoilTemp, SoilTempDailyAvrg, VolWaterContent,
-    pub unsafe fn soil_thermology(&mut self) {
+    pub unsafe fn soil_thermology(&mut self, profile: &Profile) {
         //     Compute dts, the daily change in deep soil temperature (C), as
         //  a site-dependent function of Daynum.
-        let dts = 2. * std::f64::consts::PI * SitePar[10] / 365.
-            * (2. * std::f64::consts::PI * (Daynum as f64 - SitePar[11]) / 365.).cos();
+        let (_, amplitude, phase) = profile.site.deep_soil_temperature;
+        let dts = 2. * std::f64::consts::PI * amplitude / 365.
+            * (2. * std::f64::consts::PI * (Daynum as f64 - phase) / 365.).cos();
         //     Define iter1 and dlt for hourly time step.
         let iter1 = 24; // number of iterations per day.
         let dlt = 3600.; // time (seconds) of one iteration.
@@ -209,7 +214,7 @@ impl SoilThermology {
                     ess = escol1k / dlt;
                 }
                 // Call EnergyBalance to compute soil surface and canopy temperature.
-                self.soil_energy_balance(ihr, k, bMulchon, ess, etp1)
+                self.soil_energy_balance(ihr, k, bMulchon, ess, etp1, profile)
                     .unwrap();
                 if bEnd {
                     return;
@@ -299,7 +304,7 @@ impl SoilThermology {
     ///
     /// AirTemp, albedo, CloudCoverRatio, CloudTypeCorr, FieldCapacity,
     /// MulchTemp, MulchTranSW, PlantHeight, Radiation, RelativeHumidity,
-    /// rracol, SitePar, thad, VolWaterContent, WindSpeed.
+    /// rracol, thad, VolWaterContent, WindSpeed; site albedo parameters are supplied via [Profile::site].
     ///
     /// The following global variables are set here:
     /// bEnd, SoilTemp, FoliageTemp, MulchTemp.
@@ -310,6 +315,7 @@ impl SoilThermology {
         bMulchon: bool,
         ess: f64,
         etp1: f64,
+        profile: &Profile,
     ) -> Result<(), Cotton2KError> {
         // Stefan-Boltsman constant.
         const stefa1: f64 = 1.38e-12;
@@ -330,13 +336,14 @@ impl SoilThermology {
         let mut so3 = SoilTemp[2][k];
         // Compute soil surface albedo (based on Horton and Chung, 1991):
         // albedo of the soil surface
+        let (wet_albedo, dry_albedo) = profile.site.albedo_range;
         let ag = if VolWaterContent[0][k] <= thad[0] {
-            SitePar[15]
+            dry_albedo
         } else if VolWaterContent[0][k] >= FieldCapacity[0] {
-            SitePar[16]
+            wet_albedo
         } else {
-            SitePar[16]
-                + (SitePar[15] - SitePar[16]) * (FieldCapacity[0] - VolWaterContent[0][k])
+            wet_albedo
+                + (dry_albedo - wet_albedo) * (FieldCapacity[0] - VolWaterContent[0][k])
                     / (FieldCapacity[0] - thad[0])
         };
         //  ****   SHORT WAVE RADIATION ENERGY BALANCE   ****

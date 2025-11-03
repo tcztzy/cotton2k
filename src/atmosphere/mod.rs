@@ -1,9 +1,9 @@
 use crate::utils::fmin;
 use crate::{
     albedo, es1hour, es2hour, AirTemp, AvrgDailyTemp, CloudCoverRatio, CloudTypeCorr, DayTimeTemp,
-    Daynum, DewPointTemp, Elevation, GetFromClim, NightTimeTemp, Profile, Radiation, ReferenceETP,
-    ReferenceTransp, RelativeHumidity, Rn, SitePar, WindSpeed, CLIMATE_METRIC_IRRD,
-    CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
+    Daynum, DewPointTemp, GetFromClim, NightTimeTemp, Profile, Radiation, ReferenceETP,
+    ReferenceTransp, RelativeHumidity, Rn, WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_TDEW,
+    CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
 };
 use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Timelike};
 
@@ -34,12 +34,24 @@ fn hours(hours: f64) -> Duration {
     Duration::seconds((hours * 3600.).round() as i64)
 }
 
+fn dew_point_range(coeffs: (f64, f64, f64), tmax: f64, tmin: f64) -> f64 {
+    let (c0, c1, c2) = coeffs;
+    let range = c0 + c1 * tmax + c2 * tmin;
+    if range < 0. {
+        0.
+    } else {
+        range
+    }
+}
+
 impl Atmosphere {
     /// Computes day length, declination, time of solar noon, and extra-terrestrial radiation for this day.
     /// The CIMIS (California Irrigation Management Information System) algorithms are used.
     pub fn new(date: NaiveDate, longitude: f64, latitude: f64) -> Self {
         let xday = 2. * std::f64::consts::PI * date.ordinal0() as f64
-            / chrono::NaiveDate::from_ymd_opt(date.year(), 12, 31).unwrap().ordinal() as f64;
+            / chrono::NaiveDate::from_ymd_opt(date.year(), 12, 31)
+                .unwrap()
+                .ordinal() as f64;
         // Compute declination angle for this day. The equation used here for computing it is taken from the CIMIS algorithm.
         let declination = 0.006918 - 0.399912 * xday.cos() + 0.070257 * xday.sin()
             - 0.006758 * (2. * xday).cos()
@@ -67,7 +79,8 @@ impl Atmosphere {
         .to_degrees();
         let timezone = FixedOffset::east_opt(
             ((longitude + 7.5) / 15.).floor() as i32 * Duration::hours(1).num_seconds() as i32,
-        ).unwrap();
+        )
+        .unwrap();
         let solar_noon = FixedOffset::east_opt(((longitude + exday) * 240.).round() as i32)
             .unwrap()
             .from_local_datetime(&date.and_hms_opt(12, 0, 0).unwrap())
@@ -143,10 +156,10 @@ impl Atmosphere {
             GetFromClim(CLIMATE_METRIC_IRRD, self.date.ordinal() as i32) * 11.630287 / dsbe
         };
         // Parameters for the daily wind function are now computed:
-        // Note:  SitePar[] are site specific parameters.
-        let t1 = self.sunrise + hours(profile.site.wind_blow_after_sunrise); // the hour at which wind begins to blow (SitePar(1) hours after sunrise).
-        let t2 = self.solar_noon + hours(profile.site.wind_max_after_noon); // the hour at which wind speed is maximum (SitePar(2) hours after solar noon).
-        let t3 = self.sunset + hours(profile.site.wind_stop_after_sunset); // the hour at which wind stops to blow (SitePar(3) hours after sunset).
+        // Site-specific parameters are provided via the profile.
+        let t1 = self.sunrise + hours(profile.site.wind_blow_after_sunrise); // the hour at which wind begins to blow.
+        let t2 = self.solar_noon + hours(profile.site.wind_max_after_noon); // the hour at which wind speed is maximum after noon.
+        let t3 = self.sunset + hours(profile.site.wind_stop_after_sunset); // the hour at which wind stops to blow.
         let wnytf = profile.site.night_time_wind_factor; // used for estimating night time wind (from time t3 to time t1 next day).
         for ihr in 0..24 as usize {
             // time in the middle of each hourly interval.
@@ -342,7 +355,7 @@ impl Atmosphere {
     /// * `tt` - air temperature C at this time of day.
     /// Global variables used:
     ///
-    /// Daynum SitePar, SolarNoon, sunr, suns.
+    /// Daynum, SolarNoon, sunr, suns, along with dew point coefficients from [Profile::site].
     unsafe fn tdewhour(&self, profile: &Profile, ti: DateTime<FixedOffset>, tt: f64) -> f64 {
         let im1 = Daynum - 1; // day of year yeaterday
         let mut ip1 = Daynum + 1; // day of year tomorrow
@@ -351,17 +364,16 @@ impl Atmosphere {
         }
         let tdewhr; // the dew point temperature (c) of this hour.
         let tdmin; // minimum of dew point temperature.
-        let mut tdrange; // range of dew point temperature.
+        let coeffs = profile.site.dew_point_range; // regression coefficients for dew point range.
         let hmax = self.solar_noon + hours(profile.site.max_temperature_after_noon); // time of maximum air temperature
 
         if ti <= self.sunrise {
             // from midnight to sunrise
-            tdrange = SitePar[12]
-                + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, im1)
-                + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
-            if tdrange < 0. {
-                tdrange = 0.;
-            }
+            let tdrange = dew_point_range(
+                coeffs,
+                GetFromClim(CLIMATE_METRIC_TMAX, im1),
+                GetFromClim(CLIMATE_METRIC_TMIN, Daynum),
+            );
             tdmin = GetFromClim(CLIMATE_METRIC_TDEW, im1) - tdrange / 2.;
             tdewhr = tdmin
                 + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
@@ -369,12 +381,11 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
         } else if ti <= hmax {
             // from sunrise to hmax
-            tdrange = SitePar[12]
-                + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, Daynum);
-            if tdrange < 0. {
-                tdrange = 0.;
-            }
+            let tdrange = dew_point_range(
+                coeffs,
+                GetFromClim(CLIMATE_METRIC_TMAX, Daynum),
+                GetFromClim(CLIMATE_METRIC_TMIN, Daynum),
+            );
             tdmin = GetFromClim(CLIMATE_METRIC_TDEW, Daynum) - tdrange / 2.;
             tdewhr = tdmin
                 + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
@@ -382,12 +393,11 @@ impl Atmosphere {
                         - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
         } else {
             // from hmax to midnight
-            tdrange = SitePar[12]
-                + SitePar[13] * GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                + SitePar[14] * GetFromClim(CLIMATE_METRIC_TMIN, ip1);
-            if tdrange < 0. {
-                tdrange = 0.;
-            }
+            let tdrange = dew_point_range(
+                coeffs,
+                GetFromClim(CLIMATE_METRIC_TMAX, Daynum),
+                GetFromClim(CLIMATE_METRIC_TMIN, ip1),
+            );
             tdmin = GetFromClim(CLIMATE_METRIC_TDEW, ip1) - tdrange / 2.;
             tdewhr = tdmin
                 + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
@@ -649,7 +659,7 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
         // The weighting ratio (w) is computed from the functions del() (the slope of the saturation vapor pressure versus air temperature) and gam() (the psychometric constant).
         //
         // coefficient of the Penman equation
-        let w = del(tk, svp) / (del(tk, svp) + gam(Elevation, AirTemp[ihr]));
+        let w = del(tk, svp) / (del(tk, svp) + gam(profile.elevation, AirTemp[ihr]));
         // The wind function (fu2) is computed using different sets of parameters for day-time and night-time.
         // The parameter values are as suggested by CIMIS.
         //

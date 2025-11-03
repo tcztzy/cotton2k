@@ -7,24 +7,24 @@ use crate::soil::hydrology::{ComputeIrrigation, WaterUptake};
 use crate::soil::Soil;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
-    addwtbl, bPollinSwitch, beta, dl, isw, light_intercept_parameters, maxl, nk, nl, noitr, pixday,
-    thad, thts, wcond, wk, ActualTranspiration, AgeOfPreFruNode, AppliedWater, AverageLeafAge,
-    AverageLwp, AverageLwpMin, AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow,
-    CheckDryMatterBal, Clim, Cotton2KError, CottonPhenology, CottonWeightOpenBolls, CumFertilizerN,
-    CumNetPhotosynth, CumNitrogenUptake, CumTranspiration, CumWaterAdded, CumWaterDrained,
-    DayEmerge, DayInc, DayOfSimulation, DayStart, DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp,
-    Daynum, Defoliate, Drain, ElCondSatSoilToday, FirstSquare, GetFromClim, Irrig, IrrigMethod,
-    Kday, LeafAge, LeafArea, LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes,
-    LeafAreaPreFru, LeafNConc, LeafNitrogen, LightIntercept, LightInterceptLayer,
-    LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation,
-    MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru,
-    NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches,
-    PerPlantArea, PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace,
-    ReferenceETP, RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace,
-    SaturatedHydCond, SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss,
-    SoilPsi, SoilSum, StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent,
-    VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem,
-    WaterTableLayer, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
+    addwtbl, bPollinSwitch, beta, dl, isw, maxl, nk, nl, noitr, pixday, thad, thts, wcond, wk,
+    ActualTranspiration, AgeOfPreFruNode, AppliedWater, AverageLeafAge, AverageLwp, AverageLwpMin,
+    AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow, CheckDryMatterBal, Clim,
+    Cotton2KError, CottonPhenology, CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth,
+    CumNitrogenUptake, CumTranspiration, CumWaterAdded, CumWaterDrained, DayEmerge, DayInc,
+    DayOfSimulation, DayStart, DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate,
+    Drain, ElCondSatSoilToday, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge,
+    LeafArea, LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru,
+    LeafNConc, LeafNitrogen, LightIntercept, LightInterceptLayer, LocationColumnDrip,
+    LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation, MaxWaterCapacity,
+    NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru, NumFruitBranches,
+    NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, PerPlantArea,
+    PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, ReferenceETP,
+    RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace, SaturatedHydCond,
+    SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum,
+    StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
+    VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer,
+    CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
 use chrono::{Datelike, NaiveDate};
 
@@ -43,7 +43,7 @@ impl State {
         State {
             date,
             atmosphere,
-            soil: Soil::new(atmosphere),
+            soil: Soil::new(profile),
             plant: Plant::new(),
         }
     }
@@ -102,7 +102,7 @@ impl State {
             // The following functions are executed each day (also before emergence).
             self.column_shading(profile); // computes light interception and soil shading.
             self.atmosphere.meteorology(profile); // computes climate variables for today.
-            self.soil.thermology.soil_thermology(); // executes all modules of soil and canopy temperature.
+            self.soil.thermology.soil_thermology(profile); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
             SoilNitrogen(); // computes nitrogen transformations in the soil.
             SoilSum(); // computes totals of water and N in the soil.
@@ -186,6 +186,10 @@ impl State {
         let zint = unsafe { 1.0756 * PlantHeight / RowSpace };
         match profile.light_intercept_method {
             LightInterceptMethod::Latered => unsafe {
+                let params = profile
+                    .light_intercept_parameters
+                    .as_ref()
+                    .expect("light intercept parameters must be provided for Latered method");
                 for i in 0..20 {
                     LeafArea[i] = 0.;
                     AverageLeafAge[i] = 0.;
@@ -214,9 +218,9 @@ impl State {
                 for i in 0..20 {
                     AverageLeafAge[i] /= LeafArea[i];
                     LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
-                    LightInterceptLayer[i] =
-                        1. - (light_intercept_parameters[i] * LeafAreaIndexes[i]).exp();
-                    light_through += light_intercept_parameters[i] * LeafAreaIndexes[i];
+                    let param = params[i];
+                    LightInterceptLayer[i] = 1. - (param * LeafAreaIndexes[i]).exp();
+                    light_through += param * LeafAreaIndexes[i];
                 }
                 LightIntercept = 1. - light_through.exp();
             },
