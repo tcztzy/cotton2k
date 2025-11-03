@@ -1,7 +1,7 @@
 # Cotton2K Simulation Model
 
 [![Rust](https://img.shields.io/badge/Rust-1.70%2B-blue)](https://www.rust-lang.org)
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 Cotton2K is a cotton simulation model specially adapted for irrigated cotton production in arid regions. It was originally written by [Prof. Avishalom Marani][marani] and has been rewritten in Rust with Python bindings.
@@ -48,8 +48,8 @@ c2k.run("path/to/profile.toml")
 ## Requirements
 
 - Rust 1.70+ (for Rust usage)
-- Python 3.8+ (for Python bindings)
-- C++ compiler (temporary, during transition from C++ to Rust)
+- Python 3.10+ (for Python bindings)
+- libclang (temporary, during transition from C++ to Rust)
 
 ## Building
 
