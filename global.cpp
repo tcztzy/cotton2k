@@ -76,8 +76,6 @@ int MainStemNodes,        // number of main stem nodes.
     MinDaysBetweenIrrig,  // minimum number of days between consecutive
                           // irrigations (used for computing predicted
                           // irrigation).
-    MapDataDate[30],      // Dates (Doy) when plant map data are available for
-                          // adjustment.
     MulchIndicator,  // indicating if and where a soil mulch exists: the value
                      // are:
     // 0 = no mulch;       1 = plastic layer on all soil surface;
@@ -288,16 +286,6 @@ double impede[10][10],      // input table of soil impedance to root growth
 double MarginalWaterContent[maxl],  // marginal soil water content (as a
                                     // function of soil texture) for computing
                                     // soil heat conductivity.
-    MapDataAllSiteNum[30],     // the number of total sites per plant, input for
-                               // plant map adjustment.
-    MapDataGreenBollNum[30],   // number of green bolls per plant, input for
-                               // plant map adjustment.
-    MapDataMainStemNodes[30],  // Number of mainstem nodes, input for plant map
-                               // adjustment.
-    MapDataPlantHeight[30],    // average plant height, input for plant map
-                               // adjustment.
-    MapDataSquareNum[30],  // the number of squares per plant, input for plant
-                           // map adjustment.
     MaxIrrigation,  // maximum amount of applied water in a predicted irrigation
     MaxWaterCapacity[maxl],  // volumetric water content of a soil layer at
                              // maximum capacity, before drainage, cm3 cm-3.

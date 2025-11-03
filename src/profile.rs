@@ -874,9 +874,6 @@ impl Profile {
         self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
         unsafe {
             InitSoil(&self.soil_layers, &self.soil_hydraulic);
-            if self.plant_maps.is_some() {
-                self.read_plant_map_input();
-            }
             InitializeRootData();
             //     initialize some variables at the start of simulation.
             SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
@@ -991,31 +988,6 @@ impl Profile {
             }
         }
         Ok(())
-    }
-
-    /// This sunbroutine opens and reads an ascii file with input of observed plant map adjustment data. It is used to
-    /// adjust the simulation.
-    ///
-    /// It is called by [Profile::initialize()].
-    ///
-    /// The following global variables are set:
-    /// * [MapDataGreenBollNum]
-    /// * [MapDataDate],
-    /// * [MapDataMainStemNodes]
-    /// * [MapDataPlantHeight]
-    /// * [MapDataSquareNum]
-    /// * [MapDataAllSiteNum]
-    fn read_plant_map_input(&self) {
-        for (i, plant_map) in self.plant_maps.as_ref().unwrap().iter().enumerate() {
-            unsafe {
-                MapDataDate[i] = plant_map.date.ordinal() as i32; // day of year
-                MapDataPlantHeight[i] = plant_map.plant_height; // Plant height, cm
-                MapDataMainStemNodes[i] = plant_map.main_stem_nodes; // Number of mainstem nodes
-                MapDataSquareNum[i] = plant_map.number_of_squares; // Number of squares per plant
-                MapDataGreenBollNum[i] = plant_map.number_of_bolls; // Number of green bolls per plant
-                MapDataAllSiteNum[i] = plant_map.number_of_nodes; // Number of total sites per plant
-            }
-        }
     }
 
     pub fn write_record(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
