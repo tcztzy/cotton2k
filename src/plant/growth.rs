@@ -1,5 +1,5 @@
 use crate::atmosphere::Atmosphere;
-use crate::plant::root::{PotentialRootGrowth, RootGrowth};
+use crate::plant::root::{PotentialRootGrowth, RootGrowth, RootImpedanceTables};
 use crate::utils::fmax;
 use crate::{
     nadj, pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AdjAddHeightRate,
@@ -19,7 +19,12 @@ use chrono::Duration;
 
 pub trait PlantGrowth {
     /// Simulate whole-plant growth for a day.
-    unsafe fn grow(&mut self, atmosphere: Atmosphere, agronomy_ops: &[AgronomyOperation]);
+    unsafe fn grow(
+        &mut self,
+        atmosphere: Atmosphere,
+        agronomy_ops: &[AgronomyOperation],
+        root_tables: &RootImpedanceTables,
+    );
     unsafe fn plant_height_increment(&mut self, x: f64) -> f64;
 }
 
@@ -37,7 +42,12 @@ impl PlantGrowth for Plant {
     /// The following global variables are set here:
     /// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
     /// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-    unsafe fn grow(&mut self, atmosphere: Atmosphere, agronomy_ops: &[AgronomyOperation]) {
+    unsafe fn grow(
+        &mut self,
+        atmosphere: Atmosphere,
+        agronomy_ops: &[AgronomyOperation],
+        root_tables: &RootImpedanceTables,
+    ) {
         //     Call PotentialLeafGrowth() to compute potential growth rate of
         //     leaves.
         PotentialLeafGrowth();
@@ -72,7 +82,7 @@ impl PlantGrowth for Plant {
         // total potential growth rate of roots in g per slab. this
         // is computed in PotentialRootGrowth() and used in
         // ActualRootGrowth().
-        let sumpdr = PotentialRootGrowth();
+        let sumpdr = PotentialRootGrowth(root_tables);
         // Total potential growth rate of roots is converted from g per slab (sumpdr) to g per plant (PotGroAllRoots).
         PotGroAllRoots = sumpdr * 100. * PerPlantArea / RowSpace;
         // Limit PotGroAllRoots to (maxrtgr*PerPlantArea) g per plant per day.

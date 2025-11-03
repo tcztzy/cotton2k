@@ -82,6 +82,11 @@ impl State {
     /// * [isw]
     /// * [Kday]
     pub fn simulate_this_day(&mut self, profile: &mut Profile) -> Result<(), Cotton2KError> {
+        let root_tables = profile
+            .root_impedance_tables
+            .as_ref()
+            .expect("root impedance tables must be initialized before simulation")
+            .clone();
         unsafe {
             // Compute Daynum (day of year), Date, and DayOfSimulation (days from start of simulation).
             Daynum += 1;
@@ -112,7 +117,7 @@ impl State {
                 self.stress(profile); // computes water stress factors.
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
                 self.plant
-                    .grow(self.atmosphere, &profile.agronomy_operations); // executes all modules of plant growth.
+                    .grow(self.atmosphere, &profile.agronomy_operations, &root_tables); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 self.plant.nitrogen.run(); // computes plant nitrogen allocation.
                 CheckDryMatterBal(); // checks plant dry matter balance.

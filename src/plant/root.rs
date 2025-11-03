@@ -44,15 +44,15 @@
 //     LateralRootGrowth(),
 //  RootAging(), RootDeath(), RootSummation().
 use crate::{
-    cgind, dl, gh2oc, impede, inrim, maxk, maxl, ncurve, nk, nl, pixcon, rlat1, rlat2, tstbd, wk,
-    ActualRootGrowth, BulkDensity, CarbonAllocatedForRootGrowth, CumPlantNLoss, DailyRootLoss,
-    DayEmerge, Daynum, DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots, LastTaprootLayer,
-    LateralRootFlag, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants,
-    PlantRowColumn, PlantRowLocation, PoreSpace, PotGroRoots, RootAge, RootColNumLeft,
-    RootColNumRight, RootGroFactor, RootImpede, RootNConc, RootNitrogen, RootSummation, RootWeight,
-    RootWeightLoss, RowSpace, SoilAirOnRootGrowth, SoilHorizonNum, SoilMechanicResistance,
-    SoilNitrateOnRootGrowth, SoilPsi, SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootLength,
-    VolNo3NContent, VolWaterContent,
+    cgind, dl, maxk, maxl, nk, nl, pixcon, rlat1, rlat2, wk, ActualRootGrowth, BulkDensity,
+    CarbonAllocatedForRootGrowth, CumPlantNLoss, DailyRootLoss, DayEmerge, Daynum,
+    DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag,
+    NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants, PlantRowColumn,
+    PlantRowLocation, PoreSpace, PotGroRoots, RootAge, RootColNumLeft, RootColNumRight,
+    RootGroFactor, RootImpede, RootNConc, RootNitrogen, RootSummation, RootWeight, RootWeightLoss,
+    RowSpace, SoilAirOnRootGrowth, SoilHorizonNum, SoilMechanicResistance, SoilNitrateOnRootGrowth,
+    SoilPsi, SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootLength, VolNo3NContent,
+    VolWaterContent,
 };
 use chrono::Datelike;
 use ndarray::prelude::*;
@@ -61,64 +61,113 @@ use ndarray::{Array, Array2, Ix2};
 use super::Plant;
 use crate::profile::AgronomyOperation;
 
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct RootImpedanceTables {
+    pub water_content: Vec<f64>,
+    pub bulk_density: Vec<f64>,
+    pub impedance: Vec<Vec<f64>>,
+}
+
+impl RootImpedanceTables {
+    pub fn new(water_content: Vec<f64>, bulk_density: Vec<f64>, impedance: Vec<Vec<f64>>) -> Self {
+        RootImpedanceTables {
+            water_content,
+            bulk_density,
+            impedance,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.water_content.is_empty() || self.bulk_density.is_empty() || self.impedance.is_empty()
+    }
+}
+
 /// Calculates soil mechanical impedance to root growth, rtimpd(l,k), for all soil cells.
 ///
 /// It is called from PotentialRootGrowth().
 /// The impedance is a function of bulk density and water content in each soil soil cell.
 /// No changes have been made in the original GOSSYM code.
 ///
-/// The following global variables are referenced here:
-/// BulkDensity, gh2oc, impede, inrim, ncurve, nk, nl,
-/// SoilHorizonNum, tstbd, VolWaterContent.
-///
-/// The following global variables are set here:    RootImpede.
-unsafe fn RootImpedance() {
+/// Computes the soil mechanical impedance lookup table for each soil cell using the
+/// impedance curves provided in [`RootImpedanceTables`].
+unsafe fn RootImpedance(tables: &RootImpedanceTables) {
+    if tables.is_empty() {
+        return;
+    }
+    let water_len = tables.water_content.len();
+    let density_len = tables.bulk_density.len();
+    if water_len == 0 || density_len == 0 {
+        return;
+    }
     for l in 0..nl as usize {
         let j = SoilHorizonNum[l] as usize;
-        let Bd = BulkDensity[j]; // bulk density for this layer
-        let jj = tstbd.iter().position(|&x| Bd <= x[0]).unwrap();
-        let j1 = if jj > inrim as usize - 1 {
-            inrim as usize - 1
-        } else {
-            jj
-        };
-        let j0 = jj - 1;
+        let bd_layer = BulkDensity[j];
+        let jj = tables
+            .bulk_density
+            .iter()
+            .position(|&value| bd_layer <= value)
+            .unwrap_or(density_len - 1);
+        let j1 = jj.min(density_len - 1);
+        let j0 = j1.saturating_sub(1);
+        let bd_j0 = tables.bulk_density[j0];
+        let bd_j1 = tables.bulk_density[j1];
         for k in 0..nk as usize {
-            let Vh2o = VolWaterContent[l][k] / Bd;
-            let ik = gh2oc.iter().position(|&x| Vh2o <= x).unwrap();
-            let i1 = if ik > ncurve as usize - 1 {
-                ncurve as usize - 1
-            } else {
-                ik
-            };
-            let i0 = ik - 1;
+            let vh2o = VolWaterContent[l][k] / bd_layer;
+            let ik = tables
+                .water_content
+                .iter()
+                .position(|&value| vh2o <= value)
+                .unwrap_or(water_len - 1);
+            let i1 = ik.min(water_len - 1);
+            let i0 = i1.saturating_sub(1);
             if j1 == 0 {
-                if i1 == 0 || Vh2o <= gh2oc[i1] {
-                    RootImpede[l][k] = impede[j1][i1];
+                if i1 == 0 || vh2o <= tables.water_content[i1] {
+                    RootImpede[l][k] = tables.impedance[j1][i1];
                 } else {
-                    RootImpede[l][k] = impede[j1][i0]
-                        - (impede[j1][i0] - impede[j1][i1]) * (Vh2o - gh2oc[i0])
-                            / (gh2oc[i1] - gh2oc[i0]);
+                    let water_i0 = tables.water_content[i0];
+                    let water_i1 = tables.water_content[i1];
+                    let water_den = water_i1 - water_i0;
+                    if water_den.abs() < f64::EPSILON {
+                        RootImpede[l][k] = tables.impedance[j1][i1];
+                    } else {
+                        RootImpede[l][k] = tables.impedance[j1][i0]
+                            - (tables.impedance[j1][i0] - tables.impedance[j1][i1])
+                                * (vh2o - water_i0)
+                                / water_den;
+                    }
                 }
             } else {
-                if i1 == 0 || Vh2o <= gh2oc[i1] {
-                    RootImpede[l][k] = impede[j0][i1]
-                        - (impede[j0][i1] - impede[j1][i1]) * (tstbd[j0][i1] - Bd)
-                            / (tstbd[j0][i1] - tstbd[j1][i1]);
+                let bd_den = bd_j0 - bd_j1;
+                if i1 == 0 || vh2o <= tables.water_content[i1] {
+                    if bd_den.abs() < f64::EPSILON {
+                        RootImpede[l][k] = tables.impedance[j1][i1];
+                    } else {
+                        RootImpede[l][k] = tables.impedance[j0][i1]
+                            - (tables.impedance[j0][i1] - tables.impedance[j1][i1])
+                                * (bd_j0 - bd_layer)
+                                / bd_den;
+                    }
                 } else {
-                    let temp1 = impede[j0][i1]
-                        - (impede[j0][i1] - impede[j1][i1]) * (tstbd[j0][i1] - Bd)
-                            / (tstbd[j0][i1] - tstbd[j1][i1]);
-                    let temp2 = impede[j0][i0]
-                        - (impede[j0][i0] - impede[j1][i1]) * (tstbd[j0][i0] - Bd)
-                            / (tstbd[j0][i0] - tstbd[j1][i0]);
-                    RootImpede[l][k] =
-                        temp2 + (temp1 - temp2) * (Vh2o - gh2oc[i0]) / (gh2oc[i1] - gh2oc[i0]);
+                    let water_i0 = tables.water_content[i0];
+                    let water_i1 = tables.water_content[i1];
+                    let water_den = water_i1 - water_i0;
+                    if water_den.abs() < f64::EPSILON || bd_den.abs() < f64::EPSILON {
+                        RootImpede[l][k] = tables.impedance[j1][i1];
+                    } else {
+                        let temp1 = tables.impedance[j0][i1]
+                            - (tables.impedance[j0][i1] - tables.impedance[j1][i1])
+                                * (bd_j0 - bd_layer)
+                                / bd_den;
+                        let temp2 = tables.impedance[j0][i0]
+                            - (tables.impedance[j0][i0] - tables.impedance[j1][i1])
+                                * (bd_j0 - bd_layer)
+                                / bd_den;
+                        RootImpede[l][k] = temp2 + (temp1 - temp2) * (vh2o - water_i0) / water_den;
+                    }
                 }
             }
         }
     }
-    //
 }
 
 /// Calculates the potential root growth rate.
@@ -134,7 +183,7 @@ unsafe fn RootImpedance() {
 /// SoilTempDailyAvrg, VolNo3NContent, VolWaterContent.
 ///
 /// The following global variables are set here:    PotGroRoots, RootGroFactor
-pub unsafe fn PotentialRootGrowth() -> f64 {
+pub unsafe fn PotentialRootGrowth(tables: &RootImpedanceTables) -> f64 {
     // The following constant parameter is used:
     // potential relative growth rate of the roots (g/g/day).
     const rgfac: f64 = 0.36;
@@ -144,7 +193,7 @@ pub unsafe fn PotentialRootGrowth() -> f64 {
             PotGroRoots[l][k] = 0.;
         }
     }
-    RootImpedance();
+    RootImpedance(tables);
     let mut sumpdr = 0.; // sum of potential root growth rate for the whole slab
     for l in 0..NumLayersWithRoots as usize {
         for k in 0..nk as usize {

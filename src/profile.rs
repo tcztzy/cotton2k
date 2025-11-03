@@ -1,3 +1,4 @@
+use crate::plant::root::RootImpedanceTables;
 use crate::*;
 use chrono::Datelike;
 use serde::Deserialize;
@@ -129,6 +130,8 @@ pub struct Profile {
     #[serde(skip)]
     #[serde(default = "default_last_day_weather_data")]
     pub last_day_weather_data: NaiveDate,
+    #[serde(skip)]
+    pub root_impedance_tables: Option<RootImpedanceTables>,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -865,7 +868,8 @@ impl Profile {
                 );
             }
         }
-        self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
+        let impedance_tables = self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
+        self.root_impedance_tables = Some(impedance_tables);
         unsafe {
             InitSoil(&self.soil_layers, &self.soil_hydraulic);
             InitializeRootData();
@@ -938,50 +942,50 @@ impl Profile {
     /// and executed once at the beginning of the simulation. The variables read here are later used to compute soil
     /// impedance to root growth.
     ///
-    /// Global or file scope variables set:
-    /// * [gh2oc]
-    /// * [impede]
-    /// * [inrim]
-    /// * [ncurve]
-    /// * [tstbd].
+    /// Returns the impedance curves that relate bulk density and soil water content to root
+    /// penetration resistance. These tables are used by the root growth sub-model in Rust.
     ///
     fn read_soil_impedance(
         self: &Self,
         path: &std::path::Path,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<RootImpedanceTables, Box<dyn std::error::Error>> {
         let mut rdr = csv::Reader::from_path(path)?;
-        unsafe {
-            ncurve = 0;
-            inrim = 0;
+        let headers = rdr.headers()?.clone();
+        let mut bulk_density = Vec::new();
+        for value in headers.iter().skip(1) {
+            bulk_density.push(
+                value
+                    .parse::<f64>()
+                    .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?,
+            );
         }
+        let mut water_content = Vec::new();
+        let mut impedance = vec![Vec::new(); bulk_density.len()];
         for result in rdr.records() {
             let record = result?;
-            for (i, item) in record.iter().enumerate() {
-                if i == 0 {
-                    let water_content: f64 = item.parse()?;
-                    unsafe {
-                        gh2oc[ncurve as usize] = water_content;
-                    }
-                } else {
-                    unsafe {
-                        impede[i][ncurve as usize] = item.parse()?;
-                    }
-                }
-            }
-            unsafe {
-                ncurve += 1;
-            }
-        }
-        for (j, header) in rdr.headers()?.iter().enumerate() {
-            if j > 0 {
-                unsafe {
-                    for i in 0..ncurve as usize {
-                        tstbd[j - 1][i] = header.parse()?;
-                    }
-                }
+            let water_content_value: f64 = record
+                .get(0)
+                .ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        "missing water content column",
+                    )
+                })?
+                .parse::<f64>()
+                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            water_content.push(water_content_value);
+            for (col_idx, item) in record.iter().enumerate().skip(1) {
+                let value: f64 = item
+                    .parse::<f64>()
+                    .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+                impedance[col_idx - 1].push(value);
             }
         }
-        Ok(())
+        Ok(RootImpedanceTables::new(
+            water_content,
+            bulk_density,
+            impedance,
+        ))
     }
 
     pub fn write_record(self: &Self) -> Result<(), Box<dyn std::error::Error>> {

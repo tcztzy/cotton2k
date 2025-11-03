@@ -51,7 +51,6 @@ int FirstBloom,   // Date (DOY) of first bloom.
     // shedding); 3 = mature boll; 7 = young green boll (susceptible to
     // shedding). For completely abscised sites: 4 = abscised as bolls; 5 =
     // abscised as squares. 6 = abscised as flowers.
-    inrim,  // number of input bulk-density data points for the impedance curve
     IrrigMethod,  // method of predicted irrigation.
     isw,          // switch affecting the method of computing soil temperature.
     // 0 = one dimensional (no horizontal flux) - used to predict emergence when
@@ -81,7 +80,6 @@ int MainStemNodes,        // number of main stem nodes.
     // 2 = plastic layer on all soil surface except one column at each side of
     // the plant row. 3 = plastic layer on all soil surface except two columns
     // at each side of the plant row.
-    ncurve,  // number of input soil-moisture curves in the impedance table.
     nk,      // number of vertical columns of soil cells in the slab.
     nl,      // number of horizontal layers of soil cells in the slab.
     noitr,  // number of iterations per day, for calling some soil water related
@@ -241,9 +239,6 @@ double
                               // site (0 to 1).
     FruitGrowthRatio,  // ratio between actual and potential square and boll
                        // growth.
-    gh2oc[10],  // input gravimetric soil water content, g g-1, in the soil
-                // mechanical impedance table. values have been read from the
-                // soil impedance file.
     ginp,       // ginning percentage of an individual boll.
     Gintot,     // weighted average ginning percentage of all open bolls.
     GreenBollsLost,  // cumulative loss of green bolls, due to abscission, g per
@@ -255,8 +250,7 @@ double
                                 // cells, mg/cm3.
     HumusOrganicMatter[maxl][maxk];  // humus fraction of soil organic matter,
                                      // mg/cm3. I J K L
-double impede[10][10],      // input table of soil impedance to root growth
-    InitialTotalSoilWater,  // initial total soil water in the profile, mm.
+double InitialTotalSoilWater,  // initial total soil water in the profile, mm.
     IrrigationDepth,        // depth of predicted irrigation, cm.
     LeafAge[3][30][5],  // leaf age at each fruiting site, physiological days.
     LeafArea[20],
@@ -445,9 +439,7 @@ double TapRootLength,  // the length of the taproot, in cm.
     TotalSoilUreaN,     // total urea in profile, mg N per slab.
     TotalSoilWater,     // total water in the soil profile, mm.
     TotalSquareWeight,  // total weight of squares, g per plant
-    TotalStemWeight,    // total stem weight, g per plant.
-    tstbd[10][10];      // input bulk density in the impedance table, g cm-3.
-                        // U V W
+    TotalStemWeight;    // total stem weight, g per plant.
 double VarPar[61],      // array of cultivar specific constant parameters.
     VolNh4NContent[maxl][maxk],   // volumetric ammonium nitrogen content of a
                                   // soil cell, mg N cm-3.
