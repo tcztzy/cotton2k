@@ -42,22 +42,24 @@
 //  SoilNitrateOnRootGrowth(), SoilTemOnRootGrowth(), SoilWaterOnRootGrowth().
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(),
 //     LateralRootGrowth(),
-//  RootAging(), RootDeath(), RootCultivation(), RootSummation().
+//  RootAging(), RootDeath(), RootSummation().
 use crate::{
     cgind, dl, gh2oc, impede, inrim, maxk, maxl, ncurve, nk, nl, pixcon, rlat1, rlat2, tstbd, wk,
-    ActualRootGrowth, BulkDensity, CarbonAllocatedForRootGrowth, CultivationDate, CumPlantNLoss,
-    DailyRootLoss, DayEmerge, Daynum, DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots,
-    LastTaprootLayer, LateralRootFlag, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea,
-    PixInPlants, PlantRowColumn, PoreSpace, PotGroRoots, RootAge, RootColNumLeft, RootColNumRight,
-    RootCultivation, RootGroFactor, RootImpede, RootNConc, RootNitrogen, RootSummation, RootWeight,
+    ActualRootGrowth, BulkDensity, CarbonAllocatedForRootGrowth, CumPlantNLoss, DailyRootLoss,
+    DayEmerge, Daynum, DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots, LastTaprootLayer,
+    LateralRootFlag, NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants,
+    PlantRowColumn, PlantRowLocation, PoreSpace, PotGroRoots, RootAge, RootColNumLeft,
+    RootColNumRight, RootGroFactor, RootImpede, RootNConc, RootNitrogen, RootSummation, RootWeight,
     RootWeightLoss, RowSpace, SoilAirOnRootGrowth, SoilHorizonNum, SoilMechanicResistance,
     SoilNitrateOnRootGrowth, SoilPsi, SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootLength,
     VolNo3NContent, VolWaterContent,
 };
+use chrono::Datelike;
 use ndarray::prelude::*;
 use ndarray::{Array, Array2, Ix2};
 
 use super::Plant;
+use crate::profile::AgronomyOperation;
 
 /// Calculates soil mechanical impedance to root growth, rtimpd(l,k), for all soil cells.
 ///
@@ -189,16 +191,20 @@ pub unsafe fn PotentialRootGrowth() -> f64 {
 }
 
 pub trait RootGrowth {
-    unsafe fn compute_actual_root_growth(&mut self, sumpdr: f64);
+    unsafe fn compute_actual_root_growth(
+        &mut self,
+        sumpdr: f64,
+        agronomy_ops: &[AgronomyOperation],
+    );
 }
 
 impl RootGrowth for Plant {
     /// This function calculates the actual root growth rate.
     /// It is called from function PlantGrowth().
-    /// It calls the following functions:  InitiateLateralRoots(), LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), RootCultivation(), RootDeath(), RootSummation(), TapRootGrowth().
+    /// It calls the following functions:  InitiateLateralRoots(), LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), RootDeath(), RootSummation(), TapRootGrowth().
     ///
     /// The following global variables are referenced here:
-    /// CarbonAllocatedForRootGrowth, cgind, CultivationDate, DayEmerge,
+    /// CarbonAllocatedForRootGrowth, cgind, DayEmerge,
     /// Daynum, DepthLastRootLayer, dl, ExtraCarbon, LateralRootFlag,
     /// LastTaprootLayer, nk, nl, NumLayersWithRoots, NumRootAgeGroups,
     /// PerPlantArea, pixcon, PlantRowColumn, PotGroRoots, RootAge, RootNConc,
@@ -208,9 +214,15 @@ impl RootGrowth for Plant {
     ///
     /// ActualRootGrowth, CumPlantNLoss, DailyRootLoss, PixInPlants, RootNitrogen, RootWeight, RootWeightLoss.
     ///
-    /// The following argument is used:
+    /// The arguments are:
     /// * `sumpdr` - Sum of potential root growth rate for the whole slab.
-    unsafe fn compute_actual_root_growth(&mut self, sumpdr: f64) {
+    /// * `agronomy_ops` - Agronomy operations scheduled for the season. Only cultivation
+    ///   entries are acted upon.
+    unsafe fn compute_actual_root_growth(
+        &mut self,
+        sumpdr: f64,
+        agronomy_ops: &[AgronomyOperation],
+    ) {
         // The following constant parameters are used:
         // The index for the relative partitioning of root mass produced by new growth to class i.
         const RootGrowthIndex: [f64; 3] = [1.0, 0.0, 0.0];
@@ -354,10 +366,12 @@ impl RootGrowth for Plant {
                 }
             }
         }
-        // Check if cultivation is executed in this day and call RootCultivation().
-        for j in 0..5 {
-            if CultivationDate[j] == Daynum {
-                RootCultivation(j as i32);
+        // Check if cultivation is executed in this day and apply the prescribed soil disturbance.
+        for operation in agronomy_ops {
+            if let AgronomyOperation::cultivation { date, depth } = operation {
+                if date.ordinal() as i32 == Daynum {
+                    root_cultivation(*depth);
+                }
             }
         }
         // Convert DailyRootLoss to g per plant units and add it to RootWeightLoss.
@@ -370,6 +384,136 @@ impl RootGrowth for Plant {
         PixInPlants -= DailyRootLoss * pixcon;
         // Call function RootSummation().
         RootSummation();
+    }
+}
+
+/// Simulates the removal of roots caused by a mechanical cultivation event.
+///
+/// The routine removes root mass from surface soil layers down to the requested
+/// depth for all columns more than 15 cm away from the plant row, and it
+/// accumulates the lost mass in `DailyRootLoss`.
+unsafe fn root_cultivation(depth_cm: f64) {
+    if depth_cm <= 0. {
+        return;
+    }
+    let mut cultivated_layers: usize = 0;
+    let mut accumulated_depth = 0.;
+    for layer_index in 0..nl as usize {
+        accumulated_depth += dl[layer_index];
+        if accumulated_depth >= depth_cm {
+            cultivated_layers = layer_index;
+            break;
+        }
+    }
+    if accumulated_depth < depth_cm {
+        cultivated_layers = nl as usize;
+    }
+    if cultivated_layers == 0 {
+        return;
+    }
+    let mut distance_from_edge = 0.;
+    for column_index in 0..nk as usize {
+        distance_from_edge += wk[column_index];
+        if (distance_from_edge - PlantRowLocation).abs() >= 15. {
+            for layer_index in 0..cultivated_layers {
+                for age_class in 0..NumRootAgeGroups as usize {
+                    DailyRootLoss += RootWeight[layer_index][column_index][age_class];
+                    RootWeight[layer_index][column_index][age_class] = 0.;
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{dl, nk, nl, wk, DailyRootLoss, NumRootAgeGroups, PlantRowLocation, RootWeight};
+
+    #[test]
+    fn cultivation_ignores_non_positive_depth() {
+        unsafe {
+            let prev_nl = nl;
+            let prev_nk = nk;
+            let prev_groups = NumRootAgeGroups;
+            let prev_dl0 = dl[0];
+            let prev_wk0 = wk[0];
+            let prev_location = PlantRowLocation;
+            let prev_daily = DailyRootLoss;
+            let prev_weight = RootWeight[0][0][0];
+
+            nl = 1;
+            nk = 1;
+            NumRootAgeGroups = 1;
+            dl[0] = 10.;
+            wk[0] = 10.;
+            PlantRowLocation = 0.;
+            RootWeight[0][0][0] = 1.0;
+            DailyRootLoss = 0.;
+
+            root_cultivation(0.0);
+
+            assert_eq!(DailyRootLoss, 0.0);
+            assert_eq!(RootWeight[0][0][0], 1.0);
+
+            RootWeight[0][0][0] = prev_weight;
+            DailyRootLoss = prev_daily;
+            nl = prev_nl;
+            nk = prev_nk;
+            NumRootAgeGroups = prev_groups;
+            dl[0] = prev_dl0;
+            wk[0] = prev_wk0;
+            PlantRowLocation = prev_location;
+        }
+    }
+
+    #[test]
+    fn cultivation_removes_roots_beyond_row() {
+        unsafe {
+            let prev_nl = nl;
+            let prev_nk = nk;
+            let prev_groups = NumRootAgeGroups;
+            let prev_dl = [dl[0], dl[1]];
+            let prev_wk = [wk[0], wk[1]];
+            let prev_location = PlantRowLocation;
+            let prev_daily = DailyRootLoss;
+            let prev_weights = [RootWeight[0][0][0], RootWeight[0][1][0]];
+
+            nl = 2;
+            nk = 2;
+            NumRootAgeGroups = 1;
+            dl[0] = 10.;
+            dl[1] = 10.;
+            wk[0] = 10.;
+            wk[1] = 10.;
+            PlantRowLocation = 0.;
+
+            RootWeight[0][0][0] = 1.5;
+            RootWeight[0][1][0] = 2.0;
+            DailyRootLoss = 0.;
+
+            root_cultivation(15.0);
+
+            assert!(
+                (DailyRootLoss - 2.0).abs() < 1e-9,
+                "expected loss of 2.0, got {}",
+                DailyRootLoss
+            );
+            assert_eq!(RootWeight[0][0][0], 1.5);
+            assert_eq!(RootWeight[0][1][0], 0.0);
+
+            RootWeight[0][0][0] = prev_weights[0];
+            RootWeight[0][1][0] = prev_weights[1];
+            DailyRootLoss = prev_daily;
+            nl = prev_nl;
+            nk = prev_nk;
+            NumRootAgeGroups = prev_groups;
+            dl[0] = prev_dl[0];
+            dl[1] = prev_dl[1];
+            wk[0] = prev_wk[0];
+            wk[1] = prev_wk[1];
+            PlantRowLocation = prev_location;
+        }
     }
 }
 

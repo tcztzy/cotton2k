@@ -2,7 +2,6 @@
 //
 //   functions in this file:
 // InitiateLateralRoots()
-// RootCultivation()
 // RootSummation()
 //
 #include <math.h>
@@ -38,47 +37,6 @@ void InitiateLateralRoots()
         //  distance from the tip is larger than distlr - initiate a lateral
         //  (LateralRootFlag[l] = 2).
         if (sdl > distlr && LateralRootFlag[l] == 1) LateralRootFlag[l] = 2;
-    }
-}
-void RootCultivation(int j)
-//     This function is executed on the day of soil cultivation. It is called
-//     from
-//  ActualRootGrowth(). It has been adapted from GOSSYM. It is assumed that the
-//  roots in the upper soil layers, as defined by the depth of cultivation, are
-//  destroyed, with the exception of the soil cells that are within 15 cm of the
-//  plant row.
-//
-//     The following global variables are referenced here:
-//       dl, CultivationDepth, NumRootAgeGroups, nk, nl, PlantRowLocation, wk
-//     The following global variables are set here:
-//       RootWeight, DailyRootLoss
-//     The argument j - is the serial number of this cultivation.
-{
-    //     The depth of cultivation (CultivationDepth) is in cm. The number of
-    //     layers affected by
-    //  it (lcult) is determined. Loop for all columns, and check if this column
-    //  is more than 15 cm from the plant row: if this is true, destroy all
-    //  roots and add their weight to DailyRootLoss.
-    int lcult = 0;     // number of soil layers affected by cultivation.
-    double sdpth = 0;  // sum depth to the end of the layer.
-    for (int l = 0; l < nl; l++) {
-        sdpth += dl[l];
-        if (sdpth >= CultivationDepth[j]) {
-            lcult = l;
-            break;
-        }
-    }
-    //
-    double sumwk = 0;  // sum of column widths from edge of slab to this column.
-    for (int k = 0; k < nk; k++) {
-        sumwk += wk[k];
-        if (fabs(sumwk - PlantRowLocation) >= 15) {
-            for (int l = 0; l < lcult; l++)
-                for (int i = 0; i < NumRootAgeGroups; i++) {
-                    DailyRootLoss += RootWeight[l][k][i];
-                    RootWeight[l][k][i] = 0;
-                }
-        }
     }
 }
 //////////////////////////////

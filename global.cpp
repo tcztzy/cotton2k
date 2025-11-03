@@ -25,8 +25,7 @@ struct Irrigation
 //
 // Integer variables:
 //
-int CultivationDate[5],  // Dates (DOY) of cultivatrion.
-    DayEmerge,           // Date of emergence (DOY).
+int DayEmerge,           // Date of emergence (DOY).
     DayEndMulch,         // date (DOY) for ending of mulch.
     DayFinish,           // Date (DOY) to end simulation.
     DayFirstDef,         // Date (DOY) of first defoliation.
@@ -191,7 +190,6 @@ double CarbonAllocatedForRootGrowth,  // available carbon allocated for root
                              // plant-1.
     CottonWeightOpenBolls,   // total weight of seedcotton in open bolls, g per
                              // plant.
-    CultivationDepth[5],     // depth of cultivation, in cm.
     CumEvaporation,          // cumulative evaporation from soil surface, mm.
     CumFertilizerN,     // cumulative amount of inorganic nitrogen applied in
                         // fertilizer, mg N per slab.

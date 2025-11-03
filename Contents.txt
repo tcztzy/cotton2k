@@ -92,7 +92,6 @@ The Root System:
        
     File RootGrowth_2.cpp
           InitiateLateralRoots()
-          RootCultivation()
           RootSummation()
        
 ================================================================================

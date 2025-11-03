@@ -14,10 +14,12 @@ use crate::{
 
 use super::Plant;
 use crate::atmosphere::num_hours;
+use crate::profile::AgronomyOperation;
 use chrono::Duration;
 
 pub trait PlantGrowth {
-    unsafe fn grow(&mut self, atmosphere: Atmosphere);
+    /// Simulate whole-plant growth for a day.
+    unsafe fn grow(&mut self, atmosphere: Atmosphere, agronomy_ops: &[AgronomyOperation]);
     unsafe fn plant_height_increment(&mut self, x: f64) -> f64;
 }
 
@@ -35,7 +37,7 @@ impl PlantGrowth for Plant {
     /// The following global variables are set here:
     /// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
     /// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-    unsafe fn grow(&mut self, atmosphere: Atmosphere) {
+    unsafe fn grow(&mut self, atmosphere: Atmosphere, agronomy_ops: &[AgronomyOperation]) {
         //     Call PotentialLeafGrowth() to compute potential growth rate of
         //     leaves.
         PotentialLeafGrowth();
@@ -112,7 +114,7 @@ impl PlantGrowth for Plant {
         // Call AddPlantHeight to compute PlantHeight.
         PlantHeight += self.plant_height_increment(denf2);
         // Call ActualRootGrowth() to compute actual root growth.
-        self.compute_actual_root_growth(sumpdr);
+        self.compute_actual_root_growth(sumpdr, agronomy_ops);
     }
     /// This function simulates the growth in height of the main stem of cotton plants.
     ///

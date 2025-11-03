@@ -796,7 +796,6 @@ impl Profile {
         }
         self.last_day_weather_data = NaiveDate::from_yo_opt(unsafe { iyear }, jdd).unwrap();
         let mut idef: usize = 0;
-        let mut icult: usize = 0;
         unsafe {
             NumIrrigations = 0;
             for i in 0..5 {
@@ -846,11 +845,6 @@ impl Profile {
                         DefoliationMethod[idef] = *open_ratio;
                         DayFirstDef = DefoliationDate[0];
                         idef += 1;
-                    }
-                    AgronomyOperation::cultivation { date, depth } => {
-                        CultivationDate[icult] = date.ordinal() as i32;
-                        CultivationDepth[icult] = *depth;
-                        icult += 1;
                     }
                     _ => {}
                 }
