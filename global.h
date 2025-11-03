@@ -40,7 +40,7 @@ extern int DayEmerge, DayEndMulch, DayFinish, DayFirstDef,
 extern int CultivationDate[5], DefoliationDate[5],
     DefoliationMethod[5], FruitingCode[3][30][5], LateralRootFlag[maxl],
     MapDataDate[30], NumFruitBranches[3], NumNodes[3][30], NodeLayer[3][30],
-    NodeLayerPreFru[9], pixday[10], pixmth[10], RootColNumLeft[maxl],
+    NodeLayerPreFru[9], RootColNumLeft[maxl],
     RootColNumRight[maxl], SoilHorizonNum[maxl];
 ////    Boolean    ////
 extern bool bEnd, bPollinSwitch, nadj[5];
@@ -96,7 +96,7 @@ extern double AbscissionLag[20], ActualRootGrowth[maxl][maxk],
     MapDataGreenBollNum[30], MapDataMainStemNodes[30], MapDataPlantHeight[30],
     MapDataSquareNum[30], MaxWaterCapacity[maxl], MulchTemp[maxk],
     NO3FlowFraction[maxl], PetioleWeightMainStem[3][30],
-    PetioleWeightNodes[3][30][5], PetioleWeightPreFru[9], pixppa[10],
+    PetioleWeightNodes[3][30][5], PetioleWeightPreFru[9],
     PoreSpace[maxl], PotGroBolls[3][30][5], PotGroBurrs[3][30][5],
     PotGroLeafAreaMainStem[3][30], PotGroLeafAreaNodes[3][30][5],
     PotGroLeafAreaPreFru[9], PotGroLeafWeightMainStem[3][30],

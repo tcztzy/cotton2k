@@ -238,13 +238,6 @@ pub enum FertilizationMethod {
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
-pub enum PixMethod {
-    Banded = 0,
-    Sprinkler = 1,
-    Broadcast = 2,
-}
-
-#[derive(Deserialize, Debug, Clone, Copy)]
 #[serde(tag = "type")]
 pub enum AgronomyOperation {
     irrigation(AgronomyOperationIrrigation),
@@ -284,13 +277,6 @@ pub enum AgronomyOperation {
         #[serde(deserialize_with = "from_isoformat")]
         date: NaiveDate,
         depth: f64,
-    },
-    pix {
-        #[serde(deserialize_with = "from_isoformat")]
-        date: NaiveDate,
-        method: PixMethod,
-        /// pints per acre
-        ppa: f64,
     },
     watertable(AgronomyOperationWaterTable),
 }
@@ -811,7 +797,6 @@ impl Profile {
         self.last_day_weather_data = NaiveDate::from_yo_opt(unsafe { iyear }, jdd).unwrap();
         let mut idef: usize = 0;
         let mut icult: usize = 0;
-        let mut ipix: usize = 0;
         unsafe {
             NumIrrigations = 0;
             for i in 0..5 {
@@ -866,12 +851,6 @@ impl Profile {
                         CultivationDate[icult] = date.ordinal() as i32;
                         CultivationDepth[icult] = *depth;
                         icult += 1;
-                    }
-                    AgronomyOperation::pix { date, method, ppa } => {
-                        pixday[ipix] = date.ordinal() as i32;
-                        pixmth[ipix] = *method as i32;
-                        pixppa[ipix] = *ppa;
-                        ipix += 1;
                     }
                     _ => {}
                 }

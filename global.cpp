@@ -108,10 +108,7 @@ int MainStemNodes,        // number of main stem nodes.
     NumVegBranches;       // number of vegetative branches (including the main
                           // branch), per plant.
 
-int pixday[10],  // Date (DOY) of PIX application.
-    pixmth[10],  // code number for method of application of PIX: 0 = 'BANDED';
-                 // 1 = 'SPKLER'; 2 = 'BDCAST'.
-    PlantRowColumn,         // column number to the left of plant row location.
+int PlantRowColumn,         // column number to the left of plant row location.
     RootColNumLeft[maxl],   // first column with roots in a soil layer.
     RootColNumRight[maxl],  // last column with roots in a soil layer.
     SoilHorizonNum[maxl],   // the soil horizon number associated with each soil
@@ -340,7 +337,6 @@ double PercentDefoliation,  // percentage of leaves abscised as a result of
     pixdz,  // effect of PIX application on the growth rate of stem weight and
             // of height.
     PixInPlants,         // total amount of PIX in the plant, g per plant.
-    pixppa[10],          // rate of PIX application, pints per acre.
     PlantHeight,         // plant height, cm.
     PlantPopulation,     // plant population, plants per hectar.
     PlantRowLocation,    // distance of plant row from slab edge, cm.

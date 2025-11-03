@@ -7,7 +7,7 @@ use crate::soil::hydrology::{ComputeIrrigation, WaterUptake};
 use crate::soil::Soil;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
-    addwtbl, bPollinSwitch, beta, dl, isw, maxl, nk, nl, noitr, pixday, thad, thts, wcond, wk,
+    addwtbl, bPollinSwitch, beta, dl, isw, maxl, nk, nl, noitr, thad, thts, wcond, wk,
     ActualTranspiration, AgeOfPreFruNode, AppliedWater, AverageLeafAge, AverageLwp, AverageLwpMin,
     AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow, CheckDryMatterBal, Clim,
     Cotton2KError, CottonPhenology, CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth,
@@ -58,7 +58,6 @@ impl State {
     /// * [SoilNitrogen()]
     /// * [SoilSum()]
     /// * [PhysiologicalAge()]
-    /// * [Profile::pix()]
     /// * [Defoliate()]
     /// * [Profile::stress()]
     /// * [Profile::get_net_photosynthesis()]
@@ -75,8 +74,6 @@ impl State {
     /// * [DayStart]
     /// * [Kday]
     /// * [LeafAreaIndex]
-    /// * [pixday]
-    ///
     /// The following global variables are set here:
     /// * [bEnd]
     /// * [DayInc]
@@ -111,9 +108,6 @@ impl State {
                 // If this day is after emergence, assign to isw the value of 2.
                 isw = 2;
                 DayInc = PhysiologicalAge(); // computes physiological age
-                if pixday[0] > 0 {
-                    self.pix(); // effects of pix applied.
-                }
                 Defoliate(); // effects of defoliants applied.
                 self.stress(profile); // computes water stress factors.
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
@@ -632,11 +626,6 @@ impl State {
         }
         Ok(())
     }
-
-    /// effects of pix applied.
-    ///
-    /// TODO
-    fn pix(self: &Self) {}
 
     /// This function computes the water stress variables affecting the cotton plants.
     /// It is called by [Profile::simulate_this_day()] and calls [LeafWaterPotential()].
