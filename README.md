@@ -74,8 +74,11 @@ maturin develop --release
 ## License
 
 This project is licensed under:
-- [MIT License](LICENSE) for the Rust implementation
-- Original Cotton2K by Marani remains under [GPLv2](https://plantscience.agri.huji.ac.il/avishalom-marani/cotton2k_source)
+- [AGPLv3+](LICENSE) for the Rust implementation
+- Original Cotton2K by Marani remains under [GPLv2+](https://plantscience.agri.huji.ac.il/avishalom-marani/cotton2k_source)
+
+### Correction
+I used to think this project could be licensed under MIT license, but finally I found that my translate-to-Rust implementation should also follow GPL, so I relicensed all code in Rust & Python under AGPLv3+.
 
 ## Contributing
 

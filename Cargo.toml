@@ -2,17 +2,18 @@
 name = "cotton2k"
 version = "0.1.0"
 edition = "2021"
+license = "AGPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [build-dependencies]
-bindgen = "0.61"
-cc = { version = "1.0", features = ["parallel"] }
+bindgen = "0.72"
+cc = { version = "1.2", features = ["parallel"] }
 
 [dependencies]
 chrono = "0.4"
-csv = "1.1"
+csv = "1.4"
 serde = { version = "1.0", features = ["derive"] }
-toml = "0.5"
-pbr = "1.0"
-ndarray = "0.15"
-uom = "0.33"
+toml = "0.9"
+pbr = "1.1"
+ndarray = "0.17"
+uom = "0.37"
