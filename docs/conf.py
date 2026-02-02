@@ -33,6 +33,7 @@ release = '0.1.0'
 extensions = [
     'myst_parser',
     'sphinx.ext.githubpages',
+    'sphinx.ext.mathjax',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

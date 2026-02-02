@@ -1,6 +1,6 @@
 use crate::atmosphere::{num_hours, Atmosphere};
 use crate::plant::growth::PlantGrowth;
-use crate::plant::growth::{LeafResistance, PhysiologicalAge};
+use crate::plant::growth::{check_dry_matter_balance, defoliate, LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
 use crate::profile::{AgronomyOperation, FertilizationMethod, LightInterceptMethod, Profile};
 use crate::soil::hydrology::{ComputeIrrigation, WaterUptake};
@@ -9,22 +9,21 @@ use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_ver
 use crate::{
     addwtbl, bPollinSwitch, beta, dl, isw, maxl, nk, nl, noitr, thad, thts, wcond, wk,
     ActualTranspiration, AgeOfPreFruNode, AppliedWater, AverageLeafAge, AverageLwp, AverageLwpMin,
-    AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow, CheckDryMatterBal, Clim,
-    Cotton2KError, CottonPhenology, CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth,
-    CumNitrogenUptake, CumTranspiration, CumWaterAdded, CumWaterDrained, DayEmerge, DayInc,
-    DayOfSimulation, DayStart, DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Defoliate,
-    Drain, ElCondSatSoilToday, FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge,
-    LeafArea, LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru,
-    LeafNConc, LeafNitrogen, LightIntercept, LightInterceptLayer, LocationColumnDrip,
-    LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation, MaxWaterCapacity,
-    NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru, NumFruitBranches,
-    NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches, PerPlantArea,
-    PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace, ReferenceETP,
-    RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace, SaturatedHydCond,
-    SoilNitrogen, SoilNitrogenAverage, SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum,
-    StemWeight, SupplyNH4N, SupplyNO3N, TotalLeafWeight, VolNh4NContent, VolNo3NContent,
-    VolUreaNContent, VolWaterContent, WaterStress, WaterStressStem, WaterTableLayer,
-    CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
+    AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow, Clim, Cotton2KError,
+    CottonPhenology, CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake,
+    CumTranspiration, CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart,
+    DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Drain, ElCondSatSoilToday,
+    FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea, LeafAreaIndex,
+    LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc, LeafNitrogen,
+    LightIntercept, LightInterceptLayer, LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin,
+    LwpMinX, LwpX, MaxIrrigation, MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer,
+    NodeLayerPreFru, NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes,
+    NumPreFruNodes, NumVegBranches, PerPlantArea, PlantHeight, PlantPopulation, PlantRowColumn,
+    PlantWeight, PoreSpace, ReferenceETP, RootColNumLeft, RootColNumRight, RootWeight,
+    RootWtCapblUptake, RowSpace, SaturatedHydCond, SoilNitrogen, SoilNitrogenAverage,
+    SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum, StemWeight, SupplyNH4N, SupplyNO3N,
+    TotalLeafWeight, VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress,
+    WaterStressStem, WaterTableLayer, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
 use chrono::{Datelike, NaiveDate};
 
@@ -58,13 +57,13 @@ impl State {
     /// * [SoilNitrogen()]
     /// * [SoilSum()]
     /// * [PhysiologicalAge()]
-    /// * [Defoliate()]
+    /// * [defoliate()]
     /// * [Profile::stress()]
     /// * [Profile::get_net_photosynthesis()]
     /// * [PlantGrowth::plant_growth()]
     /// * [CottonPhenology()]
     /// * [PlantNitrogen::plant_nitrogen()]
-    /// * [CheckDryMatterBal()]
+    /// * [check_dry_matter_balance()]
     /// * [PlantNitrogen::plant_nitrogen_balance()]
     /// * [SoilNitrogenBal()]
     /// * [SoilNitrogenAverage()]
@@ -113,14 +112,14 @@ impl State {
                 // If this day is after emergence, assign to isw the value of 2.
                 isw = 2;
                 DayInc = PhysiologicalAge(); // computes physiological age
-                Defoliate(); // effects of defoliants applied.
+                defoliate(); // effects of defoliants applied.
                 self.stress(profile); // computes water stress factors.
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
                 self.plant
                     .grow(self.atmosphere, &profile.agronomy_operations, &root_tables); // executes all modules of plant growth.
                 CottonPhenology(); // executes all modules of plant phenology.
                 self.plant.nitrogen.run(); // computes plant nitrogen allocation.
-                CheckDryMatterBal(); // checks plant dry matter balance.
+                check_dry_matter_balance(); // checks plant dry matter balance.
 
                 // If the relevant output flag is not zero, compute soil nitrogen balance and soil nitrogen averages by
                 // layer, and write this information to files.

@@ -2,13 +2,26 @@ use crate::atmosphere::Atmosphere;
 use crate::plant::root::{PotentialRootGrowth, RootGrowth, RootImpedanceTables};
 use crate::utils::fmax;
 use crate::{
-    nadj, pixdz, ActualFruitGrowth, ActualLeafGrowth, ActualStemGrowth, AdjAddHeightRate,
-    AgeOfBoll, AgeOfPreFruNode, AgeOfSite, AirTemp, CarbonStress, DayInc, DayTimeTemp,
-    DensityFactor, DryMatterBalance, FruitFraction, FruitingCode, Kday, KdayAdjust, LeafAreaIndex,
-    NStressVeg, NightTimeTemp, NumAdjustDays, NumFruitBranches, NumNodes, NumPreFruNodes,
-    NumVegBranches, PerPlantArea, PlantHeight, PotGroAllBolls, PotGroAllBurrs, PotGroAllRoots,
-    PotGroAllSquares, PotGroBolls, PotGroBurrs, PotGroSquares, PotGroStem, PotentialLeafGrowth,
-    RowSpace, StemWeight, TotalLeafArea, TotalPetioleWeight, TotalStemWeight, VarPar, WaterStress,
+    nadj, pixda, pixdz, AbscisedLeafWeight, ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth,
+    ActualStemGrowth, AdjAddHeightRate, AgeOfBoll, AgeOfPreFruNode, AgeOfSite, AirTemp,
+    AvrgDailyTemp, BloomWeightLoss, BollWeight, BurrWeight, BurrWeightGreenBolls,
+    BurrWeightOpenBolls, CarbonAllocatedForRootGrowth, CarbonStress, CottonWeightGreenBolls,
+    CottonWeightOpenBolls, CumNetPhotosynth, DayEmerge, DayFirstDef, DayInc, DayTimeTemp, Daynum,
+    DefoliantAppRate, DefoliationDate, DefoliationMethod, DensityFactor, ExtraCarbon,
+    FruitFraction, FruitGrowthRatio, FruitingCode, GreenBollsLost, Kday, KdayAdjust, LeafAge,
+    LeafArea, LeafAreaIndex, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafWeightAreaRatio,
+    LeafWeightMainStem, LeafWeightNodes, LeafWeightPreFru, LightIntercept, LwpMin, NStressFruiting,
+    NStressRoots, NStressVeg, NetPhotosynthesis, NightTimeTemp, NodeLayer, NodeLayerPreFru,
+    NumAdjustDays, NumFruitBranches, NumGreenBolls, NumNodes, NumOpenBolls, NumPreFruNodes,
+    NumVegBranches, PerPlantArea, PercentDefoliation, PetioleWeightMainStem, PetioleWeightNodes,
+    PetioleWeightPreFru, PlantHeight, PlantWeight, PlantWeightAtStart, PotGroAllBolls,
+    PotGroAllBurrs, PotGroAllLeaves, PotGroAllPetioles, PotGroAllRoots, PotGroAllSquares,
+    PotGroBolls, PotGroBurrs, PotGroLeafAreaMainStem, PotGroLeafAreaNodes, PotGroLeafAreaPreFru,
+    PotGroLeafWeightMainStem, PotGroLeafWeightNodes, PotGroLeafWeightPreFru,
+    PotGroPetioleWeightMainStem, PotGroPetioleWeightNodes, PotGroPetioleWeightPreFru,
+    PotGroSquares, PotGroStem, ReserveC, RootWeightLoss, RowSpace, SquareWeight, StemWeight,
+    TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafArea, TotalLeafWeight,
+    TotalPetioleWeight, TotalRootWeight, TotalSquareWeight, TotalStemWeight, VarPar, WaterStress,
     WaterStressStem,
 };
 
@@ -16,6 +29,16 @@ use super::Plant;
 use crate::atmosphere::num_hours;
 use crate::profile::AgronomyOperation;
 use chrono::Duration;
+
+/// Ratio of actual leaf + petiole growth to their potential requirements.
+/// Computed in `dry_matter_balance`, used by `actual_leaf_growth` (C++ `vratio`).
+static mut V_RATIO: f64 = 1.0;
+/// Defoliant intercepted by the canopy (kg/ha), accumulated across days.
+static mut DEFKGH: f64 = 0.0;
+/// Cumulative defoliant amount used in the defoliation regression (kg/ha).
+static mut TDFKGH: f64 = 0.0;
+/// Switch indicating whether a predicted defoliation date was set.
+static mut IDSW: i32 = 0;
 
 pub trait PlantGrowth {
     /// Simulate whole-plant growth for a day.
@@ -31,9 +54,9 @@ pub trait PlantGrowth {
 impl PlantGrowth for Plant {
     /// This function simulates the potential and actual growth of cotton plants.
     /// It is called from [Profile::simulate_this_day()], and it calls the following functions:
-    /// ActualFruitGrowth(), ActualLeafGrowth(), ActualRootGrowth(),
-    /// AddPlantHeight(), DryMatterBalance(), PotentialFruitGrowth(),
-    /// PotentialLeafGrowth(), PotentialRootGrowth(), PotentialStemGrowth(), TotalLeafWeight().
+    /// actual_fruit_growth(), actual_leaf_growth(), ActualRootGrowth(),
+    /// AddPlantHeight(), dry_matter_balance(), PotentialFruitGrowth(),
+    /// potential_leaf_growth(), PotentialRootGrowth(), PotentialStemGrowth(), TotalLeafWeight().
     ///
     /// The following global variables are referenced here:
     /// ActualStemGrowth, DayInc, FirstSquare, FruitingCode, Kday, pixdz,
@@ -48,9 +71,9 @@ impl PlantGrowth for Plant {
         agronomy_ops: &[AgronomyOperation],
         root_tables: &RootImpedanceTables,
     ) {
-        //     Call PotentialLeafGrowth() to compute potential growth rate of
+        //     Call potential_leaf_growth() to compute potential growth rate of
         //     leaves.
-        PotentialLeafGrowth();
+        potential_leaf_growth();
         //     If it is after first square, call PotentialFruitGrowth() to compute
         //     potential
         //  growth rate of squares and bolls.
@@ -90,21 +113,21 @@ impl PlantGrowth for Plant {
         if PotGroAllRoots > maxrtgr * PerPlantArea {
             PotGroAllRoots = maxrtgr * PerPlantArea;
         }
-        // Call DryMatterBalance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress. DryMatterBalance() also computes and returns the values of the following arguments:
+        // Call dry_matter_balance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress. dry_matter_balance() also computes and returns the values of the following arguments:
         // cdleaf is carbohydrate requirement for leaf growth, g per plant per day. cdpet is carbohydrate requirement for petiole growth, g per plant per day. cdroot is carbohydrate requirement for root growth, g per plant per day. cdstem is carbohydrate requirement for stem growth, g per plant per day.
         let mut cdstem = 0.;
         let mut cdleaf = 0.;
         let mut cdpet = 0.;
         let mut cdroot = 0.;
-        DryMatterBalance(&mut cdstem, &mut cdleaf, &mut cdpet, &mut cdroot);
-        // If it is after first square, call ActualFruitGrowth() to compute actual growth rate of squares and bolls.
+        dry_matter_balance(&mut cdstem, &mut cdleaf, &mut cdpet, &mut cdroot);
+        // If it is after first square, call actual_fruit_growth() to compute actual growth rate of squares and bolls.
         if FruitingCode[0][0][0] > 0 {
-            ActualFruitGrowth();
+            actual_fruit_growth();
         }
         // Initialize TotalLeafWeight. It is assumed that cotyledons fall off at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
         TotalPetioleWeight = 0.;
-        // Call ActualLeafGrowth to compute actual growth rate of leaves and compute leaf area index.
-        ActualLeafGrowth();
+        // Call actual_leaf_growth to compute actual growth rate of leaves and compute leaf area index.
+        actual_leaf_growth();
         LeafAreaIndex = TotalLeafArea() / PerPlantArea;
         // Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
         TotalStemWeight += ActualStemGrowth;
@@ -207,6 +230,467 @@ impl PlantGrowth for Plant {
         }
         //
         return addz;
+    }
+}
+
+/// Simulates potential leaf growth using a monomolecular leaf area curve.
+///
+/// Leaf area model (see `docs/plant-growth-variables.md`):
+/// `L(t) = s_max * (1 - exp(-c * t^p))` and `r = dL/dt`.
+/// This uses the temperature response `temperature_on_leaf_growth_rate`.
+unsafe fn potential_leaf_growth() {
+    const P: f64 = 1.6; // parameter of the leaf growth rate equation.
+    const VPOTLF: [f64; 14] = [
+        3.0, 0.95, 1.2, 13.5, -0.62143, 0.109365, 0.00137566, 0.025, 0.00005, 30., 0.02, 0.001,
+        2.50, 0.18,
+    ];
+    let mut wstrlf = WaterStress * (1. + VPOTLF[0] * (2. - WaterStress)) - VPOTLF[0];
+    if wstrlf < 0.05 {
+        wstrlf = 0.05;
+    }
+    let wtfstrs = VPOTLF[1] + VPOTLF[2] * (1. - wstrlf);
+    let mut tdday = AvrgDailyTemp;
+    if tdday < VPOTLF[3] {
+        tdday = VPOTLF[3];
+    }
+    LeafWeightAreaRatio = wtfstrs / (VPOTLF[4] + tdday * (VPOTLF[5] - tdday * VPOTLF[6]));
+    PotGroAllLeaves = 0.;
+    PotGroAllPetioles = 0.;
+    let mut c = 0.;
+    let mut smax = 0.;
+    for j in 0..NumPreFruNodes as usize {
+        if LeafAreaPreFru[j] <= 0. {
+            PotGroLeafAreaPreFru[j] = 0.;
+            PotGroLeafWeightPreFru[j] = 0.;
+            PotGroPetioleWeightPreFru[j] = 0.;
+        } else {
+            let jp1 = (j + 1) as f64;
+            smax = jp1 * (VarPar[2] - VarPar[3] * jp1);
+            if smax < VarPar[4] {
+                smax = VarPar[4];
+            }
+            c = VPOTLF[7] + VPOTLF[8] * jp1 * (jp1 - VPOTLF[9]);
+            let age = AgeOfPreFruNode[j];
+            let rate = smax * c * P * (-c * age.powf(P)).exp() * age.powf(P - 1.);
+            if rate >= 1e-12 {
+                PotGroLeafAreaPreFru[j] =
+                    rate * wstrlf * pixda * temperature_on_leaf_growth_rate(AvrgDailyTemp);
+                PotGroLeafWeightPreFru[j] = PotGroLeafAreaPreFru[j] * LeafWeightAreaRatio;
+                PotGroPetioleWeightPreFru[j] =
+                    PotGroLeafAreaPreFru[j] * LeafWeightAreaRatio * VPOTLF[13];
+                PotGroAllLeaves += PotGroLeafWeightPreFru[j];
+                PotGroAllPetioles += PotGroPetioleWeightPreFru[j];
+            }
+        }
+    }
+    let denfac = 1. - VPOTLF[12] * (1. - DensityFactor);
+    for k in 0..NumVegBranches as usize {
+        let nbrch = NumFruitBranches[k] as usize;
+        for l in 0..nbrch {
+            if LeafAreaMainStem[k][l] <= 0. {
+                PotGroLeafAreaMainStem[k][l] = 0.;
+                PotGroLeafWeightMainStem[k][l] = 0.;
+                PotGroPetioleWeightMainStem[k][l] = 0.;
+            } else {
+                let lp1 = (l + 1) as f64;
+                smax = VarPar[5] + VarPar[6] * lp1 * (VarPar[7] - lp1);
+                smax *= denfac;
+                if smax < VarPar[4] {
+                    smax = VarPar[4];
+                }
+                c = VPOTLF[10] + lp1 * VPOTLF[11];
+                let rate = if LeafAge[k][l][0] > 70. {
+                    0.
+                } else {
+                    let age = LeafAge[k][l][0];
+                    smax * c * P * (-c * age.powf(P)).exp() * age.powf(P - 1.)
+                };
+                if rate >= 1e-12 {
+                    PotGroLeafAreaMainStem[k][l] =
+                        rate * wstrlf * pixda * temperature_on_leaf_growth_rate(AvrgDailyTemp);
+                    PotGroLeafWeightMainStem[k][l] =
+                        PotGroLeafAreaMainStem[k][l] * LeafWeightAreaRatio;
+                    PotGroPetioleWeightMainStem[k][l] =
+                        PotGroLeafAreaMainStem[k][l] * LeafWeightAreaRatio * VPOTLF[13];
+                    PotGroAllLeaves += PotGroLeafWeightMainStem[k][l];
+                    PotGroAllPetioles += PotGroPetioleWeightMainStem[k][l];
+                }
+            }
+            let smaxx = smax;
+            let cc = c;
+            let nnid = NumNodes[k][l] as usize;
+            for m in 0..nnid {
+                if LeafAreaNodes[k][l][m] <= 0. {
+                    PotGroLeafAreaNodes[k][l][m] = 0.;
+                    PotGroLeafWeightNodes[k][l][m] = 0.;
+                    PotGroPetioleWeightNodes[k][l][m] = 0.;
+                } else {
+                    let mp1 = (m + 1) as f64;
+                    smax = smaxx * (1. - VarPar[8] * mp1);
+                    c = cc * (1. - VarPar[8] * mp1);
+                    let rate = if LeafAge[k][l][m] > 70. {
+                        0.
+                    } else {
+                        let age = LeafAge[k][l][m];
+                        smax * c * P * (-c * age.powf(P)).exp() * age.powf(P - 1.)
+                    };
+                    if rate >= 1e-12 {
+                        PotGroLeafAreaNodes[k][l][m] =
+                            rate * wstrlf * pixda * temperature_on_leaf_growth_rate(AvrgDailyTemp);
+                        PotGroLeafWeightNodes[k][l][m] =
+                            PotGroLeafAreaNodes[k][l][m] * LeafWeightAreaRatio;
+                        PotGroPetioleWeightNodes[k][l][m] =
+                            PotGroLeafAreaNodes[k][l][m] * LeafWeightAreaRatio * VPOTLF[13];
+                        PotGroAllLeaves += PotGroLeafWeightNodes[k][l][m];
+                        PotGroAllPetioles += PotGroPetioleWeightNodes[k][l][m];
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Temperature response for leaf growth rate.
+/// Returns a normalized multiplier in [0, 1] (see `docs/plant-growth-variables.md`).
+fn temperature_on_leaf_growth_rate(t: f64) -> f64 {
+    const PAR: [f64; 8] = [
+        24.,
+        -1.14277,
+        0.0910026,
+        0.00152344,
+        -0.317136,
+        0.0300712,
+        0.000416356,
+        0.2162044,
+    ];
+    let mut ra = if t > PAR[0] {
+        PAR[1] + t * (PAR[2] - t * PAR[3])
+    } else {
+        PAR[4] + t * (PAR[5] - t * PAR[6])
+    };
+    if ra < 0. {
+        ra = 0.;
+    }
+    ra / PAR[7]
+}
+
+/// Computes the cotton plant dry matter (carbon) balance and allocation.
+///
+/// Outputs include `CarbonStress`, organ allocations, `ExtraCarbon`,
+/// `FruitGrowthRatio`, and `V_RATIO`. Formulas are documented in
+/// `docs/plant-growth-variables.md`.
+unsafe fn dry_matter_balance(
+    cdstem: &mut f64,
+    cdleaf: &mut f64,
+    cdpet: &mut f64,
+    cdroot: &mut f64,
+) {
+    const VCHBAL: [f64; 15] = [
+        6.0, 2.5, 1.0, 5.0, 0.20, 0.80, 0.48, 0.40, 0.2072, 0.60651, 0.0065, 1.10, 4.0, 0.25, 4.0,
+    ];
+    let cdsqar = PotGroAllSquares * (NStressFruiting + VCHBAL[0]) / (VCHBAL[0] + 1.);
+    let cdboll =
+        (PotGroAllBolls + PotGroAllBurrs) * (NStressFruiting + VCHBAL[0]) / (VCHBAL[0] + 1.);
+    *cdleaf = PotGroAllLeaves * (NStressVeg + VCHBAL[1]) / (VCHBAL[1] + 1.);
+    *cdstem = PotGroStem * (NStressVeg + VCHBAL[2]) / (VCHBAL[2] + 1.);
+    *cdroot = PotGroAllRoots * (NStressRoots + VCHBAL[3]) / (VCHBAL[3] + 1.);
+    *cdpet = PotGroAllPetioles * (NStressVeg + VCHBAL[14]) / (VCHBAL[14] + 1.);
+    let cdsum = *cdstem + *cdleaf + *cdpet + *cdroot + cdsqar + cdboll;
+    let cpool = NetPhotosynthesis + ReserveC * VCHBAL[13];
+    if cdsum <= 0. {
+        CarbonStress = 1.;
+        return;
+    }
+    CarbonStress = cpool / cdsum;
+    if CarbonStress > 1. {
+        CarbonStress = 1.;
+    }
+    let mut pdboll = 0.;
+    let mut pdsq = 0.;
+    let mut xtrac1 = 0.;
+    if CarbonStress >= 1. {
+        TotalActualLeafGrowth = *cdleaf;
+        TotalActualPetioleGrowth = *cdpet;
+        ActualStemGrowth = *cdstem;
+        CarbonAllocatedForRootGrowth = *cdroot;
+        pdboll = cdboll;
+        pdsq = cdsqar;
+    } else {
+        let mut cavail;
+        if (cdboll + cdsqar) > 0. {
+            let bsratio = cpool / (cdboll + cdsqar);
+            let mut ffr = (VCHBAL[5] + VCHBAL[6] * (1. - WaterStress)) * bsratio;
+            if ffr < 0. {
+                ffr = 0.;
+            }
+            if ffr > 1. {
+                ffr = 1.;
+            }
+            if ffr > bsratio {
+                ffr = bsratio;
+            }
+            pdboll = cdboll * ffr;
+            pdsq = cdsqar * ffr;
+            cavail = cpool - pdboll - pdsq;
+        } else {
+            cavail = cpool;
+        }
+        if (*cdleaf + *cdpet) > 0. {
+            let mut flf = VCHBAL[7] * cavail / (*cdleaf + *cdpet);
+            if flf < 0. {
+                flf = 0.;
+            }
+            if flf > 1. {
+                flf = 1.;
+            }
+            TotalActualLeafGrowth = *cdleaf * flf;
+            TotalActualPetioleGrowth = *cdpet * flf;
+            cavail -= TotalActualLeafGrowth + TotalActualPetioleGrowth;
+        } else {
+            TotalActualLeafGrowth = 0.;
+            TotalActualPetioleGrowth = 0.;
+        }
+        if *cdroot > 0. {
+            let mut ratio = VCHBAL[8]
+                + VCHBAL[9]
+                    * (-VCHBAL[10]
+                        * (TotalStemWeight + TotalLeafWeight() + TotalPetioleWeight)
+                        * PerPlantArea)
+                        .exp();
+            ratio *= VCHBAL[11];
+            let mut rtmax = ratio / (ratio + 1.);
+            rtmax *= 1. + VCHBAL[12] * (1. - WaterStress);
+            if rtmax > 1. {
+                rtmax = 1.;
+            }
+            let mut frt = rtmax * cavail / *cdroot;
+            if frt < 0. {
+                frt = 0.;
+            }
+            if frt > 1. {
+                frt = 1.;
+            }
+            CarbonAllocatedForRootGrowth = fmax(*cdroot * frt, cavail - *cdstem);
+            cavail -= CarbonAllocatedForRootGrowth;
+        } else {
+            CarbonAllocatedForRootGrowth = 0.;
+        }
+        if *cdstem > 0. {
+            let mut fst = cavail / *cdstem;
+            if fst < 0. {
+                fst = 0.;
+            }
+            if fst > 1. {
+                fst = 1.;
+            }
+            ActualStemGrowth = *cdstem * fst;
+        } else {
+            ActualStemGrowth = 0.;
+        }
+        if cavail > ActualStemGrowth {
+            xtrac1 = cavail - ActualStemGrowth;
+        }
+    }
+    if ActualStemGrowth < 0. {
+        ActualStemGrowth = 0.;
+    }
+    if TotalActualLeafGrowth < 0. {
+        TotalActualLeafGrowth = 0.;
+    }
+    if TotalActualPetioleGrowth < 0. {
+        TotalActualPetioleGrowth = 0.;
+    }
+    if CarbonAllocatedForRootGrowth < 0. {
+        CarbonAllocatedForRootGrowth = 0.;
+    }
+    if pdboll < 0. {
+        pdboll = 0.;
+    }
+    if pdsq < 0. {
+        pdsq = 0.;
+    }
+    ReserveC = ReserveC + NetPhotosynthesis
+        - (ActualStemGrowth
+            + TotalActualLeafGrowth
+            + TotalActualPetioleGrowth
+            + CarbonAllocatedForRootGrowth
+            + pdboll
+            + pdsq);
+    let resmax = VCHBAL[4] * TotalLeafWeight();
+    let xtrac2 = if ReserveC > resmax {
+        let extra = ReserveC - resmax;
+        ReserveC = resmax;
+        extra
+    } else {
+        0.
+    };
+    ExtraCarbon = xtrac1 + xtrac2;
+    if (PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs) > 0. {
+        FruitGrowthRatio = (pdsq + pdboll) / (PotGroAllSquares + PotGroAllBolls + PotGroAllBurrs);
+    } else {
+        FruitGrowthRatio = 1.;
+    }
+    if (PotGroAllLeaves + PotGroAllPetioles) > 0. {
+        V_RATIO = (TotalActualLeafGrowth + TotalActualPetioleGrowth)
+            / (PotGroAllLeaves + PotGroAllPetioles);
+    } else {
+        V_RATIO = 1.;
+    }
+}
+
+/// Simulates actual growth of squares and bolls.
+/// Actual growth is proportional to potential growth via `FruitGrowthRatio`.
+unsafe fn actual_fruit_growth() {
+    TotalSquareWeight = 0.;
+    CottonWeightGreenBolls = 0.;
+    BurrWeightGreenBolls = 0.;
+    ActualSquareGrowth = 0.;
+    ActualBollGrowth = 0.;
+    ActualBurrGrowth = 0.;
+    for k in 0..NumVegBranches as usize {
+        let nbrch = NumFruitBranches[k] as usize;
+        for l in 0..nbrch {
+            let nnid = NumNodes[k][l] as usize;
+            for m in 0..nnid {
+                if FruitingCode[k][l][m] == 1 {
+                    let dwsq = PotGroSquares[k][l][m] * FruitGrowthRatio;
+                    SquareWeight[k][l][m] += dwsq;
+                    ActualSquareGrowth += dwsq;
+                    TotalSquareWeight += SquareWeight[k][l][m];
+                }
+                if FruitingCode[k][l][m] == 2 || FruitingCode[k][l][m] == 7 {
+                    let dwboll = PotGroBolls[k][l][m] * FruitGrowthRatio;
+                    BollWeight[k][l][m] += dwboll;
+                    ActualBollGrowth += dwboll;
+                    CottonWeightGreenBolls += BollWeight[k][l][m];
+                    let dwburr = PotGroBurrs[k][l][m] * FruitGrowthRatio;
+                    BurrWeight[k][l][m] += dwburr;
+                    ActualBurrGrowth += dwburr;
+                    BurrWeightGreenBolls += BurrWeight[k][l][m];
+                }
+            }
+        }
+    }
+}
+
+/// Simulates actual leaf and petiole growth.
+/// Actual growth scales potential growth by `V_RATIO`.
+unsafe fn actual_leaf_growth() {
+    for j in 0..NumPreFruNodes as usize {
+        LeafWeightPreFru[j] += PotGroLeafWeightPreFru[j] * V_RATIO;
+        PetioleWeightPreFru[j] += PotGroPetioleWeightPreFru[j] * V_RATIO;
+        TotalPetioleWeight += PetioleWeightPreFru[j];
+        LeafAreaPreFru[j] += PotGroLeafAreaPreFru[j] * V_RATIO;
+        LeafArea[NodeLayerPreFru[j] as usize] += LeafAreaPreFru[j];
+    }
+    for k in 0..NumVegBranches as usize {
+        let nbrch = NumFruitBranches[k] as usize;
+        for l in 0..nbrch {
+            LeafWeightMainStem[k][l] += PotGroLeafWeightMainStem[k][l] * V_RATIO;
+            PetioleWeightMainStem[k][l] += PotGroPetioleWeightMainStem[k][l] * V_RATIO;
+            TotalPetioleWeight += PetioleWeightMainStem[k][l];
+            LeafAreaMainStem[k][l] += PotGroLeafAreaMainStem[k][l] * V_RATIO;
+            LeafArea[NodeLayer[k][l] as usize] += LeafAreaMainStem[k][l];
+            let nnid = NumNodes[k][l] as usize;
+            for m in 0..nnid {
+                LeafWeightNodes[k][l][m] += PotGroLeafWeightNodes[k][l][m] * V_RATIO;
+                PetioleWeightNodes[k][l][m] += PotGroPetioleWeightNodes[k][l][m] * V_RATIO;
+                TotalPetioleWeight += PetioleWeightNodes[k][l][m];
+                LeafAreaNodes[k][l][m] += PotGroLeafAreaNodes[k][l][m] * V_RATIO;
+                LeafArea[NodeLayer[k][l] as usize] += LeafAreaNodes[k][l][m];
+            }
+        }
+    }
+}
+
+/// Checks the dry matter balance for diagnostic purposes.
+/// See `docs/plant-growth-variables.md` for the balance equations.
+pub(crate) unsafe fn check_dry_matter_balance() {
+    let avail = PlantWeightAtStart + CumNetPhotosynth;
+    PlantWeight = TotalRootWeight
+        + TotalStemWeight
+        + CottonWeightGreenBolls
+        + BurrWeightGreenBolls
+        + TotalLeafWeight()
+        + TotalPetioleWeight
+        + TotalSquareWeight
+        + CottonWeightOpenBolls
+        + BurrWeightOpenBolls
+        + ReserveC;
+    let used = PlantWeight + GreenBollsLost + AbscisedLeafWeight + BloomWeightLoss + RootWeightLoss;
+    let _chobal = avail - used;
+}
+
+/// Simulates the effects of defoliating chemicals.
+/// Uses persistent state (`DEFKGH`, `TDFKGH`, `IDSW`) across days.
+pub(crate) unsafe fn defoliate() {
+    const P1: f64 = -50.0;
+    const P2: f64 = 0.525;
+    const P3: f64 = 7.06;
+    const P4: f64 = 0.85;
+    const P5: f64 = 2.48;
+    const P6: f64 = 0.0374;
+    const P7: f64 = 0.0020;
+    if Daynum <= DayEmerge {
+        TDFKGH = 0.;
+        DEFKGH = 0.;
+        IDSW = 0;
+    }
+    for i in 0..5 {
+        if NumOpenBolls > 0. && DefoliantAppRate[i] <= -99.9 {
+            let open_ratio = (100. * NumOpenBolls / (NumOpenBolls + NumGreenBolls)) as i32;
+            if i == 0 && IDSW == 0 {
+                if (Daynum >= DefoliationDate[i] && DefoliationDate[0] > 0)
+                    || open_ratio > DefoliationMethod[i]
+                {
+                    IDSW = 1;
+                    DefoliationDate[i] = Daynum;
+                    DefoliantAppRate[1] = -99.9;
+                    if Daynum < DayFirstDef || DayFirstDef <= 0 {
+                        DayFirstDef = Daynum;
+                    }
+                    DefoliationMethod[i] = 0;
+                }
+            }
+            if i >= 1 {
+                if Daynum == (DefoliationDate[i - 1] + 10) && LeafAreaIndex >= 0.2 {
+                    DefoliationDate[i] = Daynum;
+                    if i < 4 {
+                        DefoliantAppRate[i + 1] = -99.9;
+                    }
+                    DefoliationMethod[i] = 0;
+                }
+            }
+        }
+        if Daynum == DefoliationDate[i] {
+            if DefoliantAppRate[i] < -99. {
+                TDFKGH = 2.5;
+            } else {
+                if DefoliationMethod[i] == 0 {
+                    DEFKGH += DefoliantAppRate[i] * 0.95 * 1.12085 * 0.75;
+                } else {
+                    DEFKGH += DefoliantAppRate[i] * LightIntercept * 1.12085 * 0.75;
+                }
+                TDFKGH += DEFKGH;
+            }
+        }
+        if DefoliationDate[i] > 0 && Daynum > DayFirstDef {
+            let dum = -LwpMin * 10.;
+            PercentDefoliation = P1
+                + P2 * AvrgDailyTemp
+                + P3 * TDFKGH
+                + P4 * (Daynum - DayFirstDef) as f64
+                + P5 * dum
+                - P6 * dum * dum
+                + P7 * AvrgDailyTemp * TDFKGH * (Daynum - DayFirstDef) as f64 * dum;
+            if PercentDefoliation < 0. {
+                PercentDefoliation = 0.;
+            }
+            let perdmax = 40.;
+            if PercentDefoliation > perdmax {
+                PercentDefoliation = perdmax;
+            }
+        }
     }
 }
 /// Computes physiological age.
@@ -398,6 +882,31 @@ fn TemperatureOnFruitGrowthRate(t: f64) -> f64 {
         0.
     } else {
         tfr
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::temperature_on_leaf_growth_rate;
+
+    fn assert_close(actual: f64, expected: f64, eps: f64) {
+        assert!(
+            (actual - expected).abs() <= eps,
+            "expected {expected}, got {actual}"
+        );
+    }
+
+    #[test]
+    fn temperature_on_leaf_growth_rate_reference_points() {
+        let eps = 1e-3;
+        assert_close(temperature_on_leaf_growth_rate(12.), 0.0, eps);
+        assert_close(temperature_on_leaf_growth_rate(16.), 0.2655638, eps);
+        assert_close(temperature_on_leaf_growth_rate(20.), 0.5446032, eps);
+        assert_close(temperature_on_leaf_growth_rate(24.), 0.7620185, eps);
+        assert_close(temperature_on_leaf_growth_rate(27.), 0.9422215, eps);
+        assert_close(temperature_on_leaf_growth_rate(30.), 1.0000352, eps);
+        assert_close(temperature_on_leaf_growth_rate(36.), 0.7351625, eps);
+        assert_close(temperature_on_leaf_growth_rate(42.), 0.0, eps);
     }
 }
 /// Computes and returns the potential stem growth of cotton plants.

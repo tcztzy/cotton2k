@@ -38,21 +38,19 @@
 //  at the start of the simulation (see their code in file gettinginput_2.cpp) .
 //     PotentialRootGrowth() and ActualRootGrowth() are called each day from
 //     PlantGrowth(). PotentialRootGrowth() calls RootImpedance(),
-//     SoilMechanicResistance(), SoilAirOnRootGrowth(),
-//  SoilNitrateOnRootGrowth(), SoilTemOnRootGrowth(), SoilWaterOnRootGrowth().
+//     soil_mechanic_resistance(), soil_air_on_root_growth(),
+//  soil_nitrate_on_root_growth(), SoilTemOnRootGrowth(), soil_water_on_root_growth().
 //     ActualRootGrowth() calls RedistRootNewGrowth(), TapRootGrowth(),
 //     LateralRootGrowth(),
-//  RootAging(), RootDeath(), RootSummation().
+//  RootAging(), RootDeath(), root_summation().
 use crate::{
     cgind, dl, maxk, maxl, nk, nl, pixcon, rlat1, rlat2, wk, ActualRootGrowth, BulkDensity,
     CarbonAllocatedForRootGrowth, CumPlantNLoss, DailyRootLoss, DayEmerge, Daynum,
-    DepthLastRootLayer, ExtraCarbon, InitiateLateralRoots, LastTaprootLayer, LateralRootFlag,
-    NumLayersWithRoots, NumRootAgeGroups, PerPlantArea, PixInPlants, PlantRowColumn,
-    PlantRowLocation, PoreSpace, PotGroRoots, RootAge, RootColNumLeft, RootColNumRight,
-    RootGroFactor, RootImpede, RootNConc, RootNitrogen, RootSummation, RootWeight, RootWeightLoss,
-    RowSpace, SoilAirOnRootGrowth, SoilHorizonNum, SoilMechanicResistance, SoilNitrateOnRootGrowth,
-    SoilPsi, SoilTempDailyAvrg, SoilWaterOnRootGrowth, TapRootLength, VolNo3NContent,
-    VolWaterContent,
+    DepthLastRootLayer, ExtraCarbon, LastTaprootLayer, LateralRootFlag, NumLayersWithRoots,
+    NumRootAgeGroups, PerPlantArea, PixInPlants, PlantRowColumn, PlantRowLocation, PoreSpace,
+    PotGroRoots, RootAge, RootColNumLeft, RootColNumRight, RootGroFactor, RootImpede, RootNConc,
+    RootNitrogen, RootWeight, RootWeightLoss, RowSpace, SoilHorizonNum, SoilPsi, SoilTempDailyAvrg,
+    TapRootLength, TotalRootWeight, VolNo3NContent, VolWaterContent,
 };
 use chrono::Datelike;
 use ndarray::prelude::*;
@@ -170,11 +168,123 @@ unsafe fn RootImpedance(tables: &RootImpedanceTables) {
     }
 }
 
+/// Calculates soil mechanical resistance of cell (l, k).
+/// Uses the minimum `RootImpede` of adjacent cells and clamps the response.
+/// See `docs/plant-growth-variables.md` for the exact equation.
+/// It is called from [PotentialRootGrowth].
+unsafe fn soil_mechanic_resistance(l: i32, k: i32) -> f64 {
+    const P1: f64 = 1.046;
+    const P2: f64 = 0.034554;
+    const P3: f64 = 0.5;
+    let lp1 = if l == nl - 1 { l } else { l + 1 };
+    let kp1 = if k == nk - 1 { k } else { k + 1 };
+    let km1 = if k == 0 { 0 } else { k - 1 };
+    let l = l as usize;
+    let k = k as usize;
+    let lp1 = lp1 as usize;
+    let kp1 = kp1 as usize;
+    let km1 = km1 as usize;
+    let rtimpd0 = RootImpede[l][k];
+    let rtimpdkm1 = RootImpede[l][km1];
+    let rtimpdkp1 = RootImpede[l][kp1];
+    let rtimpdlp1 = RootImpede[lp1][k];
+    let mut rtimpdmin = rtimpd0;
+    if rtimpdkm1 < rtimpdmin {
+        rtimpdmin = rtimpdkm1;
+    }
+    if rtimpdkp1 < rtimpdmin {
+        rtimpdmin = rtimpdkp1;
+    }
+    if rtimpdlp1 < rtimpdmin {
+        rtimpdmin = rtimpdlp1;
+    }
+    let mut rtpct = P1 - P2 * rtimpdmin;
+    if rtpct > 1. {
+        rtpct = 1.;
+    }
+    if rtpct < P3 {
+        rtpct = P3;
+    }
+    rtpct
+}
+
+/// Calculates reduction of potential root growth rate due to low oxygen content.
+/// See `docs/plant-growth-variables.md` for the exact equation.
+fn soil_air_on_root_growth(psislk: f64, pore_space: f64, vh2oclk: f64) -> f64 {
+    const P1: f64 = 0.;
+    const P2: f64 = 1.;
+    const P3: f64 = 0.1;
+    let mut rtrdo = if psislk > P1 { P2 } else { 1. };
+    if vh2oclk >= pore_space {
+        rtrdo = P3;
+    }
+    rtrdo
+}
+
+/// Calculates reduction of potential root growth rate due to low nitrate content.
+/// See `docs/plant-growth-variables.md` for the exact equation.
+fn soil_nitrate_on_root_growth(vno3clk: f64) -> f64 {
+    const P1: f64 = 0.;
+    const P2: f64 = 1.;
+    if vno3clk < P1 {
+        P2
+    } else {
+        1.
+    }
+}
+
+/// Returns the effect of soil moisture on cotton root potential growth rate.
+/// See `docs/plant-growth-variables.md` for the exact equation.
+fn soil_water_on_root_growth(psislk: f64) -> f64 {
+    const P1: f64 = 20.;
+    const P2: f64 = 16.;
+    let mut smf = ((P1 + psislk) / P2).powi(3);
+    if smf < 0.02 {
+        smf = 0.02;
+    }
+    if smf > 1. {
+        smf = 1.;
+    }
+    smf
+}
+
+/// Initiates lateral root growth based on distance from the taproot tip.
+/// See `docs/plant-growth-variables.md` for the exact logic.
+unsafe fn initiate_lateral_roots() {
+    const DISTLR: f64 = 12.;
+    if LastTaprootLayer < 0 {
+        return;
+    }
+    let mut sdl = TapRootLength - DepthLastRootLayer;
+    for l in (0..=LastTaprootLayer as usize).rev() {
+        sdl += dl[l];
+        if sdl > DISTLR && LateralRootFlag[l] == 1 {
+            LateralRootFlag[l] = 2;
+        }
+    }
+}
+
+/// Summarizes root data for output/plotting and updates [TotalRootWeight].
+/// See `docs/plant-growth-variables.md` for the exact equation.
+unsafe fn root_summation() {
+    let mut roots = 0.;
+    for l in 0..nl as usize {
+        for k in 0..nk as usize {
+            let mut rootsv = 0.;
+            for i in 0..3 {
+                rootsv += RootWeight[l][k][i];
+            }
+            roots += rootsv;
+        }
+    }
+    TotalRootWeight = roots * 100. * PerPlantArea / RowSpace;
+}
+
 /// Calculates the potential root growth rate.
 /// The return value is the sum of potential root growth rates for the whole slab (sumpdr).
 /// It is called from PlantGrowth(). It calls: RootImpedance(),
-/// SoilNitrateOnRootGrowth(), SoilAirOnRootGrowth(), SoilMechanicResistance(),
-/// SoilTemOnRootGrowth() and SoilWaterOnRootGrowth().
+/// soil_nitrate_on_root_growth(), soil_air_on_root_growth(), soil_mechanic_resistance(),
+/// SoilTemOnRootGrowth() and soil_water_on_root_growth().
 ///
 /// The following global variables are referenced here:
 ///
@@ -213,11 +323,12 @@ pub unsafe fn PotentialRootGrowth(tables: &RootImpedanceTables) -> f64 {
                 // the effect of soil aeration on root growth by calling SoilAirOnRootGrowth(),
                 // and the effect of soil nitrate on root growth by calling SoilNitrateOnRootGrowth().
                 // effect of soil mechanical resistance on root growth (returned from SoilMechanicResistance).
-                let rtpct = SoilMechanicResistance(l as i32, k as i32);
+                let rtpct = soil_mechanic_resistance(l as i32, k as i32);
                 // effect of oxygen deficiency on root growth (returned from SoilAirOnRootGrowth).
-                let rtrdo = SoilAirOnRootGrowth(SoilPsi[l][k], PoreSpace[l], VolWaterContent[l][k]);
+                let rtrdo =
+                    soil_air_on_root_growth(SoilPsi[l][k], PoreSpace[l], VolWaterContent[l][k]);
                 // effect of nitrate deficiency on root growth (returned from SoilNitrateOnRootGrowth).
-                let rtrdn = SoilNitrateOnRootGrowth(VolNo3NContent[l][k]);
+                let rtrdn = soil_nitrate_on_root_growth(VolNo3NContent[l][k]);
                 // The root growth resistance factor RootGroFactor(l,k), which can take a value between 0 and 1, is computed as the minimum of these resistance factors.
                 // It is further modified by multiplying it by the soil moisture function SoilWaterOnRootGrowth().
                 // Potential root growth PotGroRoots(l,k) in each cell is computed as a product of rtwtcg, rgfac, the temperature function temprg, and RootGroFactor(l,k).
@@ -228,7 +339,7 @@ pub unsafe fn PotentialRootGrowth(tables: &RootImpedanceTables) -> f64 {
                 if rtrdn < minres {
                     minres = rtrdn;
                 }
-                let rtpsi = SoilWaterOnRootGrowth(SoilPsi[l][k]);
+                let rtpsi = soil_water_on_root_growth(SoilPsi[l][k]);
                 RootGroFactor[l][k] = rtpsi * minres;
                 PotGroRoots[l][k] =
                     rtwtcg * rgfac * temprg * RootGroFactor[l][k] * PerPlantArea / 19.6;
@@ -250,7 +361,7 @@ pub trait RootGrowth {
 impl RootGrowth for Plant {
     /// This function calculates the actual root growth rate.
     /// It is called from function PlantGrowth().
-    /// It calls the following functions:  InitiateLateralRoots(), LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), RootDeath(), RootSummation(), TapRootGrowth().
+    /// It calls the following functions:  initiate_lateral_roots(), LateralRootGrowthLeft(), LateralRootGrowthRight(), RedistRootNewGrowth(), RootAging(), RootDeath(), root_summation(), TapRootGrowth().
     ///
     /// The following global variables are referenced here:
     /// CarbonAllocatedForRootGrowth, cgind, DayEmerge,
@@ -395,7 +506,7 @@ impl RootGrowth for Plant {
             TapRootGrowth();
         }
         // Call functions for growth of lateral roots
-        InitiateLateralRoots();
+        initiate_lateral_roots();
         for l in 0..LastTaprootLayer as usize {
             if LateralRootFlag[l] == 2 {
                 LateralRootGrowthLeft(l);
@@ -432,7 +543,7 @@ impl RootGrowth for Plant {
         CumPlantNLoss += DailyRootLoss * RootNConc;
         PixInPlants -= DailyRootLoss * pixcon;
         // Call function RootSummation().
-        RootSummation();
+        root_summation();
     }
 }
 
@@ -502,7 +613,8 @@ mod tests {
 
             root_cultivation(0.0);
 
-            assert_eq!(DailyRootLoss, 0.0);
+            let daily_loss = DailyRootLoss;
+            assert_eq!(daily_loss, 0.0);
             assert_eq!(RootWeight[0][0][0], 1.0);
 
             RootWeight[0][0][0] = prev_weight;
@@ -543,10 +655,11 @@ mod tests {
 
             root_cultivation(15.0);
 
+            let daily_loss = DailyRootLoss;
             assert!(
-                (DailyRootLoss - 2.0).abs() < 1e-9,
+                (daily_loss - 2.0).abs() < 1e-9,
                 "expected loss of 2.0, got {}",
-                DailyRootLoss
+                daily_loss
             );
             assert_eq!(RootWeight[0][0][0], 1.5);
             assert_eq!(RootWeight[0][1][0], 0.0);

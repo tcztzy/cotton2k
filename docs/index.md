@@ -10,6 +10,7 @@ Welcome to cotton2k's documentation!
 maxdepth: 2
 caption: "Contents:"
 ---
+plant-growth-variables
 ```
 
 
