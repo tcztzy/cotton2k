@@ -5,12 +5,18 @@
 //  definition of functions
 //  =======================
 //  soil water functions:
+#ifdef __cplusplus
+extern "C" {
+#endif
 double qpsi(double psi, double qr, double qsat, double alpha, double beta);
 double wcond(double q, double qr, double qsat, double beta,
              double SaturatedHydCond, double PoreSpace);
 double psiq(double q, double qr, double qsat, double alpha, double beta);
 double PsiOsmotic(double q, double qsat, double ec);
 double GetFromClim(CLIMATE_METRIC item, int Doy);
+#ifdef __cplusplus
+}
+#endif
 inline double drop_leaf_age(double lai) {
     return 140. - 1. * lai;
 }

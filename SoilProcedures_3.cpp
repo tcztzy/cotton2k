@@ -273,6 +273,7 @@ void WaterFlux(double q1[], double psi1[], double dd[], double qr1[],
             sumaddq -= dqq2;
         }
     }
+    (void)sumaddq;
     //     Water content q1[i] and soil water potential psi1[i] are updated.
     for (int i = 0; i < nn; i++) {
         q1[i] = qx[i] + addq[i];

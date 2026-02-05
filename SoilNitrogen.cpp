@@ -523,6 +523,7 @@ void SoilNitrogenBal()
     //  N in the soil, and the amount lost by drainage.
     balsn = SoilNitrogenAtStart + CumFertilizerN + MineralizedOrganicN -
             CumNitrogenUptake - TotalSoilNitrogen - SoilNitrogenLoss;
+    (void)balsn;
 }
 //////////////////////////
 void SoilNitrogenAverage()

@@ -64,7 +64,8 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
     double rlv4 = stefa1 * sf * ef * corr;
     double dsenfheat = c2 * (1 - 0.6 * sf);  // derivative of senfheat
                                              //     Start iterations for tv:
-    int mot = 0;  // count of iterations for plant surface
+    int mot = 0;         // count of iterations for plant surface
+    double ccadx = 0.0;  // previous value of ccadjust
     while (mot < 50) {
         //     Latent heat flux (hvlat) is computed from the transpiration rate.
         double hvlat = (75.5255 - 0.05752 * tv) * etp1;
@@ -105,7 +106,6 @@ void CanopyBalance(int ihr, int k, double etp1, double rlzero, double rsv,
         //     If adjustment is small enough, no more iterations are needed.
         if (fabs(ccadjust) < 0.002) return;
         //     If ccadjust is not the same sign as ccadx, reduce fluctuations
-        double ccadx;  // previous value of ccadjust
         if (mot >= 2) {
             if (fabs(ccadjust - ccadx) > fabs(ccadjust + ccadx)) {
                 ccadjust = (ccadjust + ccadx) * 0.5;
@@ -156,6 +156,8 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm,
         dsenheat = hsgp + hsgm;
     //     Start iterations for soil mulch temperature (tm)
     int mop = 0;  // count of iterations for soil mulch energy balance
+    double tmex = tm;      // previous value of mulch temperature (k)
+    double tmbalex = 0.0;  // previous value of tmbaladjust.
     do {
         //     Emitted long wave radiation from soil mulch
         double emtlw;  // emitted long wave radiation from soil surface
@@ -194,8 +196,6 @@ void MulchSurfaceBalance(int ihr, int k, double rlsp, double rls5, double rsm,
         if (fabs(tmbaladjust) < 0.002) return;
         //     If tmbaladjust is not the same sign as tmbalex, reduce
         //     fluctuations
-        double tmex;     // previous value of mulch temperature (k)
-        double tmbalex;  // previous value of tmbaladjust.
         if (mop >= 2)
             if (fabs(tmbaladjust + tmbalex) < fabs(tmbaladjust - tmbalex)) {
                 tmbaladjust = (tmbaladjust + tmbalex) / 2;

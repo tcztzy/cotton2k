@@ -1,12 +1,13 @@
+use crate::general_functions::{GetFromClim, PsiOsmotic, psiq, qpsi};
 use crate::utils::{fmax, fmin};
 use crate::{
-    alpha, beta, dl, psiq, qpsi, thad, thetar, thts, wk, ActualTranspiration, AppliedWater,
-    AverageSoilPsi, ClayVolumeFraction, DayStart, Daynum, ElCondSatSoilToday, GetFromClim,
-    GetTargetStress, Irrig, IrrigMethod, LastIrrigation, LightIntercept, NitrogenUptake,
-    NumIrrigations, NumLayersWithRoots, PredictDripIrrigation, PredictSurfaceIrrigation,
-    PsiOnTranspiration, PsiOsmotic, ReferenceTransp, RootColNumLeft, RootColNumRight,
-    RootWtCapblUptake, RowSpace, SandVolumeFraction, SoilHorizonNum, SoilPsi, SupplyNH4N,
-    SupplyNO3N, TotalRequiredN, VolWaterContent, CLIMATE_METRIC_RAIN,
+    alpha, beta, dl, thad, thetar, thts, wk, ActualTranspiration, AppliedWater, AverageSoilPsi,
+    ClayVolumeFraction, DayStart, Daynum, ElCondSatSoilToday, GetTargetStress, Irrig, IrrigMethod,
+    LastIrrigation, LightIntercept, NitrogenUptake, NumIrrigations, NumLayersWithRoots,
+    PredictDripIrrigation, PredictSurfaceIrrigation, PsiOnTranspiration, ReferenceTransp,
+    RootColNumLeft, RootColNumRight, RootWtCapblUptake, RowSpace, SandVolumeFraction,
+    SoilHorizonNum, SoilPsi, SupplyNH4N, SupplyNO3N, TotalRequiredN, VolWaterContent,
+    CLIMATE_METRIC_RAIN,
 };
 use ndarray::prelude::*;
 use ndarray::Array;
@@ -87,7 +88,7 @@ impl SoilHydrology {
                     amtirr = unsafe { Irrig[i].amount };
                 }
             }
-            previous_wetting += amtirr + unsafe { GetFromClim(CLIMATE_METRIC_RAIN, Dayn) };
+            previous_wetting += amtirr + GetFromClim(CLIMATE_METRIC_RAIN, Dayn);
         }
         // Adjusting curve number for antecedent rainfall conditions.
         let d02: f64 = if previous_wetting < 36. {

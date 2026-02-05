@@ -1,4 +1,5 @@
 use crate::atmosphere::{num_hours, Atmosphere};
+use crate::general_functions::{GetFromClim, wcond};
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{check_dry_matter_balance, defoliate, LeafResistance, PhysiologicalAge};
 use crate::plant::Plant;
@@ -7,13 +8,13 @@ use crate::soil::hydrology::{ComputeIrrigation, WaterUptake};
 use crate::soil::Soil;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
-    addwtbl, bPollinSwitch, beta, dl, isw, maxl, nk, nl, noitr, thad, thts, wcond, wk,
+    addwtbl, bPollinSwitch, beta, dl, isw, maxl, nk, nl, noitr, thad, thts, wk,
     ActualTranspiration, AgeOfPreFruNode, AppliedWater, AverageLeafAge, AverageLwp, AverageLwpMin,
     AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow, Clim, Cotton2KError,
     CottonPhenology, CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake,
     CumTranspiration, CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart,
     DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Drain, ElCondSatSoilToday,
-    FirstSquare, GetFromClim, Irrig, IrrigMethod, Kday, LeafAge, LeafArea, LeafAreaIndex,
+    FirstSquare, Irrig, IrrigMethod, Kday, LeafAge, LeafArea, LeafAreaIndex,
     LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc, LeafNitrogen,
     LightIntercept, LightInterceptLayer, LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin,
     LwpMinX, LwpX, MaxIrrigation, MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer,
@@ -356,7 +357,7 @@ impl State {
         // Check if there is rain on this day
         // Set 'pollination switch' for rainy days (as in GOSSYM).
         // The amount of rain today, mm
-        let mut rainToday = unsafe { GetFromClim(CLIMATE_METRIC_RAIN, self.date.ordinal() as i32) };
+        let mut rainToday = GetFromClim(CLIMATE_METRIC_RAIN, self.date.ordinal() as i32);
         unsafe {
             bPollinSwitch = rainToday < 2.5;
         }
@@ -377,7 +378,8 @@ impl State {
             }
         }
         self.soil.hydrology.runoff = runoffToday;
-        let mut water_to_apply = unsafe { GetFromClim(CLIMATE_METRIC_RAIN, Daynum) };
+        let daynum = unsafe { Daynum };
+        let mut water_to_apply = GetFromClim(CLIMATE_METRIC_RAIN, daynum);
         // If irrigation is to be predicted for this day, call ComputeIrrigation() to compute the actual amount of irrigation.
         unsafe {
             if MaxIrrigation > 0. {

@@ -1,9 +1,10 @@
+use crate::general_functions::GetFromClim;
 use crate::utils::fmin;
 use crate::{
     albedo, es1hour, es2hour, AirTemp, AvrgDailyTemp, CloudCoverRatio, CloudTypeCorr, DayTimeTemp,
-    Daynum, DewPointTemp, GetFromClim, NightTimeTemp, Profile, Radiation, ReferenceETP,
-    ReferenceTransp, RelativeHumidity, Rn, WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_TDEW,
-    CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
+    Daynum, DewPointTemp, NightTimeTemp, Profile, Radiation, ReferenceETP, ReferenceTransp,
+    RelativeHumidity, Rn, WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX,
+    CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
 };
 use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Timelike};
 

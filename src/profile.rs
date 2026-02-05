@@ -1,3 +1,4 @@
+use crate::input_functions::form;
 use crate::plant::root::RootImpedanceTables;
 use crate::*;
 use chrono::Datelike;
@@ -456,14 +457,14 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         }
         thad[l] = airdr[j];
         thts[l] = thetas[j];
-        FieldCapacity[l] = qpsi(psisfc, thad[l], thts[l], alpha[j], beta[j]);
-        MaxWaterCapacity[l] = qpsi(psidra, thad[l], thts[l], alpha[j], beta[j]);
-        thetar[l] = qpsi(-15., thad[l], thts[l], alpha[j], beta[j]);
+        FieldCapacity[l] = crate::general_functions::qpsi(psisfc, thad[l], thts[l], alpha[j], beta[j]);
+        MaxWaterCapacity[l] = crate::general_functions::qpsi(psidra, thad[l], thts[l], alpha[j], beta[j]);
+        thetar[l] = crate::general_functions::qpsi(-15., thad[l], thts[l], alpha[j], beta[j]);
         // When the saturated hydraulic conductivity (SaturatedHydCond) is not given, it is computed from the hydraulic
         // conductivity at field capacity (condfc), using the wcond function.
         if SaturatedHydCond[j] <= 0. {
-            SaturatedHydCond[j] =
-                condfc[j] / wcond(FieldCapacity[l], thad[l], thts[l], beta[j], 1., 1.);
+            SaturatedHydCond[j] = condfc[j]
+                / crate::general_functions::wcond(FieldCapacity[l], thad[l], thts[l], beta[j], 1., 1.);
         }
     }
     // Loop for all soil layers. Compute depth from soil surface to the end of each layer (sumdl).
@@ -993,27 +994,45 @@ impl Profile {
             .write(true)
             .append(true)
             .open(self.path.parent().unwrap().join("output.csv"))?;
+        const MAXK: usize = 20;
+        const LEAF_AREA_INDEXES_LEN: usize = 20;
+        let light_intercept = unsafe { LightIntercept };
+        let lint_yield = unsafe { LintYield };
+        let leaf_area_index = unsafe { LeafAreaIndex };
+        let plant_height = unsafe { PlantHeight };
+        let total_petiole_weight = unsafe { TotalPetioleWeight };
+        let total_stem_weight = unsafe { TotalStemWeight };
+        let num_squares = unsafe { NumSquares };
+        let num_green_bolls = unsafe { NumGreenBolls };
+        let num_open_bolls = unsafe { NumOpenBolls };
+        let total_square_weight = unsafe { TotalSquareWeight };
+        let total_root_weight = unsafe { TotalRootWeight };
+        let num_fruit_branches = unsafe { *std::ptr::addr_of_mut!(NumFruitBranches).cast::<i32>() };
+        let total_leaf_weight = unsafe { TotalLeafWeight() };
+        let vol_ptr = std::ptr::addr_of_mut!(VolWaterContent).cast::<f64>();
+        let vol_water = |l: usize, k: usize| unsafe { *vol_ptr.add(l * MAXK + k) };
+        let leaf_area_ptr = std::ptr::addr_of_mut!(LeafAreaIndexes).cast::<f64>();
         let mut record = vec![
             chrono::NaiveDate::from_yo_opt(unsafe { iyear }, unsafe { Daynum } as u32)
                 .unwrap()
                 .format("%F")
                 .to_string(),
-            unsafe { LightIntercept.to_string() },
-            unsafe { LintYield.to_string() },
-            unsafe { LeafAreaIndex.to_string() },
+            light_intercept.to_string(),
+            lint_yield.to_string(),
+            leaf_area_index.to_string(),
             unsafe {
                 ((CottonWeightOpenBolls + CottonWeightGreenBolls) * PlantPopulation / 1000.)
                     .to_string()
             },
-            unsafe { PlantHeight.to_string() },
-            unsafe { NumFruitBranches[0].to_string() },
-            unsafe { TotalLeafWeight().to_string() },
-            unsafe { TotalPetioleWeight.to_string() },
-            unsafe { TotalStemWeight.to_string() },
-            unsafe { NumSquares.to_string() },
-            unsafe { NumGreenBolls.to_string() },
-            unsafe { NumOpenBolls.to_string() },
-            unsafe { TotalSquareWeight.to_string() },
+            plant_height.to_string(),
+            num_fruit_branches.to_string(),
+            total_leaf_weight.to_string(),
+            total_petiole_weight.to_string(),
+            total_stem_weight.to_string(),
+            num_squares.to_string(),
+            num_green_bolls.to_string(),
+            num_open_bolls.to_string(),
+            total_square_weight.to_string(),
             unsafe {
                 (CottonWeightOpenBolls
                     + CottonWeightGreenBolls
@@ -1021,7 +1040,7 @@ impl Profile {
                     + BurrWeightOpenBolls)
                     .to_string()
             },
-            unsafe { TotalRootWeight.to_string() },
+            total_root_weight.to_string(),
             unsafe {
                 (if Daynum >= DayEmerge && isw > 0 {
                     PlantWeight - TotalRootWeight
@@ -1031,23 +1050,22 @@ impl Profile {
                     / 1000.)
                     .to_string()
             },
-            unsafe { VolWaterContent[3][0].to_string() },
-            unsafe { VolWaterContent[5][0].to_string() },
-            unsafe { VolWaterContent[7][0].to_string() },
-            unsafe { VolWaterContent[3][4].to_string() },
-            unsafe { VolWaterContent[5][4].to_string() },
-            unsafe { VolWaterContent[7][4].to_string() },
-            unsafe { VolWaterContent[3][8].to_string() },
-            unsafe { VolWaterContent[5][8].to_string() },
-            unsafe { VolWaterContent[7][8].to_string() },
-            unsafe { VolWaterContent[3][12].to_string() },
-            unsafe { VolWaterContent[5][12].to_string() },
-            unsafe { VolWaterContent[7][12].to_string() },
+            vol_water(3, 0).to_string(),
+            vol_water(5, 0).to_string(),
+            vol_water(7, 0).to_string(),
+            vol_water(3, 4).to_string(),
+            vol_water(5, 4).to_string(),
+            vol_water(7, 4).to_string(),
+            vol_water(3, 8).to_string(),
+            vol_water(5, 8).to_string(),
+            vol_water(7, 8).to_string(),
+            vol_water(3, 12).to_string(),
+            vol_water(5, 12).to_string(),
+            vol_water(7, 12).to_string(),
         ];
-        unsafe {
-            for v in &LeafAreaIndexes {
-                record.push(v.to_string());
-            }
+        for idx in 0..LEAF_AREA_INDEXES_LEN {
+            let value = unsafe { *leaf_area_ptr.add(idx) };
+            record.push(value.to_string());
         }
         writeln!(f, "{}", record.join(","))?;
         Ok(())

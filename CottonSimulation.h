@@ -43,7 +43,11 @@ double Drain();
 void DryMatterBalance(double &cdstem, double &cdleaf, double &cdpet,
                       double &cdroot);
 // F
+#ifdef __cplusplus
+extern "C" double form(double c0, double d0, double g0);
+#else
 double form(double c0, double d0, double g0);
+#endif
 void FruitingSite(int k, int l, int m, int &NodeRecentWhiteFlower);
 void FruitingSitesAbscission();
 void FruitNodeLeafAbscission(int k, int l, int m, double droplf);

@@ -8,6 +8,8 @@
 #![allow(dead_code)]
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod atmosphere;
+mod general_functions;
+mod input_functions;
 mod plant;
 mod profile;
 mod soil;

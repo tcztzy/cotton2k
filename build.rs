@@ -7,8 +7,6 @@ fn main() {
     let cpp_sources = vec![
         "CottonPhenology.cpp",
         "FruitAbscission.cpp",
-        "GeneralFunctions.cpp",
-        "GettingInput_2.cpp",
         "global.cpp",
         "LeafAbscission.cpp",
         "SoilNitrogen.cpp",
@@ -20,10 +18,15 @@ fn main() {
     ];
 
     let x = cpp_sources.clone();
-    cc::Build::new()
-        .cpp(true)
-        .files(cpp_sources)
-        .compile("cotton2k");
+    let mut build = cc::Build::new();
+    build.cpp(true).files(cpp_sources);
+    let target = env::var("TARGET").unwrap_or_default();
+    if target.contains("apple-darwin") {
+        let deployment_target =
+            env::var("MACOSX_DEPLOYMENT_TARGET").unwrap_or_else(|_| "11.0".to_string());
+        build.flag(&format!("-mmacosx-version-min={}", deployment_target));
+    }
+    build.compile("cotton2k");
     println!("cargo:rustc-link-lib=cotton2k");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
@@ -47,7 +50,7 @@ fn main() {
         .header("GeneralFunctions.h")
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
