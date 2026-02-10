@@ -175,7 +175,7 @@ impl Atmosphere {
             // Compute hourly temperature, using function daytmp.
             AirTemp[ihr] = self.daytmp(profile, ti);
             // Compute hourly dew point temperature, using function tdewhour.
-            DewPointTemp[ihr] = self.tdewhour(profile, ti, AirTemp[ihr]);
+            DewPointTemp[ihr] = self.tdewhour(profile, ti, AirTemp[ihr], Daynum);
             // Compute hourly relative humidity, using function dayrh.
             RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
             // Compute hourly wind speed, using function daywnd, and daily sum of wind.
@@ -252,7 +252,7 @@ impl Atmosphere {
     /// Global variables used:
     ///
     /// Daynum, pi, SitePar, SolarNoon, sunr, suns
-    unsafe fn daytmp(&self, profile: &Profile, ti: DateTime<FixedOffset>) -> f64 {
+    fn daytmp(&self, profile: &Profile, ti: DateTime<FixedOffset>) -> f64 {
         // The temperature increase at which the sensible heat flux is doubled, in comparison with the situation without buoyancy.
         const tkk: f64 = 15.;
         // time coefficient for the exponential part of the equation.
@@ -357,11 +357,11 @@ impl Atmosphere {
     /// Global variables used:
     ///
     /// Daynum, SolarNoon, sunr, suns, along with dew point coefficients from [Profile::site].
-    unsafe fn tdewhour(&self, profile: &Profile, ti: DateTime<FixedOffset>, tt: f64) -> f64 {
-        let im1 = Daynum - 1; // day of year yeaterday
-        let mut ip1 = Daynum + 1; // day of year tomorrow
+    fn tdewhour(&self, profile: &Profile, ti: DateTime<FixedOffset>, tt: f64, daynum: i32) -> f64 {
+        let im1 = daynum - 1; // day of year yeaterday
+        let mut ip1 = daynum + 1; // day of year tomorrow
         if ip1 > profile.last_day_weather_data.ordinal() as i32 {
-            ip1 = Daynum;
+            ip1 = daynum;
         }
         let tdewhr; // the dew point temperature (c) of this hour.
         let tdmin; // minimum of dew point temperature.
@@ -373,36 +373,36 @@ impl Atmosphere {
             let tdrange = dew_point_range(
                 coeffs,
                 GetFromClim(CLIMATE_METRIC_TMAX, im1),
-                GetFromClim(CLIMATE_METRIC_TMIN, Daynum),
+                GetFromClim(CLIMATE_METRIC_TMIN, daynum),
             );
             tdmin = GetFromClim(CLIMATE_METRIC_TDEW, im1) - tdrange / 2.;
             tdewhr = tdmin
-                + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
+                + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, daynum))
                     / (GetFromClim(CLIMATE_METRIC_TMAX, im1)
-                        - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
+                        - GetFromClim(CLIMATE_METRIC_TMIN, daynum));
         } else if ti <= hmax {
             // from sunrise to hmax
             let tdrange = dew_point_range(
                 coeffs,
-                GetFromClim(CLIMATE_METRIC_TMAX, Daynum),
-                GetFromClim(CLIMATE_METRIC_TMIN, Daynum),
+                GetFromClim(CLIMATE_METRIC_TMAX, daynum),
+                GetFromClim(CLIMATE_METRIC_TMIN, daynum),
             );
-            tdmin = GetFromClim(CLIMATE_METRIC_TDEW, Daynum) - tdrange / 2.;
+            tdmin = GetFromClim(CLIMATE_METRIC_TDEW, daynum) - tdrange / 2.;
             tdewhr = tdmin
-                + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, Daynum))
-                    / (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
-                        - GetFromClim(CLIMATE_METRIC_TMIN, Daynum));
+                + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, daynum))
+                    / (GetFromClim(CLIMATE_METRIC_TMAX, daynum)
+                        - GetFromClim(CLIMATE_METRIC_TMIN, daynum));
         } else {
             // from hmax to midnight
             let tdrange = dew_point_range(
                 coeffs,
-                GetFromClim(CLIMATE_METRIC_TMAX, Daynum),
+                GetFromClim(CLIMATE_METRIC_TMAX, daynum),
                 GetFromClim(CLIMATE_METRIC_TMIN, ip1),
             );
             tdmin = GetFromClim(CLIMATE_METRIC_TDEW, ip1) - tdrange / 2.;
             tdewhr = tdmin
                 + tdrange * (tt - GetFromClim(CLIMATE_METRIC_TMIN, ip1))
-                    / (GetFromClim(CLIMATE_METRIC_TMAX, Daynum)
+                    / (GetFromClim(CLIMATE_METRIC_TMAX, daynum)
                         - GetFromClim(CLIMATE_METRIC_TMIN, ip1));
         }
         return tdewhr;
@@ -607,6 +607,7 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
             profile.site.cloud_type_correction_factor,
             isr,
             cosz,
+            Radiation[ihr],
             atmosphere.solar_noon,
             atmosphere.daylength,
         );
@@ -765,17 +766,18 @@ fn cloudcov(radihr: f64, isr: f64, cosz: f64) -> f64 {
 /// The daily ck is converted to an hourly value for clear or partly cloudy sky (rasi >= 0.375) and when the sun is at least 10 degrees above the horizon.
 ///
 /// Evening, night and early morning cloud type correction is temporarily assigned 0. It is later assigned the values of first or last non-zero values (in the calling routine).
-unsafe fn clcor(
+fn clcor(
     ihr: usize,
     ck: f64,
     isrhr: f64,
     coszhr: f64,
+    radihr: f64,
     solar_noon: DateTime<FixedOffset>,
     daylength: Duration,
 ) -> f64 {
     let mut rasi = 0.; //  ratio of Radiation to isrhr.
     if isrhr > 0. {
-        rasi = Radiation[ihr] / isrhr;
+        rasi = radihr / isrhr;
     }
     if coszhr >= 0.1736 && rasi >= 0.375 {
         let angle = std::f64::consts::PI
