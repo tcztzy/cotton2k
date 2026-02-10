@@ -136,135 +136,108 @@ static mut CAPILLARY_NUMITER: i64 = 0;
 fn get_target_stress() -> f64 {
     const STRESS_TARGET: [f64; 10] = [0.70, 0.95, 0.99, 0.99, 0.99, 0.95, 0.90, 0.80, 0.60, 0.40];
 
-    let (kday, first_square, first_bloom, daynum, num_open_bolls, num_green_bolls) = unsafe {
-        (
-            Kday,
-            FirstSquare,
-            FirstBloom,
-            Daynum,
-            NumOpenBolls,
-            NumGreenBolls,
-        )
-    };
-
-    let mut stop_prediction = false;
-    let mut target_stress;
-    if kday > 0 && first_square <= 0 {
-        target_stress = STRESS_TARGET[0];
-    } else if first_bloom <= 0 {
-        target_stress = STRESS_TARGET[1];
-    } else if daynum <= first_bloom + 20 {
-        target_stress = STRESS_TARGET[2];
-    } else if daynum <= first_bloom + 40 {
-        target_stress = STRESS_TARGET[3];
-    } else if num_open_bolls <= 0.01 {
-        target_stress = STRESS_TARGET[4];
-    } else if num_open_bolls < 0.25 * num_green_bolls {
-        target_stress = STRESS_TARGET[5];
-    } else if num_open_bolls < 0.667 * num_green_bolls {
-        target_stress = STRESS_TARGET[6];
-    } else if num_open_bolls < 1.5 * num_green_bolls {
-        target_stress = STRESS_TARGET[7];
-    } else if num_open_bolls < 4.0 * num_green_bolls {
-        target_stress = STRESS_TARGET[8];
-    } else if num_open_bolls < 9.0 * num_green_bolls {
-        target_stress = STRESS_TARGET[9];
-    } else {
-        stop_prediction = true;
-        target_stress = -9999.0;
-    }
-
-    if target_stress <= 0.0 {
-        stop_prediction = true;
-        target_stress = -9999.0;
-    }
-
-    if stop_prediction {
-        unsafe {
-            DayStopPredIrrig = daynum;
+    unsafe {
+        let mut stop_prediction = false;
+        let mut target_stress;
+        if Kday > 0 && FirstSquare <= 0 {
+            target_stress = STRESS_TARGET[0];
+        } else if FirstBloom <= 0 {
+            target_stress = STRESS_TARGET[1];
+        } else if Daynum <= FirstBloom + 20 {
+            target_stress = STRESS_TARGET[2];
+        } else if Daynum <= FirstBloom + 40 {
+            target_stress = STRESS_TARGET[3];
+        } else if NumOpenBolls <= 0.01 {
+            target_stress = STRESS_TARGET[4];
+        } else if NumOpenBolls < 0.25 * NumGreenBolls {
+            target_stress = STRESS_TARGET[5];
+        } else if NumOpenBolls < 0.667 * NumGreenBolls {
+            target_stress = STRESS_TARGET[6];
+        } else if NumOpenBolls < 1.5 * NumGreenBolls {
+            target_stress = STRESS_TARGET[7];
+        } else if NumOpenBolls < 4.0 * NumGreenBolls {
+            target_stress = STRESS_TARGET[8];
+        } else if NumOpenBolls < 9.0 * NumGreenBolls {
+            target_stress = STRESS_TARGET[9];
+        } else {
+            stop_prediction = true;
+            target_stress = -9999.0;
         }
-    }
 
-    target_stress
+        if target_stress <= 0.0 {
+            stop_prediction = true;
+            target_stress = -9999.0;
+        }
+
+        if stop_prediction {
+            DayStopPredIrrig = Daynum;
+        }
+
+        target_stress
+    }
 }
-
 fn predict_drip_irrigation(target_stress: f64) {
-    let (
-        daynum,
-        day_start_pred_irrig,
-        num_irrigations,
-        water_stress,
-        max_irrigation,
-        min_days_between_irrig,
-        last_irrigation,
-        actual_transpiration,
-        actual_soil_evaporation,
-        mut irr1st,
-        mut required_water,
-    ) = unsafe {
-        (
-            Daynum,
-            DayStartPredIrrig,
-            NumIrrigations as usize,
-            WaterStress,
-            MaxIrrigation,
-            MinDaysBetweenIrrig,
-            LastIrrigation,
-            ActualTranspiration,
-            ActualSoilEvaporation,
-            IRR1ST,
-            REQUIRED_WATER,
-        )
-    };
-    let mut applied_water = None;
+    unsafe {
+        let daynum = Daynum;
+        let day_start_pred_irrig = DayStartPredIrrig;
+        let num_irrigations = NumIrrigations as usize;
+        let water_stress = WaterStress;
+        let max_irrigation = MaxIrrigation;
+        let min_days_between_irrig = MinDaysBetweenIrrig;
+        let last_irrigation = LastIrrigation;
+        let actual_transpiration = ActualTranspiration;
+        let actual_soil_evaporation = ActualSoilEvaporation;
+        let mut irr1st = IRR1ST;
+        let mut required_water = REQUIRED_WATER;
 
-    if daynum <= day_start_pred_irrig {
-        irr1st = false;
-    }
+        let mut applied_water = None;
 
-    if !irr1st {
-        let mut is_irrigated_today = false;
-        let irrig = Irrig.read().expect("Irrig lock poisoned");
-        for irrigation_index in 0..num_irrigations {
-            if irrig[irrigation_index].day == daynum
-                || GetFromClim(CLIMATE_METRIC_RAIN, daynum) > 1.0
-            {
-                is_irrigated_today = true;
-                break;
+        if daynum <= day_start_pred_irrig {
+            irr1st = false;
+        }
+
+        if !irr1st {
+            let mut is_irrigated_today = false;
+            let irrig = Irrig.read().expect("Irrig lock poisoned");
+            for irrigation_index in 0..num_irrigations {
+                if irrig[irrigation_index].day == daynum
+                    || GetFromClim(CLIMATE_METRIC_RAIN, daynum) > 1.0
+                {
+                    is_irrigated_today = true;
+                    break;
+                }
             }
-        }
 
-        if !is_irrigated_today && water_stress <= 0.99 {
-            applied_water = Some(fmin(30.0, max_irrigation));
-            irr1st = true;
-            required_water = 0.0;
-        }
-    } else {
-        required_water += actual_transpiration + actual_soil_evaporation
-            - GetFromClim(CLIMATE_METRIC_RAIN, daynum);
-        if required_water < 0.0 {
-            required_water = 0.0;
-        }
-
-        if (daynum - min_days_between_irrig) >= last_irrigation {
-            let mut irrigation_factor = if target_stress > water_stress {
-                1.20 * target_stress / water_stress
-            } else {
-                0.90 * target_stress / water_stress
-            };
-            irrigation_factor = irrigation_factor.clamp(0.80, 1.25);
-
-            if required_water * irrigation_factor > max_irrigation {
-                applied_water = Some(max_irrigation);
-                required_water -= max_irrigation;
-            } else {
-                applied_water = Some(required_water * irrigation_factor);
+            if !is_irrigated_today && water_stress <= 0.99 {
+                applied_water = Some(fmin(30.0, max_irrigation));
+                irr1st = true;
                 required_water = 0.0;
             }
-        }
-    }
+        } else {
+            required_water += actual_transpiration + actual_soil_evaporation
+                - GetFromClim(CLIMATE_METRIC_RAIN, daynum);
+            if required_water < 0.0 {
+                required_water = 0.0;
+            }
 
-    unsafe {
+            if (daynum - min_days_between_irrig) >= last_irrigation {
+                let mut irrigation_factor = if target_stress > water_stress {
+                    1.20 * target_stress / water_stress
+                } else {
+                    0.90 * target_stress / water_stress
+                };
+                irrigation_factor = irrigation_factor.clamp(0.80, 1.25);
+
+                if required_water * irrigation_factor > max_irrigation {
+                    applied_water = Some(max_irrigation);
+                    required_water -= max_irrigation;
+                } else {
+                    applied_water = Some(required_water * irrigation_factor);
+                    required_water = 0.0;
+                }
+            }
+        }
+
         IRR1ST = irr1st;
         REQUIRED_WATER = required_water;
         if let Some(amount) = applied_water {
@@ -272,27 +245,19 @@ fn predict_drip_irrigation(target_stress: f64) {
         }
     }
 }
-
 fn predict_surface_irrigation(target_stress: f64) {
-    let (
-        daynum,
-        day_start_pred_irrig,
-        min_days_between_irrig,
-        last_irrigation,
-        water_stress,
-        irrigation_depth,
-        max_irrigation,
-        row_space,
-        num_cols,
-        dl_layer,
-        wk_col,
-        max_water_capacity,
-        vol_water,
-        mut n_days_below_target_stress,
-        mut n_irr_layers,
-    ) = unsafe {
+    unsafe {
+        let daynum = Daynum;
+        let day_start_pred_irrig = DayStartPredIrrig;
+        let min_days_between_irrig = MinDaysBetweenIrrig;
+        let last_irrigation = LastIrrigation;
+        let water_stress = WaterStress;
+        let irrigation_depth = IrrigationDepth;
+        let max_irrigation = MaxIrrigation;
+        let row_space = RowSpace;
         let num_layers = nl as usize;
         let num_cols = nk as usize;
+
         let mut dl_layer = vec![0.0f64; num_layers];
         let mut max_water_capacity = vec![0.0f64; num_layers];
         let mut wk_col = vec![0.0f64; num_cols];
@@ -309,62 +274,45 @@ fn predict_surface_irrigation(target_stress: f64) {
             wk_col[column] = wk[column];
         }
 
-        (
-            Daynum,
-            DayStartPredIrrig,
-            MinDaysBetweenIrrig,
-            LastIrrigation,
-            WaterStress,
-            IrrigationDepth,
-            MaxIrrigation,
-            RowSpace,
-            num_cols,
-            dl_layer,
-            wk_col,
-            max_water_capacity,
-            vol_water,
-            N_DAYS_BELOW_TARGET_STRESS,
-            N_IRR_LAYERS,
-        )
-    };
-    let mut applied_water = None;
+        let mut n_days_below_target_stress = N_DAYS_BELOW_TARGET_STRESS;
+        let mut n_irr_layers = N_IRR_LAYERS;
+        let mut applied_water = None;
 
-    if daynum <= day_start_pred_irrig {
-        n_days_below_target_stress = 0;
-        let mut accumulated_depth = 0.0;
-        for (layer, depth) in dl_layer.iter().enumerate() {
-            accumulated_depth += depth;
-            if accumulated_depth > irrigation_depth {
-                n_irr_layers = layer as i32;
-                break;
-            }
-        }
-    }
-
-    if (daynum - min_days_between_irrig) >= (last_irrigation - 2)
-        && daynum > day_start_pred_irrig
-        && water_stress < target_stress
-    {
-        n_days_below_target_stress += 1;
-        if n_days_below_target_stress >= 3 {
-            let mut required_water = 0.0;
-            for layer in 0..n_irr_layers.max(0) as usize {
-                for column in 0..num_cols {
-                    let deficit = max_water_capacity[layer] - vol_water[[layer, column]];
-                    required_water += dl_layer[layer] * wk_col[column] * deficit;
+        if daynum <= day_start_pred_irrig {
+            n_days_below_target_stress = 0;
+            let mut accumulated_depth = 0.0;
+            for (layer, depth) in dl_layer.iter().enumerate() {
+                accumulated_depth += depth;
+                if accumulated_depth > irrigation_depth {
+                    n_irr_layers = layer as i32;
+                    break;
                 }
             }
-
-            let mut amount = required_water * 10.0 / row_space;
-            if amount > max_irrigation {
-                amount = max_irrigation;
-            }
-            applied_water = Some(amount);
-            n_days_below_target_stress = 0;
         }
-    }
 
-    unsafe {
+        if (daynum - min_days_between_irrig) >= (last_irrigation - 2)
+            && daynum > day_start_pred_irrig
+            && water_stress < target_stress
+        {
+            n_days_below_target_stress += 1;
+            if n_days_below_target_stress >= 3 {
+                let mut required_water = 0.0;
+                for layer in 0..n_irr_layers.max(0) as usize {
+                    for column in 0..num_cols {
+                        let deficit = max_water_capacity[layer] - vol_water[[layer, column]];
+                        required_water += dl_layer[layer] * wk_col[column] * deficit;
+                    }
+                }
+
+                let mut amount = required_water * 10.0 / row_space;
+                if amount > max_irrigation {
+                    amount = max_irrigation;
+                }
+                applied_water = Some(amount);
+                n_days_below_target_stress = 0;
+            }
+        }
+
         N_DAYS_BELOW_TARGET_STRESS = n_days_below_target_stress;
         N_IRR_LAYERS = n_irr_layers;
         if let Some(amount) = applied_water {
@@ -372,7 +320,6 @@ fn predict_surface_irrigation(target_stress: f64) {
         }
     }
 }
-
 pub fn average_psi() -> f64 {
     const VRCUMIN: f64 = 0.1e-9;
     const VRCUMAX: f64 = 0.025;
@@ -564,7 +511,7 @@ fn nitrogen_uptake(
 }
 
 pub fn soil_sum() {
-    let (num_layers, num_cols, row_space, dl_layer, wk_col, vol_no3, vol_nh4, vol_urea, vol_water) = unsafe {
+    unsafe {
         let num_layers = nl as usize;
         let num_cols = nk as usize;
         let row_space = RowSpace;
@@ -591,21 +538,14 @@ pub fn soil_sum() {
             }
         }
 
-        (
-            num_layers, num_cols, row_space, dl_layer, wk_col, vol_no3, vol_nh4, vol_urea,
-            vol_water,
-        )
-    };
+        let cell_area = Array2::from_shape_fn((num_layers, num_cols), |(layer, column)| {
+            dl_layer[layer] * wk_col[column]
+        });
+        let total_soil_no3 = (&vol_no3 * &cell_area).sum();
+        let total_soil_nh4 = (&vol_nh4 * &cell_area).sum();
+        let total_soil_urea = (&vol_urea * &cell_area).sum();
+        let total_soil_water = (&vol_water * &cell_area).sum();
 
-    let cell_area = Array2::from_shape_fn((num_layers, num_cols), |(layer, column)| {
-        dl_layer[layer] * wk_col[column]
-    });
-    let total_soil_no3 = (&vol_no3 * &cell_area).sum();
-    let total_soil_nh4 = (&vol_nh4 * &cell_area).sum();
-    let total_soil_urea = (&vol_urea * &cell_area).sum();
-    let total_soil_water = (&vol_water * &cell_area).sum();
-
-    unsafe {
         TotalSoilNo3N = total_soil_no3;
         TotalSoilNh4N = total_soil_nh4;
         TotalSoilUreaN = total_soil_urea;
@@ -613,7 +553,6 @@ pub fn soil_sum() {
         TotalSoilWater = total_soil_water * 10.0 / row_space;
     }
 }
-
 fn water_balance(q1: &mut [f64; 40], qx: &[f64; 40], dd: &[f64; 40], nn: usize) {
     let mut dev = 0.0;
     let mut dabs = 0.0;

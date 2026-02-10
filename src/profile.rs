@@ -780,7 +780,8 @@ impl Profile {
         }
         let mut rdr = csv::Reader::from_path(&self.weather_path)?;
         let mut jdd: u32 = 0;
-        let (day_start, sim_year) = unsafe { (DayStart, iyear) };
+        let day_start = self.start_date.ordinal() as i32;
+        let sim_year = self.start_date.year();
         {
             let mut clim = Clim.write().expect("Clim lock poisoned");
             for result in rdr.deserialize() {
@@ -881,10 +882,9 @@ impl Profile {
                     "light_intercept_parameters must be provided when using the Latered light intercept method"
                 );
             }
-        }
-        let impedance_tables = self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
-        self.root_impedance_tables = Some(impedance_tables);
-        unsafe {
+            let impedance_tables =
+                self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
+            self.root_impedance_tables = Some(impedance_tables);
             InitSoil(&self.soil_layers, &self.soil_hydraulic);
             InitializeRootData();
             //     initialize some variables at the start of simulation.
