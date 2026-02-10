@@ -37,17 +37,18 @@ impl SoilHydrology {
         // Other soils (loams) assumed moderate runoff potential.
         // No 'impermeable' (group D) soils are assumed.
         // References: Schwab, Brady.
-        let runoff_potential =
-            if unsafe { SandVolumeFraction[0] > 0.70 && ClayVolumeFraction[0] < 0.15 } {
-                // Soil group A = 1, low runoff potential
-                RunoffPotential::Low
-            } else if unsafe { ClayVolumeFraction[0] > 0.35 } {
-                // Soil group C = 3, high runoff potential
-                RunoffPotential::High
-            } else {
-                // Soil group B = 2, moderate runoff potential
-                RunoffPotential::Moderate
-            };
+        let (surface_sand_fraction, surface_clay_fraction) =
+            unsafe { (SandVolumeFraction[0], ClayVolumeFraction[0]) };
+        let runoff_potential = if surface_sand_fraction > 0.70 && surface_clay_fraction < 0.15 {
+            // Soil group A = 1, low runoff potential
+            RunoffPotential::Low
+        } else if surface_clay_fraction > 0.35 {
+            // Soil group C = 3, high runoff potential
+            RunoffPotential::High
+        } else {
+            // Soil group B = 2, moderate runoff potential
+            RunoffPotential::Moderate
+        };
         SoilHydrology {
             runoff_potential,
             runoff: 0.,
@@ -78,16 +79,16 @@ impl SoilHydrology {
             RunoffPotential::High => 1.14,
         };
         // Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability to accept new rainfall. This also includes all irrigations.
-        let mut i01 = unsafe { Daynum - 5 };
-        if i01 < unsafe { DayStart } {
-            i01 = unsafe { DayStart };
+        let (mut i01, day_start, i02, num_irrigations) =
+            unsafe { (Daynum - 5, DayStart, Daynum, NumIrrigations as usize) };
+        if i01 < day_start {
+            i01 = day_start;
         }
-        let i02 = unsafe { Daynum };
         let mut previous_wetting = 0.; // five day total (before this day) of rain and irrigation, mm
         let irrig = Irrig.read().expect("Irrig lock poisoned");
         for Dayn in i01..i02 {
             let mut amtirr = 0.; // mm water applied on this day by irrigation
-            for i in 0..unsafe { NumIrrigations } as usize {
+            for i in 0..num_irrigations {
                 if Dayn == irrig[i].day {
                     amtirr = irrig[i].amount;
                 }

@@ -780,12 +780,13 @@ impl Profile {
         }
         let mut rdr = csv::Reader::from_path(&self.weather_path)?;
         let mut jdd: u32 = 0;
+        let (day_start, sim_year) = unsafe { (DayStart, iyear) };
         {
             let mut clim = Clim.write().expect("Clim lock poisoned");
             for result in rdr.deserialize() {
                 let record: WeatherRecord = result?;
                 jdd = record.date.ordinal();
-                let j = jdd as i32 - unsafe { DayStart };
+                let j = jdd as i32 - day_start;
                 if j < 0 {
                     continue;
                 }
@@ -808,7 +809,7 @@ impl Profile {
                 clim[j as usize].Rain = record.rain;
             }
         }
-        self.last_day_weather_data = NaiveDate::from_yo_opt(unsafe { iyear }, jdd).unwrap();
+        self.last_day_weather_data = NaiveDate::from_yo_opt(sim_year, jdd).unwrap();
         let mut idef: usize = 0;
         unsafe {
             NumIrrigations = 0;
@@ -1006,36 +1007,86 @@ impl Profile {
             .write(true)
             .append(true)
             .open(self.path.parent().unwrap().join("output.csv"))?;
-        const MAXK: usize = 20;
-        const LEAF_AREA_INDEXES_LEN: usize = 20;
-        let light_intercept = unsafe { LightIntercept };
-        let lint_yield = unsafe { LintYield };
-        let leaf_area_index = unsafe { LeafAreaIndex };
-        let plant_height = unsafe { PlantHeight };
-        let total_petiole_weight = unsafe { TotalPetioleWeight };
-        let total_stem_weight = unsafe { TotalStemWeight };
-        let num_squares = unsafe { NumSquares };
-        let num_green_bolls = unsafe { NumGreenBolls };
-        let num_open_bolls = unsafe { NumOpenBolls };
-        let total_square_weight = unsafe { TotalSquareWeight };
-        let total_root_weight = unsafe { TotalRootWeight };
-        let num_fruit_branches = unsafe { *std::ptr::addr_of_mut!(NumFruitBranches).cast::<i32>() };
-        let total_leaf_weight = TotalLeafWeight();
-        let vol_ptr = std::ptr::addr_of_mut!(VolWaterContent).cast::<f64>();
-        let vol_water = |l: usize, k: usize| unsafe { *vol_ptr.add(l * MAXK + k) };
-        let leaf_area_ptr = std::ptr::addr_of_mut!(LeafAreaIndexes).cast::<f64>();
-        let mut record = vec![
-            chrono::NaiveDate::from_yo_opt(unsafe { iyear }, unsafe { Daynum } as u32)
+
+        let (
+            date_string,
+            light_intercept,
+            lint_yield,
+            leaf_area_index,
+            seed_cotton_weight,
+            plant_height,
+            num_fruit_branches,
+            total_leaf_weight,
+            total_petiole_weight,
+            total_stem_weight,
+            num_squares,
+            num_green_bolls,
+            num_open_bolls,
+            total_square_weight,
+            boll_and_burr_weight,
+            total_root_weight,
+            above_ground_biomass,
+            water_samples,
+            leaf_area_indexes,
+        ) = unsafe {
+            let date_string = chrono::NaiveDate::from_yo_opt(iyear, Daynum as u32)
                 .unwrap()
                 .format("%F")
-                .to_string(),
+                .to_string();
+            let seed_cotton_weight =
+                (CottonWeightOpenBolls + CottonWeightGreenBolls) * PlantPopulation / 1000.;
+            let boll_and_burr_weight = CottonWeightOpenBolls
+                + CottonWeightGreenBolls
+                + BurrWeightGreenBolls
+                + BurrWeightOpenBolls;
+            let above_ground_biomass = if Daynum >= DayEmerge && isw > 0 {
+                (PlantWeight - TotalRootWeight) * PlantPopulation / 1000.
+            } else {
+                0.
+            };
+            let water_samples = [
+                VolWaterContent[3][0],
+                VolWaterContent[5][0],
+                VolWaterContent[7][0],
+                VolWaterContent[3][4],
+                VolWaterContent[5][4],
+                VolWaterContent[7][4],
+                VolWaterContent[3][8],
+                VolWaterContent[5][8],
+                VolWaterContent[7][8],
+                VolWaterContent[3][12],
+                VolWaterContent[5][12],
+                VolWaterContent[7][12],
+            ];
+            (
+                date_string,
+                LightIntercept,
+                LintYield,
+                LeafAreaIndex,
+                seed_cotton_weight,
+                PlantHeight,
+                NumFruitBranches[0],
+                TotalLeafWeight(),
+                TotalPetioleWeight,
+                TotalStemWeight,
+                NumSquares,
+                NumGreenBolls,
+                NumOpenBolls,
+                TotalSquareWeight,
+                boll_and_burr_weight,
+                TotalRootWeight,
+                above_ground_biomass,
+                water_samples,
+                LeafAreaIndexes,
+            )
+        };
+
+        let mut record = vec![
+            date_string,
             light_intercept.to_string(),
             lint_yield.to_string(),
             leaf_area_index.to_string(),
-            unsafe {
-                ((CottonWeightOpenBolls + CottonWeightGreenBolls) * PlantPopulation / 1000.)
-                    .to_string()
-            },
+            seed_cotton_weight.to_string(),
             plant_height.to_string(),
             num_fruit_branches.to_string(),
             total_leaf_weight.to_string(),
@@ -1045,40 +1096,17 @@ impl Profile {
             num_green_bolls.to_string(),
             num_open_bolls.to_string(),
             total_square_weight.to_string(),
-            unsafe {
-                (CottonWeightOpenBolls
-                    + CottonWeightGreenBolls
-                    + BurrWeightGreenBolls
-                    + BurrWeightOpenBolls)
-                    .to_string()
-            },
+            boll_and_burr_weight.to_string(),
             total_root_weight.to_string(),
-            unsafe {
-                (if Daynum >= DayEmerge && isw > 0 {
-                    PlantWeight - TotalRootWeight
-                } else {
-                    0.
-                } * PlantPopulation
-                    / 1000.)
-                    .to_string()
-            },
-            vol_water(3, 0).to_string(),
-            vol_water(5, 0).to_string(),
-            vol_water(7, 0).to_string(),
-            vol_water(3, 4).to_string(),
-            vol_water(5, 4).to_string(),
-            vol_water(7, 4).to_string(),
-            vol_water(3, 8).to_string(),
-            vol_water(5, 8).to_string(),
-            vol_water(7, 8).to_string(),
-            vol_water(3, 12).to_string(),
-            vol_water(5, 12).to_string(),
-            vol_water(7, 12).to_string(),
+            above_ground_biomass.to_string(),
         ];
-        for idx in 0..LEAF_AREA_INDEXES_LEN {
-            let value = unsafe { *leaf_area_ptr.add(idx) };
+        for value in water_samples {
             record.push(value.to_string());
         }
+        for value in leaf_area_indexes {
+            record.push(value.to_string());
+        }
+
         writeln!(f, "{}", record.join(","))?;
         Ok(())
     }

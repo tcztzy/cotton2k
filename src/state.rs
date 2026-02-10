@@ -183,54 +183,52 @@ impl State {
             // Light interception is computed by two methods:
             //
             // 1. It is assumed to be proportional to the ratio of plant height to row spacing.
-        }
-        // light interception computed from plant height.
-        let zint = unsafe { 1.0756 * PlantHeight / RowSpace };
-        match profile.light_intercept_method {
-            LightInterceptMethod::Latered => unsafe {
-                let params = profile
-                    .light_intercept_parameters
-                    .as_ref()
-                    .expect("light intercept parameters must be provided for Latered method");
-                for i in 0..20 {
-                    LeafArea[i] = 0.;
-                    AverageLeafAge[i] = 0.;
-                }
-                for i in 0..9 {
-                    LeafArea[NodeLayerPreFru[i] as usize] += LeafAreaPreFru[i];
-                    AverageLeafAge[NodeLayerPreFru[i] as usize] +=
-                        LeafAreaPreFru[i] * AgeOfPreFruNode[i];
-                }
-                for k in 0..NumVegBranches as usize {
-                    for l in 0..NumFruitBranches[k] as usize {
-                        LeafArea[NodeLayer[k][l] as usize] += LeafAreaMainStem[k][l];
-                        AverageLeafAge[NodeLayer[k][l] as usize] +=
-                            LeafAreaMainStem[k][l] * LeafAge[k][l][0];
-                        for m in 0..NumNodes[k][l] as usize {
-                            LeafArea[NodeLayer[k][l] as usize] += LeafAreaNodes[k][l][m];
+            // light interception computed from plant height.
+            let zint = 1.0756 * PlantHeight / RowSpace;
+            match profile.light_intercept_method {
+                LightInterceptMethod::Latered => {
+                    let params = profile
+                        .light_intercept_parameters
+                        .as_ref()
+                        .expect("light intercept parameters must be provided for Latered method");
+                    for i in 0..20 {
+                        LeafArea[i] = 0.;
+                        AverageLeafAge[i] = 0.;
+                    }
+                    for i in 0..9 {
+                        LeafArea[NodeLayerPreFru[i] as usize] += LeafAreaPreFru[i];
+                        AverageLeafAge[NodeLayerPreFru[i] as usize] +=
+                            LeafAreaPreFru[i] * AgeOfPreFruNode[i];
+                    }
+                    for k in 0..NumVegBranches as usize {
+                        for l in 0..NumFruitBranches[k] as usize {
+                            LeafArea[NodeLayer[k][l] as usize] += LeafAreaMainStem[k][l];
                             AverageLeafAge[NodeLayer[k][l] as usize] +=
-                                LeafAreaNodes[k][l][m] * LeafAge[k][l][m];
+                                LeafAreaMainStem[k][l] * LeafAge[k][l][0];
+                            for m in 0..NumNodes[k][l] as usize {
+                                LeafArea[NodeLayer[k][l] as usize] += LeafAreaNodes[k][l][m];
+                                AverageLeafAge[NodeLayer[k][l] as usize] +=
+                                    LeafAreaNodes[k][l][m] * LeafAge[k][l][m];
+                            }
                         }
                     }
+                    if FirstSquare <= 0 {
+                        LeafArea[0] += 0.20 * 0.6;
+                    }
+                    let mut light_through = 0.;
+                    for i in 0..20 {
+                        AverageLeafAge[i] /= LeafArea[i];
+                        LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
+                        let param = params[i];
+                        LightInterceptLayer[i] = 1. - (param * LeafAreaIndexes[i]).exp();
+                        light_through += param * LeafAreaIndexes[i];
+                    }
+                    LightIntercept = 1. - light_through.exp();
                 }
-                if FirstSquare <= 0 {
-                    LeafArea[0] += 0.20 * 0.6;
+                LightInterceptMethod::Fry1980 => {
+                    LightIntercept = 0.39 * LeafAreaIndex.powf(0.68);
                 }
-                let mut light_through = 0.;
-                for i in 0..20 {
-                    AverageLeafAge[i] /= LeafArea[i];
-                    LeafAreaIndexes[i] = LeafArea[i] / PerPlantArea;
-                    let param = params[i];
-                    LightInterceptLayer[i] = 1. - (param * LeafAreaIndexes[i]).exp();
-                    light_through += param * LeafAreaIndexes[i];
-                }
-                LightIntercept = 1. - light_through.exp();
-            },
-            LightInterceptMethod::Fry1980 => unsafe {
-                LightIntercept = 0.39 * LeafAreaIndex.powf(0.68);
-            },
-            LightInterceptMethod::Original => {
-                unsafe {
+                LightInterceptMethod::Original => {
                     // 2. It is computed as a function of leaf area index. If LeafAreaIndex is not greater than 0.5 lfint is a linear function of it.
 
                     // light interception computed from leaf area index.
@@ -251,8 +249,6 @@ impl State {
                     };
                 }
             }
-        }
-        unsafe {
             // The value of LightIntercept is between zero and one.
             if LightIntercept < 0. {
                 LightIntercept = 0.;
@@ -260,14 +256,12 @@ impl State {
             if LightIntercept > 1. {
                 LightIntercept = 1.;
             }
-        }
-        // Loop of soil columns.
-        let mut sw = 0.; // sum of column widths
-        let mut sw0: f64 = 0.; // sum of column widths up to location of plant row.
-        let mut sw1: f64; // distance from middle of a column to the plant row, cm.
-        let mut j;
-        let mut k0; // number of columns from plant row location.
-        unsafe {
+            // Loop of soil columns.
+            let mut sw = 0.; // sum of column widths
+            let mut sw0: f64 = 0.; // sum of column widths up to location of plant row.
+            let mut sw1: f64; // distance from middle of a column to the plant row, cm.
+            let mut j;
+            let mut k0; // number of columns from plant row location.
             for k in 0..nk as usize {
                 if k <= PlantRowColumn as usize {
                     // When the column is on the left of the plant row.
@@ -363,27 +357,26 @@ impl State {
         let mut rainToday = GetFromClim(CLIMATE_METRIC_RAIN, self.date.ordinal() as i32);
         unsafe {
             bPollinSwitch = rainToday < 2.5;
-        }
-        // Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
-        // Note: this is modified from the original GOSSYM - RRUNOFF routine.
-        // It is called here for rainfall only, but it is not activated when irrigation is applied.
-        let mut runoffToday = 0.; // amount of runoff today, mm
-        if rainToday >= 2. {
-            runoffToday = self.soil.hydrology.runoff(rainToday);
-            if runoffToday < rainToday {
-                rainToday -= runoffToday;
-            } else {
-                rainToday = 0.;
+
+            // Call SimulateRunoff() only if the daily rainfall is more than 2 mm.
+            // Note: this is modified from the original GOSSYM - RRUNOFF routine.
+            // It is called here for rainfall only, but it is not activated when irrigation is applied.
+            let mut runoffToday = 0.; // amount of runoff today, mm
+            if rainToday >= 2. {
+                runoffToday = self.soil.hydrology.runoff(rainToday);
+                if runoffToday < rainToday {
+                    rainToday -= runoffToday;
+                } else {
+                    rainToday = 0.;
+                }
+                let j = Daynum - DayStart; // days from start of simulation
+                let mut clim = Clim.write().expect("Clim lock poisoned");
+                clim[j as usize].Rain = rainToday;
             }
-            let j = unsafe { Daynum - DayStart }; // days from start of simulation
-            let mut clim = Clim.write().expect("Clim lock poisoned");
-            clim[j as usize].Rain = rainToday;
-        }
-        self.soil.hydrology.runoff = runoffToday;
-        let daynum = unsafe { Daynum };
-        let mut water_to_apply = GetFromClim(CLIMATE_METRIC_RAIN, daynum);
-        // If irrigation is to be predicted for this day, call ComputeIrrigation() to compute the actual amount of irrigation.
-        unsafe {
+            self.soil.hydrology.runoff = runoffToday;
+            let mut water_to_apply = GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
+
+            // If irrigation is to be predicted for this day, call ComputeIrrigation() to compute the actual amount of irrigation.
             if MaxIrrigation > 0. {
                 if Daynum >= DayStartPredIrrig && Daynum < DayStopPredIrrig {
                     ComputeIrrigation();
@@ -395,9 +388,8 @@ impl State {
                     AppliedWater = 0.;
                 }
             }
-        }
-        // When water is added by an irrigation defined in the input: update the amount of applied water.
-        unsafe {
+
+            // When water is added by an irrigation defined in the input: update the amount of applied water.
             let irrig = Irrig.read().expect("Irrig lock poisoned");
             for i in 0..NumIrrigations as usize {
                 if Daynum == irrig[i].day {
@@ -411,11 +403,8 @@ impl State {
                     break;
                 }
             }
-        }
-        unsafe {
             CumWaterAdded += water_to_apply + drip_water_amount;
-        }
-        unsafe {
+
             // The following will be executed only after plant emergence
             if Daynum >= DayEmerge && isw > 0 {
                 RootsCapableOfUptake(); // function computes roots capable of uptake for each soil cell
@@ -426,23 +415,21 @@ impl State {
                 CumTranspiration += ActualTranspiration;
                 CumNitrogenUptake += (SupplyNO3N + SupplyNH4N) * 10. * RowSpace / PerPlantArea;
             }
-        }
-        // Call function WaterTable() for saturating soil below water table.
-        if profile.num_watertable_data > 0 {
-            self.watertable(profile)?;
-        }
-        if water_to_apply > 0. {
-            // For rain or surface irrigation.
-            // The number of iterations is computed from the thickness of the first soil layer.
-            unsafe {
-                noitr = (cparelse * water_to_apply / (dl[0] + 2.) + 1.) as i32;
+
+            // Call function WaterTable() for saturating soil below water table.
+            if profile.num_watertable_data > 0 {
+                self.watertable(profile)?;
             }
-            // the amount of water applied, mm per iteration.
-            let applywat = water_to_apply / unsafe { noitr } as f64;
-            // The following redistribution steps are called noitr times per day:
-            // surface/flood gravity flow update, followed by CapillaryFlow().
-            for _ in 0..unsafe { noitr } as usize {
-                unsafe {
+
+            if water_to_apply > 0. {
+                // For rain or surface irrigation.
+                // The number of iterations is computed from the thickness of the first soil layer.
+                noitr = (cparelse * water_to_apply / (dl[0] + 2.) + 1.) as i32;
+                // the amount of water applied, mm per iteration.
+                let applywat = water_to_apply / noitr as f64;
+                // The following redistribution steps are called noitr times per day:
+                // surface/flood gravity flow update, followed by CapillaryFlow().
+                for _ in 0..noitr as usize {
                     for k in 0..nk as usize {
                         VolWaterContent[0][k] += 0.10 * applywat / dl[0];
                     }
@@ -453,33 +440,29 @@ impl State {
                     capillary_flow();
                 }
             }
-        }
-        if drip_water_amount > 0. {
-            // For drip irrigation.
-            // The number of iterations is computed from the volume of the soil cell in which the water is applied.
-            unsafe {
+
+            if drip_water_amount > 0. {
+                // For drip irrigation.
+                // The number of iterations is computed from the volume of the soil cell in which the water is applied.
                 noitr = (cpardrip * drip_water_amount
                     / (dl[LocationLayerDrip as usize] * wk[LocationColumnDrip as usize])
                     + 1.) as i32;
-            }
-            // the amount of water applied, mm per iteration.
-            let applywat = drip_water_amount / unsafe { noitr } as f64;
-            // If water is applied, DripFlow() is called followed by CapillaryFlow().
-            for _ in 0..unsafe { noitr } as usize {
-                unsafe {
+                // the amount of water applied, mm per iteration.
+                let applywat = drip_water_amount / noitr as f64;
+                // If water is applied, DripFlow() is called followed by CapillaryFlow().
+                for _ in 0..noitr as usize {
                     DripFlow(applywat)?;
                     capillary_flow();
                 }
             }
-        }
-        // When no water is added, there is only one iteration in this day.
-        if water_to_apply + drip_water_amount <= 0. {
-            unsafe {
+
+            // When no water is added, there is only one iteration in this day.
+            if water_to_apply + drip_water_amount <= 0. {
                 noitr = 1;
                 capillary_flow();
             }
+            Ok(())
         }
-        Ok(())
     }
 
     /// This function simulates the application of nitrogen fertilizer on each date of application.
@@ -897,19 +880,18 @@ impl State {
         }
         // Find the depth of water table for this day.
         let mut lwtable = 201f64; // level of water table on this day, cm
-        for ao in &profile.agronomy_operations {
-            match ao {
-                AgronomyOperation::watertable(watertable) => unsafe {
-                    if Daynum as u32 >= watertable.date.ordinal() {
+        unsafe {
+            let current_day = Daynum as u32;
+            for ao in &profile.agronomy_operations {
+                if let AgronomyOperation::watertable(watertable) = ao {
+                    if current_day >= watertable.date.ordinal() {
                         lwtable = watertable.level;
                         ElCondSatSoilToday = watertable.ecs;
                     }
-                },
-                _ => {}
+                }
             }
-        }
-        // Find the number of the uppermost layer of water table
-        unsafe {
+
+            // Find the number of the uppermost layer of water table.
             WaterTableLayer = 1000;
             let mut sumdl = 0f64; // sum of depth of consecutive soil layers
             for l in 0..nl as usize {
@@ -919,10 +901,9 @@ impl State {
                     break;
                 }
             }
-        }
-        // The total water entering the soil slab (addwtbl) is computed. It is used to check the water balance in the soil.
 
-        unsafe {
+            // The total water entering the soil slab (addwtbl) is computed.
+            // It is used to check the water balance in the soil.
             for l in 0..nl as usize {
                 if l as i32 >= WaterTableLayer {
                     for k in 0..nk as usize {

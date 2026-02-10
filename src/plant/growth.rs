@@ -42,13 +42,13 @@ static mut IDSW: i32 = 0;
 
 pub trait PlantGrowth {
     /// Simulate whole-plant growth for a day.
-    unsafe fn grow(
+    fn grow(
         &mut self,
         atmosphere: Atmosphere,
         agronomy_ops: &[AgronomyOperation],
         root_tables: &RootImpedanceTables,
     );
-    unsafe fn plant_height_increment(&mut self, x: f64) -> f64;
+    fn plant_height_increment(&mut self, x: f64) -> f64;
 }
 
 impl PlantGrowth for Plant {
@@ -65,89 +65,91 @@ impl PlantGrowth for Plant {
     /// The following global variables are set here:
     /// LeafAreaIndex, PlantHeight, PotGroAllRoots, PotGroStem, StemWeight,
     /// TotalLeafArea, TotalLeafWeight, TotalPetioleWeight, TotalStemWeight.
-    unsafe fn grow(
+    fn grow(
         &mut self,
         atmosphere: Atmosphere,
         agronomy_ops: &[AgronomyOperation],
         root_tables: &RootImpedanceTables,
     ) {
-        //     Call potential_leaf_growth() to compute potential growth rate of
-        //     leaves.
-        potential_leaf_growth();
-        //     If it is after first square, call PotentialFruitGrowth() to compute
-        //     potential
-        //  growth rate of squares and bolls.
-        if FruitingCode[0][0][0] > 0 {
-            PotentialFruitGrowth(atmosphere.daylength);
-        }
-        //     Active stem tissue (stemnew) is the difference between
-        //     TotalStemWeight
-        //  and the value of StemWeight(kkday).
-        let voldstm = 32i32; // constant parameter (days for stem tissue to become "old")
-        let mut kkday = Kday - voldstm; // age of young stem tissue
-        if kkday < 1 {
-            kkday = 1;
-        }
-        let stemnew = TotalStemWeight - StemWeight[kkday as usize]; // dry weight of active stem tissue.
+        unsafe {
+            //     Call potential_leaf_growth() to compute potential growth rate of
+            //     leaves.
+            potential_leaf_growth();
+            //     If it is after first square, call PotentialFruitGrowth() to compute
+            //     potential
+            //  growth rate of squares and bolls.
+            if FruitingCode[0][0][0] > 0 {
+                PotentialFruitGrowth(atmosphere.daylength);
+            }
+            //     Active stem tissue (stemnew) is the difference between
+            //     TotalStemWeight
+            //  and the value of StemWeight(kkday).
+            let voldstm = 32i32; // constant parameter (days for stem tissue to become "old")
+            let mut kkday = Kday - voldstm; // age of young stem tissue
+            if kkday < 1 {
+                kkday = 1;
+            }
+            let stemnew = TotalStemWeight - StemWeight[kkday as usize]; // dry weight of active stem tissue.
 
-        //     Call PotentialStemGrowth() to compute PotGroStem, potential growth
-        //     rate of stems.
-        //  The effect of temperature is introduced, by multiplying potential growth
-        //  rate by DayInc. Stem growth is also affected by water stress
-        //  (WaterStressStem) and possible PIX application (pixdz).   PotGroStem is
-        //  limited by (maxstmgr * PerPlantArea) g per plant per day.
-        PotGroStem = PotentialStemGrowth(stemnew) * DayInc * WaterStressStem * pixdz;
-        let maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
-        if PotGroStem > maxstmgr * PerPlantArea {
-            PotGroStem = maxstmgr * PerPlantArea;
+            //     Call PotentialStemGrowth() to compute PotGroStem, potential growth
+            //     rate of stems.
+            //  The effect of temperature is introduced, by multiplying potential growth
+            //  rate by DayInc. Stem growth is also affected by water stress
+            //  (WaterStressStem) and possible PIX application (pixdz).   PotGroStem is
+            //  limited by (maxstmgr * PerPlantArea) g per plant per day.
+            PotGroStem = PotentialStemGrowth(stemnew) * DayInc * WaterStressStem * pixdz;
+            let maxstmgr = 0.067; // maximum posible potential stem growth, g dm-2 day-1.
+            if PotGroStem > maxstmgr * PerPlantArea {
+                PotGroStem = maxstmgr * PerPlantArea;
+            }
+            // Call PotentialRootGrowth() to compute potential growth rate of roots.
+            // total potential growth rate of roots in g per slab. this
+            // is computed in PotentialRootGrowth() and used in
+            // ActualRootGrowth().
+            let sumpdr = PotentialRootGrowth(root_tables);
+            // Total potential growth rate of roots is converted from g per slab (sumpdr) to g per plant (PotGroAllRoots).
+            PotGroAllRoots = sumpdr * 100. * PerPlantArea / RowSpace;
+            // Limit PotGroAllRoots to (maxrtgr*PerPlantArea) g per plant per day.
+            let maxrtgr = 0.045; // maximum possible potential root growth, g dm-2 day-1.
+            if PotGroAllRoots > maxrtgr * PerPlantArea {
+                PotGroAllRoots = maxrtgr * PerPlantArea;
+            }
+            // Call dry_matter_balance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress. dry_matter_balance() also computes and returns the values of the following arguments:
+            // cdleaf is carbohydrate requirement for leaf growth, g per plant per day. cdpet is carbohydrate requirement for petiole growth, g per plant per day. cdroot is carbohydrate requirement for root growth, g per plant per day. cdstem is carbohydrate requirement for stem growth, g per plant per day.
+            let mut cdstem = 0.;
+            let mut cdleaf = 0.;
+            let mut cdpet = 0.;
+            let mut cdroot = 0.;
+            dry_matter_balance(&mut cdstem, &mut cdleaf, &mut cdpet, &mut cdroot);
+            // If it is after first square, call actual_fruit_growth() to compute actual growth rate of squares and bolls.
+            if FruitingCode[0][0][0] > 0 {
+                actual_fruit_growth();
+            }
+            // Initialize TotalLeafWeight. It is assumed that cotyledons fall off at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
+            TotalPetioleWeight = 0.;
+            // Call actual_leaf_growth to compute actual growth rate of leaves and compute leaf area index.
+            actual_leaf_growth();
+            LeafAreaIndex = TotalLeafArea() / PerPlantArea;
+            // Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
+            TotalStemWeight += ActualStemGrowth;
+            StemWeight[Kday as usize] = TotalStemWeight;
+            // Plant density affects growth in height of tall plants.
+            let htdenf = 55.; // minimum plant height for plant density affecting growth in height.
+                              // intermediate variable to compute denf2.
+            let mut z1 = (PlantHeight - htdenf) / htdenf;
+            if z1 < 0. {
+                z1 = 0.;
+            }
+            if z1 > 1. {
+                z1 = 1.;
+            }
+            // effect of plant density on plant growth in height.
+            let denf2 = 1. + z1 * (DensityFactor - 1.);
+            // Call AddPlantHeight to compute PlantHeight.
+            PlantHeight += self.plant_height_increment(denf2);
+            // Call ActualRootGrowth() to compute actual root growth.
+            self.compute_actual_root_growth(sumpdr, agronomy_ops);
         }
-        // Call PotentialRootGrowth() to compute potential growth rate of roots.
-        // total potential growth rate of roots in g per slab. this
-        // is computed in PotentialRootGrowth() and used in
-        // ActualRootGrowth().
-        let sumpdr = PotentialRootGrowth(root_tables);
-        // Total potential growth rate of roots is converted from g per slab (sumpdr) to g per plant (PotGroAllRoots).
-        PotGroAllRoots = sumpdr * 100. * PerPlantArea / RowSpace;
-        // Limit PotGroAllRoots to (maxrtgr*PerPlantArea) g per plant per day.
-        let maxrtgr = 0.045; // maximum possible potential root growth, g dm-2 day-1.
-        if PotGroAllRoots > maxrtgr * PerPlantArea {
-            PotGroAllRoots = maxrtgr * PerPlantArea;
-        }
-        // Call dry_matter_balance() to compute carbon balance, allocation of carbon to plant parts, and carbon stress. dry_matter_balance() also computes and returns the values of the following arguments:
-        // cdleaf is carbohydrate requirement for leaf growth, g per plant per day. cdpet is carbohydrate requirement for petiole growth, g per plant per day. cdroot is carbohydrate requirement for root growth, g per plant per day. cdstem is carbohydrate requirement for stem growth, g per plant per day.
-        let mut cdstem = 0.;
-        let mut cdleaf = 0.;
-        let mut cdpet = 0.;
-        let mut cdroot = 0.;
-        dry_matter_balance(&mut cdstem, &mut cdleaf, &mut cdpet, &mut cdroot);
-        // If it is after first square, call actual_fruit_growth() to compute actual growth rate of squares and bolls.
-        if FruitingCode[0][0][0] > 0 {
-            actual_fruit_growth();
-        }
-        // Initialize TotalLeafWeight. It is assumed that cotyledons fall off at time of first square. Also initialize TotalLeafArea and TotalPetioleWeight.
-        TotalPetioleWeight = 0.;
-        // Call actual_leaf_growth to compute actual growth rate of leaves and compute leaf area index.
-        actual_leaf_growth();
-        LeafAreaIndex = TotalLeafArea() / PerPlantArea;
-        // Add ActualStemGrowth to TotalStemWeight, and define StemWeight(Kday) for this day.
-        TotalStemWeight += ActualStemGrowth;
-        StemWeight[Kday as usize] = TotalStemWeight;
-        // Plant density affects growth in height of tall plants.
-        let htdenf = 55.; // minimum plant height for plant density affecting growth in height.
-                          // intermediate variable to compute denf2.
-        let mut z1 = (PlantHeight - htdenf) / htdenf;
-        if z1 < 0. {
-            z1 = 0.;
-        }
-        if z1 > 1. {
-            z1 = 1.;
-        }
-        // effect of plant density on plant growth in height.
-        let denf2 = 1. + z1 * (DensityFactor - 1.);
-        // Call AddPlantHeight to compute PlantHeight.
-        PlantHeight += self.plant_height_increment(denf2);
-        // Call ActualRootGrowth() to compute actual root growth.
-        self.compute_actual_root_growth(sumpdr, agronomy_ops);
     }
     /// This function simulates the growth in height of the main stem of cotton plants.
     ///
@@ -158,78 +160,81 @@ impl PlantGrowth for Plant {
     ///  NumPreFruNodes, NStressVeg, pixdz, VarPar, WaterStressStem.
     ///  The argument used:
     ///   denf2 - effect of plant density on plant growth in height.
-    unsafe fn plant_height_increment(&mut self, denf2: f64) -> f64 {
-        //     The following constant parameters are used:
-        const vhtpar: [f64; 7] = [1.0, 0.27, 0.60, 0.20, 0.10, 0.26, 0.32];
-        let mut addz; // daily plant height growth increment, cm.
-                      //     Calculate vertical growth of main stem before the square on the
-                      //     second fruiting branch
-                      //  has appeared. Added stem height (addz) is a function of the age of the
-                      //  last prefruiting node.
-        if FruitingCode[0][1][0] == 0 {
-            addz = vhtpar[0] - vhtpar[1] * AgeOfPreFruNode[(NumPreFruNodes - 1) as usize];
-            if addz > vhtpar[2] {
-                addz = vhtpar[2];
+    fn plant_height_increment(&mut self, denf2: f64) -> f64 {
+        unsafe {
+            //     The following constant parameters are used:
+            const vhtpar: [f64; 7] = [1.0, 0.27, 0.60, 0.20, 0.10, 0.26, 0.32];
+            let mut addz; // daily plant height growth increment, cm.
+                          //     Calculate vertical growth of main stem before the square on the
+                          //     second fruiting branch
+                          //  has appeared. Added stem height (addz) is a function of the age of the
+                          //  last prefruiting node.
+            if FruitingCode[0][1][0] == 0 {
+                addz = vhtpar[0] - vhtpar[1] * AgeOfPreFruNode[(NumPreFruNodes - 1) as usize];
+                if addz > vhtpar[2] {
+                    addz = vhtpar[2];
+                }
+                if addz < 0. {
+                    addz = 0.;
+                }
+                //     It is assumed that the previous prefruiting node is also
+                //  capable of growth, and its growth (dz2) is added to addz.
+                if NumPreFruNodes > 1 {
+                    // plant height growth increment due to growth of the second node from the top.
+                    let dz2 =
+                        VarPar[19] - VarPar[20] * AgeOfPreFruNode[(NumPreFruNodes - 2) as usize];
+                    addz += if dz2 < 0. {
+                        0.
+                    } else if dz2 > vhtpar[3] {
+                        vhtpar[3]
+                    } else {
+                        dz2
+                    };
+                }
+                //     The effect of water stress on stem height at this stage is
+                //  less than at a later stage (as modified by vhtpar(4)).
+                addz *= 1. - vhtpar[4] * (1. - WaterStressStem);
+            } else {
+                //     Calculate vertical growth of main stem after the second square
+                //     has appeared.
+                //  Added stem height (addz) is a function of the average  age (agetop)
+                //  of the upper three main stem nodes.
+                // node numbers of top three nodes.
+                let l = (NumFruitBranches[0] - 1) as usize;
+                let l1 = if l < 1 { 0 } else { l - 1 };
+                let l2 = if l < 2 { 0 } else { l - 2 };
+                // average physiological age of top three nodes.
+                let agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3.;
+                addz = VarPar[21] + agetop * (VarPar[22] + VarPar[23] * agetop);
+                if agetop > (-0.5 * VarPar[22] / VarPar[23]) {
+                    addz = VarPar[24];
+                }
+                if addz < VarPar[24] {
+                    addz = VarPar[24];
+                }
+                if addz > VarPar[25] {
+                    addz = VarPar[25];
+                }
+                //     addz is affected by water, carbohydrate and nitrogen stresses.
+                addz *= WaterStressStem;
+                addz *= 1. - vhtpar[5] * (1. - CarbonStress);
+                addz *= 1. - vhtpar[6] * (1. - NStressVeg);
             }
-            if addz < 0. {
-                addz = 0.;
+            //     The effect of temperature is expressed by DayInc. there are also
+            //     effects of
+            //  pix, plant density, and of a variety-specific calibration parameter
+            //  (VarPar(26)).
+            addz *= VarPar[26] * pixdz * DayInc * denf2;
+            //    Apply adjustment to addz if plant map data have been read
+            let kdadjustend = KdayAdjust + NumAdjustDays;
+            if Kday > KdayAdjust && Kday <= kdadjustend {
+                if nadj[1] {
+                    addz *= AdjAddHeightRate;
+                }
             }
-            //     It is assumed that the previous prefruiting node is also
-            //  capable of growth, and its growth (dz2) is added to addz.
-            if NumPreFruNodes > 1 {
-                // plant height growth increment due to growth of the second node from the top.
-                let dz2 = VarPar[19] - VarPar[20] * AgeOfPreFruNode[(NumPreFruNodes - 2) as usize];
-                addz += if dz2 < 0. {
-                    0.
-                } else if dz2 > vhtpar[3] {
-                    vhtpar[3]
-                } else {
-                    dz2
-                };
-            }
-            //     The effect of water stress on stem height at this stage is
-            //  less than at a later stage (as modified by vhtpar(4)).
-            addz *= 1. - vhtpar[4] * (1. - WaterStressStem);
-        } else {
-            //     Calculate vertical growth of main stem after the second square
-            //     has appeared.
-            //  Added stem height (addz) is a function of the average  age (agetop)
-            //  of the upper three main stem nodes.
-            // node numbers of top three nodes.
-            let l = (NumFruitBranches[0] - 1) as usize;
-            let l1 = if l < 1 { 0 } else { l - 1 };
-            let l2 = if l < 2 { 0 } else { l - 2 };
-            // average physiological age of top three nodes.
-            let agetop = (AgeOfSite[0][l][0] + AgeOfSite[0][l1][0] + AgeOfSite[0][l2][0]) / 3.;
-            addz = VarPar[21] + agetop * (VarPar[22] + VarPar[23] * agetop);
-            if agetop > (-0.5 * VarPar[22] / VarPar[23]) {
-                addz = VarPar[24];
-            }
-            if addz < VarPar[24] {
-                addz = VarPar[24];
-            }
-            if addz > VarPar[25] {
-                addz = VarPar[25];
-            }
-            //     addz is affected by water, carbohydrate and nitrogen stresses.
-            addz *= WaterStressStem;
-            addz *= 1. - vhtpar[5] * (1. - CarbonStress);
-            addz *= 1. - vhtpar[6] * (1. - NStressVeg);
+            //
+            return addz;
         }
-        //     The effect of temperature is expressed by DayInc. there are also
-        //     effects of
-        //  pix, plant density, and of a variety-specific calibration parameter
-        //  (VarPar(26)).
-        addz *= VarPar[26] * pixdz * DayInc * denf2;
-        //    Apply adjustment to addz if plant map data have been read
-        let kdadjustend = KdayAdjust + NumAdjustDays;
-        if Kday > KdayAdjust && Kday <= kdadjustend {
-            if nadj[1] {
-                addz *= AdjAddHeightRate;
-            }
-        }
-        //
-        return addz;
     }
 }
 
