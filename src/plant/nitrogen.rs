@@ -171,53 +171,52 @@ impl PlantNitrogen {
         const sqrcn0: f64 = 0.024; //  maximum N content for squares
         const stmcn0: f64 = 0.036; //  maximum N content for stems
                                    //     On emergence, assign initial values to petiole N concentrations.
-        if unsafe { Daynum <= DayEmerge } {
-            unsafe {
+        unsafe {
+            if Daynum <= DayEmerge {
                 PetioleNConc = petcn0;
                 PetioleNO3NConc = petcn0;
             }
-        }
-        // Compute the nitrogen requirements for growth, by multiplying the daily added dry weight by the maximum N content of each organ.
-        // Nitrogen requirements are based on actual growth rates.
-        //
-        // These N requirements will be used to compute the allocation of N to plant parts and the nitrogen stress factors.
-        //
-        // All nitrogen requirement variables are in g N per plant.
-        // for leaf blade
-        self.rqnlef = lefcn0 * unsafe { TotalActualLeafGrowth };
-        // for petiole
-        self.rqnpet = petcn0 * unsafe { TotalActualPetioleGrowth };
-        // for stem
-        self.rqnstm = stmcn0 * unsafe { ActualStemGrowth };
-        // Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of carbohydrates for root growth.
-        // for root
-        self.rqnrut = rootcn0 * unsafe { CarbonAllocatedForRootGrowth + ExtraCarbon };
-        // for squares
-        self.rqnsqr = unsafe { ActualSquareGrowth } * sqrcn0;
-        // components of seed N requirements.
-        // for seed growth
-        let rqnsed1 = unsafe { ActualBollGrowth } * seedratio * seedcn0;
-        // The N required for replenishing the N content of existing seed tissue (rqnsed2) is added to seed growth requirement.
-        let rqnsed2 = if unsafe { CottonWeightGreenBolls > ActualBollGrowth } {
-            // existing ratio of N to dry matter in the seeds.
-            let rseedn =
-                unsafe { SeedNitrogen / ((CottonWeightGreenBolls - ActualBollGrowth) * seedratio) };
-            let result = unsafe { CottonWeightGreenBolls - ActualBollGrowth }
-                * seedratio
-                * (seedcn1 - rseedn);
-            if result < 0. {
-                0.
+            // Compute the nitrogen requirements for growth, by multiplying the daily added dry weight by the maximum N content of each organ.
+            // Nitrogen requirements are based on actual growth rates.
+            //
+            // These N requirements will be used to compute the allocation of N to plant parts and the nitrogen stress factors.
+            //
+            // All nitrogen requirement variables are in g N per plant.
+            // for leaf blade
+            self.rqnlef = lefcn0 * TotalActualLeafGrowth;
+            // for petiole
+            self.rqnpet = petcn0 * TotalActualPetioleGrowth;
+            // for stem
+            self.rqnstm = stmcn0 * ActualStemGrowth;
+            // Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of carbohydrates for root growth.
+            // for root
+            self.rqnrut = rootcn0 * (CarbonAllocatedForRootGrowth + ExtraCarbon);
+            // for squares
+            self.rqnsqr = ActualSquareGrowth * sqrcn0;
+            // components of seed N requirements.
+            // for seed growth
+            let rqnsed1 = ActualBollGrowth * seedratio * seedcn0;
+            // The N required for replenishing the N content of existing seed tissue (rqnsed2) is added to seed growth requirement.
+            let rqnsed2 = if CottonWeightGreenBolls > ActualBollGrowth {
+                // existing ratio of N to dry matter in the seeds.
+                let rseedn =
+                    SeedNitrogen / ((CottonWeightGreenBolls - ActualBollGrowth) * seedratio);
+                let result =
+                    (CottonWeightGreenBolls - ActualBollGrowth) * seedratio * (seedcn1 - rseedn);
+                if result < 0. {
+                    0.
+                } else {
+                    result
+                }
             } else {
-                result
-            }
-        } else {
-            0.
-        };
-        self.rqnsed = rqnsed1 + rqnsed2; // total requirement for seeds
-        self.rqnbur = unsafe { ActualBurrGrowth } * burcn0; // for burrs
-        self.reqf = self.rqnsqr + self.rqnsed + self.rqnbur; // total for fruit
-        self.reqv = self.rqnlef + self.rqnpet + self.rqnstm; // total for shoot
-        self.reqtot = self.rqnrut + self.reqv + self.reqf; // total N requirement
+                0.
+            };
+            self.rqnsed = rqnsed1 + rqnsed2; // total requirement for seeds
+            self.rqnbur = ActualBurrGrowth * burcn0; // for burrs
+            self.reqf = self.rqnsqr + self.rqnsed + self.rqnbur; // total for fruit
+            self.reqv = self.rqnlef + self.rqnpet + self.rqnstm; // total for shoot
+            self.reqtot = self.rqnrut + self.reqv + self.reqf; // total N requirement
+        }
     }
     /// This function computes the supply of N by uptake from the soil reserves,
     /// it is called from [PlantNitrogen::plant_nitrogen()], it calls [PlantNitrogen::petiole_nitrate()].
@@ -234,91 +233,80 @@ impl PlantNitrogen {
         const vstmnmin: f64 = 0.006; //  minimum N contents of stems
                                      //     uptn is the total supply of nitrogen to the plant by uptake of
                                      //     nitrate and ammonium.
-        self.uptn = unsafe { SupplyNO3N + SupplyNH4N };
-        // If total N requirement is less than the supply, define npool as the supply and assign zero to the N reserves in all organs.
-        if self.reqtot <= self.uptn {
-            self.npool = self.uptn;
-            self.leafrs = 0.;
-            self.petrs = 0.;
-            self.stemrs = 0.;
-            self.rootrs = 0.;
-            self.burres = 0.;
-            self.xtran = 0.;
-        } else {
-            //     If total N requirement exceeds the supply, compute the nitrogen
-            //  reserves in the plant. The reserve N in an organ is defined as a
-            //  fraction of the nitrogen content exceeding a minimum N content in
-            //  it.
-            //     The N reserves in leaves, petioles, stems, roots and burrs of
-            //  green bolls are computed, and their N content updated.
-            self.leafrs =
-                unsafe { (LeafNitrogen - vlfnmin * TotalLeafWeight()) * MobilizNFractionLeaves };
-            if self.leafrs < 0. {
+        unsafe {
+            self.uptn = SupplyNO3N + SupplyNH4N;
+            // If total N requirement is less than the supply, define npool as the supply and assign zero to the N reserves in all organs.
+            if self.reqtot <= self.uptn {
+                self.npool = self.uptn;
                 self.leafrs = 0.;
-            }
-            unsafe {
-                LeafNitrogen -= self.leafrs;
-            }
-            // The petiole N content is subdivided to nitrate and non-nitrate.
-            // The nitrate ratio in the petiole N is computed by calling function
-            // petiole_nitrate(). Note that the nitrate fraction is more available
-            // for redistribution.
-            //
-            // ratio of NO3 N to total N in petioles.
-            let rpetno3 = self.nitrogen_petiole_nitrate();
-            // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
-            let mut petrs1 =
-                unsafe { PetioleNitrogen * (1. - rpetno3) - vpetnmin * TotalPetioleWeight }
-                    * MobilizNFractionLeaves;
-            if petrs1 < 0. {
-                petrs1 = 0.;
-            }
-            let mut petrs2 = unsafe { PetioleNitrogen * rpetno3 - vpno3min * TotalPetioleWeight }
-                * MobilizNFractionLeaves;
-            if petrs2 < 0. {
-                petrs2 = 0.;
-            }
-            self.petrs = petrs1 + petrs2;
-            unsafe {
-                PetioleNitrogen -= self.petrs;
-            }
-            //  Stem N reserves.
-            self.stemrs =
-                unsafe { StemNitrogen - vstmnmin * TotalStemWeight } * MobilizNFractionStemRoot;
-            if self.stemrs < 0. {
+                self.petrs = 0.;
                 self.stemrs = 0.;
-            }
-            unsafe {
-                StemNitrogen -= self.stemrs;
-            }
-            //  Root N reserves
-            self.rootrs =
-                unsafe { RootNitrogen - vrtnmin * TotalRootWeight } * MobilizNFractionStemRoot;
-            if self.rootrs < 0. {
                 self.rootrs = 0.;
-            }
-            unsafe {
+                self.burres = 0.;
+                self.xtran = 0.;
+            } else {
+                //     If total N requirement exceeds the supply, compute the nitrogen
+                //  reserves in the plant. The reserve N in an organ is defined as a
+                //  fraction of the nitrogen content exceeding a minimum N content in
+                //  it.
+                //     The N reserves in leaves, petioles, stems, roots and burrs of
+                //  green bolls are computed, and their N content updated.
+                self.leafrs = (LeafNitrogen - vlfnmin * TotalLeafWeight()) * MobilizNFractionLeaves;
+                if self.leafrs < 0. {
+                    self.leafrs = 0.;
+                }
+                LeafNitrogen -= self.leafrs;
+                // The petiole N content is subdivided to nitrate and non-nitrate.
+                // The nitrate ratio in the petiole N is computed by calling function
+                // petiole_nitrate(). Note that the nitrate fraction is more available
+                // for redistribution.
+                //
+                // ratio of NO3 N to total N in petioles.
+                let rpetno3 = self.nitrogen_petiole_nitrate();
+                // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
+                let mut petrs1 = (PetioleNitrogen * (1. - rpetno3) - vpetnmin * TotalPetioleWeight)
+                    * MobilizNFractionLeaves;
+                if petrs1 < 0. {
+                    petrs1 = 0.;
+                }
+                let mut petrs2 = (PetioleNitrogen * rpetno3 - vpno3min * TotalPetioleWeight)
+                    * MobilizNFractionLeaves;
+                if petrs2 < 0. {
+                    petrs2 = 0.;
+                }
+                self.petrs = petrs1 + petrs2;
+                PetioleNitrogen -= self.petrs;
+                //  Stem N reserves.
+                self.stemrs =
+                    (StemNitrogen - vstmnmin * TotalStemWeight) * MobilizNFractionStemRoot;
+                if self.stemrs < 0. {
+                    self.stemrs = 0.;
+                }
+                StemNitrogen -= self.stemrs;
+                //  Root N reserves
+                self.rootrs = (RootNitrogen - vrtnmin * TotalRootWeight) * MobilizNFractionStemRoot;
+                if self.rootrs < 0. {
+                    self.rootrs = 0.;
+                }
                 RootNitrogen -= self.rootrs;
-            }
-            //  Burr N reserves
-            if unsafe { BurrWeightGreenBolls > 0. } {
-                self.burres = unsafe { BurrNitrogen - vburnmin * BurrWeightGreenBolls }
-                    * MobilizNFractionBurrs;
-                if self.burres < 0. {
+                //  Burr N reserves
+                if BurrWeightGreenBolls > 0. {
+                    self.burres =
+                        (BurrNitrogen - vburnmin * BurrWeightGreenBolls) * MobilizNFractionBurrs;
+                    if self.burres < 0. {
+                        self.burres = 0.;
+                    }
+                    BurrNitrogen -= self.burres;
+                } else {
                     self.burres = 0.;
                 }
-                unsafe {
-                    BurrNitrogen -= self.burres;
-                }
-            } else {
-                self.burres = 0.;
+                // The total reserves, resn, are added to the amount taken up from the soil, for computing npool.
+                // Note that N of seeds or squares is not available for redistribution in the plant.
+                //
+                // total reserve N, in g per plant.
+                let resn = self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres;
+                self.npool = self.uptn + resn;
             }
-            // The total reserves, resn, are added to the amount taken up from the soil, for computing npool.
-            // Note that N of seeds or squares is not available for redistribution in the plant.
-            //
-            // total reserve N, in g per plant.
-            let resn = self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres;
-            self.npool = self.uptn + resn;
         }
     }
     /// This function computes the allocation of supplied nitrogen to the plant parts.
@@ -335,8 +323,8 @@ impl PlantNitrogen {
                                     //  each organ, compute added N to vegetative parts, fruiting parts and
                                     //  roots, and compute xtran as the difference between npool and the total N
                                     //  requirements.
-        if self.reqtot <= self.npool {
-            unsafe {
+        unsafe {
+            if self.reqtot <= self.npool {
                 LeafNitrogen += self.rqnlef;
                 PetioleNitrogen += self.rqnpet;
                 StemNitrogen += self.rqnstm;
@@ -344,89 +332,75 @@ impl PlantNitrogen {
                 SquareNitrogen += self.rqnsqr;
                 SeedNitrogen += self.rqnsed;
                 BurrNitrogen += self.rqnbur;
+                self.addnv = self.rqnlef + self.rqnstm + self.rqnpet;
+                self.addnf = self.rqnsqr + self.rqnsed + self.rqnbur;
+                self.addnr = self.rqnrut;
+                self.xtran = self.npool - self.reqtot;
+                return;
             }
-            self.addnv = self.rqnlef + self.rqnstm + self.rqnpet;
-            self.addnf = self.rqnsqr + self.rqnsed + self.rqnbur;
-            self.addnr = self.rqnrut;
-            self.xtran = self.npool - self.reqtot;
-            return;
-        }
-        //     If N requirement is greater than npool, execute the following:
-        //     First priority is nitrogen supply to the growing seeds. It is assumed
-        //     that up to
-        //  vseednmax = 0.70 of the supplied N can be used by the seeds. Update seed
-        //  N and addnf by the amount of nitrogen used for seed growth, and decrease
-        //  npool by this amount. The same procedure is used for each organ,
-        //  consecutively.
-        let mut useofn; // amount of nitrogen used in growth of a plant organ.
-        if self.rqnsed > 0. {
-            useofn = fmin(vseednmax * self.npool, self.rqnsed);
-            unsafe {
+            //     If N requirement is greater than npool, execute the following:
+            //     First priority is nitrogen supply to the growing seeds. It is assumed
+            //     that up to
+            //  vseednmax = 0.70 of the supplied N can be used by the seeds. Update seed
+            //  N and addnf by the amount of nitrogen used for seed growth, and decrease
+            //  npool by this amount. The same procedure is used for each organ,
+            //  consecutively.
+            let mut useofn; // amount of nitrogen used in growth of a plant organ.
+            if self.rqnsed > 0. {
+                useofn = fmin(vseednmax * self.npool, self.rqnsed);
                 SeedNitrogen += useofn;
+                self.addnf += useofn;
+                self.npool -= useofn;
             }
-            self.addnf += useofn;
-            self.npool -= useofn;
-        }
-        //     Next priority is for burrs, which can use N up to vburnmax = 0.65 of
-        //     the
-        //  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
-        if self.rqnbur > 0. {
-            useofn = fmin(vburnmax * self.npool, self.rqnbur);
-            unsafe {
+            //     Next priority is for burrs, which can use N up to vburnmax = 0.65 of
+            //     the
+            //  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
+            if self.rqnbur > 0. {
+                useofn = fmin(vburnmax * self.npool, self.rqnbur);
                 BurrNitrogen += useofn;
+                self.addnf += useofn;
+                self.npool -= useofn;
             }
-            self.addnf += useofn;
-            self.npool -= useofn;
-        }
-        if self.rqnsqr > 0. {
-            useofn = fmin(vsqrnmax * self.npool, self.rqnsqr);
-            unsafe {
+            if self.rqnsqr > 0. {
+                useofn = fmin(vsqrnmax * self.npool, self.rqnsqr);
                 SquareNitrogen += useofn;
+                self.addnf += useofn;
+                self.npool -= useofn;
             }
-            self.addnf += useofn;
-            self.npool -= useofn;
-        }
-        //     Next priority is for leaves, which can use N up to vlfnmax = 0.90
-        //  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for
-        //  petioles, up to vpetnmax = 0.75
-        if self.rqnlef > 0. {
-            useofn = fmin(vlfnmax * self.npool, self.rqnlef);
-            unsafe {
+            //     Next priority is for leaves, which can use N up to vlfnmax = 0.90
+            //  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for
+            //  petioles, up to vpetnmax = 0.75
+            if self.rqnlef > 0. {
+                useofn = fmin(vlfnmax * self.npool, self.rqnlef);
                 LeafNitrogen += useofn;
+                self.addnv += useofn;
+                self.npool -= useofn;
             }
-            self.addnv += useofn;
-            self.npool -= useofn;
-        }
-        if self.rqnstm > 0. {
-            useofn = fmin(vstmnmax * self.npool, self.rqnstm);
-            unsafe {
+            if self.rqnstm > 0. {
+                useofn = fmin(vstmnmax * self.npool, self.rqnstm);
                 StemNitrogen += useofn;
+                self.addnv += useofn;
+                self.npool -= useofn;
             }
-            self.addnv += useofn;
-            self.npool -= useofn;
-        }
-        if self.rqnpet > 0. {
-            useofn = fmin(vpetnmax * self.npool, self.rqnpet);
-            unsafe {
+            if self.rqnpet > 0. {
+                useofn = fmin(vpetnmax * self.npool, self.rqnpet);
                 PetioleNitrogen += useofn;
+                self.addnv += useofn;
+                self.npool -= useofn;
             }
-            self.addnv += useofn;
-            self.npool -= useofn;
-        }
-        //     The remaining npool goes to root growth. If any npool remains
-        //  it is defined as xtran.
-        if self.rqnrut > 0. {
-            useofn = fmin(self.npool, self.rqnrut);
-            unsafe {
+            //     The remaining npool goes to root growth. If any npool remains
+            //  it is defined as xtran.
+            if self.rqnrut > 0. {
+                useofn = fmin(self.npool, self.rqnrut);
                 RootNitrogen += useofn;
+                self.addnr += useofn;
+                self.npool -= useofn;
             }
-            self.addnr += useofn;
-            self.npool -= useofn;
-        }
-        self.xtran = self.npool;
-        if self.xtran > 0. {
-            // computes the further allocation of N in the plant
-            self.extra_nitrogen_allocation();
+            self.xtran = self.npool;
+            if self.xtran > 0. {
+                // computes the further allocation of N in the plant
+                self.extra_nitrogen_allocation();
+            }
         }
     }
     /// This function computes the allocation of extra nitrogen to the plant parts.
@@ -446,33 +420,31 @@ impl PlantNitrogen {
         let addstm;
         // sum of existing reserve N in plant parts.
         let rsum = self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres;
-        if rsum > 0. {
-            addlfn = self.xtran * self.leafrs / rsum;
-            addpetn = self.xtran * self.petrs / rsum;
-            addstm = self.xtran * self.stemrs / rsum;
-            addrt = self.xtran * self.rootrs / rsum;
-            addbur = self.xtran * self.burres / rsum;
-        } else {
-            //     If there are no reserves, allocate xtran in proportion to the dry
-            //  weights in each of these organs.
-            // weight of vegetative plant parts, plus burrs.
-            let vegwt = unsafe {
-                TotalLeafWeight()
+        unsafe {
+            if rsum > 0. {
+                addlfn = self.xtran * self.leafrs / rsum;
+                addpetn = self.xtran * self.petrs / rsum;
+                addstm = self.xtran * self.stemrs / rsum;
+                addrt = self.xtran * self.rootrs / rsum;
+                addbur = self.xtran * self.burres / rsum;
+            } else {
+                //     If there are no reserves, allocate xtran in proportion to the dry
+                //  weights in each of these organs.
+                // weight of vegetative plant parts, plus burrs.
+                let vegwt = TotalLeafWeight()
                     + TotalPetioleWeight
                     + TotalStemWeight
                     + TotalRootWeight
-                    + BurrWeightGreenBolls
-            };
-            addlfn = self.xtran * TotalLeafWeight() / vegwt;
-            addpetn = self.xtran * unsafe { TotalPetioleWeight } / vegwt;
-            addstm = self.xtran * unsafe { TotalStemWeight } / vegwt;
-            addrt = self.xtran * unsafe { TotalRootWeight } / vegwt;
-            addbur = self.xtran * unsafe { BurrWeightGreenBolls } / vegwt;
-        }
-        //     Update N content in these plant parts. Note that at this stage of
-        //  nitrogen allocation, only vegetative parts and burrs are updated (not
-        //  seeds or squares).
-        unsafe {
+                    + BurrWeightGreenBolls;
+                addlfn = self.xtran * TotalLeafWeight() / vegwt;
+                addpetn = self.xtran * TotalPetioleWeight / vegwt;
+                addstm = self.xtran * TotalStemWeight / vegwt;
+                addrt = self.xtran * TotalRootWeight / vegwt;
+                addbur = self.xtran * BurrWeightGreenBolls / vegwt;
+            }
+            //     Update N content in these plant parts. Note that at this stage of
+            //  nitrogen allocation, only vegetative parts and burrs are updated (not
+            //  seeds or squares).
             LeafNitrogen += addlfn;
             PetioleNitrogen += addpetn;
             StemNitrogen += addstm;
@@ -631,34 +603,36 @@ impl PlantNitrogen {
         // The ratio of NO3 to total N in each individual petiole is computed
         // as a linear function of leaf age. It is assumed that this ratio is
         // maximum for young leaves and is declining with leaf age.
-        let mut numl = unsafe { NumPreFruNodes }; // number of petioles computed.
-        let mut spetno3 = 0.; // sum of petno3r.
-        let mut petno3r; // ratio of NO3 to total N in an individual petiole.
-        for j in 0..unsafe { NumPreFruNodes } as usize {
-            petno3r = p1 - unsafe { AgeOfPreFruNode[j] } * p2;
-            if petno3r < p3 {
-                petno3r = p3;
+        unsafe {
+            let mut numl = NumPreFruNodes; // number of petioles computed.
+            let mut spetno3 = 0.; // sum of petno3r.
+            let mut petno3r; // ratio of NO3 to total N in an individual petiole.
+            for j in 0..NumPreFruNodes as usize {
+                petno3r = p1 - AgeOfPreFruNode[j] * p2;
+                if petno3r < p3 {
+                    petno3r = p3;
+                }
+                spetno3 += petno3r;
             }
-            spetno3 += petno3r;
-        }
-        // Loop of all the other leaves, with the same computations.
-        for k in 0..unsafe { NumVegBranches } as usize {
-            let nbrch = unsafe { NumFruitBranches[k] } as usize;
-            for l in 0..nbrch {
-                let nnid = unsafe { NumNodes[k][l] } as usize;
-                numl += nnid as i32;
-                for m in 0..nnid {
-                    numl += 1;
-                    petno3r = p1 - unsafe { LeafAge[k][l][m] } * p2;
-                    if petno3r < p3 {
-                        petno3r = p3;
+            // Loop of all the other leaves, with the same computations.
+            for k in 0..NumVegBranches as usize {
+                let nbrch = NumFruitBranches[k] as usize;
+                for l in 0..nbrch {
+                    let nnid = NumNodes[k][l] as usize;
+                    numl += nnid as i32;
+                    for m in 0..nnid {
+                        numl += 1;
+                        petno3r = p1 - LeafAge[k][l][m] * p2;
+                        if petno3r < p3 {
+                            petno3r = p3;
+                        }
+                        spetno3 += petno3r;
                     }
-                    spetno3 += petno3r;
                 }
             }
+            // The return value of the function is the average ratio of NO3 to total N for all the petioles in the plant.
+            spetno3 / numl as f64
         }
-        // The return value of the function is the average ratio of NO3 to total N for all the petioles in the plant.
-        spetno3 / numl as f64
     }
     /// This function calculates the nitrogen balance in the cotton plant, for diagnostic purposes. It is called from SimulateThisDay().
     ///
