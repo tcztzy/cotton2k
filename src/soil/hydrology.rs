@@ -13,8 +13,7 @@ use crate::{
     TotalSoilWater, VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress,
     WaterTableLayer, CLIMATE_METRIC_RAIN,
 };
-use ndarray::prelude::*;
-use ndarray::Array;
+use ndarray::Array2;
 
 #[derive(Debug, Clone, Copy)]
 enum RunoffPotential {
@@ -133,126 +132,247 @@ static mut N_DAYS_BELOW_TARGET_STRESS: i32 = 0;
 static mut N_IRR_LAYERS: i32 = 0;
 static mut CAPILLARY_NUMITER: i64 = 0;
 
-unsafe fn get_target_stress() -> f64 {
+fn get_target_stress() -> f64 {
     const STRESS_TARGET: [f64; 10] = [0.70, 0.95, 0.99, 0.99, 0.99, 0.95, 0.90, 0.80, 0.60, 0.40];
+
+    let (kday, first_square, first_bloom, daynum, num_open_bolls, num_green_bolls) = unsafe {
+        (
+            Kday,
+            FirstSquare,
+            FirstBloom,
+            Daynum,
+            NumOpenBolls,
+            NumGreenBolls,
+        )
+    };
+
+    let mut stop_prediction = false;
     let mut target_stress;
-    if Kday > 0 && FirstSquare <= 0 {
+    if kday > 0 && first_square <= 0 {
         target_stress = STRESS_TARGET[0];
-    } else if FirstBloom <= 0 {
+    } else if first_bloom <= 0 {
         target_stress = STRESS_TARGET[1];
-    } else if Daynum <= FirstBloom + 20 {
+    } else if daynum <= first_bloom + 20 {
         target_stress = STRESS_TARGET[2];
-    } else if Daynum <= FirstBloom + 40 {
+    } else if daynum <= first_bloom + 40 {
         target_stress = STRESS_TARGET[3];
-    } else if NumOpenBolls <= 0.01 {
+    } else if num_open_bolls <= 0.01 {
         target_stress = STRESS_TARGET[4];
-    } else if NumOpenBolls < 0.25 * NumGreenBolls {
+    } else if num_open_bolls < 0.25 * num_green_bolls {
         target_stress = STRESS_TARGET[5];
-    } else if NumOpenBolls < 0.667 * NumGreenBolls {
+    } else if num_open_bolls < 0.667 * num_green_bolls {
         target_stress = STRESS_TARGET[6];
-    } else if NumOpenBolls < 1.5 * NumGreenBolls {
+    } else if num_open_bolls < 1.5 * num_green_bolls {
         target_stress = STRESS_TARGET[7];
-    } else if NumOpenBolls < 4.0 * NumGreenBolls {
+    } else if num_open_bolls < 4.0 * num_green_bolls {
         target_stress = STRESS_TARGET[8];
-    } else if NumOpenBolls < 9.0 * NumGreenBolls {
+    } else if num_open_bolls < 9.0 * num_green_bolls {
         target_stress = STRESS_TARGET[9];
     } else {
-        DayStopPredIrrig = Daynum;
+        stop_prediction = true;
         target_stress = -9999.0;
     }
 
     if target_stress <= 0.0 {
-        DayStopPredIrrig = Daynum;
+        stop_prediction = true;
         target_stress = -9999.0;
     }
+
+    if stop_prediction {
+        unsafe {
+            DayStopPredIrrig = daynum;
+        }
+    }
+
     target_stress
 }
 
-unsafe fn predict_drip_irrigation(target_stress: f64) {
-    if Daynum <= DayStartPredIrrig {
-        IRR1ST = false;
+fn predict_drip_irrigation(target_stress: f64) {
+    let (
+        daynum,
+        day_start_pred_irrig,
+        num_irrigations,
+        water_stress,
+        max_irrigation,
+        min_days_between_irrig,
+        last_irrigation,
+        actual_transpiration,
+        actual_soil_evaporation,
+        mut irr1st,
+        mut required_water,
+    ) = unsafe {
+        (
+            Daynum,
+            DayStartPredIrrig,
+            NumIrrigations as usize,
+            WaterStress,
+            MaxIrrigation,
+            MinDaysBetweenIrrig,
+            LastIrrigation,
+            ActualTranspiration,
+            ActualSoilEvaporation,
+            IRR1ST,
+            REQUIRED_WATER,
+        )
+    };
+    let mut applied_water = None;
+
+    if daynum <= day_start_pred_irrig {
+        irr1st = false;
     }
 
-    if !IRR1ST {
+    if !irr1st {
         let mut is_irrigated_today = false;
         let irrig = Irrig.read().expect("Irrig lock poisoned");
-        for irrigation_index in 0..NumIrrigations as usize {
-            if irrig[irrigation_index].day == Daynum
-                || GetFromClim(CLIMATE_METRIC_RAIN, Daynum) > 1.0
+        for irrigation_index in 0..num_irrigations {
+            if irrig[irrigation_index].day == daynum
+                || GetFromClim(CLIMATE_METRIC_RAIN, daynum) > 1.0
             {
                 is_irrigated_today = true;
                 break;
             }
         }
 
-        if !is_irrigated_today && WaterStress <= 0.99 {
-            AppliedWater = fmin(30.0, MaxIrrigation);
-            IRR1ST = true;
-            REQUIRED_WATER = 0.0;
+        if !is_irrigated_today && water_stress <= 0.99 {
+            applied_water = Some(fmin(30.0, max_irrigation));
+            irr1st = true;
+            required_water = 0.0;
         }
-        return;
+    } else {
+        required_water += actual_transpiration + actual_soil_evaporation
+            - GetFromClim(CLIMATE_METRIC_RAIN, daynum);
+        if required_water < 0.0 {
+            required_water = 0.0;
+        }
+
+        if (daynum - min_days_between_irrig) >= last_irrigation {
+            let mut irrigation_factor = if target_stress > water_stress {
+                1.20 * target_stress / water_stress
+            } else {
+                0.90 * target_stress / water_stress
+            };
+            irrigation_factor = irrigation_factor.clamp(0.80, 1.25);
+
+            if required_water * irrigation_factor > max_irrigation {
+                applied_water = Some(max_irrigation);
+                required_water -= max_irrigation;
+            } else {
+                applied_water = Some(required_water * irrigation_factor);
+                required_water = 0.0;
+            }
+        }
     }
 
-    REQUIRED_WATER +=
-        ActualTranspiration + ActualSoilEvaporation - GetFromClim(CLIMATE_METRIC_RAIN, Daynum);
-    if REQUIRED_WATER < 0.0 {
-        REQUIRED_WATER = 0.0;
-    }
-
-    if (Daynum - MinDaysBetweenIrrig) >= LastIrrigation {
-        let mut irrigation_factor = if target_stress > WaterStress {
-            1.20 * target_stress / WaterStress
-        } else {
-            0.90 * target_stress / WaterStress
-        };
-        irrigation_factor = irrigation_factor.clamp(0.80, 1.25);
-
-        if REQUIRED_WATER * irrigation_factor > MaxIrrigation {
-            AppliedWater = MaxIrrigation;
-            REQUIRED_WATER -= MaxIrrigation;
-        } else {
-            AppliedWater = REQUIRED_WATER * irrigation_factor;
-            REQUIRED_WATER = 0.0;
+    unsafe {
+        IRR1ST = irr1st;
+        REQUIRED_WATER = required_water;
+        if let Some(amount) = applied_water {
+            AppliedWater = amount;
         }
     }
 }
 
-unsafe fn predict_surface_irrigation(target_stress: f64) {
-    if Daynum <= DayStartPredIrrig {
-        N_DAYS_BELOW_TARGET_STRESS = 0;
+fn predict_surface_irrigation(target_stress: f64) {
+    let (
+        daynum,
+        day_start_pred_irrig,
+        min_days_between_irrig,
+        last_irrigation,
+        water_stress,
+        irrigation_depth,
+        max_irrigation,
+        row_space,
+        num_cols,
+        dl_layer,
+        wk_col,
+        max_water_capacity,
+        vol_water,
+        mut n_days_below_target_stress,
+        mut n_irr_layers,
+    ) = unsafe {
+        let num_layers = nl as usize;
+        let num_cols = nk as usize;
+        let mut dl_layer = vec![0.0f64; num_layers];
+        let mut max_water_capacity = vec![0.0f64; num_layers];
+        let mut wk_col = vec![0.0f64; num_cols];
+        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
+
+        for layer in 0..num_layers {
+            dl_layer[layer] = dl[layer];
+            max_water_capacity[layer] = MaxWaterCapacity[layer];
+            for column in 0..num_cols {
+                vol_water[[layer, column]] = VolWaterContent[layer][column];
+            }
+        }
+        for column in 0..num_cols {
+            wk_col[column] = wk[column];
+        }
+
+        (
+            Daynum,
+            DayStartPredIrrig,
+            MinDaysBetweenIrrig,
+            LastIrrigation,
+            WaterStress,
+            IrrigationDepth,
+            MaxIrrigation,
+            RowSpace,
+            num_cols,
+            dl_layer,
+            wk_col,
+            max_water_capacity,
+            vol_water,
+            N_DAYS_BELOW_TARGET_STRESS,
+            N_IRR_LAYERS,
+        )
+    };
+    let mut applied_water = None;
+
+    if daynum <= day_start_pred_irrig {
+        n_days_below_target_stress = 0;
         let mut accumulated_depth = 0.0;
-        for layer in 0..nl as usize {
-            accumulated_depth += dl[layer];
-            if accumulated_depth > IrrigationDepth {
-                N_IRR_LAYERS = layer as i32;
+        for (layer, depth) in dl_layer.iter().enumerate() {
+            accumulated_depth += depth;
+            if accumulated_depth > irrigation_depth {
+                n_irr_layers = layer as i32;
                 break;
             }
         }
     }
 
-    if (Daynum - MinDaysBetweenIrrig) >= (LastIrrigation - 2)
-        && Daynum > DayStartPredIrrig
-        && WaterStress < target_stress
+    if (daynum - min_days_between_irrig) >= (last_irrigation - 2)
+        && daynum > day_start_pred_irrig
+        && water_stress < target_stress
     {
-        N_DAYS_BELOW_TARGET_STRESS += 1;
-        if N_DAYS_BELOW_TARGET_STRESS >= 3 {
+        n_days_below_target_stress += 1;
+        if n_days_below_target_stress >= 3 {
             let mut required_water = 0.0;
-            for layer in 0..N_IRR_LAYERS as usize {
-                for column in 0..nk as usize {
-                    let deficit = MaxWaterCapacity[layer] - VolWaterContent[layer][column];
-                    required_water += dl[layer] * wk[column] * deficit;
+            for layer in 0..n_irr_layers.max(0) as usize {
+                for column in 0..num_cols {
+                    let deficit = max_water_capacity[layer] - vol_water[[layer, column]];
+                    required_water += dl_layer[layer] * wk_col[column] * deficit;
                 }
             }
-            AppliedWater = required_water * 10.0 / RowSpace;
-            if AppliedWater > MaxIrrigation {
-                AppliedWater = MaxIrrigation;
+
+            let mut amount = required_water * 10.0 / row_space;
+            if amount > max_irrigation {
+                amount = max_irrigation;
             }
-            N_DAYS_BELOW_TARGET_STRESS = 0;
+            applied_water = Some(amount);
+            n_days_below_target_stress = 0;
+        }
+    }
+
+    unsafe {
+        N_DAYS_BELOW_TARGET_STRESS = n_days_below_target_stress;
+        N_IRR_LAYERS = n_irr_layers;
+        if let Some(amount) = applied_water {
+            AppliedWater = amount;
         }
     }
 }
 
-pub unsafe fn average_psi() -> f64 {
+pub fn average_psi() -> f64 {
     const VRCUMIN: f64 = 0.1e-9;
     const VRCUMAX: f64 = 0.025;
 
@@ -260,14 +380,85 @@ pub unsafe fn average_psi() -> f64 {
     let mut sumwat = [0.0; 9];
     let mut sumdl = [0.0; 9];
 
-    for layer in 0..NumLayersWithRoots as usize {
-        let horizon = SoilHorizonNum[layer] as usize;
-        sumdl[horizon] += dl[layer];
-        for column in RootColNumLeft[layer] as usize..=RootColNumRight[layer] as usize {
-            if RootWtCapblUptake[layer][column] >= VRCUMIN {
-                let weight =
-                    dl[layer] * wk[column] * fmin(RootWtCapblUptake[layer][column], VRCUMAX);
-                sumwat[horizon] += VolWaterContent[layer][column] * weight;
+    let (
+        num_layers,
+        root_left,
+        root_right,
+        soil_horizon,
+        dl_layer,
+        wk_col,
+        root_uptake,
+        vol_water,
+        airdr_horizon,
+        thetas_horizon,
+        alpha_horizon,
+        beta_horizon,
+        el_cond_sat_soil,
+    ) = unsafe {
+        let num_layers = NumLayersWithRoots as usize;
+        let mut root_left = vec![0usize; num_layers];
+        let mut root_right = vec![0usize; num_layers];
+        let mut soil_horizon = vec![0usize; num_layers];
+        let mut dl_layer = vec![0.0f64; num_layers];
+        for layer in 0..num_layers {
+            root_left[layer] = RootColNumLeft[layer] as usize;
+            root_right[layer] = RootColNumRight[layer] as usize;
+            soil_horizon[layer] = SoilHorizonNum[layer] as usize;
+            dl_layer[layer] = dl[layer];
+        }
+
+        let num_cols = nk as usize;
+        let mut wk_col = vec![0.0f64; num_cols];
+        for column in 0..num_cols {
+            wk_col[column] = wk[column];
+        }
+
+        let mut root_uptake = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
+        for layer in 0..num_layers {
+            for column in 0..num_cols {
+                root_uptake[[layer, column]] = RootWtCapblUptake[layer][column];
+                vol_water[[layer, column]] = VolWaterContent[layer][column];
+            }
+        }
+
+        let mut airdr_horizon = [0.0f64; 9];
+        let mut thetas_horizon = [0.0f64; 9];
+        let mut alpha_horizon = [0.0f64; 9];
+        let mut beta_horizon = [0.0f64; 9];
+        for horizon in 0..9 {
+            airdr_horizon[horizon] = airdr[horizon];
+            thetas_horizon[horizon] = thetas[horizon];
+            alpha_horizon[horizon] = alpha[horizon];
+            beta_horizon[horizon] = beta[horizon];
+        }
+        let el_cond_sat_soil = ElCondSatSoilToday;
+
+        (
+            num_layers,
+            root_left,
+            root_right,
+            soil_horizon,
+            dl_layer,
+            wk_col,
+            root_uptake,
+            vol_water,
+            airdr_horizon,
+            thetas_horizon,
+            alpha_horizon,
+            beta_horizon,
+            el_cond_sat_soil,
+        )
+    };
+
+    for layer in 0..num_layers {
+        let horizon = soil_horizon[layer];
+        sumdl[horizon] += dl_layer[layer];
+        for column in root_left[layer]..=root_right[layer] {
+            let uptake = root_uptake[[layer, column]];
+            if uptake >= VRCUMIN {
+                let weight = dl_layer[layer] * wk_col[column] * fmin(uptake, VRCUMAX);
+                sumwat[horizon] += vol_water[[layer, column]] * weight;
                 psinum[horizon] += weight;
             }
         }
@@ -280,11 +471,11 @@ pub unsafe fn average_psi() -> f64 {
             let avgwat = sumwat[horizon] / psinum[horizon];
             let avgpsi = psiq(
                 avgwat,
-                airdr[horizon],
-                thetas[horizon],
-                alpha[horizon],
-                beta[horizon],
-            ) - PsiOsmotic(avgwat, thetas[horizon], ElCondSatSoilToday);
+                airdr_horizon[horizon],
+                thetas_horizon[horizon],
+                alpha_horizon[horizon],
+                beta_horizon[horizon],
+            ) - PsiOsmotic(avgwat, thetas_horizon[horizon], el_cond_sat_soil);
             sumpsi += avgpsi * psinum[horizon];
             sumnum += psinum[horizon];
         }
@@ -297,7 +488,7 @@ pub unsafe fn average_psi() -> f64 {
     }
 }
 
-unsafe fn psi_on_transpiration(psi_average: f64) -> f64 {
+fn psi_on_transpiration(psi_average: f64) -> f64 {
     const A: f64 = 20.0;
     const B: f64 = 14.0;
     const C: f64 = 1.0;
@@ -313,32 +504,44 @@ unsafe fn psi_on_transpiration(psi_average: f64) -> f64 {
     effect
 }
 
-unsafe fn nitrogen_uptake(layer: i32, column: i32, reqnc: f64) {
+fn nitrogen_uptake(
+    layer: usize,
+    column: usize,
+    reqnc: f64,
+    row_space: f64,
+    per_plant_area: f64,
+    dl_layer: &[f64],
+    wk_col: &[f64],
+    vol_water: &Array2<f64>,
+    vol_no3: &mut Array2<f64>,
+    vol_nh4: &mut Array2<f64>,
+    supply_no3: &mut f64,
+    supply_nh4: &mut f64,
+) {
     const HALFN: f64 = 0.08;
     const CPARUPMAX: f64 = 0.5;
     const P1: f64 = 100.0;
     const P2: f64 = 5.0;
 
-    let l = layer as usize;
-    let k = column as usize;
-    let coeff = 10.0 * RowSpace / (PerPlantArea * dl[l] * wk[k]);
+    let coeff = 10.0 * row_space / (per_plant_area * dl_layer[layer] * wk_col[column]);
+    let water = vol_water[[layer, column]];
 
-    if VolNo3NContent[l][k] > 0.0 {
+    if vol_no3[[layer, column]] > 0.0 {
         let mut uptake_no3 =
-            reqnc * VolNo3NContent[l][k] / (HALFN * VolWaterContent[l][k] + VolNo3NContent[l][k]);
-        let uptake_max = CPARUPMAX * VolNo3NContent[l][k];
+            reqnc * vol_no3[[layer, column]] / (HALFN * water + vol_no3[[layer, column]]);
+        let uptake_max = CPARUPMAX * vol_no3[[layer, column]];
         if coeff * uptake_no3 < uptake_max {
-            VolNo3NContent[l][k] -= coeff * uptake_no3;
+            vol_no3[[layer, column]] -= coeff * uptake_no3;
         } else {
-            VolNo3NContent[l][k] -= uptake_max;
+            vol_no3[[layer, column]] -= uptake_max;
             uptake_no3 = uptake_max / coeff;
         }
-        SupplyNO3N += uptake_no3;
+        *supply_no3 += uptake_no3;
     }
 
-    if VolNh4NContent[l][k] > 0.0 {
-        let bb = P1 + P2 * VolWaterContent[l][k] - VolNh4NContent[l][k];
-        let cc = P2 * VolWaterContent[l][k] * VolNh4NContent[l][k];
+    if vol_nh4[[layer, column]] > 0.0 {
+        let bb = P1 + P2 * water - vol_nh4[[layer, column]];
+        let cc = P2 * water * vol_nh4[[layer, column]];
         let mut ee = bb * bb + 4.0 * cc;
         if ee < 0.0 {
             ee = 0.0;
@@ -346,40 +549,71 @@ unsafe fn nitrogen_uptake(layer: i32, column: i32, reqnc: f64) {
 
         let ammonium_dissolved = 0.5 * (ee.sqrt() - bb);
         if ammonium_dissolved > 0.0 {
-            let mut uptake_nh4 =
-                reqnc * ammonium_dissolved / (HALFN * VolWaterContent[l][k] + ammonium_dissolved);
-            let uptake_max = CPARUPMAX * VolNh4NContent[l][k];
+            let mut uptake_nh4 = reqnc * ammonium_dissolved / (HALFN * water + ammonium_dissolved);
+            let uptake_max = CPARUPMAX * vol_nh4[[layer, column]];
             if coeff * uptake_nh4 < uptake_max {
-                VolNh4NContent[l][k] -= coeff * uptake_nh4;
+                vol_nh4[[layer, column]] -= coeff * uptake_nh4;
             } else {
-                VolNh4NContent[l][k] -= uptake_max;
+                vol_nh4[[layer, column]] -= uptake_max;
                 uptake_nh4 = uptake_max / coeff;
             }
-            SupplyNH4N += uptake_nh4;
+            *supply_nh4 += uptake_nh4;
         }
     }
 }
 
-pub unsafe fn soil_sum() {
-    TotalSoilWater = 0.0;
-    TotalSoilNo3N = 0.0;
-    TotalSoilNh4N = 0.0;
-    TotalSoilUreaN = 0.0;
+pub fn soil_sum() {
+    let (num_layers, num_cols, row_space, dl_layer, wk_col, vol_no3, vol_nh4, vol_urea, vol_water) = unsafe {
+        let num_layers = nl as usize;
+        let num_cols = nk as usize;
+        let row_space = RowSpace;
 
-    for layer in 0..nl as usize {
-        for column in 0..nk as usize {
-            TotalSoilNo3N += VolNo3NContent[layer][column] * dl[layer] * wk[column];
-            TotalSoilNh4N += VolNh4NContent[layer][column] * dl[layer] * wk[column];
-            TotalSoilUreaN += VolUreaNContent[layer][column] * dl[layer] * wk[column];
-            TotalSoilWater += VolWaterContent[layer][column] * dl[layer] * wk[column];
+        let mut dl_layer = vec![0.0f64; num_layers];
+        for layer in 0..num_layers {
+            dl_layer[layer] = dl[layer];
         }
-    }
+        let mut wk_col = vec![0.0f64; num_cols];
+        for column in 0..num_cols {
+            wk_col[column] = wk[column];
+        }
 
-    TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
-    TotalSoilWater = TotalSoilWater * 10.0 / RowSpace;
+        let mut vol_no3 = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut vol_nh4 = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut vol_urea = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
+        for layer in 0..num_layers {
+            for column in 0..num_cols {
+                vol_no3[[layer, column]] = VolNo3NContent[layer][column];
+                vol_nh4[[layer, column]] = VolNh4NContent[layer][column];
+                vol_urea[[layer, column]] = VolUreaNContent[layer][column];
+                vol_water[[layer, column]] = VolWaterContent[layer][column];
+            }
+        }
+
+        (
+            num_layers, num_cols, row_space, dl_layer, wk_col, vol_no3, vol_nh4, vol_urea,
+            vol_water,
+        )
+    };
+
+    let cell_area = Array2::from_shape_fn((num_layers, num_cols), |(layer, column)| {
+        dl_layer[layer] * wk_col[column]
+    });
+    let total_soil_no3 = (&vol_no3 * &cell_area).sum();
+    let total_soil_nh4 = (&vol_nh4 * &cell_area).sum();
+    let total_soil_urea = (&vol_urea * &cell_area).sum();
+    let total_soil_water = (&vol_water * &cell_area).sum();
+
+    unsafe {
+        TotalSoilNo3N = total_soil_no3;
+        TotalSoilNh4N = total_soil_nh4;
+        TotalSoilUreaN = total_soil_urea;
+        TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
+        TotalSoilWater = total_soil_water * 10.0 / row_space;
+    }
 }
 
-unsafe fn water_balance(q1: &mut [f64; 40], qx: &[f64; 40], dd: &[f64; 40], nn: usize) {
+fn water_balance(q1: &mut [f64; 40], qx: &[f64; 40], dd: &[f64; 40], nn: usize) {
     let mut dev = 0.0;
     let mut dabs = 0.0;
     for i in 0..nn {
@@ -393,7 +627,7 @@ unsafe fn water_balance(q1: &mut [f64; 40], qx: &[f64; 40], dd: &[f64; 40], nn: 
     }
 }
 
-unsafe fn nitrogen_flow(
+fn nitrogen_flow(
     nn: usize,
     q01: &[f64; 40],
     q1: &[f64; 40],
@@ -942,19 +1176,22 @@ pub unsafe fn capillary_flow() {
 ///
 /// The following global variable is set here:
 /// * [LastIrrigation]
-pub unsafe fn ComputeIrrigation() {
+pub fn ComputeIrrigation() {
     let target_stress = get_target_stress();
     if target_stress == -9999. {
         return;
     }
-    if IrrigMethod == 2 {
-        predict_drip_irrigation(target_stress);
-    } else {
-        predict_surface_irrigation(target_stress);
-    }
-    // If the amount of water to be applied (AppliedWater) is non zero update the date of last irrigation, and write report in output file *.B01.
-    if AppliedWater > 1e-5 {
-        LastIrrigation = Daynum;
+    unsafe {
+        if IrrigMethod == 2 {
+            predict_drip_irrigation(target_stress);
+        } else {
+            predict_surface_irrigation(target_stress);
+        }
+
+        // If the amount of water to be applied (AppliedWater) is non zero update the date of last irrigation, and write report in output file *.B01.
+        if AppliedWater > 1e-5 {
+            LastIrrigation = Daynum;
+        }
     }
 }
 
@@ -971,109 +1208,243 @@ pub unsafe fn ComputeIrrigation() {
 ///
 /// The following global variables are set:
 /// ActualTranspiration, SoilPsi, VolWaterContent.
-pub unsafe fn WaterUptake() {
-    // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate.
-    // modified light interception factor by canopy
-    let LightInter1 = fmin(fmax(LightIntercept * 1.55 - 0.32, LightIntercept), 1.);
-    // The potential transpiration is the product of the daytime Penman equation and LightInter1.
-    let PotentialTranspiration = ReferenceTransp * LightInter1;
-    // uptake factor, computed as a ratio, for each soil cell
-    let mut upf = Array::zeros([40, 20]);
-    // actual transpiration from each soil cell, cm3 per day
-    let mut uptk = Array::<f64, _>::zeros([40, 20]);
-    // sum of actual transpiration from all soil soil cells, cm3 per day.
-    let mut sumep = 0.;
-    // Compute the reduction due to soil moisture supply by function psi_on_transpiration().
-    // the actual transpiration converted to cm3 per slab units.
-    let mut Transp =
-        0.10 * RowSpace * PotentialTranspiration * psi_on_transpiration(AverageSoilPsi);
-    // the cumulative difference between computed transpiration and actual transpiration, in cm3, due to limitation of PWP.
-    let mut difupt;
+pub fn WaterUptake() {
+    let (
+        num_layers,
+        num_cols,
+        row_space,
+        light_intercept,
+        reference_transp,
+        average_soil_psi,
+        total_required_n,
+        per_plant_area,
+        el_cond_sat_soil,
+        dl_layer,
+        wk_col,
+        thad_layer,
+        thts_layer,
+        thetar_layer,
+        soil_horizon,
+        root_left,
+        root_right,
+        alpha_horizon,
+        beta_horizon,
+        root_uptake,
+        mut vol_water,
+        mut soil_psi,
+        mut vol_no3,
+        mut vol_nh4,
+    ) = unsafe {
+        let num_layers = NumLayersWithRoots as usize;
+        let num_cols = nk as usize;
+        let row_space = RowSpace;
+        let light_intercept = LightIntercept;
+        let reference_transp = ReferenceTransp;
+        let average_soil_psi = AverageSoilPsi;
+        let total_required_n = TotalRequiredN;
+        let per_plant_area = PerPlantArea;
+        let el_cond_sat_soil = ElCondSatSoilToday;
 
-    loop {
-        let mut supf = 0.; // sum of upf for all soil cells
-        for l in 0..NumLayersWithRoots as usize {
-            let j = SoilHorizonNum[l] as usize;
-            // Compute, for each layer, the lower and upper water content limits for the transpiration function.
-            // These are set from limiting soil water potentials (-15 to -1 bars).
-            // lower limit of water content for the transpiration function
-            let vh2lo;
-            // upper limit of water content for the transpiration function
-            let vh2hi;
-            vh2lo = qpsi(-15., thad[l], thts[l], alpha[j], beta[j]);
-            vh2hi = qpsi(-1., thad[l], thts[l], alpha[j], beta[j]);
-            for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
-                // reduction factor for water uptake, caused by low levels of soil water, as a linear function of VolWaterContent, between vh2lo and vh2hi.
-                let redfac = fmin(
-                    fmax((VolWaterContent[l][k] - vh2lo) / (vh2hi - vh2lo), 0.),
-                    1.,
-                );
-                // The computed 'uptake factor' (upf) for each soil cell is the product of 'root weight capable of uptake' and redfac.
-                upf.slice_mut(s![l, k])
-                    .fill(RootWtCapblUptake[l][k] * redfac);
-                supf += upf.slice(s![l, k]).first().unwrap();
+        let mut dl_layer = vec![0.0f64; num_layers];
+        let mut thad_layer = vec![0.0f64; num_layers];
+        let mut thts_layer = vec![0.0f64; num_layers];
+        let mut thetar_layer = vec![0.0f64; num_layers];
+        let mut soil_horizon = vec![0usize; num_layers];
+        let mut root_left = vec![0usize; num_layers];
+        let mut root_right = vec![0usize; num_layers];
+        for layer in 0..num_layers {
+            dl_layer[layer] = dl[layer];
+            thad_layer[layer] = thad[layer];
+            thts_layer[layer] = thts[layer];
+            thetar_layer[layer] = thetar[layer];
+            soil_horizon[layer] = SoilHorizonNum[layer] as usize;
+            root_left[layer] = RootColNumLeft[layer] as usize;
+            root_right[layer] = RootColNumRight[layer] as usize;
+        }
+
+        let mut wk_col = vec![0.0f64; num_cols];
+        for column in 0..num_cols {
+            wk_col[column] = wk[column];
+        }
+
+        let mut alpha_horizon = [0.0f64; 9];
+        let mut beta_horizon = [0.0f64; 9];
+        for horizon in 0..9 {
+            alpha_horizon[horizon] = alpha[horizon];
+            beta_horizon[horizon] = beta[horizon];
+        }
+
+        let mut root_uptake = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut soil_psi = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut vol_no3 = Array2::<f64>::zeros((num_layers, num_cols));
+        let mut vol_nh4 = Array2::<f64>::zeros((num_layers, num_cols));
+        for layer in 0..num_layers {
+            for column in 0..num_cols {
+                root_uptake[[layer, column]] = RootWtCapblUptake[layer][column];
+                vol_water[[layer, column]] = VolWaterContent[layer][column];
+                soil_psi[[layer, column]] = SoilPsi[layer][column];
+                vol_no3[[layer, column]] = VolNo3NContent[layer][column];
+                vol_nh4[[layer, column]] = VolNh4NContent[layer][column];
             }
         }
-        difupt = 0.;
-        for l in 0..NumLayersWithRoots as usize {
-            for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
-                if upf.slice(s![l, k]).first().unwrap() > &0. && VolWaterContent[l][k] > thetar[l] {
-                    // The amount of water extracted from each cell is proportional to its 'uptake factor'.
-                    // transpiration from a soil cell, cm3 per day
-                    let mut upth2o = Transp * upf.slice(s![l, k]).first().unwrap() / supf;
-                    // Update VolWaterContent cell, storing its previous value as vh2ocx.
-                    // previous value of VolWaterContent of this cell
-                    let vh2ocx = VolWaterContent[l][k];
-                    VolWaterContent[l][k] -= upth2o / (dl[l] * wk[k]);
-                    // If the new value of VolWaterContent is less than the permanent wilting point, modify the value of upth2o so that VolWaterContent will be equal to it.
-                    if VolWaterContent[l][k] < thetar[l] {
-                        VolWaterContent[l][k] = thetar[l];
-                        // Compute the difference due to this correction and add it to difupt.
-                        // intermediate computation of upth2o
-                        let xupt = (vh2ocx - thetar[l]) * dl[l] * wk[k];
+
+        (
+            num_layers,
+            num_cols,
+            row_space,
+            light_intercept,
+            reference_transp,
+            average_soil_psi,
+            total_required_n,
+            per_plant_area,
+            el_cond_sat_soil,
+            dl_layer,
+            wk_col,
+            thad_layer,
+            thts_layer,
+            thetar_layer,
+            soil_horizon,
+            root_left,
+            root_right,
+            alpha_horizon,
+            beta_horizon,
+            root_uptake,
+            vol_water,
+            soil_psi,
+            vol_no3,
+            vol_nh4,
+        )
+    };
+
+    // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate.
+    let light_inter1 = fmin(fmax(light_intercept * 1.55 - 0.32, light_intercept), 1.);
+    let potential_transpiration = reference_transp * light_inter1;
+
+    // uptake factor, computed as a ratio, for each soil cell
+    let mut upf = Array2::<f64>::zeros((num_layers, num_cols));
+    // actual transpiration from each soil cell, cm3 per day
+    let mut uptk = Array2::<f64>::zeros((num_layers, num_cols));
+    // sum of actual transpiration from all soil cells, cm3 per day.
+    let mut sumep = 0.;
+    let mut transp =
+        0.10 * row_space * potential_transpiration * psi_on_transpiration(average_soil_psi);
+
+    loop {
+        let mut supf = 0.;
+        for layer in 0..num_layers {
+            let horizon = soil_horizon[layer];
+            let vh2lo = qpsi(
+                -15.,
+                thad_layer[layer],
+                thts_layer[layer],
+                alpha_horizon[horizon],
+                beta_horizon[horizon],
+            );
+            let vh2hi = qpsi(
+                -1.,
+                thad_layer[layer],
+                thts_layer[layer],
+                alpha_horizon[horizon],
+                beta_horizon[horizon],
+            );
+            for column in root_left[layer]..=root_right[layer] {
+                let redfac = fmin(
+                    fmax((vol_water[[layer, column]] - vh2lo) / (vh2hi - vh2lo), 0.),
+                    1.,
+                );
+                let uptake = root_uptake[[layer, column]] * redfac;
+                upf[[layer, column]] = uptake;
+                supf += uptake;
+            }
+        }
+
+        let mut difupt = 0.;
+        for layer in 0..num_layers {
+            for column in root_left[layer]..=root_right[layer] {
+                let uptake_factor = upf[[layer, column]];
+                if uptake_factor > 0. && vol_water[[layer, column]] > thetar_layer[layer] {
+                    let mut upth2o = transp * uptake_factor / supf;
+                    let vh2ocx = vol_water[[layer, column]];
+                    vol_water[[layer, column]] -= upth2o / (dl_layer[layer] * wk_col[column]);
+                    if vol_water[[layer, column]] < thetar_layer[layer] {
+                        vol_water[[layer, column]] = thetar_layer[layer];
+                        let xupt =
+                            (vh2ocx - thetar_layer[layer]) * dl_layer[layer] * wk_col[column];
                         difupt += upth2o - xupt;
                         upth2o = xupt;
                     }
                     if upth2o < 0. {
                         upth2o = 0.;
                     }
-                    // Compute sumep as the sum of the actual amount of water extracted from all soil cells.
-                    // Recalculate uptk of this soil cell as cumulative upth2o.
                     sumep += upth2o;
-                    uptk.slice_mut(s![l, k]).mapv_inplace(|x| x + upth2o);
+                    uptk[[layer, column]] += upth2o;
                 }
             }
         }
-        // If difupt is greater than zero, redefine the variable Transp as difuptfor use in next loop.
+
         if difupt > 0. {
-            Transp = difupt;
+            transp = difupt;
         } else {
             break;
         }
     }
-    // recompute SoilPsi for all soil cells with roots by calling function PSIQ,
-    for l in 0..NumLayersWithRoots as usize {
-        let j = SoilHorizonNum[l] as usize;
-        for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
-            SoilPsi[l][k] = psiq(VolWaterContent[l][k], thad[l], thts[l], alpha[j], beta[j])
-                - PsiOsmotic(VolWaterContent[l][k], thts[l], ElCondSatSoilToday);
+
+    for layer in 0..num_layers {
+        let horizon = soil_horizon[layer];
+        for column in root_left[layer]..=root_right[layer] {
+            soil_psi[[layer, column]] = psiq(
+                vol_water[[layer, column]],
+                thad_layer[layer],
+                thts_layer[layer],
+                alpha_horizon[horizon],
+                beta_horizon[horizon],
+            ) - PsiOsmotic(
+                vol_water[[layer, column]],
+                thts_layer[layer],
+                el_cond_sat_soil,
+            );
         }
     }
-    // compute ActualTranspiration as actual water transpired, in mm.
-    ActualTranspiration = sumep * 10. / RowSpace;
-    // Zeroize the amounts of NH4 and NO3 nitrogen taken up from the soil.
-    SupplyNH4N = 0.;
-    SupplyNO3N = 0.;
-    // Compute the proportional N requirement from each soil cell with roots, and call function nitrogen_uptake() to compute nitrogen uptake.
-    if sumep > 0. && TotalRequiredN > 0. {
-        for l in 0..NumLayersWithRoots as usize {
-            for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
-                if uptk.slice(s![l, k]).first().unwrap() > &0. {
-                    // proportional allocation of TotalRequiredN to each cell
-                    let reqnc = TotalRequiredN * uptk.slice(s![l, k]).first().unwrap() / sumep;
-                    nitrogen_uptake(l as i32, k as i32, reqnc);
+
+    let actual_transpiration = sumep * 10. / row_space;
+    let mut supply_no3 = 0.0;
+    let mut supply_nh4 = 0.0;
+    if sumep > 0. && total_required_n > 0. {
+        for layer in 0..num_layers {
+            for column in root_left[layer]..=root_right[layer] {
+                if uptk[[layer, column]] > 0. {
+                    let reqnc = total_required_n * uptk[[layer, column]] / sumep;
+                    nitrogen_uptake(
+                        layer,
+                        column,
+                        reqnc,
+                        row_space,
+                        per_plant_area,
+                        &dl_layer,
+                        &wk_col,
+                        &vol_water,
+                        &mut vol_no3,
+                        &mut vol_nh4,
+                        &mut supply_no3,
+                        &mut supply_nh4,
+                    );
                 }
             }
         }
+    }
+
+    unsafe {
+        for layer in 0..num_layers {
+            for column in 0..num_cols {
+                VolWaterContent[layer][column] = vol_water[[layer, column]];
+                SoilPsi[layer][column] = soil_psi[[layer, column]];
+                VolNo3NContent[layer][column] = vol_no3[[layer, column]];
+                VolNh4NContent[layer][column] = vol_nh4[[layer, column]];
+            }
+        }
+        ActualTranspiration = actual_transpiration;
+        SupplyNO3N = supply_no3;
+        SupplyNH4N = supply_nh4;
     }
 }
