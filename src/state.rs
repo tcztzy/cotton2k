@@ -311,7 +311,7 @@ impl State {
     /// * [CapillaryFlow()]
     /// * [ComputeIrrigation()]
     /// * [DripFlow()]
-    /// * [GravityFlow()]
+    /// * gravity-flow redistribution for rain/surface irrigation
     /// * [RootsCapableOfUptake()]
     /// * [WaterUptake()]
     /// * [WaterTable()]
@@ -439,11 +439,17 @@ impl State {
             }
             // the amount of water applied, mm per iteration.
             let applywat = water_to_apply / unsafe { noitr } as f64;
-            // The following subroutines are called noitr times per day:
-            // If water is applied, GravityFlow() is called when the method of irrigation is not by drippers, followed by CapillaryFlow().
+            // The following redistribution steps are called noitr times per day:
+            // surface/flood gravity flow update, followed by CapillaryFlow().
             for _ in 0..unsafe { noitr } as usize {
                 unsafe {
-                    GravityFlow(applywat);
+                    for k in 0..nk as usize {
+                        VolWaterContent[0][k] += 0.10 * applywat / dl[0];
+                    }
+                    let water_drained_out = drain();
+                    if water_drained_out > 0. {
+                        CumWaterDrained += 10. * water_drained_out / RowSpace;
+                    }
                     capillary_flow();
                 }
             }
@@ -941,35 +947,6 @@ impl State {
             }
         }
         Ok(())
-    }
-}
-
-/// This function computes the water redistribution in the soil or surface irrigation (by flooding or sprinklers).
-/// It is called by [`State::soil_procedures()`].
-/// It calls function [Drain()].
-///
-/// The following argument is used:
-/// - applyWat = amount of water applied, mm.
-///
-/// The following global variables are referenced:
-/// * [dl]
-/// * [nk]
-/// * [RowSpace].
-///
-/// The following global variables are set:
-/// * [CumWaterDrained]
-/// * [VolWaterContent]
-unsafe fn GravityFlow(applywat: f64) {
-    // Add the applied amount of water to the top soil cell of each column.
-    for k in 0..nk as usize {
-        VolWaterContent[0][k] += 0.10 * applywat / dl[0];
-    }
-    // Call function Drain() to compute downflow of water.
-    // water drained out of the slab, mm.
-    let WaterDrainedOut: f64 = drain();
-    // If there is drainage out of the slab, transform it to mm, and update the cumulative drainage (CumWaterDrained)
-    if WaterDrainedOut > 0. {
-        CumWaterDrained += 10. * WaterDrainedOut / RowSpace;
     }
 }
 
