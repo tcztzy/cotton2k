@@ -109,73 +109,76 @@ impl SoilThermodynamics {
     /// The following global variables are set here:
     /// ActualSoilEvaporation, bEnd, CumEvaporation, DeepSoilTemperature, es,
     /// SoilTemp, SoilTempDailyAvrg, VolWaterContent,
-    pub unsafe fn simulate(&mut self, profile: &Profile) {
-        //     Compute dts, the daily change in deep soil temperature (C), as
-        //  a site-dependent function of Daynum.
-        let (_, amplitude, phase) = profile.site.deep_soil_temperature;
-        let dts = 2. * std::f64::consts::PI * amplitude / 365.
-            * (2. * std::f64::consts::PI * (Daynum as f64 - phase) / 365.).cos();
-        //     Define iter1 and dlt for hourly time step.
-        let iter1 = 24; // number of iterations per day.
-        let dlt = 3600.; // time (seconds) of one iteration.
-        let mut kk = 1; // number of soil columns for executing computations.
-                        //     If there is no canopy cover, no horizontal heat flux is assumed, kk
-                        //     = 1.
-                        //  Otherwise it is equal to the number of columns in the slab.
-        let mut shadeav = 0.; // average shaded area in all shaded soil columns.
-                              //     isw defines the type of soil temperature computation.
-        if isw > 1 {
-            let mut shadetot = 0.; // sum of shaded area in all shaded soil columns.
-            let mut nshadedcol = 0; // number of at least partially shaded soil columns.
-            kk = nk as usize;
-            for k in 0..nk as usize {
-                if self.rracol[k] <= 0.99 {
-                    shadetot += 1. - self.rracol[k];
-                    nshadedcol += 1;
+    pub fn simulate(&mut self, profile: &Profile) {
+        unsafe {
+            //     Compute dts, the daily change in deep soil temperature (C), as
+            //  a site-dependent function of Daynum.
+            let (_, amplitude, phase) = profile.site.deep_soil_temperature;
+            let dts = 2. * std::f64::consts::PI * amplitude / 365.
+                * (2. * std::f64::consts::PI * (Daynum as f64 - phase) / 365.).cos();
+            //     Define iter1 and dlt for hourly time step.
+            let iter1 = 24; // number of iterations per day.
+            let dlt = 3600.; // time (seconds) of one iteration.
+            let mut kk = 1; // number of soil columns for executing computations.
+                            //     If there is no canopy cover, no horizontal heat flux is assumed, kk
+                            //     = 1.
+                            //  Otherwise it is equal to the number of columns in the slab.
+            let mut shadeav = 0.; // average shaded area in all shaded soil columns.
+                                  //     isw defines the type of soil temperature computation.
+            if isw > 1 {
+                let mut shadetot = 0.; // sum of shaded area in all shaded soil columns.
+                let mut nshadedcol = 0; // number of at least partially shaded soil columns.
+                kk = nk as usize;
+                for k in 0..nk as usize {
+                    if self.rracol[k] <= 0.99 {
+                        shadetot += 1. - self.rracol[k];
+                        nshadedcol += 1;
+                    }
+                }
+                if nshadedcol > 0 {
+                    shadeav = shadetot / nshadedcol as f64;
                 }
             }
-            if nshadedcol > 0 {
-                shadeav = shadetot / nshadedcol as f64;
+            //     Set daily averages of soil temperature to zero.
+            for l in 0..nl as usize {
+                for k in 0..nk as usize {
+                    SoilTempDailyAvrg[l][k] = 0.;
+                }
             }
-        }
-        //     Set daily averages of soil temperature to zero.
-        for l in 0..nl as usize {
-            for k in 0..nk as usize {
-                SoilTempDailyAvrg[l][k] = 0.;
-            }
-        }
-        // es and ActualSoilEvaporation are computed as the average for the whole soil slab, weighted by column widths.
-        self.es = 0.;
-        ActualSoilEvaporation = 0.;
-        //     Start hourly loop of iterations.
-        for ihr in 0..iter1 {
-            //     Update the temperature of the last soil layer (lower boundary
-            //     conditions).
-            DeepSoilTemperature += dts * dlt / 86400.;
-            // actual transpiration (mm s-1) for this hour
-            let etp0 = if ReferenceTransp > 0.000001 {
-                ActualTranspiration * ReferenceETP[ihr] / ReferenceTransp / dlt
-            } else {
-                0.
-            };
-
-            // Compute vertical transport for each column
-            for k in 0..kk as usize {
-                //     Set SoilTemp for the lowest soil layer.
-                SoilTemp[(nl - 1) as usize][k] = DeepSoilTemperature;
-                //     Compute transpiration from each column, weighted by its
-                //     relative shading.
-
-                // actual hourly transpiration (mm s-1) for a column.
-                let etp1 = if shadeav > 0.000001 {
-                    etp0 * (1. - self.rracol[k]) / shadeav
+            // es and ActualSoilEvaporation are computed as the average for the whole soil slab, weighted by column widths.
+            self.es = 0.;
+            ActualSoilEvaporation = 0.;
+            //     Start hourly loop of iterations.
+            for ihr in 0..iter1 {
+                //     Update the temperature of the last soil layer (lower boundary
+                //     conditions).
+                DeepSoilTemperature += dts * dlt / 86400.;
+                // actual transpiration (mm s-1) for this hour
+                let etp0 = if ReferenceTransp > 0.000001 {
+                    ActualTranspiration * ReferenceETP[ihr] / ReferenceTransp / dlt
                 } else {
                     0.
                 };
-                //     Check if mulch is on for this date and for this column.
-                // is true if this column is covered with plastic mulch now, false if not.
-                let bMulchon =
-                    if MulchIndicator == 0 || Daynum < DayStartMulch || Daynum > DayEndMulch {
+
+                // Compute vertical transport for each column
+                for k in 0..kk as usize {
+                    //     Set SoilTemp for the lowest soil layer.
+                    SoilTemp[(nl - 1) as usize][k] = DeepSoilTemperature;
+                    //     Compute transpiration from each column, weighted by its
+                    //     relative shading.
+
+                    // actual hourly transpiration (mm s-1) for a column.
+                    let etp1 = if shadeav > 0.000001 {
+                        etp0 * (1. - self.rracol[k]) / shadeav
+                    } else {
+                        0.
+                    };
+                    //     Check if mulch is on for this date and for this column.
+                    // is true if this column is covered with plastic mulch now, false if not.
+                    let bMulchon = if MulchIndicator == 0
+                        || Daynum < DayStartMulch
+                        || Daynum > DayEndMulch
+                    {
                         false
                     } else {
                         if MulchIndicator == 1 {
@@ -198,93 +201,94 @@ impl SoilThermodynamics {
                             false
                         }
                     };
-                let mut ess = 0.; //   evaporation rate from surface of a soil column (mm / sec).
-                if !bMulchon {
-                    // The potential evaporation rate (escol1k) from a column is the sum of the radiation
-                    // component of the Penman equation(es1hour), multiplied by the
-                    // relative radiation reaching this column, and the wind and
-                    // vapor deficit component of the Penman equation (es2hour).
-                    // potential evaporation fron soil surface of a column, mm per hour.
-                    let mut escol1k = es1hour[ihr] * self.rracol[k] + es2hour[ihr];
-                    self.es += escol1k * wk[k];
-                    // Compute actual evaporation from soil surface. Update VolWaterContent of the soil soil cell, and add to daily sum of actual evaporation.
-                    let evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10. * dl[0]; // maximum possible evaporatio from a soil cell near the surface.
-                    if escol1k > evapmax {
-                        escol1k = evapmax;
+                    let mut ess = 0.; //   evaporation rate from surface of a soil column (mm / sec).
+                    if !bMulchon {
+                        // The potential evaporation rate (escol1k) from a column is the sum of the radiation
+                        // component of the Penman equation(es1hour), multiplied by the
+                        // relative radiation reaching this column, and the wind and
+                        // vapor deficit component of the Penman equation (es2hour).
+                        // potential evaporation fron soil surface of a column, mm per hour.
+                        let mut escol1k = es1hour[ihr] * self.rracol[k] + es2hour[ihr];
+                        self.es += escol1k * wk[k];
+                        // Compute actual evaporation from soil surface. Update VolWaterContent of the soil soil cell, and add to daily sum of actual evaporation.
+                        let evapmax = 0.9 * (VolWaterContent[0][k] - thad[0]) * 10. * dl[0]; // maximum possible evaporatio from a soil cell near the surface.
+                        if escol1k > evapmax {
+                            escol1k = evapmax;
+                        }
+                        VolWaterContent[0][k] -= 0.1 * escol1k / dl[0];
+                        ActualSoilEvaporation += escol1k * wk[k];
+                        ess = escol1k / dlt;
                     }
-                    VolWaterContent[0][k] -= 0.1 * escol1k / dl[0];
-                    ActualSoilEvaporation += escol1k * wk[k];
-                    ess = escol1k / dlt;
+                    // Call EnergyBalance to compute soil surface and canopy temperature.
+                    self.soil_energy_balance(ihr, k, bMulchon, ess, etp1, profile)
+                        .unwrap();
+                    if bEnd {
+                        return;
+                    }
                 }
-                // Call EnergyBalance to compute soil surface and canopy temperature.
-                self.soil_energy_balance(ihr, k, bMulchon, ess, etp1, profile)
-                    .unwrap();
-                if bEnd {
-                    return;
-                }
-            }
 
-            // Compute soil temperature flux in the vertical direction.
-            // Assign iv = 1, layer = 0, nn = nl.
-            let mut iv = 1; // indicates vertical (=1) or horizontal (=0) flux.
-            let mut nn = nl as usize; // number of array members for heat flux.
-            let mut layer = 0; // soil layer number
-            let mut tsolav: [f64; 40] = [0.; 40]; // hourly average soil temperature C, of a soil layer.
-            for k in 0..kk {
-                // Loop over kk columns, and call SoilHeatFlux().
-                self.heat_flux(dlt, iv, nn, layer, k);
-            }
-            // If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the value computed for the first column. Also, do the same for array memebers of VolWaterContent.
-            if isw <= 1 {
-                for l in 0..nl as usize {
-                    for k in 1..nk as usize {
-                        SoilTemp[l][k] = SoilTemp[l][0];
-                        if l == 0 {
-                            VolWaterContent[l][k] = VolWaterContent[l][0];
+                // Compute soil temperature flux in the vertical direction.
+                // Assign iv = 1, layer = 0, nn = nl.
+                let mut iv = 1; // indicates vertical (=1) or horizontal (=0) flux.
+                let mut nn = nl as usize; // number of array members for heat flux.
+                let mut layer = 0; // soil layer number
+                let mut tsolav: [f64; 40] = [0.; 40]; // hourly average soil temperature C, of a soil layer.
+                for k in 0..kk {
+                    // Loop over kk columns, and call SoilHeatFlux().
+                    self.heat_flux(dlt, iv, nn, layer, k);
+                }
+                // If no horizontal heat flux is assumed, make all array members of SoilTemp equal to the value computed for the first column. Also, do the same for array memebers of VolWaterContent.
+                if isw <= 1 {
+                    for l in 0..nl as usize {
+                        for k in 1..nk as usize {
+                            SoilTemp[l][k] = SoilTemp[l][0];
+                            if l == 0 {
+                                VolWaterContent[l][k] = VolWaterContent[l][0];
+                            }
                         }
                     }
                 }
-            }
 
-            // Compute horizontal transport for each layer
-            //
-            // Compute soil temperature flux in the horizontal direction, when
-            // isw = 2. Assign iv = 0 and nn = nk. Start loop for soil layers,
-            // and call SoilHeatFlux.
-            if isw > 1 {
-                iv = 0;
-                nn = nk as usize;
+                // Compute horizontal transport for each layer
+                //
+                // Compute soil temperature flux in the horizontal direction, when
+                // isw = 2. Assign iv = 0 and nn = nk. Start loop for soil layers,
+                // and call SoilHeatFlux.
+                if isw > 1 {
+                    iv = 0;
+                    nn = nk as usize;
+                    for l in 0..nl as usize {
+                        layer = l;
+                        self.heat_flux(dlt, iv, nn, layer, l);
+                    }
+                }
+                //     Compute average temperature of soil layers, in degrees C.
                 for l in 0..nl as usize {
-                    layer = l;
-                    self.heat_flux(dlt, iv, nn, layer, l);
+                    for k in 0..nk as usize {
+                        SoilTempDailyAvrg[l][k] += SoilTemp[l][k];
+                        tsolav[l] += SoilTemp[l][k] - 273.161;
+                    }
+                    tsolav[l] = tsolav[l] / nk as f64;
+                }
+                // If emergence date is to be simulated, call PredictEmergence().
+                if isw == 0 && Daynum >= DayPlant {
+                    predict_emergence(ihr as i32);
                 }
             }
-            //     Compute average temperature of soil layers, in degrees C.
+            // At the end of the day compute actual daily evaporation and its cumulative sum.
+            if kk == 1 {
+                self.es /= wk[1];
+                ActualSoilEvaporation = ActualSoilEvaporation / wk[1];
+            } else {
+                self.es /= RowSpace;
+                ActualSoilEvaporation = ActualSoilEvaporation / RowSpace;
+            }
+            CumEvaporation += ActualSoilEvaporation;
+            // compute daily averages.
             for l in 0..nl as usize {
                 for k in 0..nk as usize {
-                    SoilTempDailyAvrg[l][k] += SoilTemp[l][k];
-                    tsolav[l] += SoilTemp[l][k] - 273.161;
+                    SoilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k] / iter1 as f64;
                 }
-                tsolav[l] = tsolav[l] / nk as f64;
-            }
-            // If emergence date is to be simulated, call PredictEmergence().
-            if isw == 0 && Daynum >= DayPlant {
-                predict_emergence(ihr as i32);
-            }
-        }
-        // At the end of the day compute actual daily evaporation and its cumulative sum.
-        if kk == 1 {
-            self.es /= wk[1];
-            ActualSoilEvaporation = ActualSoilEvaporation / wk[1];
-        } else {
-            self.es /= RowSpace;
-            ActualSoilEvaporation = ActualSoilEvaporation / RowSpace;
-        }
-        CumEvaporation += ActualSoilEvaporation;
-        // compute daily averages.
-        for l in 0..nl as usize {
-            for k in 0..nk as usize {
-                SoilTempDailyAvrg[l][k] = SoilTempDailyAvrg[l][k] / iter1 as f64;
             }
         }
     }
@@ -311,7 +315,7 @@ impl SoilThermodynamics {
     ///
     /// The following global variables are set here:
     /// bEnd, SoilTemp, FoliageTemp, MulchTemp.
-    unsafe fn soil_energy_balance(
+    fn soil_energy_balance(
         &mut self,
         ihr: usize,
         k: usize,
@@ -320,182 +324,184 @@ impl SoilThermodynamics {
         etp1: f64,
         profile: &Profile,
     ) -> Result<(), Cotton2KError> {
-        // Stefan-Boltsman constant.
-        const stefa1: f64 = 1.38e-12;
-        // Ratio of wind speed under partial canopy cover.
-        const wndfac: f64 = 0.60;
-        // proportion of short wave radiation (on fully shaded soil surface)intercepted by the canopy.
-        const cswint: f64 = 0.75;
-        // Set initial values
-        // fraction of shaded soil area
-        let sf = 1. - self.rracol[k];
-        // air temperature, K
-        let thet = AirTemp[ihr] + 273.161;
-        // soil surface temperature, K
-        let mut so = SoilTemp[0][k];
-        // 2nd soil layer temperature, K
-        let mut so2 = SoilTemp[1][k];
-        // 3rd soil layer temperature, K
-        let mut so3 = SoilTemp[2][k];
-        // Compute soil surface albedo (based on Horton and Chung, 1991):
-        // albedo of the soil surface
-        let (wet_albedo, dry_albedo) = profile.site.albedo_range;
-        let ag = if VolWaterContent[0][k] <= thad[0] {
-            dry_albedo
-        } else if VolWaterContent[0][k] >= FieldCapacity[0] {
-            wet_albedo
-        } else {
-            wet_albedo
-                + (dry_albedo - wet_albedo) * (FieldCapacity[0] - VolWaterContent[0][k])
-                    / (FieldCapacity[0] - thad[0])
-        };
-        //  ****   SHORT WAVE RADIATION ENERGY BALANCE   ****
-        // Division by 41880 (= 698 * 60) converts from Joules per sq m to
-        // langley (= calories per sq cm) Or: from Watt per sq m to langley per sec.
-        // Modify incoming short wave radiation to mulched soil surface.
-        let rzero = Radiation[ihr] / 41880.; // short wave (global) radiation (ly / sec).
-        let rss0 = rzero * (1. - sf * cswint); // global radiation after passing through canopy
-        let mut tm; // temperature of mulch (K)
-        let rsup; // global radiation reflected up to the vegetation
-        let mut rsm = 0.; // global radiation absorbed by mulch
-        let rss; // global radiation absorbed by soil surface
-        if bMulchon {
-            tm = MulchTemp[k];
-            // Assume all non transfered radiation is absorbed by mulch
-            rss = rss0 * MulchTranSW * (1. - ag); // absorbed by soil surface
-            rsm = rss0 * (1. - MulchTranSW) // absorbed by mulch
+        unsafe {
+            // Stefan-Boltsman constant.
+            const stefa1: f64 = 1.38e-12;
+            // Ratio of wind speed under partial canopy cover.
+            const wndfac: f64 = 0.60;
+            // proportion of short wave radiation (on fully shaded soil surface)intercepted by the canopy.
+            const cswint: f64 = 0.75;
+            // Set initial values
+            // fraction of shaded soil area
+            let sf = 1. - self.rracol[k];
+            // air temperature, K
+            let thet = AirTemp[ihr] + 273.161;
+            // soil surface temperature, K
+            let mut so = SoilTemp[0][k];
+            // 2nd soil layer temperature, K
+            let mut so2 = SoilTemp[1][k];
+            // 3rd soil layer temperature, K
+            let mut so3 = SoilTemp[2][k];
+            // Compute soil surface albedo (based on Horton and Chung, 1991):
+            // albedo of the soil surface
+            let (wet_albedo, dry_albedo) = profile.site.albedo_range;
+            let ag = if VolWaterContent[0][k] <= thad[0] {
+                dry_albedo
+            } else if VolWaterContent[0][k] >= FieldCapacity[0] {
+                wet_albedo
+            } else {
+                wet_albedo
+                    + (dry_albedo - wet_albedo) * (FieldCapacity[0] - VolWaterContent[0][k])
+                        / (FieldCapacity[0] - thad[0])
+            };
+            //  ****   SHORT WAVE RADIATION ENERGY BALANCE   ****
+            // Division by 41880 (= 698 * 60) converts from Joules per sq m to
+            // langley (= calories per sq cm) Or: from Watt per sq m to langley per sec.
+            // Modify incoming short wave radiation to mulched soil surface.
+            let rzero = Radiation[ihr] / 41880.; // short wave (global) radiation (ly / sec).
+            let rss0 = rzero * (1. - sf * cswint); // global radiation after passing through canopy
+            let mut tm; // temperature of mulch (K)
+            let rsup; // global radiation reflected up to the vegetation
+            let mut rsm = 0.; // global radiation absorbed by mulch
+            let rss; // global radiation absorbed by soil surface
+            if bMulchon {
+                tm = MulchTemp[k];
+                // Assume all non transfered radiation is absorbed by mulch
+                rss = rss0 * MulchTranSW * (1. - ag); // absorbed by soil surface
+                rsm = rss0 * (1. - MulchTranSW) // absorbed by mulch
                       + rss0 * MulchTranSW * ag * (1. - MulchTranSW) // reflected up from soil surface and absorbed by mulch
                       ;
-            rsup = rss0 * MulchTranSW * ag * MulchTranSW; // reflected up from soil surface through mulch
-        } else {
-            tm = 0.;
-            rss = rss0 * (1. - ag); // absorbed by soil surface
-            rsup = rss0 * ag; // reflected up from soil surface
-        }
-        //   ****   LONG WAVE RADIATION EMITTED FROM SKY    ****
-        // air vapor pressure, KPa.
-        let vp = 0.01 * RelativeHumidity[ihr] * vapor_pressure(AirTemp[ihr]);
-        // sky emissivity from clear portions of the sky.
-        let ea0 = clearskyemiss(vp, thet);
-        // incoming long wave radiation (ly / sec).
-        let rlzero = (ea0 * (1. - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefa1 * thet.powi(4)
+                rsup = rss0 * MulchTranSW * ag * MulchTranSW; // reflected up from soil surface through mulch
+            } else {
+                tm = 0.;
+                rss = rss0 * (1. - ag); // absorbed by soil surface
+                rsup = rss0 * ag; // reflected up from soil surface
+            }
+            //   ****   LONG WAVE RADIATION EMITTED FROM SKY    ****
+            // air vapor pressure, KPa.
+            let vp = 0.01 * RelativeHumidity[ihr] * vapor_pressure(AirTemp[ihr]);
+            // sky emissivity from clear portions of the sky.
+            let ea0 = clearskyemiss(vp, thet);
+            // incoming long wave radiation (ly / sec).
+            let rlzero = (ea0 * (1. - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefa1 * thet.powi(4)
                 - CloudTypeCorr[ihr] / 41880. // CloudTypeCorr converted from W m-2 to ly sec-1.
                 ;
-        // Set initial values of canopy temperature and air temperature in canopy.
-        let mut tv = 0.; // temperature of plant foliage (K)
-        let mut tafk; // temperature (K) of air inside the canopy.
-        if sf < 0.05 {
-            // no vegetation
-            tv = thet;
-        }
-        // Wind velocity in canopy is converted to cm / s.
-        let wndhr = WindSpeed[ihr] * 100.;
-        let mut rocp; // air density * specific heat at constant pressure = 0.24 * 2 * 1013 / 5740 divided by tafk.
-        let mut c2 = 0.; // multiplier for sensible heat transfer (at plant surface).
-        let mut rsv = 0.; // global radiation absorbed by the vegetation
-        if sf >= 0.05 {
-            // a shaded soil column
-            // vegetation temperature
-            tv = FoliageTemp[k];
-            // Short wave radiation intercepted by the canopy:
-            rsv = rzero * (1. - albedo[ihr]) * sf * cswint  //  from above
+            // Set initial values of canopy temperature and air temperature in canopy.
+            let mut tv = 0.; // temperature of plant foliage (K)
+            let mut tafk; // temperature (K) of air inside the canopy.
+            if sf < 0.05 {
+                // no vegetation
+                tv = thet;
+            }
+            // Wind velocity in canopy is converted to cm / s.
+            let wndhr = WindSpeed[ihr] * 100.;
+            let mut rocp; // air density * specific heat at constant pressure = 0.24 * 2 * 1013 / 5740 divided by tafk.
+            let mut c2 = 0.; // multiplier for sensible heat transfer (at plant surface).
+            let mut rsv = 0.; // global radiation absorbed by the vegetation
+            if sf >= 0.05 {
+                // a shaded soil column
+                // vegetation temperature
+                tv = FoliageTemp[k];
+                // Short wave radiation intercepted by the canopy:
+                rsv = rzero * (1. - albedo[ihr]) * sf * cswint  //  from above
                       + rsup * (1. - albedo[ihr]) * sf * cswint //  reflected from soil surface
                       ;
-            // Air temperature inside canopy is the average of soil, air, and plant temperatures,
-            // weighted by 0.1, 0.3, and 0.6, respectively. In case of mulch, mulch temperature replaces soil temperature.
-            tafk = (1. - sf) * thet
-                + sf * (0.1 * if bMulchon { tm } else { so } + 0.3 * thet + 0.6 * tv);
-            // Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2 for sensible heat transfer: 2 sides of leaf plus stems and petioles.
-            // sensible heat transfer coefficient for soil
-            let varcc = sensible_heat_transfer(tv, tafk, PlantHeight, wndhr); // canopy to air
-            if bEnd {
-                return Ok(());
-            }
-            rocp = 0.08471 / tafk;
-            c2 = 2.2 * sf * rocp * varcc;
-        }
-        // counter of iteration number
-        let mut menit: usize = 0;
-        // previous value of soil surface temperature
-        let mut soold;
-        // previous value of vegetation temperature
-        let mut tvold = tv;
-        // previous value of temperature of mulch (K)
-        let mut tmold = tm;
-        // Starting iterations for soil, mulch and canopy energy balance
-        loop {
-            soold = so;
-            let wndcanp = (1. - sf * (1. - wndfac)) * wndhr; // estimated wind speed under canopy
-            if bMulchon {
-                // This section executed for mulched columns: call SoilMulchBalance() for soil / mulch interface.
-                tmold = tm;
-                bEnd = SoilMulchBalance(
-                    ihr as i32, k as i32, rlzero, rsm, rss, sf, &mut so, &mut so2, &mut so3, thet,
-                    &mut tm, tv, wndcanp,
-                )?;
-                if bEnd {
-                    return Ok(());
-                }
-            } else {
-                // This section executed for non-mulched columns
-                // Call SensibleHeatTransfer() to compute sensible heat transfer for soil surface to air
-                tafk = (1. - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
-                // sensible heat transfer coefficientS for soil
-                let varc = sensible_heat_transfer(so, tafk, 0., wndcanp);
+                // Air temperature inside canopy is the average of soil, air, and plant temperatures,
+                // weighted by 0.1, 0.3, and 0.6, respectively. In case of mulch, mulch temperature replaces soil temperature.
+                tafk = (1. - sf) * thet
+                    + sf * (0.1 * if bMulchon { tm } else { so } + 0.3 * thet + 0.6 * tv);
+                // Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2 for sensible heat transfer: 2 sides of leaf plus stems and petioles.
+                // sensible heat transfer coefficient for soil
+                let varcc = sensible_heat_transfer(tv, tafk, PlantHeight, wndhr); // canopy to air
                 if bEnd {
                     return Ok(());
                 }
                 rocp = 0.08471 / tafk;
-                // multiplier for computing sensible heat transfer soil to air.
-                let hsg = rocp * varc;
-                // Call SoilSurfaceBalance() for energy balance in soil surface/air interface.
-                soil_surface_balance(
-                    ihr as i32, k as i32, ess, rlzero, rss, sf, hsg, &mut so, &mut so2, &mut so3,
-                    thet, 0., tv,
-                );
-                if bEnd {
-                    return Ok(());
-                }
+                c2 = 2.2 * sf * rocp * varcc;
             }
-            if sf >= 0.05 {
-                // This section executed for shaded columns only.
-                tvold = tv;
-                // Compute canopy energy balance for shaded columns
-                canopy_balance(
-                    ihr as i32, k as i32, etp1, rlzero, rsv, c2, sf, so, thet, tm, &mut tv,
-                );
-                // Increment the number of iterations.
-                menit += 1;
-                if menit > 10 {
-                    // The following is used to reduce fluctuations.
-                    so = 0.5 * (so + soold);
-                    if bMulchon {
-                        tm = 0.5 * (tm + tmold);
+            // counter of iteration number
+            let mut menit: usize = 0;
+            // previous value of soil surface temperature
+            let mut soold;
+            // previous value of vegetation temperature
+            let mut tvold = tv;
+            // previous value of temperature of mulch (K)
+            let mut tmold = tm;
+            // Starting iterations for soil, mulch and canopy energy balance
+            loop {
+                soold = so;
+                let wndcanp = (1. - sf * (1. - wndfac)) * wndhr; // estimated wind speed under canopy
+                if bMulchon {
+                    // This section executed for mulched columns: call SoilMulchBalance() for soil / mulch interface.
+                    tmold = tm;
+                    bEnd = SoilMulchBalance(
+                        ihr as i32, k as i32, rlzero, rsm, rss, sf, &mut so, &mut so2, &mut so3,
+                        thet, &mut tm, tv, wndcanp,
+                    )?;
+                    if bEnd {
+                        return Ok(());
                     }
-                    tv = 0.5 * (tv + tvold);
+                } else {
+                    // This section executed for non-mulched columns
+                    // Call SensibleHeatTransfer() to compute sensible heat transfer for soil surface to air
+                    tafk = (1. - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
+                    // sensible heat transfer coefficientS for soil
+                    let varc = sensible_heat_transfer(so, tafk, 0., wndcanp);
+                    if bEnd {
+                        return Ok(());
+                    }
+                    rocp = 0.08471 / tafk;
+                    // multiplier for computing sensible heat transfer soil to air.
+                    let hsg = rocp * varc;
+                    // Call SoilSurfaceBalance() for energy balance in soil surface/air interface.
+                    soil_surface_balance(
+                        ihr as i32, k as i32, ess, rlzero, rss, sf, hsg, &mut so, &mut so2,
+                        &mut so3, thet, 0., tv,
+                    );
+                    if bEnd {
+                        return Ok(());
+                    }
                 }
-                if menit > 30 {
-                    // If more than 30 iterations are needed - stop simulation.
-                    bEnd = true;
-                    return Ok(());
+                if sf >= 0.05 {
+                    // This section executed for shaded columns only.
+                    tvold = tv;
+                    // Compute canopy energy balance for shaded columns
+                    canopy_balance(
+                        ihr as i32, k as i32, etp1, rlzero, rsv, c2, sf, so, thet, tm, &mut tv,
+                    );
+                    // Increment the number of iterations.
+                    menit += 1;
+                    if menit > 10 {
+                        // The following is used to reduce fluctuations.
+                        so = 0.5 * (so + soold);
+                        if bMulchon {
+                            tm = 0.5 * (tm + tmold);
+                        }
+                        tv = 0.5 * (tv + tvold);
+                    }
+                    if menit > 30 {
+                        // If more than 30 iterations are needed - stop simulation.
+                        bEnd = true;
+                        return Ok(());
+                    }
+                }
+                if !((tv - tvold).abs() > 0.05
+                    || (so - soold).abs() > 0.05
+                    || (tm - tmold).abs() > 0.05)
+                {
+                    break;
                 }
             }
-            if !((tv - tvold).abs() > 0.05
-                || (so - soold).abs() > 0.05
-                || (tm - tmold).abs() > 0.05)
-            {
-                break;
+            // After convergence - set global variables for the following temperatures:
+            if sf >= 0.05 {
+                FoliageTemp[k] = tv;
             }
+            SoilTemp[0][k] = so;
+            SoilTemp[1][k] = so2;
+            SoilTemp[2][k] = so3;
+            MulchTemp[k] = if bMulchon { tm } else { 0. };
+            Ok(())
         }
-        // After convergence - set global variables for the following temperatures:
-        if sf >= 0.05 {
-            FoliageTemp[k] = tv;
-        }
-        SoilTemp[0][k] = so;
-        SoilTemp[1][k] = so2;
-        SoilTemp[2][k] = so3;
-        MulchTemp[k] = if bMulchon { tm } else { 0. };
-        Ok(())
     }
 
     /// This function computes heat flux in one direction between soil cells.
@@ -520,146 +526,152 @@ impl SoilThermodynamics {
     /// layer - soil layer number.
     /// n0 - number of layer or column of this array
     /// nn - number of soil cells in the array.
-    unsafe fn heat_flux(&mut self, dlt: f64, iv: i32, nn: usize, layer: usize, n0: usize) {
-        // Constant parameters:
-        // weighting factor for the implicit method of computation.
-        const beta1: f64 = 0.90;
-        // heat capacity of air (cal cm-3 oC-1).
-        const ca: f64 = 0.0003;
-        // Set soil layer number l (needed to define HeatCapacitySoilSolid, PoreSpace, ThermalCondSoil).
-        // Compute for each soil cell the heat capacity and heat diffusivity.
-        let mut l = layer; // soil layer number.
-        let mut q1: [f64; 40] = [0.; 40]; // array of water content.
-        let mut asoi: [f64; 40] = [0.; 40]; // array of thermal diffusivity of soil cells (cm2 s-1).
-        for i in 0..nn {
-            if iv == 1 {
-                l = i;
-                q1[i] = VolWaterContent[i][n0];
-                self.ts1[i] = SoilTemp[i][n0];
-                self.dz[i] = dl[i];
-            } else {
-                q1[i] = VolWaterContent[n0][i];
-                self.ts1[i] = SoilTemp[n0][i];
-                self.dz[i] = wk[i];
-            }
-            self.hcap[i] = HeatCapacitySoilSolid[l] + q1[i] + (PoreSpace[l] - q1[i]) * ca;
-            asoi[i] = thermal_cond_soil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
-        }
-        // The numerical solution of the flow equation is a combination of the implicit method (weighted by beta1) and the explicit method (weighted by 1-beta1).
-        let mut dltt; // computed time step required.
-        let mut avdif: [f64; maxl] = [0.; maxl]; // average thermal diffusivity between adjacent cells.
-        let mut dy: [f64; maxl] = [0.; maxl]; // array of distances between centers of adjacent cells (cm).
-        let mut dltmin = dlt; // minimum time step for the explicit solution.
-        for i in 1..nn {
-            // Compute average diffusivities avdif between layer i and the previous (i-1),
-            //  and dy(i), distance (cm) between centers of layer i and the previous
-            //  (i-1)
-            avdif[i] = (asoi[i] + asoi[i - 1]) / 2.;
-            dy[i] = (self.dz[i - 1] + self.dz[i]) / 2.;
-            //     Determine the minimum time step required for the explicit
-            //     solution.
-            dltt = 0.2 * dy[i] * self.dz[i] / avdif[i] / (1. - beta1);
-            if dltt < dltmin {
-                dltmin = dltt;
-            }
-        }
-        //     Use time step of dlt1 seconds, for iterx iterations
-        let mut iterx = (dlt / dltmin) as usize; // computed number of iterations.
-        if dltmin < dlt {
-            iterx += 1;
-        }
-        let dlt1 = dlt / iterx as f64; // computed time (seconds) of an iteration.
-                                       // start iterations. Store temperature data in array ts0. count iterations.
-        for _ in 0..iterx {
+    fn heat_flux(&mut self, dlt: f64, iv: i32, nn: usize, layer: usize, n0: usize) {
+        unsafe {
+            // Constant parameters:
+            // weighting factor for the implicit method of computation.
+            const beta1: f64 = 0.90;
+            // heat capacity of air (cal cm-3 oC-1).
+            const ca: f64 = 0.0003;
+            // Set soil layer number l (needed to define HeatCapacitySoilSolid, PoreSpace, ThermalCondSoil).
+            // Compute for each soil cell the heat capacity and heat diffusivity.
+            let mut l = layer; // soil layer number.
+            let mut q1: [f64; 40] = [0.; 40]; // array of water content.
+            let mut asoi: [f64; 40] = [0.; 40]; // array of thermal diffusivity of soil cells (cm2 s-1).
             for i in 0..nn {
-                self.ts0[i] = self.ts1[i];
                 if iv == 1 {
                     l = i;
+                    q1[i] = VolWaterContent[i][n0];
+                    self.ts1[i] = SoilTemp[i][n0];
+                    self.dz[i] = dl[i];
+                } else {
+                    q1[i] = VolWaterContent[n0][i];
+                    self.ts1[i] = SoilTemp[n0][i];
+                    self.dz[i] = wk[i];
                 }
+                self.hcap[i] = HeatCapacitySoilSolid[l] + q1[i] + (PoreSpace[l] - q1[i]) * ca;
                 asoi[i] = thermal_cond_soil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
-                if i > 0 {
-                    avdif[i] = (asoi[i] + asoi[i - 1]) / 2.;
+            }
+            // The numerical solution of the flow equation is a combination of the implicit method (weighted by beta1) and the explicit method (weighted by 1-beta1).
+            let mut dltt; // computed time step required.
+            let mut avdif: [f64; maxl] = [0.; maxl]; // average thermal diffusivity between adjacent cells.
+            let mut dy: [f64; maxl] = [0.; maxl]; // array of distances between centers of adjacent cells (cm).
+            let mut dltmin = dlt; // minimum time step for the explicit solution.
+            for i in 1..nn {
+                // Compute average diffusivities avdif between layer i and the previous (i-1),
+                //  and dy(i), distance (cm) between centers of layer i and the previous
+                //  (i-1)
+                avdif[i] = (asoi[i] + asoi[i - 1]) / 2.;
+                dy[i] = (self.dz[i - 1] + self.dz[i]) / 2.;
+                //     Determine the minimum time step required for the explicit
+                //     solution.
+                dltt = 0.2 * dy[i] * self.dz[i] / avdif[i] / (1. - beta1);
+                if dltt < dltmin {
+                    dltmin = dltt;
                 }
             }
-            self.numiter += 1;
-            // The solution of the simultaneous equations in the implicit method alternates between
-            // the two directions along the arrays. The reason for this is because
-            // the direction of the solution may cause some cumulative bias. The
-            // counter numiter determines the direction of the solution.
-            let mut cau: [f64; maxl] = [0.; maxl];
-            let mut dau: [f64; maxl] = [0.; maxl]; // arrays used for the implicit numerical solution.
-            let mut ckx = 0.;
-            let mut cky = 0.; // nondimensional diffusivities to next and previous layers.
-            let mut vara;
-            let mut varb; // used for computing the implicit solution.
-            if (self.numiter % 2) == 0 {
-                // 1st direction of computation, for an even iteration number:
-                dau[0] = 0.;
-                cau[0] = self.ts1[0];
-                // Loop from the second to the last but one soil cells. Compute nondimensional diffusivities to next and previous layers.
-                for i in 1..(nn - 1) {
-                    ckx = avdif[i + 1] * dlt1 / (self.dz[i] * dy[i + 1]);
-                    cky = avdif[i] * dlt1 / (self.dz[i] * dy[i]);
-                    // Correct value of layer 1 for explicit heat movement to/from layer 2
-                    if i == 1 {
-                        cau[0] = self.ts1[0]
-                            - (1. - beta1) * (self.ts1[0] - self.ts1[1]) * cky * self.dz[1]
-                                / self.dz[0];
-                    }
-                    vara = 1. + beta1 * (ckx + cky) - beta1 * ckx * dau[i - 1];
-                    dau[i] = beta1 * cky / vara;
-                    varb = self.ts1[i]
-                        + (1. - beta1)
-                            * (cky * self.ts1[i - 1] + ckx * self.ts1[i + 1]
-                                - (cky + ckx) * self.ts1[i]);
-                    cau[i] = (varb + beta1 * ckx * cau[i - 1]) / vara;
-                }
-                // Correct value of last layer (nn-1) for explicit heat movement to/from layer nn-2
-                self.ts1[nn - 1] = self.ts1[nn - 1]
-                    - (1. - beta1) * (self.ts1[nn - 1] - self.ts1[nn - 2]) * ckx * self.dz[nn - 2]
-                        / self.dz[nn - 1];
-                // Continue with the implicit solution
-                for i in (0..nn - 1).rev() {
-                    self.ts1[i] = dau[i] * self.ts1[i + 1] + cau[i];
-                }
-            } else {
-                // Alternate direction of computation for odd iteration number
-                dau[nn - 1] = 0.;
-                cau[nn - 1] = self.ts1[nn - 1];
-                for i in (0..nn - 1).rev() {
-                    ckx = avdif[i + 1] * dlt1 / (self.dz[i] * dy[i + 1]);
-                    cky = avdif[i] * dlt1 / (self.dz[i] * dy[i]);
-                    if i == nn - 2 {
-                        cau[nn - 1] = self.ts1[nn - 1]
-                            - (1. - beta1)
-                                * (self.ts1[nn - 1] - self.ts1[nn - 2])
-                                * ckx
-                                * self.dz[nn - 2]
-                                / self.dz[nn - 1];
-                    }
-                    vara = 1. + beta1 * (ckx + cky) - beta1 * cky * dau[i + 1];
-                    dau[i] = beta1 * ckx / vara;
-                    varb = self.ts1[i]
-                        + (1. - beta1)
-                            * (ckx * self.ts1[i + 1] + cky * self.ts1[i - 1]
-                                - (cky + ckx) * self.ts1[i]);
-                    cau[i] = (varb + beta1 * cky * cau[i + 1]) / vara;
-                }
-                self.ts1[0] = self.ts1[0]
-                    - (1. - beta1) * (self.ts1[0] - self.ts1[1]) * cky * self.dz[1] / self.dz[0];
-                for i in 1..nn {
-                    self.ts1[i] = dau[i] * self.ts1[i - 1] + cau[i];
-                }
+            //     Use time step of dlt1 seconds, for iterx iterations
+            let mut iterx = (dlt / dltmin) as usize; // computed number of iterations.
+            if dltmin < dlt {
+                iterx += 1;
             }
-            // Call self.heat_balance to correct quantitative deviations caused by the imlicit part of the solution.
-            self.heat_balance(nn);
-        }
-        // Set values of SoiTemp
-        for i in 0..nn {
-            if iv == 1 {
-                SoilTemp[i][n0] = self.ts1[i];
-            } else {
-                SoilTemp[n0][i] = self.ts1[i];
+            let dlt1 = dlt / iterx as f64; // computed time (seconds) of an iteration.
+                                           // start iterations. Store temperature data in array ts0. count iterations.
+            for _ in 0..iterx {
+                for i in 0..nn {
+                    self.ts0[i] = self.ts1[i];
+                    if iv == 1 {
+                        l = i;
+                    }
+                    asoi[i] = thermal_cond_soil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
+                    if i > 0 {
+                        avdif[i] = (asoi[i] + asoi[i - 1]) / 2.;
+                    }
+                }
+                self.numiter += 1;
+                // The solution of the simultaneous equations in the implicit method alternates between
+                // the two directions along the arrays. The reason for this is because
+                // the direction of the solution may cause some cumulative bias. The
+                // counter numiter determines the direction of the solution.
+                let mut cau: [f64; maxl] = [0.; maxl];
+                let mut dau: [f64; maxl] = [0.; maxl]; // arrays used for the implicit numerical solution.
+                let mut ckx = 0.;
+                let mut cky = 0.; // nondimensional diffusivities to next and previous layers.
+                let mut vara;
+                let mut varb; // used for computing the implicit solution.
+                if (self.numiter % 2) == 0 {
+                    // 1st direction of computation, for an even iteration number:
+                    dau[0] = 0.;
+                    cau[0] = self.ts1[0];
+                    // Loop from the second to the last but one soil cells. Compute nondimensional diffusivities to next and previous layers.
+                    for i in 1..(nn - 1) {
+                        ckx = avdif[i + 1] * dlt1 / (self.dz[i] * dy[i + 1]);
+                        cky = avdif[i] * dlt1 / (self.dz[i] * dy[i]);
+                        // Correct value of layer 1 for explicit heat movement to/from layer 2
+                        if i == 1 {
+                            cau[0] = self.ts1[0]
+                                - (1. - beta1) * (self.ts1[0] - self.ts1[1]) * cky * self.dz[1]
+                                    / self.dz[0];
+                        }
+                        vara = 1. + beta1 * (ckx + cky) - beta1 * ckx * dau[i - 1];
+                        dau[i] = beta1 * cky / vara;
+                        varb = self.ts1[i]
+                            + (1. - beta1)
+                                * (cky * self.ts1[i - 1] + ckx * self.ts1[i + 1]
+                                    - (cky + ckx) * self.ts1[i]);
+                        cau[i] = (varb + beta1 * ckx * cau[i - 1]) / vara;
+                    }
+                    // Correct value of last layer (nn-1) for explicit heat movement to/from layer nn-2
+                    self.ts1[nn - 1] = self.ts1[nn - 1]
+                        - (1. - beta1)
+                            * (self.ts1[nn - 1] - self.ts1[nn - 2])
+                            * ckx
+                            * self.dz[nn - 2]
+                            / self.dz[nn - 1];
+                    // Continue with the implicit solution
+                    for i in (0..nn - 1).rev() {
+                        self.ts1[i] = dau[i] * self.ts1[i + 1] + cau[i];
+                    }
+                } else {
+                    // Alternate direction of computation for odd iteration number
+                    dau[nn - 1] = 0.;
+                    cau[nn - 1] = self.ts1[nn - 1];
+                    for i in (0..nn - 1).rev() {
+                        ckx = avdif[i + 1] * dlt1 / (self.dz[i] * dy[i + 1]);
+                        cky = avdif[i] * dlt1 / (self.dz[i] * dy[i]);
+                        if i == nn - 2 {
+                            cau[nn - 1] = self.ts1[nn - 1]
+                                - (1. - beta1)
+                                    * (self.ts1[nn - 1] - self.ts1[nn - 2])
+                                    * ckx
+                                    * self.dz[nn - 2]
+                                    / self.dz[nn - 1];
+                        }
+                        vara = 1. + beta1 * (ckx + cky) - beta1 * cky * dau[i + 1];
+                        dau[i] = beta1 * ckx / vara;
+                        varb = self.ts1[i]
+                            + (1. - beta1)
+                                * (ckx * self.ts1[i + 1] + cky * self.ts1[i - 1]
+                                    - (cky + ckx) * self.ts1[i]);
+                        cau[i] = (varb + beta1 * cky * cau[i + 1]) / vara;
+                    }
+                    self.ts1[0] = self.ts1[0]
+                        - (1. - beta1) * (self.ts1[0] - self.ts1[1]) * cky * self.dz[1]
+                            / self.dz[0];
+                    for i in 1..nn {
+                        self.ts1[i] = dau[i] * self.ts1[i - 1] + cau[i];
+                    }
+                }
+                // Call self.heat_balance to correct quantitative deviations caused by the imlicit part of the solution.
+                self.heat_balance(nn);
+            }
+            // Set values of SoiTemp
+            for i in 0..nn {
+                if iv == 1 {
+                    SoilTemp[i][n0] = self.ts1[i];
+                } else {
+                    SoilTemp[n0][i] = self.ts1[i];
+                }
             }
         }
     }
@@ -873,26 +885,27 @@ fn SoilMulchBalance(
     const eg: f64 = 0.95;
     // stefan-boltsman constant.
     const stefa1: f64 = 1.38e-12;
+    let mulch_tran_lw = unsafe { MulchTranLW };
     // Compute long wave radiation reaching the surface mulch from above, and the air temperature above it.
     let rlsp0; // long wave radiation reaching the mulch from above.
     let tafk; //  temperature (K) of air inside the canopy.
     if sf > 0.05
     // shaded column
     {
-        rlsp0 = (1. - sf) * (1. - unsafe {MulchTranLW}) * rlzero  // from sky in unshaded segment
-+ sf * (1. - unsafe {MulchTranLW}) * ef * stefa1 * tv.powi(4); // from foliage in shaded segment
+        rlsp0 = (1. - sf) * (1. - mulch_tran_lw) * rlzero // from sky in unshaded segment
+            + sf * (1. - mulch_tran_lw) * ef * stefa1 * tv.powi(4); // from foliage in shaded segment
         tafk = (1. - sf) * thet + sf * (0.1 * *tm + 0.3 * thet + 0.6 * tv);
     } else
     // unshaded column
     {
-        rlsp0 = (1. - unsafe { MulchTranLW }) * rlzero;
+        rlsp0 = (1. - mulch_tran_lw) * rlzero;
         tafk = thet;
     }
     // rls5 is the multiplier of tm**4 for emitted long wave radiation from mulch, sum of upward and downward emittance.
     // multiplier for emitted long wave radiation from mulch,
-    let rls5 = 2. * (1. - unsafe { MulchTranLW }) * stefa1;
+    let rls5 = 2. * (1. - mulch_tran_lw) * stefa1;
     // Call SensibleHeatTransfer() to compute sensible heat transfer between plastic mulch and air sensible heat transfer coefficients for mulch to air (before multiplying by ROCP).
-    let varcm = unsafe { sensible_heat_transfer(*tm, tafk, 0., wndcanp) };
+    let varcm = sensible_heat_transfer(*tm, tafk, 0., wndcanp);
     if unsafe { bEnd } {
         return Ok(true);
     }
@@ -915,21 +928,17 @@ fn SoilMulchBalance(
         tmold1 = *tm;
         // Energy balance for soil surface (mulch interface)
         hsgm = 2. * rocp * (*so - *tm).abs();
-        unsafe {
-            soil_surface_balance(
-                ihr, k, 0., rlzero, rss, sf, hsgm, so, so2, so3, thet, *tm, tv,
-            )
-        };
+        soil_surface_balance(
+            ihr, k, 0., rlzero, rss, sf, hsgm, so, so2, so3, thet, *tm, tv,
+        );
         if unsafe { bEnd } {
             return Ok(true);
         }
         // Add Long wave radiation reaching the mulch from the soil: total long wave radiation reaching the mulch.
-        let rlsp = rlsp0 + (1. - unsafe { MulchTranLW }) * eg * stefa1 * so.powi(4);
+        let rlsp = rlsp0 + (1. - mulch_tran_lw) * eg * stefa1 * so.powi(4);
         // Energy balance for mulch (soil and air interface)
         hsgm = 2. * rocp * (*so - *tm).abs();
-        unsafe {
-            mulch_surface_balance(ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, *so, thet, tm, tv)
-        };
+        mulch_surface_balance(ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, *so, thet, tm, tv);
         if unsafe { bEnd } {
             return Ok(true);
         }

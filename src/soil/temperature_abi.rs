@@ -11,12 +11,7 @@ static mut HYPOCOTYL_LENGTH: f64 = 0.3;
 static mut SEED_MOISTURE: f64 = 8.0;
 static mut N_SEED_LAYER: i32 = 0;
 
-pub(crate) unsafe fn sensible_heat_transfer(
-    tsf: f64,
-    tenviron: f64,
-    height: f64,
-    wndcanp: f64,
-) -> f64 {
+pub(crate) fn sensible_heat_transfer(tsf: f64, tenviron: f64, height: f64, wndcanp: f64) -> f64 {
     const GRAV: f64 = 980.0;
     const S40: f64 = 0.13;
     const S42: f64 = 0.63;
@@ -123,7 +118,9 @@ pub(crate) unsafe fn sensible_heat_transfer(
             eprintln!(" tsf      = {:10.3}", tsf);
             eprintln!(" PlantHeight = {:10.3}", height);
             eprintln!(" u = {:10.3}", wind);
-            bEnd = true;
+            unsafe {
+                bEnd = true;
+            }
             return 0.0;
         }
 
@@ -140,7 +137,7 @@ pub(crate) unsafe fn sensible_heat_transfer(
     }
 }
 
-pub(crate) unsafe fn soil_surface_balance(
+pub(crate) fn soil_surface_balance(
     ihr: c_int,
     k: c_int,
     ess: f64,
@@ -160,6 +157,17 @@ pub(crate) unsafe fn soil_surface_balance(
     const STEFA1: f64 = 1.38e-12;
 
     let soil_column = k as usize;
+    let (mulch_tran_lw, dl0, dl1, dl2, vol_water0, vol_water1, vol_water2) = unsafe {
+        (
+            MulchTranLW,
+            dl[0],
+            dl[1],
+            dl[2],
+            VolWaterContent[0][soil_column],
+            VolWaterContent[1][soil_column],
+            VolWaterContent[2][soil_column],
+        )
+    };
     let mut so_value = *so;
     let mut so2_value = *so2;
     let mut so3_value = *so3;
@@ -170,7 +178,7 @@ pub(crate) unsafe fn soil_surface_balance(
         EG * rlzero
     };
     if tm > 0.0 {
-        rls1 = rls1 * MulchTranLW + EG * (1.0 - MulchTranLW) * STEFA1 * tm.powi(4);
+        rls1 = rls1 * mulch_tran_lw + EG * (1.0 - mulch_tran_lw) * STEFA1 * tm.powi(4);
     }
 
     let rls4 = EG * STEFA1;
@@ -182,12 +190,12 @@ pub(crate) unsafe fn soil_surface_balance(
         let hlat = (75.5255 - 0.05752 * so_value) * ess;
         let dhlat = -0.05752 * ess;
 
-        let rosoil1 = thermal_cond_soil(VolWaterContent[0][soil_column], so_value, 1);
-        let rosoil2 = thermal_cond_soil(VolWaterContent[1][soil_column], so2_value, 2);
-        let rosoil3 = thermal_cond_soil(VolWaterContent[2][soil_column], so3_value, 3);
-        let rosoil = (rosoil1 * dl[0] + rosoil2 * dl[1] + rosoil3 * dl[2])
-            / (dl[0] + dl[1] + dl[2])
-            / (0.5 * dl[0] + dl[1] + 0.5 * dl[2]);
+        let rosoil1 = thermal_cond_soil(vol_water0, so_value, 1);
+        let rosoil2 = thermal_cond_soil(vol_water1, so2_value, 2);
+        let rosoil3 = thermal_cond_soil(vol_water2, so3_value, 3);
+        let rosoil = (rosoil1 * dl0 + rosoil2 * dl1 + rosoil3 * dl2)
+            / (dl0 + dl1 + dl2)
+            / (0.5 * dl0 + dl1 + 0.5 * dl2);
         let bbsoil = rosoil * (so_value - so3_value);
         let emtlw = rls4 * so_value.powi(4);
 
@@ -207,10 +215,10 @@ pub(crate) unsafe fn soil_surface_balance(
         }
 
         let demtlw = 4.0 * rls4 * so_value.powi(3);
-        let rosoil1p = thermal_cond_soil(VolWaterContent[0][soil_column], so_value + 0.001, 1);
-        let rosoilp = (rosoil1p * dl[0] + rosoil2 * dl[1] + rosoil3 * dl[2])
-            / (dl[0] + dl[1] + dl[2])
-            / (0.5 * dl[0] + dl[1] + 0.5 * dl[2]);
+        let rosoil1p = thermal_cond_soil(vol_water0, so_value + 0.001, 1);
+        let rosoilp = (rosoil1p * dl0 + rosoil2 * dl1 + rosoil3 * dl2)
+            / (dl0 + dl1 + dl2)
+            / (0.5 * dl0 + dl1 + 0.5 * dl2);
         let drosoil = (rosoilp - rosoil) / 0.001;
         let dbbsoil = rosoil + drosoil * (so_value - so3_value);
 
@@ -244,15 +252,17 @@ pub(crate) unsafe fn soil_surface_balance(
     *so3 = so3_value;
 
     eprintln!(" Infinite loop in SoilSurfaceBalance(). Abnormal stop!! ");
-    let daynum = Daynum;
+    let daynum = unsafe { Daynum };
     eprintln!("Daynum, ihr, k = {:3} {:3} {:3}", daynum, ihr, k);
     eprintln!(" so      = {:10.0}", so_value);
     eprintln!(" so2 = {:10.0}", so2_value);
     eprintln!(" so3 = {:10.0}", so3_value);
-    bEnd = true;
+    unsafe {
+        bEnd = true;
+    }
 }
 
-pub(crate) unsafe fn canopy_balance(
+pub(crate) fn canopy_balance(
     ihr: c_int,
     k: c_int,
     etp1: f64,
@@ -268,11 +278,12 @@ pub(crate) unsafe fn canopy_balance(
     const EF: f64 = 0.95;
     const EG: f64 = 0.95;
     const STEFA1: f64 = 1.38e-12;
+    let mulch_tran_lw = unsafe { MulchTranLW };
 
     let rlv1 = if tm > 0.0 {
         sf * EF * rlzero
-            + sf * EF * EG * STEFA1 * MulchTranLW * so.powi(4)
-            + sf * EF * (1.0 - MulchTranLW) * STEFA1 * tm.powi(4)
+            + sf * EF * EG * STEFA1 * mulch_tran_lw * so.powi(4)
+            + sf * EF * (1.0 - mulch_tran_lw) * STEFA1 * tm.powi(4)
     } else {
         sf * EF * rlzero + sf * EF * EG * STEFA1 * so.powi(4)
     };
@@ -322,14 +333,16 @@ pub(crate) unsafe fn canopy_balance(
     }
 
     eprintln!(" Infinite loop in CanopyBalance(). Abnormal stop!! ");
-    let daynum = Daynum;
+    let daynum = unsafe { Daynum };
     eprintln!(" Daynum, ihr, k = {:3} {:3} {:3}", daynum, ihr, k);
     eprintln!(" so      = {:10.3}", so);
     eprintln!(" tv = {:10.3}", *tv);
-    bEnd = true;
+    unsafe {
+        bEnd = true;
+    }
 }
 
-pub(crate) unsafe fn mulch_surface_balance(
+pub(crate) fn mulch_surface_balance(
     ihr: c_int,
     k: c_int,
     rlsp: f64,
@@ -390,14 +403,16 @@ pub(crate) unsafe fn mulch_surface_balance(
     }
 
     eprintln!(" Infinite loop in MulchSurfaceBalance(). Abnormal stop!! ");
-    let daynum = Daynum;
+    let daynum = unsafe { Daynum };
     eprintln!(" Daynum, ihr, k = {:3} {:3} {:3}", daynum, ihr, k);
     eprintln!(" so      = {:10.3}", so);
     eprintln!(" tv = {:10.3}", tv);
-    bEnd = true;
+    unsafe {
+        bEnd = true;
+    }
 }
 
-pub(crate) unsafe fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
+pub(crate) fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
     const BCLAY: f64 = 7.0;
     const BSAND: f64 = 20.0;
     const CKA: f64 = 0.0615;
@@ -405,6 +420,27 @@ pub(crate) unsafe fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
 
     let layer = l0 as usize;
     let tcel = t0 - 273.161;
+    let (
+        pore_space,
+        field_capacity,
+        sand_fraction,
+        clay_fraction,
+        marginal_water_content,
+        heat_cond_dry,
+        dsand_value,
+        dclay_value,
+    ) = unsafe {
+        (
+            PoreSpace[layer],
+            FieldCapacity[layer],
+            SandVolumeFraction[layer],
+            ClayVolumeFraction[layer],
+            MarginalWaterContent[layer],
+            HeatCondDrySoil[layer],
+            dsand,
+            dclay,
+        )
+    };
 
     let bb = if tcel <= 36.0 {
         0.06188
@@ -416,45 +452,37 @@ pub(crate) unsafe fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
 
     let cpn = CKA + 0.05 * (bb * tcel).exp();
 
-    let mut xair = PoreSpace[layer] - q0;
+    let mut xair = pore_space - q0;
     if xair < 0.0 {
         xair = 0.0;
     }
 
-    let hcond = if q0 >= FieldCapacity[layer] {
-        let ga = 0.333 - 0.061 * xair / PoreSpace[layer];
+    let hcond = if q0 >= field_capacity {
+        let ga = 0.333 - 0.061 * xair / pore_space;
         let dair = form(cpn, CKW, ga);
         (q0 * CKW
-            + dsand * BSAND * SandVolumeFraction[layer]
-            + dclay * BCLAY * ClayVolumeFraction[layer]
+            + dsand_value * BSAND * sand_fraction
+            + dclay_value * BCLAY * clay_fraction
             + dair * cpn * xair)
-            / (q0
-                + dsand * SandVolumeFraction[layer]
-                + dclay * ClayVolumeFraction[layer]
-                + dair * xair)
+            / (q0 + dsand_value * sand_fraction + dclay_value * clay_fraction + dair * xair)
     } else {
         let mut qq = q0;
-        if qq < MarginalWaterContent[layer] {
-            qq = MarginalWaterContent[layer];
+        if qq < marginal_water_content {
+            qq = marginal_water_content;
         }
 
-        let ckn = CKA + (cpn - CKA) * qq / FieldCapacity[layer];
+        let ckn = CKA + (cpn - CKA) * qq / field_capacity;
         let ga = 0.041
-            + 0.244 * (qq - MarginalWaterContent[layer])
-                / (FieldCapacity[layer] - MarginalWaterContent[layer]);
+            + 0.244 * (qq - marginal_water_content) / (field_capacity - marginal_water_content);
         let dair = form(ckn, CKW, ga);
         let mut hcond = (qq * CKW
-            + dsand * BSAND * SandVolumeFraction[layer]
-            + dclay * BCLAY * ClayVolumeFraction[layer]
+            + dsand_value * BSAND * sand_fraction
+            + dclay_value * BCLAY * clay_fraction
             + dair * ckn * xair)
-            / (qq
-                + dsand * SandVolumeFraction[layer]
-                + dclay * ClayVolumeFraction[layer]
-                + dair * xair);
+            / (qq + dsand_value * sand_fraction + dclay_value * clay_fraction + dair * xair);
 
-        if qq <= MarginalWaterContent[layer] {
-            hcond = (hcond - HeatCondDrySoil[layer]) * q0 / MarginalWaterContent[layer]
-                + HeatCondDrySoil[layer];
+        if qq <= marginal_water_content {
+            hcond = (hcond - heat_cond_dry) * q0 / marginal_water_content + heat_cond_dry;
         }
         hcond
     };
@@ -462,39 +490,56 @@ pub(crate) unsafe fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
     hcond / 1000.0
 }
 
-pub(crate) unsafe fn predict_emergence(hour: c_int) {
+pub(crate) fn predict_emergence(hour: c_int) {
     const DPL: f64 = 5.0;
 
-    if Daynum == DayPlant && hour == 0 {
-        DELAY_OF_EMERGENCE = 0.0;
-        HYPOCOTYL_LENGTH = 0.3;
-        SEED_MOISTURE = 8.0;
+    let (daynum, dayplant, num_layers, plant_col, mut delay, mut hypocotyl, mut seed_moisture) = unsafe {
+        (
+            Daynum,
+            DayPlant,
+            nl as usize,
+            PlantRowColumn as usize,
+            DELAY_OF_EMERGENCE,
+            HYPOCOTYL_LENGTH,
+            SEED_MOISTURE,
+        )
+    };
+    let mut seed_layer = unsafe { N_SEED_LAYER };
+
+    if daynum == dayplant && hour == 0 {
+        delay = 0.0;
+        hypocotyl = 0.3;
+        seed_moisture = 8.0;
 
         let mut sumdl = 0.0;
-        for layer in 0..nl as usize {
-            sumdl += dl[layer];
+        for layer in 0..num_layers {
+            sumdl += unsafe { dl[layer] };
             if sumdl >= DPL {
-                N_SEED_LAYER = layer as i32;
+                seed_layer = layer as i32;
                 break;
             }
         }
     }
 
-    let seed_layer = N_SEED_LAYER as usize;
-    let plant_col = PlantRowColumn as usize;
-    let psi = SoilPsi[seed_layer][plant_col];
-    let mut te = SoilTemp[seed_layer][plant_col] - 273.161;
+    let seed_layer_index = seed_layer.max(0) as usize;
+    let (psi, mut te) = unsafe {
+        (
+            SoilPsi[seed_layer_index][plant_col],
+            SoilTemp[seed_layer_index][plant_col] - 273.161,
+        )
+    };
     if te < 10.0 {
         te = 10.0;
     }
 
-    if SEED_MOISTURE <= 80.0 {
+    let mut emerged = false;
+    if seed_moisture <= 80.0 {
         let mut xkl = 0.0338 + 0.0000855 * te * te - 0.003479 * psi;
         if xkl < 0.0 {
             xkl = 0.0;
         }
 
-        let dw = xkl * (80.0 - SEED_MOISTURE);
+        let dw = xkl * (80.0 - seed_moisture);
         let mut delw = if te < 21.2 {
             -0.1133 + 0.000705 * te * te - 0.001348 * psi + 0.001177 * psi * psi
         } else if te < 26.66 {
@@ -511,40 +556,51 @@ pub(crate) unsafe fn predict_emergence(hour: c_int) {
         }
 
         if dw > delw {
-            SEED_MOISTURE += dw;
+            seed_moisture += dw;
         } else {
-            SEED_MOISTURE = 100.0;
+            seed_moisture = 100.0;
         }
-        return;
-    }
-
-    let xt = if te > 39.9 {
-        0.0
     } else {
-        0.0853 - 0.0057 * (te - 34.44) * (te - 34.44) / (41.9 - te)
-    };
+        let xt = if te > 39.9 {
+            0.0
+        } else {
+            0.0853 - 0.0057 * (te - 34.44) * (te - 34.44) / (41.9 - te)
+        };
 
-    if xt < 0.0 && te < 14.0 {
-        DELAY_OF_EMERGENCE += xt / 2.0;
-        return;
-    }
+        if xt < 0.0 && te < 14.0 {
+            delay += xt / 2.0;
+        } else {
+            let mut xt_adjusted = xt;
+            let mut can_grow = true;
+            if delay < 0.0 {
+                if delay + xt_adjusted < 0.0 {
+                    delay += xt_adjusted;
+                    can_grow = false;
+                } else {
+                    xt_adjusted += delay;
+                    delay = 0.0;
+                }
+            }
 
-    let mut xt_adjusted = xt;
-    if DELAY_OF_EMERGENCE < 0.0 {
-        if DELAY_OF_EMERGENCE + xt_adjusted < 0.0 {
-            DELAY_OF_EMERGENCE += xt_adjusted;
-            return;
+            if can_grow {
+                let de = 0.0567 * xt_adjusted * hypocotyl * (10.0 - hypocotyl);
+                hypocotyl += de;
+                if hypocotyl > DPL {
+                    emerged = true;
+                }
+            }
         }
-        xt_adjusted += DELAY_OF_EMERGENCE;
-        DELAY_OF_EMERGENCE = 0.0;
     }
 
-    let de = 0.0567 * xt_adjusted * HYPOCOTYL_LENGTH * (10.0 - HYPOCOTYL_LENGTH);
-    HYPOCOTYL_LENGTH += de;
-
-    if HYPOCOTYL_LENGTH > DPL {
-        isw = 2;
-        DayEmerge = Daynum;
-        Kday = 1;
+    unsafe {
+        DELAY_OF_EMERGENCE = delay;
+        HYPOCOTYL_LENGTH = hypocotyl;
+        SEED_MOISTURE = seed_moisture;
+        N_SEED_LAYER = seed_layer;
+        if emerged {
+            isw = 2;
+            DayEmerge = daynum;
+            Kday = 1;
+        }
     }
 }
