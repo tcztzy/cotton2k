@@ -1017,7 +1017,7 @@ impl Profile {
         let total_square_weight = unsafe { TotalSquareWeight };
         let total_root_weight = unsafe { TotalRootWeight };
         let num_fruit_branches = unsafe { *std::ptr::addr_of_mut!(NumFruitBranches).cast::<i32>() };
-        let total_leaf_weight = unsafe { TotalLeafWeight() };
+        let total_leaf_weight = TotalLeafWeight();
         let vol_ptr = std::ptr::addr_of_mut!(VolWaterContent).cast::<f64>();
         let vol_water = |l: usize, k: usize| unsafe { *vol_ptr.add(l * MAXK + k) };
         let leaf_area_ptr = std::ptr::addr_of_mut!(LeafAreaIndexes).cast::<f64>();

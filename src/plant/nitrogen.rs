@@ -463,7 +463,7 @@ impl PlantNitrogen {
                     + TotalRootWeight
                     + BurrWeightGreenBolls
             };
-            addlfn = self.xtran * unsafe { TotalLeafWeight() } / vegwt;
+            addlfn = self.xtran * TotalLeafWeight() / vegwt;
             addpetn = self.xtran * unsafe { TotalPetioleWeight } / vegwt;
             addstm = self.xtran * unsafe { TotalStemWeight } / vegwt;
             addrt = self.xtran * unsafe { TotalRootWeight } / vegwt;

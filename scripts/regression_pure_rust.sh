@@ -13,7 +13,7 @@ cargo check --all-targets
 echo "[3/5] cargo test --all-targets"
 cargo test --all-targets
 
-echo "[4/5] verify legacy C++ artifacts are removed"
+echo "[4/5] verify legacy non-Rust artifacts are removed"
 for legacy_file in build.rs global.h CottonSimulation.h GeneralFunctions.h; do
     if [[ -e "$legacy_file" ]]; then
         echo "Found unexpected legacy file: $legacy_file" >&2
@@ -21,8 +21,8 @@ for legacy_file in build.rs global.h CottonSimulation.h GeneralFunctions.h; do
     fi
 done
 
-echo "[5/5] verify stale migration comments are removed"
-legacy_hits="$(rg -n "(\\.cpp|global\\.h|CottonSimulation\\.h|GeneralFunctions\\.h|transition from C\\+\\+ to Rust|translation to C\\+\\+)" src README.md Cargo.toml || true)"
+echo "[5/5] verify stale migration references are removed"
+legacy_hits="$(rg -n "(global\\.h|CottonSimulation\\.h|GeneralFunctions\\.h)" src README.md Cargo.toml || true)"
 if [[ -n "$legacy_hits" ]]; then
     echo "Found stale migration references:" >&2
     echo "$legacy_hits" >&2

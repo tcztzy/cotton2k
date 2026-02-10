@@ -4,8 +4,7 @@ use crate::{
 };
 use std::os::raw::c_int;
 
-#[no_mangle]
-pub extern "C" fn psiq(q: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64 {
+pub fn psiq(q: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64 {
     if (q - qr) < 0.00001 {
         return -500000.0;
     } else if q >= qsat {
@@ -29,8 +28,7 @@ pub extern "C" fn psiq(q: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64
     psix
 }
 
-#[no_mangle]
-pub extern "C" fn qpsi(psi: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64 {
+pub fn qpsi(psi: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f64 {
     if psi >= -0.00001 {
         return qsat;
     } else if psi <= -500000.0 {
@@ -46,8 +44,7 @@ pub extern "C" fn qpsi(psi: f64, qr: f64, qsat: f64, alpha: f64, beta: f64) -> f
     swfun
 }
 
-#[no_mangle]
-pub extern "C" fn wcond(
+pub fn wcond(
     q: f64,
     qr: f64,
     qsat: f64,
@@ -70,8 +67,7 @@ pub extern "C" fn wcond(
     sweff.powf(0.5) * bcoeff * saturated_hyd_cond
 }
 
-#[no_mangle]
-pub extern "C" fn PsiOsmotic(q: f64, qsat: f64, ec: f64) -> f64 {
+pub fn PsiOsmotic(q: f64, qsat: f64, ec: f64) -> f64 {
     if ec > 0.0 {
         let mut value = 0.36 * ec * qsat / q;
         if value > 6.0 {
@@ -83,8 +79,7 @@ pub extern "C" fn PsiOsmotic(q: f64, qsat: f64, ec: f64) -> f64 {
     }
 }
 
-#[no_mangle]
-pub extern "C" fn GetFromClim(item: CLIMATE_METRIC, doy: c_int) -> f64 {
+pub fn GetFromClim(item: CLIMATE_METRIC, doy: c_int) -> f64 {
     const CLIM_LEN: usize = 400;
     unsafe {
         let clim_ptr = std::ptr::addr_of_mut!(Clim) as *mut Climstruct;
