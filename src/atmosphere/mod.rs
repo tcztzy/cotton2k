@@ -191,9 +191,33 @@ impl Atmosphere {
         }
         //     Compute average daily temperature, using function
         //     AverageAirTemperatures.
-        AverageAirTemperatures();
+        let air_temp = AirTemp;
+        let radiation = Radiation;
+        let relative_humidity = RelativeHumidity;
+        let wind_speed = WindSpeed;
+        let (avrg_daily_temp, night_time_temp, day_time_temp) =
+            AverageAirTemperatures(&air_temp, &radiation);
+        AvrgDailyTemp = avrg_daily_temp;
+        NightTimeTemp = night_time_temp;
+        DayTimeTemp = day_time_temp;
         //     Compute potential evapotranspiration.
-        EvapoTranspiration(profile, self.date, self);
+        let evap = EvapoTranspiration(
+            profile,
+            self.date,
+            self,
+            &air_temp,
+            &radiation,
+            &relative_humidity,
+            &wind_speed,
+        );
+        CloudCoverRatio = evap.cloud_cover_ratio;
+        CloudTypeCorr = evap.cloud_type_corr;
+        albedo = evap.albedo;
+        ReferenceETP = evap.reference_etp;
+        ReferenceTransp = evap.reference_transp;
+        Rn = evap.rn;
+        es1hour = evap.es1hour;
+        es2hour = evap.es2hour;
     }
 
     /// Computes and returns the hourly values of air temperature, using the measured daily maximum and minimum.
@@ -546,26 +570,27 @@ fn daywnd(
 }
 
 /// Calculates daily average temperatures, daytime average and night time average.
-unsafe fn AverageAirTemperatures() {
+fn AverageAirTemperatures(air_temp: &[f64; 24], radiation: &[f64; 24]) -> (f64, f64, f64) {
     let mut nn1 = 0; // counter of night hours
     let mut nn2 = 0; // counter of daytime hours
-    AvrgDailyTemp = 0.;
-    NightTimeTemp = 0.;
-    DayTimeTemp = 0.;
+    let mut avrg_daily_temp = 0.;
+    let mut night_time_temp = 0.;
+    let mut day_time_temp = 0.;
 
     for ihr in 0..24 {
-        AvrgDailyTemp += AirTemp[ihr];
-        if Radiation[ihr] <= 0. {
-            NightTimeTemp += AirTemp[ihr];
+        avrg_daily_temp += air_temp[ihr];
+        if radiation[ihr] <= 0. {
+            night_time_temp += air_temp[ihr];
             nn1 += 1;
         } else {
-            DayTimeTemp += AirTemp[ihr];
+            day_time_temp += air_temp[ihr];
             nn2 += 1;
         }
     }
-    AvrgDailyTemp = AvrgDailyTemp / 24.;
-    NightTimeTemp /= nn1 as f64;
-    DayTimeTemp /= nn2 as f64;
+    avrg_daily_temp /= 24.;
+    night_time_temp /= nn1 as f64;
+    day_time_temp /= nn2 as f64;
+    (avrg_daily_temp, night_time_temp, day_time_temp)
 }
 /// Computes the water vapor pressure in the air (in KPa units) as a function of the air at temperature tt (C). This equation is widely used.
 pub fn vapor_pressure(tt: f64) -> f64 {
@@ -574,12 +599,37 @@ pub fn vapor_pressure(tt: f64) -> f64 {
 /// Computes the rate of reference evapotranspiration and related variables.
 /// The following subroutines and functions are called for each hour: sunangle, cloudcov(), clcor(), refalbed(), [vapor_pressure()],
 /// [clearskyemiss()], [del()], [gam()].
-unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &Atmosphere) {
+struct EvapoTranspirationOutput {
+    cloud_cover_ratio: [f64; 24],
+    cloud_type_corr: [f64; 24],
+    albedo: [f64; 24],
+    reference_etp: [f64; 24],
+    reference_transp: f64,
+    rn: f64,
+    es1hour: [f64; 24],
+    es2hour: [f64; 24],
+}
+
+fn EvapoTranspiration(
+    profile: &Profile,
+    date: NaiveDate,
+    atmosphere: &Atmosphere,
+    air_temp: &[f64; 24],
+    radiation: &[f64; 24],
+    relative_humidity: &[f64; 24],
+    wind_speed: &[f64; 24],
+) -> EvapoTranspirationOutput {
     const stefb: f64 = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
     const c12: f64 = 0.125; // c12 ... c15 are constant parameters.
     const c13: f64 = 0.0439;
     const c14: f64 = 0.030;
     const c15: f64 = 0.0576;
+    let mut cloud_cover_ratio = [0.; 24];
+    let mut cloud_type_corr = [0.; 24];
+    let mut albedo_local = [0.; 24];
+    let mut reference_etp = [0.; 24];
+    let mut es1hour_local = [0.; 24];
+    let mut es2hour_local = [0.; 24];
     let mut iamhr: usize = 0; // earliest time in day for computing cloud cover
     let mut ipmhr: usize = 0; // latest time in day for computing cloud cover
     let mut isr: f64; // hourly extraterrestrial radiation in W / m**2
@@ -599,15 +649,15 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
         // sun angle from horizon, degrees at this hour
         let suna = (cosz.acos().to_degrees() - 90.).abs();
         isr = atmosphere.tmpisr * cosz;
-        CloudCoverRatio[ihr] = cloudcov(Radiation[ihr], isr, cosz);
+        cloud_cover_ratio[ihr] = cloudcov(radiation[ihr], isr, cosz);
         //      clcor is called to compute cloud-type correction.
         //      iamhr and ipmhr are set.
-        CloudTypeCorr[ihr] = clcor(
+        cloud_type_corr[ihr] = clcor(
             ihr,
             profile.site.cloud_type_correction_factor,
             isr,
             cosz,
-            Radiation[ihr],
+            radiation[ihr],
             atmosphere.solar_noon,
             atmosphere.daylength,
         );
@@ -619,11 +669,11 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
         }
         //      refalbed is called to compute the reference albedo for each
         //      hour.
-        albedo[ihr] = refalbed(isr, Radiation[ihr], cosz, suna);
+        albedo_local[ihr] = refalbed(isr, radiation[ihr], cosz, suna);
     }
     // Zero some variables that will later be used for summation.
-    ReferenceTransp = 0.;
-    Rn = 0.; // daily net radiation
+    let mut reference_transp = 0.;
+    let mut rn = 0.; // daily net radiation
     let mut rnet: [f64; 24] = [0.; 24]; // hourly net radiation
     for ihr in 0..24 as usize {
         // Compute saturated vapor pressure (svp), using function vapor_pressure().
@@ -631,15 +681,15 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
         // Compute vapor pressure deficit (vpd). This procedure is based on the CIMIS algorithm.
         //
         // saturated vapor pressure, mb
-        let svp = vapor_pressure(AirTemp[ihr]);
+        let svp = vapor_pressure(air_temp[ihr]);
         // vapor pressure, mb
-        let vp = 0.01 * RelativeHumidity[ihr] * svp;
+        let vp = 0.01 * relative_humidity[ihr] * svp;
         // vapor pressure deficit, mb.
         let vpd = svp - vp;
         // Get cloud cover and cloud correction for night hours
         if ihr < iamhr || ihr > ipmhr {
-            CloudCoverRatio[ihr] = 0.;
-            CloudTypeCorr[ihr] = 0.;
+            cloud_cover_ratio[ihr] = 0.;
+            cloud_type_corr[ihr] = 0.;
         }
         // The hourly net radiation is computed using the CIMIS algorithm (Dong et al., 1988): rlonin, the hourly incoming long wave
         // radiation, is computed from ea0, cloud cover
@@ -648,46 +698,56 @@ unsafe fn EvapoTranspiration(profile: &Profile, date: NaiveDate, atmosphere: &At
         //
         // rnet, the hourly net radiation, W m-2, is computed from the  global radiation, the albedo, the incoming long wave radiation, and the outgoing longwave radiation.
         // hourly air temperature in Kelvin.
-        let tk = AirTemp[ihr] + 273.161;
+        let tk = air_temp[ihr] + 273.161;
         // clear sky emissivity for long wave radiation
         let ea0 = clearskyemiss(vp, tk);
         // Compute incoming long wave radiation:
         let rlonin =
-            (ea0 * (1. - CloudCoverRatio[ihr]) + CloudCoverRatio[ihr]) * stefb * tk.powi(4)
-                - CloudTypeCorr[ihr];
-        rnet[ihr] = (1. - albedo[ihr]) * Radiation[ihr] + rlonin - stefb * tk.powi(4);
-        Rn += rnet[ihr];
+            (ea0 * (1. - cloud_cover_ratio[ihr]) + cloud_cover_ratio[ihr]) * stefb * tk.powi(4)
+                - cloud_type_corr[ihr];
+        rnet[ihr] = (1. - albedo_local[ihr]) * radiation[ihr] + rlonin - stefb * tk.powi(4);
+        rn += rnet[ihr];
         // The hourly reference evapotranspiration ReferenceETP is computed by the CIMIS algorithm using the modified Penman equation:
         // The weighting ratio (w) is computed from the functions del() (the slope of the saturation vapor pressure versus air temperature) and gam() (the psychometric constant).
         //
         // coefficient of the Penman equation
-        let w = del(tk, svp) / (del(tk, svp) + gam(profile.elevation, AirTemp[ihr]));
+        let w = del(tk, svp) / (del(tk, svp) + gam(profile.elevation, air_temp[ihr]));
         // The wind function (fu2) is computed using different sets of parameters for day-time and night-time.
         // The parameter values are as suggested by CIMIS.
         //
         // wind function for computing evapotranspiration
-        let fu2 = if Radiation[ihr] <= 0. {
-            c12 + c13 * WindSpeed[ihr]
+        let fu2 = if radiation[ihr] <= 0. {
+            c12 + c13 * wind_speed[ihr]
         } else {
-            c14 + c15 * WindSpeed[ihr]
+            c14 + c15 * wind_speed[ihr]
         };
         // hlathr, the latent heat for evaporation of water (W m-2 per mm at this hour) is computed as a function of temperature.
-        let hlathr = 878.61 - 0.66915 * (AirTemp[ihr] + 273.161);
+        let hlathr = 878.61 - 0.66915 * (air_temp[ihr] + 273.161);
         // ReferenceETP, the hourly reference evapotranspiration, is now computed by the modified Penman equation.
-        ReferenceETP[ihr] = w * rnet[ihr] / hlathr + (1. - w) * vpd * fu2;
-        if ReferenceETP[ihr] < 0. {
-            ReferenceETP[ihr] = 0.;
+        reference_etp[ihr] = w * rnet[ihr] / hlathr + (1. - w) * vpd * fu2;
+        if reference_etp[ihr] < 0. {
+            reference_etp[ihr] = 0.;
         }
         // ReferenceTransp is the sum of ReferenceETP
-        ReferenceTransp += ReferenceETP[ihr];
+        reference_transp += reference_etp[ihr];
         // es1hour and es2hour are computed as the hourly potential evapotranspiration due to radiative and aerodynamic factors, respectively.
         // es1hour and ReferenceTransp are not computed for periods of negative net radiation.
-        es2hour[ihr] = (1. - w) * vpd * fu2;
+        es2hour_local[ihr] = (1. - w) * vpd * fu2;
         if rnet[ihr] > 0. {
-            es1hour[ihr] = w * rnet[ihr] / hlathr;
+            es1hour_local[ihr] = w * rnet[ihr] / hlathr;
         } else {
-            es1hour[ihr] = 0.;
+            es1hour_local[ihr] = 0.;
         }
+    }
+    EvapoTranspirationOutput {
+        cloud_cover_ratio,
+        cloud_type_corr,
+        albedo: albedo_local,
+        reference_etp,
+        reference_transp,
+        rn,
+        es1hour: es1hour_local,
+        es2hour: es2hour_local,
     }
 }
 
