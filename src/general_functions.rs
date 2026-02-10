@@ -1,6 +1,6 @@
 use crate::{
-    Clim, Climstruct, CLIMATE_METRIC, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
-    CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
+    Clim, CLIMATE_METRIC, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN, CLIMATE_METRIC_TDEW,
+    CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
 };
 use std::os::raw::c_int;
 
@@ -81,38 +81,35 @@ pub fn PsiOsmotic(q: f64, qsat: f64, ec: f64) -> f64 {
 
 pub fn GetFromClim(item: CLIMATE_METRIC, doy: c_int) -> f64 {
     const CLIM_LEN: usize = 400;
-    unsafe {
-        let clim_ptr = std::ptr::addr_of_mut!(Clim) as *mut Climstruct;
-        let mut i = 0usize;
-        while i < CLIM_LEN {
-            let record = std::ptr::read(clim_ptr.add(i));
-            if record.nDay == doy {
-                break;
-            }
-            i += 1;
+    let clim = Clim.read().expect("Clim lock poisoned");
+    let mut i = 0usize;
+    while i < CLIM_LEN {
+        let record = clim[i];
+        if record.nDay == doy {
+            break;
         }
-        if i >= CLIM_LEN {
-            i = CLIM_LEN - 1;
-        }
-        let first = std::ptr::read(clim_ptr);
-        if doy < first.nDay {
-            i = 0;
-        }
-        let record = std::ptr::read(clim_ptr.add(i));
-        if item == CLIMATE_METRIC_TMIN {
-            record.Tmin
-        } else if item == CLIMATE_METRIC_TMAX {
-            record.Tmax
-        } else if item == CLIMATE_METRIC_IRRD {
-            record.Rad
-        } else if item == CLIMATE_METRIC_RAIN {
-            record.Rain
-        } else if item == CLIMATE_METRIC_WIND {
-            record.Wind
-        } else if item == CLIMATE_METRIC_TDEW {
-            record.Tdew
-        } else {
-            -99.0
-        }
+        i += 1;
+    }
+    if i >= CLIM_LEN {
+        i = CLIM_LEN - 1;
+    }
+    if doy < clim[0].nDay {
+        i = 0;
+    }
+    let record = clim[i];
+    if item == CLIMATE_METRIC_TMIN {
+        record.Tmin
+    } else if item == CLIMATE_METRIC_TMAX {
+        record.Tmax
+    } else if item == CLIMATE_METRIC_IRRD {
+        record.Rad
+    } else if item == CLIMATE_METRIC_RAIN {
+        record.Rain
+    } else if item == CLIMATE_METRIC_WIND {
+        record.Wind
+    } else if item == CLIMATE_METRIC_TDEW {
+        record.Tdew
+    } else {
+        -99.0
     }
 }

@@ -85,11 +85,12 @@ impl SoilHydrology {
         }
         let i02 = unsafe { Daynum };
         let mut previous_wetting = 0.; // five day total (before this day) of rain and irrigation, mm
+        let irrig = Irrig.read().expect("Irrig lock poisoned");
         for Dayn in i01..i02 {
             let mut amtirr = 0.; // mm water applied on this day by irrigation
             for i in 0..unsafe { NumIrrigations } as usize {
-                if Dayn == unsafe { Irrig[i].day } {
-                    amtirr = unsafe { Irrig[i].amount };
+                if Dayn == irrig[i].day {
+                    amtirr = irrig[i].amount;
                 }
             }
             previous_wetting += amtirr + GetFromClim(CLIMATE_METRIC_RAIN, Dayn);
@@ -174,8 +175,9 @@ unsafe fn predict_drip_irrigation(target_stress: f64) {
 
     if !IRR1ST {
         let mut is_irrigated_today = false;
+        let irrig = Irrig.read().expect("Irrig lock poisoned");
         for irrigation_index in 0..NumIrrigations as usize {
-            if Irrig[irrigation_index].day == Daynum
+            if irrig[irrigation_index].day == Daynum
                 || GetFromClim(CLIMATE_METRIC_RAIN, Daynum) > 1.0
             {
                 is_irrigated_today = true;

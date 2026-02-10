@@ -3,25 +3,35 @@
 #[allow(non_upper_case_globals)]
 #[allow(non_snake_case)]
 mod global_rust_defs {
+    use std::sync::{LazyLock, RwLock};
+
     #[allow(unused_imports)]
     use crate::{Climstruct, Irrigation};
 
-    pub static mut Clim: [Climstruct; 400usize] = [Climstruct {
-        nDay: 0,
-        Rad: 0.0,
-        Tmax: 0.0,
-        Tmin: 0.0,
-        Rain: 0.0,
-        Wind: 0.0,
-        Tdew: 0.0,
-    }; 400usize];
-    pub static mut Irrig: [Irrigation; 150usize] = [Irrigation {
-        day: 0,
-        method: 0,
-        LocationColumnDrip: 0,
-        LocationLayerDrip: 0,
-        amount: 0.0,
-    }; 150usize];
+    pub static Clim: LazyLock<RwLock<[Climstruct; 400usize]>> = LazyLock::new(|| {
+        RwLock::new(
+            [Climstruct {
+                nDay: 0,
+                Rad: 0.0,
+                Tmax: 0.0,
+                Tmin: 0.0,
+                Rain: 0.0,
+                Wind: 0.0,
+                Tdew: 0.0,
+            }; 400usize],
+        )
+    });
+    pub static Irrig: LazyLock<RwLock<[Irrigation; 150usize]>> = LazyLock::new(|| {
+        RwLock::new(
+            [Irrigation {
+                day: 0,
+                method: 0,
+                LocationColumnDrip: 0,
+                LocationLayerDrip: 0,
+                amount: 0.0,
+            }; 150usize],
+        )
+    });
     pub static mut DayEmerge: ::std::os::raw::c_int = 0;
     pub static mut DayEndMulch: ::std::os::raw::c_int = 0;
     pub static mut DayFinish: ::std::os::raw::c_int = 0;

@@ -376,9 +376,8 @@ impl State {
                 rainToday = 0.;
             }
             let j = unsafe { Daynum - DayStart }; // days from start of simulation
-            unsafe {
-                Clim[j as usize].Rain = rainToday;
-            }
+            let mut clim = Clim.write().expect("Clim lock poisoned");
+            clim[j as usize].Rain = rainToday;
         }
         self.soil.hydrology.runoff = runoffToday;
         let daynum = unsafe { Daynum };
@@ -399,14 +398,15 @@ impl State {
         }
         // When water is added by an irrigation defined in the input: update the amount of applied water.
         unsafe {
+            let irrig = Irrig.read().expect("Irrig lock poisoned");
             for i in 0..NumIrrigations as usize {
-                if Daynum == Irrig[i].day {
-                    if Irrig[i].method == 2 {
-                        drip_water_amount += Irrig[i].amount;
-                        LocationColumnDrip = Irrig[i].LocationColumnDrip;
-                        LocationLayerDrip = Irrig[i].LocationLayerDrip;
+                if Daynum == irrig[i].day {
+                    if irrig[i].method == 2 {
+                        drip_water_amount += irrig[i].amount;
+                        LocationColumnDrip = irrig[i].LocationColumnDrip;
+                        LocationLayerDrip = irrig[i].LocationLayerDrip;
                     } else {
-                        water_to_apply += Irrig[i].amount;
+                        water_to_apply += irrig[i].amount;
                     }
                     break;
                 }

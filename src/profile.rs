@@ -780,31 +780,32 @@ impl Profile {
         }
         let mut rdr = csv::Reader::from_path(&self.weather_path)?;
         let mut jdd: u32 = 0;
-        for result in rdr.deserialize() {
-            let record: WeatherRecord = result?;
-            jdd = record.date.ordinal();
-            let j = jdd as i32 - unsafe { DayStart };
-            if j < 0 {
-                continue;
-            }
-            unsafe {
-                Clim[j as usize].nDay = jdd as i32;
+        {
+            let mut clim = Clim.write().expect("Clim lock poisoned");
+            for result in rdr.deserialize() {
+                let record: WeatherRecord = result?;
+                jdd = record.date.ordinal();
+                let j = jdd as i32 - unsafe { DayStart };
+                if j < 0 {
+                    continue;
+                }
+                clim[j as usize].nDay = jdd as i32;
                 // convert $MJ\ m^{-2}$ to langleys
-                Clim[j as usize].Rad = record.irradiation * 23.884;
-                Clim[j as usize].Tmax = record.tmax;
-                Clim[j as usize].Tmin = record.tmin;
-                Clim[j as usize].Wind =
+                clim[j as usize].Rad = record.irradiation * 23.884;
+                clim[j as usize].Tmax = record.tmax;
+                clim[j as usize].Tmin = record.tmin;
+                clim[j as usize].Wind =
                     if self.site.average_wind_speed.is_some() && record.wind.is_none() {
                         self.site.average_wind_speed.unwrap()
                     } else {
                         record.wind.unwrap_or(0.)
                     };
-                Clim[j as usize].Tdew = record.tdew.unwrap_or(estimate_dew_point(
+                clim[j as usize].Tdew = record.tdew.unwrap_or(estimate_dew_point(
                     record.tmax,
                     self.site.estimate_dew_point.0,
                     self.site.estimate_dew_point.1,
                 ));
-                Clim[j as usize].Rain = record.rain;
+                clim[j as usize].Rain = record.rain;
             }
         }
         self.last_day_weather_data = NaiveDate::from_yo_opt(unsafe { iyear }, jdd).unwrap();
@@ -834,16 +835,18 @@ impl Profile {
                             }
                             IrrigMethod = irrigation.method as i32;
                         } else {
-                            Irrig[NumIrrigations as usize].day = irrigation.date.ordinal() as i32;
-                            Irrig[NumIrrigations as usize].amount = irrigation.amount;
+                            let idx = NumIrrigations as usize;
+                            let mut irrig = Irrig.write().expect("Irrig lock poisoned");
+                            irrig[idx].day = irrigation.date.ordinal() as i32;
+                            irrig[idx].amount = irrigation.amount;
                             if let IrrigationMethod::Drip = irrigation.method {
-                                Irrig[NumIrrigations as usize].LocationColumnDrip =
+                                irrig[idx].LocationColumnDrip =
                                     utils::slab_horizontal_location(irrigation.drip_x, RowSpace)?
                                         as i32;
-                                Irrig[NumIrrigations as usize].LocationLayerDrip =
+                                irrig[idx].LocationLayerDrip =
                                     utils::slab_vertical_location(irrigation.drip_y)? as i32;
                             }
-                            Irrig[NumIrrigations as usize].method = irrigation.method as i32;
+                            irrig[idx].method = irrigation.method as i32;
                             NumIrrigations += 1;
                         }
                     }

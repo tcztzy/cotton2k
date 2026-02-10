@@ -54,8 +54,9 @@ impl SoilThermodynamics {
             idd = 0;
         }
         let mut tsi1 = 0.; // Upper boundary (surface layer) initial soil temperature, C.
+        let clim = Clim.read().expect("Clim lock poisoned");
         for i in idd as usize..(idd + 5) as usize {
-            tsi1 += unsafe { Clim[i].Tmax + Clim[i].Tmin };
+            tsi1 += clim[i].Tmax + clim[i].Tmin;
         }
         tsi1 /= 10.;
         // The temperature of the last soil layer (lower boundary) is computed as a sinusoidal function of day of year, with site-specific parameters.
