@@ -1021,21 +1021,19 @@ fn LeafWaterPotential() {
             LwpMin = psild0;
             return;
         }
-    }
-    // Compute shoot resistance (rshoot) as a function of plant height.
-    let rshoot: f64 = vpsil[0] * unsafe { PlantHeight } / 100.; // shoot resistance, Mpa hours per cm.
+        // Compute shoot resistance (rshoot) as a function of plant height.
+        let rshoot: f64 = vpsil[0] * PlantHeight / 100.; // shoot resistance, Mpa hours per cm.
 
-    // Assign zero to summation variables
-    let mut psinum = 0f64; // sum of RootWtCapblUptake for all soil cells with roots.
-    let mut rootvol = 0f64; // sum of volume of all soil cells with roots.
-    let mut rrlsum = 0f64; // weighted sum of reciprocals of rrl.
-    let rroot; // root resistance, Mpa hours per cm.
-    let mut sumlv = 0f64; // weighted sum of root length, cm, for all soil cells with roots.
-    let mut vh2sum = 0f64; // weighted sum of soil water content, for all soil cells with roots.
+        // Assign zero to summation variables
+        let mut psinum = 0f64; // sum of RootWtCapblUptake for all soil cells with roots.
+        let mut rootvol = 0f64; // sum of volume of all soil cells with roots.
+        let mut rrlsum = 0f64; // weighted sum of reciprocals of rrl.
+        let rroot; // root resistance, Mpa hours per cm.
+        let mut sumlv = 0f64; // weighted sum of root length, cm, for all soil cells with roots.
+        let mut vh2sum = 0f64; // weighted sum of soil water content, for all soil cells with roots.
 
-    // Loop over all soil cells with roots. Check if RootWtCapblUptake is greater than vpsil[10].
-    // All average values computed for the root zone, are weighted by RootWtCapblUptake (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
-    unsafe {
+        // Loop over all soil cells with roots. Check if RootWtCapblUptake is greater than vpsil[10].
+        // All average values computed for the root zone, are weighted by RootWtCapblUptake (root weight capable of uptake), but the weight assigned will not be greater than vpsil[11].
         for l in 0..NumLayersWithRoots as usize {
             for k in (RootColNumLeft[l] as usize)..RootColNumLeft[l] as usize {
                 if RootWtCapblUptake[l][k] >= vpsil[10] {
@@ -1053,25 +1051,23 @@ fn LeafWaterPotential() {
                 }
             }
         }
-    }
-    // Compute average root resistance (rroot) and average soil water content (vh2).
-    let dumyrs: f64; // intermediate variable for computing cond.
-    let vh2: f64; // average of soil water content, for all soil soil cells with roots.
-    if psinum > 0. && sumlv > 0. {
-        rroot = psinum / rrlsum;
-        vh2 = vh2sum / psinum;
-        dumyrs = fmax(
-            1.001,
-            (1. / (std::f64::consts::PI * sumlv / rootvol)).sqrt() / rtdiam,
-        );
-    } else {
-        rroot = 0.;
-        vh2 = unsafe { thad[0] };
-        dumyrs = 1.001;
-    }
-    // Compute hydraulic conductivity (cond), and soil resistance near the root surface (rsoil). soil hydraulic conductivity near the root surface.
-    let cond = fmax(
-        unsafe {
+        // Compute average root resistance (rroot) and average soil water content (vh2).
+        let dumyrs: f64; // intermediate variable for computing cond.
+        let vh2: f64; // average of soil water content, for all soil soil cells with roots.
+        if psinum > 0. && sumlv > 0. {
+            rroot = psinum / rrlsum;
+            vh2 = vh2sum / psinum;
+            dumyrs = fmax(
+                1.001,
+                (1. / (std::f64::consts::PI * sumlv / rootvol)).sqrt() / rtdiam,
+            );
+        } else {
+            rroot = 0.;
+            vh2 = thad[0];
+            dumyrs = 1.001;
+        }
+        // Compute hydraulic conductivity (cond), and soil resistance near the root surface (rsoil). soil hydraulic conductivity near the root surface.
+        let cond = fmax(
             wcond(
                 vh2,
                 thad[0],
@@ -1079,32 +1075,28 @@ fn LeafWaterPotential() {
                 beta[0],
                 SaturatedHydCond[0],
                 PoreSpace[0],
-            )
-        } / 24.
-            * 2.
-            * sumlv
-            / rootvol
-            / dumyrs.ln(),
-        vpsil[6],
-    );
-    let rsoil = 0.0001 / (2. * std::f64::consts::PI * cond); // soil resistance, Mpa hours per cm.
+            ) / 24.
+                * 2.
+                * sumlv
+                / rootvol
+                / dumyrs.ln(),
+            vpsil[6],
+        );
+        let rsoil = 0.0001 / (2. * std::f64::consts::PI * cond); // soil resistance, Mpa hours per cm.
 
-    // Compute leaf resistance (LeafResistance) as the average of the resistances of all existing leaves. The resistance of an individual leaf is a function of its age. Function LeafResistance is called to compute it.
-    // This is executed for all the leaves of the plant.
-    let mut numl = 0; // number of leaves.
-    let mut sumrl = 0f64; // sum of leaf resistances for all the plant.
-    unsafe {
+        // Compute leaf resistance (LeafResistance) as the average of the resistances of all existing leaves. The resistance of an individual leaf is a function of its age. Function LeafResistance is called to compute it.
+        // This is executed for all the leaves of the plant.
+        let mut numl = 0; // number of leaves.
+        let mut sumrl = 0f64; // sum of leaf resistances for all the plant.
         for j in 0..NumPreFruNodes as usize
         // loop prefruiting nodes
         {
             numl += 1;
             sumrl += LeafResistance(AgeOfPreFruNode[j]);
         }
-    }
-    //
-    let mut nbrch: i32; // number of fruiting branches on a vegetative branch.
-    let mut nnid: i32; // number of nodes on a fruiting branch.
-    unsafe {
+        //
+        let mut nbrch: i32; // number of fruiting branches on a vegetative branch.
+        let mut nnid: i32; // number of nodes on a fruiting branch.
         for k in 0..NumVegBranches as usize {
             // loop for all other nodes
             nbrch = NumFruitBranches[k];
@@ -1116,14 +1108,12 @@ fn LeafWaterPotential() {
                 }
             }
         }
-    }
-    let rleaf = sumrl / numl as f64; // leaf resistance, Mpa hours per cm.
+        let rleaf = sumrl / numl as f64; // leaf resistance, Mpa hours per cm.
 
-    // The total resistance to transpiration, MPa hours per cm, (rtotal) is computed.
-    let rtotal = rsoil + rroot + rshoot + rleaf;
-    // Compute maximum (early morning) leaf water potential, LwpMax, from soil water potential (AverageSoilPsi, converted from bars to MPa).
-    // Check for minimum and maximum values.
-    unsafe {
+        // The total resistance to transpiration, MPa hours per cm, (rtotal) is computed.
+        let rtotal = rsoil + rroot + rshoot + rleaf;
+        // Compute maximum (early morning) leaf water potential, LwpMax, from soil water potential (AverageSoilPsi, converted from bars to MPa).
+        // Check for minimum and maximum values.
         LwpMax = vpsil[7] + 0.1 * AverageSoilPsi;
         if LwpMax < vpsil[8] {
             LwpMax = vpsil[8];
@@ -1131,21 +1121,17 @@ fn LeafWaterPotential() {
         if LwpMax > psiln0 {
             LwpMax = psiln0;
         }
-    }
-    //     Compute minimum (at time of maximum transpiration rate) leaf water
-    //     potential, LwpMin, from
-    //  maximum transpiration rate (etmax) and total resistance to transpiration
-    //  (rtotal).
-    let mut etmax = 0f64; // the maximum hourly rate of evapotranspiration for this day.
-    for ihr in 0..24 {
-        //  hourly loop
-        unsafe {
+        //     Compute minimum (at time of maximum transpiration rate) leaf water
+        //     potential, LwpMin, from
+        //  maximum transpiration rate (etmax) and total resistance to transpiration
+        //  (rtotal).
+        let mut etmax = 0f64; // the maximum hourly rate of evapotranspiration for this day.
+        for ihr in 0..24 {
+            //  hourly loop
             if ReferenceETP[ihr] > etmax {
                 etmax = ReferenceETP[ihr];
             }
         }
-    }
-    unsafe {
         LwpMin = LwpMax - 0.1 * fmax(etmax, vpsil[12]) * rtotal;
         //     Check for minimum and maximum values.
         if LwpMin < vpsil[9] {
@@ -1403,22 +1389,20 @@ fn drop_leaf_age(lai: f64) -> f64 {
 fn RootsCapableOfUptake() {
     // the indices for the relative capability of uptake (between 0 and 1) of water and nutrients by root age classes.
     const cuind: [f64; 3] = [1., 0.5, 0.];
-    for l in 0..unsafe { nl } as usize {
-        for k in 0..unsafe { nk } as usize {
-            unsafe {
+    unsafe {
+        for l in 0..nl as usize {
+            for k in 0..nk as usize {
                 RootWtCapblUptake[l][k] = 0.;
             }
         }
-    }
-    //     Loop for all soil soil cells with roots. compute for each soil cell
-    //     root-weight capable
-    //  of uptake (RootWtCapblUptake) as the sum of products of root weight and
-    //  capability of uptake index (cuind) for each root class in it.
-    for l in 0..unsafe { NumLayersWithRoots } as usize {
-        for k in unsafe { RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 } {
-            for i in 0..3 {
-                if unsafe { RootWeight[l][k][i] } > 1.0e-15 {
-                    unsafe {
+        //     Loop for all soil soil cells with roots. compute for each soil cell
+        //     root-weight capable
+        //  of uptake (RootWtCapblUptake) as the sum of products of root weight and
+        //  capability of uptake index (cuind) for each root class in it.
+        for l in 0..NumLayersWithRoots as usize {
+            for k in RootColNumLeft[l] as usize..RootColNumRight[l] as usize + 1 {
+                for i in 0..3 {
+                    if RootWeight[l][k][i] > 1.0e-15 {
                         RootWtCapblUptake[l][k] += RootWeight[l][k][i] * cuind[i];
                     }
                 }
