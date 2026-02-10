@@ -4,30 +4,21 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    let cpp_sources = vec![
-        "CottonPhenology.cpp",
-        "FruitAbscission.cpp",
-        "global.cpp",
-        "LeafAbscission.cpp",
-        "SoilNitrogen.cpp",
-        "SoilProcedures_1.cpp",
-        "SoilProcedures_2.cpp",
-        "SoilProcedures_3.cpp",
-        "SoilTemperature_2.cpp",
-        "SoilTemperature_3.cpp",
-    ];
+    let cpp_sources: Vec<&str> = vec![];
 
     let x = cpp_sources.clone();
-    let mut build = cc::Build::new();
-    build.cpp(true).files(cpp_sources);
-    let target = env::var("TARGET").unwrap_or_default();
-    if target.contains("apple-darwin") {
-        let deployment_target =
-            env::var("MACOSX_DEPLOYMENT_TARGET").unwrap_or_else(|_| "11.0".to_string());
-        build.flag(&format!("-mmacosx-version-min={}", deployment_target));
+    if !cpp_sources.is_empty() {
+        let mut build = cc::Build::new();
+        build.cpp(true).files(cpp_sources);
+        let target = env::var("TARGET").unwrap_or_default();
+        if target.contains("apple-darwin") {
+            let deployment_target =
+                env::var("MACOSX_DEPLOYMENT_TARGET").unwrap_or_else(|_| "11.0".to_string());
+            build.flag(&format!("-mmacosx-version-min={}", deployment_target));
+        }
+        build.compile("cotton2k");
+        println!("cargo:rustc-link-lib=cotton2k");
     }
-    build.compile("cotton2k");
-    println!("cargo:rustc-link-lib=cotton2k");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     for &s in x.iter() {

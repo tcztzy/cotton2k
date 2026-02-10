@@ -1,28 +1,31 @@
 use crate::atmosphere::{num_hours, Atmosphere};
-use crate::general_functions::{GetFromClim, wcond};
+use crate::general_functions::{wcond, GetFromClim};
 use crate::plant::growth::PlantGrowth;
 use crate::plant::growth::{check_dry_matter_balance, defoliate, LeafResistance, PhysiologicalAge};
+use crate::plant::phenology::cotton_phenology;
 use crate::plant::Plant;
 use crate::profile::{AgronomyOperation, FertilizationMethod, LightInterceptMethod, Profile};
-use crate::soil::hydrology::{ComputeIrrigation, WaterUptake};
+use crate::soil::hydrology::{
+    average_psi, capillary_flow, drain, soil_sum, ComputeIrrigation, WaterUptake,
+};
+use crate::soil::nitrogen::{soil_nitrogen, soil_nitrogen_average, soil_nitrogen_bal};
 use crate::soil::Soil;
 use crate::utils::{cell_distance, fmax, fmin, slab_horizontal_location, slab_vertical_location};
 use crate::{
     addwtbl, bPollinSwitch, beta, dl, isw, maxl, nk, nl, noitr, thad, thts, wk,
     ActualTranspiration, AgeOfPreFruNode, AppliedWater, AverageLeafAge, AverageLwp, AverageLwpMin,
-    AveragePsi, AverageSoilPsi, BurrWeightOpenBolls, CapillaryFlow, Clim, Cotton2KError,
-    CottonPhenology, CottonWeightOpenBolls, CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake,
-    CumTranspiration, CumWaterAdded, CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart,
-    DayStartPredIrrig, DayStopPredIrrig, DayTimeTemp, Daynum, Drain, ElCondSatSoilToday,
-    FirstSquare, Irrig, IrrigMethod, Kday, LeafAge, LeafArea, LeafAreaIndex,
-    LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes, LeafAreaPreFru, LeafNConc, LeafNitrogen,
-    LightIntercept, LightInterceptLayer, LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin,
-    LwpMinX, LwpX, MaxIrrigation, MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer,
-    NodeLayerPreFru, NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes,
-    NumPreFruNodes, NumVegBranches, PerPlantArea, PlantHeight, PlantPopulation, PlantRowColumn,
-    PlantWeight, PoreSpace, ReferenceETP, RootColNumLeft, RootColNumRight, RootWeight,
-    RootWtCapblUptake, RowSpace, SaturatedHydCond, SoilNitrogen, SoilNitrogenAverage,
-    SoilNitrogenBal, SoilNitrogenLoss, SoilPsi, SoilSum, StemWeight, SupplyNH4N, SupplyNO3N,
+    AverageSoilPsi, BurrWeightOpenBolls, Clim, Cotton2KError, CottonWeightOpenBolls,
+    CumFertilizerN, CumNetPhotosynth, CumNitrogenUptake, CumTranspiration, CumWaterAdded,
+    CumWaterDrained, DayEmerge, DayInc, DayOfSimulation, DayStart, DayStartPredIrrig,
+    DayStopPredIrrig, DayTimeTemp, Daynum, ElCondSatSoilToday, FirstSquare, Irrig, IrrigMethod,
+    Kday, LeafAge, LeafArea, LeafAreaIndex, LeafAreaIndexes, LeafAreaMainStem, LeafAreaNodes,
+    LeafAreaPreFru, LeafNConc, LeafNitrogen, LightIntercept, LightInterceptLayer,
+    LocationColumnDrip, LocationLayerDrip, LwpMax, LwpMin, LwpMinX, LwpX, MaxIrrigation,
+    MaxWaterCapacity, NO3FlowFraction, NetPhotosynthesis, NodeLayer, NodeLayerPreFru,
+    NumFruitBranches, NumIrrigations, NumLayersWithRoots, NumNodes, NumPreFruNodes, NumVegBranches,
+    PerPlantArea, PlantHeight, PlantPopulation, PlantRowColumn, PlantWeight, PoreSpace,
+    ReferenceETP, RootColNumLeft, RootColNumRight, RootWeight, RootWtCapblUptake, RowSpace,
+    SaturatedHydCond, SoilNitrogenLoss, SoilPsi, StemWeight, SupplyNH4N, SupplyNO3N,
     TotalLeafWeight, VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress,
     WaterStressStem, WaterTableLayer, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_RAIN,
 };
@@ -105,8 +108,8 @@ impl State {
             self.atmosphere.meteorology(profile); // computes climate variables for today.
             self.soil.thermodynamics.simulate(profile); // executes all modules of soil and canopy temperature.
             self.soil_procedures(profile)?; // executes all other soil processes.
-            SoilNitrogen(); // computes nitrogen transformations in the soil.
-            SoilSum(); // computes totals of water and N in the soil.
+            soil_nitrogen(); // computes nitrogen transformations in the soil.
+            soil_sum(); // computes totals of water and N in the soil.
 
             // The following is executed each day after plant emergence:
             if Daynum >= DayEmerge && isw > 0 {
@@ -118,7 +121,7 @@ impl State {
                 self.get_net_photosynthesis(profile)?; // computes net photosynthesis.
                 self.plant
                     .grow(self.atmosphere, &profile.agronomy_operations, &root_tables); // executes all modules of plant growth.
-                CottonPhenology(); // executes all modules of plant phenology.
+                cotton_phenology(); // executes all modules of plant phenology.
                 self.plant.nitrogen.run(); // computes plant nitrogen allocation.
                 check_dry_matter_balance(); // checks plant dry matter balance.
 
@@ -126,8 +129,8 @@ impl State {
                 // layer, and write this information to files.
                 if false {
                     self.plant.nitrogen.balance(); // checks plant nitrogen balance.
-                    SoilNitrogenBal(); // checks soil nitrogen balance.
-                    SoilNitrogenAverage(); // computes average soil nitrogen by layers.
+                    soil_nitrogen_bal(); // checks soil nitrogen balance.
+                    soil_nitrogen_average(); // computes average soil nitrogen by layers.
                 }
             }
             // Check if the date to stop simulation has been reached, or if this is the last day with available weather
@@ -416,7 +419,7 @@ impl State {
             // The following will be executed only after plant emergence
             if Daynum >= DayEmerge && isw > 0 {
                 RootsCapableOfUptake(); // function computes roots capable of uptake for each soil cell
-                AverageSoilPsi = AveragePsi(); // function computes the average matric soil water potential in the root zone, weighted by the roots-capable-of-uptake.
+                AverageSoilPsi = average_psi(); // function computes the average matric soil water potential in the root zone, weighted by the roots-capable-of-uptake.
                 WaterUptake(); // function  computes water and nitrogen uptake by plants.
 
                 // Update the cumulative sums of actual transpiration (CumTranspiration, mm) and total uptake of nitrogen (CumNitrogenUptake, mg N per slab, converted from total N supply, g per plant).
@@ -441,7 +444,7 @@ impl State {
             for _ in 0..unsafe { noitr } as usize {
                 unsafe {
                     GravityFlow(applywat);
-                    CapillaryFlow();
+                    capillary_flow();
                 }
             }
         }
@@ -459,7 +462,7 @@ impl State {
             for _ in 0..unsafe { noitr } as usize {
                 unsafe {
                     DripFlow(applywat)?;
-                    CapillaryFlow();
+                    capillary_flow();
                 }
             }
         }
@@ -467,7 +470,7 @@ impl State {
         if water_to_apply + drip_water_amount <= 0. {
             unsafe {
                 noitr = 1;
-                CapillaryFlow();
+                capillary_flow();
             }
         }
         Ok(())
@@ -963,7 +966,7 @@ unsafe fn GravityFlow(applywat: f64) {
     }
     // Call function Drain() to compute downflow of water.
     // water drained out of the slab, mm.
-    let WaterDrainedOut: f64 = Drain();
+    let WaterDrainedOut: f64 = drain();
     // If there is drainage out of the slab, transform it to mm, and update the cumulative drainage (CumWaterDrained)
     if WaterDrainedOut > 0. {
         CumWaterDrained += 10. * WaterDrainedOut / RowSpace;

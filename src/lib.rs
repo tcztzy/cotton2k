@@ -9,6 +9,7 @@
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 mod atmosphere;
 mod general_functions;
+mod global_defs;
 mod input_functions;
 mod plant;
 mod profile;

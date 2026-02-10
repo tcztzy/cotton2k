@@ -1,14 +1,16 @@
+use super::temperature_abi::{
+    canopy_balance, mulch_surface_balance, predict_emergence, sensible_heat_transfer,
+    soil_surface_balance, thermal_cond_soil,
+};
 use crate::atmosphere::{clearskyemiss, vapor_pressure};
 use crate::profile::Profile;
 use crate::{
     albedo, bEnd, dl, es1hour, es2hour, isw, nk, nl, thad, wk, ActualSoilEvaporation,
-    ActualTranspiration, AirTemp, CanopyBalance, Clim, CloudCoverRatio, CloudTypeCorr,
-    Cotton2KError, CumEvaporation, DayEndMulch, DayPlant, DayStart, DayStartMulch, Daynum,
-    DeepSoilTemperature, FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, MulchIndicator,
-    MulchSurfaceBalance, MulchTemp, MulchTranLW, MulchTranSW, PlantHeight, PlantRowColumn,
-    PoreSpace, PredictEmergence, Radiation, ReferenceETP, ReferenceTransp, RelativeHumidity,
-    RowSpace, SensibleHeatTransfer, SoilSurfaceBalance, SoilTemp, SoilTempDailyAvrg,
-    ThermalCondSoil, VolWaterContent, WindSpeed,
+    ActualTranspiration, AirTemp, Clim, CloudCoverRatio, CloudTypeCorr, Cotton2KError,
+    CumEvaporation, DayEndMulch, DayPlant, DayStart, DayStartMulch, Daynum, DeepSoilTemperature,
+    FieldCapacity, FoliageTemp, HeatCapacitySoilSolid, MulchIndicator, MulchTemp, MulchTranLW,
+    MulchTranSW, PlantHeight, PlantRowColumn, PoreSpace, Radiation, ReferenceETP, ReferenceTransp,
+    RelativeHumidity, RowSpace, SoilTemp, SoilTempDailyAvrg, VolWaterContent, WindSpeed,
 };
 use uom::si::f64::ThermodynamicTemperature;
 use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
@@ -266,7 +268,7 @@ impl SoilThermodynamics {
             }
             // If emergence date is to be simulated, call PredictEmergence().
             if isw == 0 && Daynum >= DayPlant {
-                PredictEmergence(ihr as i32);
+                predict_emergence(ihr as i32);
             }
         }
         // At the end of the day compute actual daily evaporation and its cumulative sum.
@@ -404,7 +406,7 @@ impl SoilThermodynamics {
                 + sf * (0.1 * if bMulchon { tm } else { so } + 0.3 * thet + 0.6 * tv);
             // Call SensibleHeatTransfer() to compute sensible heat transfer coefficient. Factor 2.2 for sensible heat transfer: 2 sides of leaf plus stems and petioles.
             // sensible heat transfer coefficient for soil
-            let varcc = SensibleHeatTransfer(tv, tafk, PlantHeight, wndhr); // canopy to air
+            let varcc = sensible_heat_transfer(tv, tafk, PlantHeight, wndhr); // canopy to air
             if bEnd {
                 return Ok(());
             }
@@ -438,7 +440,7 @@ impl SoilThermodynamics {
                 // Call SensibleHeatTransfer() to compute sensible heat transfer for soil surface to air
                 tafk = (1. - sf) * thet + sf * (0.1 * so + 0.3 * thet + 0.6 * tv);
                 // sensible heat transfer coefficientS for soil
-                let varc = SensibleHeatTransfer(so, tafk, 0., wndcanp);
+                let varc = sensible_heat_transfer(so, tafk, 0., wndcanp);
                 if bEnd {
                     return Ok(());
                 }
@@ -446,7 +448,7 @@ impl SoilThermodynamics {
                 // multiplier for computing sensible heat transfer soil to air.
                 let hsg = rocp * varc;
                 // Call SoilSurfaceBalance() for energy balance in soil surface/air interface.
-                SoilSurfaceBalance(
+                soil_surface_balance(
                     ihr as i32, k as i32, ess, rlzero, rss, sf, hsg, &mut so, &mut so2, &mut so3,
                     thet, 0., tv,
                 );
@@ -458,7 +460,7 @@ impl SoilThermodynamics {
                 // This section executed for shaded columns only.
                 tvold = tv;
                 // Compute canopy energy balance for shaded columns
-                CanopyBalance(
+                canopy_balance(
                     ihr as i32, k as i32, etp1, rlzero, rsv, c2, sf, so, thet, tm, &mut tv,
                 );
                 // Increment the number of iterations.
@@ -540,7 +542,7 @@ impl SoilThermodynamics {
                 self.dz[i] = wk[i];
             }
             self.hcap[i] = HeatCapacitySoilSolid[l] + q1[i] + (PoreSpace[l] - q1[i]) * ca;
-            asoi[i] = ThermalCondSoil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
+            asoi[i] = thermal_cond_soil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
         }
         // The numerical solution of the flow equation is a combination of the implicit method (weighted by beta1) and the explicit method (weighted by 1-beta1).
         let mut dltt; // computed time step required.
@@ -573,7 +575,7 @@ impl SoilThermodynamics {
                 if iv == 1 {
                     l = i;
                 }
-                asoi[i] = ThermalCondSoil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
+                asoi[i] = thermal_cond_soil(q1[i], self.ts1[i], l as i32) / self.hcap[i];
                 if i > 0 {
                     avdif[i] = (asoi[i] + asoi[i - 1]) / 2.;
                 }
@@ -889,7 +891,7 @@ fn SoilMulchBalance(
     // multiplier for emitted long wave radiation from mulch,
     let rls5 = 2. * (1. - unsafe { MulchTranLW }) * stefa1;
     // Call SensibleHeatTransfer() to compute sensible heat transfer between plastic mulch and air sensible heat transfer coefficients for mulch to air (before multiplying by ROCP).
-    let varcm = unsafe { SensibleHeatTransfer(*tm, tafk, 0., wndcanp) };
+    let varcm = unsafe { sensible_heat_transfer(*tm, tafk, 0., wndcanp) };
     if unsafe { bEnd } {
         return Ok(true);
     }
@@ -913,7 +915,7 @@ fn SoilMulchBalance(
         // Energy balance for soil surface (mulch interface)
         hsgm = 2. * rocp * (*so - *tm).abs();
         unsafe {
-            SoilSurfaceBalance(
+            soil_surface_balance(
                 ihr, k, 0., rlzero, rss, sf, hsgm, so, so2, so3, thet, *tm, tv,
             )
         };
@@ -924,7 +926,9 @@ fn SoilMulchBalance(
         let rlsp = rlsp0 + (1. - unsafe { MulchTranLW }) * eg * stefa1 * so.powi(4);
         // Energy balance for mulch (soil and air interface)
         hsgm = 2. * rocp * (*so - *tm).abs();
-        unsafe { MulchSurfaceBalance(ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, *so, thet, tm, tv) };
+        unsafe {
+            mulch_surface_balance(ihr, k, rlsp, rls5, rsm, sf, hsgp, hsgm, *so, thet, tm, tv)
+        };
         if unsafe { bEnd } {
             return Ok(true);
         }

@@ -1,5 +1,7 @@
+pub mod abscission;
 pub mod growth;
 mod nitrogen;
+pub mod phenology;
 pub mod root;
 
 use nitrogen::PlantNitrogen;
