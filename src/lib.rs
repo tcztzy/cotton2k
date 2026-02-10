@@ -6,10 +6,12 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+mod bindings;
+pub use bindings::*;
 mod atmosphere;
 mod general_functions;
 mod global_defs;
+pub use global_defs::*;
 mod input_functions;
 mod plant;
 mod profile;

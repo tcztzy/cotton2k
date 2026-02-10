@@ -4,11 +4,6 @@ version = "0.1.0"
 edition = "2021"
 license = "AGPL-3.0-or-later"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[build-dependencies]
-bindgen = "0.72"
-cc = { version = "1.2", features = ["parallel"] }
-
 [dependencies]
 chrono = "0.4"
 csv = "1.4"

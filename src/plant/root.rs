@@ -35,7 +35,7 @@
 //
 //     The calling sequence of the root submodel modules is as follows:
 //     InitializeRootData() is called from ReadInput()
-//  at the start of the simulation (see their code in file gettinginput_2.cpp) .
+//  at the start of the simulation during profile initialization.
 //     PotentialRootGrowth() and ActualRootGrowth() are called each day from
 //     PlantGrowth(). PotentialRootGrowth() calls RootImpedance(),
 //     soil_mechanic_resistance(), soil_air_on_root_growth(),
@@ -589,9 +589,16 @@ unsafe fn root_cultivation(depth_cm: f64) {
 mod tests {
     use super::*;
     use crate::{dl, nk, nl, wk, DailyRootLoss, NumRootAgeGroups, PlantRowLocation, RootWeight};
+    use std::sync::{Mutex, OnceLock};
+
+    fn global_root_state_lock() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(())).lock().unwrap()
+    }
 
     #[test]
     fn cultivation_ignores_non_positive_depth() {
+        let _guard = global_root_state_lock();
         unsafe {
             let prev_nl = nl;
             let prev_nk = nk;
@@ -630,6 +637,7 @@ mod tests {
 
     #[test]
     fn cultivation_removes_roots_beyond_row() {
+        let _guard = global_root_state_lock();
         unsafe {
             let prev_nl = nl;
             let prev_nk = nk;

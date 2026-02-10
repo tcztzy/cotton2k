@@ -457,14 +457,23 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         }
         thad[l] = airdr[j];
         thts[l] = thetas[j];
-        FieldCapacity[l] = crate::general_functions::qpsi(psisfc, thad[l], thts[l], alpha[j], beta[j]);
-        MaxWaterCapacity[l] = crate::general_functions::qpsi(psidra, thad[l], thts[l], alpha[j], beta[j]);
+        FieldCapacity[l] =
+            crate::general_functions::qpsi(psisfc, thad[l], thts[l], alpha[j], beta[j]);
+        MaxWaterCapacity[l] =
+            crate::general_functions::qpsi(psidra, thad[l], thts[l], alpha[j], beta[j]);
         thetar[l] = crate::general_functions::qpsi(-15., thad[l], thts[l], alpha[j], beta[j]);
         // When the saturated hydraulic conductivity (SaturatedHydCond) is not given, it is computed from the hydraulic
         // conductivity at field capacity (condfc), using the wcond function.
         if SaturatedHydCond[j] <= 0. {
             SaturatedHydCond[j] = condfc[j]
-                / crate::general_functions::wcond(FieldCapacity[l], thad[l], thts[l], beta[j], 1., 1.);
+                / crate::general_functions::wcond(
+                    FieldCapacity[l],
+                    thad[l],
+                    thts[l],
+                    beta[j],
+                    1.,
+                    1.,
+                );
         }
     }
     // Loop for all soil layers. Compute depth from soil surface to the end of each layer (sumdl).

@@ -49,7 +49,6 @@ c2k.run("path/to/profile.toml")
 
 - Rust 1.70+ (for Rust usage)
 - Python 3.10+ (for Python bindings)
-- libclang (temporary, during transition from C++ to Rust)
 
 ## Building
 
@@ -62,6 +61,11 @@ Build and install Python bindings:
 ```bash
 cd bindings/python
 maturin develop --release
+```
+
+Run the pure-Rust regression check suite:
+```bash
+./scripts/regression_pure_rust.sh
 ```
 
 ## Roadmap

@@ -31,7 +31,7 @@ use crate::profile::AgronomyOperation;
 use chrono::Duration;
 
 /// Ratio of actual leaf + petiole growth to their potential requirements.
-/// Computed in `dry_matter_balance`, used by `actual_leaf_growth` (C++ `vratio`).
+/// Computed in `dry_matter_balance`, used by `actual_leaf_growth` (legacy name: `vratio`).
 static mut V_RATIO: f64 = 1.0;
 /// Defoliant intercepted by the canopy (kg/ha), accumulated across days.
 static mut DEFKGH: f64 = 0.0;

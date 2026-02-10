@@ -57,7 +57,7 @@ impl SoilHydrology {
     /// This function is called from DayClim() and is executed on each day with raifall more than 2 mm.
     /// It computes the runoff and the retained portion of the rainfall.
     ///
-    /// Note: This function is based on the code of GOSSYM. No changes have been made from the original GOSSYM code (except translation to C++).
+    /// Note: This function is based on the code of GOSSYM and keeps the original behavior after the Rust rewrite.
     /// It has not been validated by actual field measurement.
     ///
     /// It calculates the portion of rainfall that is lost to runoff, and reduces rainfall to the amount which is actually infiltrated into the soil.

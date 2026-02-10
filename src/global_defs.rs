@@ -1,5 +1,5 @@
-// Auto-generated from bindgen extern statics in global.h.
-// Defines all global variables in Rust so C++ global.cpp is no longer required.
+// Canonical Rust definitions for shared global state used across the model.
+// This replaces the previous generated FFI declarations.
 #[allow(non_upper_case_globals)]
 #[allow(non_snake_case)]
 mod global_rust_defs {
@@ -924,4 +924,16 @@ mod global_rust_defs {
 
         result
     }
+}
+
+pub use global_rust_defs::*;
+
+#[inline]
+pub unsafe fn TotalLeafWeight() -> f64 {
+    global_rust_defs::total_leaf_weight_cpp()
+}
+
+#[inline]
+pub unsafe fn TotalLeafArea() -> f64 {
+    global_rust_defs::total_leaf_area_cpp()
 }
