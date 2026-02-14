@@ -49,6 +49,7 @@ c2k.run("path/to/profile.toml")
 
 - Rust 1.70+ (for Rust usage)
 - Python 3.10+ (for Python bindings)
+- No libclang/LLVM toolchain is required for Python wheel builds
 
 ## Building
 
