@@ -3,6 +3,7 @@
 #[allow(non_upper_case_globals)]
 #[allow(non_snake_case)]
 mod global_rust_defs {
+    use crate::model_state::for_each_fruiting_site;
     use std::sync::{LazyLock, RwLock};
 
     #[allow(unused_imports)]
@@ -334,49 +335,55 @@ mod global_rust_defs {
     pub static mut WindSpeed: [f64; 24usize] = [0.0; 24usize];
     pub static mut wk: [f64; 20usize] = [0.0; 20usize];
     pub fn total_leaf_weight() -> f64 {
+        let legacy = crate::LegacyGlobalState::from_globals();
         let mut result = 0.0;
-        unsafe {
-            if crate::FirstSquare <= 0 {
-                result += 0.2;
-            }
-
-            for i in 0..crate::NumPreFruNodes as usize {
-                result += crate::LeafWeightPreFru[i];
-            }
-
-            for k in 0..crate::NumVegBranches as usize {
-                for l in 0..crate::NumFruitBranches[k] as usize {
-                    result += crate::LeafWeightMainStem[k][l];
-                    for m in 0..crate::NumNodes[k][l] as usize {
-                        result += crate::LeafWeightNodes[k][l][m];
-                    }
-                }
-            }
+        if legacy.first_square <= 0 {
+            result += 0.2;
         }
+
+        for i in 0..legacy.num_pre_fru_nodes.max(0) as usize {
+            result += legacy.leaf_weight_pre_fru[i];
+        }
+
+        for_each_fruiting_site(
+            legacy.num_veg_branches,
+            &legacy.num_fruit_branches,
+            &legacy.num_nodes,
+            |k, l, nodes| {
+                result += legacy.leaf_weight_main_stem[[k, l]];
+                result += legacy
+                    .leaf_weight_nodes
+                    .slice(ndarray::s![k, l, 0..nodes])
+                    .sum();
+            },
+        );
 
         result
     }
 
     pub fn total_leaf_area() -> f64 {
+        let legacy = crate::LegacyGlobalState::from_globals();
         let mut result = 0.0;
-        unsafe {
-            if crate::FirstSquare <= 0 {
-                result += 0.20 * 0.6;
-            }
-
-            for i in 0..crate::NumPreFruNodes as usize {
-                result += crate::LeafAreaPreFru[i];
-            }
-
-            for k in 0..crate::NumVegBranches as usize {
-                for l in 0..crate::NumFruitBranches[k] as usize {
-                    result += crate::LeafAreaMainStem[k][l];
-                    for m in 0..crate::NumNodes[k][l] as usize {
-                        result += crate::LeafAreaNodes[k][l][m];
-                    }
-                }
-            }
+        if legacy.first_square <= 0 {
+            result += 0.20 * 0.6;
         }
+
+        for i in 0..legacy.num_pre_fru_nodes.max(0) as usize {
+            result += legacy.leaf_area_pre_fru[i];
+        }
+
+        for_each_fruiting_site(
+            legacy.num_veg_branches,
+            &legacy.num_fruit_branches,
+            &legacy.num_nodes,
+            |k, l, nodes| {
+                result += legacy.leaf_area_main_stem[[k, l]];
+                result += legacy
+                    .leaf_area_nodes
+                    .slice(ndarray::s![k, l, 0..nodes])
+                    .sum();
+            },
+        );
 
         result
     }

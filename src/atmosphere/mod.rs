@@ -1,12 +1,11 @@
 use crate::general_functions::GetFromClim;
 use crate::utils::fmin;
 use crate::{
-    albedo, es1hour, es2hour, AirTemp, AvrgDailyTemp, CloudCoverRatio, CloudTypeCorr, DayTimeTemp,
-    Daynum, DewPointTemp, NightTimeTemp, Profile, Radiation, ReferenceETP, ReferenceTransp,
-    RelativeHumidity, Rn, WindSpeed, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX,
-    CLIMATE_METRIC_TMIN, CLIMATE_METRIC_WIND,
+    Profile, CLIMATE_METRIC_IRRD, CLIMATE_METRIC_TDEW, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN,
+    CLIMATE_METRIC_WIND,
 };
 use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDate, TimeZone, Timelike};
+use ndarray::Array1;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Atmosphere {
@@ -131,7 +130,8 @@ impl Atmosphere {
     ///
     /// Global variables set:
     /// AirTemp, bPollinSwitch, DewPointTemp, Radiation, RelativeHumidity, WindSpeed
-    pub unsafe fn meteorology(&self, profile: &Profile) {
+    pub fn meteorology(&self, profile: &Profile, model_state: &mut crate::ModelState) {
+        let legacy = &mut model_state.legacy;
         // latitude converted to radians.
         let xlat = profile.latitude.to_radians();
         // amplitude of the sine of the solar height.
@@ -151,7 +151,7 @@ impl Atmosphere {
                 * (sd + c11 * sd * sd + 0.5 * c11 * cd * cd)
                 + 12. * (cd * (2. + 3. * c11 * sd)) * (1. - (sd / cd) * (sd / cd)).sqrt()
                     / std::f64::consts::PI;
-            // The daily radiation integral is computed for later use in function Radiation.
+            // The daily radiation integral is computed for later use in function legacy.radiation.
             // Daily radiation intedral is converted from langleys to Watt m-2, and divided by dsbe.
             //   11.630287 = 1000000 / 3600 / 23.884
             GetFromClim(CLIMATE_METRIC_IRRD, self.date.ordinal() as i32) * 11.630287 / dsbe
@@ -171,17 +171,18 @@ impl Atmosphere {
             // sine of the solar elevation.
             let sinb = sd + cd * ((num_hours(ti - self.solar_noon) * 15.).to_radians()).cos();
             // Compute hourly global radiation, using function dayrad.
-            Radiation[ihr] = dayrad(radsum, sinb, c11);
+            legacy.radiation[ihr] = dayrad(radsum, sinb, c11);
             // Compute hourly temperature, using function daytmp.
-            AirTemp[ihr] = self.daytmp(profile, ti);
+            legacy.air_temp[ihr] = self.daytmp(profile, ti);
             // Compute hourly dew point temperature, using function tdewhour.
-            DewPointTemp[ihr] = self.tdewhour(profile, ti, AirTemp[ihr], Daynum);
+            legacy.dew_point_temp[ihr] =
+                self.tdewhour(profile, ti, legacy.air_temp[ihr], legacy.daynum);
             // Compute hourly relative humidity, using function dayrh.
-            RelativeHumidity[ihr] = dayrh(AirTemp[ihr], DewPointTemp[ihr]);
+            legacy.relative_humidity[ihr] = dayrh(legacy.air_temp[ihr], legacy.dew_point_temp[ihr]);
             // Compute hourly wind speed, using function daywnd, and daily sum of wind.
-            WindSpeed[ihr] = daywnd(
+            legacy.wind_speed[ihr] = daywnd(
                 ti,
-                GetFromClim(CLIMATE_METRIC_WIND, Daynum),
+                GetFromClim(CLIMATE_METRIC_WIND, legacy.daynum),
                 t1,
                 t2,
                 t3,
@@ -191,15 +192,15 @@ impl Atmosphere {
         }
         //     Compute average daily temperature, using function
         //     AverageAirTemperatures.
-        let air_temp = AirTemp;
-        let radiation = Radiation;
-        let relative_humidity = RelativeHumidity;
-        let wind_speed = WindSpeed;
+        let air_temp = legacy.air_temp.clone();
+        let radiation = legacy.radiation.clone();
+        let relative_humidity = legacy.relative_humidity.clone();
+        let wind_speed = legacy.wind_speed.clone();
         let (avrg_daily_temp, night_time_temp, day_time_temp) =
             AverageAirTemperatures(&air_temp, &radiation);
-        AvrgDailyTemp = avrg_daily_temp;
-        NightTimeTemp = night_time_temp;
-        DayTimeTemp = day_time_temp;
+        legacy.avrg_daily_temp = avrg_daily_temp;
+        legacy.night_time_temp = night_time_temp;
+        legacy.day_time_temp = day_time_temp;
         //     Compute potential evapotranspiration.
         let evap = EvapoTranspiration(
             profile,
@@ -210,14 +211,15 @@ impl Atmosphere {
             &relative_humidity,
             &wind_speed,
         );
-        CloudCoverRatio = evap.cloud_cover_ratio;
-        CloudTypeCorr = evap.cloud_type_corr;
-        albedo = evap.albedo;
-        ReferenceETP = evap.reference_etp;
-        ReferenceTransp = evap.reference_transp;
-        Rn = evap.rn;
-        es1hour = evap.es1hour;
-        es2hour = evap.es2hour;
+        legacy.cloud_cover_ratio = evap.cloud_cover_ratio;
+        legacy.cloud_type_corr = evap.cloud_type_corr;
+        legacy.albedo = evap.albedo;
+        legacy.reference_etp = evap.reference_etp;
+        legacy.reference_transp = evap.reference_transp;
+        legacy.rn = evap.rn;
+        legacy.es1hour = evap.es1hour;
+        legacy.es2hour = evap.es2hour;
+        legacy.write_to_globals();
     }
 
     /// Computes and returns the hourly values of air temperature, using the measured daily maximum and minimum.
@@ -570,7 +572,7 @@ fn daywnd(
 }
 
 /// Calculates daily average temperatures, daytime average and night time average.
-fn AverageAirTemperatures(air_temp: &[f64; 24], radiation: &[f64; 24]) -> (f64, f64, f64) {
+fn AverageAirTemperatures(air_temp: &Array1<f64>, radiation: &Array1<f64>) -> (f64, f64, f64) {
     let mut nn1 = 0; // counter of night hours
     let mut nn2 = 0; // counter of daytime hours
     let mut avrg_daily_temp = 0.;
@@ -600,36 +602,36 @@ pub fn vapor_pressure(tt: f64) -> f64 {
 /// The following subroutines and functions are called for each hour: sunangle, cloudcov(), clcor(), refalbed(), [vapor_pressure()],
 /// [clearskyemiss()], [del()], [gam()].
 struct EvapoTranspirationOutput {
-    cloud_cover_ratio: [f64; 24],
-    cloud_type_corr: [f64; 24],
-    albedo: [f64; 24],
-    reference_etp: [f64; 24],
+    cloud_cover_ratio: Array1<f64>,
+    cloud_type_corr: Array1<f64>,
+    albedo: Array1<f64>,
+    reference_etp: Array1<f64>,
     reference_transp: f64,
     rn: f64,
-    es1hour: [f64; 24],
-    es2hour: [f64; 24],
+    es1hour: Array1<f64>,
+    es2hour: Array1<f64>,
 }
 
 fn EvapoTranspiration(
     profile: &Profile,
     date: NaiveDate,
     atmosphere: &Atmosphere,
-    air_temp: &[f64; 24],
-    radiation: &[f64; 24],
-    relative_humidity: &[f64; 24],
-    wind_speed: &[f64; 24],
+    air_temp: &Array1<f64>,
+    radiation: &Array1<f64>,
+    relative_humidity: &Array1<f64>,
+    wind_speed: &Array1<f64>,
 ) -> EvapoTranspirationOutput {
     const stefb: f64 = 5.77944E-08; // the Stefan-Boltzman constant, in W m-2 K-4 (= 1.38E-12 * 41880)
     const c12: f64 = 0.125; // c12 ... c15 are constant parameters.
     const c13: f64 = 0.0439;
     const c14: f64 = 0.030;
     const c15: f64 = 0.0576;
-    let mut cloud_cover_ratio = [0.; 24];
-    let mut cloud_type_corr = [0.; 24];
-    let mut albedo_local = [0.; 24];
-    let mut reference_etp = [0.; 24];
-    let mut es1hour_local = [0.; 24];
-    let mut es2hour_local = [0.; 24];
+    let mut cloud_cover_ratio = Array1::<f64>::zeros(24);
+    let mut cloud_type_corr = Array1::<f64>::zeros(24);
+    let mut albedo_local = Array1::<f64>::zeros(24);
+    let mut reference_etp = Array1::<f64>::zeros(24);
+    let mut es1hour_local = Array1::<f64>::zeros(24);
+    let mut es2hour_local = Array1::<f64>::zeros(24);
     let mut iamhr: usize = 0; // earliest time in day for computing cloud cover
     let mut ipmhr: usize = 0; // latest time in day for computing cloud cover
     let mut isr: f64; // hourly extraterrestrial radiation in W / m**2

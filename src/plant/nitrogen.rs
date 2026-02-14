@@ -1,15 +1,27 @@
 use crate::utils::fmin;
-use crate::{
-    ActualBollGrowth, ActualBurrGrowth, ActualSquareGrowth, ActualStemGrowth, AgeOfPreFruNode,
-    BurrNConc, BurrNitrogen, BurrWeightGreenBolls, BurrWeightOpenBolls,
-    CarbonAllocatedForRootGrowth, CottonWeightGreenBolls, CottonWeightOpenBolls, DayEmerge, Daynum,
-    ExtraCarbon, Gintot, Kday, LeafAge, LeafNConc, LeafNitrogen, NStressFruiting, NStressRoots,
-    NStressVeg, NitrogenStress, NumFruitBranches, NumNodes, NumPreFruNodes, NumVegBranches,
-    PetioleNConc, PetioleNO3NConc, PetioleNitrogen, RootNConc, RootNitrogen, SeedNConc,
-    SeedNitrogen, SquareNConc, SquareNitrogen, StemNConc, StemNitrogen, StemWeight, SupplyNH4N,
-    SupplyNO3N, TotalActualLeafGrowth, TotalActualPetioleGrowth, TotalLeafWeight,
-    TotalPetioleWeight, TotalRequiredN, TotalRootWeight, TotalSquareWeight, TotalStemWeight,
-};
+use crate::LegacyGlobalState;
+
+fn total_leaf_weight(legacy: &LegacyGlobalState) -> f64 {
+    let mut result = 0.0;
+    if legacy.first_square <= 0 {
+        result += 0.2;
+    }
+
+    for i in 0..legacy.num_pre_fru_nodes.max(0) as usize {
+        result += legacy.leaf_weight_pre_fru[i];
+    }
+
+    for k in 0..legacy.num_veg_branches.max(0) as usize {
+        for l in 0..legacy.num_fruit_branches[k].max(0) as usize {
+            result += legacy.leaf_weight_main_stem[[k, l]];
+            for m in 0..legacy.num_nodes[[k, l]].max(0) as usize {
+                result += legacy.leaf_weight_nodes[[k, l, m]];
+            }
+        }
+    }
+
+    result
+}
 #[derive(Debug, Clone, Copy)]
 pub struct PlantNitrogen {
     // for plant_nitrogen
@@ -171,52 +183,53 @@ impl PlantNitrogen {
         const sqrcn0: f64 = 0.024; //  maximum N content for squares
         const stmcn0: f64 = 0.036; //  maximum N content for stems
                                    //     On emergence, assign initial values to petiole N concentrations.
-        unsafe {
-            if Daynum <= DayEmerge {
-                PetioleNConc = petcn0;
-                PetioleNO3NConc = petcn0;
-            }
-            // Compute the nitrogen requirements for growth, by multiplying the daily added dry weight by the maximum N content of each organ.
-            // Nitrogen requirements are based on actual growth rates.
-            //
-            // These N requirements will be used to compute the allocation of N to plant parts and the nitrogen stress factors.
-            //
-            // All nitrogen requirement variables are in g N per plant.
-            // for leaf blade
-            self.rqnlef = lefcn0 * TotalActualLeafGrowth;
-            // for petiole
-            self.rqnpet = petcn0 * TotalActualPetioleGrowth;
-            // for stem
-            self.rqnstm = stmcn0 * ActualStemGrowth;
-            // Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of carbohydrates for root growth.
-            // for root
-            self.rqnrut = rootcn0 * (CarbonAllocatedForRootGrowth + ExtraCarbon);
-            // for squares
-            self.rqnsqr = ActualSquareGrowth * sqrcn0;
-            // components of seed N requirements.
-            // for seed growth
-            let rqnsed1 = ActualBollGrowth * seedratio * seedcn0;
-            // The N required for replenishing the N content of existing seed tissue (rqnsed2) is added to seed growth requirement.
-            let rqnsed2 = if CottonWeightGreenBolls > ActualBollGrowth {
-                // existing ratio of N to dry matter in the seeds.
-                let rseedn =
-                    SeedNitrogen / ((CottonWeightGreenBolls - ActualBollGrowth) * seedratio);
-                let result =
-                    (CottonWeightGreenBolls - ActualBollGrowth) * seedratio * (seedcn1 - rseedn);
-                if result < 0. {
-                    0.
-                } else {
-                    result
-                }
-            } else {
-                0.
-            };
-            self.rqnsed = rqnsed1 + rqnsed2; // total requirement for seeds
-            self.rqnbur = ActualBurrGrowth * burcn0; // for burrs
-            self.reqf = self.rqnsqr + self.rqnsed + self.rqnbur; // total for fruit
-            self.reqv = self.rqnlef + self.rqnpet + self.rqnstm; // total for shoot
-            self.reqtot = self.rqnrut + self.reqv + self.reqf; // total N requirement
+        let mut legacy = LegacyGlobalState::from_globals();
+        if legacy.daynum <= legacy.day_emerge {
+            legacy.petiole_n_conc = petcn0;
+            legacy.petiole_no3_n_conc = petcn0;
         }
+        // Compute the nitrogen requirements for growth, by multiplying the daily added dry weight by the maximum N content of each organ.
+        // Nitrogen requirements are based on actual growth rates.
+        //
+        // These N requirements will be used to compute the allocation of N to plant parts and the nitrogen stress factors.
+        //
+        // All nitrogen requirement variables are in g N per plant.
+        // for leaf blade
+        self.rqnlef = lefcn0 * legacy.total_actual_leaf_growth;
+        // for petiole
+        self.rqnpet = petcn0 * legacy.total_actual_petiole_growth;
+        // for stem
+        self.rqnstm = stmcn0 * legacy.actual_stem_growth;
+        // Add ExtraCarbon to CarbonAllocatedForRootGrowth to compute the total supply of carbohydrates for root growth.
+        // for root
+        self.rqnrut = rootcn0 * (legacy.carbon_allocated_for_root_growth + legacy.extra_carbon);
+        // for squares
+        self.rqnsqr = legacy.actual_square_growth * sqrcn0;
+        // components of seed N requirements.
+        // for seed growth
+        let rqnsed1 = legacy.actual_boll_growth * seedratio * seedcn0;
+        // The N required for replenishing the N content of existing seed tissue (rqnsed2) is added to seed growth requirement.
+        let rqnsed2 = if legacy.cotton_weight_green_bolls > legacy.actual_boll_growth {
+            // existing ratio of N to dry matter in the seeds.
+            let rseedn = legacy.seed_nitrogen
+                / ((legacy.cotton_weight_green_bolls - legacy.actual_boll_growth) * seedratio);
+            let result = (legacy.cotton_weight_green_bolls - legacy.actual_boll_growth)
+                * seedratio
+                * (seedcn1 - rseedn);
+            if result < 0. {
+                0.
+            } else {
+                result
+            }
+        } else {
+            0.
+        };
+        self.rqnsed = rqnsed1 + rqnsed2; // total requirement for seeds
+        self.rqnbur = legacy.actual_burr_growth * burcn0; // for burrs
+        self.reqf = self.rqnsqr + self.rqnsed + self.rqnbur; // total for fruit
+        self.reqv = self.rqnlef + self.rqnpet + self.rqnstm; // total for shoot
+        self.reqtot = self.rqnrut + self.reqv + self.reqf; // total N requirement
+        legacy.write_to_globals();
     }
     /// This function computes the supply of N by uptake from the soil reserves,
     /// it is called from [PlantNitrogen::plant_nitrogen()], it calls [PlantNitrogen::petiole_nitrate()].
@@ -233,81 +246,85 @@ impl PlantNitrogen {
         const vstmnmin: f64 = 0.006; //  minimum N contents of stems
                                      //     uptn is the total supply of nitrogen to the plant by uptake of
                                      //     nitrate and ammonium.
-        unsafe {
-            self.uptn = SupplyNO3N + SupplyNH4N;
-            // If total N requirement is less than the supply, define npool as the supply and assign zero to the N reserves in all organs.
-            if self.reqtot <= self.uptn {
-                self.npool = self.uptn;
+        let mut legacy = LegacyGlobalState::from_globals();
+        self.uptn = legacy.supply_no3_n + legacy.supply_nh4_n;
+        // If total N requirement is less than the supply, define npool as the supply and assign zero to the N reserves in all organs.
+        if self.reqtot <= self.uptn {
+            self.npool = self.uptn;
+            self.leafrs = 0.;
+            self.petrs = 0.;
+            self.stemrs = 0.;
+            self.rootrs = 0.;
+            self.burres = 0.;
+            self.xtran = 0.;
+        } else {
+            //     If total N requirement exceeds the supply, compute the nitrogen
+            //  reserves in the plant. The reserve N in an organ is defined as a
+            //  fraction of the nitrogen content exceeding a minimum N content in
+            //  it.
+            //     The N reserves in leaves, petioles, stems, roots and burrs of
+            //  green bolls are computed, and their N content updated.
+            self.leafrs = (legacy.leaf_nitrogen - vlfnmin * total_leaf_weight(&legacy))
+                * MobilizNFractionLeaves;
+            if self.leafrs < 0. {
                 self.leafrs = 0.;
-                self.petrs = 0.;
+            }
+            legacy.leaf_nitrogen -= self.leafrs;
+            // The petiole N content is subdivided to nitrate and non-nitrate.
+            // The nitrate ratio in the petiole N is computed by calling function
+            // petiole_nitrate(). Note that the nitrate fraction is more available
+            // for redistribution.
+            //
+            // ratio of NO3 N to total N in petioles.
+            let rpetno3 = self.nitrogen_petiole_nitrate();
+            // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
+            let mut petrs1 = (legacy.petiole_nitrogen * (1. - rpetno3)
+                - vpetnmin * legacy.total_petiole_weight)
+                * MobilizNFractionLeaves;
+            if petrs1 < 0. {
+                petrs1 = 0.;
+            }
+            let mut petrs2 = (legacy.petiole_nitrogen * rpetno3
+                - vpno3min * legacy.total_petiole_weight)
+                * MobilizNFractionLeaves;
+            if petrs2 < 0. {
+                petrs2 = 0.;
+            }
+            self.petrs = petrs1 + petrs2;
+            legacy.petiole_nitrogen -= self.petrs;
+            //  Stem N reserves.
+            self.stemrs = (legacy.stem_nitrogen - vstmnmin * legacy.total_stem_weight)
+                * MobilizNFractionStemRoot;
+            if self.stemrs < 0. {
                 self.stemrs = 0.;
+            }
+            legacy.stem_nitrogen -= self.stemrs;
+            //  Root N reserves
+            self.rootrs = (legacy.root_nitrogen - vrtnmin * legacy.total_root_weight)
+                * MobilizNFractionStemRoot;
+            if self.rootrs < 0. {
                 self.rootrs = 0.;
-                self.burres = 0.;
-                self.xtran = 0.;
-            } else {
-                //     If total N requirement exceeds the supply, compute the nitrogen
-                //  reserves in the plant. The reserve N in an organ is defined as a
-                //  fraction of the nitrogen content exceeding a minimum N content in
-                //  it.
-                //     The N reserves in leaves, petioles, stems, roots and burrs of
-                //  green bolls are computed, and their N content updated.
-                self.leafrs = (LeafNitrogen - vlfnmin * TotalLeafWeight()) * MobilizNFractionLeaves;
-                if self.leafrs < 0. {
-                    self.leafrs = 0.;
-                }
-                LeafNitrogen -= self.leafrs;
-                // The petiole N content is subdivided to nitrate and non-nitrate.
-                // The nitrate ratio in the petiole N is computed by calling function
-                // petiole_nitrate(). Note that the nitrate fraction is more available
-                // for redistribution.
-                //
-                // ratio of NO3 N to total N in petioles.
-                let rpetno3 = self.nitrogen_petiole_nitrate();
-                // components of reserve N in petioles, for non-NO3 and NO3 origin, respectively.
-                let mut petrs1 = (PetioleNitrogen * (1. - rpetno3) - vpetnmin * TotalPetioleWeight)
-                    * MobilizNFractionLeaves;
-                if petrs1 < 0. {
-                    petrs1 = 0.;
-                }
-                let mut petrs2 = (PetioleNitrogen * rpetno3 - vpno3min * TotalPetioleWeight)
-                    * MobilizNFractionLeaves;
-                if petrs2 < 0. {
-                    petrs2 = 0.;
-                }
-                self.petrs = petrs1 + petrs2;
-                PetioleNitrogen -= self.petrs;
-                //  Stem N reserves.
-                self.stemrs =
-                    (StemNitrogen - vstmnmin * TotalStemWeight) * MobilizNFractionStemRoot;
-                if self.stemrs < 0. {
-                    self.stemrs = 0.;
-                }
-                StemNitrogen -= self.stemrs;
-                //  Root N reserves
-                self.rootrs = (RootNitrogen - vrtnmin * TotalRootWeight) * MobilizNFractionStemRoot;
-                if self.rootrs < 0. {
-                    self.rootrs = 0.;
-                }
-                RootNitrogen -= self.rootrs;
-                //  Burr N reserves
-                if BurrWeightGreenBolls > 0. {
-                    self.burres =
-                        (BurrNitrogen - vburnmin * BurrWeightGreenBolls) * MobilizNFractionBurrs;
-                    if self.burres < 0. {
-                        self.burres = 0.;
-                    }
-                    BurrNitrogen -= self.burres;
-                } else {
+            }
+            legacy.root_nitrogen -= self.rootrs;
+            //  Burr N reserves
+            if legacy.burr_weight_green_bolls > 0. {
+                self.burres = (legacy.burr_nitrogen - vburnmin * legacy.burr_weight_green_bolls)
+                    * MobilizNFractionBurrs;
+                if self.burres < 0. {
                     self.burres = 0.;
                 }
-                // The total reserves, resn, are added to the amount taken up from the soil, for computing npool.
-                // Note that N of seeds or squares is not available for redistribution in the plant.
-                //
-                // total reserve N, in g per plant.
-                let resn = self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres;
-                self.npool = self.uptn + resn;
+                legacy.burr_nitrogen -= self.burres;
+            } else {
+                self.burres = 0.;
             }
+            // The total reserves, resn, are added to the amount taken up from the soil, for computing npool.
+            // Note that N of seeds or squares is not available for redistribution in the plant.
+            //
+            // total reserve N, in g per plant.
+            let resn = self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres;
+            self.npool = self.uptn + resn;
         }
+        legacy.write_to_globals();
     }
     /// This function computes the allocation of supplied nitrogen to the plant parts.
     fn nitrogen_allocation(&mut self) {
@@ -323,85 +340,88 @@ impl PlantNitrogen {
                                     //  each organ, compute added N to vegetative parts, fruiting parts and
                                     //  roots, and compute xtran as the difference between npool and the total N
                                     //  requirements.
-        unsafe {
-            if self.reqtot <= self.npool {
-                LeafNitrogen += self.rqnlef;
-                PetioleNitrogen += self.rqnpet;
-                StemNitrogen += self.rqnstm;
-                RootNitrogen += self.rqnrut;
-                SquareNitrogen += self.rqnsqr;
-                SeedNitrogen += self.rqnsed;
-                BurrNitrogen += self.rqnbur;
-                self.addnv = self.rqnlef + self.rqnstm + self.rqnpet;
-                self.addnf = self.rqnsqr + self.rqnsed + self.rqnbur;
-                self.addnr = self.rqnrut;
-                self.xtran = self.npool - self.reqtot;
-                return;
-            }
-            //     If N requirement is greater than npool, execute the following:
-            //     First priority is nitrogen supply to the growing seeds. It is assumed
-            //     that up to
-            //  vseednmax = 0.70 of the supplied N can be used by the seeds. Update seed
-            //  N and addnf by the amount of nitrogen used for seed growth, and decrease
-            //  npool by this amount. The same procedure is used for each organ,
-            //  consecutively.
-            let mut useofn; // amount of nitrogen used in growth of a plant organ.
-            if self.rqnsed > 0. {
-                useofn = fmin(vseednmax * self.npool, self.rqnsed);
-                SeedNitrogen += useofn;
-                self.addnf += useofn;
-                self.npool -= useofn;
-            }
-            //     Next priority is for burrs, which can use N up to vburnmax = 0.65 of
-            //     the
-            //  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
-            if self.rqnbur > 0. {
-                useofn = fmin(vburnmax * self.npool, self.rqnbur);
-                BurrNitrogen += useofn;
-                self.addnf += useofn;
-                self.npool -= useofn;
-            }
-            if self.rqnsqr > 0. {
-                useofn = fmin(vsqrnmax * self.npool, self.rqnsqr);
-                SquareNitrogen += useofn;
-                self.addnf += useofn;
-                self.npool -= useofn;
-            }
-            //     Next priority is for leaves, which can use N up to vlfnmax = 0.90
-            //  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for
-            //  petioles, up to vpetnmax = 0.75
-            if self.rqnlef > 0. {
-                useofn = fmin(vlfnmax * self.npool, self.rqnlef);
-                LeafNitrogen += useofn;
-                self.addnv += useofn;
-                self.npool -= useofn;
-            }
-            if self.rqnstm > 0. {
-                useofn = fmin(vstmnmax * self.npool, self.rqnstm);
-                StemNitrogen += useofn;
-                self.addnv += useofn;
-                self.npool -= useofn;
-            }
-            if self.rqnpet > 0. {
-                useofn = fmin(vpetnmax * self.npool, self.rqnpet);
-                PetioleNitrogen += useofn;
-                self.addnv += useofn;
-                self.npool -= useofn;
-            }
-            //     The remaining npool goes to root growth. If any npool remains
-            //  it is defined as xtran.
-            if self.rqnrut > 0. {
-                useofn = fmin(self.npool, self.rqnrut);
-                RootNitrogen += useofn;
-                self.addnr += useofn;
-                self.npool -= useofn;
-            }
-            self.xtran = self.npool;
-            if self.xtran > 0. {
-                // computes the further allocation of N in the plant
-                self.extra_nitrogen_allocation();
-            }
+        let mut legacy = LegacyGlobalState::from_globals();
+        if self.reqtot <= self.npool {
+            legacy.leaf_nitrogen += self.rqnlef;
+            legacy.petiole_nitrogen += self.rqnpet;
+            legacy.stem_nitrogen += self.rqnstm;
+            legacy.root_nitrogen += self.rqnrut;
+            legacy.square_nitrogen += self.rqnsqr;
+            legacy.seed_nitrogen += self.rqnsed;
+            legacy.burr_nitrogen += self.rqnbur;
+            self.addnv = self.rqnlef + self.rqnstm + self.rqnpet;
+            self.addnf = self.rqnsqr + self.rqnsed + self.rqnbur;
+            self.addnr = self.rqnrut;
+            self.xtran = self.npool - self.reqtot;
+            legacy.write_to_globals();
+            return;
         }
+        //     If N requirement is greater than npool, execute the following:
+        //     First priority is nitrogen supply to the growing seeds. It is assumed
+        //     that up to
+        //  vseednmax = 0.70 of the supplied N can be used by the seeds. Update seed
+        //  N and addnf by the amount of nitrogen used for seed growth, and decrease
+        //  npool by this amount. The same procedure is used for each organ,
+        //  consecutively.
+        let mut useofn; // amount of nitrogen used in growth of a plant organ.
+        if self.rqnsed > 0. {
+            useofn = fmin(vseednmax * self.npool, self.rqnsed);
+            legacy.seed_nitrogen += useofn;
+            self.addnf += useofn;
+            self.npool -= useofn;
+        }
+        //     Next priority is for burrs, which can use N up to vburnmax = 0.65 of
+        //     the
+        //  remaining N pool, and for squares, which can use N up to vsqrnmax = 0.65
+        if self.rqnbur > 0. {
+            useofn = fmin(vburnmax * self.npool, self.rqnbur);
+            legacy.burr_nitrogen += useofn;
+            self.addnf += useofn;
+            self.npool -= useofn;
+        }
+        if self.rqnsqr > 0. {
+            useofn = fmin(vsqrnmax * self.npool, self.rqnsqr);
+            legacy.square_nitrogen += useofn;
+            self.addnf += useofn;
+            self.npool -= useofn;
+        }
+        //     Next priority is for leaves, which can use N up to vlfnmax = 0.90
+        //  of the remaining N pool, for stems, up to vstmnmax = 0.70, and for
+        //  petioles, up to vpetnmax = 0.75
+        if self.rqnlef > 0. {
+            useofn = fmin(vlfnmax * self.npool, self.rqnlef);
+            legacy.leaf_nitrogen += useofn;
+            self.addnv += useofn;
+            self.npool -= useofn;
+        }
+        if self.rqnstm > 0. {
+            useofn = fmin(vstmnmax * self.npool, self.rqnstm);
+            legacy.stem_nitrogen += useofn;
+            self.addnv += useofn;
+            self.npool -= useofn;
+        }
+        if self.rqnpet > 0. {
+            useofn = fmin(vpetnmax * self.npool, self.rqnpet);
+            legacy.petiole_nitrogen += useofn;
+            self.addnv += useofn;
+            self.npool -= useofn;
+        }
+        //     The remaining npool goes to root growth. If any npool remains
+        //  it is defined as xtran.
+        if self.rqnrut > 0. {
+            useofn = fmin(self.npool, self.rqnrut);
+            legacy.root_nitrogen += useofn;
+            self.addnr += useofn;
+            self.npool -= useofn;
+        }
+        self.xtran = self.npool;
+        if self.xtran > 0. {
+            // computes the further allocation of N in the plant
+            legacy.write_to_globals();
+            self.extra_nitrogen_allocation();
+            return;
+        }
+        legacy.write_to_globals();
     }
     /// This function computes the allocation of extra nitrogen to the plant parts.
     /// It is called from [PlantNitrogen::plant_nitrogen()] if there is a non-zero [xtran].
@@ -420,37 +440,38 @@ impl PlantNitrogen {
         let addstm;
         // sum of existing reserve N in plant parts.
         let rsum = self.leafrs + self.petrs + self.stemrs + self.rootrs + self.burres;
-        unsafe {
-            if rsum > 0. {
-                addlfn = self.xtran * self.leafrs / rsum;
-                addpetn = self.xtran * self.petrs / rsum;
-                addstm = self.xtran * self.stemrs / rsum;
-                addrt = self.xtran * self.rootrs / rsum;
-                addbur = self.xtran * self.burres / rsum;
-            } else {
-                //     If there are no reserves, allocate xtran in proportion to the dry
-                //  weights in each of these organs.
-                // weight of vegetative plant parts, plus burrs.
-                let vegwt = TotalLeafWeight()
-                    + TotalPetioleWeight
-                    + TotalStemWeight
-                    + TotalRootWeight
-                    + BurrWeightGreenBolls;
-                addlfn = self.xtran * TotalLeafWeight() / vegwt;
-                addpetn = self.xtran * TotalPetioleWeight / vegwt;
-                addstm = self.xtran * TotalStemWeight / vegwt;
-                addrt = self.xtran * TotalRootWeight / vegwt;
-                addbur = self.xtran * BurrWeightGreenBolls / vegwt;
-            }
-            //     Update N content in these plant parts. Note that at this stage of
-            //  nitrogen allocation, only vegetative parts and burrs are updated (not
-            //  seeds or squares).
-            LeafNitrogen += addlfn;
-            PetioleNitrogen += addpetn;
-            StemNitrogen += addstm;
-            RootNitrogen += addrt;
-            BurrNitrogen += addbur;
+        let mut legacy = LegacyGlobalState::from_globals();
+        if rsum > 0. {
+            addlfn = self.xtran * self.leafrs / rsum;
+            addpetn = self.xtran * self.petrs / rsum;
+            addstm = self.xtran * self.stemrs / rsum;
+            addrt = self.xtran * self.rootrs / rsum;
+            addbur = self.xtran * self.burres / rsum;
+        } else {
+            //     If there are no reserves, allocate xtran in proportion to the dry
+            //  weights in each of these organs.
+            // weight of vegetative plant parts, plus burrs.
+            let leaf_weight = total_leaf_weight(&legacy);
+            let vegwt = leaf_weight
+                + legacy.total_petiole_weight
+                + legacy.total_stem_weight
+                + legacy.total_root_weight
+                + legacy.burr_weight_green_bolls;
+            addlfn = self.xtran * leaf_weight / vegwt;
+            addpetn = self.xtran * legacy.total_petiole_weight / vegwt;
+            addstm = self.xtran * legacy.total_stem_weight / vegwt;
+            addrt = self.xtran * legacy.total_root_weight / vegwt;
+            addbur = self.xtran * legacy.burr_weight_green_bolls / vegwt;
         }
+        //     Update N content in these plant parts. Note that at this stage of
+        //  nitrogen allocation, only vegetative parts and burrs are updated (not
+        //  seeds or squares).
+        legacy.leaf_nitrogen += addlfn;
+        legacy.petiole_nitrogen += addpetn;
+        legacy.stem_nitrogen += addstm;
+        legacy.root_nitrogen += addrt;
+        legacy.burr_nitrogen += addbur;
+        legacy.write_to_globals();
     }
     // This function computes the concentrations of nitrogen in the dry matter of the plant parts.
     fn nitrogen_content(&mut self) {
@@ -458,87 +479,89 @@ impl PlantNitrogen {
         const seedratio: f64 = 0.64;
         //     Compute N concentration in plant organs as the ratio of N content to
         //     weight of dry matter.
-        unsafe {
-            if TotalLeafWeight() > 0.00001 {
-                LeafNConc = LeafNitrogen / TotalLeafWeight();
-            }
-            if TotalPetioleWeight > 0.00001 {
-                PetioleNConc = PetioleNitrogen / TotalPetioleWeight;
-                PetioleNO3NConc = PetioleNConc * self.nitrogen_petiole_nitrate();
-            }
-            if TotalStemWeight > 0. {
-                StemNConc = StemNitrogen / TotalStemWeight;
-            }
-            if TotalRootWeight > 0. {
-                RootNConc = RootNitrogen / TotalRootWeight;
-            }
-            if TotalSquareWeight > 0. {
-                SquareNConc = SquareNitrogen / TotalSquareWeight;
-            }
-            // weight of seeds in green and mature bolls.
-            let xxseed = CottonWeightOpenBolls * (1. - Gintot) + CottonWeightGreenBolls * seedratio;
-            if xxseed > 0. {
-                SeedNConc = SeedNitrogen / xxseed;
-            }
-            // weight of burrs in green and mature bolls.
-            let xxbur = BurrWeightOpenBolls + BurrWeightGreenBolls;
-            if xxbur > 0. {
-                BurrNConc = BurrNitrogen / xxbur;
-            }
+        let mut legacy = LegacyGlobalState::from_globals();
+        let leaf_weight = total_leaf_weight(&legacy);
+        if leaf_weight > 0.00001 {
+            legacy.leaf_n_conc = legacy.leaf_nitrogen / leaf_weight;
         }
+        if legacy.total_petiole_weight > 0.00001 {
+            legacy.petiole_n_conc = legacy.petiole_nitrogen / legacy.total_petiole_weight;
+            legacy.petiole_no3_n_conc = legacy.petiole_n_conc * self.nitrogen_petiole_nitrate();
+        }
+        if legacy.total_stem_weight > 0. {
+            legacy.stem_n_conc = legacy.stem_nitrogen / legacy.total_stem_weight;
+        }
+        if legacy.total_root_weight > 0. {
+            legacy.root_n_conc = legacy.root_nitrogen / legacy.total_root_weight;
+        }
+        if legacy.total_square_weight > 0. {
+            legacy.square_n_conc = legacy.square_nitrogen / legacy.total_square_weight;
+        }
+        // weight of seeds in green and mature bolls.
+        let xxseed = legacy.cotton_weight_open_bolls * (1. - legacy.gintot)
+            + legacy.cotton_weight_green_bolls * seedratio;
+        if xxseed > 0. {
+            legacy.seed_n_conc = legacy.seed_nitrogen / xxseed;
+        }
+        // weight of burrs in green and mature bolls.
+        let xxbur = legacy.burr_weight_open_bolls + legacy.burr_weight_green_bolls;
+        if xxbur > 0. {
+            legacy.burr_n_conc = legacy.burr_nitrogen / xxbur;
+        }
+        legacy.write_to_globals();
     }
     /// This function computes the nitrogen stress factors.
     fn nitrogen_stress(&mut self) {
-        unsafe {
-            //     Set the default values for the nitrogen stress coefficients to 1.
-            NStressVeg = 1.;
-            NStressRoots = 1.;
-            NStressFruiting = 1.;
-            NitrogenStress = 1.;
-            //     Compute the nitrogen stress coefficients. NStressFruiting is the
-            //     ratio of
-            //  N added actually to the fruits, to their N requirements. NStressVeg is
-            //  the same for vegetative shoot growth, and NStressRoots for roots. Also,
-            //  an average stress coefficient for vegetative and reproductive organs is
-            //  computed as NitrogenStress.
-            //     Each stress coefficient has a value between 0 and 1.
-            if self.reqf > 0. {
-                NStressFruiting = self.addnf / self.reqf;
-                if NStressFruiting > 1. {
-                    NStressFruiting = 1.;
-                }
-                if NStressFruiting < 0. {
-                    NStressFruiting = 0.;
-                }
+        let mut legacy = LegacyGlobalState::from_globals();
+        //     Set the default values for the nitrogen stress coefficients to 1.
+        legacy.n_stress_veg = 1.;
+        legacy.n_stress_roots = 1.;
+        legacy.n_stress_fruiting = 1.;
+        legacy.nitrogen_stress = 1.;
+        //     Compute the nitrogen stress coefficients. NStressFruiting is the
+        //     ratio of
+        //  N added actually to the fruits, to their N requirements. NStressVeg is
+        //  the same for vegetative shoot growth, and NStressRoots for roots. Also,
+        //  an average stress coefficient for vegetative and reproductive organs is
+        //  computed as NitrogenStress.
+        //     Each stress coefficient has a value between 0 and 1.
+        if self.reqf > 0. {
+            legacy.n_stress_fruiting = self.addnf / self.reqf;
+            if legacy.n_stress_fruiting > 1. {
+                legacy.n_stress_fruiting = 1.;
             }
-            if self.reqv > 0. {
-                NStressVeg = self.addnv / self.reqv;
-                if NStressVeg > 1. {
-                    NStressVeg = 1.;
-                }
-                if NStressVeg < 0. {
-                    NStressVeg = 0.;
-                }
-            }
-            if self.rqnrut > 0. {
-                NStressRoots = self.addnr / self.rqnrut;
-                if NStressRoots > 1. {
-                    NStressRoots = 1.;
-                }
-                if NStressRoots < 0. {
-                    NStressRoots = 0.;
-                }
-            }
-            if (self.reqf + self.reqv) > 0. {
-                NitrogenStress = (self.addnf + self.addnv) / (self.reqf + self.reqv);
-                if NitrogenStress > 1. {
-                    NitrogenStress = 1.;
-                }
-                if NitrogenStress < 0. {
-                    NitrogenStress = 0.;
-                }
+            if legacy.n_stress_fruiting < 0. {
+                legacy.n_stress_fruiting = 0.;
             }
         }
+        if self.reqv > 0. {
+            legacy.n_stress_veg = self.addnv / self.reqv;
+            if legacy.n_stress_veg > 1. {
+                legacy.n_stress_veg = 1.;
+            }
+            if legacy.n_stress_veg < 0. {
+                legacy.n_stress_veg = 0.;
+            }
+        }
+        if self.rqnrut > 0. {
+            legacy.n_stress_roots = self.addnr / self.rqnrut;
+            if legacy.n_stress_roots > 1. {
+                legacy.n_stress_roots = 1.;
+            }
+            if legacy.n_stress_roots < 0. {
+                legacy.n_stress_roots = 0.;
+            }
+        }
+        if (self.reqf + self.reqv) > 0. {
+            legacy.nitrogen_stress = (self.addnf + self.addnv) / (self.reqf + self.reqv);
+            if legacy.nitrogen_stress > 1. {
+                legacy.nitrogen_stress = 1.;
+            }
+            if legacy.nitrogen_stress < 0. {
+                legacy.nitrogen_stress = 0.;
+            }
+        }
+        legacy.write_to_globals();
     }
     /// This function computes TotalRequiredN, the nitrogen requirements of the plant - to be used for simulating the N uptake from the soil (in function NitrogenUptake() ) in the next day.
     fn nitrogen_uptake_requirement(&mut self) {
@@ -552,43 +575,47 @@ impl PlantNitrogen {
         const vnreqsqr: f64 = 0.024; // coefficient for computing N uptake requirements of squares
         const vnreqbur: f64 = 0.012; // coefficient for computing N uptake requirements of burrs
         const voldstm: i32 = 32; // active stem tissue growth period, calendar days.
-        unsafe {
-            TotalRequiredN = self.reqtot;
-            // After the requirements of today's growth are supplied, N is also required for supplying necessary functions in other active plant tissues.
-            // Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
-            if LeafNConc < vnreqlef {
-                TotalRequiredN += TotalLeafWeight() * (vnreqlef - LeafNConc);
-            }
-            if PetioleNConc < vnreqpet {
-                TotalRequiredN += TotalPetioleWeight * (vnreqpet - PetioleNConc);
-            }
-            // The active stem tissue is the stem formed during the last voldstm days (32 calendar days). add stem requirement to TotalRequiredN.
-            //
-            // day (from emergence) of oldest actively growing stem tissue.
-            let kkday = Kday - voldstm;
-            // weight of actively growing stems.
-            let grstmwt = if kkday < 1 {
-                TotalStemWeight
-            } else {
-                TotalStemWeight - StemWeight[kkday as usize]
-            };
-            if StemNConc < vnreqstm {
-                TotalRequiredN += grstmwt * (vnreqstm - StemNConc);
-            }
-            // Compute nitrogen uptake requirement for existing tissues of roots, squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
-            if RootNConc < vnreqrt {
-                TotalRequiredN += TotalRootWeight * (vnreqrt - RootNConc);
-            }
-            if SquareNConc < vnreqsqr {
-                TotalRequiredN += TotalSquareWeight * (vnreqsqr - SquareNConc);
-            }
-            if SeedNConc < seedcn1 {
-                TotalRequiredN += CottonWeightGreenBolls * seedratio * (seedcn1 - SeedNConc);
-            }
-            if BurrNConc < vnreqbur {
-                TotalRequiredN += BurrWeightGreenBolls * (vnreqbur - BurrNConc);
-            }
+        let mut legacy = LegacyGlobalState::from_globals();
+        legacy.total_required_n = self.reqtot;
+        // After the requirements of today's growth are supplied, N is also required for supplying necessary functions in other active plant tissues.
+        // Add nitrogen uptake required for leaf and petiole tissue to TotalRequiredN.
+        if legacy.leaf_n_conc < vnreqlef {
+            legacy.total_required_n += total_leaf_weight(&legacy) * (vnreqlef - legacy.leaf_n_conc);
         }
+        if legacy.petiole_n_conc < vnreqpet {
+            legacy.total_required_n +=
+                legacy.total_petiole_weight * (vnreqpet - legacy.petiole_n_conc);
+        }
+        // The active stem tissue is the stem formed during the last voldstm days (32 calendar days). add stem requirement to TotalRequiredN.
+        //
+        // day (from emergence) of oldest actively growing stem tissue.
+        let kkday = legacy.kday - voldstm;
+        // weight of actively growing stems.
+        let grstmwt = if kkday < 1 {
+            legacy.total_stem_weight
+        } else {
+            legacy.total_stem_weight - legacy.stem_weight[kkday as usize]
+        };
+        if legacy.stem_n_conc < vnreqstm {
+            legacy.total_required_n += grstmwt * (vnreqstm - legacy.stem_n_conc);
+        }
+        // Compute nitrogen uptake requirement for existing tissues of roots, squares, and seeds and burrs of green bolls. Add it to TotalRequiredN.
+        if legacy.root_n_conc < vnreqrt {
+            legacy.total_required_n += legacy.total_root_weight * (vnreqrt - legacy.root_n_conc);
+        }
+        if legacy.square_n_conc < vnreqsqr {
+            legacy.total_required_n +=
+                legacy.total_square_weight * (vnreqsqr - legacy.square_n_conc);
+        }
+        if legacy.seed_n_conc < seedcn1 {
+            legacy.total_required_n +=
+                legacy.cotton_weight_green_bolls * seedratio * (seedcn1 - legacy.seed_n_conc);
+        }
+        if legacy.burr_n_conc < vnreqbur {
+            legacy.total_required_n +=
+                legacy.burr_weight_green_bolls * (vnreqbur - legacy.burr_n_conc);
+        }
+        legacy.write_to_globals();
     }
     /// This function computes the ratio of NO3 nitrogen to total N in the petioles.
     fn nitrogen_petiole_nitrate(&mut self) -> f64 {
@@ -603,36 +630,35 @@ impl PlantNitrogen {
         // The ratio of NO3 to total N in each individual petiole is computed
         // as a linear function of leaf age. It is assumed that this ratio is
         // maximum for young leaves and is declining with leaf age.
-        unsafe {
-            let mut numl = NumPreFruNodes; // number of petioles computed.
-            let mut spetno3 = 0.; // sum of petno3r.
-            let mut petno3r; // ratio of NO3 to total N in an individual petiole.
-            for j in 0..NumPreFruNodes as usize {
-                petno3r = p1 - AgeOfPreFruNode[j] * p2;
-                if petno3r < p3 {
-                    petno3r = p3;
-                }
-                spetno3 += petno3r;
+        let legacy = LegacyGlobalState::from_globals();
+        let mut numl = legacy.num_pre_fru_nodes; // number of petioles computed.
+        let mut spetno3 = 0.; // sum of petno3r.
+        let mut petno3r; // ratio of NO3 to total N in an individual petiole.
+        for j in 0..legacy.num_pre_fru_nodes as usize {
+            petno3r = p1 - legacy.age_of_pre_fru_node[j] * p2;
+            if petno3r < p3 {
+                petno3r = p3;
             }
-            // Loop of all the other leaves, with the same computations.
-            for k in 0..NumVegBranches as usize {
-                let nbrch = NumFruitBranches[k] as usize;
-                for l in 0..nbrch {
-                    let nnid = NumNodes[k][l] as usize;
-                    numl += nnid as i32;
-                    for m in 0..nnid {
-                        numl += 1;
-                        petno3r = p1 - LeafAge[k][l][m] * p2;
-                        if petno3r < p3 {
-                            petno3r = p3;
-                        }
-                        spetno3 += petno3r;
-                    }
-                }
-            }
-            // The return value of the function is the average ratio of NO3 to total N for all the petioles in the plant.
-            spetno3 / numl as f64
+            spetno3 += petno3r;
         }
+        // Loop of all the other leaves, with the same computations.
+        for k in 0..legacy.num_veg_branches as usize {
+            let nbrch = legacy.num_fruit_branches[k] as usize;
+            for l in 0..nbrch {
+                let nnid = legacy.num_nodes[[k, l]] as usize;
+                numl += nnid as i32;
+                for m in 0..nnid {
+                    numl += 1;
+                    petno3r = p1 - legacy.leaf_age[[k, l, m]] * p2;
+                    if petno3r < p3 {
+                        petno3r = p3;
+                    }
+                    spetno3 += petno3r;
+                }
+            }
+        }
+        // The return value of the function is the average ratio of NO3 to total N for all the petioles in the plant.
+        spetno3 / numl as f64
     }
     /// This function calculates the nitrogen balance in the cotton plant, for diagnostic purposes. It is called from SimulateThisDay().
     ///

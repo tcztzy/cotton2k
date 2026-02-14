@@ -1,15 +1,44 @@
 use crate::input_functions::form;
-use crate::{
-    bEnd, dclay, dl, dsand, isw, nl, ClayVolumeFraction, DayEmerge, DayPlant, Daynum,
-    FieldCapacity, HeatCondDrySoil, Kday, MarginalWaterContent, MulchTranLW, PlantRowColumn,
-    PoreSpace, SandVolumeFraction, SoilPsi, SoilTemp, VolWaterContent,
-};
+use crate::LegacyGlobalState;
 use std::os::raw::c_int;
+use std::sync::{LazyLock, RwLock};
 
-static mut DELAY_OF_EMERGENCE: f64 = 0.0;
-static mut HYPOCOTYL_LENGTH: f64 = 0.3;
-static mut SEED_MOISTURE: f64 = 8.0;
-static mut N_SEED_LAYER: i32 = 0;
+#[derive(Debug, Clone, Copy)]
+struct EmergenceScratch {
+    delay_of_emergence: f64,
+    hypocotyl_length: f64,
+    seed_moisture: f64,
+    seed_layer: i32,
+}
+
+static EMERGENCE_SCRATCH: LazyLock<RwLock<EmergenceScratch>> = LazyLock::new(|| {
+    RwLock::new(EmergenceScratch {
+        delay_of_emergence: 0.0,
+        hypocotyl_length: 0.3,
+        seed_moisture: 8.0,
+        seed_layer: 0,
+    })
+});
+
+fn read_emergence_scratch() -> EmergenceScratch {
+    *EMERGENCE_SCRATCH
+        .read()
+        .expect("emergence scratch state lock should not be poisoned")
+}
+
+fn write_emergence_scratch(scratch: EmergenceScratch) {
+    *EMERGENCE_SCRATCH
+        .write()
+        .expect("emergence scratch state lock should not be poisoned") = scratch;
+}
+
+fn mark_simulation_end() -> i32 {
+    let mut legacy = LegacyGlobalState::from_globals();
+    legacy.b_end = true;
+    let daynum = legacy.daynum;
+    legacy.write_to_globals();
+    daynum
+}
 
 pub(crate) fn sensible_heat_transfer(tsf: f64, tenviron: f64, height: f64, wndcanp: f64) -> f64 {
     const GRAV: f64 = 980.0;
@@ -118,9 +147,7 @@ pub(crate) fn sensible_heat_transfer(tsf: f64, tenviron: f64, height: f64, wndca
             eprintln!(" tsf      = {:10.3}", tsf);
             eprintln!(" PlantHeight = {:10.3}", height);
             eprintln!(" u = {:10.3}", wind);
-            unsafe {
-                bEnd = true;
-            }
+            let _ = mark_simulation_end();
             return 0.0;
         }
 
@@ -151,23 +178,26 @@ pub(crate) fn soil_surface_balance(
     thet: f64,
     tm: f64,
     tv: f64,
+    mulch_tran_lw: f64,
+    dl0: f64,
+    dl1: f64,
+    dl2: f64,
+    vol_water0: f64,
+    vol_water1: f64,
+    vol_water2: f64,
+    pore_space: &[f64],
+    field_capacity: &[f64],
+    sand_volume_fraction: &[f64],
+    clay_volume_fraction: &[f64],
+    marginal_water_content: &[f64],
+    heat_cond_dry_soil: &[f64],
+    dsand_value: f64,
+    dclay_value: f64,
 ) {
     const EF: f64 = 0.95;
     const EG: f64 = 0.95;
     const STEFA1: f64 = 1.38e-12;
 
-    let soil_column = k as usize;
-    let (mulch_tran_lw, dl0, dl1, dl2, vol_water0, vol_water1, vol_water2) = unsafe {
-        (
-            MulchTranLW,
-            dl[0],
-            dl[1],
-            dl[2],
-            VolWaterContent[0][soil_column],
-            VolWaterContent[1][soil_column],
-            VolWaterContent[2][soil_column],
-        )
-    };
     let mut so_value = *so;
     let mut so2_value = *so2;
     let mut so3_value = *so3;
@@ -190,9 +220,45 @@ pub(crate) fn soil_surface_balance(
         let hlat = (75.5255 - 0.05752 * so_value) * ess;
         let dhlat = -0.05752 * ess;
 
-        let rosoil1 = thermal_cond_soil(vol_water0, so_value, 1);
-        let rosoil2 = thermal_cond_soil(vol_water1, so2_value, 2);
-        let rosoil3 = thermal_cond_soil(vol_water2, so3_value, 3);
+        let rosoil1 = thermal_cond_soil(
+            vol_water0,
+            so_value,
+            1,
+            pore_space,
+            field_capacity,
+            sand_volume_fraction,
+            clay_volume_fraction,
+            marginal_water_content,
+            heat_cond_dry_soil,
+            dsand_value,
+            dclay_value,
+        );
+        let rosoil2 = thermal_cond_soil(
+            vol_water1,
+            so2_value,
+            2,
+            pore_space,
+            field_capacity,
+            sand_volume_fraction,
+            clay_volume_fraction,
+            marginal_water_content,
+            heat_cond_dry_soil,
+            dsand_value,
+            dclay_value,
+        );
+        let rosoil3 = thermal_cond_soil(
+            vol_water2,
+            so3_value,
+            3,
+            pore_space,
+            field_capacity,
+            sand_volume_fraction,
+            clay_volume_fraction,
+            marginal_water_content,
+            heat_cond_dry_soil,
+            dsand_value,
+            dclay_value,
+        );
         let rosoil = (rosoil1 * dl0 + rosoil2 * dl1 + rosoil3 * dl2)
             / (dl0 + dl1 + dl2)
             / (0.5 * dl0 + dl1 + 0.5 * dl2);
@@ -215,7 +281,19 @@ pub(crate) fn soil_surface_balance(
         }
 
         let demtlw = 4.0 * rls4 * so_value.powi(3);
-        let rosoil1p = thermal_cond_soil(vol_water0, so_value + 0.001, 1);
+        let rosoil1p = thermal_cond_soil(
+            vol_water0,
+            so_value + 0.001,
+            1,
+            pore_space,
+            field_capacity,
+            sand_volume_fraction,
+            clay_volume_fraction,
+            marginal_water_content,
+            heat_cond_dry_soil,
+            dsand_value,
+            dclay_value,
+        );
         let rosoilp = (rosoil1p * dl0 + rosoil2 * dl1 + rosoil3 * dl2)
             / (dl0 + dl1 + dl2)
             / (0.5 * dl0 + dl1 + 0.5 * dl2);
@@ -252,14 +330,11 @@ pub(crate) fn soil_surface_balance(
     *so3 = so3_value;
 
     eprintln!(" Infinite loop in SoilSurfaceBalance(). Abnormal stop!! ");
-    let daynum = unsafe { Daynum };
+    let daynum = mark_simulation_end();
     eprintln!("Daynum, ihr, k = {:3} {:3} {:3}", daynum, ihr, k);
     eprintln!(" so      = {:10.0}", so_value);
     eprintln!(" so2 = {:10.0}", so2_value);
     eprintln!(" so3 = {:10.0}", so3_value);
-    unsafe {
-        bEnd = true;
-    }
 }
 
 pub(crate) fn canopy_balance(
@@ -274,12 +349,11 @@ pub(crate) fn canopy_balance(
     thet: f64,
     tm: f64,
     tv: &mut f64,
+    mulch_tran_lw: f64,
 ) {
     const EF: f64 = 0.95;
     const EG: f64 = 0.95;
     const STEFA1: f64 = 1.38e-12;
-    let mulch_tran_lw = unsafe { MulchTranLW };
-
     let rlv1 = if tm > 0.0 {
         sf * EF * rlzero
             + sf * EF * EG * STEFA1 * mulch_tran_lw * so.powi(4)
@@ -333,13 +407,10 @@ pub(crate) fn canopy_balance(
     }
 
     eprintln!(" Infinite loop in CanopyBalance(). Abnormal stop!! ");
-    let daynum = unsafe { Daynum };
+    let daynum = mark_simulation_end();
     eprintln!(" Daynum, ihr, k = {:3} {:3} {:3}", daynum, ihr, k);
     eprintln!(" so      = {:10.3}", so);
     eprintln!(" tv = {:10.3}", *tv);
-    unsafe {
-        bEnd = true;
-    }
 }
 
 pub(crate) fn mulch_surface_balance(
@@ -403,16 +474,25 @@ pub(crate) fn mulch_surface_balance(
     }
 
     eprintln!(" Infinite loop in MulchSurfaceBalance(). Abnormal stop!! ");
-    let daynum = unsafe { Daynum };
+    let daynum = mark_simulation_end();
     eprintln!(" Daynum, ihr, k = {:3} {:3} {:3}", daynum, ihr, k);
     eprintln!(" so      = {:10.3}", so);
     eprintln!(" tv = {:10.3}", tv);
-    unsafe {
-        bEnd = true;
-    }
 }
 
-pub(crate) fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
+pub(crate) fn thermal_cond_soil(
+    q0: f64,
+    t0: f64,
+    l0: c_int,
+    pore_space_profile: &[f64],
+    field_capacity_profile: &[f64],
+    sand_volume_fraction: &[f64],
+    clay_volume_fraction: &[f64],
+    marginal_water_content_profile: &[f64],
+    heat_cond_dry_soil_profile: &[f64],
+    dsand_value: f64,
+    dclay_value: f64,
+) -> f64 {
     const BCLAY: f64 = 7.0;
     const BSAND: f64 = 20.0;
     const CKA: f64 = 0.0615;
@@ -427,20 +507,14 @@ pub(crate) fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
         clay_fraction,
         marginal_water_content,
         heat_cond_dry,
-        dsand_value,
-        dclay_value,
-    ) = unsafe {
-        (
-            PoreSpace[layer],
-            FieldCapacity[layer],
-            SandVolumeFraction[layer],
-            ClayVolumeFraction[layer],
-            MarginalWaterContent[layer],
-            HeatCondDrySoil[layer],
-            dsand,
-            dclay,
-        )
-    };
+    ) = (
+        pore_space_profile[layer],
+        field_capacity_profile[layer],
+        sand_volume_fraction[layer],
+        clay_volume_fraction[layer],
+        marginal_water_content_profile[layer],
+        heat_cond_dry_soil_profile[layer],
+    );
 
     let bb = if tcel <= 36.0 {
         0.06188
@@ -493,18 +567,16 @@ pub(crate) fn thermal_cond_soil(q0: f64, t0: f64, l0: c_int) -> f64 {
 pub(crate) fn predict_emergence(hour: c_int) {
     const DPL: f64 = 5.0;
 
-    let (daynum, dayplant, num_layers, plant_col, mut delay, mut hypocotyl, mut seed_moisture) = unsafe {
-        (
-            Daynum,
-            DayPlant,
-            nl as usize,
-            PlantRowColumn as usize,
-            DELAY_OF_EMERGENCE,
-            HYPOCOTYL_LENGTH,
-            SEED_MOISTURE,
-        )
-    };
-    let mut seed_layer = unsafe { N_SEED_LAYER };
+    let mut legacy = LegacyGlobalState::from_globals();
+    let mut scratch = read_emergence_scratch();
+    let daynum = legacy.daynum;
+    let dayplant = legacy.day_plant;
+    let num_layers = legacy.nl as usize;
+    let plant_col = legacy.plant_row_column as usize;
+    let mut delay = scratch.delay_of_emergence;
+    let mut hypocotyl = scratch.hypocotyl_length;
+    let mut seed_moisture = scratch.seed_moisture;
+    let mut seed_layer = scratch.seed_layer;
 
     if daynum == dayplant && hour == 0 {
         delay = 0.0;
@@ -513,7 +585,7 @@ pub(crate) fn predict_emergence(hour: c_int) {
 
         let mut sumdl = 0.0;
         for layer in 0..num_layers {
-            sumdl += unsafe { dl[layer] };
+            sumdl += legacy.dl[layer];
             if sumdl >= DPL {
                 seed_layer = layer as i32;
                 break;
@@ -522,12 +594,8 @@ pub(crate) fn predict_emergence(hour: c_int) {
     }
 
     let seed_layer_index = seed_layer.max(0) as usize;
-    let (psi, mut te) = unsafe {
-        (
-            SoilPsi[seed_layer_index][plant_col],
-            SoilTemp[seed_layer_index][plant_col] - 273.161,
-        )
-    };
+    let psi = legacy.soil_psi[[seed_layer_index, plant_col]];
+    let mut te = legacy.soil_temp[[seed_layer_index, plant_col]] - 273.161;
     if te < 10.0 {
         te = 10.0;
     }
@@ -592,15 +660,97 @@ pub(crate) fn predict_emergence(hour: c_int) {
         }
     }
 
-    unsafe {
-        DELAY_OF_EMERGENCE = delay;
-        HYPOCOTYL_LENGTH = hypocotyl;
-        SEED_MOISTURE = seed_moisture;
-        N_SEED_LAYER = seed_layer;
-        if emerged {
-            isw = 2;
-            DayEmerge = daynum;
-            Kday = 1;
+    scratch.delay_of_emergence = delay;
+    scratch.hypocotyl_length = hypocotyl;
+    scratch.seed_moisture = seed_moisture;
+    scratch.seed_layer = seed_layer;
+    if emerged {
+        legacy.isw = 2;
+        legacy.day_emerge = daynum;
+        legacy.kday = 1;
+    }
+    legacy.write_to_globals();
+    write_emergence_scratch(scratch);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn soil_profiles() -> (
+        [f64; 40],
+        [f64; 40],
+        [f64; 40],
+        [f64; 40],
+        [f64; 40],
+        [f64; 40],
+    ) {
+        let mut pore_space = [0.45; 40];
+        let mut field_capacity = [0.30; 40];
+        let mut sand_fraction = [0.35; 40];
+        let mut clay_fraction = [0.25; 40];
+        let mut marginal_water = [0.05; 40];
+        let mut dry_cond = [0.08; 40];
+        // Keep layer 0/1/2 explicitly initialized to meaningful values used in tests.
+        for i in 0..3 {
+            pore_space[i] = 0.45;
+            field_capacity[i] = 0.30;
+            sand_fraction[i] = 0.35;
+            clay_fraction[i] = 0.25;
+            marginal_water[i] = 0.05;
+            dry_cond[i] = 0.08;
         }
+        (
+            pore_space,
+            field_capacity,
+            sand_fraction,
+            clay_fraction,
+            marginal_water,
+            dry_cond,
+        )
+    }
+
+    #[test]
+    fn thermal_cond_soil_is_positive_and_higher_when_wetter() {
+        let (pore_space, field_capacity, sand_fraction, clay_fraction, marginal_water, dry_cond) =
+            soil_profiles();
+
+        let dry = thermal_cond_soil(
+            0.06,
+            293.161,
+            1,
+            &pore_space,
+            &field_capacity,
+            &sand_fraction,
+            &clay_fraction,
+            &marginal_water,
+            &dry_cond,
+            0.2,
+            0.2,
+        );
+        let wet = thermal_cond_soil(
+            0.25,
+            293.161,
+            1,
+            &pore_space,
+            &field_capacity,
+            &sand_fraction,
+            &clay_fraction,
+            &marginal_water,
+            &dry_cond,
+            0.2,
+            0.2,
+        );
+
+        assert!(dry.is_finite() && wet.is_finite());
+        assert!(dry > 0.0);
+        assert!(wet > dry, "expected wetter soil conductivity to be higher");
+    }
+
+    #[test]
+    fn sensible_heat_transfer_returns_finite_positive_value() {
+        let coeff = sensible_heat_transfer(305.0, 300.0, 50.0, 180.0);
+        assert!(coeff.is_finite());
+        assert!(coeff > 0.0);
     }
 }

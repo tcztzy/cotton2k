@@ -133,6 +133,8 @@ pub struct Profile {
     pub last_day_weather_data: NaiveDate,
     #[serde(skip)]
     pub root_impedance_tables: Option<RootImpedanceTables>,
+    #[serde(skip)]
+    pub model_state: ModelState,
 }
 
 #[derive(Deserialize, Debug, Clone, Copy)]
@@ -369,7 +371,11 @@ fn estimate_dew_point(maxt: f64, site5: f64, site6: f64) -> f64 {
 /// This function opens the initial soil data file and reads it.
 /// It is executed once at the beginning of the simulation.
 /// It is called by [Profile::initialize()].
-unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic) {
+fn init_soil(
+    legacy: &mut LegacyGlobalState,
+    soil_layers: &[SoilLayer; 14],
+    soil_hydraulic: &SoilHydraulic,
+) {
     let mut condfc = [0f64; 9]; // hydraulic conductivity at field capacity of horizon layers, cm per day.
     let mut h2oint = [0f64; 14]; // initial soil water content, percent of field capacity,
                                  // defined by input for consecutive 15 cm soil layers.
@@ -398,15 +404,15 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     let lyrsol = soil_hydraulic.layers.len();
     //     Zeroise arrays of data values.
     for i in 0..9 {
-        airdr[i] = 0.;
-        thetas[i] = 0.;
-        alpha[i] = 0.;
-        beta[i] = 0.;
-        SaturatedHydCond[i] = 0.;
-        BulkDensity[i] = 0.;
+        legacy.airdr[i] = 0.;
+        legacy.thetas[i] = 0.;
+        legacy.alpha[i] = 0.;
+        legacy.beta[i] = 0.;
+        legacy.saturated_hyd_cond[i] = 0.;
+        legacy.bulk_density[i] = 0.;
     }
-    RatioImplicit = soil_hydraulic.implicit_ratio;
-    conmax = soil_hydraulic.max_conductivity;
+    legacy.ratio_implicit = soil_hydraulic.implicit_ratio;
+    legacy.conmax = soil_hydraulic.max_conductivity;
     psisfc = soil_hydraulic.psi_fc;
     psidra = soil_hydraulic.psi_id;
     if psisfc > 0. {
@@ -420,12 +426,12 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         condfc[il] = layer.hcfc;
         pclay[il] = layer.clay;
         psand[il] = layer.sand;
-        airdr[il] = layer.theta_d;
-        thetas[il] = layer.theta_s;
-        alpha[il] = layer.alpha;
-        beta[il] = layer.beta;
-        SaturatedHydCond[il] = layer.hcs;
-        BulkDensity[il] = layer.bulk_density;
+        legacy.airdr[il] = layer.theta_d;
+        legacy.thetas[il] = layer.theta_s;
+        legacy.alpha[il] = layer.alpha;
+        legacy.beta[il] = layer.beta;
+        legacy.saturated_hyd_cond[il] = layer.hcs;
+        legacy.bulk_density[il] = layer.bulk_density;
     }
 
     let mut j = 0usize; // horizon number
@@ -433,44 +439,60 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     let rm = 2.65f64; // density of the solid fraction of the soil (g / cm3)
     let mut bdl = [0f64; 40]; // array of bulk density of soil layers
 
-    for l in 0..nl as usize {
+    for l in 0..legacy.nl as usize {
         //     Using the depth of each horizon layer (ldepth), the horizon
-        //  number (SoilHorizonNum) is computed for each soil layer.
-        sumdl += dl[l];
+        //  number (legacy.soil_horizon_num) is computed for each soil layer.
+        sumdl += legacy.dl[l];
         while (sumdl > ldepth[j]) && (j < lyrsol) {
             j += 1;
         }
-        SoilHorizonNum[l] = j as i32;
-        // bdl, thad, thts are defined for each soil layer, using the respective input variables BulkDensity, airdr,
-        // thetas.
+        legacy.soil_horizon_num[l] = j as i32;
+        // bdl, legacy.thad, legacy.thts are defined for each soil layer, using the respective input variables legacy.bulk_density, legacy.airdr,
+        // legacy.thetas.
         //
-        // FieldCapacity, MaxWaterCapacity and thetar are computed for each layer, as water content ($cm^3\ cm^{-3}$)
+        // legacy.field_capacity, legacy.max_water_capacity and legacy.thetar are computed for each layer, as water content ($cm^3\ cm^{-3}$)
         // of each layer corresponding to matric potentials of psisfc (for field capacity), psidra (for free drainage)
         // and -15 bars (for permanent wilting point), respectively, using function qpsi.
         //
-        // pore space volume (PoreSpace) is also computed for each layer. make sure that saturated water content is not
+        // pore space volume (legacy.pore_space) is also computed for each layer. make sure that saturated water content is not
         // more than pore space.
-        bdl[l] = BulkDensity[j];
-        PoreSpace[l] = 1. - BulkDensity[j] / rm;
-        if thetas[j] > PoreSpace[l] {
-            thetas[j] = PoreSpace[l];
+        bdl[l] = legacy.bulk_density[j];
+        legacy.pore_space[l] = 1. - legacy.bulk_density[j] / rm;
+        if legacy.thetas[j] > legacy.pore_space[l] {
+            legacy.thetas[j] = legacy.pore_space[l];
         }
-        thad[l] = airdr[j];
-        thts[l] = thetas[j];
-        FieldCapacity[l] =
-            crate::general_functions::qpsi(psisfc, thad[l], thts[l], alpha[j], beta[j]);
-        MaxWaterCapacity[l] =
-            crate::general_functions::qpsi(psidra, thad[l], thts[l], alpha[j], beta[j]);
-        thetar[l] = crate::general_functions::qpsi(-15., thad[l], thts[l], alpha[j], beta[j]);
-        // When the saturated hydraulic conductivity (SaturatedHydCond) is not given, it is computed from the hydraulic
+        legacy.thad[l] = legacy.airdr[j];
+        legacy.thts[l] = legacy.thetas[j];
+        legacy.field_capacity[l] = crate::general_functions::qpsi(
+            psisfc,
+            legacy.thad[l],
+            legacy.thts[l],
+            legacy.alpha[j],
+            legacy.beta[j],
+        );
+        legacy.max_water_capacity[l] = crate::general_functions::qpsi(
+            psidra,
+            legacy.thad[l],
+            legacy.thts[l],
+            legacy.alpha[j],
+            legacy.beta[j],
+        );
+        legacy.thetar[l] = crate::general_functions::qpsi(
+            -15.,
+            legacy.thad[l],
+            legacy.thts[l],
+            legacy.alpha[j],
+            legacy.beta[j],
+        );
+        // When the saturated hydraulic conductivity (legacy.saturated_hyd_cond) is not given, it is computed from the hydraulic
         // conductivity at field capacity (condfc), using the wcond function.
-        if SaturatedHydCond[j] <= 0. {
-            SaturatedHydCond[j] = condfc[j]
+        if legacy.saturated_hyd_cond[j] <= 0. {
+            legacy.saturated_hyd_cond[j] = condfc[j]
                 / crate::general_functions::wcond(
-                    FieldCapacity[l],
-                    thad[l],
-                    thts[l],
-                    beta[j],
+                    legacy.field_capacity[l],
+                    legacy.thad[l],
+                    legacy.thts[l],
+                    legacy.beta[j],
                     1.,
                     1.,
                 );
@@ -478,8 +500,8 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     }
     // Loop for all soil layers. Compute depth from soil surface to the end of each layer (sumdl).
     sumdl = 0.;
-    for l in 0..nl as usize {
-        sumdl += dl[l];
+    for l in 0..legacy.nl as usize {
+        sumdl += legacy.dl[l];
         // At start of simulation compute estimated movable fraction of nitrates in each soil layer, following the work
         // of:
         //     Bowen, W.T., Jones, J.W., Carsky, R.J., and Quintana, J.O. 1993.
@@ -510,23 +532,23 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         } else {
             1.6
         };
-        NO3FlowFraction[l] = 1. / (1. + coeff * bdl[l] / MaxWaterCapacity[l]);
+        legacy.no3_flow_fraction[l] = 1. / (1. + coeff * bdl[l] / legacy.max_water_capacity[l]);
         // Determine the corresponding 15 cm layer of the input file. Compute the initial volumetric water content
-        // (VolWaterContent) of each layer, and check that it will not be less than the air-dry value or more than pore
+        // (legacy.vol_water_content) of each layer, and check that it will not be less than the air-dry value or more than pore
         // space volume.
         j = ((sumdl - 1.) / 15.).floor() as usize;
         if j > 13 {
             j = 13;
         }
-        let n = SoilHorizonNum[l] as usize;
-        VolWaterContent[l][0] = FieldCapacity[l] * h2oint[j] / 100.;
-        if VolWaterContent[l][0] < airdr[n] {
-            VolWaterContent[l][0] = airdr[n];
+        let n = legacy.soil_horizon_num[l] as usize;
+        legacy.vol_water_content[[l, 0]] = legacy.field_capacity[l] * h2oint[j] / 100.;
+        if legacy.vol_water_content[[l, 0]] < legacy.airdr[n] {
+            legacy.vol_water_content[[l, 0]] = legacy.airdr[n];
         }
-        if VolWaterContent[l][0] > PoreSpace[l] {
-            VolWaterContent[l][0] = PoreSpace[l];
+        if legacy.vol_water_content[[l, 0]] > legacy.pore_space[l] {
+            legacy.vol_water_content[[l, 0]] = legacy.pore_space[l];
         }
-        // Initial values of ammonium N (rnnh4, VolNh4NContent) and nitrate N (rnno3, VolNo3NContent) are converted
+        // Initial values of ammonium N (rnnh4, legacy.vol_nh4_n_content) and nitrate N (rnno3, legacy.vol_no3_n_content) are converted
         // from kgs per ha to $mg\ cm^{-3}$ for each soil layer, after checking for minimal amounts.
         if rnno3[j] < 2.0 {
             rnno3[j] = 2.0;
@@ -534,8 +556,8 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         if rnnh4[j] < 0.2 {
             rnnh4[j] = 0.2;
         }
-        VolNo3NContent[l][0] = rnno3[j] / 15. * 0.01;
-        VolNh4NContent[l][0] = rnnh4[j] / 15. * 0.01;
+        legacy.vol_no3_n_content[[l, 0]] = rnno3[j] / 15. * 0.01;
+        legacy.vol_nh4_n_content[[l, 0]] = rnnh4[j] / 15. * 0.01;
         // organic matter in mg / cm3 units.
         let om = (oma[j] / 100.) * bdl[l] * 1000.;
         // potom is the proportion of readily mineralizable om. it is a function of soil depth (sumdl, in cm), modified
@@ -544,39 +566,42 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         if potom < 0. {
             potom = 0.;
         }
-        // FreshOrganicMatter is the readily mineralizable organic matter (="fresh organic matter" in CERES models).
-        // HumusOrganicMatter is the remaining organic matter, which is mineralized very slowly.
-        FreshOrganicMatter[l][0] = om * potom;
-        HumusOrganicMatter[l][0] = om * (1. - potom);
+        // legacy.fresh_organic_matter is the readily mineralizable organic matter (="fresh organic matter" in CERES models).
+        // legacy.humus_organic_matter is the remaining organic matter, which is mineralized very slowly.
+        legacy.fresh_organic_matter[[l, 0]] = om * potom;
+        legacy.humus_organic_matter[[l, 0]] = om * (1. - potom);
     }
     // Since the initial value has been set for the first column only in each layer, these values are now assigned to
     // all the other columns.
-    for l in 0..nl as usize {
-        for k in 1..nk as usize {
-            VolWaterContent[l][k] = VolWaterContent[l][0];
-            VolNo3NContent[l][k] = VolNo3NContent[l][0];
-            VolNh4NContent[l][k] = VolNh4NContent[l][0];
-            FreshOrganicMatter[l][k] = FreshOrganicMatter[l][0];
-            HumusOrganicMatter[l][k] = HumusOrganicMatter[l][0];
+    for l in 0..legacy.nl as usize {
+        for k in 1..legacy.nk as usize {
+            legacy.vol_water_content[[l, k]] = legacy.vol_water_content[[l, 0]];
+            legacy.vol_no3_n_content[[l, k]] = legacy.vol_no3_n_content[[l, 0]];
+            legacy.vol_nh4_n_content[[l, k]] = legacy.vol_nh4_n_content[[l, 0]];
+            legacy.fresh_organic_matter[[l, k]] = legacy.fresh_organic_matter[[l, 0]];
+            legacy.humus_organic_matter[[l, k]] = legacy.humus_organic_matter[[l, 0]];
         }
     }
-    // Total amounts of water (InitialTotalSoilWater), nitrate N (TotalSoilNo3N), ammonium N (TotalSoilNh4N), and urea
-    // N (TotalSoilUreaN) are computed for the whole slab.
-    InitialTotalSoilWater = 0.;
-    TotalSoilNo3N = 0.;
-    TotalSoilNh4N = 0.;
-    TotalSoilUreaN = 0.;
+    // Total amounts of water (legacy.initial_total_soil_water), nitrate N (legacy.total_soil_no3_n), ammonium N (legacy.total_soil_nh4_n), and urea
+    // N (legacy.total_soil_urea_n) are computed for the whole slab.
+    legacy.initial_total_soil_water = 0.;
+    legacy.total_soil_no3_n = 0.;
+    legacy.total_soil_nh4_n = 0.;
+    legacy.total_soil_urea_n = 0.;
 
-    for l in 0..nl as usize {
-        for k in 0..nk as usize {
-            InitialTotalSoilWater += VolWaterContent[l][k] * dl[l] * wk[k];
-            TotalSoilNo3N += VolNo3NContent[l][k] * dl[l] * wk[k];
-            TotalSoilNh4N += VolNh4NContent[l][k] * dl[l] * wk[k];
-            VolUreaNContent[l][k] = 0.;
+    for l in 0..legacy.nl as usize {
+        for k in 0..legacy.nk as usize {
+            legacy.initial_total_soil_water +=
+                legacy.vol_water_content[[l, k]] * legacy.dl[l] * legacy.wk[k];
+            legacy.total_soil_no3_n +=
+                legacy.vol_no3_n_content[[l, k]] * legacy.dl[l] * legacy.wk[k];
+            legacy.total_soil_nh4_n +=
+                legacy.vol_nh4_n_content[[l, k]] * legacy.dl[l] * legacy.wk[k];
+            legacy.vol_urea_n_content[[l, k]] = 0.;
         }
     }
-    // InitialTotalSoilWater is converted from cm3 per slab to mm.
-    InitialTotalSoilWater = 10. * InitialTotalSoilWater / RowSpace;
+    // legacy.initial_total_soil_water is converted from cm3 per slab to mm.
+    legacy.initial_total_soil_water = 10. * legacy.initial_total_soil_water / legacy.row_space;
     let bsand = 20f64; // heat conductivity of sand and silt (mcal cm-1 s-1 C-1).
     let bclay = 7f64; // heat conductivity of clay (mcal cm-1 s-1 C-1).
     let cka = 0.0615f64; // heat conductivity of air (mcal cm-1 s-1 C-1).
@@ -587,8 +612,8 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
     let ro = 1.3f64; // specific weight of organic fraction of soil.
 
     // Compute aggregation factors:
-    dsand = form(bsand, ckw, ga); // aggregation factor for sand in water
-    dclay = form(bclay, ckw, ga); // aggregation factor for clay in water
+    legacy.dsand = form(bsand, ckw, ga); // aggregation factor for sand in water
+    legacy.dclay = form(bclay, ckw, ga); // aggregation factor for clay in water
     let dsandair: f64 = form(bsand, cka, ga); // aggregation factor for sand in air
     let dclayair: f64 = form(bclay, cka, ga); // aggregation factor for clay in air
 
@@ -596,8 +621,8 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
 
     sumdl = 0.; // sum of depth of consecutive soil layers.
 
-    for l in 0..nl as usize {
-        sumdl += dl[l];
+    for l in 0..legacy.nl as usize {
+        sumdl += legacy.dl[l];
         let mut j = ((sumdl + 14.) / 15.).floor() as usize - 1; // layer definition for oma
         if j > 13 {
             j = 13;
@@ -607,103 +632,115 @@ unsafe fn InitSoil(soil_layers: &[SoilLayer; 14], soil_hydraulic: &SoilHydraulic
         let mmo = oma[j] / 100.; // organic matter fraction of dry soil (by weight).
         let mm = 1. - mmo; // mineral fraction of dry soil (by weight).
 
-        // MarginalWaterContent is set as a function of the sand fraction of the soil.
+        // legacy.marginal_water_content is set as a function of the sand fraction of the soil.
         let ra = (mmo / ro) / (mm / rm); // volume ratio of organic to mineral soil fractions.
 
-        let i1 = SoilHorizonNum[l] as usize; //  layer definition as in soil hydrology input file.
+        let i1 = legacy.soil_horizon_num[l] as usize; //  layer definition as in soil hydrology input file.
 
-        // The volume fractions of clay (ClayVolumeFraction) and of sand plus silt (SandVolumeFraction), are calculated
-        MarginalWaterContent[l] = 0.1 - 0.07 * psand[i1] / 100.;
-        let xo = (1. - PoreSpace[l]) * ra / (1. + ra); // organic fraction of soil (by volume).
-        let xm = (1. - PoreSpace[l]) - xo; // mineral fraction of soil (by volume).
-        ClayVolumeFraction[l] = pclay[i1] * xm / mm / 100.;
-        SandVolumeFraction[l] = 1. - PoreSpace[l] - ClayVolumeFraction[l];
+        // The volume fractions of clay (legacy.clay_volume_fraction) and of sand plus silt (legacy.sand_volume_fraction), are calculated
+        legacy.marginal_water_content[l] = 0.1 - 0.07 * psand[i1] / 100.;
+        let xo = (1. - legacy.pore_space[l]) * ra / (1. + ra); // organic fraction of soil (by volume).
+        let xm = (1. - legacy.pore_space[l]) - xo; // mineral fraction of soil (by volume).
+        legacy.clay_volume_fraction[l] = pclay[i1] * xm / mm / 100.;
+        legacy.sand_volume_fraction[l] = 1. - legacy.pore_space[l] - legacy.clay_volume_fraction[l];
         // Heat capacity of the solid soil fractions (mineral + organic, by volume )
-        HeatCapacitySoilSolid[l] = xm * cmin + xo * corg;
-        // The heat conductivity of dry soil (HeatCondDrySoil) is computed using the procedure suggested by De Vries.
-        HeatCondDrySoil[l] = 1.25
-            * (PoreSpace[l] * cka
-                + dsandair * bsand * SandVolumeFraction[l]
-                + dclayair * bclay * ClayVolumeFraction[l])
-            / (PoreSpace[l] + dsandair * SandVolumeFraction[l] + dclayair * ClayVolumeFraction[l]);
+        legacy.heat_capacity_soil_solid[l] = xm * cmin + xo * corg;
+        // The heat conductivity of dry soil (legacy.heat_cond_dry_soil) is computed using the procedure suggested by De Vries.
+        legacy.heat_cond_dry_soil[l] = 1.25
+            * (legacy.pore_space[l] * cka
+                + dsandair * bsand * legacy.sand_volume_fraction[l]
+                + dclayair * bclay * legacy.clay_volume_fraction[l])
+            / (legacy.pore_space[l]
+                + dsandair * legacy.sand_volume_fraction[l]
+                + dclayair * legacy.clay_volume_fraction[l]);
     }
 }
 
 impl Profile {
     /// Run this profile.
-    pub fn run(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.initialize()?;
         self.output_file_headers()?;
-        unsafe {
-            // Do daily simulations
-            Daynum = DayStart - 1;
-            bEnd = false;
-            // Start the daily loop. If variable bEnd has been assigned a value of true end simulation.
-            for _ in DayStart..(DayFinish + 1) {
-                let mut state = if self.states.len() > 0 {
-                    let mut new_state = self.states.last().unwrap().clone();
-                    new_state.date = new_state.date.succ_opt().unwrap();
-                    new_state
-                } else {
-                    State::new(
-                        self,
-                        NaiveDate::from_yo_opt(iyear, DayStart as u32).unwrap(),
+        // Keep legacy globals and model-owned state synchronized while remaining modules
+        // still read/write the legacy global storage.
+        self.model_state.legacy.daynum = self.model_state.legacy.day_start - 1;
+        self.model_state.legacy.b_end = false;
+        self.model_state.legacy.write_to_globals();
+
+        for _ in self.model_state.legacy.day_start..(self.model_state.legacy.day_finish + 1) {
+            let mut state = if !self.states.is_empty() {
+                let mut new_state = self.states.last().unwrap().clone();
+                new_state.date = new_state.date.succ_opt().unwrap();
+                new_state
+            } else {
+                State::new(
+                    self,
+                    NaiveDate::from_yo_opt(
+                        self.model_state.legacy.iyear,
+                        self.model_state.legacy.day_start as u32,
                     )
-                };
-                // Execute simulation for this day.
-                match state.simulate_this_day(self) {
-                    Err(e) => {
-                        if e.level == 0 {
-                            println!("{}", e.message);
-                            break;
-                        }
+                    .unwrap(),
+                )
+            };
+            // Execute simulation for this day.
+            let mut model_state = std::mem::take(&mut self.model_state);
+            let simulation_result = state.simulate_this_day(self, &mut model_state);
+            self.model_state = model_state;
+            self.model_state.legacy.read_from_globals();
+            match simulation_result {
+                Err(e) => {
+                    if e.level == 0 {
+                        println!("{}", e.message);
+                        break;
                     }
-                    _ => {}
                 }
-                self.write_record()?;
-                self.states.push(state);
-                if bEnd {
-                    break;
-                }
+                _ => {}
+            }
+            self.write_record()?;
+            self.states.push(state);
+            if self.model_state.legacy.b_end {
+                break;
             }
         }
         Ok(())
     }
 
-    pub fn initialize(self: &mut Self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         self.lmax = 0.;
         self.num_watertable_data = 0;
-        unsafe {
-            InitializeGlobal();
-            iyear = self.start_date.year();
-            DayStart = self.start_date.ordinal() as i32;
-            DayFinish = self.stop_date.ordinal() as i32;
+        self.model_state = ModelState::new();
+        {
+            let legacy = &mut self.model_state.legacy;
+            initialize_global(legacy);
+            legacy.iyear = self.start_date.year();
+            legacy.day_start = self.start_date.ordinal() as i32;
+            legacy.day_finish = self.stop_date.ordinal() as i32;
             match self.emerge_date {
-                Some(date) => DayEmerge = date.ordinal() as i32,
+                Some(date) => legacy.day_emerge = date.ordinal() as i32,
                 None => {}
             }
             match self.plant_date {
                 Some(date) => {
-                    DayPlant = date.ordinal() as i32;
+                    legacy.day_plant = date.ordinal() as i32;
                 }
                 None => {}
             }
             if self.emerge_date.is_none() {
                 // If the date of emergence has not been given, emergence will be simulated by the model. In this case,
-                // isw = 0, and a check is performed to make sure that the date of planting has been given.
+                // legacy.isw = 0, and a check is performed to make sure that the date of planting has been given.
                 if self.plant_date.is_none() {
                     panic!(
                         "one of planting date or emergence date must be given in the profile file!!"
                     );
                 }
-                isw = 0;
+                legacy.isw = 0;
             } else if self.emerge_date > self.plant_date {
-                // If the date of emergence has been given in the input: isw = 1 if simulation starts before emergence,
-                isw = 1;
+                // If the date of emergence has been given in the input: legacy.isw = 1 if simulation starts before emergence,
+                legacy.isw = 1;
             } else {
-                // or isw = 2 if simulation starts at emergence.
-                isw = 2;
-                Kday = 1;
+                // or legacy.isw = 2 if simulation starts at emergence.
+                legacy.isw = 2;
+                legacy.kday = 1;
             }
             // For advanced users only: if there is CO2 enrichment, read also CO2 factor, DOY dates
             // If soil mulch is used, read relevant parameters.
@@ -711,70 +748,72 @@ impl Profile {
                 Some(mulch) => match mulch.indicator {
                     MulchType::NoMulch => {}
                     _ => {
-                        MulchIndicator = mulch.indicator as i32;
-                        MulchTranSW = mulch.sw_trans;
-                        MulchTranLW = mulch.lw_trans;
-                        DayStartMulch = mulch.start_date.ordinal() as i32;
+                        legacy.mulch_indicator = mulch.indicator as i32;
+                        legacy.mulch_tran_sw = mulch.sw_trans;
+                        legacy.mulch_tran_lw = mulch.lw_trans;
+                        legacy.day_start_mulch = mulch.start_date.ordinal() as i32;
                         match mulch.stop_date {
-                            Some(date) => DayEndMulch = date.ordinal() as i32,
-                            None => DayEndMulch = DayFinish,
+                            Some(date) => legacy.day_end_mulch = date.ordinal() as i32,
+                            None => legacy.day_end_mulch = legacy.day_finish,
                         }
                     }
                 },
                 None => {
-                    MulchIndicator = MulchType::NoMulch as i32;
+                    legacy.mulch_indicator = MulchType::NoMulch as i32;
                 }
             }
             for pair in self.cultivar_parameters.iter().enumerate() {
-                VarPar[pair.0 + 1] = *pair.1;
+                legacy.var_par[pair.0 + 1] = *pair.1;
             }
-            RowSpace = if self.skip_row_width > 0. {
+            legacy.row_space = if self.skip_row_width > 0. {
                 (self.row_space + self.skip_row_width) / 2.
             } else {
                 self.row_space
             };
-            // PlantRowLocation is the distance from edge of slab, cm, of the plant row.
-            PlantRowLocation = RowSpace / 2.;
-            // Compute PlantPopulation - number of plants per hectar, and PerPlantArea - the average surface area per
-            // plant, in $dm^2$, and the empirical plant density factor (DensityFactor). This factor will be used to
+            // legacy.plant_row_location is the distance from edge of slab, cm, of the plant row.
+            legacy.plant_row_location = legacy.row_space / 2.;
+            // Compute legacy.plant_population - number of plants per hectar, and legacy.per_plant_area - the average surface area per
+            // plant, in $dm^2$, and the empirical plant density factor (legacy.density_factor). This factor will be used to
             // express the effect of plant density on some plant growth rate functions.
-            // Note that DensityFactor =1 for 5 plants per sq m (or 50000 per ha).
-            PlantPopulation = self.plants_per_meter / RowSpace * 1000000.;
-            PerPlantArea = 1000000. / PlantPopulation;
-            DensityFactor = (VarPar[1] * (5. - PlantPopulation / 10000.)).exp();
-            // Define the numbers of rows and columns in the soil slab (nl, nk).
-            // Define the depth, in cm, of consecutive nl layers.
-            nl = maxl;
-            nk = maxk;
-            dl[0] = 2.;
-            dl[1] = 2.;
-            dl[2] = 2.;
-            dl[3] = 4.;
+            // Note that legacy.density_factor =1 for 5 plants per sq m (or 50000 per ha).
+            legacy.plant_population = self.plants_per_meter / legacy.row_space * 1000000.;
+            legacy.per_plant_area = 1000000. / legacy.plant_population;
+            legacy.density_factor =
+                (legacy.var_par[1] * (5. - legacy.plant_population / 10000.)).exp();
+            // Define the numbers of rows and columns in the soil slab (legacy.nl, legacy.nk).
+            // Define the depth, in cm, of consecutive legacy.nl layers.
+            legacy.nl = maxl;
+            legacy.nk = maxk;
+            legacy.dl[0] = 2.;
+            legacy.dl[1] = 2.;
+            legacy.dl[2] = 2.;
+            legacy.dl[3] = 4.;
             for i in 4..(maxl - 2) as usize {
-                dl[i] = 5.;
+                legacy.dl[i] = 5.;
             }
-            dl[(maxl - 2) as usize] = 10.;
-            dl[(maxl - 1) as usize] = 10.;
+            legacy.dl[(maxl - 2) as usize] = 10.;
+            legacy.dl[(maxl - 1) as usize] = 10.;
             //      The width of the slab columns is computed by dividing the row
             //  spacing by the number of columns. It is assumed that slab width is
             //  equal to the average row spacing, and column widths are uniform.
-            //      Note: wk is an array - to enable the option of non-uniform
+            //      Note: legacy.wk is an array - to enable the option of non-uniform
             //  column widths in the future.
-            //      PlantRowColumn (the column including the plant row) is now computed
+            //      legacy.plant_row_column (the column including the plant row) is now computed
             //      from
-            //  PlantRowLocation (the distance of the plant row from the edge of the
+            //  legacy.plant_row_location (the distance of the plant row from the edge of the
             //  slab).
             let mut sumwk = 0.; // sum of column widths
-            PlantRowColumn = 0;
-            for k in 0..nk {
-                wk[k as usize] = RowSpace / nk as f64;
-                sumwk = sumwk + wk[k as usize];
-                if PlantRowColumn == 0 && sumwk > PlantRowLocation {
-                    PlantRowColumn = if (sumwk - PlantRowLocation) > (0.5 * wk[k as usize]) {
-                        k - 1
-                    } else {
-                        k
-                    };
+            legacy.plant_row_column = 0;
+            for k in 0..legacy.nk {
+                legacy.wk[k as usize] = legacy.row_space / legacy.nk as f64;
+                sumwk = sumwk + legacy.wk[k as usize];
+                if legacy.plant_row_column == 0 && sumwk > legacy.plant_row_location {
+                    legacy.plant_row_column =
+                        if (sumwk - legacy.plant_row_location) > (0.5 * legacy.wk[k as usize]) {
+                            k - 1
+                        } else {
+                            k
+                        };
                 }
             }
         }
@@ -812,44 +851,51 @@ impl Profile {
         }
         self.last_day_weather_data = NaiveDate::from_yo_opt(sim_year, jdd).unwrap();
         let mut idef: usize = 0;
-        unsafe {
-            NumIrrigations = 0;
+        let impedance_tables = self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
+        self.root_impedance_tables = Some(impedance_tables);
+        {
+            let legacy = &mut self.model_state.legacy;
+            legacy.num_irrigations = 0;
             for i in 0..5 {
-                DefoliationDate[i] = 0;
-                DefoliationMethod[i] = 0;
-                DefoliantAppRate[i] = 0.;
+                legacy.defoliation_date[i] = 0;
+                legacy.defoliation_method[i] = 0;
+                legacy.defoliant_app_rate[i] = 0.;
             }
 
             for ao in &self.agronomy_operations {
                 match ao {
                     AgronomyOperation::irrigation(irrigation) => {
                         if irrigation.predict {
-                            MaxIrrigation = irrigation.max_amount.unwrap();
-                            DayStartPredIrrig = irrigation.date.ordinal() as i32;
-                            DayStopPredIrrig =
+                            legacy.max_irrigation = irrigation.max_amount.unwrap();
+                            legacy.day_start_pred_irrig = irrigation.date.ordinal() as i32;
+                            legacy.day_stop_pred_irrig =
                                 irrigation.stop_predict_date.unwrap().ordinal() as i32;
                             if let IrrigationMethod::Drip = irrigation.method {
-                                LocationColumnDrip =
-                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)?
-                                        as i32;
-                                LocationLayerDrip =
+                                legacy.location_column_drip = utils::slab_horizontal_location(
+                                    irrigation.drip_x,
+                                    legacy.row_space,
+                                )?
+                                    as i32;
+                                legacy.location_layer_drip =
                                     utils::slab_vertical_location(irrigation.drip_y)? as i32;
                             }
-                            IrrigMethod = irrigation.method as i32;
+                            legacy.irrig_method = irrigation.method as i32;
                         } else {
-                            let idx = NumIrrigations as usize;
+                            let idx = legacy.num_irrigations as usize;
                             let mut irrig = Irrig.write().expect("Irrig lock poisoned");
                             irrig[idx].day = irrigation.date.ordinal() as i32;
                             irrig[idx].amount = irrigation.amount;
                             if let IrrigationMethod::Drip = irrigation.method {
-                                irrig[idx].LocationColumnDrip =
-                                    utils::slab_horizontal_location(irrigation.drip_x, RowSpace)?
-                                        as i32;
+                                irrig[idx].LocationColumnDrip = utils::slab_horizontal_location(
+                                    irrigation.drip_x,
+                                    legacy.row_space,
+                                )?
+                                    as i32;
                                 irrig[idx].LocationLayerDrip =
                                     utils::slab_vertical_location(irrigation.drip_y)? as i32;
                             }
                             irrig[idx].method = irrigation.method as i32;
-                            NumIrrigations += 1;
+                            legacy.num_irrigations += 1;
                         }
                     }
                     AgronomyOperation::defoliation {
@@ -858,10 +904,10 @@ impl Profile {
                         predict,
                         ppa,
                     } => {
-                        DefoliationDate[idef] = date.ordinal() as i32;
-                        DefoliantAppRate[idef] = if *predict { -99.9 } else { *ppa };
-                        DefoliationMethod[idef] = *open_ratio;
-                        DayFirstDef = DefoliationDate[0];
+                        legacy.defoliation_date[idef] = date.ordinal() as i32;
+                        legacy.defoliant_app_rate[idef] = if *predict { -99.9 } else { *ppa };
+                        legacy.defoliation_method[idef] = *open_ratio;
+                        legacy.day_first_def = legacy.defoliation_date[0];
                         idef += 1;
                     }
                     _ => {}
@@ -870,10 +916,7 @@ impl Profile {
             self.num_watertable_data = self
                 .agronomy_operations
                 .iter()
-                .filter(|x| match x {
-                    AgronomyOperation::watertable { .. } => true,
-                    _ => false,
-                })
+                .filter(|x| matches!(x, AgronomyOperation::watertable { .. }))
                 .count();
             if matches!(self.light_intercept_method, LightInterceptMethod::Latered)
                 && self.light_intercept_parameters.is_none()
@@ -882,14 +925,14 @@ impl Profile {
                     "light_intercept_parameters must be provided when using the Latered light intercept method"
                 );
             }
-            let impedance_tables =
-                self.read_soil_impedance(self.soil_impedance.as_ref().unwrap())?;
-            self.root_impedance_tables = Some(impedance_tables);
-            InitSoil(&self.soil_layers, &self.soil_hydraulic);
-            InitializeRootData();
+            init_soil(legacy, &self.soil_layers, &self.soil_hydraulic);
+            initialize_root_data(legacy);
             //     initialize some variables at the start of simulation.
-            SoilNitrogenAtStart = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
-            PlantWeightAtStart = TotalRootWeight + TotalStemWeight + TotalLeafWeight() + ReserveC;
+            legacy.soil_nitrogen_at_start =
+                legacy.total_soil_no3_n + legacy.total_soil_nh4_n + legacy.total_soil_urea_n;
+            legacy.plant_weight_at_start =
+                legacy.total_root_weight + legacy.total_stem_weight + 0.2 + legacy.reserve_c;
+            legacy.write_to_globals();
         }
         // If this is the first time the function is executed, get the ambient CO2 correction.
         self.ambient_CO2_factor = utils::ambient_CO2_factor(self.start_date.year());
@@ -897,7 +940,7 @@ impl Profile {
     }
 
     /// Write the output CSV file's header.
-    pub fn output_file_headers(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn output_file_headers(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut writer = csv::Writer::from_path(self.path.parent().unwrap().join("output.csv"))?;
         writer.write_field("date")?;
         writer.write_field("light_interception")?;
@@ -960,7 +1003,7 @@ impl Profile {
     /// penetration resistance. These tables are used by the root growth sub-model in Rust.
     ///
     fn read_soil_impedance(
-        self: &Self,
+        &self,
         path: &std::path::Path,
     ) -> Result<RootImpedanceTables, Box<dyn std::error::Error>> {
         let mut rdr = csv::Reader::from_path(path)?;
@@ -1002,7 +1045,7 @@ impl Profile {
         ))
     }
 
-    pub fn write_record(self: &Self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn write_record(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut f = std::fs::OpenOptions::new()
             .write(true)
             .append(true)
@@ -1028,56 +1071,59 @@ impl Profile {
             above_ground_biomass,
             water_samples,
             leaf_area_indexes,
-        ) = unsafe {
-            let date_string = chrono::NaiveDate::from_yo_opt(iyear, Daynum as u32)
+        ) = {
+            let legacy = &self.model_state.legacy;
+            let date_string = chrono::NaiveDate::from_yo_opt(legacy.iyear, legacy.daynum as u32)
                 .unwrap()
                 .format("%F")
                 .to_string();
-            let seed_cotton_weight =
-                (CottonWeightOpenBolls + CottonWeightGreenBolls) * PlantPopulation / 1000.;
-            let boll_and_burr_weight = CottonWeightOpenBolls
-                + CottonWeightGreenBolls
-                + BurrWeightGreenBolls
-                + BurrWeightOpenBolls;
-            let above_ground_biomass = if Daynum >= DayEmerge && isw > 0 {
-                (PlantWeight - TotalRootWeight) * PlantPopulation / 1000.
+            let seed_cotton_weight = (legacy.cotton_weight_open_bolls
+                + legacy.cotton_weight_green_bolls)
+                * legacy.plant_population
+                / 1000.;
+            let boll_and_burr_weight = legacy.cotton_weight_open_bolls
+                + legacy.cotton_weight_green_bolls
+                + legacy.burr_weight_green_bolls
+                + legacy.burr_weight_open_bolls;
+            let above_ground_biomass = if legacy.daynum >= legacy.day_emerge && legacy.isw > 0 {
+                (legacy.plant_weight - legacy.total_root_weight) * legacy.plant_population / 1000.
             } else {
                 0.
             };
             let water_samples = [
-                VolWaterContent[3][0],
-                VolWaterContent[5][0],
-                VolWaterContent[7][0],
-                VolWaterContent[3][4],
-                VolWaterContent[5][4],
-                VolWaterContent[7][4],
-                VolWaterContent[3][8],
-                VolWaterContent[5][8],
-                VolWaterContent[7][8],
-                VolWaterContent[3][12],
-                VolWaterContent[5][12],
-                VolWaterContent[7][12],
+                legacy.vol_water_content[[3, 0]],
+                legacy.vol_water_content[[5, 0]],
+                legacy.vol_water_content[[7, 0]],
+                legacy.vol_water_content[[3, 4]],
+                legacy.vol_water_content[[5, 4]],
+                legacy.vol_water_content[[7, 4]],
+                legacy.vol_water_content[[3, 8]],
+                legacy.vol_water_content[[5, 8]],
+                legacy.vol_water_content[[7, 8]],
+                legacy.vol_water_content[[3, 12]],
+                legacy.vol_water_content[[5, 12]],
+                legacy.vol_water_content[[7, 12]],
             ];
             (
                 date_string,
-                LightIntercept,
-                LintYield,
-                LeafAreaIndex,
+                legacy.light_intercept,
+                legacy.lint_yield,
+                legacy.leaf_area_index,
                 seed_cotton_weight,
-                PlantHeight,
-                NumFruitBranches[0],
-                TotalLeafWeight(),
-                TotalPetioleWeight,
-                TotalStemWeight,
-                NumSquares,
-                NumGreenBolls,
-                NumOpenBolls,
-                TotalSquareWeight,
+                legacy.plant_height,
+                legacy.num_fruit_branches[0],
+                self.model_state.total_leaf_weight(),
+                legacy.total_petiole_weight,
+                legacy.total_stem_weight,
+                legacy.num_squares,
+                legacy.num_green_bolls,
+                legacy.num_open_bolls,
+                legacy.total_square_weight,
                 boll_and_burr_weight,
-                TotalRootWeight,
+                legacy.total_root_weight,
                 above_ground_biomass,
                 water_samples,
-                LeafAreaIndexes,
+                legacy.leaf_area_indexes.clone(),
             )
         };
 
@@ -1116,179 +1162,179 @@ impl Profile {
 /// It is called from [Profile::initialize()].
 ///
 /// NOTE: that initialization is needed at the start of each simulation (NOT at start of the run).
-unsafe fn InitializeGlobal() {
-    AbscisedFruitSites = 0.;
-    AbscisedLeafWeight = 0.;
-    addwtbl = 0.;
-    AppliedWater = 0.;
-    AverageLwp = 0.;
-    AverageLwpMin = 0.;
+fn initialize_global(legacy: &mut LegacyGlobalState) {
+    legacy.abscised_fruit_sites = 0.;
+    legacy.abscised_leaf_weight = 0.;
+    legacy.addwtbl = 0.;
+    legacy.applied_water = 0.;
+    legacy.average_lwp = 0.;
+    legacy.average_lwp_min = 0.;
 
-    BloomWeightLoss = 0.;
-    BurrNConc = 0.;
-    BurrNitrogen = 0.;
-    BurrWeightGreenBolls = 0.;
-    BurrWeightOpenBolls = 0.;
+    legacy.bloom_weight_loss = 0.;
+    legacy.burr_n_conc = 0.;
+    legacy.burr_nitrogen = 0.;
+    legacy.burr_weight_green_bolls = 0.;
+    legacy.burr_weight_open_bolls = 0.;
 
-    CarbonAllocatedForRootGrowth = 0.;
-    CottonWeightGreenBolls = 0.;
-    CottonWeightOpenBolls = 0.;
-    CarbonStress = 1.;
-    CumEvaporation = 0.;
-    CumFertilizerN = 0.;
-    CumNetPhotosynth = 0.;
-    AdjSquareAbsc = 0.;
-    CumNitrogenUptake = 0.;
-    CumPlantNLoss = 0.;
-    CumTranspiration = 0.;
-    CumWaterAdded = 0.;
-    CumWaterDrained = 0.;
+    legacy.carbon_allocated_for_root_growth = 0.;
+    legacy.cotton_weight_green_bolls = 0.;
+    legacy.cotton_weight_open_bolls = 0.;
+    legacy.carbon_stress = 1.;
+    legacy.cum_evaporation = 0.;
+    legacy.cum_fertilizer_n = 0.;
+    legacy.cum_net_photosynth = 0.;
+    legacy.adj_square_absc = 0.;
+    legacy.cum_nitrogen_uptake = 0.;
+    legacy.cum_plant_n_loss = 0.;
+    legacy.cum_transpiration = 0.;
+    legacy.cum_water_added = 0.;
+    legacy.cum_water_drained = 0.;
 
-    ExtraCarbon = 0.;
-    FirstBloom = 0;
-    FirstSquare = 0;
-    FruitGrowthRatio = 1.;
+    legacy.extra_carbon = 0.;
+    legacy.first_bloom = 0;
+    legacy.first_square = 0;
+    legacy.fruit_growth_ratio = 1.;
 
-    ginp = 0.35;
-    Gintot = 0.35;
-    GreenBollsLost = 0.;
+    legacy.ginp = 0.35;
+    legacy.gintot = 0.35;
+    legacy.green_bolls_lost = 0.;
 
-    LastIrrigation = 0;
-    LeafAreaIndex = 0.001;
-    LeafNConc = 0.056;
-    LeafNitrogen = 0.0112;
-    LintYield = 0.;
+    legacy.last_irrigation = 0;
+    legacy.leaf_area_index = 0.001;
+    legacy.leaf_n_conc = 0.056;
+    legacy.leaf_nitrogen = 0.0112;
+    legacy.lint_yield = 0.;
 
-    MaxIrrigation = 0.;
-    MineralizedOrganicN = 0.;
+    legacy.max_irrigation = 0.;
+    legacy.mineralized_organic_n = 0.;
 
-    NitrogenStress = 1.;
-    NumAbscisedLeaves = 0;
-    NumOpenBolls = 0.;
-    NumPreFruNodes = 1;
-    NumSheddingTags = 0;
-    NumVegBranches = 1;
-    NStressFruiting = 1.;
-    NStressRoots = 1.;
-    NStressVeg = 1.;
+    legacy.nitrogen_stress = 1.;
+    legacy.num_abscised_leaves = 0;
+    legacy.num_open_bolls = 0.;
+    legacy.num_pre_fru_nodes = 1;
+    legacy.num_shedding_tags = 0;
+    legacy.num_veg_branches = 1;
+    legacy.n_stress_fruiting = 1.;
+    legacy.n_stress_roots = 1.;
+    legacy.n_stress_veg = 1.;
 
-    PercentDefoliation = 0.;
-    PetioleNConc = 0.;
-    PetioleNitrogen = 0.;
-    PetioleNO3NConc = 0.;
-    pixcon = 0.;
-    pixda = 1.;
-    pixdn = 1.;
-    pixdz = 1.;
-    PixInPlants = 0.;
-    PlantHeight = 4.0;
-    PlantWeight = 0.;
-    PotGroStem = 0.;
+    legacy.percent_defoliation = 0.;
+    legacy.petiole_n_conc = 0.;
+    legacy.petiole_nitrogen = 0.;
+    legacy.petiole_no3_n_conc = 0.;
+    legacy.pixcon = 0.;
+    legacy.pixda = 1.;
+    legacy.pixdn = 1.;
+    legacy.pixdz = 1.;
+    legacy.pix_in_plants = 0.;
+    legacy.plant_height = 4.0;
+    legacy.plant_weight = 0.;
+    legacy.pot_gro_stem = 0.;
 
-    ReserveC = 0.06;
-    RootNConc = 0.026;
-    RootNitrogen = 0.0052;
-    RootWeightLoss = 0.;
+    legacy.reserve_c = 0.06;
+    legacy.root_n_conc = 0.026;
+    legacy.root_nitrogen = 0.0052;
+    legacy.root_weight_loss = 0.;
 
-    SeedNConc = 0.;
-    SeedNitrogen = 0.;
-    SoilNitrogenLoss = 0.;
-    SquareNConc = 0.;
-    SquareNitrogen = 0.;
-    StemNConc = 0.036;
-    StemNitrogen = 0.0072;
-    SumNO3N90 = 0.;
-    SupplyNH4N = 0.;
-    SupplyNO3N = 0.;
+    legacy.seed_n_conc = 0.;
+    legacy.seed_nitrogen = 0.;
+    legacy.soil_nitrogen_loss = 0.;
+    legacy.square_n_conc = 0.;
+    legacy.square_nitrogen = 0.;
+    legacy.stem_n_conc = 0.036;
+    legacy.stem_nitrogen = 0.0072;
+    legacy.sum_no3_n90 = 0.;
+    legacy.supply_nh4_n = 0.;
+    legacy.supply_no3_n = 0.;
 
-    TotalActualLeafGrowth = 0.;
-    TotalActualPetioleGrowth = 0.;
-    TotalPetioleWeight = 0.;
-    TotalRequiredN = 0.;
-    TotalSquareWeight = 0.;
-    TotalStemWeight = 0.2;
+    legacy.total_actual_leaf_growth = 0.;
+    legacy.total_actual_petiole_growth = 0.;
+    legacy.total_petiole_weight = 0.;
+    legacy.total_required_n = 0.;
+    legacy.total_square_weight = 0.;
+    legacy.total_stem_weight = 0.2;
 
-    WaterStress = 1.;
-    WaterStressStem = 1.;
-    WaterTableLayer = 1000;
+    legacy.water_stress = 1.;
+    legacy.water_stress_stem = 1.;
+    legacy.water_table_layer = 1000;
     //
     for i in 0..3 {
-        DelayNewFruBranch[i] = 0.;
-        LwpMinX[i] = 0.;
-        LwpX[i] = 0.;
-        NumFruitBranches[i] = 0;
+        legacy.delay_new_fru_branch[i] = 0.;
+        legacy.lwp_min_x[i] = 0.;
+        legacy.lwp_x[i] = 0.;
+        legacy.num_fruit_branches[i] = 0;
         for j in 0..30 {
-            DelayNewNode[i][j] = 0.;
-            LeafAreaMainStem[i][j] = 0.;
-            LeafWeightMainStem[i][j] = 0.;
-            NumNodes[i][j] = 0;
-            PetioleWeightMainStem[i][j] = 0.;
-            PotGroLeafAreaMainStem[i][j] = 0.;
-            PotGroLeafWeightMainStem[i][j] = 0.;
-            PotGroPetioleWeightMainStem[i][j] = 0.;
-            NodeLayer[i][j] = 0;
+            legacy.delay_new_node[[i, j]] = 0.;
+            legacy.leaf_area_main_stem[[i, j]] = 0.;
+            legacy.leaf_weight_main_stem[[i, j]] = 0.;
+            legacy.num_nodes[[i, j]] = 0;
+            legacy.petiole_weight_main_stem[[i, j]] = 0.;
+            legacy.pot_gro_leaf_area_main_stem[[i, j]] = 0.;
+            legacy.pot_gro_leaf_weight_main_stem[[i, j]] = 0.;
+            legacy.pot_gro_petiole_weight_main_stem[[i, j]] = 0.;
+            legacy.node_layer[[i, j]] = 0;
             for k in 0..5 {
-                AgeOfBoll[i][j][k] = 0.;
-                AgeOfSite[i][j][k] = 0.;
-                AvrgNodeTemper[i][j][k] = 0.;
-                BollWeight[i][j][k] = 0.;
-                BurrWeight[i][j][k] = 0.;
-                FruitingCode[i][j][k] = 0;
-                FruitFraction[i][j][k] = 0.;
-                LeafAge[i][j][k] = 0.;
-                LeafAreaNodes[i][j][k] = 0.;
-                LeafWeightNodes[i][j][k] = 0.;
-                PetioleWeightNodes[i][j][k] = 0.;
-                PotGroBolls[i][j][k] = 0.;
-                PotGroBurrs[i][j][k] = 0.;
-                PotGroLeafAreaNodes[i][j][k] = 0.;
-                PotGroLeafWeightNodes[i][j][k] = 0.;
-                PotGroPetioleWeightNodes[i][j][k] = 0.;
-                PotGroSquares[i][j][k] = 0.;
-                SquareWeight[i][j][k] = 0.;
+                legacy.age_of_boll[[i, j, k]] = 0.;
+                legacy.age_of_site[[i, j, k]] = 0.;
+                legacy.avrg_node_temper[[i, j, k]] = 0.;
+                legacy.boll_weight[[i, j, k]] = 0.;
+                legacy.burr_weight[[i, j, k]] = 0.;
+                legacy.fruiting_code[[i, j, k]] = 0;
+                legacy.fruit_fraction[[i, j, k]] = 0.;
+                legacy.leaf_age[[i, j, k]] = 0.;
+                legacy.leaf_area_nodes[[i, j, k]] = 0.;
+                legacy.leaf_weight_nodes[[i, j, k]] = 0.;
+                legacy.petiole_weight_nodes[[i, j, k]] = 0.;
+                legacy.pot_gro_bolls[[i, j, k]] = 0.;
+                legacy.pot_gro_burrs[[i, j, k]] = 0.;
+                legacy.pot_gro_leaf_area_nodes[[i, j, k]] = 0.;
+                legacy.pot_gro_leaf_weight_nodes[[i, j, k]] = 0.;
+                legacy.pot_gro_petiole_weight_nodes[[i, j, k]] = 0.;
+                legacy.pot_gro_squares[[i, j, k]] = 0.;
+                legacy.square_weight[[i, j, k]] = 0.;
             }
         }
     }
     //
     for i in 0..9 {
-        AgeOfPreFruNode[i] = 0.;
-        LeafAreaPreFru[i] = 0.;
-        PotGroLeafAreaPreFru[i] = 0.;
-        PotGroLeafWeightPreFru[i] = 0.;
-        PotGroPetioleWeightPreFru[i] = 0.;
-        LeafWeightPreFru[i] = 0.;
-        PetioleWeightPreFru[i] = 0.;
-        NodeLayerPreFru[i] = 0;
+        legacy.age_of_pre_fru_node[i] = 0.;
+        legacy.leaf_area_pre_fru[i] = 0.;
+        legacy.pot_gro_leaf_area_pre_fru[i] = 0.;
+        legacy.pot_gro_leaf_weight_pre_fru[i] = 0.;
+        legacy.pot_gro_petiole_weight_pre_fru[i] = 0.;
+        legacy.leaf_weight_pre_fru[i] = 0.;
+        legacy.petiole_weight_pre_fru[i] = 0.;
+        legacy.node_layer_pre_fru[i] = 0;
     }
     //
     for i in 0..20 {
-        AbscissionLag[i] = 0.;
-        ShedByCarbonStress[i] = 0.;
-        ShedByNitrogenStress[i] = 0.;
-        ShedByWaterStress[i] = 0.;
+        legacy.abscission_lag[i] = 0.;
+        legacy.shed_by_carbon_stress[i] = 0.;
+        legacy.shed_by_nitrogen_stress[i] = 0.;
+        legacy.shed_by_water_stress[i] = 0.;
     }
     for i in 0..20 {
-        LeafArea[i] = 0.;
-        LeafWeightLayer[i] = 0.;
+        legacy.leaf_area[i] = 0.;
+        legacy.leaf_weight_layer[i] = 0.;
     }
-    LeafWeightLayer[0] = 0.2;
+    legacy.leaf_weight_layer[0] = 0.2;
     //
     for k in 0..maxk as usize {
-        FoliageTemp[k] = 295.;
-        MulchTemp[k] = 295.;
+        legacy.foliage_temp[k] = 295.;
+        legacy.mulch_temp[k] = 295.;
     }
     //
     for l in 0..maxl as usize {
-        rlat1[l] = 0.;
-        rlat2[l] = 0.;
+        legacy.rlat1[l] = 0.;
+        legacy.rlat2[l] = 0.;
         for k in 0..maxk as usize {
-            RootWtCapblUptake[l][k] = 0.;
-            RootImpede[l][k] = 0.;
+            legacy.root_wt_capbl_uptake[[l, k]] = 0.;
+            legacy.root_impede[[l, k]] = 0.;
         }
     }
     //
     for i in 0..365 {
-        StemWeight[i] = 0.;
+        legacy.stem_weight[i] = 0.;
     }
 }
 
@@ -1304,94 +1350,96 @@ unsafe fn InitializeGlobal() {
 /// PotGroRoots[maxl][maxk], RootAge[maxl][maxk], RootColNumLeft[maxl],
 /// RootColNumRight[maxl], RootGroFactor[maxl][maxk],
 /// RootWeight[maxl][maxk][3], TapRootLength, TotalRootWeight.
-unsafe fn InitializeRootData() {
+fn initialize_root_data(legacy: &mut LegacyGlobalState) {
     // The parameters of the root model are defined for each root class:
     // grind(i), cuind(i), thtrn(i), trn(i), thdth(i), dth(i).
-    NumRootAgeGroups = 3;
-    cgind[0] = 1.;
-    cgind[1] = 1.;
-    cgind[2] = 0.10;
+    legacy.num_root_age_groups = 3;
+    legacy.cgind[0] = 1.;
+    legacy.cgind[1] = 1.;
+    legacy.cgind[2] = 0.10;
     let rlint = 10.; // Vertical interval, in cm, along the taproot, for initiating lateral roots.
     let mut ll = 1; // Counter for layers with lateral roots.
     let mut sumdl = 0.; // Distance from soil surface to the middle of a soil layer.
-    for l in 0..nl as usize {
+    for l in 0..legacy.nl as usize {
         // Using the value of rlint (interval between lateral roots), the layers from which lateral roots may be initiated are now computed.
-        // LateralRootFlag[l] is assigned a value of 1 for these layers.
-        LateralRootFlag[l] = 0;
+        // legacy.lateral_root_flag[l] is assigned a value of 1 for these layers.
+        legacy.lateral_root_flag[l] = 0;
         if l > 0 {
-            sumdl += 0.5 * dl[l - 1];
+            sumdl += 0.5 * legacy.dl[l - 1];
         }
-        sumdl += 0.5 * dl[l];
+        sumdl += 0.5 * legacy.dl[l];
         if sumdl >= ll as f64 * rlint {
-            LateralRootFlag[l] = 1;
+            legacy.lateral_root_flag[l] = 1;
             ll += 1;
         }
     }
     // All the state variables of the root system are initialized to zero.
-    for l in 0..nl as usize {
+    for l in 0..legacy.nl as usize {
         if l < 3 {
-            RootColNumLeft[l] = PlantRowColumn - 1;
-            RootColNumRight[l] = PlantRowColumn + 2;
+            legacy.root_col_num_left[l] = legacy.plant_row_column - 1;
+            legacy.root_col_num_right[l] = legacy.plant_row_column + 2;
         } else if l < 7 {
-            RootColNumLeft[l] = PlantRowColumn;
-            RootColNumRight[l] = PlantRowColumn + 1;
+            legacy.root_col_num_left[l] = legacy.plant_row_column;
+            legacy.root_col_num_right[l] = legacy.plant_row_column + 1;
         } else {
-            RootColNumLeft[l] = 0;
-            RootColNumRight[l] = 0;
+            legacy.root_col_num_left[l] = 0;
+            legacy.root_col_num_right[l] = 0;
         }
         //
-        for k in 0..nk as usize {
-            PotGroRoots[l][k] = 0.;
-            RootGroFactor[l][k] = 1.;
-            ActualRootGrowth[l][k] = 0.;
-            RootAge[l][k] = 0.;
+        for k in 0..legacy.nk as usize {
+            legacy.pot_gro_roots[[l, k]] = 0.;
+            legacy.root_gro_factor[[l, k]] = 1.;
+            legacy.actual_root_growth[[l, k]] = 0.;
+            legacy.root_age[[l, k]] = 0.;
             for i in 0..3 {
-                RootWeight[l][k][i] = 0.;
+                legacy.root_weight[[l, k, i]] = 0.;
             }
         }
     }
     //
-    RootWeight[0][(PlantRowColumn - 1) as usize][0] = 0.0020;
-    RootWeight[0][PlantRowColumn as usize][0] = 0.0070;
-    RootWeight[0][PlantRowColumn as usize + 1][0] = 0.0070;
-    RootWeight[0][PlantRowColumn as usize + 2][0] = 0.0020;
-    RootWeight[1][(PlantRowColumn - 1) as usize][0] = 0.0040;
-    RootWeight[1][PlantRowColumn as usize][0] = 0.0140;
-    RootWeight[1][PlantRowColumn as usize + 1][0] = 0.0140;
-    RootWeight[1][PlantRowColumn as usize + 2][0] = 0.0040;
-    RootWeight[2][(PlantRowColumn - 1) as usize][0] = 0.0060;
-    RootWeight[2][PlantRowColumn as usize][0] = 0.0210;
-    RootWeight[2][PlantRowColumn as usize + 1][0] = 0.0210;
-    RootWeight[2][PlantRowColumn as usize + 2][0] = 0.0060;
-    RootWeight[3][PlantRowColumn as usize][0] = 0.0200;
-    RootWeight[3][PlantRowColumn as usize + 1][0] = 0.0200;
-    RootWeight[4][PlantRowColumn as usize][0] = 0.0150;
-    RootWeight[4][PlantRowColumn as usize + 1][0] = 0.0150;
-    RootWeight[5][PlantRowColumn as usize][0] = 0.0100;
-    RootWeight[5][PlantRowColumn as usize + 1][0] = 0.0100;
-    RootWeight[6][PlantRowColumn as usize][0] = 0.0050;
-    RootWeight[6][PlantRowColumn as usize + 1][0] = 0.0050;
+    legacy.root_weight[[0, (legacy.plant_row_column - 1) as usize, 0]] = 0.0020;
+    legacy.root_weight[[0, legacy.plant_row_column as usize, 0]] = 0.0070;
+    legacy.root_weight[[0, legacy.plant_row_column as usize + 1, 0]] = 0.0070;
+    legacy.root_weight[[0, legacy.plant_row_column as usize + 2, 0]] = 0.0020;
+    legacy.root_weight[[1, (legacy.plant_row_column - 1) as usize, 0]] = 0.0040;
+    legacy.root_weight[[1, legacy.plant_row_column as usize, 0]] = 0.0140;
+    legacy.root_weight[[1, legacy.plant_row_column as usize + 1, 0]] = 0.0140;
+    legacy.root_weight[[1, legacy.plant_row_column as usize + 2, 0]] = 0.0040;
+    legacy.root_weight[[2, (legacy.plant_row_column - 1) as usize, 0]] = 0.0060;
+    legacy.root_weight[[2, legacy.plant_row_column as usize, 0]] = 0.0210;
+    legacy.root_weight[[2, legacy.plant_row_column as usize + 1, 0]] = 0.0210;
+    legacy.root_weight[[2, legacy.plant_row_column as usize + 2, 0]] = 0.0060;
+    legacy.root_weight[[3, legacy.plant_row_column as usize, 0]] = 0.0200;
+    legacy.root_weight[[3, legacy.plant_row_column as usize + 1, 0]] = 0.0200;
+    legacy.root_weight[[4, legacy.plant_row_column as usize, 0]] = 0.0150;
+    legacy.root_weight[[4, legacy.plant_row_column as usize + 1, 0]] = 0.0150;
+    legacy.root_weight[[5, legacy.plant_row_column as usize, 0]] = 0.0100;
+    legacy.root_weight[[5, legacy.plant_row_column as usize + 1, 0]] = 0.0100;
+    legacy.root_weight[[6, legacy.plant_row_column as usize, 0]] = 0.0050;
+    legacy.root_weight[[6, legacy.plant_row_column as usize + 1, 0]] = 0.0050;
     // Start loop for all soil layers containing roots.
-    DepthLastRootLayer = 0.;
-    TotalRootWeight = 0.;
+    legacy.depth_last_root_layer = 0.;
+    legacy.total_root_weight = 0.;
     for l in 0..7 {
-        DepthLastRootLayer += dl[l]; // compute total depth to the last layer with roots (DepthLastRootLayer).
-        for k in 0..nk as usize {
-            // For each soil soil cell with roots, compute total root weight per plant (TotalRootWeight), and convert RootWeight from g per plant to g per cell.
+        legacy.depth_last_root_layer += legacy.dl[l]; // compute total depth to the last layer with roots (legacy.depth_last_root_layer).
+        for k in 0..legacy.nk as usize {
+            // For each soil soil cell with roots, compute total root weight per plant (legacy.total_root_weight), and convert legacy.root_weight from g per plant to g per cell.
             for i in 0..3 {
-                TotalRootWeight += RootWeight[l][k][i];
-                RootWeight[l][k][i] = RootWeight[l][k][i] * 0.01 * RowSpace / PerPlantArea;
+                legacy.total_root_weight += legacy.root_weight[[l, k, i]];
+                legacy.root_weight[[l, k, i]] =
+                    legacy.root_weight[[l, k, i]] * 0.01 * legacy.row_space / legacy.per_plant_area;
             }
-            // initialize RootAge to a non-zero value for each cell containing roots.
-            if RootWeight[l][k][0] > 0. {
-                RootAge[l][k] = 0.01;
+            // initialize legacy.root_age to a non-zero value for each cell containing roots.
+            if legacy.root_weight[[l, k, 0]] > 0. {
+                legacy.root_age[[l, k]] = 0.01;
             }
         }
     }
-    //     Initial value of taproot length, TapRootLength, is computed to the
+    //     Initial value of taproot length, legacy.tap_root_length, is computed to the
     // middle of the last layer with roots. The last soil layer with
-    // taproot, LastTaprootLayer, is defined.
-    NumLayersWithRoots = 7;
-    TapRootLength = DepthLastRootLayer - 0.5 * dl[(NumLayersWithRoots - 1) as usize];
-    LastTaprootLayer = 6;
+    // taproot, legacy.last_taproot_layer, is defined.
+    legacy.num_layers_with_roots = 7;
+    legacy.tap_root_length =
+        legacy.depth_last_root_layer - 0.5 * legacy.dl[(legacy.num_layers_with_roots - 1) as usize];
+    legacy.last_taproot_layer = 6;
 }

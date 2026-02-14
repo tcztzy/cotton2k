@@ -107,7 +107,7 @@ fn test_cell_distance() -> Result<(), Cotton2KError> {
 }
 
 pub fn slab_vertical_location(distance: f64) -> Result<usize, Cotton2KError> {
-    if distance > 200. || distance < 0. {
+    if !(0. ..=200.).contains(&distance) {
         Err(Cotton2KError {
             level: 1,
             message: String::from("distance out of boundary!"),

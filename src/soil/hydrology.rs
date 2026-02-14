@@ -1,19 +1,22 @@
 use crate::general_functions::{psiq, qpsi, wcond, GetFromClim, PsiOsmotic};
+use crate::model_state::{for_each_layer_col_span, for_each_row};
 use crate::utils::{fmax, fmin};
+use crate::LegacyGlobalState;
 use crate::{
     airdr, alpha, beta, conmax, dl, nk, nl, noitr, thad, thetar, thetas, thts, wk,
-    ActualSoilEvaporation, ActualTranspiration, AppliedWater, AverageSoilPsi, ClayVolumeFraction,
-    CumWaterDrained, DayStart, DayStartPredIrrig, DayStopPredIrrig, Daynum, ElCondSatSoilToday,
-    FirstBloom, FirstSquare, Irrig, IrrigMethod, IrrigationDepth, Kday, LastIrrigation,
-    LightIntercept, MaxIrrigation, MaxWaterCapacity, MinDaysBetweenIrrig, NO3FlowFraction,
-    NumGreenBolls, NumIrrigations, NumLayersWithRoots, NumOpenBolls, PerPlantArea, PoreSpace,
-    RatioImplicit, ReferenceTransp, RootColNumLeft, RootColNumRight, RootWtCapblUptake, RowSpace,
-    SandVolumeFraction, SaturatedHydCond, SoilHorizonNum, SoilNitrogenLoss, SoilPsi, SupplyNH4N,
-    SupplyNO3N, TotalRequiredN, TotalSoilNh4N, TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN,
+    ActualSoilEvaporation, ActualTranspiration, AppliedWater, AverageSoilPsi, CumWaterDrained,
+    DayStart, DayStartPredIrrig, DayStopPredIrrig, Daynum, ElCondSatSoilToday, FirstBloom,
+    FirstSquare, Irrig, IrrigMethod, IrrigationDepth, Kday, LastIrrigation, LightIntercept,
+    MaxIrrigation, MaxWaterCapacity, MinDaysBetweenIrrig, NO3FlowFraction, NumGreenBolls,
+    NumIrrigations, NumLayersWithRoots, NumOpenBolls, PerPlantArea, PoreSpace, RatioImplicit,
+    ReferenceTransp, RootColNumLeft, RootColNumRight, RootWtCapblUptake, RowSpace,
+    SaturatedHydCond, SoilHorizonNum, SoilNitrogenLoss, SoilPsi, SupplyNH4N, SupplyNO3N,
+    TotalRequiredN, TotalSoilNh4N, TotalSoilNitrogen, TotalSoilNo3N, TotalSoilUreaN,
     TotalSoilWater, VolNh4NContent, VolNo3NContent, VolUreaNContent, VolWaterContent, WaterStress,
     WaterTableLayer, CLIMATE_METRIC_RAIN,
 };
-use ndarray::Array2;
+use ndarray::{s, Array1, Array2};
+use std::sync::{LazyLock, RwLock};
 
 #[derive(Debug, Clone, Copy)]
 enum RunoffPotential {
@@ -37,8 +40,9 @@ impl SoilHydrology {
         // Other soils (loams) assumed moderate runoff potential.
         // No 'impermeable' (group D) soils are assumed.
         // References: Schwab, Brady.
-        let (surface_sand_fraction, surface_clay_fraction) =
-            unsafe { (SandVolumeFraction[0], ClayVolumeFraction[0]) };
+        let legacy = LegacyGlobalState::from_globals();
+        let surface_sand_fraction = legacy.sand_volume_fraction[0];
+        let surface_clay_fraction = legacy.clay_volume_fraction[0];
         let runoff_potential = if surface_sand_fraction > 0.70 && surface_clay_fraction < 0.15 {
             // Soil group A = 1, low runoff potential
             RunoffPotential::Low
@@ -79,8 +83,11 @@ impl SoilHydrology {
             RunoffPotential::High => 1.14,
         };
         // Loop to accumulate 5-day antecedent rainfall (mm) which will affect the soil's ability to accept new rainfall. This also includes all irrigations.
-        let (mut i01, day_start, i02, num_irrigations) =
-            unsafe { (Daynum - 5, DayStart, Daynum, NumIrrigations as usize) };
+        let legacy = LegacyGlobalState::from_globals();
+        let mut i01 = legacy.daynum - 5;
+        let day_start = legacy.day_start;
+        let i02 = legacy.daynum;
+        let num_irrigations = legacy.num_irrigations as usize;
         if i01 < day_start {
             i01 = day_start;
         }
@@ -127,290 +134,245 @@ impl SoilHydrology {
     }
 }
 
-static mut IRR1ST: bool = false;
-static mut REQUIRED_WATER: f64 = 0.0;
-static mut N_DAYS_BELOW_TARGET_STRESS: i32 = 0;
-static mut N_IRR_LAYERS: i32 = 0;
-static mut CAPILLARY_NUMITER: i64 = 0;
+#[derive(Debug, Clone, Copy)]
+struct HydrologyScratch {
+    irr1st: bool,
+    required_water: f64,
+    n_days_below_target_stress: i32,
+    n_irr_layers: i32,
+    capillary_numiter: i64,
+}
+
+static HYDROLOGY_SCRATCH: LazyLock<RwLock<HydrologyScratch>> = LazyLock::new(|| {
+    RwLock::new(HydrologyScratch {
+        irr1st: false,
+        required_water: 0.0,
+        n_days_below_target_stress: 0,
+        n_irr_layers: 0,
+        capillary_numiter: 0,
+    })
+});
+
+fn read_hydrology_scratch() -> HydrologyScratch {
+    *HYDROLOGY_SCRATCH
+        .read()
+        .expect("hydrology scratch state lock should not be poisoned")
+}
+
+fn write_hydrology_scratch(scratch: HydrologyScratch) {
+    *HYDROLOGY_SCRATCH
+        .write()
+        .expect("hydrology scratch state lock should not be poisoned") = scratch;
+}
 
 fn get_target_stress() -> f64 {
     const STRESS_TARGET: [f64; 10] = [0.70, 0.95, 0.99, 0.99, 0.99, 0.95, 0.90, 0.80, 0.60, 0.40];
 
-    unsafe {
-        let mut stop_prediction = false;
-        let mut target_stress;
-        if Kday > 0 && FirstSquare <= 0 {
-            target_stress = STRESS_TARGET[0];
-        } else if FirstBloom <= 0 {
-            target_stress = STRESS_TARGET[1];
-        } else if Daynum <= FirstBloom + 20 {
-            target_stress = STRESS_TARGET[2];
-        } else if Daynum <= FirstBloom + 40 {
-            target_stress = STRESS_TARGET[3];
-        } else if NumOpenBolls <= 0.01 {
-            target_stress = STRESS_TARGET[4];
-        } else if NumOpenBolls < 0.25 * NumGreenBolls {
-            target_stress = STRESS_TARGET[5];
-        } else if NumOpenBolls < 0.667 * NumGreenBolls {
-            target_stress = STRESS_TARGET[6];
-        } else if NumOpenBolls < 1.5 * NumGreenBolls {
-            target_stress = STRESS_TARGET[7];
-        } else if NumOpenBolls < 4.0 * NumGreenBolls {
-            target_stress = STRESS_TARGET[8];
-        } else if NumOpenBolls < 9.0 * NumGreenBolls {
-            target_stress = STRESS_TARGET[9];
-        } else {
-            stop_prediction = true;
-            target_stress = -9999.0;
-        }
-
-        if target_stress <= 0.0 {
-            stop_prediction = true;
-            target_stress = -9999.0;
-        }
-
-        if stop_prediction {
-            DayStopPredIrrig = Daynum;
-        }
-
-        target_stress
+    let mut legacy = LegacyGlobalState::from_globals();
+    let mut stop_prediction = false;
+    let mut target_stress;
+    if legacy.kday > 0 && legacy.first_square <= 0 {
+        target_stress = STRESS_TARGET[0];
+    } else if legacy.first_bloom <= 0 {
+        target_stress = STRESS_TARGET[1];
+    } else if legacy.daynum <= legacy.first_bloom + 20 {
+        target_stress = STRESS_TARGET[2];
+    } else if legacy.daynum <= legacy.first_bloom + 40 {
+        target_stress = STRESS_TARGET[3];
+    } else if legacy.num_open_bolls <= 0.01 {
+        target_stress = STRESS_TARGET[4];
+    } else if legacy.num_open_bolls < 0.25 * legacy.num_green_bolls {
+        target_stress = STRESS_TARGET[5];
+    } else if legacy.num_open_bolls < 0.667 * legacy.num_green_bolls {
+        target_stress = STRESS_TARGET[6];
+    } else if legacy.num_open_bolls < 1.5 * legacy.num_green_bolls {
+        target_stress = STRESS_TARGET[7];
+    } else if legacy.num_open_bolls < 4.0 * legacy.num_green_bolls {
+        target_stress = STRESS_TARGET[8];
+    } else if legacy.num_open_bolls < 9.0 * legacy.num_green_bolls {
+        target_stress = STRESS_TARGET[9];
+    } else {
+        stop_prediction = true;
+        target_stress = -9999.0;
     }
+
+    if target_stress <= 0.0 {
+        stop_prediction = true;
+        target_stress = -9999.0;
+    }
+
+    if stop_prediction {
+        legacy.day_stop_pred_irrig = legacy.daynum;
+        legacy.write_to_globals();
+    }
+    target_stress
 }
 fn predict_drip_irrigation(target_stress: f64) {
-    unsafe {
-        let daynum = Daynum;
-        let day_start_pred_irrig = DayStartPredIrrig;
-        let num_irrigations = NumIrrigations as usize;
-        let water_stress = WaterStress;
-        let max_irrigation = MaxIrrigation;
-        let min_days_between_irrig = MinDaysBetweenIrrig;
-        let last_irrigation = LastIrrigation;
-        let actual_transpiration = ActualTranspiration;
-        let actual_soil_evaporation = ActualSoilEvaporation;
-        let mut irr1st = IRR1ST;
-        let mut required_water = REQUIRED_WATER;
+    let mut legacy = LegacyGlobalState::from_globals();
+    let daynum = legacy.daynum;
+    let day_start_pred_irrig = legacy.day_start_pred_irrig;
+    let num_irrigations = legacy.num_irrigations as usize;
+    let water_stress = legacy.water_stress;
+    let max_irrigation = legacy.max_irrigation;
+    let min_days_between_irrig = legacy.min_days_between_irrig;
+    let last_irrigation = legacy.last_irrigation;
+    let actual_transpiration = legacy.actual_transpiration;
+    let actual_soil_evaporation = legacy.actual_soil_evaporation;
+    let mut scratch = read_hydrology_scratch();
+    let mut irr1st = scratch.irr1st;
+    let mut required_water = scratch.required_water;
 
-        let mut applied_water = None;
+    let mut applied_water = None;
 
-        if daynum <= day_start_pred_irrig {
-            irr1st = false;
+    if daynum <= day_start_pred_irrig {
+        irr1st = false;
+    }
+
+    if !irr1st {
+        let mut is_irrigated_today = false;
+        let irrig = Irrig.read().expect("Irrig lock poisoned");
+        for irrigation_index in 0..num_irrigations {
+            if irrig[irrigation_index].day == daynum
+                || GetFromClim(CLIMATE_METRIC_RAIN, daynum) > 1.0
+            {
+                is_irrigated_today = true;
+                break;
+            }
         }
 
-        if !irr1st {
-            let mut is_irrigated_today = false;
-            let irrig = Irrig.read().expect("Irrig lock poisoned");
-            for irrigation_index in 0..num_irrigations {
-                if irrig[irrigation_index].day == daynum
-                    || GetFromClim(CLIMATE_METRIC_RAIN, daynum) > 1.0
-                {
-                    is_irrigated_today = true;
-                    break;
-                }
-            }
+        if !is_irrigated_today && water_stress <= 0.99 {
+            applied_water = Some(fmin(30.0, max_irrigation));
+            irr1st = true;
+            required_water = 0.0;
+        }
+    } else {
+        required_water += actual_transpiration + actual_soil_evaporation
+            - GetFromClim(CLIMATE_METRIC_RAIN, daynum);
+        if required_water < 0.0 {
+            required_water = 0.0;
+        }
 
-            if !is_irrigated_today && water_stress <= 0.99 {
-                applied_water = Some(fmin(30.0, max_irrigation));
-                irr1st = true;
+        if (daynum - min_days_between_irrig) >= last_irrigation {
+            let mut irrigation_factor = if target_stress > water_stress {
+                1.20 * target_stress / water_stress
+            } else {
+                0.90 * target_stress / water_stress
+            };
+            irrigation_factor = irrigation_factor.clamp(0.80, 1.25);
+
+            if required_water * irrigation_factor > max_irrigation {
+                applied_water = Some(max_irrigation);
+                required_water -= max_irrigation;
+            } else {
+                applied_water = Some(required_water * irrigation_factor);
                 required_water = 0.0;
             }
-        } else {
-            required_water += actual_transpiration + actual_soil_evaporation
-                - GetFromClim(CLIMATE_METRIC_RAIN, daynum);
-            if required_water < 0.0 {
-                required_water = 0.0;
-            }
-
-            if (daynum - min_days_between_irrig) >= last_irrigation {
-                let mut irrigation_factor = if target_stress > water_stress {
-                    1.20 * target_stress / water_stress
-                } else {
-                    0.90 * target_stress / water_stress
-                };
-                irrigation_factor = irrigation_factor.clamp(0.80, 1.25);
-
-                if required_water * irrigation_factor > max_irrigation {
-                    applied_water = Some(max_irrigation);
-                    required_water -= max_irrigation;
-                } else {
-                    applied_water = Some(required_water * irrigation_factor);
-                    required_water = 0.0;
-                }
-            }
         }
+    }
 
-        IRR1ST = irr1st;
-        REQUIRED_WATER = required_water;
-        if let Some(amount) = applied_water {
-            AppliedWater = amount;
-        }
+    scratch.irr1st = irr1st;
+    scratch.required_water = required_water;
+    write_hydrology_scratch(scratch);
+    if let Some(amount) = applied_water {
+        legacy.applied_water = amount;
+        legacy.write_to_globals();
     }
 }
 fn predict_surface_irrigation(target_stress: f64) {
-    unsafe {
-        let daynum = Daynum;
-        let day_start_pred_irrig = DayStartPredIrrig;
-        let min_days_between_irrig = MinDaysBetweenIrrig;
-        let last_irrigation = LastIrrigation;
-        let water_stress = WaterStress;
-        let irrigation_depth = IrrigationDepth;
-        let max_irrigation = MaxIrrigation;
-        let row_space = RowSpace;
-        let num_layers = nl as usize;
-        let num_cols = nk as usize;
+    let mut legacy = LegacyGlobalState::from_globals();
+    let daynum = legacy.daynum;
+    let day_start_pred_irrig = legacy.day_start_pred_irrig;
+    let min_days_between_irrig = legacy.min_days_between_irrig;
+    let last_irrigation = legacy.last_irrigation;
+    let water_stress = legacy.water_stress;
+    let irrigation_depth = legacy.irrigation_depth;
+    let max_irrigation = legacy.max_irrigation;
+    let row_space = legacy.row_space;
+    let num_layers = legacy.nl as usize;
+    let num_cols = legacy.nk as usize;
 
-        let mut dl_layer = vec![0.0f64; num_layers];
-        let mut max_water_capacity = vec![0.0f64; num_layers];
-        let mut wk_col = vec![0.0f64; num_cols];
-        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
+    let mut scratch = read_hydrology_scratch();
+    let mut n_days_below_target_stress = scratch.n_days_below_target_stress;
+    let mut n_irr_layers = scratch.n_irr_layers;
+    let mut applied_water = None;
 
-        for layer in 0..num_layers {
-            dl_layer[layer] = dl[layer];
-            max_water_capacity[layer] = MaxWaterCapacity[layer];
-            for column in 0..num_cols {
-                vol_water[[layer, column]] = VolWaterContent[layer][column];
+    if daynum <= day_start_pred_irrig {
+        n_days_below_target_stress = 0;
+        let mut accumulated_depth = 0.0;
+        for (layer, depth) in legacy.dl.iter().take(num_layers).enumerate() {
+            accumulated_depth += depth;
+            if accumulated_depth > irrigation_depth {
+                n_irr_layers = layer as i32;
+                break;
             }
         }
-        for column in 0..num_cols {
-            wk_col[column] = wk[column];
-        }
+    }
 
-        let mut n_days_below_target_stress = N_DAYS_BELOW_TARGET_STRESS;
-        let mut n_irr_layers = N_IRR_LAYERS;
-        let mut applied_water = None;
-
-        if daynum <= day_start_pred_irrig {
-            n_days_below_target_stress = 0;
-            let mut accumulated_depth = 0.0;
-            for (layer, depth) in dl_layer.iter().enumerate() {
-                accumulated_depth += depth;
-                if accumulated_depth > irrigation_depth {
-                    n_irr_layers = layer as i32;
-                    break;
-                }
-            }
-        }
-
-        if (daynum - min_days_between_irrig) >= (last_irrigation - 2)
-            && daynum > day_start_pred_irrig
-            && water_stress < target_stress
-        {
-            n_days_below_target_stress += 1;
-            if n_days_below_target_stress >= 3 {
-                let mut required_water = 0.0;
-                for layer in 0..n_irr_layers.max(0) as usize {
-                    for column in 0..num_cols {
-                        let deficit = max_water_capacity[layer] - vol_water[[layer, column]];
-                        required_water += dl_layer[layer] * wk_col[column] * deficit;
+    if (daynum - min_days_between_irrig) >= (last_irrigation - 2)
+        && daynum > day_start_pred_irrig
+        && water_stress < target_stress
+    {
+        n_days_below_target_stress += 1;
+        if n_days_below_target_stress >= 3 {
+            let mut required_water = 0.0;
+            for_each_row(
+                &legacy.vol_water_content,
+                n_irr_layers.max(0) as usize,
+                |layer, row| {
+                    for (column, &vol_water) in row.iter().take(num_cols).enumerate() {
+                        let deficit = legacy.max_water_capacity[layer] - vol_water;
+                        required_water += legacy.dl[layer] * legacy.wk[column] * deficit;
                     }
-                }
+                },
+            );
 
-                let mut amount = required_water * 10.0 / row_space;
-                if amount > max_irrigation {
-                    amount = max_irrigation;
-                }
-                applied_water = Some(amount);
-                n_days_below_target_stress = 0;
+            let mut amount = required_water * 10.0 / row_space;
+            if amount > max_irrigation {
+                amount = max_irrigation;
             }
+            applied_water = Some(amount);
+            n_days_below_target_stress = 0;
         }
+    }
 
-        N_DAYS_BELOW_TARGET_STRESS = n_days_below_target_stress;
-        N_IRR_LAYERS = n_irr_layers;
-        if let Some(amount) = applied_water {
-            AppliedWater = amount;
-        }
+    scratch.n_days_below_target_stress = n_days_below_target_stress;
+    scratch.n_irr_layers = n_irr_layers;
+    write_hydrology_scratch(scratch);
+    if let Some(amount) = applied_water {
+        legacy.applied_water = amount;
+        legacy.write_to_globals();
     }
 }
 pub fn average_psi() -> f64 {
     const VRCUMIN: f64 = 0.1e-9;
     const VRCUMAX: f64 = 0.025;
 
+    let legacy = LegacyGlobalState::from_globals();
     let mut psinum = [0.0; 9];
     let mut sumwat = [0.0; 9];
     let mut sumdl = [0.0; 9];
 
-    let (
-        num_layers,
-        root_left,
-        root_right,
-        soil_horizon,
-        dl_layer,
-        wk_col,
-        root_uptake,
-        vol_water,
-        airdr_horizon,
-        thetas_horizon,
-        alpha_horizon,
-        beta_horizon,
-        el_cond_sat_soil,
-    ) = unsafe {
-        let num_layers = NumLayersWithRoots as usize;
-        let mut root_left = vec![0usize; num_layers];
-        let mut root_right = vec![0usize; num_layers];
-        let mut soil_horizon = vec![0usize; num_layers];
-        let mut dl_layer = vec![0.0f64; num_layers];
-        for layer in 0..num_layers {
-            root_left[layer] = RootColNumLeft[layer] as usize;
-            root_right[layer] = RootColNumRight[layer] as usize;
-            soil_horizon[layer] = SoilHorizonNum[layer] as usize;
-            dl_layer[layer] = dl[layer];
-        }
-
-        let num_cols = nk as usize;
-        let mut wk_col = vec![0.0f64; num_cols];
-        for column in 0..num_cols {
-            wk_col[column] = wk[column];
-        }
-
-        let mut root_uptake = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
-        for layer in 0..num_layers {
-            for column in 0..num_cols {
-                root_uptake[[layer, column]] = RootWtCapblUptake[layer][column];
-                vol_water[[layer, column]] = VolWaterContent[layer][column];
-            }
-        }
-
-        let mut airdr_horizon = [0.0f64; 9];
-        let mut thetas_horizon = [0.0f64; 9];
-        let mut alpha_horizon = [0.0f64; 9];
-        let mut beta_horizon = [0.0f64; 9];
-        for horizon in 0..9 {
-            airdr_horizon[horizon] = airdr[horizon];
-            thetas_horizon[horizon] = thetas[horizon];
-            alpha_horizon[horizon] = alpha[horizon];
-            beta_horizon[horizon] = beta[horizon];
-        }
-        let el_cond_sat_soil = ElCondSatSoilToday;
-
-        (
-            num_layers,
-            root_left,
-            root_right,
-            soil_horizon,
-            dl_layer,
-            wk_col,
-            root_uptake,
-            vol_water,
-            airdr_horizon,
-            thetas_horizon,
-            alpha_horizon,
-            beta_horizon,
-            el_cond_sat_soil,
-        )
-    };
+    let num_layers = legacy.num_layers_with_roots as usize;
 
     for layer in 0..num_layers {
-        let horizon = soil_horizon[layer];
-        sumdl[horizon] += dl_layer[layer];
-        for column in root_left[layer]..=root_right[layer] {
-            let uptake = root_uptake[[layer, column]];
+        let horizon = legacy.soil_horizon_num[layer] as usize;
+        sumdl[horizon] += legacy.dl[layer];
+    }
+    for_each_layer_col_span(
+        num_layers,
+        legacy.nk as usize,
+        legacy.root_col_num_left.as_slice().unwrap(),
+        legacy.root_col_num_right.as_slice().unwrap(),
+        |layer, column| {
+            let horizon = legacy.soil_horizon_num[layer] as usize;
+            let uptake = legacy.root_wt_capbl_uptake[[layer, column]];
             if uptake >= VRCUMIN {
-                let weight = dl_layer[layer] * wk_col[column] * fmin(uptake, VRCUMAX);
-                sumwat[horizon] += vol_water[[layer, column]] * weight;
+                let weight = legacy.dl[layer] * legacy.wk[column] * fmin(uptake, VRCUMAX);
+                sumwat[horizon] += legacy.vol_water_content[[layer, column]] * weight;
                 psinum[horizon] += weight;
             }
-        }
-    }
+        },
+    );
 
     let mut sumpsi = 0.0;
     let mut sumnum = 0.0;
@@ -419,11 +381,15 @@ pub fn average_psi() -> f64 {
             let avgwat = sumwat[horizon] / psinum[horizon];
             let avgpsi = psiq(
                 avgwat,
-                airdr_horizon[horizon],
-                thetas_horizon[horizon],
-                alpha_horizon[horizon],
-                beta_horizon[horizon],
-            ) - PsiOsmotic(avgwat, thetas_horizon[horizon], el_cond_sat_soil);
+                legacy.airdr[horizon],
+                legacy.thetas[horizon],
+                legacy.alpha[horizon],
+                legacy.beta[horizon],
+            ) - PsiOsmotic(
+                avgwat,
+                legacy.thetas[horizon],
+                legacy.el_cond_sat_soil_today,
+            );
             sumpsi += avgpsi * psinum[horizon];
             sumnum += psinum[horizon];
         }
@@ -511,47 +477,34 @@ fn nitrogen_uptake(
 }
 
 pub fn soil_sum() {
-    unsafe {
-        let num_layers = nl as usize;
-        let num_cols = nk as usize;
-        let row_space = RowSpace;
+    let mut legacy = LegacyGlobalState::from_globals();
+    let num_layers = legacy.nl as usize;
+    let num_cols = legacy.nk as usize;
 
-        let mut dl_layer = vec![0.0f64; num_layers];
-        for layer in 0..num_layers {
-            dl_layer[layer] = dl[layer];
-        }
-        let mut wk_col = vec![0.0f64; num_cols];
+    let mut total_soil_no3 = 0.0;
+    let mut total_soil_nh4 = 0.0;
+    let mut total_soil_urea = 0.0;
+    let mut total_soil_water = 0.0;
+    for_each_row(&legacy.vol_water_content, num_layers, |layer, water_row| {
+        let no3_row = legacy.vol_no3_n_content.row(layer);
+        let nh4_row = legacy.vol_nh4_n_content.row(layer);
+        let urea_row = legacy.vol_urea_n_content.row(layer);
+        let layer_depth = legacy.dl[layer];
         for column in 0..num_cols {
-            wk_col[column] = wk[column];
+            let area = layer_depth * legacy.wk[column];
+            total_soil_no3 += no3_row[column] * area;
+            total_soil_nh4 += nh4_row[column] * area;
+            total_soil_urea += urea_row[column] * area;
+            total_soil_water += water_row[column] * area;
         }
+    });
 
-        let mut vol_no3 = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut vol_nh4 = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut vol_urea = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
-        for layer in 0..num_layers {
-            for column in 0..num_cols {
-                vol_no3[[layer, column]] = VolNo3NContent[layer][column];
-                vol_nh4[[layer, column]] = VolNh4NContent[layer][column];
-                vol_urea[[layer, column]] = VolUreaNContent[layer][column];
-                vol_water[[layer, column]] = VolWaterContent[layer][column];
-            }
-        }
-
-        let cell_area = Array2::from_shape_fn((num_layers, num_cols), |(layer, column)| {
-            dl_layer[layer] * wk_col[column]
-        });
-        let total_soil_no3 = (&vol_no3 * &cell_area).sum();
-        let total_soil_nh4 = (&vol_nh4 * &cell_area).sum();
-        let total_soil_urea = (&vol_urea * &cell_area).sum();
-        let total_soil_water = (&vol_water * &cell_area).sum();
-
-        TotalSoilNo3N = total_soil_no3;
-        TotalSoilNh4N = total_soil_nh4;
-        TotalSoilUreaN = total_soil_urea;
-        TotalSoilNitrogen = TotalSoilNo3N + TotalSoilNh4N + TotalSoilUreaN;
-        TotalSoilWater = total_soil_water * 10.0 / row_space;
-    }
+    legacy.total_soil_no3_n = total_soil_no3;
+    legacy.total_soil_nh4_n = total_soil_nh4;
+    legacy.total_soil_urea_n = total_soil_urea;
+    legacy.total_soil_nitrogen = total_soil_no3 + total_soil_nh4 + total_soil_urea;
+    legacy.total_soil_water = total_soil_water * 10.0 / legacy.row_space;
+    legacy.write_to_globals();
 }
 fn water_balance(q1: &mut [f64; 40], qx: &[f64; 40], dd: &[f64; 40], nn: usize) {
     let mut dev = 0.0;
@@ -628,7 +581,7 @@ fn nitrogen_flow(
     }
 }
 
-unsafe fn water_flux(
+fn water_flux(
     q1: &mut [f64; 40],
     psi1: &mut [f64; 40],
     dd: &[f64; 40],
@@ -638,23 +591,37 @@ unsafe fn water_flux(
     nn: usize,
     iv: i32,
     ll: usize,
+    noitr_value: i32,
+    soil_horizon_num: &Array1<i32>,
+    beta_profile: &Array1<f64>,
+    saturated_hyd_cond_profile: &Array1<f64>,
+    alpha_profile: &Array1<f64>,
+    ratio_implicit: f64,
+    conmax_value: f64,
     numiter: i64,
 ) {
     if nn < 2 {
         return;
     }
 
-    let delt = 1.0 / noitr as f64;
+    let delt = 1.0 / noitr_value as f64;
     let mut cond = [0.0; 40];
     let mut kx = [0.0; 40];
     let mut ky = [0.0; 40];
 
-    let mut j = SoilHorizonNum[ll] as usize;
+    let mut j = soil_horizon_num[ll] as usize;
     for i in 0..nn {
         if iv == 1 {
-            j = SoilHorizonNum[i] as usize;
+            j = soil_horizon_num[i] as usize;
         }
-        cond[i] = wcond(q1[i], qr1[i], qs1[i], beta[j], SaturatedHydCond[j], pp1[i]);
+        cond[i] = wcond(
+            q1[i],
+            qr1[i],
+            qs1[i],
+            beta_profile[j],
+            saturated_hyd_cond_profile[j],
+            pp1[i],
+        );
         kx[i] = 0.0;
         ky[i] = 0.0;
     }
@@ -687,11 +654,11 @@ unsafe fn water_flux(
             deltpsi += 0.001 * dy[i];
         }
         let mut dumm1 = 1000.0 * avcond[i] * delt / dy[i];
-        if dumm1 > conmax * dy[i] {
-            dumm1 = conmax * dy[i];
+        if dumm1 > conmax_value * dy[i] {
+            dumm1 = conmax_value * dy[i];
         }
 
-        let mut dqq1 = (1.0 - RatioImplicit) * deltpsi * dumm1;
+        let mut dqq1 = (1.0 - ratio_implicit) * deltpsi * dumm1;
         let mut deltq = qx[i - 1] - qx[i];
         if dqq1.abs() > (0.25 * deltq).abs() {
             if (deltq > 0.0 && dqq1 < 0.0) || (deltq < 0.0 && dqq1 > 0.0) {
@@ -707,11 +674,11 @@ unsafe fn water_flux(
             deltpsi -= 0.001 * dy[i + 1];
         }
         dumm1 = 1000.0 * avcond[i + 1] * delt / dy[i + 1];
-        if dumm1 > conmax * dy[i + 1] {
-            dumm1 = conmax * dy[i + 1];
+        if dumm1 > conmax_value * dy[i + 1] {
+            dumm1 = conmax_value * dy[i + 1];
         }
 
-        let mut dqq2 = (1.0 - RatioImplicit) * deltpsi * dumm1;
+        let mut dqq2 = (1.0 - ratio_implicit) * deltpsi * dumm1;
         if dqq2.abs() > (0.25 * deltq).abs() {
             if (deltq > 0.0 && dqq2 < 0.0) || (deltq < 0.0 && dqq2 > 0.0) {
                 dqq2 = 0.0;
@@ -732,9 +699,9 @@ unsafe fn water_flux(
     for i in 0..nn {
         q1[i] = qx[i] + addq[i];
         if iv == 1 {
-            j = SoilHorizonNum[i] as usize;
+            j = soil_horizon_num[i] as usize;
         }
-        psi1[i] = psiq(q1[i], qr1[i], qs1[i], alpha[j], beta[j]);
+        psi1[i] = psiq(q1[i], qr1[i], qs1[i], alpha_profile[j], beta_profile[j]);
     }
 
     for i in 1..nn {
@@ -742,8 +709,8 @@ unsafe fn water_flux(
         if ky[i] < 0.0000001 {
             ky[i] = 0.0;
         }
-        if ky[i] > conmax {
-            ky[i] = conmax;
+        if ky[i] > conmax_value {
+            ky[i] = conmax_value;
         }
     }
     for i in 0..(nn - 1) {
@@ -751,8 +718,8 @@ unsafe fn water_flux(
         if kx[i] < 0.0000001 {
             kx[i] = 0.0;
         }
-        if kx[i] > conmax {
-            kx[i] = conmax;
+        if kx[i] > conmax_value {
+            kx[i] = conmax_value;
         }
     }
 
@@ -764,15 +731,15 @@ unsafe fn water_flux(
     let mut dau = [0.0; 40];
 
     for i in 0..nn {
-        a1[i] = -kx[i] * RatioImplicit;
-        b1[i] = 1.0 + RatioImplicit * (kx[i] + ky[i]);
-        cc1[i] = -ky[i] * RatioImplicit;
+        a1[i] = -kx[i] * ratio_implicit;
+        b1[i] = 1.0 + ratio_implicit * (kx[i] + ky[i]);
+        cc1[i] = -ky[i] * ratio_implicit;
         if iv == 1 {
-            j = SoilHorizonNum[i] as usize;
-            a1[i] -= 0.001 * kx[i] * RatioImplicit;
-            cc1[i] += 0.001 * ky[i] * RatioImplicit;
+            j = soil_horizon_num[i] as usize;
+            a1[i] -= 0.001 * kx[i] * ratio_implicit;
+            cc1[i] += 0.001 * ky[i] * ratio_implicit;
         }
-        d1[i] = psiq(q1[i], qr1[i], qs1[i], alpha[j], beta[j]);
+        d1[i] = psiq(q1[i], qr1[i], qs1[i], alpha_profile[j], beta_profile[j]);
     }
 
     if numiter % 2 == 0 {
@@ -784,15 +751,15 @@ unsafe fn water_flux(
             cau[i] = (d1[i] - a1[i] * cau[i + 1]) / p;
         }
         if iv == 1 {
-            j = SoilHorizonNum[0] as usize;
+            j = soil_horizon_num[0] as usize;
         }
-        psi1[0] = psiq(q1[0], qr1[0], qs1[0], alpha[j], beta[j]);
+        psi1[0] = psiq(q1[0], qr1[0], qs1[0], alpha_profile[j], beta_profile[j]);
         for i in 1..(nn - 1) {
             if iv == 1 {
-                j = SoilHorizonNum[i] as usize;
+                j = soil_horizon_num[i] as usize;
             }
             psi1[i] = dau[i] * psi1[i - 1] + cau[i];
-            q1[i] = qpsi(psi1[i], qr1[i], qs1[i], alpha[j], beta[j]);
+            q1[i] = qpsi(psi1[i], qr1[i], qs1[i], alpha_profile[j], beta_profile[j]);
         }
     } else {
         cau[0] = psi1[0];
@@ -803,15 +770,21 @@ unsafe fn water_flux(
             cau[i] = (d1[i] - a1[i] * cau[i - 1]) / p;
         }
         if iv == 1 {
-            j = SoilHorizonNum[nn - 1] as usize;
+            j = soil_horizon_num[nn - 1] as usize;
         }
-        psi1[nn - 1] = psiq(q1[nn - 1], qr1[nn - 1], qs1[nn - 1], alpha[j], beta[j]);
+        psi1[nn - 1] = psiq(
+            q1[nn - 1],
+            qr1[nn - 1],
+            qs1[nn - 1],
+            alpha_profile[j],
+            beta_profile[j],
+        );
         for i in (1..(nn - 1)).rev() {
             if iv == 1 {
-                j = SoilHorizonNum[i] as usize;
+                j = soil_horizon_num[i] as usize;
             }
             psi1[i] = dau[i] * psi1[i + 1] + cau[i];
-            q1[i] = qpsi(psi1[i], qr1[i], qs1[i], alpha[j], beta[j]);
+            q1[i] = qpsi(psi1[i], qr1[i], qs1[i], alpha_profile[j], beta_profile[j]);
         }
     }
 
@@ -824,81 +797,192 @@ unsafe fn water_flux(
     water_balance(q1, &qx, dd, nn);
 }
 
-pub unsafe fn drain() -> f64 {
-    let mut nlx = nl;
-    if WaterTableLayer < nlx {
-        nlx = WaterTableLayer;
+pub fn drain() -> f64 {
+    let mut legacy = LegacyGlobalState::from_globals();
+    let drainage = drain_with_legacy(&mut legacy);
+    legacy.write_to_globals();
+    drainage
+}
+
+fn drain_with_legacy(legacy: &mut LegacyGlobalState) -> f64 {
+    fn nutrient_concentration(content: f64, water_content: f64) -> f64 {
+        let concentration = content / water_content;
+        if concentration < 1e-30 {
+            0.0
+        } else {
+            concentration
+        }
+    }
+
+    fn move_mobile_nutrients(
+        moved_water: f64,
+        nitconc: f64,
+        nurconc: f64,
+        no3_flow_fraction: f64,
+        layer_depth_ratio: f64,
+    ) -> ((f64, f64), (f64, f64)) {
+        let vno3mov = moved_water * nitconc;
+        let vnurmov = moved_water * nurconc;
+        (
+            (
+                no3_flow_fraction * vno3mov * layer_depth_ratio,
+                (1.0 - no3_flow_fraction) * vno3mov,
+            ),
+            (
+                no3_flow_fraction * vnurmov * layer_depth_ratio,
+                (1.0 - no3_flow_fraction) * vnurmov,
+            ),
+        )
+    }
+
+    fn transfer_mobile_nutrients_between_layers(
+        legacy: &mut LegacyGlobalState,
+        layer: usize,
+        column: usize,
+        old_water_content: f64,
+        moved_water: f64,
+        uplimit: f64,
+        no3_flow_fraction: f64,
+        layer_depth_ratio: f64,
+    ) {
+        if moved_water <= 0.0 {
+            return;
+        }
+        let nitconc =
+            nutrient_concentration(legacy.vol_no3_n_content[[layer, column]], old_water_content);
+        let nurconc = nutrient_concentration(
+            legacy.vol_urea_n_content[[layer, column]],
+            old_water_content,
+        );
+        legacy.vol_no3_n_content[[layer, column]] = uplimit * nitconc;
+        legacy.vol_urea_n_content[[layer, column]] = uplimit * nurconc;
+
+        let ((no3_to_lower, no3_retain), (urea_to_lower, urea_retain)) = move_mobile_nutrients(
+            moved_water,
+            nitconc,
+            nurconc,
+            no3_flow_fraction,
+            layer_depth_ratio,
+        );
+        legacy.vol_no3_n_content[[layer + 1, column]] += no3_to_lower;
+        legacy.vol_no3_n_content[[layer, column]] += no3_retain;
+        legacy.vol_urea_n_content[[layer + 1, column]] += urea_to_lower;
+        legacy.vol_urea_n_content[[layer, column]] += urea_retain;
+    }
+
+    fn drain_bottom_cell(
+        legacy: &mut LegacyGlobalState,
+        layer: usize,
+        column: usize,
+        old_water_content: f64,
+        layer_depth: f64,
+        col_width: f64,
+    ) -> f64 {
+        if legacy.vol_water_content[[layer, column]] <= legacy.max_water_capacity[layer] {
+            return 0.0;
+        }
+        let drainage = (legacy.vol_water_content[[layer, column]]
+            - legacy.max_water_capacity[layer])
+            * layer_depth
+            * col_width;
+        let nitconc =
+            nutrient_concentration(legacy.vol_no3_n_content[[layer, column]], old_water_content);
+        let nurconc = nutrient_concentration(
+            legacy.vol_urea_n_content[[layer, column]],
+            old_water_content,
+        );
+        let saved_nitrogen = (legacy.vol_no3_n_content[[layer, column]]
+            + legacy.vol_urea_n_content[[layer, column]])
+            * layer_depth
+            * col_width;
+        legacy.vol_water_content[[layer, column]] = legacy.max_water_capacity[layer];
+        legacy.vol_no3_n_content[[layer, column]] = nitconc * legacy.max_water_capacity[layer];
+        legacy.vol_urea_n_content[[layer, column]] = nurconc * legacy.max_water_capacity[layer];
+        let remaining_nitrogen = (legacy.vol_no3_n_content[[layer, column]]
+            + legacy.vol_urea_n_content[[layer, column]])
+            * layer_depth
+            * col_width;
+        legacy.soil_nitrogen_loss += saved_nitrogen - remaining_nitrogen;
+        drainage
+    }
+
+    let mut nlx = legacy.nl;
+    if legacy.water_table_layer < nlx {
+        nlx = legacy.water_table_layer;
     }
     if nlx <= 0 {
         return 0.0;
     }
 
-    let mut oldvh2oc = [0.0; 20];
-    for k in 0..nk as usize {
-        oldvh2oc[k] = VolWaterContent[nlx as usize - 1][k];
-    }
+    let num_cols = legacy.nk as usize;
+    let mut oldvh2oc = vec![0.0; num_cols];
+    oldvh2oc.copy_from_slice(
+        legacy
+            .vol_water_content
+            .slice(s![nlx as usize - 1, 0..num_cols])
+            .as_slice()
+            .expect("water row should be contiguous"),
+    );
 
     for l in 0..(nlx as usize).saturating_sub(1) {
-        let mut avwl = 0.0;
-        for k in 0..nk as usize {
-            avwl += VolWaterContent[l][k] * wk[k] / RowSpace;
-            oldvh2oc[k] = VolWaterContent[l][k];
-        }
+        let upper_water_before = legacy
+            .vol_water_content
+            .slice(s![l, 0..num_cols])
+            .to_owned();
+        oldvh2oc.copy_from_slice(
+            upper_water_before
+                .as_slice()
+                .expect("owned row should be contiguous"),
+        );
+        let avwl = upper_water_before
+            .iter()
+            .zip(legacy.wk.iter().take(num_cols))
+            .map(|(&vol_water, &col_width)| vol_water * col_width / legacy.row_space)
+            .sum::<f64>();
 
-        let uplimit = MaxWaterCapacity[l];
+        let uplimit = legacy.max_water_capacity[l];
+        let layer_depth_ratio = legacy.dl[l] / legacy.dl[l + 1];
+        let no3_flow_fraction = legacy.no3_flow_fraction[l];
         if avwl > uplimit {
             let mut wmov = avwl - uplimit;
-            wmov = wmov * dl[l] / dl[l + 1];
-            for k in 0..nk as usize {
-                VolWaterContent[l][k] = uplimit;
-                VolWaterContent[l + 1][k] += wmov * wk[k] * nk as f64 / RowSpace;
+            wmov *= layer_depth_ratio;
+            legacy
+                .vol_water_content
+                .slice_mut(s![l, 0..num_cols])
+                .fill(uplimit);
+            for k in 0..num_cols {
+                let col_width = legacy.wk[k];
+                legacy.vol_water_content[[l + 1, k]] +=
+                    wmov * col_width * legacy.nk as f64 / legacy.row_space;
 
                 let qvout = oldvh2oc[k] - uplimit;
-                if qvout > 0.0 {
-                    let mut nitconc = VolNo3NContent[l][k] / oldvh2oc[k];
-                    if nitconc < 1e-30 {
-                        nitconc = 0.0;
-                    }
-                    let mut nurconc = VolUreaNContent[l][k] / oldvh2oc[k];
-                    if nurconc < 1e-30 {
-                        nurconc = 0.0;
-                    }
-                    VolNo3NContent[l][k] = VolWaterContent[l][k] * nitconc;
-                    VolUreaNContent[l][k] = VolWaterContent[l][k] * nurconc;
-
-                    let vno3mov = qvout * nitconc;
-                    VolNo3NContent[l + 1][k] += NO3FlowFraction[l] * vno3mov * dl[l] / dl[l + 1];
-                    VolNo3NContent[l][k] += (1.0 - NO3FlowFraction[l]) * vno3mov;
-
-                    let vnurmov = qvout * nurconc;
-                    VolUreaNContent[l + 1][k] += NO3FlowFraction[l] * vnurmov * dl[l] / dl[l + 1];
-                    VolUreaNContent[l][k] += (1.0 - NO3FlowFraction[l]) * vnurmov;
-                }
+                transfer_mobile_nutrients_between_layers(
+                    legacy,
+                    l,
+                    k,
+                    oldvh2oc[k],
+                    qvout,
+                    uplimit,
+                    no3_flow_fraction,
+                    layer_depth_ratio,
+                );
             }
         } else {
-            for k in 0..nk as usize {
-                if VolWaterContent[l][k] > uplimit {
-                    let wmov = VolWaterContent[l][k] - uplimit;
-                    VolWaterContent[l][k] = uplimit;
-                    VolWaterContent[l + 1][k] += wmov * dl[l] / dl[l + 1];
-
-                    let mut nitconc = VolNo3NContent[l][k] / oldvh2oc[k];
-                    if nitconc < 1e-30 {
-                        nitconc = 0.0;
-                    }
-                    let mut nurconc = VolUreaNContent[l][k] / oldvh2oc[k];
-                    if nurconc < 1e-30 {
-                        nurconc = 0.0;
-                    }
-                    VolNo3NContent[l][k] = VolWaterContent[l][k] * nitconc;
-                    VolUreaNContent[l][k] = VolWaterContent[l][k] * nurconc;
-
-                    VolNo3NContent[l + 1][k] +=
-                        NO3FlowFraction[l] * wmov * nitconc * dl[l] / dl[l + 1];
-                    VolUreaNContent[l + 1][k] +=
-                        NO3FlowFraction[l] * wmov * nurconc * dl[l] / dl[l + 1];
-                    VolNo3NContent[l][k] += (1.0 - NO3FlowFraction[l]) * wmov * nitconc;
-                    VolUreaNContent[l][k] += (1.0 - NO3FlowFraction[l]) * wmov * nurconc;
+            for k in 0..num_cols {
+                if legacy.vol_water_content[[l, k]] > uplimit {
+                    let wmov = legacy.vol_water_content[[l, k]] - uplimit;
+                    legacy.vol_water_content[[l, k]] = uplimit;
+                    legacy.vol_water_content[[l + 1, k]] += wmov * layer_depth_ratio;
+                    transfer_mobile_nutrients_between_layers(
+                        legacy,
+                        l,
+                        k,
+                        oldvh2oc[k],
+                        wmov,
+                        uplimit,
+                        no3_flow_fraction,
+                        layer_depth_ratio,
+                    );
                 }
             }
         }
@@ -906,68 +990,39 @@ pub unsafe fn drain() -> f64 {
 
     let mut drainage = 0.0;
     let bottom_layer = nlx as usize - 1;
-    for k in 0..nk as usize {
-        if VolWaterContent[bottom_layer][k] > MaxWaterCapacity[bottom_layer] {
-            drainage += (VolWaterContent[bottom_layer][k] - MaxWaterCapacity[bottom_layer])
-                * dl[bottom_layer]
-                * wk[k];
-
-            let mut nitconc = VolNo3NContent[bottom_layer][k] / oldvh2oc[k];
-            if nitconc < 1e-30 {
-                nitconc = 0.0;
-            }
-            let mut nurconc = VolUreaNContent[bottom_layer][k] / oldvh2oc[k];
-            if nurconc < 1e-30 {
-                nurconc = 0.0;
-            }
-
-            let saven = (VolNo3NContent[bottom_layer][k] + VolUreaNContent[bottom_layer][k])
-                * dl[bottom_layer]
-                * wk[k];
-            VolWaterContent[bottom_layer][k] = MaxWaterCapacity[bottom_layer];
-            VolNo3NContent[bottom_layer][k] = nitconc * MaxWaterCapacity[bottom_layer];
-            VolUreaNContent[bottom_layer][k] = nurconc * MaxWaterCapacity[bottom_layer];
-            SoilNitrogenLoss += saven
-                - (VolNo3NContent[bottom_layer][k] + VolUreaNContent[bottom_layer][k])
-                    * dl[bottom_layer]
-                    * wk[k];
-        }
+    for k in 0..num_cols {
+        drainage += drain_bottom_cell(
+            legacy,
+            bottom_layer,
+            k,
+            oldvh2oc[k],
+            legacy.dl[bottom_layer],
+            legacy.wk[k],
+        );
     }
 
     drainage
 }
 
-pub unsafe fn capillary_flow() {
+pub fn capillary_flow() {
+    let mut legacy = LegacyGlobalState::from_globals();
+    let mut scratch = read_hydrology_scratch();
     let mut wk1 = [0.0; 40];
-    if Daynum <= DayStart {
-        CAPILLARY_NUMITER = 0;
-        for layer in 0..nl as usize {
+    if legacy.daynum <= legacy.day_start {
+        scratch.capillary_numiter = 0;
+        for layer in 0..legacy.nl as usize {
             wk1[layer] = 0.0;
         }
     }
 
-    CAPILLARY_NUMITER += 1;
+    scratch.capillary_numiter += 1;
+    let capillary_numiter = scratch.capillary_numiter;
 
-    for layer in 0..nl as usize {
-        let horizon = SoilHorizonNum[layer] as usize;
-        for column in 0..nk as usize {
-            SoilPsi[layer][column] = psiq(
-                VolWaterContent[layer][column],
-                thad[layer],
-                thts[layer],
-                alpha[horizon],
-                beta[horizon],
-            ) - PsiOsmotic(
-                VolWaterContent[layer][column],
-                thts[layer],
-                ElCondSatSoilToday,
-            );
-        }
-    }
+    recompute_soil_psi_grid(&mut legacy);
 
-    let mut nlx = nl;
-    if WaterTableLayer < nlx {
-        nlx = WaterTableLayer - 1;
+    let mut nlx = legacy.nl;
+    if legacy.water_table_layer < nlx {
+        nlx = legacy.water_table_layer - 1;
     }
 
     let mut q01 = [0.0; 40];
@@ -980,27 +1035,26 @@ pub unsafe fn capillary_flow() {
     let mut thad1 = [0.0; 40];
     let mut thts1 = [0.0; 40];
     let mut ps1 = [0.0; 40];
-    for layer in 0..nl as usize {
-        dl1[layer] = dl[layer];
-        thad1[layer] = thad[layer];
-        thts1[layer] = thts[layer];
-        ps1[layer] = PoreSpace[layer];
+    for layer in 0..legacy.nl as usize {
+        dl1[layer] = legacy.dl[layer];
+        thad1[layer] = legacy.thad[layer];
+        thts1[layer] = legacy.thts[layer];
+        ps1[layer] = legacy.pore_space[layer];
     }
 
     if nlx > 0 {
-        for column in 0..nk as usize {
-            for layer in 0..nlx as usize {
-                q1[layer] = VolWaterContent[layer][column];
-                q01[layer] = VolWaterContent[layer][column];
-                psi1[layer] = SoilPsi[layer][column]
-                    + PsiOsmotic(
-                        VolWaterContent[layer][column],
-                        thts[layer],
-                        ElCondSatSoilToday,
-                    );
-                nit[layer] = VolNo3NContent[layer][column];
-                nur[layer] = VolUreaNContent[layer][column];
-            }
+        let n_cols = legacy.nk as usize;
+        for column in 0..n_cols {
+            load_vertical_flux_profiles(
+                &legacy,
+                column,
+                nlx as usize,
+                &mut q1,
+                &mut q01,
+                &mut psi1,
+                &mut nit,
+                &mut nur,
+            );
 
             water_flux(
                 &mut q1,
@@ -1012,21 +1066,18 @@ pub unsafe fn capillary_flow() {
                 nlx as usize,
                 1,
                 0,
-                CAPILLARY_NUMITER,
+                legacy.noitr,
+                &legacy.soil_horizon_num,
+                &legacy.beta,
+                &legacy.saturated_hyd_cond,
+                &legacy.alpha,
+                legacy.ratio_implicit,
+                legacy.conmax,
+                capillary_numiter,
             );
-            nitrogen_flow(nl as usize, &q01, &q1, &dl1, &mut nit, &mut nur);
+            nitrogen_flow(legacy.nl as usize, &q01, &q1, &dl1, &mut nit, &mut nur);
 
-            for layer in 0..nlx as usize {
-                VolWaterContent[layer][column] = q1[layer];
-                VolNo3NContent[layer][column] = nit[layer];
-                VolUreaNContent[layer][column] = nur[layer];
-                SoilPsi[layer][column] = psi1[layer]
-                    - PsiOsmotic(
-                        VolWaterContent[layer][column],
-                        thts[layer],
-                        ElCondSatSoilToday,
-                    );
-            }
+            store_vertical_flux_profiles(&mut legacy, column, nlx as usize, &q1, &psi1, &nit, &nur);
         }
 
         let mut pp1 = [0.0; 40];
@@ -1034,22 +1085,10 @@ pub unsafe fn capillary_flow() {
         let mut qs1 = [0.0; 40];
 
         for layer in 0..nlx as usize {
-            for column in 0..nk as usize {
-                q1[column] = VolWaterContent[layer][column];
-                q01[column] = VolWaterContent[layer][column];
-                psi1[column] = SoilPsi[layer][column]
-                    + PsiOsmotic(
-                        VolWaterContent[layer][column],
-                        thts[layer],
-                        ElCondSatSoilToday,
-                    );
-                qr1[column] = thad[layer];
-                qs1[column] = thts[layer];
-                pp1[column] = PoreSpace[layer];
-                nit[column] = VolNo3NContent[layer][column];
-                nur[column] = VolUreaNContent[layer][column];
-                wk1[column] = wk[column];
-            }
+            load_horizontal_flux_profiles(
+                &legacy, layer, n_cols, &mut q1, &mut q01, &mut psi1, &mut nit, &mut nur, &mut qr1,
+                &mut qs1, &mut pp1, &mut wk1,
+            );
 
             water_flux(
                 &mut q1,
@@ -1058,47 +1097,153 @@ pub unsafe fn capillary_flow() {
                 &qr1,
                 &qs1,
                 &pp1,
-                nk as usize,
+                n_cols,
                 0,
                 layer,
-                CAPILLARY_NUMITER,
+                legacy.noitr,
+                &legacy.soil_horizon_num,
+                &legacy.beta,
+                &legacy.saturated_hyd_cond,
+                &legacy.alpha,
+                legacy.ratio_implicit,
+                legacy.conmax,
+                capillary_numiter,
             );
-            nitrogen_flow(nk as usize, &q01, &q1, &wk1, &mut nit, &mut nur);
+            nitrogen_flow(n_cols, &q01, &q1, &wk1, &mut nit, &mut nur);
 
-            for column in 0..nk as usize {
-                VolWaterContent[layer][column] = q1[column];
-                SoilPsi[layer][column] = psi1[column]
-                    - PsiOsmotic(
-                        VolWaterContent[layer][column],
-                        thts[layer],
-                        ElCondSatSoilToday,
-                    );
-                VolNo3NContent[layer][column] = nit[column];
-                VolUreaNContent[layer][column] = nur[column];
-            }
+            store_horizontal_flux_profiles(&mut legacy, layer, n_cols, &q1, &psi1, &nit, &nur);
         }
     }
 
-    let water_drained_out = drain();
+    let water_drained_out = drain_with_legacy(&mut legacy);
     if water_drained_out > 0.0 {
-        CumWaterDrained += 10.0 * water_drained_out / RowSpace;
+        legacy.cum_water_drained += 10.0 * water_drained_out / legacy.row_space;
     }
 
-    for layer in 0..nl as usize {
-        let horizon = SoilHorizonNum[layer] as usize;
-        for column in 0..nk as usize {
-            SoilPsi[layer][column] = psiq(
-                VolWaterContent[layer][column],
-                thad[layer],
-                thts[layer],
-                alpha[horizon],
-                beta[horizon],
+    recompute_soil_psi_grid(&mut legacy);
+
+    write_hydrology_scratch(scratch);
+    legacy.write_to_globals();
+}
+
+fn recompute_soil_psi_grid(legacy: &mut LegacyGlobalState) {
+    for layer in 0..legacy.nl as usize {
+        let horizon = legacy.soil_horizon_num[layer] as usize;
+        for column in 0..legacy.nk as usize {
+            let water_content = legacy.vol_water_content[[layer, column]];
+            legacy.soil_psi[[layer, column]] = psiq(
+                water_content,
+                legacy.thad[layer],
+                legacy.thts[layer],
+                legacy.alpha[horizon],
+                legacy.beta[horizon],
             ) - PsiOsmotic(
-                VolWaterContent[layer][column],
-                thts[layer],
-                ElCondSatSoilToday,
+                water_content,
+                legacy.thts[layer],
+                legacy.el_cond_sat_soil_today,
             );
         }
+    }
+}
+
+fn load_vertical_flux_profiles(
+    legacy: &LegacyGlobalState,
+    column: usize,
+    n_layers: usize,
+    q1: &mut [f64; 40],
+    q01: &mut [f64; 40],
+    psi1: &mut [f64; 40],
+    nit: &mut [f64; 40],
+    nur: &mut [f64; 40],
+) {
+    for layer in 0..n_layers {
+        q1[layer] = legacy.vol_water_content[[layer, column]];
+        q01[layer] = legacy.vol_water_content[[layer, column]];
+        psi1[layer] = legacy.soil_psi[[layer, column]]
+            + PsiOsmotic(
+                legacy.vol_water_content[[layer, column]],
+                legacy.thts[layer],
+                legacy.el_cond_sat_soil_today,
+            );
+        nit[layer] = legacy.vol_no3_n_content[[layer, column]];
+        nur[layer] = legacy.vol_urea_n_content[[layer, column]];
+    }
+}
+
+fn store_vertical_flux_profiles(
+    legacy: &mut LegacyGlobalState,
+    column: usize,
+    n_layers: usize,
+    q1: &[f64; 40],
+    psi1: &[f64; 40],
+    nit: &[f64; 40],
+    nur: &[f64; 40],
+) {
+    for layer in 0..n_layers {
+        legacy.vol_water_content[[layer, column]] = q1[layer];
+        legacy.vol_no3_n_content[[layer, column]] = nit[layer];
+        legacy.vol_urea_n_content[[layer, column]] = nur[layer];
+        legacy.soil_psi[[layer, column]] = psi1[layer]
+            - PsiOsmotic(
+                legacy.vol_water_content[[layer, column]],
+                legacy.thts[layer],
+                legacy.el_cond_sat_soil_today,
+            );
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn load_horizontal_flux_profiles(
+    legacy: &LegacyGlobalState,
+    layer: usize,
+    n_cols: usize,
+    q1: &mut [f64; 40],
+    q01: &mut [f64; 40],
+    psi1: &mut [f64; 40],
+    nit: &mut [f64; 40],
+    nur: &mut [f64; 40],
+    qr1: &mut [f64; 40],
+    qs1: &mut [f64; 40],
+    pp1: &mut [f64; 40],
+    wk1: &mut [f64; 40],
+) {
+    for column in 0..n_cols {
+        q1[column] = legacy.vol_water_content[[layer, column]];
+        q01[column] = legacy.vol_water_content[[layer, column]];
+        psi1[column] = legacy.soil_psi[[layer, column]]
+            + PsiOsmotic(
+                legacy.vol_water_content[[layer, column]],
+                legacy.thts[layer],
+                legacy.el_cond_sat_soil_today,
+            );
+        qr1[column] = legacy.thad[layer];
+        qs1[column] = legacy.thts[layer];
+        pp1[column] = legacy.pore_space[layer];
+        nit[column] = legacy.vol_no3_n_content[[layer, column]];
+        nur[column] = legacy.vol_urea_n_content[[layer, column]];
+        wk1[column] = legacy.wk[column];
+    }
+}
+
+fn store_horizontal_flux_profiles(
+    legacy: &mut LegacyGlobalState,
+    layer: usize,
+    n_cols: usize,
+    q1: &[f64; 40],
+    psi1: &[f64; 40],
+    nit: &[f64; 40],
+    nur: &[f64; 40],
+) {
+    for column in 0..n_cols {
+        legacy.vol_water_content[[layer, column]] = q1[column];
+        legacy.soil_psi[[layer, column]] = psi1[column]
+            - PsiOsmotic(
+                legacy.vol_water_content[[layer, column]],
+                legacy.thts[layer],
+                legacy.el_cond_sat_soil_today,
+            );
+        legacy.vol_no3_n_content[[layer, column]] = nit[column];
+        legacy.vol_urea_n_content[[layer, column]] = nur[column];
     }
 }
 
@@ -1121,17 +1266,19 @@ pub fn ComputeIrrigation() {
     if target_stress == -9999. {
         return;
     }
-    unsafe {
-        if IrrigMethod == 2 {
-            predict_drip_irrigation(target_stress);
-        } else {
-            predict_surface_irrigation(target_stress);
-        }
 
-        // If the amount of water to be applied (AppliedWater) is non zero update the date of last irrigation, and write report in output file *.B01.
-        if AppliedWater > 1e-5 {
-            LastIrrigation = Daynum;
-        }
+    let irrig_method = LegacyGlobalState::from_globals().irrig_method;
+    if irrig_method == 2 {
+        predict_drip_irrigation(target_stress);
+    } else {
+        predict_surface_irrigation(target_stress);
+    }
+
+    // If the amount of water to be applied (AppliedWater) is non zero update the date of last irrigation.
+    let mut legacy = LegacyGlobalState::from_globals();
+    if legacy.applied_water > 1e-5 {
+        legacy.last_irrigation = legacy.daynum;
+        legacy.write_to_globals();
     }
 }
 
@@ -1149,113 +1296,56 @@ pub fn ComputeIrrigation() {
 /// The following global variables are set:
 /// ActualTranspiration, SoilPsi, VolWaterContent.
 pub fn WaterUptake() {
-    let (
-        num_layers,
-        num_cols,
-        row_space,
-        light_intercept,
-        reference_transp,
-        average_soil_psi,
-        total_required_n,
-        per_plant_area,
-        el_cond_sat_soil,
-        dl_layer,
-        wk_col,
-        thad_layer,
-        thts_layer,
-        thetar_layer,
-        soil_horizon,
-        root_left,
-        root_right,
-        alpha_horizon,
-        beta_horizon,
-        root_uptake,
-        mut vol_water,
-        mut soil_psi,
-        mut vol_no3,
-        mut vol_nh4,
-    ) = unsafe {
-        let num_layers = NumLayersWithRoots as usize;
-        let num_cols = nk as usize;
-        let row_space = RowSpace;
-        let light_intercept = LightIntercept;
-        let reference_transp = ReferenceTransp;
-        let average_soil_psi = AverageSoilPsi;
-        let total_required_n = TotalRequiredN;
-        let per_plant_area = PerPlantArea;
-        let el_cond_sat_soil = ElCondSatSoilToday;
+    let mut legacy = LegacyGlobalState::from_globals();
+    let num_layers = legacy.num_layers_with_roots as usize;
+    let num_cols = legacy.nk as usize;
+    let row_space = legacy.row_space;
+    let light_intercept = legacy.light_intercept;
+    let reference_transp = legacy.reference_transp;
+    let average_soil_psi = legacy.average_soil_psi;
+    let total_required_n = legacy.total_required_n;
+    let per_plant_area = legacy.per_plant_area;
+    let el_cond_sat_soil = legacy.el_cond_sat_soil_today;
 
-        let mut dl_layer = vec![0.0f64; num_layers];
-        let mut thad_layer = vec![0.0f64; num_layers];
-        let mut thts_layer = vec![0.0f64; num_layers];
-        let mut thetar_layer = vec![0.0f64; num_layers];
-        let mut soil_horizon = vec![0usize; num_layers];
-        let mut root_left = vec![0usize; num_layers];
-        let mut root_right = vec![0usize; num_layers];
-        for layer in 0..num_layers {
-            dl_layer[layer] = dl[layer];
-            thad_layer[layer] = thad[layer];
-            thts_layer[layer] = thts[layer];
-            thetar_layer[layer] = thetar[layer];
-            soil_horizon[layer] = SoilHorizonNum[layer] as usize;
-            root_left[layer] = RootColNumLeft[layer] as usize;
-            root_right[layer] = RootColNumRight[layer] as usize;
-        }
+    let mut dl_layer = vec![0.0f64; num_layers];
+    let mut thad_layer = vec![0.0f64; num_layers];
+    let mut thts_layer = vec![0.0f64; num_layers];
+    let mut thetar_layer = vec![0.0f64; num_layers];
+    let mut soil_horizon = vec![0usize; num_layers];
+    let mut root_left = vec![0usize; num_layers];
+    let mut root_right = vec![0usize; num_layers];
+    for layer in 0..num_layers {
+        dl_layer[layer] = legacy.dl[layer];
+        thad_layer[layer] = legacy.thad[layer];
+        thts_layer[layer] = legacy.thts[layer];
+        thetar_layer[layer] = legacy.thetar[layer];
+        soil_horizon[layer] = legacy.soil_horizon_num[layer] as usize;
+        root_left[layer] = legacy.root_col_num_left[layer] as usize;
+        root_right[layer] = legacy.root_col_num_right[layer] as usize;
+    }
 
-        let mut wk_col = vec![0.0f64; num_cols];
+    let mut wk_col = vec![0.0f64; num_cols];
+    for column in 0..num_cols {
+        wk_col[column] = legacy.wk[column];
+    }
+
+    let alpha_horizon = legacy.alpha.clone();
+    let beta_horizon = legacy.beta.clone();
+
+    let mut root_uptake = Array2::<f64>::zeros((num_layers, num_cols));
+    let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
+    let mut soil_psi = Array2::<f64>::zeros((num_layers, num_cols));
+    let mut vol_no3 = Array2::<f64>::zeros((num_layers, num_cols));
+    let mut vol_nh4 = Array2::<f64>::zeros((num_layers, num_cols));
+    for layer in 0..num_layers {
         for column in 0..num_cols {
-            wk_col[column] = wk[column];
+            root_uptake[[layer, column]] = legacy.root_wt_capbl_uptake[[layer, column]];
+            vol_water[[layer, column]] = legacy.vol_water_content[[layer, column]];
+            soil_psi[[layer, column]] = legacy.soil_psi[[layer, column]];
+            vol_no3[[layer, column]] = legacy.vol_no3_n_content[[layer, column]];
+            vol_nh4[[layer, column]] = legacy.vol_nh4_n_content[[layer, column]];
         }
-
-        let mut alpha_horizon = [0.0f64; 9];
-        let mut beta_horizon = [0.0f64; 9];
-        for horizon in 0..9 {
-            alpha_horizon[horizon] = alpha[horizon];
-            beta_horizon[horizon] = beta[horizon];
-        }
-
-        let mut root_uptake = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut vol_water = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut soil_psi = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut vol_no3 = Array2::<f64>::zeros((num_layers, num_cols));
-        let mut vol_nh4 = Array2::<f64>::zeros((num_layers, num_cols));
-        for layer in 0..num_layers {
-            for column in 0..num_cols {
-                root_uptake[[layer, column]] = RootWtCapblUptake[layer][column];
-                vol_water[[layer, column]] = VolWaterContent[layer][column];
-                soil_psi[[layer, column]] = SoilPsi[layer][column];
-                vol_no3[[layer, column]] = VolNo3NContent[layer][column];
-                vol_nh4[[layer, column]] = VolNh4NContent[layer][column];
-            }
-        }
-
-        (
-            num_layers,
-            num_cols,
-            row_space,
-            light_intercept,
-            reference_transp,
-            average_soil_psi,
-            total_required_n,
-            per_plant_area,
-            el_cond_sat_soil,
-            dl_layer,
-            wk_col,
-            thad_layer,
-            thts_layer,
-            thetar_layer,
-            soil_horizon,
-            root_left,
-            root_right,
-            alpha_horizon,
-            beta_horizon,
-            root_uptake,
-            vol_water,
-            soil_psi,
-            vol_no3,
-            vol_nh4,
-        )
-    };
+    }
 
     // Compute the modified light interception factor (LightInter1) for use in computing transpiration rate.
     let light_inter1 = fmin(fmax(light_intercept * 1.55 - 0.32, light_intercept), 1.);
@@ -1374,17 +1464,16 @@ pub fn WaterUptake() {
         }
     }
 
-    unsafe {
-        for layer in 0..num_layers {
-            for column in 0..num_cols {
-                VolWaterContent[layer][column] = vol_water[[layer, column]];
-                SoilPsi[layer][column] = soil_psi[[layer, column]];
-                VolNo3NContent[layer][column] = vol_no3[[layer, column]];
-                VolNh4NContent[layer][column] = vol_nh4[[layer, column]];
-            }
+    for layer in 0..num_layers {
+        for column in 0..num_cols {
+            legacy.vol_water_content[[layer, column]] = vol_water[[layer, column]];
+            legacy.soil_psi[[layer, column]] = soil_psi[[layer, column]];
+            legacy.vol_no3_n_content[[layer, column]] = vol_no3[[layer, column]];
+            legacy.vol_nh4_n_content[[layer, column]] = vol_nh4[[layer, column]];
         }
-        ActualTranspiration = actual_transpiration;
-        SupplyNO3N = supply_no3;
-        SupplyNH4N = supply_nh4;
     }
+    legacy.actual_transpiration = actual_transpiration;
+    legacy.supply_no3_n = supply_no3;
+    legacy.supply_nh4_n = supply_nh4;
+    legacy.write_to_globals();
 }

@@ -13,6 +13,8 @@ mod general_functions;
 mod global_defs;
 pub use global_defs::*;
 mod input_functions;
+mod model_state;
+pub use model_state::*;
 mod plant;
 mod profile;
 mod soil;
@@ -31,7 +33,7 @@ pub struct Cotton2KError {
 
 impl std::fmt::Display for Cotton2KError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", "Cotton2KError")
+        write!(f, "Cotton2KError")
     }
 }
 

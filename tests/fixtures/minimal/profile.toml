@@ -1,0 +1,163 @@
+latitude = 32.0
+longitude = -111.0
+elevation = 350.0
+start_date = "2020-04-01"
+stop_date = "2020-03-31"
+plant_date = "2020-04-10"
+weather_path = "weather.csv"
+
+cultivar_parameters = [
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+]
+row_space = 96.5
+plants_per_meter = 10.0
+agronomy_operations = []
+
+soil_layers = [
+  { ammonium = 5.0, nitrate = 10.0, organic_matter = 1.2, water_content = 90.0 },
+  { ammonium = 5.0, nitrate = 10.0, organic_matter = 1.2, water_content = 90.0 },
+  { ammonium = 5.0, nitrate = 10.0, organic_matter = 1.2, water_content = 90.0 },
+  { ammonium = 5.0, nitrate = 10.0, organic_matter = 1.1, water_content = 90.0 },
+  { ammonium = 4.0, nitrate = 9.0, organic_matter = 1.0, water_content = 88.0 },
+  { ammonium = 4.0, nitrate = 9.0, organic_matter = 1.0, water_content = 88.0 },
+  { ammonium = 3.0, nitrate = 8.0, organic_matter = 0.9, water_content = 85.0 },
+  { ammonium = 3.0, nitrate = 8.0, organic_matter = 0.9, water_content = 85.0 },
+  { ammonium = 2.0, nitrate = 7.0, organic_matter = 0.8, water_content = 82.0 },
+  { ammonium = 2.0, nitrate = 7.0, organic_matter = 0.8, water_content = 82.0 },
+  { ammonium = 1.5, nitrate = 6.0, organic_matter = 0.7, water_content = 80.0 },
+  { ammonium = 1.5, nitrate = 6.0, organic_matter = 0.7, water_content = 80.0 },
+  { ammonium = 1.0, nitrate = 5.0, organic_matter = 0.6, water_content = 78.0 },
+  { ammonium = 1.0, nitrate = 5.0, organic_matter = 0.6, water_content = 78.0 },
+]
+
+[soil_hydraulic]
+implicit_ratio = 0.6
+max_conductivity = 0.2
+psi_fc = -0.33
+psi_id = -0.2
+
+[[soil_hydraulic.layers]]
+depth = 15.0
+theta_d = 0.06
+theta_s = 0.44
+alpha = 0.0012
+beta = 1.4
+hcs = 0.35
+hcfc = 0.12
+bulk_density = 1.35
+clay = 22.0
+sand = 45.0
+
+[[soil_hydraulic.layers]]
+depth = 30.0
+theta_d = 0.06
+theta_s = 0.43
+alpha = 0.0011
+beta = 1.4
+hcs = 0.33
+hcfc = 0.11
+bulk_density = 1.37
+clay = 24.0
+sand = 43.0
+
+[[soil_hydraulic.layers]]
+depth = 45.0
+theta_d = 0.06
+theta_s = 0.42
+alpha = 0.0010
+beta = 1.4
+hcs = 0.30
+hcfc = 0.10
+bulk_density = 1.40
+clay = 26.0
+sand = 41.0
+
+[[soil_hydraulic.layers]]
+depth = 60.0
+theta_d = 0.06
+theta_s = 0.41
+alpha = 0.00095
+beta = 1.4
+hcs = 0.28
+hcfc = 0.09
+bulk_density = 1.42
+clay = 28.0
+sand = 39.0
+
+[[soil_hydraulic.layers]]
+depth = 90.0
+theta_d = 0.06
+theta_s = 0.40
+alpha = 0.0009
+beta = 1.4
+hcs = 0.25
+hcfc = 0.08
+bulk_density = 1.45
+clay = 30.0
+sand = 37.0
+
+[[soil_hydraulic.layers]]
+depth = 120.0
+theta_d = 0.06
+theta_s = 0.39
+alpha = 0.00085
+beta = 1.4
+hcs = 0.22
+hcfc = 0.07
+bulk_density = 1.48
+clay = 32.0
+sand = 35.0
+
+[[soil_hydraulic.layers]]
+depth = 150.0
+theta_d = 0.06
+theta_s = 0.38
+alpha = 0.0008
+beta = 1.4
+hcs = 0.20
+hcfc = 0.06
+bulk_density = 1.50
+clay = 34.0
+sand = 33.0
+
+[[soil_hydraulic.layers]]
+depth = 180.0
+theta_d = 0.06
+theta_s = 0.37
+alpha = 0.00075
+beta = 1.4
+hcs = 0.18
+hcfc = 0.05
+bulk_density = 1.52
+clay = 36.0
+sand = 31.0
+
+[[soil_hydraulic.layers]]
+depth = 210.0
+theta_d = 0.06
+theta_s = 0.36
+alpha = 0.0007
+beta = 1.4
+hcs = 0.16
+hcfc = 0.04
+bulk_density = 1.54
+clay = 38.0
+sand = 29.0
+
+[site]
+average_wind_speed = 2.0
+estimate_dew_point = [10.0, 18.0]
+wind_blow_after_sunrise = 1.0
+wind_max_after_noon = 2.0
+wind_stop_after_sunset = 1.0
+night_time_wind_factor = 0.5
+cloud_type_correction_factor = 1.0
+max_temperature_after_noon = 2.0
+deep_soil_temperature = [26.0, 18.0, 0.3]
+dew_point_range = [0.5, 0.03, -0.01]
+albedo_range = [0.2, 0.3]
