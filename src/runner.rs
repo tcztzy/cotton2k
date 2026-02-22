@@ -454,6 +454,7 @@ pub fn run_job(
 
     let output_csv_path = request.run_dir.join("output.csv");
     let meta_path = request.run_dir.join("meta.json");
+    let mut last_day_index = 0usize;
 
     let execution = execute_profile(
         &mut profile,
@@ -465,6 +466,7 @@ pub fn run_job(
                 .unwrap_or(false)
         },
         |day_index, date| {
+            last_day_index = day_index;
             on_event(RunEvent::Progress {
                 run_id: request.run_id.clone(),
                 day_index,
@@ -531,7 +533,7 @@ pub fn run_job(
                 finished_at,
                 output_csv_path,
                 meta_path,
-                days_simulated: 0,
+                days_simulated: last_day_index,
                 error: Some(failure),
             }
         }

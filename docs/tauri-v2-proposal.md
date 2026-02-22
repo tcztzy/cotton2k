@@ -64,6 +64,7 @@
 - `apps/desktop/`：前端（Vite + TypeScript，框架可选 React/Vue，建议先 React）。
 - `apps/desktop/src-tauri/`：Tauri Rust 后端。
 - `src/bin/cotton2k-worker.rs`：本地作业 worker 入口（二进制）。
+- `src/bin/cotton2k-batch.rs`：本地批量调度入口（并行拉起多个 worker，可被 GUI 复用）。
 
 ### Rust 命令层（Tauri backend）
 建议暴露以下命令：

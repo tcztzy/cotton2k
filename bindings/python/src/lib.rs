@@ -1,6 +1,6 @@
 #[pyo3::pymodule]
 mod cotton2k {
-    use cotton2k::{run_job, RunRequest, RunStatus};
+    use cotton2k::{run_job, RunErrorCode, RunRequest, RunStatus};
     use pyo3::exceptions::{PyRuntimeError, PyValueError};
     use pyo3::prelude::*;
 
@@ -16,7 +16,10 @@ mod cotton2k {
             RunRequest::new(profile_path, run_dir, String::new(), None),
             |_| {},
         )
-        .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        .map_err(|e| match e.code {
+            RunErrorCode::Input => PyValueError::new_err(e.message),
+            RunErrorCode::Io | RunErrorCode::Internal => PyRuntimeError::new_err(e.message),
+        })?;
 
         match summary.status {
             RunStatus::Succeeded => Ok(()),

@@ -63,6 +63,27 @@ Artifacts in `run-dir`:
 - `request.json`
 - `input/profile.toml` or `input/profile.json`
 
+### As a Batch Scheduler (parallel worker processes)
+
+Prepare a jobs file (`jobs.json`):
+
+```json
+[
+  { "profile": "/path/to/case-a/profile.toml", "run_id": "case-a" },
+  { "profile": "/path/to/case-b/profile.toml", "run_id": "case-b" }
+]
+```
+
+Run in parallel (default max parallelism is `min(4, physical_cpu_cores)`):
+
+```bash
+cargo run --bin cotton2k-batch -- \
+  run \
+  --jobs /path/to/jobs.json \
+  --runs-root /path/to/runs \
+  --max-parallel 2
+```
+
 ## Requirements
 
 - Rust 1.70+ (for Rust usage)
@@ -79,6 +100,11 @@ cargo build --release
 Build worker binary:
 ```bash
 cargo build --release --bin cotton2k-worker
+```
+
+Build batch binary:
+```bash
+cargo build --release --bin cotton2k-batch
 ```
 
 Build and install Python bindings:

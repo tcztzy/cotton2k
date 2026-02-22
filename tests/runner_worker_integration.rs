@@ -1,5 +1,5 @@
 use cotton2k::{run_job, RunErrorCode, RunEvent, RunRequest, RunStatus};
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -306,6 +306,74 @@ fn worker_supports_parallel_jobs_in_separate_run_dirs() {
     assert!(events_a.iter().any(|e| e["event"] == "finished"));
     assert!(events_b.iter().any(|e| e["event"] == "started"));
     assert!(events_b.iter().any(|e| e["event"] == "finished"));
+
+    fs::remove_dir_all(temp_dir).expect("failed to clean temp directory");
+}
+
+#[test]
+fn batch_runs_jobs_with_configured_parallelism() {
+    let _guard = global_runner_lock();
+    let batch_bin = binary_path("cotton2k-batch");
+    let worker_bin = binary_path("cotton2k-worker");
+    let fixture_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/minimal");
+    let temp_dir = make_temp_dir("batch-parallel");
+
+    let case_a = temp_dir.join("case-a");
+    let case_b = temp_dir.join("case-b");
+    copy_fixture_dir(&fixture_dir, &case_a);
+    copy_fixture_dir(&fixture_dir, &case_b);
+    set_fixture_stop_date(&case_a.join("profile.toml"), "2020-04-03");
+    set_fixture_stop_date(&case_b.join("profile.toml"), "2020-04-03");
+
+    let jobs_path = temp_dir.join("jobs.json");
+    fs::write(
+        &jobs_path,
+        serde_json::to_vec_pretty(&json!([
+            {
+                "profile": case_a.join("profile.toml"),
+                "run_id": "batch-a",
+            },
+            {
+                "profile": case_b.join("profile.toml"),
+                "run_id": "batch-b",
+            }
+        ]))
+        .expect("failed to serialize jobs JSON"),
+    )
+    .expect("failed to write jobs file");
+
+    let runs_root = temp_dir.join("runs");
+    let output = Command::new(&batch_bin)
+        .args([
+            "run",
+            "--jobs",
+            jobs_path.to_str().unwrap(),
+            "--runs-root",
+            runs_root.to_str().unwrap(),
+            "--max-parallel",
+            "2",
+            "--worker-bin",
+            worker_bin.to_str().unwrap(),
+        ])
+        .output()
+        .expect("failed to run batch binary");
+
+    assert!(
+        output.status.success(),
+        "batch binary should succeed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let summary: Value =
+        serde_json::from_slice(&output.stdout).expect("batch stdout should be summary JSON");
+    assert_eq!(summary["total"], 2);
+    assert_eq!(summary["succeeded"], 2);
+    assert_eq!(summary["failed"], 0);
+    assert_eq!(summary["cancelled"], 0);
+    assert_eq!(summary["max_parallel"], 2);
+
+    assert!(runs_root.join("batch-a/output.csv").exists());
+    assert!(runs_root.join("batch-b/output.csv").exists());
 
     fs::remove_dir_all(temp_dir).expect("failed to clean temp directory");
 }
