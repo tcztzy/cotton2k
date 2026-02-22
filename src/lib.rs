@@ -17,12 +17,16 @@ mod model_state;
 pub use model_state::*;
 mod plant;
 mod profile;
+mod runner;
 mod soil;
 mod state;
 mod utils;
 use chrono::NaiveDate;
 
 pub use profile::{Profile, SoilHydraulic, WeatherRecord};
+pub use runner::{
+    run_job, RunError, RunErrorCode, RunEvent, RunFailure, RunRequest, RunStatus, RunSummary,
+};
 pub use state::State;
 
 #[derive(Debug)]
@@ -33,8 +37,18 @@ pub struct Cotton2KError {
 
 impl std::fmt::Display for Cotton2KError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "Cotton2KError")
+        write!(f, "{}", self.message)
     }
 }
 
 impl std::error::Error for Cotton2KError {}
+
+impl Cotton2KError {
+    pub fn level(&self) -> u8 {
+        self.level
+    }
+
+    pub fn message(&self) -> &str {
+        &self.message
+    }
+}

@@ -1,34 +1,34 @@
 #[pyo3::pymodule]
 mod cotton2k {
+    use cotton2k::{run_job, RunRequest, RunStatus};
+    use pyo3::exceptions::{PyRuntimeError, PyValueError};
     use pyo3::prelude::*;
-    use std::io::Read;
 
     #[pyfunction]
     fn run(path: &str) -> PyResult<()> {
-        let profile_path = std::path::Path::new(path);
-        let mut file = std::fs::File::open(profile_path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-        let mut profile: cotton2k::Profile = match profile_path
-            .extension()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_lowercase()
-            .as_str()
-        {
-            "toml" => toml::from_str(&contents).expect("Parse file error!"),
-            _ => serde_json::from_str(&contents).expect("Parse file error!"),
-        };
-        profile.path = profile_path.to_path_buf();
-        match profile.weather_path.is_relative() {
-            true => {
-                profile.weather_path = profile_path.parent().unwrap().join(profile.weather_path);
+        let profile_path = std::path::PathBuf::from(path);
+        let run_dir = profile_path
+            .parent()
+            .ok_or_else(|| PyValueError::new_err("profile path must have a parent directory"))?
+            .to_path_buf();
+
+        let summary = run_job(
+            RunRequest::new(profile_path, run_dir, String::new(), None),
+            |_| {},
+        )
+        .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+
+        match summary.status {
+            RunStatus::Succeeded => Ok(()),
+            RunStatus::Cancelled => Err(PyRuntimeError::new_err("simulation cancelled")),
+            RunStatus::Failed => {
+                let message = summary
+                    .error
+                    .as_ref()
+                    .map(|e| e.message.clone())
+                    .unwrap_or_else(|| "simulation failed".to_string());
+                Err(PyRuntimeError::new_err(message))
             }
-            false => {}
         }
-        profile.soil_impedance = Some(profile_path.parent().unwrap().join("soil_imp.csv"));
-        profile.run().expect("Simulation error!");
-        Ok(())
     }
 }

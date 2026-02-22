@@ -659,49 +659,7 @@ fn init_soil(
 impl Profile {
     /// Run this profile.
     pub fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.initialize()?;
-        self.output_file_headers()?;
-        // Keep legacy globals and model-owned state synchronized while remaining modules
-        // still read/write the legacy global storage.
-        self.model_state.legacy.daynum = self.model_state.legacy.day_start - 1;
-        self.model_state.legacy.b_end = false;
-        self.model_state.legacy.write_to_globals();
-
-        for _ in self.model_state.legacy.day_start..(self.model_state.legacy.day_finish + 1) {
-            let mut state = if !self.states.is_empty() {
-                let mut new_state = self.states.last().unwrap().clone();
-                new_state.date = new_state.date.succ_opt().unwrap();
-                new_state
-            } else {
-                State::new(
-                    self,
-                    NaiveDate::from_yo_opt(
-                        self.model_state.legacy.iyear,
-                        self.model_state.legacy.day_start as u32,
-                    )
-                    .unwrap(),
-                )
-            };
-            // Execute simulation for this day.
-            let mut model_state = std::mem::take(&mut self.model_state);
-            let simulation_result = state.simulate_this_day(self, &mut model_state);
-            self.model_state = model_state;
-            self.model_state.legacy.read_from_globals();
-            match simulation_result {
-                Err(e) => {
-                    if e.level == 0 {
-                        println!("{}", e.message);
-                        break;
-                    }
-                }
-                _ => {}
-            }
-            self.write_record()?;
-            self.states.push(state);
-            if self.model_state.legacy.b_end {
-                break;
-            }
-        }
+        crate::runner::execute_profile(self, || false, |_, _| {})?;
         Ok(())
     }
 

@@ -1,23 +1,41 @@
-use std::io::Read;
+use cotton2k::{run_job, RunRequest, RunStatus};
+use std::io;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 2 {
-        panic!("profile file path should be provided!");
-    }
-    let profile_path = std::path::Path::new(&args[1]);
-    let mut file = std::fs::File::open(profile_path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    let mut profile: cotton2k::Profile = toml::from_str(&contents)?;
-    profile.path = profile_path.to_path_buf();
-    match profile.weather_path.is_relative() {
-        true => {
-            profile.weather_path = profile_path.parent().unwrap().join(profile.weather_path);
+    let profile_path = std::env::args().nth(1).ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "profile file path should be provided",
+        )
+    })?;
+    let profile_path = std::path::PathBuf::from(profile_path);
+    let run_dir = profile_path
+        .parent()
+        .ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "profile path must have a parent directory",
+            )
+        })?
+        .to_path_buf();
+
+    let summary = run_job(
+        RunRequest::new(profile_path, run_dir, String::new(), None),
+        |_| {},
+    )?;
+
+    match summary.status {
+        RunStatus::Succeeded => Ok(()),
+        RunStatus::Cancelled => {
+            Err(io::Error::new(io::ErrorKind::Interrupted, "simulation cancelled").into())
         }
-        false => {}
+        RunStatus::Failed => {
+            let message = summary
+                .error
+                .as_ref()
+                .map(|e| e.message.clone())
+                .unwrap_or_else(|| "simulation failed".to_string());
+            Err(io::Error::new(io::ErrorKind::Other, message).into())
+        }
     }
-    profile.soil_impedance = Some(profile_path.parent().unwrap().join("soil_imp.csv"));
-    profile.run()?;
-    Ok(())
 }

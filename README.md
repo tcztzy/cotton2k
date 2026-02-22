@@ -45,6 +45,24 @@ import cotton2k as c2k
 c2k.run("path/to/profile.toml")
 ```
 
+### As a Worker Process (for GUI/Batch)
+
+The local worker binary runs one simulation job per process and emits JSONL progress events.
+
+```bash
+cargo run --bin cotton2k-worker -- \
+  run \
+  --profile /path/to/profile.toml \
+  --run-dir /path/to/runs/job-001 \
+  --run-id job-001
+```
+
+Artifacts in `run-dir`:
+- `output.csv`
+- `meta.json`
+- `request.json`
+- `input/profile.toml` or `input/profile.json`
+
 ## Requirements
 
 - Rust 1.70+ (for Rust usage)
@@ -56,6 +74,11 @@ c2k.run("path/to/profile.toml")
 Build Rust library:
 ```bash
 cargo build --release
+```
+
+Build worker binary:
+```bash
+cargo build --release --bin cotton2k-worker
 ```
 
 Build and install Python bindings:
