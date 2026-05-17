@@ -41,7 +41,7 @@ jobs:
           command: build
           target: ${{ matrix.cargo-target }}
           manylinux: ${{ matrix.manylinux }}
-          args: --release --locked -i python${{ matrix.python-version }} --no-sdist -o dist --manifest-path bindings/python/Cargo.toml ${{ matrix.maturin-extra-args }}
+          args: --release --locked -i python${{ matrix.python-version }} -o dist --manifest-path bindings/python/Cargo.toml ${{ matrix.maturin-extra-args }}
       - name: Upload wheels
         uses: actions/upload-artifact@v5.0.0
         with:
