@@ -11,14 +11,19 @@ struct EmergenceScratch {
     seed_layer: i32,
 }
 
-static EMERGENCE_SCRATCH: LazyLock<RwLock<EmergenceScratch>> = LazyLock::new(|| {
-    RwLock::new(EmergenceScratch {
-        delay_of_emergence: 0.0,
-        hypocotyl_length: 0.3,
-        seed_moisture: 8.0,
-        seed_layer: 0,
-    })
-});
+impl Default for EmergenceScratch {
+    fn default() -> Self {
+        Self {
+            delay_of_emergence: 0.0,
+            hypocotyl_length: 0.3,
+            seed_moisture: 8.0,
+            seed_layer: 0,
+        }
+    }
+}
+
+static EMERGENCE_SCRATCH: LazyLock<RwLock<EmergenceScratch>> =
+    LazyLock::new(|| RwLock::new(EmergenceScratch::default()));
 
 fn read_emergence_scratch() -> EmergenceScratch {
     *EMERGENCE_SCRATCH
@@ -30,6 +35,10 @@ fn write_emergence_scratch(scratch: EmergenceScratch) {
     *EMERGENCE_SCRATCH
         .write()
         .expect("emergence scratch state lock should not be poisoned") = scratch;
+}
+
+pub(crate) fn reset_scratch_state() {
+    write_emergence_scratch(EmergenceScratch::default());
 }
 
 fn mark_simulation_end() -> i32 {

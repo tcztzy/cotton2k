@@ -21,3 +21,9 @@ impl Soil {
         }
     }
 }
+
+pub(crate) fn reset_scratch_state() {
+    hydrology::reset_scratch_state();
+    nitrogen::reset_scratch_state();
+    temperature_abi::reset_scratch_state();
+}

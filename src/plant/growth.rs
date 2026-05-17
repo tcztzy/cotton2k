@@ -45,14 +45,19 @@ struct GrowthScratch {
     idsw: i32,
 }
 
-static GROWTH_SCRATCH: LazyLock<RwLock<GrowthScratch>> = LazyLock::new(|| {
-    RwLock::new(GrowthScratch {
-        v_ratio: 1.0,
-        defkgh: 0.0,
-        tdfkgh: 0.0,
-        idsw: 0,
-    })
-});
+impl Default for GrowthScratch {
+    fn default() -> Self {
+        Self {
+            v_ratio: 1.0,
+            defkgh: 0.0,
+            tdfkgh: 0.0,
+            idsw: 0,
+        }
+    }
+}
+
+static GROWTH_SCRATCH: LazyLock<RwLock<GrowthScratch>> =
+    LazyLock::new(|| RwLock::new(GrowthScratch::default()));
 
 fn read_growth_scratch() -> GrowthScratch {
     *GROWTH_SCRATCH
@@ -65,6 +70,10 @@ fn with_growth_scratch_mut<R>(f: impl FnOnce(&mut GrowthScratch) -> R) -> R {
         .write()
         .expect("growth scratch state lock should not be poisoned");
     f(&mut scratch)
+}
+
+pub(crate) fn reset_scratch_state() {
+    with_growth_scratch_mut(|scratch| *scratch = GrowthScratch::default());
 }
 
 fn total_leaf_weight(legacy: &LegacyGlobalState) -> f64 {

@@ -134,7 +134,7 @@ impl SoilHydrology {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 struct HydrologyScratch {
     irr1st: bool,
     required_water: f64,
@@ -143,15 +143,8 @@ struct HydrologyScratch {
     capillary_numiter: i64,
 }
 
-static HYDROLOGY_SCRATCH: LazyLock<RwLock<HydrologyScratch>> = LazyLock::new(|| {
-    RwLock::new(HydrologyScratch {
-        irr1st: false,
-        required_water: 0.0,
-        n_days_below_target_stress: 0,
-        n_irr_layers: 0,
-        capillary_numiter: 0,
-    })
-});
+static HYDROLOGY_SCRATCH: LazyLock<RwLock<HydrologyScratch>> =
+    LazyLock::new(|| RwLock::new(HydrologyScratch::default()));
 
 fn read_hydrology_scratch() -> HydrologyScratch {
     *HYDROLOGY_SCRATCH
@@ -163,6 +156,10 @@ fn write_hydrology_scratch(scratch: HydrologyScratch) {
     *HYDROLOGY_SCRATCH
         .write()
         .expect("hydrology scratch state lock should not be poisoned") = scratch;
+}
+
+pub(crate) fn reset_scratch_state() {
+    write_hydrology_scratch(HydrologyScratch::default());
 }
 
 fn get_target_stress() -> f64 {

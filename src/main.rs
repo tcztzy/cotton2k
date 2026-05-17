@@ -35,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .as_ref()
                 .map(|e| e.message.clone())
                 .unwrap_or_else(|| "simulation failed".to_string());
-            Err(io::Error::new(io::ErrorKind::Other, message).into())
+            Err(io::Error::other(message).into())
         }
     }
 }

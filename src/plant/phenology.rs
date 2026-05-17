@@ -3,7 +3,7 @@ use crate::plant::abscission::{fruiting_sites_abscission, leaf_abscission};
 use crate::{TotalLeafWeight, CLIMATE_METRIC_TMAX, CLIMATE_METRIC_TMIN};
 use std::sync::{LazyLock, RwLock};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 struct PhenologyScratch {
     fib_length: f64,
     fib_strength: f64,
@@ -15,18 +15,8 @@ struct PhenologyScratch {
     days_to_1st_sumstrs: f64,
 }
 
-static PHENOLOGY_SCRATCH: LazyLock<RwLock<PhenologyScratch>> = LazyLock::new(|| {
-    RwLock::new(PhenologyScratch {
-        fib_length: 0.0,
-        fib_strength: 0.0,
-        phen_delay_by_n_stress: 0.0,
-        nwfl: 0,
-        days_to_1st_square: 0.0,
-        boltmp: [[[0.0; 5]; 30]; 3],
-        days_to_1st_avtemp: 0.0,
-        days_to_1st_sumstrs: 0.0,
-    })
-});
+static PHENOLOGY_SCRATCH: LazyLock<RwLock<PhenologyScratch>> =
+    LazyLock::new(|| RwLock::new(PhenologyScratch::default()));
 
 fn read_phenology_scratch() -> PhenologyScratch {
     *PHENOLOGY_SCRATCH
@@ -39,6 +29,10 @@ fn with_phenology_scratch_mut<R>(f: impl FnOnce(&mut PhenologyScratch) -> R) -> 
         .write()
         .expect("phenology scratch state lock should not be poisoned");
     f(&mut scratch)
+}
+
+pub(crate) fn reset_scratch_state() {
+    with_phenology_scratch_mut(|scratch| *scratch = PhenologyScratch::default());
 }
 
 pub fn cotton_phenology() {

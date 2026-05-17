@@ -23,3 +23,8 @@ impl Plant {
         }
     }
 }
+
+pub(crate) fn reset_scratch_state() {
+    growth::reset_scratch_state();
+    phenology::reset_scratch_state();
+}

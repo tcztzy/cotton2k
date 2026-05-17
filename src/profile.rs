@@ -305,6 +305,16 @@ pub struct AgronomyOperationIrrigation {
     stop_predict_date: Option<NaiveDate>,
 }
 
+impl AgronomyOperationIrrigation {
+    pub(crate) fn is_predictive(&self) -> bool {
+        self.predict
+    }
+
+    pub(crate) fn has_prediction_limits(&self) -> bool {
+        self.max_amount.is_some() && self.stop_predict_date.is_some()
+    }
+}
+
 #[derive(Deserialize, Debug, Clone, Copy)]
 pub struct AgronomyOperationWaterTable {
     #[serde(deserialize_with = "from_isoformat")]
@@ -659,7 +669,8 @@ fn init_soil(
 impl Profile {
     /// Run this profile.
     pub fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        crate::runner::execute_profile(self, || false, |_, _| {})?;
+        crate::runner::validate_profile(self)?;
+        crate::runner::execute_profile_serialized(self, || false, |_, _| {})?;
         Ok(())
     }
 
@@ -667,6 +678,14 @@ impl Profile {
         self.lmax = 0.;
         self.num_watertable_data = 0;
         self.model_state = ModelState::new();
+        {
+            let mut clim = Clim.write().expect("Clim lock poisoned");
+            *clim = [Climstruct::default(); 400];
+        }
+        {
+            let mut irrig = Irrig.write().expect("Irrig lock poisoned");
+            *irrig = [Irrigation::default(); 150];
+        }
         {
             let legacy = &mut self.model_state.legacy;
             initialize_global(legacy);
@@ -793,12 +812,7 @@ impl Profile {
                 clim[j as usize].Rad = record.irradiation * 23.884;
                 clim[j as usize].Tmax = record.tmax;
                 clim[j as usize].Tmin = record.tmin;
-                clim[j as usize].Wind =
-                    if self.site.average_wind_speed.is_some() && record.wind.is_none() {
-                        self.site.average_wind_speed.unwrap()
-                    } else {
-                        record.wind.unwrap_or(0.)
-                    };
+                clim[j as usize].Wind = record.wind.or(self.site.average_wind_speed).unwrap_or(0.);
                 clim[j as usize].Tdew = record.tdew.unwrap_or(estimate_dew_point(
                     record.tmax,
                     self.site.estimate_dew_point.0,
@@ -1005,7 +1019,6 @@ impl Profile {
 
     pub fn write_record(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut f = std::fs::OpenOptions::new()
-            .write(true)
             .append(true)
             .open(self.path.parent().unwrap().join("output.csv"))?;
 

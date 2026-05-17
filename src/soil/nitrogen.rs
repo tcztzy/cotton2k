@@ -5,6 +5,12 @@ use std::sync::{LazyLock, RwLock};
 
 static SOIL_N_DEPTH: LazyLock<RwLock<[f64; 40]>> = LazyLock::new(|| RwLock::new([0.0; 40]));
 
+pub(crate) fn reset_scratch_state() {
+    *SOIL_N_DEPTH
+        .write()
+        .expect("soil nitrogen depth state lock should not be poisoned") = [0.0; 40];
+}
+
 struct SoilNitrogenState<'a> {
     daynum: i32,
     day_start: i32,

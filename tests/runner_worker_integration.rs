@@ -189,6 +189,17 @@ fn run_job_redirects_output_to_run_directory() {
         run_dir.join("input/profile.toml").exists(),
         "input profile snapshot should be generated"
     );
+    assert_eq!(
+        fs::read(run_dir.join("input/weather.csv")).expect("missing weather snapshot"),
+        fs::read(work_dir.join("weather.csv")).expect("missing source weather"),
+        "weather input snapshot should match the source file"
+    );
+    assert_eq!(
+        fs::read(run_dir.join("input/soil_impedance.csv"))
+            .expect("missing soil impedance snapshot"),
+        fs::read(work_dir.join("soil_imp.csv")).expect("missing source soil impedance"),
+        "soil impedance input snapshot should match the source file"
+    );
 
     fs::remove_dir_all(temp_dir).expect("failed to clean temp directory");
 }
@@ -215,6 +226,73 @@ fn run_job_reports_input_errors_with_classification() {
     assert!(
         err.message.contains(&missing_profile.display().to_string()),
         "error message should include missing profile path"
+    );
+
+    fs::remove_dir_all(temp_dir).expect("failed to clean temp directory");
+}
+
+#[test]
+fn run_job_rejects_stop_date_before_start_date() {
+    let _guard = global_runner_lock();
+    let fixture_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/minimal");
+    let temp_dir = make_temp_dir("runner-invalid-date-range");
+    let work_dir = temp_dir.join("work");
+    copy_fixture_dir(&fixture_dir, &work_dir);
+
+    let profile_path = work_dir.join("profile.toml");
+    let run_dir = temp_dir.join("runs/invalid-date-range");
+    let result = run_job(
+        RunRequest::new(
+            profile_path.clone(),
+            run_dir,
+            "invalid-date-range".to_string(),
+            None,
+        ),
+        |_| {},
+    );
+
+    let err = result.expect_err("run_job should reject stop_date before start_date");
+    assert_eq!(err.code, RunErrorCode::Input);
+    assert!(
+        err.message.contains("stop_date"),
+        "error message should identify the invalid date range: {}",
+        err.message
+    );
+
+    fs::remove_dir_all(temp_dir).expect("failed to clean temp directory");
+}
+
+#[test]
+fn run_job_rejects_missing_planting_and_emergence_dates_without_panicking() {
+    let _guard = global_runner_lock();
+    let fixture_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/minimal");
+    let temp_dir = make_temp_dir("runner-missing-plant-date");
+    let work_dir = temp_dir.join("work");
+    copy_fixture_dir(&fixture_dir, &work_dir);
+
+    let profile_path = work_dir.join("profile.toml");
+    set_fixture_stop_date(&profile_path, "2020-04-03");
+    let profile_toml = fs::read_to_string(&profile_path)
+        .expect("failed to read profile")
+        .replace("plant_date = \"2020-04-10\"\n", "");
+    fs::write(&profile_path, profile_toml).expect("failed to write profile");
+
+    let result = run_job(
+        RunRequest::new(
+            profile_path,
+            temp_dir.join("runs/missing-plant-date"),
+            "missing-plant-date".to_string(),
+            None,
+        ),
+        |_| {},
+    );
+
+    let err = result.expect_err("run_job should reject missing plant/emergence dates");
+    assert_eq!(err.code, RunErrorCode::Input);
+    assert!(
+        err.message.contains("plant_date") || err.message.contains("emerge_date"),
+        "error message should name the missing date fields: {}",
+        err.message
     );
 
     fs::remove_dir_all(temp_dir).expect("failed to clean temp directory");

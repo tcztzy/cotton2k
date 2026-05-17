@@ -2,7 +2,8 @@
 
 [![Rust](https://img.shields.io/badge/Rust-1.70%2B-blue)](https://www.rust-lang.org)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/cotton2k)](https://crates.io/crates/cotton2k)
+[![License](https://img.shields.io/badge/License-AGPL--3.0--or--later-green)](LICENSE)
 
 Cotton2K is a cotton simulation model specially adapted for irrigated cotton production in arid regions. It was originally written by [Prof. Avishalom Marani][marani] and has been rewritten in Rust with Python bindings.
 
@@ -21,7 +22,12 @@ Cotton2K is a cotton simulation model specially adapted for irrigated cotton pro
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-cotton2k = { git = "https://github.com/tcztzy/cotton2k" }
+cotton2k = "0.1.0"
+```
+
+Or install the command-line binaries from crates.io:
+```bash
+cargo install cotton2k
 ```
 
 ### As a Python Package
@@ -116,6 +122,28 @@ maturin develop --release
 Run the pure-Rust regression check suite:
 ```bash
 ./scripts/regression_pure_rust.sh
+```
+
+### Build with Nix
+
+This repository now provides a flake with:
+- `packages.<system>.default` / `packages.<system>.cotton2k`
+- `apps.<system>.default`
+- `devShells.<system>.default`
+
+Build the package:
+```bash
+nix build .#cotton2k
+```
+
+Run directly:
+```bash
+nix run .#cotton2k -- /path/to/profile.toml
+```
+
+Enter the development shell:
+```bash
+nix develop
 ```
 
 ## Roadmap

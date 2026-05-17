@@ -1,12 +1,22 @@
 use crate::{Profile, State};
-use chrono::{NaiveDate, Utc};
+use chrono::{Datelike, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fmt;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use std::sync::{LazyLock, Mutex};
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
+
+const MAX_WEATHER_DAYS: i64 = 400;
+const MAX_SOIL_HYDRAULIC_LAYERS: usize = 9;
+const MAX_IRRIGATION_OPERATIONS: usize = 150;
+const MAX_DEFOLIATION_OPERATIONS: usize = 5;
+const MAX_CULTIVAR_PARAMETERS: usize = 60;
+const MODEL_SOIL_DEPTH_CM: f64 = 200.0;
+
+static SIMULATION_LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RunRequest {
@@ -185,8 +195,8 @@ fn parse_profile_file(profile_path: &Path) -> Result<(Profile, String, String), 
         .unwrap_or("toml")
         .to_ascii_lowercase();
 
-    let profile = if extension == "toml" {
-        toml::from_str::<Profile>(&contents).map_err(|e| {
+    let profile = match extension.as_str() {
+        "toml" => toml::from_str::<Profile>(&contents).map_err(|e| {
             RunError::new(
                 RunErrorCode::Input,
                 format!(
@@ -195,9 +205,8 @@ fn parse_profile_file(profile_path: &Path) -> Result<(Profile, String, String), 
                     e
                 ),
             )
-        })?
-    } else {
-        serde_json::from_str::<Profile>(&contents).map_err(|e| {
+        })?,
+        "json" => serde_json::from_str::<Profile>(&contents).map_err(|e| {
             RunError::new(
                 RunErrorCode::Input,
                 format!(
@@ -206,7 +215,16 @@ fn parse_profile_file(profile_path: &Path) -> Result<(Profile, String, String), 
                     e
                 ),
             )
-        })?
+        })?,
+        other => {
+            return Err(RunError::new(
+                RunErrorCode::Input,
+                format!(
+                    "unsupported profile extension '{}'; expected .toml or .json",
+                    other
+                ),
+            ));
+        }
     };
 
     Ok((profile, contents, extension))
@@ -265,8 +283,24 @@ fn write_json_pretty(path: &Path, value: &impl Serialize) -> Result<(), RunError
     })
 }
 
+fn copy_input_snapshot(source: &Path, destination: &Path, label: &str) -> Result<(), RunError> {
+    fs::copy(source, destination).map_err(|e| {
+        RunError::new(
+            RunErrorCode::Io,
+            format!(
+                "failed to snapshot {label} '{}' to '{}': {}",
+                source.display(),
+                destination.display(),
+                e
+            ),
+        )
+    })?;
+    Ok(())
+}
+
 fn persist_run_inputs(
     request: &RunRequest,
+    resolved: &ResolvedProfilePaths,
     profile_contents: &str,
     profile_extension: &str,
 ) -> Result<(), RunError> {
@@ -300,7 +334,18 @@ fn persist_run_inputs(
                 e
             ),
         )
-    })
+    })?;
+
+    copy_input_snapshot(
+        &resolved.weather_path,
+        &input_dir.join("weather.csv"),
+        "weather input",
+    )?;
+    copy_input_snapshot(
+        &resolved.soil_impedance_path,
+        &input_dir.join("soil_impedance.csv"),
+        "soil impedance input",
+    )
 }
 
 fn write_metadata(
@@ -326,11 +371,220 @@ fn write_metadata(
     write_json_pretty(&meta_path, &metadata)
 }
 
+fn validate_existing_file(path: &Path, label: &str) -> Result<(), RunError> {
+    if path.is_file() {
+        Ok(())
+    } else {
+        Err(RunError::new(
+            RunErrorCode::Input,
+            format!("{label} '{}' does not exist", path.display()),
+        ))
+    }
+}
+
+fn validate_weather_records(profile: &Profile) -> Result<(), RunError> {
+    validate_existing_file(&profile.weather_path, "weather file")?;
+    let mut reader = csv::Reader::from_path(&profile.weather_path).map_err(|e| {
+        RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "failed to open weather file '{}': {}",
+                profile.weather_path.display(),
+                e
+            ),
+        )
+    })?;
+    for result in reader.deserialize() {
+        let record: crate::WeatherRecord = result.map_err(|e| {
+            RunError::new(
+                RunErrorCode::Input,
+                format!(
+                    "failed to parse weather file '{}': {}",
+                    profile.weather_path.display(),
+                    e
+                ),
+            )
+        })?;
+        let offset = record
+            .date
+            .signed_duration_since(profile.start_date)
+            .num_days();
+        if offset >= MAX_WEATHER_DAYS {
+            return Err(RunError::new(
+                RunErrorCode::Input,
+                format!(
+                    "weather record date {} is outside the supported {} day climate buffer starting at {}",
+                    record.date, MAX_WEATHER_DAYS, profile.start_date
+                ),
+            ));
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_profile(profile: &Profile) -> Result<(), RunError> {
+    if profile.start_date.year() != profile.stop_date.year() {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "start_date {} and stop_date {} must be in the same calendar year",
+                profile.start_date, profile.stop_date
+            ),
+        ));
+    }
+
+    let run_days = profile
+        .stop_date
+        .signed_duration_since(profile.start_date)
+        .num_days()
+        + 1;
+    if run_days <= 0 {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "stop_date {} must not be earlier than start_date {}",
+                profile.stop_date, profile.start_date
+            ),
+        ));
+    }
+    if run_days > MAX_WEATHER_DAYS {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "simulation length of {run_days} days exceeds the supported {MAX_WEATHER_DAYS} day climate buffer"
+            ),
+        ));
+    }
+
+    if profile.plant_date.is_none() && profile.emerge_date.is_none() {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            "one of plant_date or emerge_date must be provided",
+        ));
+    }
+
+    if profile.cultivar_parameters.len() > MAX_CULTIVAR_PARAMETERS {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "cultivar_parameters has {} values; maximum supported is {}",
+                profile.cultivar_parameters.len(),
+                MAX_CULTIVAR_PARAMETERS
+            ),
+        ));
+    }
+
+    if matches!(
+        profile.light_intercept_method,
+        crate::profile::LightInterceptMethod::Latered
+    ) && profile.light_intercept_parameters.is_none()
+    {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            "light_intercept_parameters must be provided when using the Latered light intercept method",
+        ));
+    }
+
+    let layer_count = profile.soil_hydraulic.layers.len();
+    if layer_count == 0 || layer_count > MAX_SOIL_HYDRAULIC_LAYERS {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "soil_hydraulic.layers has {layer_count} entries; expected 1..={MAX_SOIL_HYDRAULIC_LAYERS}"
+            ),
+        ));
+    }
+    let mut previous_depth = 0.0;
+    for layer in &profile.soil_hydraulic.layers {
+        if layer.depth <= previous_depth {
+            return Err(RunError::new(
+                RunErrorCode::Input,
+                "soil_hydraulic.layers depths must be strictly increasing",
+            ));
+        }
+        previous_depth = layer.depth;
+    }
+    if previous_depth < MODEL_SOIL_DEPTH_CM {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "soil_hydraulic.layers must cover at least {MODEL_SOIL_DEPTH_CM} cm; last depth is {previous_depth} cm"
+            ),
+        ));
+    }
+
+    let irrigation_count = profile
+        .agronomy_operations
+        .iter()
+        .filter(|operation| matches!(operation, crate::profile::AgronomyOperation::irrigation(_)))
+        .count();
+    if irrigation_count > MAX_IRRIGATION_OPERATIONS {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "profile contains {irrigation_count} irrigation operations; maximum supported is {MAX_IRRIGATION_OPERATIONS}"
+            ),
+        ));
+    }
+
+    let defoliation_count = profile
+        .agronomy_operations
+        .iter()
+        .filter(|operation| {
+            matches!(
+                operation,
+                crate::profile::AgronomyOperation::defoliation { .. }
+            )
+        })
+        .count();
+    if defoliation_count > MAX_DEFOLIATION_OPERATIONS {
+        return Err(RunError::new(
+            RunErrorCode::Input,
+            format!(
+                "profile contains {defoliation_count} defoliation operations; maximum supported is {MAX_DEFOLIATION_OPERATIONS}"
+            ),
+        ));
+    }
+
+    for operation in &profile.agronomy_operations {
+        if let crate::profile::AgronomyOperation::irrigation(irrigation) = operation {
+            if irrigation.is_predictive() && !irrigation.has_prediction_limits() {
+                return Err(RunError::new(
+                    RunErrorCode::Input,
+                    "predictive irrigation requires max_amount and stop_predict_date",
+                ));
+            }
+        }
+    }
+
+    validate_weather_records(profile)?;
+    let soil_impedance = profile.soil_impedance.as_ref().ok_or_else(|| {
+        RunError::new(
+            RunErrorCode::Input,
+            "soil_impedance must be provided or resolved from the profile directory",
+        )
+    })?;
+    validate_existing_file(soil_impedance, "soil impedance file")
+}
+
+pub(crate) fn execute_profile_serialized(
+    profile: &mut Profile,
+    should_cancel: impl FnMut() -> bool,
+    on_progress: impl FnMut(usize, NaiveDate),
+) -> Result<ExecutionOutcome, Box<dyn Error>> {
+    let _guard = SIMULATION_LOCK
+        .lock()
+        .map_err(|_| std::io::Error::other("simulation lock poisoned"))?;
+    execute_profile(profile, should_cancel, on_progress)
+}
+
 pub(crate) fn execute_profile(
     profile: &mut Profile,
     mut should_cancel: impl FnMut() -> bool,
     mut on_progress: impl FnMut(usize, NaiveDate),
 ) -> Result<ExecutionOutcome, Box<dyn Error>> {
+    crate::plant::reset_scratch_state();
+    crate::soil::reset_scratch_state();
     profile.initialize()?;
     profile.output_file_headers()?;
     // Keep legacy globals and model-owned state synchronized while remaining modules
@@ -349,7 +603,7 @@ pub(crate) fn execute_profile(
         }
 
         let mut state = if !profile.states.is_empty() {
-            let mut new_state = profile.states.last().unwrap().clone();
+            let mut new_state = *profile.states.last().unwrap();
             new_state.date = new_state.date.succ_opt().unwrap();
             new_state
         } else {
@@ -443,7 +697,13 @@ pub fn run_job(
 
     let (mut profile, profile_contents, profile_extension) = parse_profile_file(&profile_path)?;
     let resolved_paths = configure_profile_paths(&mut profile, &profile_path, &request.run_dir)?;
-    persist_run_inputs(&request, &profile_contents, &profile_extension)?;
+    validate_profile(&profile)?;
+    persist_run_inputs(
+        &request,
+        &resolved_paths,
+        &profile_contents,
+        &profile_extension,
+    )?;
 
     let started_at = now_rfc3339();
     let timer = Instant::now();
@@ -456,7 +716,7 @@ pub fn run_job(
     let meta_path = request.run_dir.join("meta.json");
     let mut last_day_index = 0usize;
 
-    let execution = execute_profile(
+    let execution = execute_profile_serialized(
         &mut profile,
         || {
             request
