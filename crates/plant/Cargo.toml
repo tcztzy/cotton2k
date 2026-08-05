@@ -1,0 +1,12 @@
+[package]
+name = "cotton2k-plant"
+version = "0.1.0"
+edition = "2021"
+description = "Cotton plant growth, phenology, root, and nitrogen calculations."
+license = "AGPL-3.0-or-later"
+
+[dependencies]
+chrono = "0.4"
+ndarray = "0.17"
+cotton2k-core = { path = "../core" }
+cotton2k-atmosphere = { path = "../atmosphere" }

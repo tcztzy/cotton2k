@@ -1,3 +1,10 @@
+//! Single-profile command-line entry point for the Cotton2K engine.
+//!
+//! The binary maps its first positional argument to a [`RunRequest`], runs one
+//! profile in that profile's directory, and converts the resulting status into
+//! a process exit result. Parsing and simulation errors are reported through
+//! the standard error return; model output is written by `run_job`.
+
 use cotton2k::{run_job, RunRequest, RunStatus};
 use std::io;
 

@@ -10,6 +10,10 @@ keywords = ["cotton", "simulation", "agriculture"]
 categories = ["science"]
 exclude = [".agents/", ".claude/"]
 
+[workspace]
+members = [".", "crates/*", "bindings/python"]
+resolver = "2"
+
 [dependencies]
 chrono = "0.4"
 csv = "1.4"
@@ -20,3 +24,7 @@ pbr = "1.1"
 ndarray = "0.17"
 uom = "0.37"
 num_cpus = "1.17"
+cotton2k-core = { path = "crates/core" }
+cotton2k-atmosphere = { path = "crates/atmosphere" }
+cotton2k-soil = { path = "crates/soil" }
+cotton2k-plant = { path = "crates/plant" }

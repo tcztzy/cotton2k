@@ -15,6 +15,22 @@ Cotton2K is a cotton simulation model specially adapted for irrigated cotton pro
 - CSV output format
 - Cross-platform support
 
+## Workspace Layout
+
+The Rust implementation is a Cargo workspace. The simulation engine crate
+(`cotton2k`) coordinates these independent model crates:
+
+- `cotton2k-core`: shared profile, state, legacy globals, and numerical helpers
+- `cotton2k-atmosphere`: weather, radiation, humidity, wind, and evapotranspiration
+- `cotton2k-soil`: soil hydrology, nitrogen, and temperature
+- `cotton2k-plant`: plant growth, phenology, roots, abscission, and nitrogen
+
+Build or test all workspace members with:
+
+```bash
+cargo test --workspace
+```
+
 ## Usage
 
 ### As a Rust Library
@@ -122,6 +138,16 @@ maturin develop --release
 Run the pure-Rust regression check suite:
 ```bash
 ./scripts/regression_pure_rust.sh
+```
+
+Run the repository checks manually:
+```bash
+pre-commit run --all-files
+```
+
+Install the checks as a Git pre-commit hook:
+```bash
+pre-commit install
 ```
 
 ### Build with Nix

@@ -1,4 +1,4 @@
-use cotton2k::Profile;
+use cotton2k::{run_job, RunRequest, RunStatus};
 use csv::ReaderBuilder;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -50,24 +50,16 @@ fn minimal_fixture_three_day_regression_key_columns() {
     std::thread::Builder::new()
         .stack_size(32 * 1024 * 1024)
         .spawn(move || {
-            let profile_text =
-                fs::read_to_string(&run_profile_path).expect("failed to reload profile");
-            let mut profile: Profile =
-                toml::from_str(&profile_text).expect("failed to parse profile TOML");
-            profile.path = run_profile_path.clone();
-            if profile.weather_path.is_relative() {
-                profile.weather_path = run_profile_path
-                    .parent()
-                    .expect("profile should have parent directory")
-                    .join(profile.weather_path);
-            }
-            profile.soil_impedance = Some(
-                run_profile_path
-                    .parent()
-                    .expect("profile should have parent directory")
-                    .join("soil_imp.csv"),
-            );
-            profile.run().expect("simulation should complete");
+            let run_dir = run_profile_path
+                .parent()
+                .expect("profile should have parent directory")
+                .to_path_buf();
+            let summary = run_job(
+                RunRequest::new(run_profile_path, run_dir, String::new(), None),
+                |_| {},
+            )
+            .expect("simulation should complete");
+            assert_eq!(summary.status, RunStatus::Succeeded);
         })
         .expect("failed to spawn simulation thread")
         .join()

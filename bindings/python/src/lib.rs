@@ -1,3 +1,10 @@
+//! Python extension boundary for the Cotton2K simulation engine.
+//!
+//! This module adapts a profile path into the root crate's [`cotton2k::run_job`]
+//! API and maps Rust run failures to Python exceptions. Simulation output is
+//! written by the engine into the requested run directory; this layer emits no
+//! additional files and owns no model state.
+
 #[pyo3::pymodule]
 mod cotton2k {
     use cotton2k::{run_job, RunErrorCode, RunRequest, RunStatus};

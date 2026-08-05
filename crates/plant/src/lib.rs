@@ -1,17 +1,9 @@
-//! Cotton2K simulation workspace facade and daily engine.
-//!
-//! The root crate is the workspace facade and daily simulation engine. It
-//! re-exports shared profile/state types and the three domain crates, while
-//! [`run_job`] owns filesystem setup, serialization, cancellation, and progress
-//! reporting. Domain crates mutate the shared model state only through the
-//! serialized engine boundary.
+//! Plant sub-model for Cotton2K.
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-// Temporary migration boundary for translated legacy model code. Keep new Rust
-// entry points and tests idiomatic, and shrink this list as modules are ported.
 #![allow(unused_imports)]
 #![allow(unused_assignments)]
 #![allow(clippy::approx_constant)]
@@ -33,16 +25,11 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::unnecessary_cast)]
+#![allow(clippy::new_without_default)]
+
 pub use cotton2k_atmosphere as atmosphere;
 pub use cotton2k_core::*;
-pub use cotton2k_core::{model_state, profile};
-pub use cotton2k_plant as plant;
-mod runner;
-pub use cotton2k_soil as soil;
-mod state;
+pub use cotton2k_core::{general_functions, model_state, profile, utils};
 
-pub use cotton2k_core::{Profile, SoilHydraulic, WeatherRecord};
-pub use runner::{
-    run_job, RunError, RunErrorCode, RunEvent, RunFailure, RunRequest, RunStatus, RunSummary,
-};
-pub use state::State;
+pub mod plant;
+pub use plant::*;

@@ -1,3 +1,10 @@
+//! JSONL worker-process boundary for one cancellable Cotton2K simulation.
+//!
+//! The CLI parses a profile, run directory, run identifier, and optional cancel
+//! file, then forwards engine events as flushed JSONL records on stdout. Exit
+//! codes distinguish success, cancellation, failure, and input/engine errors;
+//! simulation artifacts are created by the shared `run_job` implementation.
+
 use cotton2k::{run_job, RunErrorCode, RunEvent, RunRequest, RunStatus};
 use std::io::{self, Write};
 use std::path::PathBuf;

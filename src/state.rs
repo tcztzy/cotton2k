@@ -1,3 +1,12 @@
+//! Daily integration state that sequences atmosphere, soil, and plant phases.
+//!
+//! [`State`] owns the per-day domain objects and [`State::simulate_this_day`]
+//! advances one date using the mutable shared [`ModelState`]. The method orders
+//! shading, meteorology, thermal and hydrological processes, plant growth, and
+//! accounting; child crates perform the domain calculations. It mutates model
+//! and legacy global state, performs no file I/O, and returns a [`Cotton2KError`]
+//! for recoverable simulation-stop conditions.
+
 use crate::atmosphere::{num_hours, Atmosphere};
 use crate::general_functions::{wcond, GetFromClim};
 use crate::model_state::{
@@ -474,15 +483,24 @@ fn apply_drip_fertilization(
 }
 
 #[derive(Debug, Clone, Copy)]
+/// Per-day domain objects used by the root simulation engine.
 pub struct State {
+    /// Calendar date represented by this daily state object.
     pub date: NaiveDate,
 
+    /// Soil hydrology and thermal scratch state for the date.
     pub soil: Soil,
+    /// Plant growth, root, and nitrogen scratch state for the date.
     pub plant: Plant,
+    /// Atmospheric geometry and hourly forcing for the date.
     pub atmosphere: Atmosphere,
 }
 
 impl State {
+    /// Creates a daily state object from profile coordinates and soil inputs.
+    ///
+    /// The returned object owns domain scratch state but does not advance the
+    /// simulation or mutate the profile's model state.
     pub fn new(profile: &Profile, date: NaiveDate) -> Self {
         let atmosphere = Atmosphere::new(date, profile.longitude, profile.latitude);
         State {
@@ -493,39 +511,23 @@ impl State {
         }
     }
 
-    /// This function executes all the simulation computations in a day. It is called from [Profile::run()], and
-    /// [Profile::adjust()].
+    /// Advances one daily atmosphere, soil, and plant simulation step.
     ///
-    /// It calls the following functions:
-    /// * [Profile::column_shading()]
-    /// * [crate::soil::thermodynamics::SoilThermodynamics::simulate()]
-    /// * [`State::soil_procedures()`]
-    /// * [SoilNitrogen()]
-    /// * [SoilSum()]
-    /// * [PhysiologicalAge()]
-    /// * [defoliate()]
-    /// * [Profile::stress()]
-    /// * [Profile::get_net_photosynthesis()]
-    /// * [PlantGrowth::plant_growth()]
-    /// * [CottonPhenology()]
-    /// * [PlantNitrogen::plant_nitrogen()]
-    /// * [check_dry_matter_balance()]
-    /// * [PlantNitrogen::plant_nitrogen_balance()]
-    /// * [SoilNitrogenBal()]
-    /// * [SoilNitrogenAverage()]
+    /// The method updates the supplied [`ModelState`] in engine order: calendar
+    /// counters and canopy shading, atmospheric forcing, soil temperature and
+    /// hydrology, soil nitrogen, plant stress and growth, phenology, and final
+    /// balance checks. The legacy mirror is synchronized around domain calls.
     ///
-    /// The following global variables are referenced here:
-    /// * [DayEmerge]
-    /// * [DayStart]
-    /// * [Kday]
-    /// * [LeafAreaIndex]
-    /// The following global variables are set here:
-    /// * [bEnd]
-    /// * [DayInc]
-    /// * [Daynum]
-    /// * [DayOfSimulation]
-    /// * [isw]
-    /// * [Kday]
+    /// # Panics
+    ///
+    /// Panics if profile initialization did not load root-impedance tables.
+    /// Call [`Profile::initialize`] through [`crate::run_job`] before invoking
+    /// this low-level step directly.
+    ///
+    /// # Errors
+    ///
+    /// Returns a level-zero [`Cotton2KError`] when weather data ends or leaf
+    /// area becomes too small, allowing the runner to stop cleanly.
     pub fn simulate_this_day(
         &mut self,
         profile: &mut Profile,

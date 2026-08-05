@@ -1,0 +1,11 @@
+[package]
+name = "cotton2k-atmosphere"
+version = "0.1.0"
+edition = "2021"
+description = "Atmospheric and weather calculations for the Cotton2K model."
+license = "AGPL-3.0-or-later"
+
+[dependencies]
+chrono = "0.4"
+ndarray = "0.17"
+cotton2k-core = { path = "../core" }

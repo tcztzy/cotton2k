@@ -1,3 +1,12 @@
+//! Simulation-job orchestration, validation, persistence, and progress events.
+//!
+//! [`run_job`] is the public boundary from profile files to run summaries. It
+//! resolves inputs, validates limits, serializes access to legacy global state,
+//! executes daily [`State`] transitions, writes CSV/JSON artifacts, and emits
+//! [`RunEvent`] values. Input, I/O, and internal failures are classified in
+//! [`RunError`]; cancellation is reported in [`RunSummary`] without treating it
+//! as an engine fault.
+
 use crate::{Profile, State};
 use chrono::{Datelike, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
@@ -19,14 +28,20 @@ const MODEL_SOIL_DEPTH_CM: f64 = 200.0;
 static SIMULATION_LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Filesystem paths and cancellation settings for one simulation job.
 pub struct RunRequest {
+    /// Input TOML or JSON profile path.
     pub profile_path: PathBuf,
+    /// Directory receiving run artifacts.
     pub run_dir: PathBuf,
+    /// Stable caller-supplied identifier, or empty for generated IDs.
     pub run_id: String,
+    /// Optional file whose presence requests cancellation.
     pub cancel_file: Option<PathBuf>,
 }
 
 impl RunRequest {
+    /// Creates a request without touching the filesystem.
     pub fn new(
         profile_path: PathBuf,
         run_dir: PathBuf,
@@ -44,64 +59,102 @@ impl RunRequest {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+/// Terminal status reported for a simulation job.
 pub enum RunStatus {
+    /// The requested simulation completed normally.
     Succeeded,
+    /// The engine or input pipeline failed.
     Failed,
+    /// The caller requested cancellation before completion.
     Cancelled,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Structured failure stored in a failed run summary.
 pub struct RunFailure {
+    /// Stable serialized failure code.
     pub code: String,
+    /// Human-readable failure detail.
     pub message: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Final artifact paths, timing, status, and error information for a run.
 pub struct RunSummary {
+    /// Stable job identifier.
     pub run_id: String,
+    /// Final job status.
     pub status: RunStatus,
+    /// RFC 3339 start timestamp.
     pub started_at: String,
+    /// RFC 3339 finish timestamp.
     pub finished_at: String,
+    /// Path to the generated output CSV.
     pub output_csv_path: PathBuf,
+    /// Path to the generated metadata JSON.
     pub meta_path: PathBuf,
+    /// Number of successfully simulated days.
     pub days_simulated: usize,
+    /// Classified failure details, when status is `Failed`.
     pub error: Option<RunFailure>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "event", rename_all = "snake_case")]
+/// Progress and lifecycle event emitted while a job runs.
 pub enum RunEvent {
+    /// Job accepted and execution started.
     Started {
+        /// Stable job identifier.
         run_id: String,
+        /// RFC 3339 start timestamp.
         started_at: String,
     },
+    /// One daily step completed.
     Progress {
+        /// Stable job identifier.
         run_id: String,
+        /// One-based simulated-day index.
         day_index: usize,
+        /// Calendar date completed by the step.
         date: String,
     },
+    /// Job completed and artifacts were finalized.
     Finished {
+        /// Stable job identifier.
         run_id: String,
+        /// RFC 3339 finish timestamp.
         finished_at: String,
     },
+    /// Job failed before producing a successful result.
     Failed {
+        /// Stable job identifier.
         run_id: String,
+        /// Serialized [`RunErrorCode`].
         code: String,
+        /// Human-readable failure detail.
         message: String,
     },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+/// Classification used for caller-facing job errors.
 pub enum RunErrorCode {
+    /// Invalid profile, path, or configuration input.
     Input,
+    /// Filesystem or artifact I/O failure.
     Io,
+    /// Unexpected internal engine failure.
     Internal,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Error returned before a run can be represented by [`RunSummary`].
 pub struct RunError {
+    /// Error category for API and CLI mapping.
     pub code: RunErrorCode,
+    /// Human-readable failure detail.
     pub message: String,
 }
 
@@ -594,6 +647,7 @@ pub(crate) fn execute_profile(
     profile.model_state.legacy.write_to_globals();
 
     let mut days_simulated = 0usize;
+    let mut previous_state: Option<State> = None;
     for _ in profile.model_state.legacy.day_start..(profile.model_state.legacy.day_finish + 1) {
         if should_cancel() {
             return Ok(ExecutionOutcome {
@@ -602,8 +656,8 @@ pub(crate) fn execute_profile(
             });
         }
 
-        let mut state = if !profile.states.is_empty() {
-            let mut new_state = *profile.states.last().unwrap();
+        let mut state = if let Some(previous_state) = previous_state {
+            let mut new_state = previous_state;
             new_state.date = new_state.date.succ_opt().unwrap();
             new_state
         } else {
@@ -633,7 +687,7 @@ pub(crate) fn execute_profile(
 
         profile.write_record()?;
         let current_date = state.date;
-        profile.states.push(state);
+        previous_state = Some(state);
         days_simulated += 1;
         on_progress(days_simulated, current_date);
 
@@ -648,6 +702,13 @@ pub(crate) fn execute_profile(
     })
 }
 
+/// Validates, executes, and persists one simulation job.
+///
+/// The callback receives lifecycle and daily progress events synchronously on
+/// the calling thread. The engine serializes jobs because translated domain
+/// routines still use process-wide legacy state. Input files are snapshotted
+/// into the run directory and output artifacts are finalized before success is
+/// returned.
 pub fn run_job(
     mut request: RunRequest,
     mut on_event: impl FnMut(RunEvent),

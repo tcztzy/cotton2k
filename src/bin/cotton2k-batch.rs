@@ -1,3 +1,10 @@
+//! Parallel batch scheduler for independent Cotton2K worker processes.
+//!
+//! The binary reads a JSON jobs file, assigns each profile a run directory, and
+//! keeps at most the requested number of child workers active. Results are
+//! collected into a JSON summary; process creation, filesystem access, and
+//! cancellation-file observation are intentional side effects of this CLI.
+
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::fs;
