@@ -135,6 +135,25 @@ cd bindings/python
 maturin develop --release
 ```
 
+### Python tests
+
+With Rust and CPython 3.10, 3.11, and 3.12 on `PATH`, run from the repository root:
+
+```bash
+python -m pip install "tox>=4.2,<5"
+python -m tox
+```
+
+Tox builds and installs the current Python bindings as a native wheel for each
+interpreter, then runs pytest against that installed package. Missing interpreters
+are reported as errors; to test only an installed version, use `python -m tox -e py312`.
+To select tests, use `python -m tox -e py312 -- -k missing_input`.
+
+The tests reuse the Rust minimal fixture in temporary directories. They check
+three-day TOML/JSON simulations and numerical results, string and `pathlib.Path`
+inputs, relative input paths, and Python exceptions for invalid inputs or I/O
+failures. The test matrix currently stops at Python 3.12.
+
 Run the pure-Rust regression check suite:
 ```bash
 ./scripts/regression_pure_rust.sh

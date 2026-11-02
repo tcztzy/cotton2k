@@ -1,6 +1,8 @@
 /build/
 /.cache/
 /.venv/
+/.tox/
+/.pytest_cache/
 /.vscode/launch.json
 /.vscode/settings.json
 
